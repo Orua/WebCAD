@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "webcad": {
+      "url": "http://127.0.0.1:667/mcp"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+import assert from 'node:assert/strict';import fs from 'node:fs';import init from 'replicad-opencascadejs';import {CadKernel} from '../src/cad-kernel.js';
+const k=new CadKernel(await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))}));const f=(id,op,params={},refs=[])=>({id,name:id,op,params,refs}),run=(features,imports={})=>k.rebuild({version:1,features,imports,hidden:[]});
+const base=[f('a','box',{width:10,depth:10,height:10}),f('b','copy',{x:20},['a'])];let r=await run([...base,f('g','group',{},['a','b'])]);assert.equal(r.bodies.length,1);assert.equal(r.bodies[0].solidCount,2);assert(Math.abs(r.stats.volume-2000)<1e-5);
+const step=await k.export('step'),imports={s:{format:'step',data:Buffer.from(step.data).toString('base64')}},imp=f('i','import',{key:'s'});r=await run([imp],imports);assert.equal(r.bodies[0].solidCount,2);
+const exploded=[imp,f('p1','extractSolid',{solidIndex:0,keepOriginal:true},['i']),f('p2','extractSolid',{solidIndex:1,keepOriginal:false},['i'])];r=await run(exploded,imports);assert.equal(r.bodies.length,2);r.bodies.forEach(b=>assert.equal(b.solidCount,1));
+r=await run([...exploded,f('m','transform',{x:5},['p1'])],imports);assert.equal(r.bodies.length,2);assert(Math.abs(r.stats.volume-2000)<1e-5);assert.equal(r.bodies.find(b=>b.id==='p2').bounds.min[0],20);
+r=await run([...base,f('g','group',{},['a','b']),f('g2','group',{},['g','a'])]);assert(r.bodies[0].solidCount>=2);
+k.dispose();console.log('PASS compound group, STEP roundtrip, separate solid extraction, independent movement, nested grouping');

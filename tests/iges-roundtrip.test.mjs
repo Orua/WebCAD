@@ -1,0 +1,21 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import init from 'replicad-opencascadejs';
+import {convertIges} from '../scripts/iges-import.mjs';
+import {CadKernel} from '../src/cad-kernel.js';
+import {importIgesFile} from '../src/iges-import-client.js';
+const bytes=fs.readFileSync('G:/TEXT-TO-CAD/工程图3D_20260914/GC/HS13006.igs');
+const packet=await convertIges({name:'HS13006.igs',data:bytes.toString('base64')});
+const fakeFile={name:'HS13006.igs',size:bytes.length,arrayBuffer:async()=>bytes};
+const imported=await importIgesFile(fakeFile,array=>Buffer.from(array).toString('base64'),async(url,request)=>{
+  assert.equal(url,'/api/iges-import');assert.equal(JSON.parse(request.body).name,'HS13006.igs');
+  return {ok:true,json:async()=>packet};
+});
+const kernel=new CadKernel(await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))}));
+const original={version:1,features:[{id:'source',op:'import',params:{key:'iges'},refs:[]}],imports:{iges:imported},hidden:[]};
+const result=await kernel.rebuild(original);assert.equal(result.bodies.length,1);assert.equal(result.bodies[0].faceGroups.length,70);assert.equal(result.bodies[0].solidCount,0);
+const section=structuredClone(original);const center=(result.bodies[0].bounds.min[1]+result.bodies[0].bounds.max[1])/2;
+section.features.push({id:'section',op:'planeSection',params:{plane:'XZ',offset:center},refs:['source']});
+const withSection=await kernel.rebuild(section);assert.equal(withSection.bodies.length,2);assert.ok(withSection.bodies[1].edges.length>0);
+const replay=JSON.parse(JSON.stringify(section));assert.equal((await kernel.rebuild(replay)).bodies.length,2);
+console.log('PASS HS13006: local IGES → saved STEP → WASM 70 faces / 0 solids → section → project replay');

@@ -1,0 +1,4 @@
+ezdxf==1.4.4
+shapely==2.1.2
+svgelements==1.9.6
+PyMuPDF==1.26.4

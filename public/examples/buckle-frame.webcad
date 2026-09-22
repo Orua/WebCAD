@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "name": "圆角矩形框",
+  "features": [
+    {
+      "id": "outer",
+      "op": "box",
+      "name": "外框坯料 40 × 28 × 5 mm",
+      "params": {
+        "width": 40,
+        "depth": 28,
+        "height": 5
+      },
+      "refs": []
+    },
+    {
+      "id": "inner",
+      "op": "box",
+      "name": "开口刀具体 28 × 16 × 9 mm",
+      "params": {
+        "width": 28,
+        "depth": 16,
+        "height": 9
+      },
+      "refs": []
+    },
+    {
+      "id": "tool",
+      "op": "transform",
+      "name": "开口居中",
+      "params": {
+        "x": 6,
+        "y": 6,
+        "z": -2
+      },
+      "refs": [
+        "inner"
+      ]
+    },
+    {
+      "id": "frame",
+      "op": "cut",
+      "name": "形成四边框",
+      "params": {},
+      "refs": [
+        "outer",
+        "tool"
+      ]
+    },
+    {
+      "id": "finish",
+      "op": "fillet",
+      "name": "框边圆角 R1 mm",
+      "params": {
+        "radius": 1
+      },
+      "refs": [
+        "frame"
+      ]
+    }
+  ],
+  "imports": {},
+  "hidden": []
+}

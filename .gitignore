@@ -1,0 +1,59 @@
+﻿# Agent records, temporary tools, backups, and generated reports
+agent/
+cad-data/
+.playwright-cli/
+.DS_Store
+__pycache__/
+*.py[cod]
+
+# Proprietary or large drawing inputs
+CAD-DATA/
+samples/
+*.dwg
+*.dxf
+
+# Local web-server and editor files
+*.log
+.vs/
+.vscode/
+node_modules/
+
+# Experimental builds not used by the default viewer
+cad-viewer/assets/
+cad-viewer/workers/
+cad-viewer/chinese-ui.js
+cad-viewer/large-array-push-fix.js
+cad-viewer/viewer-customizations.js
+cad-viewer/viewer-runtime.iife.js
+cad-viewer/worker-cache-version.js
+cad-viewer/workers/experimental/
+cad-viewer/pg14791-parser-diagnostic.html
+
+# Small, license-cleared public CAD data sample. Keep the full local font set ignored.
+!cad-data/
+cad-data/*
+!cad-data/README.md
+!cad-data/open/
+cad-data/open/*
+!cad-data/open/README.md
+!cad-data/open/index.html
+!cad-data/open/manifest.json
+!cad-data/open/fonts/
+cad-data/open/fonts/*
+!cad-data/open/fonts/fonts.json
+!cad-data/open/fonts/Basic-Regular.ttf
+!cad-data/open/fonts/TenorSans-Regular.ttf
+!cad-data/open/fonts/VT323-Regular.ttf
+!cad-data/open/licenses/
+cad-data/open/licenses/*
+!cad-data/open/licenses/Basic-OFL.txt
+!cad-data/open/licenses/TenorSans-OFL.txt
+!cad-data/open/licenses/VT323-OFL.txt
+
+# WebCAD generated build and automated test artifacts
+dist/
+playwright-report/
+test-results/
+.env
+.env.*
+
