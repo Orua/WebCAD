@@ -1,0 +1,32 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import init from 'replicad-opencascadejs';
+import {CadKernel} from '../src/cad-kernel.js';
+import {advancedFields} from '../src/advanced-tool-fields.js';
+import {readAdvancedJson} from '../src/advanced-form-fields.js';
+import {operationCatalog} from '../src/operation-catalog.js';
+const kernel=new CadKernel(await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))}));
+const f=(id,op,params,refs=[])=>({id,op,params,refs});
+const run=features=>kernel.rebuild({version:1,features,imports:{},hidden:[]});
+const defaults=op=>Object.fromEntries(advancedFields[op].map(([key,,value,kind])=>[key,kind==='json'?JSON.parse(value):kind==='points3'?value.split('\n').map(r=>r.split(',').map(Number)):value]));
+for(const op of ['curveSweep','advancedLoft','fittedSurface']){
+ const result=await run([f('a',op,defaults(op))]);assert.ok(result.bodies[0].positions.length>0);
+ assert.equal(result.bodies[0].solidCount,op==='fittedSurface'?0:1);
+ assert.equal(operationCatalog.operations[op].refs,0);
+}
+const points=Array.from({length:4},(_,i)=>Array.from({length:4},(_,j)=>[i*10,j*10,1.5*Math.sin(i)*Math.sin(j)]));
+const surface=f('surface','fittedSurface',{points,tolerance:.01});
+let result=await run([surface,f('thick','thickenFace',{faceId:0,thickness:1},['surface'])]);
+assert.equal(result.bodies[0].solidCount,1);assert.ok(result.bodies[0].volume>100);
+const file=await kernel.export('step');assert.ok(file.data.length>1000);
+const faceSet=kernel.activeShape('thick').faces;
+const faceId=faceSet.findIndex(face=>face.geomType!=='PLANE');
+const v=faceSet[faceId].pointOnSurface(.5,.5),point=v.toTuple();v.delete();faceSet.forEach(face=>face.delete());
+const logo=f('mark','curvedLogo',{faceId,point,depth:.3,regions:[{outer:[[-1,-1],[1,-1],[1,1],[-1,1]],holes:[]}]},['thick']);
+result=await run([surface,f('thick','thickenFace',{faceId:0,thickness:1},['surface']),logo]);
+assert.equal(result.bodies[0].solidCount,1);
+const form={elements:{namedItem:()=>({value:'[[1,2,3]]'})}};
+assert.deepEqual(readAdvancedJson(form,[['points','','','json']]).points,[[1,2,3]]);
+form.elements.namedItem=()=>({value:'not json'});assert.throws(()=>readAdvancedJson(form,[['points','','','json']]),/JSON/);
+console.log('PASS UI defaults -> real kernel, fitted face -> thick solid -> curved engraving, STP, JSON parsing');
+kernel.dispose();

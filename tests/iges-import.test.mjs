@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import {convertIges, validateIgesRequest} from '../scripts/iges-import.mjs';
+import path from 'node:path';
+const source='G:/TEXT-TO-CAD/工程图3D_20260914/0/gc15372.igs';
+const bytes=await fs.readFile(source);
+const out=await convertIges({name:'gc15372.igs',data:bytes.toString('base64')});
+assert.equal(out.ok,true); assert.equal(out.topology.solids,0); assert.ok(out.topology.faces>0); assert.ok(out.brep.length>100); assert.ok(out.step.length>100);
+assert.throws(()=>validateIgesRequest({name:'x.step',data:bytes.toString('base64')}),/仅支持/);
+assert.throws(()=>validateIgesRequest({name:'x.igs',data:'x'}),/base64/);
+await assert.rejects(()=>convertIges({name:'bad.igs',data:Buffer.from('not an iges').toString('base64')}),/IGES 转换失败/);
+const jobs=await fs.readdir(path.resolve('agent/temp/iges-import')).catch(()=>[]);
+assert.equal(jobs.filter(name=>name.startsWith('job-')).length,0,'temporary conversion jobs are cleaned');
+console.log('PASS IGES local conversion',out.topology);

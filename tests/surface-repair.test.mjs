@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import init from 'replicad-opencascadejs';
+import * as replicad from 'replicad';
+import {sewFaces,surfaceTrim} from '../src/surface-repair.js';
+const oc=await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))});
+replicad.setOC(oc);const cad={...replicad,getOC:()=>oc};const dispose=o=>{try{o?.delete();}catch{}};
+const box=cad.makeBox([10,10,10]);const faces=box.faces;
+const sewn=sewFaces({faces,tolerance:1e-6,makeSolid:true},cad);assert.equal(sewn.solids.length,1);assert.ok(cad.measureVolume(sewn)>0);sewn.solids.forEach(dispose);
+const open=faces.slice(0,5);assert.throws(()=>sewFaces({faces:open,makeSolid:true},cad));const shell=sewFaces({faces:open,makeSolid:false},cad);assert.equal(shell.solids.length,0);shell.solids.forEach(dispose);dispose(shell);
+const tool=cad.makeBox([4,4,4],[0,0,0]);const clipped=surfaceTrim({face:faces.find(f=>f.geomType==='PLANE'),tool,mode:'common'},cad);assert.ok(clipped);dispose(clipped);dispose(tool);dispose(box);
+console.log('surface repair checks passed');

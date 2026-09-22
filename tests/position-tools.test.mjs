@@ -1,0 +1,28 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import init from 'replicad-opencascadejs';
+import {CadKernel} from '../src/cad-kernel.js';
+const kernel=new CadKernel(await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))}));
+const f=(id,op,params,refs=[])=>({id,name:id,op,params,refs});
+const box=f('b','box',{width:40,depth:30,height:6});
+const run=features=>kernel.rebuild({version:1,features,imports:{},hidden:[]});
+const near=(a,b)=>assert(Math.abs(a-b)<1e-5,`${a} != ${b}`);
+let result=await run([box,f('m','transform',{positionMode:'absolute',x:100,y:-20,z:15},['b'])]);
+result.bodies[0].bounds.min.forEach((v,i)=>near(v,[80,-35,12][i]));
+result=await run([box,f('m','transform',{positionMode:'absolute',x:100,y:-20,z:15,rz:90},['b'])]);
+result.bodies[0].bounds.min.forEach((v,i)=>near(v,[85,-40,12][i]));
+result=await run([box,f('m','transform',{x:2,y:3,z:4},['b'])]);
+result.bodies[0].bounds.min.forEach((v,i)=>near(v,[2,3,4][i]));
+await assert.rejects(run([box,f('m','transform',{positionMode:'absolute',x:1,y:2},['b'])]),/XYZ|X、Y、Z/);
+await run([box]);let top;
+for(let i=0;i<6;i++)if(kernel.faceInfo('b',i).normal[2]>.99)top=i;
+await assert.rejects(run([box,f('h','faceHole',{faceId:top,radius:2,depth:3},['b'])]),/三维坐标/);
+await assert.rejects(run([box,f('h','faceHole',{faceId:top,point:[7,9,5],radius:2,depth:3},['b'])]),/不在/);
+result=await run([box,f('h','faceHole',{faceId:top,point:[7,9,6],radius:2,depth:3},['b'])]);
+near(result.bodies[0].volume,7200-12*Math.PI);
+const edges=kernel.activeShape('h').edges;
+let circleFound=false;
+try{for(const edge of edges){if(edge.geomType!=='CIRCLE')continue;const adaptor=new kernel.oc.BRepAdaptor_Curve(edge.wrapped),circle=adaptor.Circle(),point=circle.Location();try{near(point.X(),7);near(point.Y(),9);near(circle.Radius(),2);circleFound=true;}finally{point.delete();circle.delete();adaptor.delete();}}}finally{edges.forEach(e=>e.delete());}
+assert(circleFound);
+kernel.dispose();
+console.log('PASS absolute XYZ center, rotated center, relative move, missing XYZ, missing/off-face point, exact hole center [7,9] and volume');

@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "name": "薄壁开口盒",
+  "features": [
+    {
+      "id": "blank",
+      "op": "box",
+      "name": "盒体坯料 50 × 35 × 20 mm",
+      "params": {
+        "width": 50,
+        "depth": 35,
+        "height": 20
+      },
+      "refs": []
+    },
+    {
+      "id": "shell",
+      "op": "shell",
+      "name": "移除顶面并向内抽壳 2 mm",
+      "params": {
+        "thickness": 2,
+        "faceIds": [
+          5
+        ]
+      },
+      "refs": [
+        "blank"
+      ]
+    }
+  ],
+  "imports": {},
+  "hidden": []
+}

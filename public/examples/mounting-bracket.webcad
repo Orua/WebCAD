@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "name": "双孔直角安装支架",
+  "features": [
+    {
+      "id": "base",
+      "op": "box",
+      "name": "底板 40 × 30 × 4 mm",
+      "params": {
+        "width": 40,
+        "depth": 30,
+        "height": 4
+      },
+      "refs": []
+    },
+    {
+      "id": "wall",
+      "op": "box",
+      "name": "立板 40 × 4 × 30 mm",
+      "params": {
+        "width": 40,
+        "depth": 4,
+        "height": 30
+      },
+      "refs": []
+    },
+    {
+      "id": "joined",
+      "op": "union",
+      "name": "底板与立板连接",
+      "params": {},
+      "refs": [
+        "base",
+        "wall"
+      ]
+    },
+    {
+      "id": "basehole",
+      "op": "hole",
+      "name": "底板安装孔 Ø6 mm",
+      "params": {
+        "radius": 3,
+        "depth": 8,
+        "x": 20,
+        "y": 19,
+        "z": -2,
+        "axis": "Z",
+        "direction": 1
+      },
+      "refs": [
+        "joined"
+      ]
+    },
+    {
+      "id": "wallhole",
+      "op": "hole",
+      "name": "立板安装孔 Ø6 mm",
+      "params": {
+        "radius": 3,
+        "depth": 8,
+        "x": 20,
+        "y": -2,
+        "z": 20,
+        "axis": "Y",
+        "direction": 1
+      },
+      "refs": [
+        "basehole"
+      ]
+    },
+    {
+      "id": "finish",
+      "op": "fillet",
+      "name": "边缘圆角 R0.6 mm",
+      "params": {
+        "radius": 0.6
+      },
+      "refs": [
+        "wallhole"
+      ]
+    }
+  ],
+  "imports": {},
+  "hidden": []
+}

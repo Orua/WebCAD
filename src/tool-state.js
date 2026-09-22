@@ -1,0 +1,21 @@
+const single=new Set(['transform','copy','mirror','fillet','chamfer','shell','hole','multiHole','slot','linearPattern','circularPattern','faceHole','faceExtrude','logo','curvedLogo','thickenFace','split','extractSolid','explode','gizmoTranslate','gizmoRotate']);
+const boolean=new Set(['union','cut','intersect']);
+export function toolDisabledReason(action,state){
+ if(action==='selectTool')return '';
+ if(state.busy)return '正在计算，请稍候';
+ if(!state.kernelReady)return '建模内核尚未就绪';
+ const count=state.selectedIds.length,topology=state.selectedTopology;
+ if(['planeSection','faceBoundary'].includes(action)&&count!==1)return '请选择一个源对象';
+ if(action==='sewFaces'&&count<1)return '请选择至少一个含面的对象';
+ if(action==='surfaceTrim'&&count!==2)return '依次选择源对象、实体刀具';
+ if((boolean.has(action)||action==='group')&&count<2)return '按 Ctrl 或 Shift 依次选择至少两个实体';
+ if(single.has(action)&&count!==1)return '此工具需要恰好选择一个实体';
+ if(action==='remove'&&!count)return '请先选择要删除的实体';
+ const faces=topology?.type==='face'&&topology.bodyId===state.selectedIds[0]?topology.ids.length:0;
+ if(['faceHole','faceExtrude','logo','curvedLogo','thickenFace','faceBoundary'].includes(action)&&faces!==1)return '切换到选面，然后选择一个面';
+ if(action==='shell'&&!faces)return '切换到选面，选择需要移除的开口面';
+ if(action==='extractSolid'&&state.bodies.find(b=>b.id===state.selectedIds[0])?.solidCount<2)return '请选择包含多个实体的复合体';
+ if(action==='explode'&&!(state.bodies.find(b=>b.id===state.selectedIds[0])?.solidCount>1))return '当前对象只有一个实体，无法拆散；已融合的形状请先用分割工具';
+ if(['measure','fit','section','export'].includes(action)&&!state.bodies.length)return '请先创建或打开模型';
+ return '';
+}
