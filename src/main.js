@@ -3,6 +3,7 @@ import { createUI } from './ui.js';
 import { CADViewport } from './viewport.js';
 import { QUICK_MODELS } from './quick-models.js';
 import { createPageAPI } from './page-api.js';
+import { evaluateDocumentParameters, evaluateNamedParameters } from './named-parameters.js';
 import { t } from './i18n.js';
 import { referenceNames } from './reference-tool-fields.js';
 
@@ -76,6 +77,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
   setBusy(true,'正在计算精确实体…');
   try{
     checkTransaction(signal,expectedRevision);
+    if(next.parameters!==undefined||next.features.some(f=>f.expressions))next=evaluateDocumentParameters(next,{previousDocument:documentModel});
     const result=await request('rebuild',{document:next});
     try{checkTransaction(signal,expectedRevision);}catch(error){await request('rebuild',{document:documentModel});throw error;}
     if(record)pushUndo();
@@ -136,6 +138,7 @@ async function editFeature(id,params,name,options={}){
   if(busy)return;
   const next=clone(documentModel),feature=next.features.find(f=>f.id===id);
   if(!feature)throw new Error('未找到可编辑的操作。');
+  if(Object.keys(params).some(key=>Object.keys(feature.expressions||{}).some(path=>path===key||path.startsWith(key+'.'))))throw Object.assign(new Error('该尺寸已绑定命名参数，请在参数表中修改。'),{code:'PARAMETER_BOUND'});
   feature.params=migratedOperationIds.includes(feature.op)?normalizeOperationPatch(feature.op,feature.params,params):{...feature.params,...params};if(name?.trim())feature.name=name.trim();
   await rebuild(next,{...options,select:id});
 }
@@ -179,8 +182,11 @@ async function saveProject(){
   }
   const c=pageAPI.getState().context,context={...c,expectedRevision:c.revision};delete context.revision;
   const artifact=await pageAPI.files.save({context});if(artifact.status==='failed')throw new Error(artifact.error.message);
-  const result=projectFileHandle?await pageAPI.files.write({resourceId:artifact.resourceId,handle:projectFileHandle}):await pageAPI.files.download({resourceId:artifact.resourceId});
-  if(result.status==='failed')throw new Error(result.error.message);
+  try{
+    const result=projectFileHandle?await pageAPI.files.write({resourceId:artifact.resourceId,handle:projectFileHandle}):await pageAPI.files.download({resourceId:artifact.resourceId});
+    if(result.status==='failed')throw new Error(result.error.message);
+  }catch(error){if(error.code==='PERMISSION_REQUIRED'||error.name==='NotAllowedError')projectFileHandle=null;throw error;}
+  finally{pageAPI.files.release({resourceId:artifact.resourceId});}
   setStatus(projectFileHandle?'文件已写入、关闭并回读核验；保存状态按版本更新。':'下载已发起；未确认写入，未保存标记保留。');refresh();
 }
 function chooseFile(){return new Promise(resolve=>{const input=document.createElement('input');input.type='file';input.accept='.webcad,.json,.step,.stp,.brep,.brp,.iges,.igs,.stl';input.multiple=true;input.addEventListener('change',()=>resolve([...input.files]));input.addEventListener('cancel',()=>resolve([]));input.click();});}
@@ -189,7 +195,7 @@ function validateDocument(doc){
   if(!doc||doc.version!==1||!Array.isArray(doc.features)||typeof doc.imports!=='object'||!doc.imports)throw new Error('不是有效的 WebCAD 1.x 工程文件。');
   if(doc.features.length>2000)throw new Error('工程操作超过 2000 项，暂不适合此浏览器工作台。');
   const ids=new Set();for(const f of doc.features){if(!f.id||ids.has(f.id)||typeof f.op!=='string'||!f.params||!Array.isArray(f.refs))throw new Error('工程特征结构无效。');for(const ref of f.refs)if(!ids.has(ref))throw new Error('工程包含无效的操作引用。');ids.add(f.id);}
-  return {version:1,documentId:typeof doc.documentId==='string'&&doc.documentId.length>0&&doc.documentId.length<=150?doc.documentId:crypto.randomUUID(),name:String(doc.name||'导入工程'),features:doc.features,imports:doc.imports,hidden:Array.isArray(doc.hidden)?doc.hidden:[],appearance:doc.appearance&&typeof doc.appearance==='object'?doc.appearance:{}};
+  return {version:1,...(doc.parameters!==undefined?{parameters:doc.parameters}:{}),documentId:typeof doc.documentId==='string'&&doc.documentId.length>0&&doc.documentId.length<=150?doc.documentId:crypto.randomUUID(),name:String(doc.name||'导入工程'),features:doc.features,imports:doc.imports,hidden:Array.isArray(doc.hidden)?doc.hidden:[],appearance:doc.appearance&&typeof doc.appearance==='object'?doc.appearance:{}};
 }
 async function openFiles(files,{confirmReplace=true,signal,expectedRevision,mcp=false}={}){
   if(busy){if(mcp)throw new Error('Worker is busy');return;}
@@ -219,6 +225,11 @@ async function openFiles(files,{confirmReplace=true,signal,expectedRevision,mcp=
 }
 async function performAction(action,params={}){
   params=params||{};
+  if(action==='parameters'){
+    const {revision:r,...c}=pageAPI.getState().context;
+    const result=await pageAPI.execute({context:{...c,expectedRevision:r},idempotencyKey:crypto.randomUUID(),action:'document.parameters',args:{parameters:params.parameters}});
+    if(result.status==='failed')throw Object.assign(new Error(result.error.message),result.error);return result;
+  }
   if(action==='language'){viewport.updateLanguage();refresh();return;}
   if(action==='cancelPreview'){await cancelPreview();return;}
   if(action==='commitPreview'){if(!previewNext)throw new Error('No preview to apply');await rebuild(clone(previewNext),{select:previewNext.features.at(-1)?.id});return;}
@@ -353,6 +364,14 @@ async function executeAI(command,args={},options={}){
   if(command==='get_state')return aiState();
   if(command==='get_templates')return QUICK_MODELS;
   if(busy||previewNext)throw new Error('Finish current operation or preview before AI editing.');
+  if(command==='set_parameters'){
+    const next=clone(documentModel);next.parameters={...(next.parameters||{}),...args.parameters};
+    for(const [id,expressions] of Object.entries(args.bindings||{})){
+      const f=next.features.find(f=>f.id===id);if(!f)throw Object.assign(new Error('Unknown feature for expression binding'),{code:'STALE_REFERENCE'});
+      f.expressions={...(f.expressions||{}),...expressions};
+    }
+    await rebuild(next,options);return aiState();
+  }
   if(command==='file_save'){
     const savedRevision=revision,instance=documentInstanceId,docId=documentModel.documentId;
     const bytes=new TextEncoder().encode(JSON.stringify(clone(documentModel),null,2));
@@ -412,12 +431,12 @@ const commandService=createCommandService({
 });
 const pageAPI=createPageAPI({
   buildId:__WEBCAD_BUILD__,
-  state:(input={})=>commandService.getState({sessionId:pageSessionId,include:['summary','features','bodies','selection','capabilities'],...input}),
+  state:(input={})=>({...commandService.getState({sessionId:pageSessionId,include:['summary','features','bodies','selection','capabilities'],...input}),parameters:clone(documentModel.parameters||{}),parameterValues:evaluateNamedParameters(documentModel.parameters||{})}),
   execute:input=>commandService.execute(input),query:input=>commandService.queryGeometry(input),files:input=>commandService.fileCommand(input),
   confirmSaved:snapshot=>executeAI('acknowledge_save',snapshot),
   measure:input=>request('measure',{bodyId:input.bodyId,topologyType:input.kind==='body'?undefined:input.kind,topologyId:input.topologyId}),
   display:()=>viewport.displayState(),frame:()=>{if(lastWarnings.some(w=>w.code==='DISPLAY_FAILED'))throw Object.assign(new Error('Display failed; call redraw'),{code:'DISPLAY_FAILED'});viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});return viewport.frame();},capture:()=>viewport.screenshot(),
-  view:async input=>{if(input.projection)viewport.setProjection(input.projection);if(input.direction)viewport.view(input.direction==='side'?'right':input.direction);if(input.fit)viewport.fit();if(input.selectedIds){selectedIds=[...input.selectedIds];selectedTopology=null;viewport.setSelection(selectedIds);refresh();}await viewport.frame();},
+  view:async input=>{if(input.section)viewport.setSection(input.section);if(input.projection)viewport.setProjection(input.projection);if(input.direction)viewport.view(input.direction==='side'?'right':input.direction);if(input.fit)viewport.fit();if(input.selectedIds){selectedIds=[...input.selectedIds];selectedTopology=null;viewport.setSelection(selectedIds);refresh();}await viewport.frame();},
   redraw:async()=>{viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});await viewport.frame();lastWarnings=lastWarnings.filter(w=>w.code!=='DISPLAY_FAILED');},
 });
 Object.defineProperty(window,'webcad',{value:Object.freeze({api:pageAPI}),writable:false,configurable:false});
