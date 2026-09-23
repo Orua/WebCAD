@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 667 --strictPort",
     "build": "node scripts/generate-page-docs.mjs && vite build",
+    "agent": "npm run build && node scripts/serve.mjs",
+    "agent:cli": "node scripts/webcad-agent.mjs",
     "preview": "vite preview --host 127.0.0.1 --port 667 --strictPort",
     "test": "node scripts/test.mjs portable",
     "test:contracts": "node scripts/test.mjs contracts",

@@ -21,7 +21,7 @@ const clone = value => structuredClone(value);
 const labels = {box:'长方体',cylinder:'圆柱',sphere:'球体',cone:'圆锥',torus:'圆环',extrude:'拉伸',revolve:'旋转成型',transform:'变换',copy:'复制',mirror:'镜像',union:'合并',cut:'切除',intersect:'求交',fillet:'圆角',chamfer:'倒角',shell:'抽壳',hole:'打孔',linearPattern:'直线阵列',circularPattern:'环形阵列',import:'导入',remove:'删除'};
 let documentModel=emptyDocument(),bodies=[],selectedIds=[],selectedTopology=null,busy=false,kernelReady=false,dirty=false;
 let undoStack=[],redoStack=[],requestSequence=0,status='正在启动精确建模内核…';
-let revision=0,previewNext=null,previewGeneration=0,previewComputing=false,aiStatus='in-page';
+let revision=0,previewNext=null,previewGeneration=0,previewComputing=false,aiStatus='in-page',agentBridge=null;
 Object.assign(labels,{group:'组合',vectorProfile:'矢量路径',quickModel:'快速模型',sweep:'扫掠',loft:'放样',split:'分割',extractSolid:'提取实体',faceHole:'面上打孔',faceExtrude:'面拉伸',multiHole:'多位置打孔',slot:'长圆槽',logo:'LOGO 凹凸字'});
 Object.assign(labels,{curveSweep:'曲线扫掠',advancedLoft:'多截面放样',curvedLogo:'曲面等深刻字'});
 Object.assign(labels,{fittedSurface:'点阵拟合曲面',thickenFace:'选面增厚'});
@@ -376,7 +376,7 @@ const ready=(async()=>{
 })();
 // Public automation surface also used by reproducible acceptance checks; never runs arbitrary code.
 function getState(){return {revision,document:clone(documentModel),bodies:bodies.map(({id,name,bounds,volume,solidCount,faceGroups,edges})=>({id,name,bounds,volume,solidCount,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,dirty,preview:!!previewNext};}
-function aiState(){return {revision,dirty,documentId:documentModel.documentId,documentInstanceId,documentName:documentModel.name,features:clone(documentModel.features),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),bodies:bodies.map(({id,name,bounds,volume,solidCount,faceGroups,edges})=>({id,name,bounds,volume,solidCount,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,preview:!!previewNext};}
+function aiState(){return {sessionId:pageSessionId,revision,dirty,documentId:documentModel.documentId,documentInstanceId,documentName:documentModel.name,features:clone(documentModel.features),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),bodies:bodies.map(({id,name,bounds,volume,solidCount,faceGroups,edges})=>({id,name,bounds,volume,solidCount,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,preview:!!previewNext};}
 async function executeAI(command,args={},options={}){
   if(command==='file_command')return commandService.fileCommand(args,options);
   if(command==='get_state_v2')return commandService.getState(args);
@@ -467,3 +467,9 @@ const pageAPI=createPageAPI({
   redraw:async()=>{viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});await viewport.frame();lastWarnings=lastWarnings.filter(w=>w.code!=='DISPLAY_FAILED');},
 });
 Object.defineProperty(window,'webcad',{value:Object.freeze({api:pageAPI}),writable:false,configurable:false});
+if(new URLSearchParams(location.search).get('agent')==='1'){
+  aiStatus='connecting';refresh();
+  import('./ai-bridge.js').then(({connectAI})=>{
+    agentBridge=connectAI({getState:aiState,execute:executeAI},{onStatus:event=>{aiStatus=event.state;refresh();}});
+  }).catch(error=>{aiStatus='error';reportError(Object.assign(new Error(`Agent 接口启动失败：${error.message}`),{cause:error}));});
+}

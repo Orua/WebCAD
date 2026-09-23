@@ -1,9 +1,34 @@
 // Small exact solids and Boolean cutters. Independent of the UI and worker.
 const field = (key, label, labelEn) => ({key, label, labelEn, type:'number', min:0.1, step:0.1});
+const nonnegativeField = (key, label, labelEn) => ({key, label, labelEn, type:'number', min:0, step:0.1});
 const check = (condition, message) => { if (!condition) throw new Error(message); };
 const dispose = object => { try { object?.delete(); } catch {} };
 
 export const HARDWARE_TEMPLATES = Object.freeze({
+  roundedBossTray: {
+    label:'圆角双柱薄壁壳', labelEn:'Rounded tray with two hollow bosses',
+    description:'圆角矩形薄壁壳，顶部敞口，内底带两根空心柱。外圆角、壁厚、底厚和柱尺寸均可调；直壁无拔模，不包含卡扣、文字或表面花纹。',
+    descriptionEn:'Open rounded-rectangle tray with two hollow bosses on the inner floor. Outer corner radius, wall/floor thickness and boss dimensions are editable. Straight walls only; no draft, clips, lettering or texture.',
+    defaults:{outerWidth:60,outerDepth:38,height:12,cornerRadius:6,wallThickness:2,floorThickness:2,bossSpacing:30,bossOuterDiameter:7,boreDiameter:3,bossHeight:7},
+    fields:[
+      field('outerWidth','外宽 X','Outer width X'), field('outerDepth','外深 Y','Outer depth Y'), field('height','壳体总高','Total height'),
+      nonnegativeField('cornerRadius','外轮廓圆角 R','Outer corner radius'), field('wallThickness','侧壁厚','Wall thickness'), field('floorThickness','底板厚','Floor thickness'),
+      field('bossSpacing','两柱中心距 X','Boss center spacing X'), field('bossOuterDiameter','柱外径','Boss outer diameter'), field('boreDiameter','贯穿孔径','Through-bore diameter'),
+      field('bossHeight','内底面以上柱高','Boss height above inner floor'),
+    ],
+  },
+  roundBadge: {
+    label:'双柱圆牌底座', labelEn:'Round badge base with two posts',
+    description:'圆形牌面、正面环形凸边和背面两根安装柱组成一个实体。可选空心柱；不包含品牌图案、齿纹、拱面或生产尺寸。',
+    descriptionEn:'One solid combining a round badge plate, raised front rim and two rear mounting posts. Posts may be hollow. Brand artwork, knurling, doming and production dimensions are excluded.',
+    defaults:{diameter:40,thickness:2,rimWidth:2,rimHeight:0.8,postSpacing:18,postDiameter:4,postHeight:4,postBoreDiameter:0},
+    fields:[
+      field('diameter','牌面直径','Badge diameter'), field('thickness','牌面厚度','Plate thickness'),
+      field('rimWidth','正面环边宽','Front rim width'), field('rimHeight','正面环边高度','Front rim height'),
+      field('postSpacing','背柱中心距 X','Rear post spacing X'), field('postDiameter','背柱直径','Rear post diameter'),
+      field('postHeight','背柱高度','Rear post height'), nonnegativeField('postBoreDiameter','背柱孔径（0 为实心）','Post bore diameter (0 = solid)'),
+    ],
+  },
   thinWallTray: {
     label:'双空心柱薄壁壳', labelEn:'Open tray with two hollow bosses',
     description:'单一熔接实体，XY 居中、底面 Z=0、顶部敞口。内腔净宽=外宽−2×壁厚，净深=外深−2×壁厚，净高=总高−底厚。两柱沿 X 对称，柱高从内底面起算，孔贯穿柱和底板。仅直壁、直角、无拔模/圆角/螺纹；不是装配体。',
@@ -49,9 +74,67 @@ export function buildHardwareTemplate(params, cad) {
     return value;
   };
   const resources = [], hold = object => { resources.push(object); return object; };
+  const fuse = (left, right) => {
+    const builder=hold(new (cad.getOC().BRepAlgoAPI_Fuse)(left.wrapped,right.wrapped));
+    builder.Build();
+    const fused=cad.cast(builder.Shape());
+    dispose(left);
+    return fused;
+  };
   let result = null;
   try {
-    if (p.kind === 'thinWallTray') {
+    if (p.kind === 'roundedBossTray') {
+      const width=number('outerWidth'), depth=number('outerDepth'), height=number('height'), radius=number('cornerRadius');
+      const wall=number('wallThickness'), floor=number('floorThickness');
+      const spacing=number('bossSpacing'), diameter=number('bossOuterDiameter'), bore=number('boreDiameter'), bossHeight=number('bossHeight');
+      check(width>0&&depth>0&&height>0,'壳体外宽、外深和总高必须为正');
+      check(radius>=0&&radius<=Math.min(width,depth)/2,'外圆角须在 0 到短边一半之间');
+      check(wall>0&&wall<Math.min(width,depth)/2,'侧壁厚须为正且小于外宽、外深一半');
+      check(floor>0&&floor<height,'底厚须为正且小于总高');
+      check(diameter>0&&bore>0&&bore<diameter,'柱尺寸须满足 0 < 贯穿孔径 < 柱外径');
+      check(bossHeight>0&&floor+bossHeight<=height,'柱高须为正，柱顶不得高于壳口');
+      const innerWidth=width-2*wall, innerDepth=depth-2*wall, innerRadius=Math.max(0,radius-wall), clearance=1e-6;
+      check(spacing>diameter+clearance,'柱中心距必须大于柱外径，两柱不得相切或重叠');
+      check(spacing+diameter<innerWidth-2*clearance&&diameter<innerDepth-2*clearance,'柱外缘必须严格位于内腔中，与侧壁保持正间隙');
+      const outerDrawing=hold(cad.drawRoundedRectangle(width,depth,radius));
+      const outerSketch=hold(outerDrawing.sketchOnPlane('XY'));
+      result=outerSketch.extrude(height);
+      const innerDrawing=hold(cad.drawRoundedRectangle(innerWidth,innerDepth,innerRadius));
+      const innerPlane=hold(new cad.Plane([0,0,floor],[1,0,0],[0,0,1]));
+      const innerSketch=hold(innerDrawing.sketchOnPlane(innerPlane));
+      const cavity=hold(innerSketch.extrude(height-floor+1));
+      const shell=result.cut(cavity);dispose(result);result=shell;
+      for(const x of [-spacing/2,spacing/2]) {
+        const boss=hold(cad.makeCylinder(diameter/2,floor+bossHeight,[x,0,0]));
+        result=fuse(result,boss);
+      }
+      for(const x of [-spacing/2,spacing/2]) {
+        const cutter=hold(cad.makeCylinder(bore/2,floor+bossHeight+2,[x,0,-1]));
+        const previous=result;result=previous.cut(cutter);dispose(previous);
+      }
+    } else if (p.kind === 'roundBadge') {
+      const badgeDiameter=number('diameter'), thickness=number('thickness'), rimWidth=number('rimWidth'), rimHeight=number('rimHeight');
+      const spacing=number('postSpacing'), postDiameter=number('postDiameter'), postHeight=number('postHeight'), bore=number('postBoreDiameter');
+      check(badgeDiameter>0&&thickness>0,'牌面直径和厚度必须为正');
+      check(rimWidth>0&&rimWidth<badgeDiameter/2,'环边宽须为正且小于牌面半径');
+      check(rimHeight>0,'环边高度必须为正');
+      check(postDiameter>0&&postHeight>0&&spacing>postDiameter,'背柱尺寸须为正，中心距须大于柱直径');
+      check(spacing+postDiameter<badgeDiameter,'背柱外缘必须严格位于牌面内');
+      check(bore>=0&&bore<postDiameter,'背柱孔径须满足 0 ≤ 孔径 < 柱直径');
+      result=cad.makeCylinder(badgeDiameter/2,thickness,[0,0,0]);
+      const rimOuter=hold(cad.makeCylinder(badgeDiameter/2,rimHeight+.01,[0,0,thickness-.01]));
+      const rimInner=hold(cad.makeCylinder(badgeDiameter/2-rimWidth,rimHeight+.03,[0,0,thickness-.02]));
+      const rim=hold(rimOuter.cut(rimInner));
+      result=fuse(result,rim);
+      for(const x of [-spacing/2,spacing/2]) {
+        const post=hold(cad.makeCylinder(postDiameter/2,postHeight+thickness,[x,0,-postHeight]));
+        result=fuse(result,post);
+      }
+      if(bore>0)for(const x of [-spacing/2,spacing/2]) {
+        const cutter=hold(cad.makeCylinder(bore/2,postHeight+thickness+2,[x,0,-postHeight-1]));
+        const previous=result;result=previous.cut(cutter);dispose(previous);
+      }
+    } else if (p.kind === 'thinWallTray') {
       const width=number('outerWidth'), depth=number('outerDepth'), height=number('height');
       const wall=number('wallThickness'), floor=number('floorThickness');
       const spacing=number('bossSpacing'), diameter=number('bossOuterDiameter'), bore=number('boreDiameter'), bossHeight=number('bossHeight');
@@ -69,8 +152,7 @@ export function buildHardwareTemplate(params, cad) {
       for(const x of [-spacing/2,spacing/2]) {
         // Begin at Z=0 so the boss overlaps the floor, not only a coincident face.
         const boss=hold(cad.makeCylinder(diameter/2,floor+bossHeight,[x,0,0]));
-        const builder=hold(new (cad.getOC().BRepAlgoAPI_Fuse)(result.wrapped,boss.wrapped));
-        builder.Build(); const previous=result; result=cad.cast(builder.Shape()); dispose(previous);
+        result=fuse(result,boss);
       }
       for(const x of [-spacing/2,spacing/2]) {
         const cutter=hold(cad.makeCylinder(bore/2,floor+bossHeight+2,[x,0,-1]));

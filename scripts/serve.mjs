@@ -16,6 +16,7 @@ const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=u
 async function probe(){return new Promise(resolve=>{let finished=false;const done=value=>{if(!finished){finished=true;resolve(value);}};const req=http.get({hostname:host,port,path:'/healthz',timeout:1500},res=>{let data='';res.on('data',chunk=>{data+=chunk;if(data.length>4096){req.destroy();done(1);}});res.on('end',()=>{try{const status=JSON.parse(data);done(status.identity===identity&&status.mcp==='/mcp'?0:1);}catch{done(1);}});});req.on('timeout',()=>{req.destroy();done(1);});req.on('error',e=>done(e.code==='ECONNREFUSED'?2:1));});}
 if(process.argv.includes('--probe')){process.exit(await probe());}
 const { createMCPBridge, localRequestAllowed } = await import('./mcp-bridge.mjs');
+const { bootstrap, searchTools, getTool, readDocs } = await import('../src/ai-docs.js');
 const { handleLogoImport } = await import('./logo-import.mjs');
 const { handleIgesImport } = await import('./iges-route.mjs');
 const within=(base,target)=>target===base||target.startsWith(base+path.sep);
@@ -27,9 +28,25 @@ const server=http.createServer(async(req,res)=>{
  if(req.url?.split('?')[0]==='/api/assets'||req.url?.split('?')[0]?.startsWith('/api/artifacts/')){try{return await bridge.handleFileRequest(req,res);}catch(error){return fail(500,error.message||'File transfer failed');}}
  if(req.url?.split('?')[0]==='/api/logo-import')return handleLogoImport(req,res);
  if(req.url?.split('?')[0]==='/api/iges-import')return handleIgesImport(req,res);
+ let requestUrl;try{requestUrl=new URL(req.url||'/',`http://${req.headers.host}`);}catch{return fail(400,'Invalid URL');}
+ const sendJson=(status,value)=>{const body=JSON.stringify(value);res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Content-Length':Buffer.byteLength(body)});return res.end(req.method==='HEAD'?undefined:body);};
+ if(requestUrl.pathname==='/agent'){
+  if(!['GET','HEAD'].includes(req.method))return fail(405,'Only GET and HEAD are supported.');
+  res.writeHead(302,{Location:'/?agent=1'});return res.end();
+ }
+ if(requestUrl.pathname==='/api/agent'||requestUrl.pathname.startsWith('/api/agent/')){
+  if(!['GET','HEAD'].includes(req.method))return fail(405,'Agent discovery is read-only.');
+  try{
+   if(requestUrl.pathname==='/api/agent')return sendJson(200,{...bootstrap(),launchUrl:`http://${host}:${port}/agent`,mcpUrl:`http://${host}:${port}/mcp`,cli:'npm run agent:cli --',readEndpoints:{docs:'/api/agent/docs?doc=start',search:'/api/agent/tools?query=box',tool:'/api/agent/tool?id=box'}});
+   if(requestUrl.pathname==='/api/agent/docs')return sendJson(200,readDocs({docId:requestUrl.searchParams.get('doc')||'start',...(requestUrl.searchParams.has('cursor')?{cursor:requestUrl.searchParams.get('cursor')}:{}),...(requestUrl.searchParams.has('limit')?{limitChars:Number(requestUrl.searchParams.get('limit'))}:{})}));
+   if(requestUrl.pathname==='/api/agent/tools')return sendJson(200,searchTools({query:requestUrl.searchParams.get('query')||'',...(requestUrl.searchParams.has('category')?{category:requestUrl.searchParams.get('category')}:{}),...(requestUrl.searchParams.has('limit')?{limit:Number(requestUrl.searchParams.get('limit'))}:{})}));
+   if(requestUrl.pathname==='/api/agent/tool'){const id=requestUrl.searchParams.get('id');if(!id)return fail(400,'Missing id');return sendJson(200,getTool({id}));}
+   return fail(404,'Unknown agent discovery endpoint');
+  }catch(error){return sendJson(400,{error:{code:error.code||'PARAM_SCHEMA_INVALID',message:error.message}});}
+ }
  if(!['GET','HEAD'].includes(req.method))return fail(405,'Only GET and HEAD are supported for static files.');
- let pathname;try{pathname=decodeURIComponent((req.url||'/').split('?')[0]);}catch{return fail(400,'Invalid URL');}
- if(pathname==='/healthz'){res.writeHead(200,{'Content-Type':'application/json'});return res.end(req.method==='HEAD'?undefined:JSON.stringify({identity,project:'WebCAD',port,mcp:'/mcp',bridge:'/ai-bridge'}));}
+ let pathname;try{pathname=decodeURIComponent(requestUrl.pathname);}catch{return fail(400,'Invalid URL');}
+ if(pathname==='/healthz')return sendJson(200,{identity,project:'WebCAD',port,mcp:'/mcp',bridge:'/ai-bridge',agent:'/agent',agentDocs:'/api/agent'});
  if(pathname.includes('\0')||pathname.includes('\\')||pathname.split('/').some(x=>x==='..'||x==='.')||pathname.includes(':'))return fail(403,'Forbidden path');
  let folder='dist',relative=pathname;
  for(const prefix of ['cad-viewer','cad-data'])if(pathname===`/${prefix}`||pathname.startsWith(`/${prefix}/`)){folder=prefix;relative=pathname.slice(prefix.length+1);break;}

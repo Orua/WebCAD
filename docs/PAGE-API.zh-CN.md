@@ -2,6 +2,8 @@
 
 WebCAD 的页面自动化入口是 `window.webcad.api`。正常产品使用是通过 HTTPS 或本机 localhost 打开构建后的静态页面。建模计算在浏览器 Worker 中完成。客户端需要具备获授权的页面 JS 调用及返回能力；页面公开这个对象本身，不代表现有 ChatGPT 侧边栏已接通。此文档是接口目标和发现说明，实际可用性以当前构建的 `info()` 与真实调用结果为准。
 
+客户端只有终端而没有页面 JS 通道时，使用 [Agent 模式](AGENT-MODE.zh-CN.md)。Agent 模式仍调用当前标签页的同一个页面 API 和浏览器 Worker；它提供本机只读文档 URL 与 JSON CLI，不通过鼠标或文件选择器代替建模命令。
+
 ```js
 const api = window.webcad.api;
 const info = api.info();

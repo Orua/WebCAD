@@ -37,6 +37,14 @@ await test('ring and four-arc oval real opening face spacing',async()=>{
     assert.equal(capCoordinates.length,2);near(Math.abs(capCoordinates[0]-capCoordinates[1]),.4);
   }
 });
+await test('wide-gap C ring has exact swept volume for round and rounded-square wire',async()=>{
+  for(const section of ['round','square']){
+    const p={...QUICK_MODELS.openArcRing.defaults,kind:'openArcRing',section,openingAngle:80};
+    const result=await run([f('c','quickModel',p)]),radius=(p.innerDiameter+p.sectionSize)/2;
+    near(result.stats.volume,(Math.PI*2-p.openingAngle*Math.PI/180)*radius*area(p));assert.equal(result.stats.solids,1);
+  }
+  for(const bad of [{openingAngle:4},{openingAngle:181},{innerDiameter:15},{section:'bad'},{section:'square',sectionRadius:2}])await assert.rejects(run([f('bad','quickModel',{...QUICK_MODELS.openArcRing.defaults,kind:'openArcRing',...bad})]));
+});
 await test('fixed bar templates preserve nominal dimensions and single fused solid',async()=>{
   for(const [kind,section,offset] of [['dBarBuckle','square',0],['sliderBuckle','round',0],['sliderBuckle','round',1],['sliderBuckle','square',-1.5]]){
     const p={...QUICK_MODELS[kind].defaults,kind,section};if(kind==='sliderBuckle')p.barOffset=offset;

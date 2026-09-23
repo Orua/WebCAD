@@ -19,7 +19,7 @@ const groups = {
     'position-tools', 'reference-curves', 'reference-integration', 'reference-profiles',
     'surface-repair', 'vector-profile',
   ],
-  mcp: ['bridge-cancellation', 'mcp-bridge', 'mcp-v2', 'document-assets'],
+  mcp: ['bridge-cancellation', 'mcp-bridge', 'mcp-v2', 'document-assets', 'agent-cli'],
   'local-fixtures': ['iges-import', 'iges-roundtrip'],
 };
 const fixturePaths = [

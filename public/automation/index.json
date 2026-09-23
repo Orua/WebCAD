@@ -7,8 +7,8 @@
     "pageApiVersion": "1.0.0",
     "transport": "in-page",
     "entrypoint": "window.webcad.api",
-    "catalogHash": "sha256:822ba39361f64154f46c000425d0b660f9d35b481d2ed5efa32e16e51654bbd5",
-    "docsHash": "sha256:e8552c9a16d57ad6e3229f382e4c4029eb56903ee8f1b5fcfa970b41949a0a8f",
+    "catalogHash": "sha256:5fe8524e0c47ddf750fa3aa2b18b60242972e22b3ada99eeeef5a1f6750c6804",
+    "docsHash": "sha256:867398a09573dca85e6e830269fc31e9055d123359321faf8395ce42e614d075",
     "units": {
       "length": "mm",
       "angle": "degrees",
@@ -5509,6 +5509,167 @@
               "kind"
             ],
             "additionalProperties": false,
+            "description": "Constant-section circular arc with an adjustable opening angle for C rings, hook rings and open circular frames. End balls, hinges and variable sections are excluded.",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "openArcRing"
+              },
+              "section": {
+                "type": "string",
+                "default": "round",
+                "description": "Section",
+                "enum": [
+                  "round",
+                  "square"
+                ]
+              },
+              "innerDiameter": {
+                "type": "number",
+                "default": 30,
+                "description": "Inner diameter"
+              },
+              "sectionSize": {
+                "type": "number",
+                "default": 4,
+                "description": "Wire diameter / square size"
+              },
+              "sectionRadius": {
+                "type": "number",
+                "default": 0.4,
+                "description": "Square section corner R"
+              },
+              "openingAngle": {
+                "type": "number",
+                "default": 70,
+                "description": "Opening angle (degrees)"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "kind"
+            ],
+            "additionalProperties": false,
+            "description": "Open rounded-rectangle tray with two hollow bosses on the inner floor. Outer corner radius, wall/floor thickness and boss dimensions are editable. Straight walls only; no draft, clips, lettering or texture.",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "roundedBossTray"
+              },
+              "outerWidth": {
+                "type": "number",
+                "default": 60,
+                "description": "Outer width X"
+              },
+              "outerDepth": {
+                "type": "number",
+                "default": 38,
+                "description": "Outer depth Y"
+              },
+              "height": {
+                "type": "number",
+                "default": 12,
+                "description": "Total height"
+              },
+              "cornerRadius": {
+                "type": "number",
+                "default": 6,
+                "description": "Outer corner radius"
+              },
+              "wallThickness": {
+                "type": "number",
+                "default": 2,
+                "description": "Wall thickness"
+              },
+              "floorThickness": {
+                "type": "number",
+                "default": 2,
+                "description": "Floor thickness"
+              },
+              "bossSpacing": {
+                "type": "number",
+                "default": 30,
+                "description": "Boss center spacing X"
+              },
+              "bossOuterDiameter": {
+                "type": "number",
+                "default": 7,
+                "description": "Boss outer diameter"
+              },
+              "boreDiameter": {
+                "type": "number",
+                "default": 3,
+                "description": "Through-bore diameter"
+              },
+              "bossHeight": {
+                "type": "number",
+                "default": 7,
+                "description": "Boss height above inner floor"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "kind"
+            ],
+            "additionalProperties": false,
+            "description": "One solid combining a round badge plate, raised front rim and two rear mounting posts. Posts may be hollow. Brand artwork, knurling, doming and production dimensions are excluded.",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "roundBadge"
+              },
+              "diameter": {
+                "type": "number",
+                "default": 40,
+                "description": "Badge diameter"
+              },
+              "thickness": {
+                "type": "number",
+                "default": 2,
+                "description": "Plate thickness"
+              },
+              "rimWidth": {
+                "type": "number",
+                "default": 2,
+                "description": "Front rim width"
+              },
+              "rimHeight": {
+                "type": "number",
+                "default": 0.8,
+                "description": "Front rim height"
+              },
+              "postSpacing": {
+                "type": "number",
+                "default": 18,
+                "description": "Rear post spacing X"
+              },
+              "postDiameter": {
+                "type": "number",
+                "default": 4,
+                "description": "Rear post diameter"
+              },
+              "postHeight": {
+                "type": "number",
+                "default": 4,
+                "description": "Rear post height"
+              },
+              "postBoreDiameter": {
+                "type": "number",
+                "default": 0,
+                "description": "Post bore diameter (0 = solid)"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "kind"
+            ],
+            "additionalProperties": false,
             "description": "One fused solid, centered in XY, bottom at Z=0, open top. Clear cavity width/depth = outer width/depth minus twice wall thickness; clear height = height minus floor thickness. Two X-symmetric bosses rise from the inner floor; bores pass through bosses and floor. Straight walls/corners only; no draft, fillets, threads or assembly relationships.",
             "properties": {
               "kind": {
@@ -6025,6 +6186,35 @@
           "bodyHeight": 10,
           "flangeThickness": 3
         },
+        "openArcRing": {
+          "section": "round",
+          "innerDiameter": 30,
+          "sectionSize": 4,
+          "sectionRadius": 0.4,
+          "openingAngle": 70
+        },
+        "roundedBossTray": {
+          "outerWidth": 60,
+          "outerDepth": 38,
+          "height": 12,
+          "cornerRadius": 6,
+          "wallThickness": 2,
+          "floorThickness": 2,
+          "bossSpacing": 30,
+          "bossOuterDiameter": 7,
+          "boreDiameter": 3,
+          "bossHeight": 7
+        },
+        "roundBadge": {
+          "diameter": 40,
+          "thickness": 2,
+          "rimWidth": 2,
+          "rimHeight": 0.8,
+          "postSpacing": 18,
+          "postDiameter": 4,
+          "postHeight": 4,
+          "postBoreDiameter": 0
+        },
         "thinWallTray": {
           "outerWidth": 60,
           "outerDepth": 36,
@@ -6125,7 +6315,7 @@
         "quickModel"
       ],
       "description": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "schemaHash": "sha256:e1ebd70f6f0fbca9236d97e83260d7edbf6c6aa55079d556318c8f258093eb9c",
+      "schemaHash": "sha256:2da62c0ed6a7e4d8409c239ae3db6e52e3d951e27d59ff5839abb80d714d4b74",
       "apiCompatibility": [
         "page-advisory"
       ],
@@ -6550,6 +6740,300 @@
             "boreDiameter": 6,
             "bodyHeight": 10,
             "flangeThickness": 3
+          }
+        },
+        {
+          "kind": "openArcRing",
+          "title": "Wide-gap C ring",
+          "description": "Constant-section circular arc with an adjustable opening angle for C rings, hook rings and open circular frames. End balls, hinges and variable sections are excluded.",
+          "defaults": {
+            "section": "round",
+            "innerDiameter": 30,
+            "sectionSize": 4,
+            "sectionRadius": 0.4,
+            "openingAngle": 70
+          },
+          "fields": [
+            {
+              "key": "innerDiameter",
+              "label": "内径",
+              "labelEn": "Inner diameter",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "section",
+              "label": "截面",
+              "labelEn": "Section",
+              "type": "select",
+              "options": [
+                {
+                  "value": "round",
+                  "label": "圆线",
+                  "labelEn": "Round wire"
+                },
+                {
+                  "value": "square",
+                  "label": "圆角方线",
+                  "labelEn": "Rounded square"
+                }
+              ]
+            },
+            {
+              "key": "sectionSize",
+              "label": "线径／方线边长",
+              "labelEn": "Wire diameter / square size",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "sectionRadius",
+              "label": "方线截面 R（圆线忽略）",
+              "labelEn": "Square section corner R",
+              "type": "number",
+              "min": 0,
+              "step": 0.1
+            },
+            {
+              "key": "openingAngle",
+              "label": "开口角度（°）",
+              "labelEn": "Opening angle (degrees)",
+              "type": "number",
+              "min": 5,
+              "step": 1
+            }
+          ],
+          "knownUnsupportedCases": [
+            "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+          ],
+          "minimalExample": {
+            "kind": "openArcRing"
+          },
+          "normalExample": {
+            "kind": "openArcRing",
+            "section": "round",
+            "innerDiameter": 30,
+            "sectionSize": 4,
+            "sectionRadius": 0.4,
+            "openingAngle": 70
+          }
+        },
+        {
+          "kind": "roundedBossTray",
+          "title": "Rounded tray with two hollow bosses",
+          "description": "Open rounded-rectangle tray with two hollow bosses on the inner floor. Outer corner radius, wall/floor thickness and boss dimensions are editable. Straight walls only; no draft, clips, lettering or texture.",
+          "defaults": {
+            "outerWidth": 60,
+            "outerDepth": 38,
+            "height": 12,
+            "cornerRadius": 6,
+            "wallThickness": 2,
+            "floorThickness": 2,
+            "bossSpacing": 30,
+            "bossOuterDiameter": 7,
+            "boreDiameter": 3,
+            "bossHeight": 7
+          },
+          "fields": [
+            {
+              "key": "outerWidth",
+              "label": "外宽 X",
+              "labelEn": "Outer width X",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "outerDepth",
+              "label": "外深 Y",
+              "labelEn": "Outer depth Y",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "height",
+              "label": "壳体总高",
+              "labelEn": "Total height",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "cornerRadius",
+              "label": "外轮廓圆角 R",
+              "labelEn": "Outer corner radius",
+              "type": "number",
+              "min": 0,
+              "step": 0.1
+            },
+            {
+              "key": "wallThickness",
+              "label": "侧壁厚",
+              "labelEn": "Wall thickness",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "floorThickness",
+              "label": "底板厚",
+              "labelEn": "Floor thickness",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "bossSpacing",
+              "label": "两柱中心距 X",
+              "labelEn": "Boss center spacing X",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "bossOuterDiameter",
+              "label": "柱外径",
+              "labelEn": "Boss outer diameter",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "boreDiameter",
+              "label": "贯穿孔径",
+              "labelEn": "Through-bore diameter",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "bossHeight",
+              "label": "内底面以上柱高",
+              "labelEn": "Boss height above inner floor",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            }
+          ],
+          "knownUnsupportedCases": [
+            "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+          ],
+          "minimalExample": {
+            "kind": "roundedBossTray"
+          },
+          "normalExample": {
+            "kind": "roundedBossTray",
+            "outerWidth": 60,
+            "outerDepth": 38,
+            "height": 12,
+            "cornerRadius": 6,
+            "wallThickness": 2,
+            "floorThickness": 2,
+            "bossSpacing": 30,
+            "bossOuterDiameter": 7,
+            "boreDiameter": 3,
+            "bossHeight": 7
+          }
+        },
+        {
+          "kind": "roundBadge",
+          "title": "Round badge base with two posts",
+          "description": "One solid combining a round badge plate, raised front rim and two rear mounting posts. Posts may be hollow. Brand artwork, knurling, doming and production dimensions are excluded.",
+          "defaults": {
+            "diameter": 40,
+            "thickness": 2,
+            "rimWidth": 2,
+            "rimHeight": 0.8,
+            "postSpacing": 18,
+            "postDiameter": 4,
+            "postHeight": 4,
+            "postBoreDiameter": 0
+          },
+          "fields": [
+            {
+              "key": "diameter",
+              "label": "牌面直径",
+              "labelEn": "Badge diameter",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "thickness",
+              "label": "牌面厚度",
+              "labelEn": "Plate thickness",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "rimWidth",
+              "label": "正面环边宽",
+              "labelEn": "Front rim width",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "rimHeight",
+              "label": "正面环边高度",
+              "labelEn": "Front rim height",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "postSpacing",
+              "label": "背柱中心距 X",
+              "labelEn": "Rear post spacing X",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "postDiameter",
+              "label": "背柱直径",
+              "labelEn": "Rear post diameter",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "postHeight",
+              "label": "背柱高度",
+              "labelEn": "Rear post height",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "postBoreDiameter",
+              "label": "背柱孔径（0 为实心）",
+              "labelEn": "Post bore diameter (0 = solid)",
+              "type": "number",
+              "min": 0,
+              "step": 0.1
+            }
+          ],
+          "knownUnsupportedCases": [
+            "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+          ],
+          "minimalExample": {
+            "kind": "roundBadge"
+          },
+          "normalExample": {
+            "kind": "roundBadge",
+            "diameter": 40,
+            "thickness": 2,
+            "rimWidth": 2,
+            "rimHeight": 0.8,
+            "postSpacing": 18,
+            "postDiameter": 4,
+            "postHeight": 4,
+            "postBoreDiameter": 0
           }
         },
         {
@@ -7395,7 +7879,7 @@
       },
       "runtimeAvailability": "requires_ready_page",
       "usage": "Available through the page CommandService advisory adapter; Schema is advisory and kernel prerequisites still apply. Verify the actual result.",
-      "docsHash": "sha256:32bf9f3ab89d90b6baef1890c9a60fc7360079e2532895ea3c43eb6df01d1b45"
+      "docsHash": "sha256:755ff1aa483f21caaf142c6127bda49d386185e61a25d1398754cb74cbc3623d"
     },
     {
       "id": "referenceExtrude",
