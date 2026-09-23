@@ -1,6 +1,7 @@
 async (page) => {
   const testContext=await page.context().browser().newContext();page=await testContext.newPage();
-  const network=[],sockets=[];
+  const network=[],sockets=[],responses=[];
+  page.on('response',r=>responses.push({url:r.url(),status:r.status(),mime:r.headers()['content-type']}));
   page.on('request',r=>network.push({method:r.method(),url:r.url()}));page.on('websocket',s=>sockets.push(s.url()));
   await page.goto('http://127.0.0.1:17670/');
   await page.waitForFunction(()=>window.webcad?.api.getState().summary?.kernelReady);
@@ -51,7 +52,7 @@ async (page) => {
     return {records,files,finalState:api.getState(),portableName:'portable-import.webcad'};
   });
   const clean=await page.context().browser().newContext();
-  const p=await clean.newPage();await p.goto('http://127.0.0.1:17670/sub/');await p.waitForFunction(()=>window.webcad?.api.getState().summary?.kernelReady);
+  const p=await clean.newPage();p.on('response',r=>responses.push({url:r.url(),status:r.status(),mime:r.headers()['content-type']}));await p.goto('http://127.0.0.1:17670/sub/');await p.waitForFunction(()=>window.webcad?.api.getState().summary?.kernelReady);
   const portable=result.files.find(f=>f.name===result.portableName);
   result.clean=await p.evaluate(async data=>{
     const a=window.webcad.api,c=()=>{const{revision,...x}=a.getState().context;return{...x,expectedRevision:revision};};
@@ -59,10 +60,12 @@ async (page) => {
     const before=a.getState(),feature=before.features.at(-1),card=a.getTool({id:'hole'});
     const edit=await a.execute({context:c(),idempotencyKey:crypto.randomUUID(),action:'feature.edit',args:{featureId:feature.id,opVersion:card.version,schemaHash:card.schemaHash,params:{radius:1.2}}});
     if(edit.status!=='committed')throw new Error(JSON.stringify(edit));
-    return{info:a.info(),before,after:a.getState(),edit,measure:await a.measure({context:c(),bodyId:a.getState().bodies[0].id})};
+    return{info:a.info(),before,after:a.getState(),edit,capture:await a.capture({context:c()}),measure:await a.measure({context:c(),bodyId:a.getState().bodies[0].id})};
   },portable);
   await clean.close();
-  result.network=network;result.sockets=sockets;
+  result.network=network;result.sockets=sockets;result.responses=responses;
   if(sockets.length||network.some(r=>r.method!=='GET'||/\/mcp|\/ai-bridge|\/api\//.test(r.url)))throw new Error('Unexpected application network');
+  if(responses.some(r=>r.status!==200))throw new Error('Static resource failed');
+  if(!responses.some(r=>r.url.includes('/sub/')&&r.url.endsWith('.wasm')&&r.mime==='application/wasm'))throw new Error('Subpath WASM MIME missing');
   await testContext.close();return result;
 }

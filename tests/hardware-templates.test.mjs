@@ -11,7 +11,7 @@ const run=features=>kernel.rebuild({version:1,features,imports:{},hidden:[]});
 const near=(a,b)=>assert.ok(Math.abs(a-b)<Math.max(1e-5,Math.abs(b)*1e-7),`${a} != ${b}`);
 const size=b=>b.bounds.max.map((v,i)=>v-b.bounds.min[i]);
 
-for(const kind of ['tube','counterboreTool']) {
+for(const kind of ['tube','counterboreTool','thinWallTray']) {
   const model=QUICK_MODELS[kind];
   assert.ok(model.label&&model.labelEn&&model.description&&model.descriptionEn);
   for(const field of model.fields) assert.ok(field.label&&field.labelEn&&Object.hasOwn(model.defaults,field.key));
@@ -33,7 +33,38 @@ for(const style of ['bore','sink']) {
 }
 for(const bad of [{holeDiameter:0},{headDiameter:4},{headDepth:0},{headDepth:8},{style:'bad'}]) await assert.rejects(run([f('bad','quickModel',{kind:'counterboreTool',...QUICK_MODELS.counterboreTool.defaults,...bad})]));
 
-for(const kind of ['tube','counterboreTool']) {
+const trayVolume=p=>p.outerWidth*p.outerDepth*p.height
+  -(p.outerWidth-2*p.wallThickness)*(p.outerDepth-2*p.wallThickness)*(p.height-p.floorThickness)
+  +2*Math.PI*(p.bossOuterDiameter/2)**2*p.bossHeight
+  -2*Math.PI*(p.boreDiameter/2)**2*(p.floorThickness+p.bossHeight);
+for(const variant of [{},{outerWidth:73,outerDepth:42,bossSpacing:39,bossHeight:9,floorThickness:2.5}]) {
+  const p={...QUICK_MODELS.thinWallTray.defaults,...variant};
+  result=await run([f('tray','quickModel',{kind:'thinWallTray',...p})]);
+  assert.equal(result.bodies.length,1); assert.equal(result.stats.solids,1);
+  size(result.bodies[0]).forEach((value,i)=>near(value,[p.outerWidth,p.outerDepth,p.height][i]));
+  result.bodies[0].bounds.min.forEach((value,i)=>near(value,[-p.outerWidth/2,-p.outerDepth/2,0][i]));
+  near(result.stats.volume,trayVolume(p));
+  const upwards=await kernel.queryGeometry('tray','face',{surfaceType:'plane',normal:{direction:[0,0,1],sameDirection:true}});
+  const floor=upwards.items.filter(face=>Math.abs(face.center[2]-p.floorThickness)<1e-6);
+  assert.equal(floor.length,1,'one exposed planar cavity floor');
+  near(floor[0].areaMm2,(p.outerWidth-2*p.wallThickness)*(p.outerDepth-2*p.wallThickness)-2*Math.PI*(p.bossOuterDiameter/2)**2);
+  assert.equal(upwards.items.filter(face=>Math.abs(face.center[2]-(p.floorThickness+p.bossHeight))<1e-6).length,2,'two boss tops below the open rim');
+  const holes=await kernel.queryGeometry('tray','edge',{curveType:'circle',radiusRangeMm:{min:p.boreDiameter/2-1e-6,max:p.boreDiameter/2+1e-6}});
+  const holeCenters=new Set(holes.items.map(edge=>`${edge.center[0].toFixed(6)},${edge.center[2].toFixed(6)}`));
+  for(const x of [-p.bossSpacing/2,p.bossSpacing/2]) for(const z of [0,p.floorThickness+p.bossHeight]) {
+    assert.ok(holeCenters.has(`${x.toFixed(6)},${z.toFixed(6)}`),'each bore opens at the underside and boss top');
+  }
+  const savedVolume=result.stats.volume, savedShape=kernel.activeShape('tray');
+  for(const bad of [{outerWidth:0},{wallThickness:p.outerDepth/2},{floorThickness:p.height},
+    {bossHeight:p.height},{boreDiameter:p.bossOuterDiameter},{bossSpacing:p.bossOuterDiameter},
+    {bossSpacing:p.outerWidth},{bossOuterDiameter:p.outerDepth-2*p.wallThickness}]) {
+    await assert.rejects(run([f('tray','quickModel',{kind:'thinWallTray',...p,...bad})]));
+    assert.equal(kernel.activeShape('tray'),savedShape,'invalid parameters keep the committed B-Rep');
+    near(kernel.measure('tray').volume,savedVolume);
+  }
+}
+
+for(const kind of ['tube','counterboreTool','thinWallTray']) {
   await run([f('q','quickModel',{kind,...QUICK_MODELS[kind].defaults})]);
   const step=await kernel.export('step'); assert.ok(step.data.byteLength||step.data.length);
   const round=await kernel.rebuild({version:1,features:[f('i','import',{key:'s'})],imports:{s:{format:'step',data:Buffer.from(step.data).toString('base64')}},hidden:[]});

@@ -32,8 +32,9 @@ function stop(status, message, code) {
   process.exit(code);
 }
 
+const browserGroups={'page-browser':'page-api-browser','parameters-browser':'page-parameters-browser','products-browser':'page-products-browser','page-boundaries':'page-boundaries-browser','page-ui':'page-ui-browser'};
 const group = process.argv[2] || 'portable';
-if (process.argv.length > 3 || !['portable', 'e2e', 'e2e-m2a', 'e2e-m2a-portable', 'ui-m2a', ...Object.keys(groups)].includes(group)) {
+if (process.argv.length > 3 || !['portable', 'e2e', 'e2e-m2a', 'e2e-m2a-portable', 'ui-m2a', ...Object.keys(browserGroups), ...Object.keys(groups)].includes(group)) {
   stop('FAIL', 'Usage: node scripts/test.mjs [portable|contracts|kernel|mcp|e2e|e2e-m2a|ui-m2a|local-fixtures]', 1);
 }
 const expected = Object.values(groups).flat().map(name => `${name}.test.mjs`);
@@ -51,7 +52,10 @@ if (group === 'local-fixtures') {
 }
 
 let args;
-if (group === 'e2e-m2a-portable') {
+if (Object.hasOwn(browserGroups,group)) {
+  if(!process.env.WEBCAD_PLAYWRIGHT_CLI||!fs.existsSync(process.env.WEBCAD_PLAYWRIGHT_CLI))stop('BLOCKED','Set WEBCAD_PLAYWRIGHT_CLI and open an isolated webcad-page-api Chrome session; serve dist with scripts/serve-static.mjs.',2);
+  args=[process.env.WEBCAD_PLAYWRIGHT_CLI,'-s=webcad-page-api','run-code','--filename',`tests/${browserGroups[group]}.js`];
+} else if (group === 'e2e-m2a-portable') {
   args = ['tests/m2a-portability.mjs'];
 } else if (group === 'e2e-m2a') {
   args = ['tests/m2a-e2e.mjs'];

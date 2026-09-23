@@ -35,7 +35,7 @@ const ui=createUI(document.getElementById('app'),{
   onSelection:(id,additive)=>selectBody(id,additive),
   onEditFeature:(id,params,name)=>editFeature(id,params,name).catch(reportError),
   onVisibility:id=>toggleVisibility(id),
-  onRename:name=>{if(!busy&&!previewNext&&String(name).trim()){pushUndo();documentModel.name=String(name).trim();dirty=true;revision++;refresh();autosave();}},
+  onRename:name=>{if(!busy&&!previewNext&&String(name).trim()){pushUndo();documentModel.name=String(name).trim().slice(0,120);dirty=true;revision++;refresh();autosave();}},
 });
 const viewport=new CADViewport(document.getElementById('viewport'),{
   onPick:pick,
@@ -78,6 +78,9 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
   try{
     checkTransaction(signal,expectedRevision);
     if(next.parameters!==undefined||next.features.some(f=>f.expressions))next=evaluateDocumentParameters(next,{previousDocument:documentModel});
+    // Keep every committed project saveable through the bounded browser file API.
+    // Reserve a small margin for subsequent UI name/appearance metadata changes.
+    if(new TextEncoder().encode(JSON.stringify(next,null,2)).byteLength>20*1024*1024-4096)throw Object.assign(new Error('自包含工程超过 20 MiB 浏览器文件限额；请拆分工程。原工程保留。'),{code:'SIZE_LIMIT'});
     const result=await request('rebuild',{document:next});
     try{checkTransaction(signal,expectedRevision);}catch(error){await request('rebuild',{document:documentModel});throw error;}
     if(record)pushUndo();
@@ -161,7 +164,7 @@ async function previewFeature(op,params){
 }
 async function cancelPreview(){previewGeneration++;if(previewComputing||!previewNext)return;setBusy(true,'取消预览 / Cancel preview…');try{await request('rebuild',{document:documentModel});previewNext=null;viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);}finally{setBusy(false);}}
 
-function safeName(name){return (name||'WebCAD').replace(/[<>:"/\\|?*\x00-\x1f]/g,'_').slice(0,120);}
+function safeName(name){return (name||'WebCAD').replace(/[<>:"/\\|?*\x00-\x1f]/g,'_').replace(/\.{2,}/g,'_').replace(/[. ]+$/g,'').slice(0,120)||'WebCAD';}
 function download(data,name,mime='application/octet-stream'){
   const blob=data instanceof Blob?data:new Blob([data],{type:mime});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=name;link.click();setTimeout(()=>URL.revokeObjectURL(url),30000);
 }
@@ -177,11 +180,11 @@ async function saveProject(){
   if(busy||previewNext||previewComputing)throw new Error('请先完成当前操作。');
   // Acquire permission synchronously from the user gesture, before expensive generation.
   if(!projectFileHandle&&window.showSaveFilePicker){
-    try{projectFileHandle=await window.showSaveFilePicker({suggestedName:documentModel.name+'.webcad',types:[{description:'WebCAD 工程',accept:{'application/json':['.webcad']}}]});}
+    try{projectFileHandle=await window.showSaveFilePicker({suggestedName:safeName(documentModel.name)+'.webcad',types:[{description:'WebCAD 工程',accept:{'application/json':['.webcad']}}]});}
     catch(error){if(error.name==='AbortError'){setStatus('保存已取消，工程保留。');return;}throw error;}
   }
   const c=pageAPI.getState().context,context={...c,expectedRevision:c.revision};delete context.revision;
-  const artifact=await pageAPI.files.save({context});if(artifact.status==='failed')throw new Error(artifact.error.message);
+  const artifact=await pageAPI.files.save({context,name:safeName(documentModel.name)+'.webcad'});if(artifact.status==='failed')throw new Error(artifact.error.message);
   try{
     const result=projectFileHandle?await pageAPI.files.write({resourceId:artifact.resourceId,handle:projectFileHandle}):await pageAPI.files.download({resourceId:artifact.resourceId});
     if(result.status==='failed')throw new Error(result.error.message);
@@ -201,7 +204,7 @@ async function openFiles(files,{confirmReplace=true,signal,expectedRevision,mcp=
   if(busy){if(mcp)throw new Error('Worker is busy');return;}
   for(const file of files){
     checkTransaction(signal,expectedRevision);
-    if(file.size>150*1024*1024)throw new Error('单文件超过 150 MB。请先拆分模型后再打开。');
+    if(file.size>20*1024*1024)throw Object.assign(new Error('单文件超过 20 MiB；请先拆分模型。导入后自包含工程也必须可在此限额内保存。'),{code:'SIZE_LIMIT'});
     const ext=file.name.split('.').pop().toLowerCase();
     if(['webcad','json'].includes(ext)){
       const next=validateDocument(JSON.parse(await file.text()));
@@ -395,7 +398,12 @@ async function executeAI(command,args={},options={}){
     await openFiles([file],{...options,confirmReplace:false,mcp:true});
     return {dirty};
   }else if(command==='file_export'){
-    const result=args.format==='png'?{extension:'png',mime:'image/png',data:Uint8Array.from(atob(viewport.screenshot().split(',')[1]),c=>c.charCodeAt(0))}:await exportData(args.format,args.ids);
+    let result;
+    if(args.format==='png'){
+      const cap=await pageAPI.capture({context:{sessionId:pageSessionId,documentId:documentModel.documentId,documentInstanceId,expectedRevision:options.expectedRevision}});
+      if(cap.status==='failed')throw Object.assign(new Error(cap.error.message),cap.error);
+      result={extension:'png',mime:'image/png',data:Uint8Array.from(atob(cap.dataUrl.split(',')[1]),c=>c.charCodeAt(0))};
+    }else result=await exportData(args.format,args.ids);
     checkTransaction(options.signal,options.expectedRevision);
     return {revision,extension:result.extension,mime:result.mime,encoding:'base64',data:base64(typeof result.data==='string'?new TextEncoder().encode(result.data):new Uint8Array(result.data))};
   }

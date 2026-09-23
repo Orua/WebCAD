@@ -37,11 +37,12 @@ export function createPageAPI(host){
       check(input,['context','direction','projection','fit','selectedIds','section']);
       if(input.direction&&!['top','bottom','front','back','left','right','side','iso'].includes(input.direction))fail('PARAM_SCHEMA_INVALID','Unknown view');
       if(input.projection&&!['orthographic','perspective'].includes(input.projection))fail('PARAM_SCHEMA_INVALID','Unknown projection');
+      if(input.fit!==undefined&&typeof input.fit!=='boolean')fail('PARAM_SCHEMA_INVALID','fit must be boolean');
       if(input.section&&(!['X','Y','Z'].includes(input.section.axis)||!Number.isFinite(input.section.position)||typeof input.section.enabled!=='boolean'))fail('PARAM_SCHEMA_INVALID','Section requires axis, finite position and enabled boolean');
-      if(input.selectedIds&&(!Array.isArray(input.selectedIds)||input.selectedIds.some(id=>!current().bodies.some(b=>b.id===id))))fail('STALE_REFERENCE','Unknown selected body');
-      await host.view(input);return {status:'read',context:current().context,display:host.display()};
+      if(input.selectedIds&&(!Array.isArray(input.selectedIds)||input.selectedIds.length>200||new Set(input.selectedIds).size!==input.selectedIds.length||input.selectedIds.some(id=>!current().bodies.some(b=>b.id===id))))fail('STALE_REFERENCE','Unknown or duplicate selected body');
+      await host.view(input);check(input,['context','direction','projection','fit','selectedIds','section']);return {status:'read',context:current().context,display:host.display()};
     }),
-    redraw:guarded(async input=>{check(input,['context']);await host.redraw();return {status:'read',context:current().context,display:host.display()};}),
+    redraw:guarded(async input=>{check(input,['context']);await host.redraw();check(input,['context']);return {status:'read',context:current().context,display:host.display()};}),
     capture:guarded(async input=>{
       check(input,['context']);await host.frame();check(input,['context']);
       const display=host.display(),state=current();
