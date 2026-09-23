@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "documentId": "5c34f36c-722b-4e9e-b4ef-4a080bd1e82d",
+  "name": "双柱直壁薄壳",
+  "features": [
+    {
+      "id": "ec2a4217-f85d-4758-8904-bded3dafc899",
+      "op": "quickModel",
+      "name": "快速模型 1",
+      "params": {
+        "kind": "thinWallTray",
+        "outerWidth": 60,
+        "outerDepth": 36,
+        "height": 14,
+        "wallThickness": 2,
+        "floorThickness": 2,
+        "bossSpacing": 30,
+        "bossOuterDiameter": 8,
+        "boreDiameter": 3,
+        "bossHeight": 8
+      },
+      "refs": [],
+      "expressions": {
+        "outerWidth": "outerWidth"
+      }
+    }
+  ],
+  "imports": {},
+  "hidden": [],
+  "parameters": {
+    "outerWidth": {
+      "value": 60,
+      "unit": "mm"
+    }
+  }
+}

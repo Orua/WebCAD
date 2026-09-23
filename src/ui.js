@@ -1,4 +1,5 @@
 import { toolDisabledReason } from './tool-state.js';
+import { TRIAL_SAMPLES } from './trial-samples.js';
 import { METAL_FINISHES } from './metal-materials.js';
 import { QUICK_MODELS } from './quick-models.js';
 import { createLogoImportUI } from './browser-logo-input.js';
@@ -133,6 +134,14 @@ export function createUI(root,callbacks={}) {
  function examplesDialog(){const d=openDialog('打开示例工程','选择一个可编辑的实体工程，查看建模历史并修改尺寸。'),list=element('div');for(const [name,label,description]of [['mounting-bracket','带孔安装支架','板件、安装孔与支撑结构'],['buckle-frame','圆角扣框','扣框轮廓与圆角加工'],['open-box','薄壁盒','盒体与壁厚设计']]){const b=button('',()=>{closeDialog();emit('example',{name});},'export-option');b.style.width='100%';b.style.textAlign='left';const text=element('div');text.append(element('strong',{},label),element('small',{},description));b.append(text);list.append(b);}d.append(list);}
  const header=q('.header-actions');for(const [label,action,cls]of [['新建','new',''],['打开','open',''],['保存工程','save',''],['导出','export','primary']]){const b=button(label,()=>run(action),cls);b.dataset.action=action;header.append(b);}const exampleButton=button('示例',examplesDialog);exampleButton.dataset.action='example';header.append(exampleButton,button('帮助',()=>run('help'),'help-button'));
  const languageSelect=element('select',{class:'language-select','aria-label':'Language / 语言','data-no-translate':''});languageSelect.append(element('option',{value:'zh'},'中文'),element('option',{value:'en'},'English'));languageSelect.value=getLanguage();languageSelect.addEventListener('change',()=>{setLanguage(languageSelect.value);translator.translate();emit('language',{language:getLanguage()});});header.append(languageSelect);
+ function trialSamplesDialog(){
+  const d=openDialog('试用样件','打开后点击底部“参数表”改尺寸；先保存当前修改再切换样件。原生工程保留建模历史与参数联动。');
+  for(const sample of TRIAL_SAMPLES){
+   const b=button('',()=>{closeDialog();emit('trialSample',{name:sample.id});},'export-option');b.dataset.trialSample=sample.id;b.style.width='100%';b.style.textAlign='left';
+   const text=element('div');text.append(element('strong',{},sample.label),element('small',{},sample.hint));b.append(text);d.append(b);
+  }
+ }
+ const trialButton=button('试用样件',trialSamplesDialog,'primary');trialButton.dataset.action='trialSamples';header.insertBefore(trialButton,header.firstChild);
  function parametersDialog(){
   const values=window.webcad.api.getState(),d=openDialog('命名参数','数值使用所选单位；表达式直接引用参数名，例如 length-edgeMargin。一次应用是一个可撤销动作。');
   const form=element('form',{'data-parameter-form':''}),table=element('div',{class:'property-grid'}),rows=[];
@@ -148,9 +157,10 @@ export function createUI(root,callbacks={}) {
   d.append(form);const bindings=element('pre',{},values.features.filter(f=>f.expressions).map(f=>f.name+': '+JSON.stringify(f.expressions)).join('\n'));d.append(bindings);
  }
  q('.statusbar').insertBefore(button('参数表',parametersDialog,'secondary'),q('.kernel-state'));
- const aiBadge=button('AI · 未连接',()=>mcpDialog(),'ai-status');q('.statusbar').insertBefore(aiBadge,q('.kernel-state'));
- function updateAI(){aiBadge.textContent='页面 API · r'+(state.revision??0);aiBadge.title='自动化接口';aiBadge.dataset.state='connected';}
- function mcpDialog(){const a=window.webcad?.api;api.showInfo('自动化接口','入口：window.webcad.api\n先 info() / getState()，再 searchTools({query:…}) / getTool({id:…})，按工具卡 execute。\n静态浏览器内核；侧边栏必须自行具备页面 JS 执行权限。\n'+JSON.stringify(a?.info(),null,2)+'\n'+(a?.readDocs({docId:'start'})?.text||''));}
+ const aiBadge=button('页面 API · 启动中',()=>mcpDialog(),'ai-status');q('.statusbar').insertBefore(aiBadge,q('.kernel-state'));
+ const buildBadge=element('span',{'data-build-id':__WEBCAD_BUILD__,title:__WEBCAD_BUILD__},'构建 '+__WEBCAD_BUILD__.slice(0,8)+(__WEBCAD_BUILD__.endsWith('-working')?' · working':''));q('.statusbar').insertBefore(buildBadge,q('.kernel-state'));
+ function updateAI(){aiBadge.textContent=`页面 API ${state.kernelReady?'就绪':'启动中'} · 侧边栏未验证`;aiBadge.title='自动化接口 · r'+(state.revision??0);aiBadge.dataset.state=state.kernelReady?'connected':'pending';}
+ function mcpDialog(){const a=window.webcad?.api;api.showInfo('自动化接口','入口：window.webcad.api\n先 info() / getState()，再 searchTools({query:…}) / getTool({id:…})，按工具卡 execute。\n页面 API 已可调用；当前执行环境未取得真实 ChatGPT 侧边栏的页面 JS/图像通道，端到端接入尚未验证。\n'+JSON.stringify(a?.info(),null,2)+'\n'+(a?.readDocs({docId:'start'})?.text||''));}
  q('.document-title').addEventListener('click',()=>{const d=openDialog('重命名工程'),form=element('form'),input=element('input',{type:'text',required:'',maxlength:'100',class:'rename-input'});input.value=state.document?.name||'未命名设计';const foot=element('div',{class:'dialog-footer'});foot.append(button('取消',closeDialog,'secondary'),element('button',{type:'submit',class:'primary'},'保存'));form.append(input,foot);form.addEventListener('submit',e=>{e.preventDefault();const name=input.value.trim();if(name){callbacks.onRename?.(name);closeDialog();}});d.append(form);input.focus();input.select();});
  const categories={编辑:[['选择',['selectTool']],['变换与复制',['transform','copy','mirror']],['组合与拆散',['group','explode']],['交互手柄',['gizmoTranslate','gizmoRotate','gizmoOff']],['阵列',['linearPattern','circularPattern']],['管理',['remove']]],创建:[['基本实体',['box','cylinder','sphere','cone','torus']],['轮廓成型',['sketch','vectorProfile','extrude','revolve','sweep','loft','curveSweep','advancedLoft','fittedSurface']],['快捷模型',['quickModel']]],加工:[['布尔运算',['union','cut','intersect']],['孔与槽',['hole','multiHole','slot']],['面与边',['faceHole','faceExtrude','logo','curvedLogo','thickenFace','fillet','chamfer','shell']],['拆分',['split','extractSolid']]],视图:[]};
  const toolHelp={selectTool:'取消当前工具，返回箭头选择',group:'将选中实体组合为复合体，保持各实体独立，不做布尔合并',explode:'将复合体中的实体拆成可独立选择和编辑的对象；单一实体请先分割',logo:'在一个选定平面上导入闭合 LOGO 轮廓并凹刻或凸起',cut:'相减顺序：先选保留主体，再选切除刀具',shell:'选面后移除开口面并生成壁厚',fillet:'选择指定边，或明确勾选全部边',chamfer:'选择指定边，或明确勾选全部边',sketch:'绘制闭合轮廓，随后拉伸成实体',faceHole:'在选定平面上向实体内部打孔',faceExtrude:'沿选定平面的法向增加或切除材料'};

@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "documentId": "228f725b-2909-4a71-b480-643dcd0f38f6",
+  "name": "轴套",
+  "features": [
+    {
+      "id": "2ecad2ba-7726-48d9-bd52-79f16c1e884e",
+      "op": "quickModel",
+      "name": "快速模型 1",
+      "params": {
+        "kind": "flangedBushing",
+        "bodyDiameter": 12,
+        "flangeDiameter": 20,
+        "boreDiameter": 6,
+        "bodyHeight": 10,
+        "flangeThickness": 3
+      },
+      "refs": [],
+      "expressions": {
+        "bodyDiameter": "bodyDiameter"
+      }
+    }
+  ],
+  "imports": {},
+  "hidden": [],
+  "parameters": {
+    "bodyDiameter": {
+      "value": 12,
+      "unit": "mm"
+    }
+  }
+}
