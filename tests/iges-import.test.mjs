@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import {convertIges, validateIgesRequest} from '../scripts/iges-import.mjs';
 import path from 'node:path';
-const source='G:/TEXT-TO-CAD/工程图3D_20260914/0/gc15372.igs';
+const source=process.env.WEBCAD_IGES_IMPORT_FIXTURE||'G:/TEXT-TO-CAD/工程图3D_20260914/0/gc15372.igs';
 const bytes=await fs.readFile(source);
 const out=await convertIges({name:'gc15372.igs',data:bytes.toString('base64')});
 assert.equal(out.ok,true); assert.equal(out.topology.solids,0); assert.ok(out.topology.faces>0); assert.ok(out.brep.length>100); assert.ok(out.step.length>100);

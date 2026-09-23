@@ -29,7 +29,7 @@ async function fakeTab(ctx,name){
 const parsed=r=>JSON.parse(r.content[0].text);
 test('official MCP initialize/list/call, revision guard, tab isolation, errors, serialization and origins',async t=>{
  const ctx=await setup(t),a=await fakeTab(ctx,'A'),b=await fakeTab(ctx,'B');
- const tools=await ctx.client.listTools();assert.equal(tools.tools.length,14);assert(tools.tools.some(x=>x.name==='webcad_refresh'));
+ const tools=await ctx.client.listTools();const legacy=['get_operations','list_sessions','get_state','get_templates','inspect_geometry','add_feature','edit_feature','remove','select','undo','redo','refresh','export','apply_template'];for(const name of legacy)assert(tools.tools.some(x=>x.name===`webcad_${name}`));
  const call=(name,args={})=>ctx.client.callTool({name:`webcad_${name}`,arguments:args});
  const catalog=parsed(await call('get_operations'));assert.equal(catalog.units.length,'mm');assert.equal(catalog.operations.faceHole.refs,1);assert.equal(catalog.operations.import.mcpAddFeature,false);
  assert.equal(parsed(await call('inspect_geometry',{sessionId:a.sessionId,bodyId:'body1',kind:'face',topologyId:0})).command,'inspect_geometry');

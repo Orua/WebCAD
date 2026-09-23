@@ -15,6 +15,7 @@ self.onmessage = ({ data }) => {
       else if(type==='rebuild')result=await engine.rebuild(data.document);
       else if(type==='export')result=await engine.export(data.format,data.ids);
       else if(type==='faceInfo')result=engine.faceInfo(data.bodyId,data.faceId);
+      else if(type==='queryGeometry')result=await engine.queryGeometry(data.bodyId,data.kind,data.filter);
       else if(type==='measure'){
         if(Array.isArray(data.ids)){
           const items=data.ids.map(id=>engine.measure(data.bodyId,data.selectionType||data.topologyType,id));
@@ -22,6 +23,6 @@ self.onmessage = ({ data }) => {
         } else result=engine.measure(data.bodyId,data.topologyType,data.topologyId);
       } else throw new Error(`未知请求 ${type}`);
       self.postMessage({ requestId, ok: true, ...result });
-    } catch (error) { self.postMessage({ requestId, ok: false, error: error?.message || String(error), featureId: error?.featureId }); }
+    } catch (error) { self.postMessage({ requestId, ok: false, error: error?.message || String(error), featureId: error?.featureId, code: error?.code, path: error?.path, recoveryAction: error?.recoveryAction }); }
   });
 };

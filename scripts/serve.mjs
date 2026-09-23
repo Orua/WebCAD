@@ -5,7 +5,13 @@ import { stat, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
-const host='127.0.0.1', port=667, identity='WebCAD-local-server-v1';
+const host='127.0.0.1', identity='WebCAD-local-server-v1';
+const portIndex=process.argv.indexOf('--port');
+const portValue=portIndex<0?'667':process.argv[portIndex+1];
+if(!/^\d+$/.test(portValue??'')||Number(portValue)<1||Number(portValue)>65535){
+ console.error('--port requires an integer from 1 through 65535');process.exit(1);
+}
+const port=Number(portValue);
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.wasm':'application/wasm','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.svg':'image/svg+xml','.ico':'image/x-icon','.woff':'font/woff','.woff2':'font/woff2','.ttf':'font/ttf','.hdr':'application/octet-stream','.stp':'application/step','.step':'application/step','.stl':'model/stl'};
 async function probe(){return new Promise(resolve=>{let finished=false;const done=value=>{if(!finished){finished=true;resolve(value);}};const req=http.get({hostname:host,port,path:'/healthz',timeout:1500},res=>{let data='';res.on('data',chunk=>{data+=chunk;if(data.length>4096){req.destroy();done(1);}});res.on('end',()=>{try{const status=JSON.parse(data);done(status.identity===identity&&status.mcp==='/mcp'?0:1);}catch{done(1);}});});req.on('timeout',()=>{req.destroy();done(1);});req.on('error',e=>done(e.code==='ECONNREFUSED'?2:1));});}
 if(process.argv.includes('--probe')){process.exit(await probe());}
@@ -38,7 +44,7 @@ const server=http.createServer(async(req,res)=>{
 });
 const bridge=createMCPBridge(server);
 server.on('close',()=>bridge.close());
-server.on('error',async error=>{if(error.code==='EADDRINUSE'){if(await probe()===0){console.log('Existing WebCAD server found. Reuse http://127.0.0.1:667');process.exit(0);}console.error('Port 667 is occupied by another service. It was not stopped.');}else console.error(error.message);process.exit(1);});
+server.on('error',async error=>{if(error.code==='EADDRINUSE'){if(await probe()===0){console.log(`Existing WebCAD server found. Reuse http://127.0.0.1:${port}`);process.exit(0);}console.error(`Port ${port} is occupied by another service. It was not stopped.`);}else console.error(error.message);process.exit(1);});
 try{await stat(path.join(root,'dist','index.html'));}catch{console.error('Missing dist. Run npm install and npm run build first.');process.exit(1);}
 server.listen(port,host,()=>console.log(`WebCAD ready: http://${host}:${port} (local only)`));
 
