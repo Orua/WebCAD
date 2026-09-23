@@ -1,31 +1,24 @@
 # WebCAD
 
-## 2026-09-23 首批 AI 接口升级（M0/M1A/M1B）
+WebCAD 是浏览器中的三维建模工作台，面向小型五金、板件、框扣和参数化实体设计。几何由浏览器 Worker 中的 OpenCascade/Replicad 计算。正常使用发布后的静态页面：HTTPS 或本机 localhost 静态托管即可，不需要 WebCAD 应用服务。
 
-保留原 21 个 MCP 工具，M2A 增加 9 个文件工作流工具，共 30 个。M0/M1 新入口严格校验工程/运行实例/版本，选择令牌绑定当前精确几何快照，幂等回执仅保证同一浏览器工程运行实例的内存范围。box、hole、multiHole、faceHole、fillet、chamfer、shell 已迁入 v2 严格契约，其余操作仍经旧接口调用。说明见 [M1 工具契约](docs/M1-TOOL-CONTRACTS.md) 与 [MCP 文件工作流](docs/MCP-GUIDE.zh-CN.md#10-m2a-工程与文件闭环)。
+## 页面自动化接口
 
-本机回归使用 `npm test`、`npm run test:local-fixtures`；真实 MCP 验收须在隔离端口启动服务并连接专用测试页面。M2A 增加文件生命周期 API，但不提供跨重启 exactly-once、关联参数或完整装配能力。
+目标入口是 `window.webcad.api.info()`。获授权且具备页面脚本执行能力的客户端可读取当前工程，随后用 `searchTools`、`getTool`、`readDocs` 查询当前工具契约；建模、测量、视图与文件方法操作同一个页面工程。接口目录与调用边界见 [页面 API](docs/PAGE-API.zh-CN.md)。页面暴露 JS 函数不等于现有 ChatGPT 侧边栏已具备调用权限；这一点需在实际侧边栏中单独验证。
 
-WebCAD 是一个本机运行的浏览器三维建模工作台，面向小型五金、板件、框扣和参数化实体设计。几何由浏览器中的 OpenCascade/Replicad 计算；项目服务仅绑定 `127.0.0.1:667`，并提供同机 MCP 接口供 AI 操作当前打开的模型。
+M0/M1 已建立完整工程上下文、revision、选择令牌与命令事务。box、hole、multiHole、faceHole、fillet、chamfer、shell 有严格 v2 参数契约，其余操作的目录 Schema 属于 advisory。旧 MCP 文档和 M2A 报告保留为开发历史，不是正常运行入口或新页面 API 的验收证明。
 
 ## 当前功能
 
 - 基本实体、草图、拉伸、旋转、扫掠、放样、布尔、阵列、孔槽、圆角、倒角、抽壳与分割。
 - 实体/面/边选择，精确 XYZ 移动，面上鼠标取孔位，组合和拆散多实体复合模型。
-- SVG、DXF、DWG、矢量 PDF、PDF-compatible AI 的 LOGO/路径导入；可粘贴 SVG 或闭合 SVG `d` 路径。
+- 浏览器内可粘贴 SVG 或闭合 SVG `d` 路径。DXF、DWG、矢量 PDF、PDF-compatible AI 原有转换依赖本机服务，当前静态路径不可用。
 - 矢量路径可生成面或实体；LOGO 支持凹凸、深度和默认 7° 脱模斜度。
 - STEP/BREP 导入、STEP/STL/BREP 导出、`.webcad` 自包含参数历史保存、金属材质预览与中英文界面。
-- 本机 MCP：`http://127.0.0.1:667/mcp`。
 
-## 启动
+## 使用静态页面
 
-1. 电脑安装 Node.js 22 LTS 或更新版本。
-2. 双击 `start-server.cmd`，浏览器打开 http://127.0.0.1:667 。
-3. 等待状态栏显示内核就绪，再新建或打开模型。
-
-随项目保留的 `dist/` 包含已构建页面、建模内核和资源，还需 Node.js 及已安装的 MCP SDK、ws、zod 等 npm 依赖。启动器发现运行依赖缺失时会执行 `npm install`，首次安装需要网络；依赖和 `dist/` 齐全后可离线启动。只有缺少 `dist/index.html` 时才重新构建页面。服务仅绑定本机 127.0.0.1。再次启动会复用已识别的 WebCAD 服务；若端口被其他软件占用，会提示并停止，不关闭其他程序。
-
-运行日志在 `agent/temp/webcad-server.log` 和 `agent/temp/webcad-server-error.log`。关闭浏览器不会停止后台服务。需要前台运行以方便手动停止时，在项目目录执行 `node scripts/serve.mjs`，用 Ctrl+C 结束该次启动的服务。
+将构建好的 `dist/` 连同所需许可证放在 HTTPS 或本机 localhost 静态托管位置，打开页面并等待建模内核就绪。部署在子路径时应按托管路径设置 Vite `base`，并验证 Worker、WASM 与资源 URL。`file://` 双击方式不承诺兼容。此仓库的 Node/npm 用于开发、构建与测试；静态页面不应依赖旧 `/mcp`、`/ai-bridge` 或本机文件转换服务。
 
 ## 快速使用
 
@@ -40,7 +33,7 @@ WebCAD 是一个本机运行的浏览器三维建模工作台，面向小型五�
 - “编辑 → 直线阵列 / 环形阵列”按步进位移或指定轴心复制实体。数量包含原件，阵列存为一个复合实体；环形 360° 时均匀环绕，部分角度包含起点与终点。
 - 选择“边”模式，再选边做圆角或倒角；未指定边时作用于全部边。抽壳需要选择待移除的面。无效半径、厚度或几何会显示错误，应调整参数。
 - 左键拖动旋转，滚轮缩放，右键拖动平移；“视图”提供标准方向、正交/透视切换、适合窗口、实体/边线/线框、网格、测量和截图。
-- “保存工程”可生成 `.webcad` 工程并保留参数、历史和导入源字节；“导出”可生成 STEP、STL 或 BREP，可选择只导出选中的实体。MCP 文件流程由客户端文件适配器实际取回、校验 SHA-256 并写入用户授权目录。
+- “保存工程”可生成 `.webcad` 工程并保留参数、历史和导入源字节；“导出”可生成 STEP、STL 或 BREP，可选择只导出选中的实体。生成 Blob、触发下载和已核验写入是不同状态；具体保存能力以当前页面接口和浏览器授权为准。
 
 撤销/重做按钮和 Ctrl+Z / Ctrl+Shift+Z 用于回退编辑。浏览器本地自动恢复不能替代保存工程；清除浏览器站点数据会删除本地恢复数据。
 
@@ -52,7 +45,7 @@ WebCAD 是一个本机运行的浏览器三维建模工作台，面向小型五�
 | `.step` / `.stp` | 导入精确几何，继续布尔加工、变换和修饰；导出供常见 CAD 软件交换 |
 | `.brep` / `.brp` | OpenCascade 精确几何交换 |
 | `.stl` | 导出三角网格供切片/打印；不支持作为精确实体导入编辑 |
-| IGES/IGS、DWG/DXF、STL 查看 | 打开附带的只读 CadViewer：http://127.0.0.1:667/cad-viewer/ |
+| IGES/IGS、DWG/DXF | 当前静态版没有原本的本机转换；可先用现有 CAD 工具离线转 STEP |
 
 STEP 是精确实体交换格式，但不包含本工程的参数历史。导入其他 CAD 软件的 STEP 无法恢复其原始草图、约束或特征树。若要保留 WebCAD 参数编辑能力，请同时保存 `.webcad`。
 
@@ -68,10 +61,9 @@ STEP 是精确实体交换格式，但不包含本工程的参数历史。导入
 npm install
 npm run dev
 npm run build
-node scripts/serve.mjs
 ```
 
-开发服务和正式静态服务都使用 667 端口，请只运行其中一个。更新源代码后执行 `npm run build`，再刷新页面。`node scripts/serve.mjs --probe` 返回 0 表示现有 WebCAD，2 表示端口未监听，1 表示占用或无法确认身份。
+`npm run dev` 是开发服务；`npm run build` 生成可静态托管的 `dist/`。更新源代码后重新构建并刷新页面。测试脚本与旧本机服务只用于开发和历史回归。
 
 原 CadViewer 保留于 `cad-viewer/`，字体与只读资源在 `cad-data/`。第三方许可见 `LICENSE.md`、`THIRD_PARTY_NOTICES.md`、`LICENSES/` 和 `CORRESPONDING_SOURCE.md`；复制、分发时须一并保留。
 
@@ -88,9 +80,9 @@ node scripts/serve.mjs
 
 这是显示设置，不修改几何、尺寸或 STEP/STL/BREP 导出内容。选择“设计色”可回到原来的建模配色。
 
-## AI / MCP 接入
+## 页面接口与历史说明
 
-本机 MCP 连接 URL 为 http://127.0.0.1:667/mcp（Streamable HTTP）。需保持 WebCAD 页面打开并等内核就绪。AI 工具修改复用页面同一建模事务，成功后自动更新模型、特征树和参数。每个标签页有独立 sessionId；先列出会话再读取 revision，修改时携带 expectedRevision，防止覆盖过期状态。
+当前页面接口以 [页面 API](docs/PAGE-API.zh-CN.md) 为准。每个打开页面有独立运行标识，修改须携带当前 `sessionId`、`documentId`、`documentInstanceId` 和 `expectedRevision`；调用结果须检查是否真正提交及渲染。旧连接说明仅记录历史开发路径。
 
 客户端连接配置示例（客户端字段名可能不同）：
 
@@ -98,7 +90,7 @@ node scripts/serve.mjs
 {"mcpServers":{"webcad":{"url":"http://127.0.0.1:667/mcp"}}}
 ```
 
-兼容的 `webcad_export` 仍可返回 base64 数据；M2A 文件工具通过 artifactId 提供受控下载，客户端适配器校验长度和 SHA-256 并确认写盘。我们没有修改现有 Codex 配置。原 21 个工具、增量文件工具及完整闭环配方见 [MCP 使用指南](docs/MCP-GUIDE.zh-CN.md)，其中包含 31 类操作目录和 11 类参数化快捷模型。
+原 21 个工具与 M2A 文件流程的协议说明保留在 [历史 MCP 指南](docs/MCP-GUIDE.zh-CN.md)，供开发回归参考；不作为页面自动化能力的当前说明。
 
 ## 参数化快捷建模与双语工作台
 
@@ -108,11 +100,11 @@ node scripts/serve.mjs
 
 视图页提供移动／旋转手柄、剖切显示与几何点吸附。先选边／面再测量，可读取真实长度、圆半径或面积；未选拓扑时为两点测距。属性栏可给选中零件单独指定金属材质，设置随 .webcad 工程保存，STEP 不携带该渲染外观。参数窗支持预览、应用和取消；预览不会写入工程。
 
-MCP 需使用 `node scripts/serve.mjs` 的本地服务；Vite 开发服务本身不提供 MCP 桥。现有 MCP 工具通过 `webcad_add_feature` 提供 31 类操作，其中包括新增 `slot` 圆头槽。长度、宽度和深度使用 mm，刀具起点为全局中心坐标，方向与角度规则见 [MCP 使用指南](docs/MCP-GUIDE.zh-CN.md)；没有实际去除目标实体材料的加工不应提交部分结果。
+现有操作目录包含 `slot` 圆头槽；长度、宽度和深度使用 mm，刀具起点为全局中心坐标。具体参数与能力边界通过当前页面 `getTool` 读取；没有实际去除目标实体材料的加工不应提交部分结果。
 
-## IGS 样本学习与正式 MCP 文档
+## IGS 样本学习与历史工具文档
 
-[MCP 使用指南](docs/MCP-GUIDE.zh-CN.md)提供原 21 个工具、M2A 文件工作流、客户端配置和完整代码示例；[连接配置示例](docs/mcp-client.example.json)不自动修改用户设置。
+[历史 MCP 指南](docs/MCP-GUIDE.zh-CN.md)记录原协议与文件工作流。当前静态版没有原本的本机 IGES 转换器及服务端矢量转换器；这些格式不能因旧测试通过而视为页面原生能力。
 
 原始 IGS 样本用于提炼双空心柱安装板、法兰轴套两种参数模板，以及圆头槽加工操作；这些功能不表示对源 IGS 曲面集合的修复、闭合或完整原件复刻。
 
@@ -125,9 +117,9 @@ MCP 需使用 `node scripts/serve.mjs` 的本地服务；Vite 开发服务本身
 
 ### LOGO 凹凸加工
 
-加工菜单新增 LOGO：导入经核对的 .logo.json，在选定平面上生成凹字/凸字，保留孔洞，支持镜像、旋转、缩放、偏移和参数重建。轮廓提取工具、MCP 参数和实际验收见 [LOGO 工作流](docs/LOGO-WORKFLOW.zh-CN.md)。目前不支持曲面包覆或坏图自动修形。
+加工菜单新增 LOGO：导入经核对的 .logo.json，在选定平面上生成凹字/凸字，保留孔洞，支持镜像、旋转、缩放、偏移和参数重建。轮廓提取与几何边界见 [LOGO 工作流](docs/LOGO-WORKFLOW.zh-CN.md)。目前不支持曲面包覆或坏图自动修形。
 
 
 ### 直接导入矢量 LOGO
 
-LOGO 文件选择支持 DWG、DXF、SVG、矢量 PDF、PDF-compatible AI 和原 .logo.json。选择文件后先查看矢量路径、选页/圈选、确认单位比例，再提取轮廓并预览加工。AI 的旧版 PostScript 格式需先导出 SVG 或兼容 PDF；文字请先转曲，扫描件不会自动描图。解析在本机 /api/logo-import 完成，源文件不发到外部网站。转换环境、格式边界和步骤见 [LOGO 工作流](docs/LOGO-WORKFLOW.zh-CN.md)。
+原本的 DWG、DXF、矢量 PDF、PDF-compatible AI 文件转换通过本机 `/api/logo-import` 完成，属于历史服务路径，当前静态版不可用。已有浏览器内 SVG/路径输入与 .logo.json 流程应按页面实际能力使用；扫描件不会自动描图。历史转换边界见 [LOGO 工作流](docs/LOGO-WORKFLOW.zh-CN.md)。

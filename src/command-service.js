@@ -1,4 +1,4 @@
-import { assertOperationContract, normalizeOperationParams, normalizeOperationPatch, validateOperationRefs, migratedOperationIds } from './operation-registry.js';
+import { assertOperationContract, normalizeOperationParams, normalizeOperationPatch, validateOperationRefs, migratedOperationIds, getOperation, validateOperationExample } from './operation-registry.js';
 
 const clone=structuredClone;
 const uid=()=>crypto.randomUUID();
@@ -22,6 +22,15 @@ function errorResult(e,requestId,s){return {status:'failed',requestId,error:{cod
 export function createCommandService(adapter) {
   let tail=Promise.resolve(),instance=null;
   const receipts=new Map(),tokens=new Map(),cursors=new Map();
+  function contract(op,args){
+    if(!adapter.allowAdvisory||migratedOperationIds.includes(op))return assertOperationContract(op,args);
+    const card=getOperation(op);
+    if(['import','remove'].includes(op))fail('CAPABILITY_UNAVAILABLE','args.op','Use the document/file operations');
+    if(args.opVersion!==card.version)fail('OPERATION_VERSION_UNSUPPORTED','args.opVersion','Read current tool card');
+    if(args.schemaHash!==card.schemaHash)fail('SCHEMA_MISMATCH','args.schemaHash','Read current tool card');
+    return card;
+  }
+  function parameters(op,params){if(migratedOperationIds.includes(op))return normalizeOperationParams(op,params);finiteTree(params);validateOperationExample(op,params);return clone(params);}
   function snapshot(){const s=adapter.snapshot();if(instance!==s.documentInstanceId){instance=s.documentInstanceId;receipts.clear();tokens.clear();cursors.clear();}return s;}
   function context(input,s,{revision=true}={}){
     object(input,['sessionId','documentId','documentInstanceId','expectedRevision'],'context');
@@ -92,7 +101,7 @@ export function createCommandService(adapter) {
       switch(input.action){
         case 'feature.add':{
           object(a,['op','opVersion','schemaHash','params','refs','name','selectionToken'],'args');string(a.op,'args.op',60);op=a.op;
-          assertOperationContract(op,a);ids(a.refs,'args.refs');validateOperationRefs(op,a.refs);refs=a.refs;
+          contract(op,a);ids(a.refs,'args.refs');validateOperationRefs(op,a.refs);refs=a.refs;
           if(refs.some(id=>!s.bodies.some(b=>b.id===id)))fail('STALE_REFERENCE','args.refs','Reference is not a current body');
           if(a.selectionToken!==undefined){
             if(!['fillet','chamfer','shell','faceHole'].includes(op))fail('SELECTION_CONFLICT','args.selectionToken','Operation does not accept a token');
@@ -103,15 +112,15 @@ export function createCommandService(adapter) {
             if(op==='faceHole'&&t.ids.length!==1)fail('AMBIGUOUS_SELECTION','selectionToken','One face is required');
             if(['fillet','chamfer'].includes(op))a.params.edgeIds=t.ids;else if(op==='shell')a.params.faceIds=t.ids;else a.params.faceId=t.ids[0];
           }
-          a.params=normalizeOperationParams(op,a.params);if(a.name!==undefined)string(a.name,'args.name',120);
+          a.params=parameters(op,a.params);if(a.name!==undefined)string(a.name,'args.name',120);
           command='add_feature';args={op,params:a.params,refs,name:a.name};break;
         }
         case 'feature.edit':{
           object(a,['featureId','opVersion','schemaHash','params','name'],'args');string(a.featureId,'args.featureId');
           const index=s.features.findIndex(f=>f.id===a.featureId);if(index<0)fail('STALE_REFERENCE','args.featureId','Unknown feature');
-          const feature=s.features[index];op=feature.op;assertOperationContract(op,a);
+          const feature=s.features[index];op=feature.op;contract(op,a);
           if(a.params&&Object.keys(a.params).length&&s.features.slice(index+1).some(f=>['edgeIds','faceIds','faceId'].some(k=>Object.hasOwn(f.params,k))))fail('UNSAFE_LEGACY_REFERENCE','args.featureId','Downstream index references cannot be proven stable; edit rejected','RESELECT_TOPOLOGY');
-          const params=normalizeOperationPatch(op,feature.params,a.params);if(a.name!==undefined)string(a.name,'args.name',120);
+          const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,feature.params,a.params):parameters(op,{...feature.params,...a.params});if(a.name!==undefined)string(a.name,'args.name',120);
           command='edit_feature';args={featureId:a.featureId,params,name:a.name};break;
         }
         case 'feature.remove':object(a,['bodyIds'],'args');ids(a.bodyIds,'args.bodyIds',true);if(a.bodyIds.some(id=>!s.bodies.some(b=>b.id===id)))fail('STALE_REFERENCE','args.bodyIds','Body is not current');refs=a.bodyIds;command='remove';args={ids:refs};break;

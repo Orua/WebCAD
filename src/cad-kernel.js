@@ -440,6 +440,11 @@ export class CadKernel {
   }
   measure(bodyId,topologyType,topologyId) {
     const shape=this.activeShape(bodyId);
+    if(topologyType===undefined||topologyType==='body'){
+      const box=shape.boundingBox,solids=shape.solids;
+      try{const [min,max]=box.bounds;return {bodyId,bounds:{min,max},volume:solids.length?Math.abs(cad.measureVolume(shape)):null,solidCount:solids.length};}
+      finally{dispose(box);solids.forEach(dispose);}
+    }
     if(!['edge','face'].includes(topologyType))throw new Error('请选择边或面');
     const all=shape[topologyType==='edge'?'edges':'faces'];
     try {

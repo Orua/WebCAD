@@ -2,22 +2,23 @@ import './style.css';
 import { createUI } from './ui.js';
 import { CADViewport } from './viewport.js';
 import { QUICK_MODELS } from './quick-models.js';
-import { connectAI } from './ai-bridge.js';
+import { createPageAPI } from './page-api.js';
 import { t } from './i18n.js';
 import { referenceNames } from './reference-tool-fields.js';
-import { importIgesFile } from './iges-import-client.js';
+
 import { adaptUISelection } from './ui-selection-adapter.js';
 import { createCommandService } from './command-service.js';
 import { normalizeOperationParams, normalizeOperationPatch, migratedOperationIds } from './operation-registry.js';
-import { bootstrap, getTool } from './ai-docs.js';
+
 
 const emptyDocument = () => ({version:1,documentId:crypto.randomUUID(),name:'未命名设计',features:[],imports:{},hidden:[]});
+const pageSessionId=crypto.randomUUID();
 let documentInstanceId=crypto.randomUUID(),lastWarnings=[],persistenceCheckpoint='pending';
 const clone = value => structuredClone(value);
 const labels = {box:'长方体',cylinder:'圆柱',sphere:'球体',cone:'圆锥',torus:'圆环',extrude:'拉伸',revolve:'旋转成型',transform:'变换',copy:'复制',mirror:'镜像',union:'合并',cut:'切除',intersect:'求交',fillet:'圆角',chamfer:'倒角',shell:'抽壳',hole:'打孔',linearPattern:'直线阵列',circularPattern:'环形阵列',import:'导入',remove:'删除'};
 let documentModel=emptyDocument(),bodies=[],selectedIds=[],selectedTopology=null,busy=false,kernelReady=false,dirty=false;
 let undoStack=[],redoStack=[],requestSequence=0,status='正在启动精确建模内核…';
-let revision=0,previewNext=null,previewGeneration=0,previewComputing=false,aiStatus='connecting';
+let revision=0,previewNext=null,previewGeneration=0,previewComputing=false,aiStatus='in-page';
 Object.assign(labels,{group:'组合',vectorProfile:'矢量路径',quickModel:'快速模型',sweep:'扫掠',loft:'放样',split:'分割',extractSolid:'提取实体',faceHole:'面上打孔',faceExtrude:'面拉伸',multiHole:'多位置打孔',slot:'长圆槽',logo:'LOGO 凹凸字'});
 Object.assign(labels,{curveSweep:'曲线扫掠',advancedLoft:'多截面放样',curvedLogo:'曲面等深刻字'});
 Object.assign(labels,{fittedSurface:'点阵拟合曲面',thickenFace:'选面增厚'});
@@ -78,12 +79,12 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     const result=await request('rebuild',{document:next});
     try{checkTransaction(signal,expectedRevision);}catch(error){await request('rebuild',{document:documentModel});throw error;}
     if(record)pushUndo();
-    if(newInstance||documentModel.documentId!==next.documentId)documentInstanceId=crypto.randomUUID();
+    if(newInstance||documentModel.documentId!==next.documentId){documentInstanceId=crypto.randomUUID();projectFileHandle=null;}
     documentModel=next;bodies=result.bodies;selectedTopology=null;previewNext=null;revision++;
     lastWarnings=[];dirty=true;if(save)void autosave();
     selectedIds=select&&bodies.some(b=>b.id===select)?[select]:selectedIds.filter(id=>bodies.some(b=>b.id===id));
     try{viewport.cancelTask();viewport.partFinishes=documentModel.appearance||{};viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds);
-    if(fit)viewport.fit();}catch(error){lastWarnings.push({code:'DISPLAY_FAILED',message:error.message});}
+    if(fit)viewport.fit();viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});}catch(error){lastWarnings.push({code:'DISPLAY_FAILED',message:error.message});}
     // Commit is synchronous. Persistence follows without yielding between commit
     // and the command acknowledgement, so a late abort cannot claim rollback.
     try{setStatus(`就绪 · ${bodies.length} 个实体 · ${bodies.reduce((sum,b)=>sum+(b.solidCount||0),0)} 个封闭实心体`);}catch(error){lastWarnings.push({code:'DISPLAY_FAILED',message:error.message});}
@@ -168,7 +169,20 @@ async function exportData(format='step',ids){
   if(busy)throw new Error('请等待当前计算完成。');setBusy(true,'正在生成导出文件…');
   try{return await request('export',{format,ids});}finally{setBusy(false);}
 }
-async function saveProject(){download(JSON.stringify(documentModel,null,2),safeName(documentModel.name)+'.webcad','application/json');setStatus('工程下载已发起；浏览器未确认磁盘写入，未保存标记保留。');refresh();}
+let projectFileHandle=null;
+async function saveProject(){
+  if(busy||previewNext||previewComputing)throw new Error('请先完成当前操作。');
+  // Acquire permission synchronously from the user gesture, before expensive generation.
+  if(!projectFileHandle&&window.showSaveFilePicker){
+    try{projectFileHandle=await window.showSaveFilePicker({suggestedName:documentModel.name+'.webcad',types:[{description:'WebCAD 工程',accept:{'application/json':['.webcad']}}]});}
+    catch(error){if(error.name==='AbortError'){setStatus('保存已取消，工程保留。');return;}throw error;}
+  }
+  const c=pageAPI.getState().context,context={...c,expectedRevision:c.revision};delete context.revision;
+  const artifact=await pageAPI.files.save({context});if(artifact.status==='failed')throw new Error(artifact.error.message);
+  const result=projectFileHandle?await pageAPI.files.write({resourceId:artifact.resourceId,handle:projectFileHandle}):await pageAPI.files.download({resourceId:artifact.resourceId});
+  if(result.status==='failed')throw new Error(result.error.message);
+  setStatus(projectFileHandle?'文件已写入、关闭并回读核验；保存状态按版本更新。':'下载已发起；未确认写入，未保存标记保留。');refresh();
+}
 function chooseFile(){return new Promise(resolve=>{const input=document.createElement('input');input.type='file';input.accept='.webcad,.json,.step,.stp,.brep,.brp,.iges,.igs,.stl';input.multiple=true;input.addEventListener('change',()=>resolve([...input.files]));input.addEventListener('cancel',()=>resolve([]));input.click();});}
 function base64(array){let text='';for(let i=0;i<array.length;i+=0x8000)text+=String.fromCharCode(...array.subarray(i,i+0x8000));return btoa(text);}
 function validateDocument(doc){
@@ -194,10 +208,8 @@ async function openFiles(files,{confirmReplace=true,signal,expectedRevision,mcp=
       const format=isIges?'step':['step','stp'].includes(ext)?'step':['brep','brp'].includes(ext)?'brep':null;
       if(!format)throw new Error('请选择 .webcad 工程、STEP/STP 或 BREP 文件。');
       const next=clone(documentModel),key=crypto.randomUUID(),id=crypto.randomUUID();
-      if(isIges){
-        setBusy(true,'IGS 正在本机转换，未上传外部服务…');
-        try{next.imports[key]=await importIgesFile(file,base64);}finally{setBusy(false);}
-      }else next.imports[key]={format,data:base64(new Uint8Array(await file.arrayBuffer()))};
+      if(isIges)throw Object.assign(new Error('静态版不支持 IGES；请离线转换为 STEP / BREP。'),{code:'CAPABILITY_UNAVAILABLE'});
+      next.imports[key]={format,data:base64(new Uint8Array(await file.arrayBuffer()))};
       next.features.push({id,op:'import',name:file.name,params:{key},refs:[]});
       if(!next.features.slice(0,-1).length)next.name=file.name.replace(/\.[^.]+$/,'');
       await rebuild(next,{fit:true,select:id,signal,expectedRevision});
@@ -393,13 +405,19 @@ async function executeAI(command,args={},options={}){
   return aiState();
 }
 const commandService=createCommandService({
-  snapshot:()=>({...aiState(),documentId:documentModel.documentId,documentInstanceId,sessionId:aiConnection?.sessionId??null,previewComputing,warnings:clone(lastWarnings),persistence:{level:'memory',checkpoint:persistenceCheckpoint}}),
+  allowAdvisory:true,
+  snapshot:()=>({...aiState(),documentId:documentModel.documentId,documentInstanceId,sessionId:pageSessionId,previewComputing,warnings:clone(lastWarnings),persistence:{level:'memory',checkpoint:persistenceCheckpoint}}),
   execute:executeAI,
   query:args=>request('queryGeometry',args),
 });
-window.webcad={ready,getState,execute:executeAI,action:performAction,select:selectBody,pick,editFeature,openFiles,exportData,loadDocument:doc=>rebuild(validateDocument(clone(doc)),{fit:true,newInstance:true}),viewport,
-  api:{bootstrap:(input={})=>{if(!input||Array.isArray(input)||Object.keys(input).length)throw new Error('bootstrap requires {}');return bootstrap({...aiConnection.serverInfo,browserReady:kernelReady&&!busy&&!previewNext&&!previewComputing});},describe:getTool,getState:args=>commandService.getState(args),queryGeometry:args=>commandService.queryGeometry(args),execute:(args,options)=>commandService.execute(args,options)},
-};
-const aiConnection=connectAI({getState:aiState,execute:executeAI},{onStatus:value=>{aiStatus=value;refresh();}});
-window.addEventListener('pagehide',()=>aiConnection?.disconnect?.());
-
+const pageAPI=createPageAPI({
+  buildId:__WEBCAD_BUILD__,
+  state:(input={})=>commandService.getState({sessionId:pageSessionId,include:['summary','features','bodies','selection','capabilities'],...input}),
+  execute:input=>commandService.execute(input),query:input=>commandService.queryGeometry(input),files:input=>commandService.fileCommand(input),
+  confirmSaved:snapshot=>executeAI('acknowledge_save',snapshot),
+  measure:input=>request('measure',{bodyId:input.bodyId,topologyType:input.kind==='body'?undefined:input.kind,topologyId:input.topologyId}),
+  display:()=>viewport.displayState(),frame:()=>{if(lastWarnings.some(w=>w.code==='DISPLAY_FAILED'))throw Object.assign(new Error('Display failed; call redraw'),{code:'DISPLAY_FAILED'});viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});return viewport.frame();},capture:()=>viewport.screenshot(),
+  view:async input=>{if(input.projection)viewport.setProjection(input.projection);if(input.direction)viewport.view(input.direction==='side'?'right':input.direction);if(input.fit)viewport.fit();if(input.selectedIds){selectedIds=[...input.selectedIds];selectedTopology=null;viewport.setSelection(selectedIds);refresh();}await viewport.frame();},
+  redraw:async()=>{viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});await viewport.frame();lastWarnings=lastWarnings.filter(w=>w.code!=='DISPLAY_FAILED');},
+});
+Object.defineProperty(window,'webcad',{value:Object.freeze({api:pageAPI}),writable:false,configurable:false});
