@@ -14,7 +14,7 @@ M0/M1 已建立完整工程上下文、revision、选择令牌与命令事务。
 
 - 基本实体、草图、拉伸、旋转、扫掠、放样、布尔、阵列、孔槽、圆角、倒角、抽壳与分割。
 - 实体/面/边选择，精确 XYZ 移动，面上鼠标取孔位，组合和拆散多实体复合模型。
-- 浏览器内可粘贴 SVG 或闭合 SVG `d` 路径。DXF、DWG、矢量 PDF、PDF-compatible AI 原有转换依赖本机服务，当前静态路径不可用。
+- 浏览器本地读取 `.logo.json` 标准轮廓。SVG 粘贴及 SVG、DXF、DWG、矢量 PDF、PDF-compatible AI 原有转换依赖本机服务，当前静态版不可用。
 - 矢量路径可生成面或实体；LOGO 支持凹凸、深度和默认 7° 脱模斜度。
 - STEP/BREP 导入、STEP/STL/BREP 导出、`.webcad` 自包含参数历史保存、金属材质预览与中英文界面。
 
@@ -124,4 +124,4 @@ npm run build
 
 ### 直接导入矢量 LOGO
 
-原本的 DWG、DXF、矢量 PDF、PDF-compatible AI 文件转换通过本机 `/api/logo-import` 完成，属于历史服务路径，当前静态版不可用。已有浏览器内 SVG/路径输入与 .logo.json 流程应按页面实际能力使用；扫描件不会自动描图。历史转换边界见 [LOGO 工作流](docs/LOGO-WORKFLOW.zh-CN.md)。
+原本的 DWG、DXF、矢量 PDF、PDF-compatible AI 文件转换通过本机 `/api/logo-import` 完成，属于历史服务路径，当前静态版不可用。静态版保留纯浏览器 .logo.json 输入；SVG/路径文本转换不可用；扫描件不会自动描图。历史转换边界见 [LOGO 工作流](docs/LOGO-WORKFLOW.zh-CN.md)。
