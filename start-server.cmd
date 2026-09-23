@@ -1,6 +1,7 @@
 @echo off
-echo WebCAD release is a static site. No application server is required.
-echo Publish dist contents to your existing HTTPS static host.
-echo Development-only local preview: npm run preview
-echo See docs\PAGE-API.zh-CN.md.
-pause
+setlocal
+cd /d "%~dp0"
+echo Starting optional local Agent mode.
+echo Open http://127.0.0.1:667/agent after the build finishes.
+echo Normal static WebCAD deployment still does not require this service.
+call npm run agent

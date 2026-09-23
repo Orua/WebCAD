@@ -20,20 +20,20 @@ async function setup(t,commandTimeout=2000){
  return {bridge,client,url,call};
 }
 
-async function fakeTab(ctx,{hang=false,disconnect=false}={}){
+async function fakeTab(ctx,{hang=false,disconnect=false,internalSessionId=null}={}){
  const ws=new WebSocket(ctx.url.replace('http:','ws:')+'/ai-bridge',{origin:ctx.url});
  const events=[];let sessionId;
  await new Promise(resolve=>ws.on('message',raw=>{
   const msg=JSON.parse(raw);events.push(msg);
   if(msg.type==='welcome'){
    sessionId=msg.sessionId;
-   ws.send(JSON.stringify({type:'state',state:{revision:3,documentName:'Fake contract document'}}));
+   ws.send(JSON.stringify({type:'state',state:{revision:3,documentName:'Fake contract document',...(internalSessionId?{sessionId:internalSessionId}:{})}}));
    resolve();
   }
   if(msg.type!=='command')return;
   if(disconnect){ws.close();return;}
   if(hang)return;
-  const context={sessionId,documentId:'doc',documentInstanceId:'instance',revision:3};
+  const context={sessionId:internalSessionId||sessionId,documentId:'doc',documentInstanceId:'instance',revision:3};
   let result={status:'no_change',requestId:msg.requestId,context,commitState:'not_committed'};
   if(msg.command==='get_state_v2')result={status:'read',context,summary:{name:'Fake contract document'},bodies:[],capabilities:{},persistence:{level:'memory',checkpoint:'pending'},preview:{active:false,computing:false}};
   if(msg.command==='query_geometry')result={status:'read',context,bodyId:'body',kind:'face',matchCount:1,items:[{faceId:0}],selectionToken:'test-token',nextCursor:null,ambiguous:false,geometryFingerprint:'test-fingerprint'};
@@ -101,6 +101,15 @@ test('v2 routing preserves snapshot identity and action fields, rejects mismatch
   {...query,limit:101}
  ])assert.equal((await ctx.call('query_geometry',bad)).isError,true);
  assert.equal(tab.events.filter(x=>x.type==='command').length,eventCount,'invalid requests must not reach browser');
+});
+
+test('v2 maps public bridge session identity to the private page session identity',async t=>{
+ const ctx=await setup(t),tab=await fakeTab(ctx,{internalSessionId:'page-private-session'});
+ const state=value(await ctx.call('get_state_v2',{sessionId:tab.sessionId}));
+ assert.equal(state.context.sessionId,tab.sessionId);
+ const sent=tab.events.find(x=>x.command==='get_state_v2');assert.equal(sent.args.sessionId,'page-private-session');
+ const request=execute(tab.sessionId);value(await ctx.call('execute_v2',request));
+ const executed=tab.events.find(x=>x.command==='execute_v2');assert.equal(executed.args.context.sessionId,'page-private-session');
 });
 
 test('availability requires an idle ready kernel and welcome identifies the same server/build as bootstrap',async t=>{

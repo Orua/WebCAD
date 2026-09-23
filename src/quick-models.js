@@ -14,6 +14,7 @@ export const QUICK_MODELS = Object.freeze({
   mountingPlate:{label:'双孔圆角安装板',labelEn:'Two-hole rounded mounting plate',description:'孔沿 X 对称，中心距单独定义；孔为贯穿光孔，不含螺纹、沉头或沉孔。',descriptionEn:'Two symmetric X-axis holes with independent center spacing. Plain through holes only; no threads, countersinks or counterbores.',defaults:{width:40,depth:16,thickness:3,cornerRadius:3,holeDiameter:4,holeSpacing:24},fields:[field('width','板宽 X','Plate width X',0.1),field('depth','板深 Y','Plate depth Y',0.1),field('thickness','厚度','Thickness',0.1),field('cornerRadius','外角 R','Outer corner radius'),field('holeDiameter','孔径','Hole diameter',0.1),field('holeSpacing','两孔中心距','Hole center spacing',0.1)]},
   bossPlate:{label:'双空心柱安装板',labelEn:'Two hollow-boss mounting plate',description:'圆角板上两根对称空心圆柱凸台，孔贯穿凸台与板。参数化通用实体，不代表螺纹、沉孔或原产品复刻。',descriptionEn:'A rounded plate with two symmetric hollow cylindrical bosses; each bore passes through both boss and plate. Generic parametric geometry, not a threaded, counterbored, or source-product reconstruction.',defaults:{width:40,depth:16,thickness:3,cornerRadius:3,bossSpacing:24,bossOuterDiameter:8,boreDiameter:4,bossHeight:6},fields:[field('width','板宽 X','Plate width X',0.1),field('depth','板深 Y','Plate depth Y',0.1),field('thickness','板厚','Plate thickness',0.1),field('cornerRadius','板角 R','Plate corner radius'),field('bossSpacing','凸台中心距','Boss center spacing',0.1),field('bossOuterDiameter','凸台外径','Boss outer diameter',0.1),field('boreDiameter','通孔直径','Through-bore diameter',0.1),field('bossHeight','凸台高度（板下）','Boss height (below plate)',0.1)]},
   flangedBushing:{label:'法兰轴套',labelEn:'Flanged bushing',description:'同轴法兰与圆筒轴套，直孔贯穿全长。通用参数化实体，不含螺纹或原产品特征复刻。',descriptionEn:'A coaxial flange and cylindrical bushing with a straight bore through the full length. Generic parametric geometry, with no threads or source-product feature reconstruction.',defaults:{bodyDiameter:12,flangeDiameter:20,boreDiameter:6,bodyHeight:10,flangeThickness:3},fields:[field('bodyDiameter','轴套外径','Bushing body diameter',0.1),field('flangeDiameter','法兰外径','Flange diameter',0.1),field('boreDiameter','通孔直径','Through-bore diameter',0.1),field('bodyHeight','筒体高度','Body height',0.1),field('flangeThickness','法兰厚度','Flange thickness',0.1)]},
+  openArcRing:{label:'大开口 C 环',labelEn:'Wide-gap C ring',description:'恒截面圆弧环，开口角度可调，适合开口环、钩环和未闭合圆框的基础毛坯；不包含端头球、铰链或变截面。',descriptionEn:'Constant-section circular arc with an adjustable opening angle for C rings, hook rings and open circular frames. End balls, hinges and variable sections are excluded.',defaults:{section:'round',innerDiameter:30,sectionSize:4,sectionRadius:0.4,openingAngle:70},fields:[field('innerDiameter','内径','Inner diameter',0.1),section,s,sr,field('openingAngle','开口角度（°）','Opening angle (degrees)',5,1)]},
   ...HARDWARE_TEMPLATES,
   ring:{label:'圆圈',labelEn:'Ring',description:'同心圆恒截面单圈；开缝为底部正中平行平切。',defaults:{...base,innerDiameter:24},fields:[field('innerDiameter','内径','Inner diameter',0.1),section,s,sr,gap]},
   dBuckle:{label:'D 扣',labelEn:'D buckle',description:'半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。',defaults:{...base,innerWidth:24,innerHeight:19,innerRadius:2},fields:[w,h,section,s,sr,field('innerRadius','底内 R','Bottom inner radius',0.1),gap]},
@@ -85,6 +86,26 @@ export function buildQuickModel(params,cad) {
       const bore=hold(cad.makeCylinder(boreDiameter/2,bodyHeight+flangeThickness+2,[0,0,-1]));const old=result;result=old.cut(bore);dispose(old);
       const complete=result;result=null;return complete;
     } finally {dispose(result);resources.reverse().forEach(dispose);}
+  }
+  if(kind==='openArcRing') {
+    const sectionSize=number('sectionSize'),sectionRadius=number('sectionRadius'),innerDiameter=number('innerDiameter'),openingAngle=number('openingAngle');
+    check(['round','square'].includes(p.section),'截面必须为圆线或圆角方线');
+    check(sectionSize>0&&innerDiameter>=4*sectionSize,'内径至少为截面尺寸的 4 倍');
+    check(openingAngle>=5&&openingAngle<=180,'开口角度须为 5° 到 180°');
+    if(p.section==='square')check(sectionRadius>0&&sectionRadius<sectionSize/2,'方线须满足 0 < 截面 R < 边长/2');
+    const resources=[],hold=o=>{resources.push(o);return o;};
+    try {
+      const radius=(innerDiameter+sectionSize)/2,gap=openingAngle*Math.PI/180;
+      const start=-Math.PI/2+gap/2,end=3*Math.PI/2-gap/2,mid=(start+end)/2;
+      const point=angle=>[radius*Math.cos(angle),radius*Math.sin(angle),0];
+      const path=hold(cad.makeThreePointArc(point(start),point(mid),point(end)));
+      const wire=hold(cad.assembleWire([path]));
+      const origin=point(start),radial=[Math.cos(start),Math.sin(start),0],tangent=[-Math.sin(start),Math.cos(start),0];
+      const plane=hold(new cad.Plane(origin,radial,tangent));
+      const drawing=hold(p.section==='square'?cad.drawRoundedRectangle(sectionSize,sectionSize,sectionRadius):cad.drawCircle(sectionSize/2));
+      const profile=hold(drawing.sketchOnPlane(plane));
+      return cad.genericSweep(profile.wire,wire,{frenet:false,transitionMode:'right'});
+    } finally {resources.reverse().forEach(dispose);}
   }
   if(Object.hasOwn(HARDWARE_TEMPLATES,kind)) return buildHardwareTemplate(p,cad);
   const s=number('sectionSize'), r=number('sectionRadius'), g=number('gapWidth'), w=number('innerWidth'),h=number('innerHeight'),ri=number('innerRadius');

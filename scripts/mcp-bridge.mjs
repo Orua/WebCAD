@@ -101,6 +101,20 @@ const v2Outputs={
 };
 const structuredResult=data=>({...textResult(data),structuredContent:data,...(['failed','unknown'].includes(data.status)?{isError:true}:{})});
 const browserReady=state=>state?.kernelReady===true&&!state.busy&&!state.preview;
+function browserArgs(args,session){
+ const value=structuredClone(args??{}),internal=session.state?.sessionId;
+ if(!internal||internal===session.sessionId)return value;
+ if(value.sessionId===session.sessionId)value.sessionId=internal;
+ if(value.context?.sessionId===session.sessionId)value.context.sessionId=internal;
+ return value;
+}
+function clientResult(result,session){
+ const value=structuredClone(result),internal=session.state?.sessionId;
+ if(!internal||internal===session.sessionId||!value||typeof value!=='object')return value;
+ if(value.sessionId===internal)value.sessionId=session.sessionId;
+ if(value.context?.sessionId===internal)value.context.sessionId=session.sessionId;
+ return value;
+}
 const bridgeError=(message,{unknown=false,code='CAPABILITY_UNAVAILABLE'}={})=>Object.assign(new Error(message),{unknown,code});
 function v2Failure(error,requestId,args){
  const unknown=error.unknown===true;
@@ -128,7 +142,7 @@ export function createMCPBridge(httpServer,{commandTimeout=90000,artifactRoot}={
     const pending=session.pending.get(msg.requestId);if(!pending)return;
     session.pending.delete(msg.requestId);clearTimeout(pending.timer);pending.cleanup();
     if(msg.state&&Number.isInteger(msg.state.revision))session.state=msg.state;
-    msg.ok===true?pending.resolve(msg.result):pending.reject(bridgeError(msg.error||'Browser operation failed',{unknown:pending.v2,code:'GEOMETRY_INVALID'}));
+    msg.ok===true?pending.resolve(clientResult(msg.result,session)):pending.reject(bridgeError(msg.error||'Browser operation failed',{unknown:pending.v2,code:'GEOMETRY_INVALID'}));
    }
   }catch{ws.close(1007,'Invalid bridge message');}});
   ws.on('close',()=>{sessions.delete(session.sessionId);for(const p of session.pending.values()){clearTimeout(p.timer);p.cleanup();p.reject(bridgeError('Browser disconnected; commit result is unknown. Read state and inspect the receipt after reconnect before retrying.',{unknown:true}));}session.pending.clear();});
@@ -147,7 +161,7 @@ export function createMCPBridge(httpServer,{commandTimeout=90000,artifactRoot}={
     const cleanup=()=>signal?.removeEventListener('abort',onAbort);
     const pending={resolve,reject,cleanup,v2,timer:setTimeout(()=>cancel('Browser operation timed out; cancellation requested, commit result is unknown. Reconnect and inspect state and receipt before retrying.'),commandTimeout)};
     session.pending.set(requestId,pending);signal?.addEventListener('abort',onAbort,{once:true});
-    session.ws.send(JSON.stringify({type:'command',requestId,command:name,args,deadline:Date.now()+commandTimeout}));
+    session.ws.send(JSON.stringify({type:'command',requestId,command:name,args:browserArgs(args,session),deadline:Date.now()+commandTimeout}));
    });
   };
   const result=session.tail.then(run,run);session.tail=result.catch(()=>{});return result;
