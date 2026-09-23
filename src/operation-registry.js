@@ -38,6 +38,7 @@ const examples = {
   thickenFace: { faceId: 0, thickness: 1 }, curvedLogo: { faceId: 0, point: [10, 0, 5], depth: 0.2, regions },
   planeSection: { plane: 'XY', offset: 1 }, faceBoundary: { faceId: 0 },
   sewFaces: { tolerance: 0.01, makeSolid: false }, surfaceTrim: { faceId: 0, mode: 'intersect' },
+  referenceExtrude: { direction: [0,0,1], distance: 3 }, referenceLoft: { ruled: false },
 };
 
 function schemaFor(id, source) {
@@ -81,24 +82,26 @@ function refsFor(refs) {
 
 function categoryFor(id) {
   if (['remove', 'import'].includes(id)) return 'document';
-  if (['planeSection', 'faceBoundary'].includes(id)) return 'reference';
+  if (['planeSection', 'faceBoundary', 'referenceExtrude', 'referenceLoft'].includes(id)) return 'reference';
   if (['fittedSurface', 'thickenFace', 'sewFaces', 'surfaceTrim', 'curvedLogo', 'advancedLoft'].includes(id)) return 'surface';
   if (['transform', 'copy', 'mirror', 'linearPattern', 'circularPattern', 'group', 'extractSolid', 'split'].includes(id)) return 'organization';
   return operationCatalog.operations[id].refs === 0 ? 'creation' : 'modification';
 }
 
 const names = { box: ['长方体', '安装板', 'plate'], hole: ['孔', '钻孔', 'radius'], multiHole: ['多孔', '孔位', 'mounting plate'],
-  faceHole: ['面钻孔', '贯穿'], fillet: ['圆角'], chamfer: ['倒角'], shell: ['抽壳', '壁厚'] };
+  faceHole: ['面钻孔', '贯穿'], fillet: ['圆角'], chamfer: ['倒角'], shell: ['抽壳', '壁厚'],
+  referenceExtrude: ['参考轮廓', '精确曲线', '拉伸'], referenceLoft: ['参考截面', '精确曲线', '放样'] };
 
 function buildCard(id, source) {
   const strict = migrated.has(id), special = source.mcpAddFeature === false;
   const version = strict ? '1.0.0' : 'legacy-1';
   const inputSchema = schemaFor(id, source), refsSchema = refsFor(source.refs);
+  if (id === 'referenceLoft') refsSchema.maxItems = 12;
   const selector = topology.has(id) ? { supported: true, kind: ['fillet', 'chamfer'].includes(id) ? 'edge' : 'face',
     location: 'args.selectionToken', featureAddOnly: true,
     conflictsWith: ['faceId', 'faceIds', 'edgeIds', 'allEdges'],
     phases: 'Validate user params with phase=input and selectionToken, resolve against current snapshot, then validate complete params with phase=resolved.' } : { supported: false };
-  const preserves = ['copy', 'planeSection', 'faceBoundary', 'surfaceTrim'].includes(id) ? true
+  const preserves = ['copy', 'planeSection', 'faceBoundary', 'surfaceTrim', 'referenceExtrude', 'referenceLoft'].includes(id) ? true
     : ['mirror', 'extractSolid'].includes(id) ? 'unless keepOriginal=false' : false;
   const minRefs = refsSchema.minItems;
   const example = { op: id, params: clone(examples[id]), refs: Array.from({ length: minRefs }, (_, i) => `<current-bodyId-${i + 1}>`),

@@ -1,6 +1,7 @@
 import './style.css';
 import { createUI } from './ui.js';
 import { TRIAL_SAMPLES } from './trial-samples.js';
+import { referenceProfileNames } from './reference-profile-tools.js';
 import { CADViewport } from './viewport.js';
 import { QUICK_MODELS } from './quick-models.js';
 import { createPageAPI } from './page-api.js';
@@ -24,6 +25,7 @@ let revision=0,previewNext=null,previewGeneration=0,previewComputing=false,aiSta
 Object.assign(labels,{group:'组合',vectorProfile:'矢量路径',quickModel:'快速模型',sweep:'扫掠',loft:'放样',split:'分割',extractSolid:'提取实体',faceHole:'面上打孔',faceExtrude:'面拉伸',multiHole:'多位置打孔',slot:'长圆槽',logo:'LOGO 凹凸字'});
 Object.assign(labels,{curveSweep:'曲线扫掠',advancedLoft:'多截面放样',curvedLogo:'曲面等深刻字'});
 Object.assign(labels,{fittedSurface:'点阵拟合曲面',thickenFace:'选面增厚'});
+Object.assign(labels,referenceProfileNames);
 Object.assign(labels,referenceNames);
 const pending=new Map();
 const worker=new Worker(new URL('./cad-worker.js',import.meta.url),{type:'module'});
@@ -99,12 +101,16 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
 }
 function featureDocument(op,params={},explicitRefs=[],name){
   const refs=[];const selection=explicitRefs;const single=['transform','copy','mirror','fillet','chamfer','shell','hole','multiHole','slot','linearPattern','circularPattern','split','extractSolid','faceHole','faceExtrude','logo','curvedLogo','thickenFace'];
-  if([...single,'planeSection','faceBoundary'].includes(op)){
+  if([...single,'planeSection','faceBoundary','referenceExtrude'].includes(op)){
     if(selection.length!==1||!bodies.some(b=>b.id===selection[0]))throw new Error('请先选择一个当前实体。');
     refs.push(selection[0]);
   }
   if(['group','union','cut','intersect'].includes(op)){
     if(selection.length<2)throw new Error('请按住 Shift 依次选择至少两个实体。切除时先选保留的主体，再选刀具。');
+    refs.push(...selection);
+  }
+  if(op==='referenceLoft'){
+    if(selection.length<2||selection.length>12)throw new Error('请按顺序选择 2–12 个闭合截面对象。');
     refs.push(...selection);
   }
   if(op==='sewFaces'||op==='surfaceTrim'){

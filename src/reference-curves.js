@@ -2,15 +2,22 @@
 const dispose = value => { try { value?.delete?.(); } catch {} };
 function fail(message) { throw new Error(`参考曲线失败：${message}`); }
 
-export function extractFaceBoundary(shape, faceId, cad) {
+export function extractFaceBoundary(shape, faceId, cad, { boundary = 'all' } = {}) {
   if (!shape || !cad?.makeCompound) fail('缺少源形状或 CAD 适配器');
   if (!Number.isInteger(faceId) || faceId < 0) fail('faceId 必须是非负整数');
+  if (!['all', 'outer'].includes(boundary)) fail('boundary 必须为 all 或 outer');
   const faces = shape.faces;
   if (faceId >= faces.length) { faces.forEach(dispose); fail('faceId 超出范围'); }
   const face = faces[faceId]; faces.forEach((item, index) => { if (index !== faceId) dispose(item); });
-  let edges;
-  try { edges = face.edges; if (!edges.length) fail('选定面没有边界'); const result = cad.makeCompound(edges); if (!result) fail('边界提取结果为空'); return result; }
-  finally { edges?.forEach(dispose); dispose(face); }
+  let edges, wire;
+  try {
+    if (boundary === 'outer') wire = face.clone().outerWire();
+    edges = wire ? wire.edges : face.edges;
+    if (!edges.length) fail('选定面没有边界');
+    const result = cad.makeCompound(edges);
+    if (!result) fail('边界提取结果为空');
+    return result;
+  } finally { edges?.forEach(dispose); dispose(wire); dispose(face); }
 }
 
 export function extractPlaneSection(shape, { plane, offset = 0 } = {}, cad) {

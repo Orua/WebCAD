@@ -6,6 +6,8 @@ export function toolDisabledReason(action,state){
  if(!state.kernelReady)return '建模内核尚未就绪';
  const count=state.selectedIds.length,topology=state.selectedTopology;
  if(['planeSection','faceBoundary'].includes(action)&&count!==1)return '请选择一个源对象';
+ if(action==='referenceExtrude'&&count!==1)return '请选择一个闭合平面轮廓或单面对象';
+ if(action==='referenceLoft'&&(count<2||count>12))return '按顺序选择 2–12 个闭合截面对象';
  if(action==='sewFaces'&&count<1)return '请选择至少一个含面的对象';
  if(action==='surfaceTrim'&&count!==2)return '依次选择源对象、实体刀具';
  if((boolean.has(action)||action==='group')&&count<2)return '按 Ctrl 或 Shift 依次选择至少两个实体';

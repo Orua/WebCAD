@@ -1,6 +1,7 @@
 /** Machine-readable help only; the existing browser/kernel remains the operation authority. */
 import { advancedOperations } from './advanced-operation-catalog.js';
 import { referenceOperations } from './reference-tool-fields.js';
+import { referenceProfileOperations } from './reference-profile-tools.js';
 const num=(description,extra={})=>({type:'number',description,...extra});
 const length=(description,extra={})=>num(description+' (mm)',extra);
 const positive=description=>length(description,{exclusiveMinimum:0});
@@ -62,3 +63,4 @@ export const operationCatalog={
 operationCatalog.operations.vectorProfile={description:'Create independent planar faces or solids from closed vector regions',refs:0,paramsSchema:{type:'object',additionalProperties:false,required:['regions','output'],properties:{regions:operationCatalog.operations.logo.paramsSchema.properties.regions,source:{type:'object'},name:{type:'string'},sizeMm:{type:'array',items:{type:'number'}},areaMm2:{type:'number'},output:choice('Output geometry',['face','solid']),plane,scale:positive('Contour scale'),angle:num('In-plane angle'),height:length('Nonzero signed extrusion height for solid'),x:length('Contour center world X'),y:length('Contour center world Y'),z:length('Contour center world Z')}},notes:'No selected body needed. Closed regions and holes only; normalize imported bounds center to origin before position. XY normal +Z, XZ normal -Y, YZ normal +X. Curves are approximated at source import tolerance. Face output has zero solids; change output to solid and height to extrude later.'};
 Object.assign(operationCatalog.operations,advancedOperations(operationCatalog.operations.logo.paramsSchema.properties.regions));
 Object.assign(operationCatalog.operations,referenceOperations);
+Object.assign(operationCatalog.operations,referenceProfileOperations);

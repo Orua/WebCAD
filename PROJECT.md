@@ -53,6 +53,8 @@ Agent records belong under `agent/`, backups under timestamped `agent/backups/`,
 
 ## Additional modeling commands
 
+Reference reconstruction uses `referenceExtrude` and `referenceLoft` in separate kernel modules. They preserve exact planar source curves and their input bodies. Extrusion accepts one closed outline or a single planar face including holes; loft accepts 2–12 ordered single closed outlines without holes. Invalid, open, branched or nonplanar profiles fail without repairing gaps. `faceBoundary` defaults to all boundaries; `boundary: 'outer'` explicitly excludes holes for a single-outline loft. See public page documentation `recipes.reference-reconstruction`. These tools do not infer the original design or solve guided variable-section surfaces. The browser test category is `node scripts/test.mjs reference-browser`; local original geometry is injected only into the development harness, never shipped in static assets.
+
 The current command set includes cylindrical hole cutting from a global X/Y/Z origin along a selected signed principal axis; linear patterns with per-copy XYZ translation; and circular patterns around an explicit principal axis and center. Pattern counts include the original and results are compound shapes. Full-circle placement omits a duplicate endpoint; partial-angle patterns include both endpoints. The viewport can switch orthographic/perspective projection without changing model geometry. These descriptions match the source command contract; operation acceptance remains in the recorded test results.
 
 ## Local MCP integration
