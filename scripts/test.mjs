@@ -32,10 +32,10 @@ function stop(status, message, code) {
   process.exit(code);
 }
 
-const browserGroups={'page-browser':'page-api-browser','parameters-browser':'page-parameters-browser','products-browser':'page-products-browser','page-boundaries':'page-boundaries-browser','page-ui':'page-ui-browser'};
+const browserGroups={'page-browser':'page-api-browser','parameters-browser':'page-parameters-browser','products-browser':'page-products-browser','page-boundaries':'page-boundaries-browser','page-ui':'page-ui-browser','trial-browser':'trial-browser'};
 const group = process.argv[2] || 'portable';
 if (process.argv.length > 3 || !['portable', 'e2e', 'e2e-m2a', 'e2e-m2a-portable', 'ui-m2a', ...Object.keys(browserGroups), ...Object.keys(groups)].includes(group)) {
-  stop('FAIL', 'Usage: node scripts/test.mjs [portable|contracts|kernel|mcp|e2e|e2e-m2a|ui-m2a|local-fixtures]', 1);
+  stop('FAIL', 'Usage: node scripts/test.mjs [portable|contracts|kernel|mcp|e2e|e2e-m2a|ui-m2a|local-fixtures|trial-browser]', 1);
 }
 const expected = Object.values(groups).flat().map(name => `${name}.test.mjs`);
 const found = fs.readdirSync(path.join(root, 'tests')).filter(name => name.endsWith('.test.mjs'));

@@ -1,5 +1,6 @@
 import './style.css';
 import { createUI } from './ui.js';
+import { TRIAL_SAMPLES } from './trial-samples.js';
 import { CADViewport } from './viewport.js';
 import { QUICK_MODELS } from './quick-models.js';
 import { createPageAPI } from './page-api.js';
@@ -271,6 +272,18 @@ async function performAction(action,params={}){
     }
     await rebuild(next,{select:ids[0]});selectedIds=ids;viewport.setSelection(selectedIds);refresh();return;
   }
+  if(action==='trialSample'){
+    if(!TRIAL_SAMPLES.some(sample=>sample.id===params.name))throw new Error('未知试用样件。');
+    if(dirty)throw Object.assign(new Error('当前工程尚未保存。请先保存工程再切换样件；若要放弃修改，请点击“新建”并确认后再打开样件。'),{code:'UNSAVED_REPLACEMENT'});
+    // Hold the original instance/revision across fetch; concurrent edits must not be replaced.
+    const {revision:r,...c}=pageAPI.getState().context;
+    const response=await fetch(`${import.meta.env.BASE_URL}trial-samples/${params.name}.webcad`);
+    if(!response.ok)throw new Error('试用样件读取失败，请检查静态发布文件。');
+    const asset=await pageAPI.files.register({name:`${params.name}.webcad`,data:await response.blob()});
+    try{await pageAPI.files.open({context:{...c,expectedRevision:r},resourceId:asset.resourceId});setStatus('样件已打开：点击下方“参数表”修改尺寸。');}
+    finally{pageAPI.files.release({resourceId:asset.resourceId});}
+    return;
+  }
   if(action==='example'){
 
     if(!['mounting-bracket','buckle-frame','open-box'].includes(params.name))throw new Error('未知示例。');
@@ -291,7 +304,7 @@ async function performAction(action,params={}){
     if(params.selected&&!selectedIds.length)throw new Error('请先选择要导出的实体。');
     const result=await exportData(params.format||'step',params.selected?selectedIds:undefined);
     const extension=result.extension==='step'?'stp':result.extension;
-    download(result.data,safeName(documentModel.name)+'.'+extension,result.mime);setStatus(`已导出 ${extension.toUpperCase()} 文件。`);return;
+    download(result.data,safeName(documentModel.name)+'.'+extension,result.mime);setStatus(`已发起 ${extension.toUpperCase()} 下载；请在浏览器下载记录中确认文件。`);return;
   }
   if(action==='undo'||action==='redo'){await navigateHistory(action);return;}
   if(action==='measure'){

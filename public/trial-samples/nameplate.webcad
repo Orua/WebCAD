@@ -1,0 +1,133 @@
+{
+  "version": 1,
+  "documentId": "72cc61d7-41b9-473f-b45f-430068cf1931",
+  "name": "凸轮廓铭牌",
+  "features": [
+    {
+      "id": "10872029-4e08-4b19-8bbb-99279ade36f1",
+      "op": "extrude",
+      "name": "拉伸 1",
+      "params": {
+        "profile": "polygon",
+        "plane": "XY",
+        "height": 3,
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            36,
+            0
+          ],
+          [
+            42,
+            9
+          ],
+          [
+            36,
+            18
+          ],
+          [
+            0,
+            18
+          ],
+          [
+            -4,
+            9
+          ]
+        ]
+      },
+      "refs": [],
+      "expressions": {
+        "height": "thickness"
+      }
+    },
+    {
+      "id": "23e1ba2c-8625-4b47-9761-8d0e615b6fda",
+      "op": "hole",
+      "name": "打孔 1",
+      "params": {
+        "x": 3,
+        "y": 9,
+        "z": 5,
+        "axis": "Z",
+        "direction": -1,
+        "radius": 2,
+        "depth": 6
+      },
+      "refs": [
+        "10872029-4e08-4b19-8bbb-99279ade36f1"
+      ]
+    },
+    {
+      "id": "abb1b632-dc6c-4e71-ab8b-32aadfc55129",
+      "op": "extrude",
+      "name": "拉伸 2",
+      "params": {
+        "profile": "polygon",
+        "plane": "XY",
+        "height": 0.6,
+        "points": [
+          [
+            15,
+            5
+          ],
+          [
+            17,
+            5
+          ],
+          [
+            17,
+            11
+          ],
+          [
+            22,
+            11
+          ],
+          [
+            22,
+            13
+          ],
+          [
+            15,
+            13
+          ]
+        ]
+      },
+      "refs": []
+    },
+    {
+      "id": "4424629d-cd1a-4bc2-b974-2ce0de6d8597",
+      "op": "transform",
+      "name": "变换 1",
+      "params": {
+        "z": 3
+      },
+      "refs": [
+        "abb1b632-dc6c-4e71-ab8b-32aadfc55129"
+      ],
+      "expressions": {
+        "z": "thickness"
+      }
+    },
+    {
+      "id": "6bc9bf5c-f930-48ad-b114-9810b97b19f3",
+      "op": "union",
+      "name": "合并 1",
+      "params": {},
+      "refs": [
+        "23e1ba2c-8625-4b47-9761-8d0e615b6fda",
+        "4424629d-cd1a-4bc2-b974-2ce0de6d8597"
+      ]
+    }
+  ],
+  "imports": {},
+  "hidden": [],
+  "parameters": {
+    "thickness": {
+      "value": 3,
+      "unit": "mm"
+    }
+  }
+}

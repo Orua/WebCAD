@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "documentId": "38804ba1-0dad-4971-8a64-fe26e234717c",
+  "name": "扣框",
+  "features": [
+    {
+      "id": "fd216265-b473-4d0c-91c6-de5efc89eee0",
+      "op": "quickModel",
+      "name": "快速模型 1",
+      "params": {
+        "kind": "rectBuckle",
+        "section": "round",
+        "sectionSize": 3,
+        "sectionRadius": 0.3,
+        "gapWidth": 0,
+        "innerWidth": 28,
+        "innerHeight": 20,
+        "innerRadius": 3
+      },
+      "refs": [],
+      "expressions": {
+        "innerWidth": "innerWidth"
+      }
+    }
+  ],
+  "imports": {},
+  "hidden": [],
+  "parameters": {
+    "innerWidth": {
+      "value": 28,
+      "unit": "mm"
+    }
+  }
+}
