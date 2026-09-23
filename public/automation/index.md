@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.0.0 · 操作目录 sha256:bd1964ad0befd44e1fb29e46a4bf5fecd2a9c42462ec3dd4a5945a788c077d44
+API 1.0.0 · 操作目录 sha256:a0ae4375727fcb7df3c95d81485ff0de108e46422e2323a91c12f5256009726c
 
 入口：`window.webcad.api.info()`，然后 `searchTools`、`getTool`、`readDocs`。页面 JS 执行取决于获授权的客户端能力。
 
@@ -22,6 +22,7 @@ API 1.0.0 · 操作目录 sha256:bd1964ad0befd44e1fb29e46a4bf5fecd2a9c42462ec3dd
 
 ## 文件方法
 
+- `files.capabilities`
 - `files.register`
 - `files.new`
 - `files.open`
@@ -75,7 +76,19 @@ API 1.0.0 · 操作目录 sha256:bd1964ad0befd44e1fb29e46a4bf5fecd2a9c42462ec3dd
 - `transform` · advisory · Scale, rotate X/Y/Z about origin, then translate
 - `union` · advisory · Fuse bodies
 - `vectorProfile` · advisory · Create independent planar faces or solids from closed vector regions
+- `info` · page-method · info() 无参数。
+- `getState` · page-method · getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities。
+- `searchTools` · page-method · searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50。
+- `getTool` · page-method · getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。
+- `readDocs` · page-method · readDocs({docId,version?,cursor?,limitChars?}); 只接受登记的文档 ID。
+- `queryGeometry` · page-method · queryGeometry({context,bodyId,kind:"face"|"edge",filter,requireUnique?,limit?,cursor?})。
+- `execute` · page-method · execute({context,idempotencyKey,action,args}); action 来自当前命令合同。
+- `measure` · page-method · measure({context,bodyId,kind?:"body"|"face"|"edge",topologyId?}); 面/边需非负整数 topologyId。
+- `setView` · page-method · setView({context,direction?,projection?,fit?,selectedIds?,section?}); section={axis:"X"|"Y"|"Z",position:number,enabled:boolean}。
+- `redraw` · page-method · redraw({context}); 不接受额外字段。
+- `capture` · page-method · capture({context}); 不接受额外字段。
 - `document.parameters` · page-command · 通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。
+- `files.capabilities` · browser-file-adapter · capabilities(); no arguments.
 - `files.register` · browser-file-adapter · register({name,data,mime?}); data is File, Blob, ArrayBuffer or Uint8Array; name is a safe basename.
 - `files.new` · browser-file-adapter · new({context}); complete current context; dirty replacement is always rejected by page API.
 - `files.open` · browser-file-adapter · open({context,resourceId}); registered .webcad/.json resource; dirty replacement is rejected.

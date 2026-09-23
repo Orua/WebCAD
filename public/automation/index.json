@@ -7,8 +7,8 @@
     "pageApiVersion": "1.0.0",
     "transport": "in-page",
     "entrypoint": "window.webcad.api",
-    "catalogHash": "sha256:bd1964ad0befd44e1fb29e46a4bf5fecd2a9c42462ec3dd4a5945a788c077d44",
-    "docsHash": "sha256:b8fb0434ccf0fe8b7d6a8f33b0e3a28df76911a52c6c68af57aa47af4de3d7be",
+    "catalogHash": "sha256:a0ae4375727fcb7df3c95d81485ff0de108e46422e2323a91c12f5256009726c",
+    "docsHash": "sha256:99a039656d7932b9f4115e584456ede8de5e1fd91364c681870614699445ac00",
     "units": {
       "length": "mm",
       "angle": "degrees",
@@ -31,6 +31,7 @@
       "capture"
     ],
     "filesMethods": [
+      "capabilities",
       "register",
       "new",
       "open",
@@ -49,6 +50,8 @@
       "api.execute",
       "api.named-parameters",
       "api.query-geometry",
+      "api.views",
+      "api.file-errors",
       "recipes.mounting-plate",
       "recipe.file-workflow"
     ],
@@ -4545,7 +4548,7 @@
         "volume": "mm^3",
         "scale": "dimensionless"
       },
-      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry(request) or measure(request) inspects one face/edge and returns exact measures plus origin/normal for planar faces; iterate only relevant IDs within current counts to find the required surface. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Only faceHole, faceExtrude and logo require planar support. curvedLogo, thickenFace, faceBoundary and surfaceTrim follow their individual surface restrictions. Use tools/logo-extract.py on a reviewed DWG-converted DXF window. No font substitution. Region coordinates are mm relative to the chosen face center; local X is global X projected onto face unless abs(normal.x)>=0.9, then projected global Y. Local Y=normal cross X. Mirror, scale, then angle, then offsets. Defaults scale=1,angle=0,offsets=0,mirrorX=false. Holes preserved; 12000 vertices total. Rejects crossing face boundary/holes, open/overlapping/self-touching outlines and disconnected emboss. Draft narrows away from supporting plane and preserves contour there, including opposite taper for holes. Invalid/narrow profiles fail; no silent fallback. Curved wrapping and texture not implemented. Source flattening tolerance must be recorded.",
+      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry(request) or measure(request) inspects one face/edge and returns exact measures plus origin/normal for planar faces; iterate only relevant IDs within current counts to find the required surface. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Only faceHole, faceExtrude and logo require planar support. curvedLogo, thickenFace, faceBoundary and surfaceTrim follow their individual surface restrictions. Use reviewed browser vector input or an existing .logo.json packet; the static page does not run a local converter. No font substitution. Region coordinates are mm relative to the chosen face center; local X is global X projected onto face unless abs(normal.x)>=0.9, then projected global Y. Local Y=normal cross X. Mirror, scale, then angle, then offsets. Defaults scale=1,angle=0,offsets=0,mirrorX=false. Holes preserved; 12000 vertices total. Rejects crossing face boundary/holes, open/overlapping/self-touching outlines and disconnected emboss. Draft narrows away from supporting plane and preserves contour there, including opposite taper for holes. Invalid/narrow profiles fail; no silent fallback. Curved wrapping and texture not implemented. Source flattening tolerance must be recorded.",
       "title": "Engrave or emboss reviewed vector logo contours on one planar face",
       "category": "modification",
       "synonyms": [
@@ -4602,7 +4605,7 @@
         "Schema advisory only; existing operation/kernel restrictions apply."
       ],
       "knownUnsupportedCases": [
-        "Use tools/logo-extract.py on a reviewed DWG-converted DXF window. No font substitution. Region coordinates are mm relative to the chosen face center; local X is global X projected onto face unless abs(normal.x)>=0.9, then projected global Y. Local Y=normal cross X. Mirror, scale, then angle, then offsets. Defaults scale=1,angle=0,offsets=0,mirrorX=false. Holes preserved; 12000 vertices total. Rejects crossing face boundary/holes, open/overlapping/self-touching outlines and disconnected emboss. Draft narrows away from supporting plane and preserves contour there, including opposite taper for holes. Invalid/narrow profiles fail; no silent fallback. Curved wrapping and texture not implemented. Source flattening tolerance must be recorded."
+        "Use reviewed browser vector input or an existing .logo.json packet; the static page does not run a local converter. No font substitution. Region coordinates are mm relative to the chosen face center; local X is global X projected onto face unless abs(normal.x)>=0.9, then projected global Y. Local Y=normal cross X. Mirror, scale, then angle, then offsets. Defaults scale=1,angle=0,offsets=0,mirrorX=false. Holes preserved; 12000 vertices total. Rejects crossing face boundary/holes, open/overlapping/self-touching outlines and disconnected emboss. Draft narrows away from supporting plane and preserves contour there, including opposite taper for holes. Invalid/narrow profiles fail; no silent fallback. Curved wrapping and texture not implemented. Source flattening tolerance must be recorded."
       ],
       "minimalExample": {
         "op": "logo",
@@ -4696,7 +4699,7 @@
       },
       "runtimeAvailability": "requires_ready_page",
       "usage": "Available through the page CommandService advisory adapter; Schema is advisory and kernel prerequisites still apply. Verify the actual result.",
-      "docsHash": "sha256:b2a227dfb13204f433ed767804235202572bbe2e954301467771201efa61907b"
+      "docsHash": "sha256:5990e649f12732dc1d65f92cc6c466668d3e53c5709cc393d7b27d098b2e7763"
     },
     {
       "id": "mirror",
@@ -5499,6 +5502,65 @@
               "kind"
             ],
             "additionalProperties": false,
+            "description": "One fused solid, centered in XY, bottom at Z=0, open top. Clear cavity width/depth = outer width/depth minus twice wall thickness; clear height = height minus floor thickness. Two X-symmetric bosses rise from the inner floor; bores pass through bosses and floor. Straight walls/corners only; no draft, fillets, threads or assembly relationships.",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "thinWallTray"
+              },
+              "outerWidth": {
+                "type": "number",
+                "default": 60,
+                "description": "Outer width X"
+              },
+              "outerDepth": {
+                "type": "number",
+                "default": 36,
+                "description": "Outer depth Y"
+              },
+              "height": {
+                "type": "number",
+                "default": 14,
+                "description": "Total height"
+              },
+              "wallThickness": {
+                "type": "number",
+                "default": 2,
+                "description": "Wall thickness"
+              },
+              "floorThickness": {
+                "type": "number",
+                "default": 2,
+                "description": "Floor thickness"
+              },
+              "bossSpacing": {
+                "type": "number",
+                "default": 30,
+                "description": "Boss center spacing X"
+              },
+              "bossOuterDiameter": {
+                "type": "number",
+                "default": 8,
+                "description": "Boss outer diameter"
+              },
+              "boreDiameter": {
+                "type": "number",
+                "default": 3,
+                "description": "Through-bore diameter"
+              },
+              "bossHeight": {
+                "type": "number",
+                "default": 8,
+                "description": "Boss height above inner floor"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "kind"
+            ],
+            "additionalProperties": false,
             "description": "Coaxial tube; defaults 13.4 outer diameter, 12.4 inner diameter and 3 height for the user C-part.",
             "properties": {
               "kind": {
@@ -5956,6 +6018,17 @@
           "bodyHeight": 10,
           "flangeThickness": 3
         },
+        "thinWallTray": {
+          "outerWidth": 60,
+          "outerDepth": 36,
+          "height": 14,
+          "wallThickness": 2,
+          "floorThickness": 2,
+          "bossSpacing": 30,
+          "bossOuterDiameter": 8,
+          "boreDiameter": 3,
+          "bossHeight": 8
+        },
         "tube": {
           "outerDiameter": 13.4,
           "innerDiameter": 12.4,
@@ -6038,14 +6111,14 @@
         "volume": "mm^3",
         "scale": "dimensionless"
       },
-      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry(request) or measure(request) inspects one face/edge and returns exact measures plus origin/normal for planar faces; iterate only relevant IDs within current counts to find the required surface. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Only faceHole, faceExtrude and logo require planar support. curvedLogo, thickenFace, faceBoundary and surfaceTrim follow their individual surface restrictions. Template-specific parameters and defaults come from get_templates, not arbitrary geometry code.",
+      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry(request) or measure(request) inspects one face/edge and returns exact measures plus origin/normal for planar faces; iterate only relevant IDs within current counts to find the required surface. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Only faceHole, faceExtrude and logo require planar support. curvedLogo, thickenFace, faceBoundary and surfaceTrim follow their individual surface restrictions. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
       "title": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
       "category": "creation",
       "synonyms": [
         "quickModel"
       ],
       "description": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "schemaHash": "sha256:5477f075a97df230b3ad15907718fb0dd082dec70f95d75efe6e043fc1869d6b",
+      "schemaHash": "sha256:e1ebd70f6f0fbca9236d97e83260d7edbf6c6aa55079d556318c8f258093eb9c",
       "apiCompatibility": [
         "page-advisory"
       ],
@@ -6095,7 +6168,7 @@
         "Schema advisory only; existing operation/kernel restrictions apply."
       ],
       "knownUnsupportedCases": [
-        "Template-specific parameters and defaults come from get_templates, not arbitrary geometry code."
+        "Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code."
       ],
       "minimalExample": {
         "op": "quickModel",
@@ -6470,6 +6543,114 @@
             "boreDiameter": 6,
             "bodyHeight": 10,
             "flangeThickness": 3
+          }
+        },
+        {
+          "kind": "thinWallTray",
+          "title": "Open tray with two hollow bosses",
+          "description": "One fused solid, centered in XY, bottom at Z=0, open top. Clear cavity width/depth = outer width/depth minus twice wall thickness; clear height = height minus floor thickness. Two X-symmetric bosses rise from the inner floor; bores pass through bosses and floor. Straight walls/corners only; no draft, fillets, threads or assembly relationships.",
+          "defaults": {
+            "outerWidth": 60,
+            "outerDepth": 36,
+            "height": 14,
+            "wallThickness": 2,
+            "floorThickness": 2,
+            "bossSpacing": 30,
+            "bossOuterDiameter": 8,
+            "boreDiameter": 3,
+            "bossHeight": 8
+          },
+          "fields": [
+            {
+              "key": "outerWidth",
+              "label": "外宽 X",
+              "labelEn": "Outer width X",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "outerDepth",
+              "label": "外深 Y",
+              "labelEn": "Outer depth Y",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "height",
+              "label": "壳体总高",
+              "labelEn": "Total height",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "wallThickness",
+              "label": "侧壁厚",
+              "labelEn": "Wall thickness",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "floorThickness",
+              "label": "底板厚",
+              "labelEn": "Floor thickness",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "bossSpacing",
+              "label": "两柱中心距 X",
+              "labelEn": "Boss center spacing X",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "bossOuterDiameter",
+              "label": "柱外径",
+              "labelEn": "Boss outer diameter",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "boreDiameter",
+              "label": "贯穿孔径",
+              "labelEn": "Through-bore diameter",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            },
+            {
+              "key": "bossHeight",
+              "label": "内底面以上柱高",
+              "labelEn": "Boss height above inner floor",
+              "type": "number",
+              "min": 0.1,
+              "step": 0.1
+            }
+          ],
+          "knownUnsupportedCases": [
+            "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+          ],
+          "minimalExample": {
+            "kind": "thinWallTray"
+          },
+          "normalExample": {
+            "kind": "thinWallTray",
+            "outerWidth": 60,
+            "outerDepth": 36,
+            "height": 14,
+            "wallThickness": 2,
+            "floorThickness": 2,
+            "bossSpacing": 30,
+            "bossOuterDiameter": 8,
+            "boreDiameter": 3,
+            "bossHeight": 8
           }
         },
         {
@@ -7207,7 +7388,7 @@
       },
       "runtimeAvailability": "requires_ready_page",
       "usage": "Available through the page CommandService advisory adapter; Schema is advisory and kernel prerequisites still apply. Verify the actual result.",
-      "docsHash": "sha256:f2d7007f25adeca421dd7820b26b5be9c37bcc9e308c4c65152622113dc958f3"
+      "docsHash": "sha256:32bf9f3ab89d90b6baef1890c9a60fc7360079e2532895ea3c43eb6df01d1b45"
     },
     {
       "id": "revolve",
@@ -9630,6 +9811,298 @@
       "docsHash": "sha256:6c863f03799dff5502f05ba272597a8758f2c301a8ff7060bf53f6dc4c88f361"
     },
     {
+      "id": "info",
+      "title": "info",
+      "category": "page-method",
+      "version": "1.0.0",
+      "description": "info() 无参数。",
+      "synonyms": [
+        "info",
+        "页面信息",
+        "构建",
+        "就绪"
+      ],
+      "inputContract": "info() 无参数。",
+      "outputContract": "构建/API 版本、in-page transport、当前 context、URL、display、就绪状态和能力。",
+      "implementationStatus": "implemented",
+      "contractStatus": "page-method",
+      "runtimeAvailability": "requires_page",
+      "errorModel": "Read methods may return a structured state error or throw a coded contract error.",
+      "errorCodes": [],
+      "docsHash": "sha256:222583c18564f8ea5ee339a116217780c41e1b0237992a09670312a5f4f64ad2"
+    },
+    {
+      "id": "getState",
+      "title": "getState",
+      "category": "page-method",
+      "version": "1.0.0",
+      "description": "getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities。",
+      "synonyms": [
+        "getState",
+        "工程状态",
+        "特征",
+        "实体",
+        "参数"
+      ],
+      "inputContract": "getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities。",
+      "outputContract": "当前 context、工程状态、parameters、parameterValues 和 display；不会默认返回导入源字节。",
+      "implementationStatus": "implemented",
+      "contractStatus": "page-method",
+      "runtimeAvailability": "requires_page",
+      "errorModel": "Read methods may return a structured state error or throw a coded contract error.",
+      "errorCodes": [
+        "PARAM_SCHEMA_INVALID",
+        "INSTANCE_MISMATCH"
+      ],
+      "docsHash": "sha256:1d3ea7ff3eac53fc063692ab8fdc3182e8f3c29568b7b02ccc7019df08e38a0b"
+    },
+    {
+      "id": "searchTools",
+      "title": "searchTools",
+      "category": "page-method",
+      "version": "1.0.0",
+      "description": "searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50。",
+      "synonyms": [
+        "searchTools",
+        "搜索",
+        "工具",
+        "中文",
+        "目录"
+      ],
+      "inputContract": "searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50。",
+      "outputContract": "目录卡片摘要、nextCursor、catalogHash；游标绑定查询与目录哈希。",
+      "implementationStatus": "implemented",
+      "contractStatus": "page-method",
+      "runtimeAvailability": "requires_page",
+      "errorModel": "Read methods may return a structured state error or throw a coded contract error.",
+      "errorCodes": [
+        "PARAM_SCHEMA_INVALID",
+        "PARAM_RANGE_INVALID"
+      ],
+      "docsHash": "sha256:d99ea6dfe4c24627e9d60c72f6c55f8efcac308ba0b8686e11f2405673cd6e10"
+    },
+    {
+      "id": "getTool",
+      "title": "getTool",
+      "category": "page-method",
+      "version": "1.0.0",
+      "description": "getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。",
+      "synonyms": [
+        "getTool",
+        "工具卡",
+        "参数",
+        "schema",
+        "契约"
+      ],
+      "inputContract": "getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。",
+      "outputContract": "完整工具卡、版本和 docsHash。",
+      "implementationStatus": "implemented",
+      "contractStatus": "page-method",
+      "runtimeAvailability": "requires_page",
+      "errorModel": "Read methods may return a structured state error or throw a coded contract error.",
+      "errorCodes": [
+        "PARAM_SCHEMA_INVALID",
+        "UNKNOWN_OPERATION",
+        "OPERATION_VERSION_UNSUPPORTED"
+      ],
+      "docsHash": "sha256:e5e00f3709075b85cf9a961279ffbf403e88d8b353d9c2e35110d803bf83fbac"
+    },
+    {
+      "id": "readDocs",
+      "title": "readDocs",
+      "category": "page-method",
+      "version": "1.0.0",
+      "description": "readDocs({docId,version?,cursor?,limitChars?}); 只接受登记的文档 ID。",
+      "synonyms": [
+        "readDocs",
+        "读取",
+        "文档",
+        "配方",
+        "白名单"
+      ],
+      "inputContract": "readDocs({docId,version?,cursor?,limitChars?}); 只接受登记的文档 ID。",
+      "outputContract": "限定长度的说明文本、版本、哈希和分页游标。",
+      "implementationStatus": "implemented",
+      "contractStatus": "page-method",
+      "runtimeAvailability": "requires_page",
+      "errorModel": "Read methods may return a structured state error or throw a coded contract error.",
+      "errorCodes": [
+        "PARAM_SCHEMA_INVALID",
+        "PARAM_RANGE_INVALID",
+        "OPERATION_VERSION_UNSUPPORTED"
+      ],
+      "docsHash": "sha256:77976e66567fb941cb3d8b9ba48721e2bb74ae1b5b0342c75731d576d117b093"
+    },
+    {
+      "id": "queryGeometry",
+      "title": "queryGeometry",
+      "category": "page-method",
+      "version": "1.0.0",
+      "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,limit?,cursor?})。",
+      "synonyms": [
+        "queryGeometry",
+        "几何查询",
+        "面",
+        "边",
+        "选择令牌"
+      ],
+      "inputContract": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,limit?,cursor?})。",
+      "outputContract": "精确 B-Rep 候选项、歧义信息、快照绑定的 selectionToken 与当前 context。",
+      "implementationStatus": "implemented",
+      "contractStatus": "page-method",
+      "runtimeAvailability": "requires_page",
+      "errorModel": "CommandService structured result; inspect status and commitState.",
+      "errorCodes": [
+        "INSTANCE_MISMATCH",
+        "REVISION_CONFLICT",
+        "STALE_REFERENCE",
+        "NO_MATCH",
+        "AMBIGUOUS_SELECTION"
+      ],
+      "docsHash": "sha256:3d0137bd552015e8e47d0a9f54b02cefbdeb32392ece090a32cf666569fb712b"
+    },
+    {
+      "id": "execute",
+      "title": "execute",
+      "category": "page-method",
+      "version": "1.0.0",
+      "description": "execute({context,idempotencyKey,action,args}); action 来自当前命令合同。",
+      "synonyms": [
+        "execute",
+        "建模",
+        "编辑",
+        "撤销",
+        "参数",
+        "命令"
+      ],
+      "inputContract": "execute({context,idempotencyKey,action,args}); action 来自当前命令合同。",
+      "outputContract": "CommandService 的 committed/no_change/failed/unknown、revision 和实际创建 ID。",
+      "implementationStatus": "implemented",
+      "contractStatus": "page-method",
+      "runtimeAvailability": "requires_page",
+      "errorModel": "CommandService structured result; inspect status and commitState.",
+      "errorCodes": [
+        "INSTANCE_MISMATCH",
+        "REVISION_CONFLICT",
+        "PARAM_SCHEMA_INVALID",
+        "GEOMETRY_INVALID"
+      ],
+      "docsHash": "sha256:46da60fac98e07947442c0894793f54a771be1d2958a40565e254bed14c4f26e"
+    },
+    {
+      "id": "measure",
+      "title": "measure",
+      "category": "page-method",
+      "version": "1.0.0",
+      "description": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}); 面/边需非负整数 topologyId。",
+      "synonyms": [
+        "measure",
+        "测量",
+        "实测",
+        "体积",
+        "包围尺寸",
+        "半径"
+      ],
+      "inputContract": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}); 面/边需非负整数 topologyId。",
+      "outputContract": "status=read、source=exact-brep、单位、当前 context 和内核实测结果。",
+      "implementationStatus": "implemented",
+      "contractStatus": "page-method",
+      "runtimeAvailability": "requires_page",
+      "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+      "errorCodes": [
+        "PARAM_SCHEMA_INVALID",
+        "STALE_REFERENCE",
+        "REVISION_CONFLICT",
+        "CAPABILITY_UNAVAILABLE"
+      ],
+      "docsHash": "sha256:e72614359d0ce1148aa5a54c2b40c86a9cf18d6bf3d95d3320310a841743c2a2"
+    },
+    {
+      "id": "setView",
+      "title": "setView",
+      "category": "page-method",
+      "version": "1.0.0",
+      "description": "setView({context,direction?,projection?,fit?,selectedIds?,section?}); section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
+      "synonyms": [
+        "setView",
+        "视图",
+        "俯视",
+        "侧视",
+        "轴测",
+        "适配",
+        "剖切",
+        "显隐"
+      ],
+      "inputContract": "setView({context,direction?,projection?,fit?,selectedIds?,section?}); section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
+      "outputContract": "status=read、当前 context、display；section 仅为显示裁剪，不是精确切割。",
+      "implementationStatus": "implemented",
+      "contractStatus": "page-method",
+      "runtimeAvailability": "requires_page",
+      "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+      "errorCodes": [
+        "PARAM_SCHEMA_INVALID",
+        "STALE_REFERENCE",
+        "REVISION_CONFLICT",
+        "CAPABILITY_UNAVAILABLE"
+      ],
+      "docs": "api.views",
+      "docsHash": "sha256:78520926639e6989184df63406c291cf52d440a16061d81697676397cbc5542d"
+    },
+    {
+      "id": "redraw",
+      "title": "redraw",
+      "category": "page-method",
+      "version": "1.0.0",
+      "description": "redraw({context}); 不接受额外字段。",
+      "synonyms": [
+        "redraw",
+        "重绘",
+        "刷新",
+        "画面",
+        "渲染"
+      ],
+      "inputContract": "redraw({context}); 不接受额外字段。",
+      "outputContract": "status=read、当前 context 和 display；不重载页面或增加建模 revision。",
+      "implementationStatus": "implemented",
+      "contractStatus": "page-method",
+      "runtimeAvailability": "requires_page",
+      "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+      "errorCodes": [
+        "REVISION_CONFLICT",
+        "CAPABILITY_UNAVAILABLE",
+        "DISPLAY_FAILED"
+      ],
+      "docs": "api.views",
+      "docsHash": "sha256:e185f199259a76f84861181e5eb6a78132e67ed9685a50a14db74d313891bdd9"
+    },
+    {
+      "id": "capture",
+      "title": "capture",
+      "category": "page-method",
+      "version": "1.0.0",
+      "description": "capture({context}); 不接受额外字段。",
+      "synonyms": [
+        "capture",
+        "截图",
+        "图像",
+        "PNG",
+        "当前画面"
+      ],
+      "inputContract": "capture({context}); 不接受额外字段。",
+      "outputContract": "status=read、mime=image/png、真实 dataUrl、当前 context 和匹配渲染帧的 display。",
+      "implementationStatus": "implemented",
+      "contractStatus": "page-method",
+      "runtimeAvailability": "requires_page",
+      "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+      "errorCodes": [
+        "REVISION_CONFLICT",
+        "CAPABILITY_UNAVAILABLE",
+        "DISPLAY_FAILED"
+      ],
+      "docs": "api.views",
+      "docsHash": "sha256:7fbd6a929bfc590d84342ecc1eabdf84ff580681c60c02fc4a7ceb64336caa45"
+    },
+    {
       "id": "document.parameters",
       "title": "命名参数与尺寸联动",
       "category": "document",
@@ -9708,6 +10181,41 @@
       ],
       "docs": "api.named-parameters",
       "docsHash": "sha256:6186560c377f39e0e5d9452b1723d923c6b447c30a77f0871eaab2c51dd31394"
+    },
+    {
+      "id": "files.capabilities",
+      "title": "files.capabilities",
+      "category": "file",
+      "version": "1.0.0",
+      "description": "capabilities(); no arguments.",
+      "inputContract": "capabilities(); no arguments.",
+      "outputContract": "Browser limits, supported formats and in-page transport.",
+      "units": {
+        "length": "mm",
+        "angle": "degrees"
+      },
+      "implementationStatus": "page-adapter",
+      "contractStatus": "browser-file-adapter",
+      "runtimeAvailability": "requires_ready_page",
+      "limits": {
+        "maxBytes": 20971520,
+        "maxResources": 32,
+        "maxTotalBytes": 67108864,
+        "ttlSeconds": 1800
+      },
+      "caveats": [],
+      "errorCodes": [
+        "CAPABILITY_UNAVAILABLE",
+        "REVISION_CONFLICT",
+        "INSTANCE_MISMATCH",
+        "UNSAVED_REPLACEMENT",
+        "HASH_MISMATCH",
+        "SIZE_LIMIT",
+        "RESOURCE_LIMIT",
+        "RESOURCE_EXPIRED",
+        "PERMISSION_REQUIRED"
+      ],
+      "docsHash": "sha256:e05cde81287232fab41a6b24fb58833581527dbe1ff86a8ffb70a67de3ef0027"
     },
     {
       "id": "files.register",
@@ -10097,7 +10605,9 @@
     "api.execute": "execute(request) 使用当前 CommandService 的结构化请求：{context:{sessionId,documentId,documentInstanceId,expectedRevision},idempotencyKey,action,args}。feature.add 的 args 使用真实工具卡的 op、opVersion、schemaHash、params、refs；feature.edit 使用 featureId、opVersion、schemaHash、params 补丁。严格参数契约目前仅覆盖 box、hole、multiHole、faceHole、fillet、chamfer、shell。其他操作的卡片是 advisory，不得把它当成严格 v2 可执行保证。\n同一页面修改由原命令队列串行处理。幂等回执只在当前 documentInstanceId 的有限内存范围内有效，不跨页面重载。成功提交与后续显示或文件写入失败应分别报告。",
     "api.named-parameters": "读取 getState().parameters 和 parameterValues。execute({context,idempotencyKey,action:\"document.parameters\",args:{parameters:{length:{value:50,unit:\"mm\"},edgeMargin:{value:5,unit:\"mm\"}},bindings:{\"<实际板特征ID>\":{\"width\":\"length\"},\"<实际孔特征ID>\":{\"points.1.0\":\"length-edgeMargin\",\"points.3.0\":\"length-edgeMargin\"}}}}) 在一个撤销步骤内计算受影响特征并重建。后续只传 parameters:{length:{value:63,unit:\"mm\"}} 更新数值，原绑定保持。\n参数定义按名称合并；绑定按特征 ID 和数值路径合并。单位仅 mm/scalar，表达式支持有界四则运算和已注册函数，不执行 JS。未定义参数、循环、单位不符、越界或不安全的后续拓扑索引会拒绝并保留原模型。已绑定字段的直接数值编辑返回 PARAMETER_BOUND；请通过参数表或 document.parameters 修改。",
     "api.query-geometry": "Read current state first. Input is {context:{sessionId,documentId,documentInstanceId,expectedRevision},bodyId,kind,filter,requireUnique?,limit?,cursor?}.\nkind=face accepts surfaceType:\"plane\", normal:{direction:[x,y,z],sameDirection?:true,angleToleranceDeg?:0.1}, atExtreme:{axis:\"X\"|\"Y\"|\"Z\",side:\"min\"|\"max\",toleranceMm?:0.01}. Normals use world coordinates and topological orientation; open-shell outward direction is not guaranteed. atExtreme compares a principal-axis supporting plane to the body's exact bounds.\nkind=edge accepts curveType:\"line\"|\"circle\", lengthRangeMm:{min?,max?}, radiusRangeMm:{min?,max?}, onFaceToken. Ranges need at least one bound and min<=max. onFaceToken must identify one current face; its boundaries include both outer and hole loops. loopRole is not implemented. Circle results include exact radiusMm and center. Cylindrical face filtering is not implemented; use circular edges to inspect hole radii/positions.\nrequireUnique defaults true; zero matches returns NO_MATCH, multiple matches returns AMBIGUOUS_SELECTION with candidates. No automatic first-match choice. requireUnique=false returns all-match count and paged items; limit defaults20/max100. selectionToken represents the entire matching index set, not just the visible page. Cursor binds the same snapshot, filter, uniqueness mode and limit; repeat these values when paging.\nTokens bind documentInstanceId, revision, bodyId, kind, exact BRep fingerprint and indices. Tokens are invalid after any revision change or document reload. At execution refs must match the selected body. Supported token operations: fillet/chamfer/shell/faceHole, feature.add only. Token plus explicit faceId/faceIds/edgeIds/allEdges conflicts. A current final-model token is not a stable historical reference.\nWhile the Worker is busy or preview is active the query is rejected, never silently run against preview geometry. Limit 1000 tokens and 1000 pagination cursors per instance. Exhaustion rejects new queries, without silently reusing expired IDs; start a new document instance when appropriate.",
+    "api.views": "setView({context,direction?,projection?,fit?,selectedIds?,section?}) 控制当前视口。direction 可为 top/bottom/front/back/left/right/side/iso；projection 可为 orthographic/perspective；fit 是布尔值；selectedIds 是当前实体 ID 数组，最多 200 个且不得重复。section 为 {axis:\"X\"|\"Y\"|\"Z\",position:有限数字,enabled:布尔值}，仅做显示裁剪，不切割精确 B-Rep。相机与裁剪变化不增加建模 revision。redraw({context}) 重绘当前提交版本；capture({context}) 等待匹配当前模型的渲染帧，返回 image/png dataUrl、context 和 display，失败时可能为 DISPLAY_FAILED。调用前从 getState().context 取完整当前身份与 expectedRevision。",
+    "api.file-errors": "页面建模、测量、视图与截图方法的失败通常返回 {status:\"failed\",commitState:\"not_committed\",error:{code,message},context}；execute 和 queryGeometry 使用 CommandService 的更完整结果。files 方法抛出带 code 的 Error，调用方应捕获，不能把异常解释为已保存。文件状态分别为 registered、generated、download_initiated、write_verified；generated 不证明磁盘写入。输入资源、导入和输出每项最多 20 MiB，最多 32 个资源、合计 64 MiB、30 分钟有效。自包含 .webcad 保存可能含 base64 导入源并超过上限；页面在限制前预留约 4 KiB 空间。读取 files.capabilities() 获得当前实际上限。",
     "recipes.mounting-plate": "四孔板示例，尺寸单位 mm。先调用 info()/getState() 取得当前完整上下文，再用 getTool({id:\"box\"}) 与 getTool({id:\"multiHole\"}) 读取实际版本、schemaHash 与示例。新增 box：{width:50,depth:30,height:3}、refs:[]。取得实际板件 bodyId 与新 revision 后新增 multiHole：{radius:2,depth:5,axis:\"Z\",direction:-1,points:[[5,5,4],[45,5,4],[5,25,4],[45,25,4]]}、refs:[实际 bodyId]。刀具从全局 Z=4 向下切至 Z=-1。体积期望值是 4500-48π mm³；须以当前精确 B-Rep 测量和导出回读验证。\n命名参数已通过 execute action document.parameters 接出；可绑定板长和右孔 X 到 length 与 length-edgeMargin，再只改 length。具体示例见 docs/examples/page-api-plate.js。",
-    "recipe.file-workflow": "浏览器文件流程：api.files.register({name,data,mime?}) 登记 File/Blob/ArrayBuffer/Uint8Array 真实字节，返回 resourceId。api.files.new({context})、open/import({context,resourceId}) 操作当前工程；save({context,name?})、export({context,format,ids?,name?}) 返回 status=generated 的资源描述。read({resourceId,as:\"blob\"|\"bytes\"}) 返回实际 Blob 或 Uint8Array。download({resourceId}) 返回 download_initiated；write({resourceId,handle}) 仅在已授权句柄写入、关闭与 SHA-256/大小回读匹配后返回 write_verified。release({resourceId}) 释放页面资源；已启动下载的 Object URL 由定时器回收，不因 release 立即撤销。\n单资源 20 MiB、最多 32 个、总计 64 MiB、有效期 30 分钟。生成 Blob 不等于写盘，下载启动不等于写盘成功。旧快照写入不能清除新 revision 的 dirty。页面 API 的新建/打开遇 dirty 一律拒绝 UNSAVED_REPLACEMENT；UI 的真实用户确认是独立路径。File/Blob 不保证能跨侧边栏 JSON 通道传递；宿主不能传字节时由用户在页面选择文件。当前静态版不含本机 IGES 转换器及服务端矢量转换器。"
+    "recipe.file-workflow": "浏览器文件流程：先调用 api.files.capabilities() 读取格式和限制。api.files.register({name,data,mime?}) 登记 File/Blob/ArrayBuffer/Uint8Array 真实字节，返回 resourceId。api.files.new({context})、open/import({context,resourceId}) 操作当前工程；save({context,name?})、export({context,format,ids?,name?}) 返回 status=generated 的资源描述。read({resourceId,as:\"blob\"|\"bytes\"}) 返回实际 Blob 或 Uint8Array。download({resourceId}) 返回 download_initiated；write({resourceId,handle}) 仅在已授权句柄写入、关闭与 SHA-256/大小回读匹配后返回 write_verified。release({resourceId}) 释放页面资源；已启动下载的 Object URL 由定时器回收，不因 release 立即撤销。\n单资源 20 MiB、最多 32 个、总计 64 MiB、有效期 30 分钟。生成 Blob 不等于写盘，下载启动不等于写盘成功。旧快照写入不能清除新 revision 的 dirty。页面 API 的新建/打开遇 dirty 一律拒绝 UNSAVED_REPLACEMENT；UI 的真实用户确认是独立路径。File/Blob 不保证能跨侧边栏 JSON 通道传递；宿主不能传字节时由用户在页面选择文件。当前静态版不含本机 IGES 转换器及服务端矢量转换器。"
   }
 }

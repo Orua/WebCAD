@@ -163,3 +163,9 @@ test('a pending authorized write blocks competing write/release and confirmation
     assert.equal(result.confirmation.error.code, 'SAVE_CONFIRMATION_FAILED');
   } finally { globalThis.FileSystemFileHandle = previousClass; }
 });
+
+test('expired resources are unusable and release their capacity', async()=>{
+ const h=harness(),original=Date.now,resource=await h.files.register({name:'expires.step',data:new Uint8Array([1,2])});
+ try{Date.now=()=>original()+31*60*1000;await assert.rejects(h.files.read({resourceId:resource.resourceId}),{code:'RESOURCE_EXPIRED'});const fresh=await h.files.register({name:'fresh.step',data:new Uint8Array([3])});assert.equal(fresh.size,1);}
+ finally{Date.now=original;}
+});

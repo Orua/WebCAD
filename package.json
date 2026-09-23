@@ -15,7 +15,12 @@
     "test:local-fixtures": "node scripts/test.mjs local-fixtures",
     "test:e2e:m2a": "node scripts/test.mjs e2e-m2a",
     "test:ui:m2a": "node scripts/test.mjs ui-m2a",
-    "test:e2e:m2a-portable": "node scripts/test.mjs e2e-m2a-portable"
+    "test:e2e:m2a-portable": "node scripts/test.mjs e2e-m2a-portable",
+    "test:page-api": "node scripts/test.mjs page-browser",
+    "test:parameters": "node scripts/test.mjs parameters-browser",
+    "test:products": "node scripts/test.mjs products-browser",
+    "test:boundaries": "node scripts/test.mjs page-boundaries",
+    "test:ui:page": "node scripts/test.mjs page-ui"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
