@@ -8,6 +8,8 @@ WebCAD 是浏览器中的三维建模工作台，面向小型五金、板件、�
 
 M0/M1 已建立完整工程上下文、revision、选择令牌与命令事务。box、hole、multiHole、faceHole、fillet、chamfer、shell 有严格 v2 参数契约，其余操作的目录 Schema 属于 advisory。旧 MCP 文档和 M2A 报告保留为开发历史，不是正常运行入口或新页面 API 的验收证明。
 
+页面接口已接出命名参数与尺寸绑定：`getState()` 返回参数定义及计算值，`execute` 的 `document.parameters` 动作可一次更新参数并重建关联特征，形成一个撤销步骤。页面“参数表”允许用户只改数值；四孔板示例和具体限制见 [页面 API](docs/PAGE-API.zh-CN.md#命名参数与尺寸联动)。浏览器和侧边栏的现场验收仍以单独测试记录为准。
+
 ## 当前功能
 
 - 基本实体、草图、拉伸、旋转、扫掠、放样、布尔、阵列、孔槽、圆角、倒角、抽壳与分割。

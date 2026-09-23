@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.0.0 · 操作目录 sha256:da782e473d52e89e4076d222b45c073d454eceacc7c41c9a22756107bfaafe79
+API 1.0.0 · 操作目录 sha256:bd1964ad0befd44e1fb29e46a4bf5fecd2a9c42462ec3dd4a5945a788c077d44
 
 入口：`window.webcad.api.info()`，然后 `searchTools`、`getTool`、`readDocs`。页面 JS 执行取决于获授权的客户端能力。
 
@@ -75,15 +75,16 @@ API 1.0.0 · 操作目录 sha256:da782e473d52e89e4076d222b45c073d454eceacc7c41c9
 - `transform` · advisory · Scale, rotate X/Y/Z about origin, then translate
 - `union` · advisory · Fuse bodies
 - `vectorProfile` · advisory · Create independent planar faces or solids from closed vector regions
-- `files.register` · browser-file-adapter · File, Blob, ArrayBuffer or Uint8Array; optional safe file name and MIME.
-- `files.new` · browser-file-adapter · Complete current context; unsaved replacement needs genuine user confirmation.
-- `files.open` · browser-file-adapter · Complete current context and registered native .webcad bytes.
-- `files.import` · browser-file-adapter · Complete current context and registered STEP/BREP bytes.
-- `files.save` · browser-file-adapter · Complete current context.
-- `files.export` · browser-file-adapter · Complete current context, format step/stl/brep/png; optional body IDs.
-- `files.read` · browser-file-adapter · Current page resource ID.
-- `files.download` · browser-file-adapter · Current generated resource ID.
-- `files.write` · browser-file-adapter · Current generated resource and previously authorized File System Access handle.
-- `files.release` · browser-file-adapter · Current page resource ID.
+- `document.parameters` · page-command · 通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。
+- `files.register` · browser-file-adapter · register({name,data,mime?}); data is File, Blob, ArrayBuffer or Uint8Array; name is a safe basename.
+- `files.new` · browser-file-adapter · new({context}); complete current context; dirty replacement is always rejected by page API.
+- `files.open` · browser-file-adapter · open({context,resourceId}); registered .webcad/.json resource; dirty replacement is rejected.
+- `files.import` · browser-file-adapter · import({context,resourceId}); registered STEP/STP/BREP/BRP resource.
+- `files.save` · browser-file-adapter · save({context,name?}); complete current context.
+- `files.export` · browser-file-adapter · export({context,format,ids?,name?}); format step/stl/brep/png.
+- `files.read` · browser-file-adapter · read({resourceId,as?}); as is blob (default) or bytes.
+- `files.download` · browser-file-adapter · download({resourceId}); generated output only.
+- `files.write` · browser-file-adapter · write({resourceId,handle}); previously authorized FileSystemFileHandle.
+- `files.release` · browser-file-adapter · release({resourceId}); current page resource ID.
 - `import.iges` · unavailable · 当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。
 - `import.vector-server` · unavailable · 当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。

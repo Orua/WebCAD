@@ -34,9 +34,10 @@ export function createPageAPI(host){
       return {status:'read',source:'exact-brep',units:{length:'mm',volume:'mm^3'},context:current().context,...result};
     }),
     setView:guarded(async input=>{
-      check(input,['context','direction','projection','fit','selectedIds']);
+      check(input,['context','direction','projection','fit','selectedIds','section']);
       if(input.direction&&!['top','bottom','front','back','left','right','side','iso'].includes(input.direction))fail('PARAM_SCHEMA_INVALID','Unknown view');
       if(input.projection&&!['orthographic','perspective'].includes(input.projection))fail('PARAM_SCHEMA_INVALID','Unknown projection');
+      if(input.section&&(!['X','Y','Z'].includes(input.section.axis)||!Number.isFinite(input.section.position)||typeof input.section.enabled!=='boolean'))fail('PARAM_SCHEMA_INVALID','Section requires axis, finite position and enabled boolean');
       if(input.selectedIds&&(!Array.isArray(input.selectedIds)||input.selectedIds.some(id=>!current().bodies.some(b=>b.id===id))))fail('STALE_REFERENCE','Unknown selected body');
       await host.view(input);return {status:'read',context:current().context,display:host.display()};
     }),

@@ -123,6 +123,10 @@ export function createCommandService(adapter) {
           const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,feature.params,a.params):parameters(op,{...feature.params,...a.params});if(a.name!==undefined)string(a.name,'args.name',120);
           command='edit_feature';args={featureId:a.featureId,params,name:a.name};break;
         }
+        case 'document.parameters':
+          object(a,['parameters','bindings'],'args');object(a.parameters,Object.keys(a.parameters||{}),'args.parameters');finiteTree(a.parameters);
+          if(a.bindings!==undefined){object(a.bindings,Object.keys(a.bindings||{}),'args.bindings');finiteTree(a.bindings);}
+          command='set_parameters';args=clone(a);break;
         case 'feature.remove':object(a,['bodyIds'],'args');ids(a.bodyIds,'args.bodyIds',true);if(a.bodyIds.some(id=>!s.bodies.some(b=>b.id===id)))fail('STALE_REFERENCE','args.bodyIds','Body is not current');refs=a.bodyIds;command='remove';args={ids:refs};break;
         case 'history.undo':case 'history.redo':case 'document.refresh':object(a,[],'args');command=input.action.split('.')[1];args={};break;
         default:fail('PARAM_SCHEMA_INVALID','action','Unsupported action');

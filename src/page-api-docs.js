@@ -9,26 +9,30 @@ const FILE_METHODS = Object.freeze(['register', 'new', 'open', 'import', 'save',
 const PAGE_DOCS = Object.freeze({
   start: `WebCAD 页面自动化入口：window.webcad.api.info()。读取当前页面的 info()/getState()，再用 searchTools({query:"安装板"})、getTool({id:"box"})、readDocs({docId:"coordinates"}) 查询契约。当前页面的建模、文件和视图操作由页面 API 调用浏览器 Worker 中的精确内核。\n页面 JS 执行通道必须由调用客户端提供并获用户授权；页面公开函数不证明某个侧边栏已能调用。建模写入须传当前 sessionId、documentId、documentInstanceId、expectedRevision，不能猜 revision。页面方法不接收任意脚本源码、任意 URL 或本地路径。`,
   'api.execute': `execute(request) 使用当前 CommandService 的结构化请求：{context:{sessionId,documentId,documentInstanceId,expectedRevision},idempotencyKey,action,args}。feature.add 的 args 使用真实工具卡的 op、opVersion、schemaHash、params、refs；feature.edit 使用 featureId、opVersion、schemaHash、params 补丁。严格参数契约目前仅覆盖 box、hole、multiHole、faceHole、fillet、chamfer、shell。其他操作的卡片是 advisory，不得把它当成严格 v2 可执行保证。\n同一页面修改由原命令队列串行处理。幂等回执只在当前 documentInstanceId 的有限内存范围内有效，不跨页面重载。成功提交与后续显示或文件写入失败应分别报告。`,
-  'recipes.mounting-plate': `四孔板示例，尺寸单位 mm。先调用 info()/getState() 取得当前完整上下文，再用 getTool({id:"box"}) 与 getTool({id:"multiHole"}) 读取实际版本、schemaHash 与示例。新增 box：{width:50,depth:30,height:3}、refs:[]。取得实际板件 bodyId 与新 revision 后新增 multiHole：{radius:2,depth:5,axis:"Z",direction:-1,points:[[5,5,4],[45,5,4],[5,25,4],[45,25,4]]}、refs:[实际 bodyId]。刀具从全局 Z=4 向下切至 Z=-1。体积期望值是 4500-48π mm³；须以当前精确 B-Rep 测量和导出回读验证。修改尺寸要显式编辑板件与相应孔位，目前不提供命名参数联动。`,
-  'recipe.file-workflow': `浏览器文件流程：api.files.register(File|Blob|ArrayBuffer|Uint8Array) 登记本页资源，api.files.new/open/import 使用完整当前工程上下文操作真实字节，api.files.save/export 生成带快照信息的 Blob。api.files.read 读取页面资源；api.files.download 只能报告已触发下载；api.files.write 只在已授权文件句柄写入、关闭及回读核验后报告写入。api.files.release 释放资源及 Object URL。\n生成 Blob 不等于写盘，下载启动不等于写盘成功。旧快照写入不能清除新 revision 的 dirty。新建/打开必须保护未保存工程。File/Blob 不保证能跨侧边栏 JSON 通道传递；宿主不能传字节时由用户在页面选择文件。当前静态版不含本机 IGES 转换器及服务端矢量转换器。`,
+  'recipes.mounting-plate': `四孔板示例，尺寸单位 mm。先调用 info()/getState() 取得当前完整上下文，再用 getTool({id:"box"}) 与 getTool({id:"multiHole"}) 读取实际版本、schemaHash 与示例。新增 box：{width:50,depth:30,height:3}、refs:[]。取得实际板件 bodyId 与新 revision 后新增 multiHole：{radius:2,depth:5,axis:"Z",direction:-1,points:[[5,5,4],[45,5,4],[5,25,4],[45,25,4]]}、refs:[实际 bodyId]。刀具从全局 Z=4 向下切至 Z=-1。体积期望值是 4500-48π mm³；须以当前精确 B-Rep 测量和导出回读验证。\n命名参数已通过 execute action document.parameters 接出；可绑定板长和右孔 X 到 length 与 length-edgeMargin，再只改 length。具体示例见 docs/examples/page-api-plate.js。`,
+  'api.named-parameters': `读取 getState().parameters 和 parameterValues。execute({context,idempotencyKey,action:"document.parameters",args:{parameters:{length:{value:50,unit:"mm"},edgeMargin:{value:5,unit:"mm"}},bindings:{"<实际板特征ID>":{"width":"length"},"<实际孔特征ID>":{"points.1.0":"length-edgeMargin","points.3.0":"length-edgeMargin"}}}}) 在一个撤销步骤内计算受影响特征并重建。后续只传 parameters:{length:{value:63,unit:"mm"}} 更新数值，原绑定保持。\n参数定义按名称合并；绑定按特征 ID 和数值路径合并。单位仅 mm/scalar，表达式支持有界四则运算和已注册函数，不执行 JS。未定义参数、循环、单位不符、越界或不安全的后续拓扑索引会拒绝并保留原模型。已绑定字段的直接数值编辑返回 PARAMETER_BOUND；请通过参数表或 document.parameters 修改。`,
+  'recipe.file-workflow': `浏览器文件流程：api.files.register({name,data,mime?}) 登记 File/Blob/ArrayBuffer/Uint8Array 真实字节，返回 resourceId。api.files.new({context})、open/import({context,resourceId}) 操作当前工程；save({context,name?})、export({context,format,ids?,name?}) 返回 status=generated 的资源描述。read({resourceId,as:"blob"|"bytes"}) 返回实际 Blob 或 Uint8Array。download({resourceId}) 返回 download_initiated；write({resourceId,handle}) 仅在已授权句柄写入、关闭与 SHA-256/大小回读匹配后返回 write_verified。release({resourceId}) 释放页面资源；已启动下载的 Object URL 由定时器回收，不因 release 立即撤销。\n单资源 20 MiB、最多 32 个、总计 64 MiB、有效期 30 分钟。生成 Blob 不等于写盘，下载启动不等于写盘成功。旧快照写入不能清除新 revision 的 dirty。页面 API 的新建/打开遇 dirty 一律拒绝 UNSAVED_REPLACEMENT；UI 的真实用户确认是独立路径。File/Blob 不保证能跨侧边栏 JSON 通道传递；宿主不能传字节时由用户在页面选择文件。当前静态版不含本机 IGES 转换器及服务端矢量转换器。`,
 });
 const LEGACY_READABLE = new Set(['coordinates', 'errors', 'api.query-geometry']);
 const ALIASES = Object.freeze({ 'webcad://docs/start': 'start', 'webcad://docs/coordinates': 'coordinates',
   'webcad://docs/errors': 'errors', 'webcad://docs/api.execute': 'api.execute',
+  'webcad://docs/api.named-parameters': 'api.named-parameters',
   'webcad://recipes/mounting-plate/1.0.0': 'recipes.mounting-plate',
   'webcad://recipes/file-workflow/1.0.0': 'recipe.file-workflow' });
 const fileDetails = {
-  register: ['File, Blob, ArrayBuffer or Uint8Array; optional safe file name and MIME.', 'Page resource ID plus byte length and SHA-256; no server upload ticket.'],
-  new: ['Complete current context; unsaved replacement needs genuine user confirmation.', 'New document identity and instance.'],
-  open: ['Complete current context and registered native .webcad bytes.', 'Rebuilt document; new documentInstanceId.'],
-  import: ['Complete current context and registered STEP/BREP bytes.', 'Imported source-backed feature in current project.'],
-  save: ['Complete current context.', 'Self-contained native project Blob and source snapshot.'],
-  export: ['Complete current context, format step/stl/brep/png; optional body IDs.', 'Generated Blob and exact source snapshot.'],
-  read: ['Current page resource ID.', 'Its Blob/bytes; the host may need a bounded transfer adapter.'],
-  download: ['Current generated resource ID.', 'Browser download initiated; disk completion cannot be claimed.'],
-  write: ['Current generated resource and previously authorized File System Access handle.', 'Written, closed and read-back-verified snapshot, subject to browser permissions.'],
-  release: ['Current page resource ID.', 'Resource and owned Object URL released.'],
+  register: ['register({name,data,mime?}); data is File, Blob, ArrayBuffer or Uint8Array; name is a safe basename.', 'status=registered; resourceId, name, MIME, byte length, SHA-256 and expiry.'],
+  new: ['new({context}); complete current context; dirty replacement is always rejected by page API.', 'New document identity and instance on commit.'],
+  open: ['open({context,resourceId}); registered .webcad/.json resource; dirty replacement is rejected.', 'Rebuilt document with new documentInstanceId.'],
+  import: ['import({context,resourceId}); registered STEP/STP/BREP/BRP resource.', 'Imported source-backed feature in current project.'],
+  save: ['save({context,name?}); complete current context.', 'status=generated native project resource with exact source snapshot; not a disk save.'],
+  export: ['export({context,format,ids?,name?}); format step/stl/brep/png.', 'status=generated output resource with exact source snapshot.'],
+  read: ['read({resourceId,as?}); as is blob (default) or bytes.', 'Actual Blob or Uint8Array; host JSON boundaries may need bounded transfer.'],
+  download: ['download({resourceId}); generated output only.', 'status=download_initiated; disk completion cannot be claimed.'],
+  write: ['write({resourceId,handle}); previously authorized FileSystemFileHandle.', 'status=write_verified after close and size/SHA-256 readback; snapshot confirmation is separate.'],
+  release: ['release({resourceId}); current page resource ID.', 'Page resource released; an already started download URL is revoked by its timer.'],
 };
+const FILE_LIMITS = Object.freeze({ maxBytes: 20 * 1024 * 1024, maxResources: 32,
+  maxTotalBytes: 64 * 1024 * 1024, ttlSeconds: 1800 });
 const unavailable = [
   { id: 'import.iges', title: 'IGES/IGS 导入', description: '当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。' },
   { id: 'import.vector-server', title: 'DWG/DXF/PDF/AI 服务端矢量转换', description: '当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。' },
@@ -42,8 +46,31 @@ function fileCard(name) {
   return { id: `files.${name}`, title: `files.${name}`, category: 'file', version: PAGE_DOC_VERSION,
     description: input, inputContract: input, outputContract: output, units: { length: 'mm', angle: 'degrees' },
     implementationStatus: 'page-adapter', contractStatus: 'browser-file-adapter', runtimeAvailability: 'requires_ready_page',
+    limits: FILE_LIMITS,
     caveats: name === 'import' ? ['IGES requires unavailable local conversion in the static build.'] : [],
-    errorCodes: ['CAPABILITY_UNAVAILABLE', 'REVISION_CONFLICT', 'INSTANCE_MISMATCH', 'UNSAVED_REPLACEMENT', 'HASH_MISMATCH'] };
+    errorCodes: ['CAPABILITY_UNAVAILABLE', 'REVISION_CONFLICT', 'INSTANCE_MISMATCH', 'UNSAVED_REPLACEMENT',
+      'HASH_MISMATCH', 'SIZE_LIMIT', 'RESOURCE_LIMIT', 'RESOURCE_EXPIRED', 'PERMISSION_REQUIRED'] };
+}
+function namedParameterCard() {
+  return { id: 'document.parameters', title: '命名参数与尺寸联动', category: 'document', version: PAGE_DOC_VERSION,
+    description: '通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。',
+    synonyms: ['参数', '尺寸', '联动', 'expression', 'length', 'binding'],
+    implementationStatus: 'implemented', contractStatus: 'page-command', strictContract: false,
+    runtimeAvailability: 'requires_ready_page',
+    inputSchema: { type: 'object', required: ['context', 'idempotencyKey', 'action', 'args'],
+      properties: { context: { description: 'Current sessionId, documentId, documentInstanceId and expectedRevision.' },
+        idempotencyKey: { type: 'string' }, action: { const: 'document.parameters' },
+        args: { type: 'object', required: ['parameters'], properties: {
+          parameters: { description: 'Name -> {value:number|string,unit:"mm"|"scalar"}; merged with current definitions.' },
+          bindings: { description: 'Feature ID -> numeric params dot path -> expression; merged with existing bindings.' },
+        } } } },
+    outputContract: 'Committed revision plus getState().parameters/parameterValues; a failed expression leaves the previous model intact.',
+    minimalExample: { action: 'document.parameters', args: { parameters: { length: { value: 63, unit: 'mm' } } } },
+    errorCodes: ['PARAM_CYCLE', 'PARAM_UNDEFINED', 'PARAM_UNIT_MISMATCH', 'PARAM_PATH_INVALID',
+      'PARAMETER_BOUND', 'UNSAFE_LEGACY_REFERENCE', 'REVISION_CONFLICT'],
+    knownUnsupportedCases: ['No angular/area expression binding in this milestone.',
+      'Indexed face/edge references downstream of a changed feature are rejected when stability cannot be proven.'],
+    docs: 'api.named-parameters' };
 }
 function pageCards() {
   return [
@@ -61,13 +88,14 @@ function pageCards() {
         referenceInstructions: 'Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().' },
       invalidExamples: card.strictContract ? card.invalidExamples : [],
       knownUnsupportedCases: card.knownUnsupportedCases.filter(item => !/MCP|legacy entry|M2/.test(item)) })),
-    ...FILE_METHODS.map(fileCard),
+    namedParameterCard(), ...FILE_METHODS.map(fileCard),
     ...unavailable.map(card => ({ ...card, category: 'unavailable', version: PAGE_DOC_VERSION,
       implementationStatus: 'unavailable', contractStatus: 'unavailable', runtimeAvailability: 'unavailable',
       errorCodes: ['CAPABILITY_UNAVAILABLE'] })),
   ];
 }
-export const pageCatalogHash = contractHash({ operationCatalogHash, fileDetails, unavailable, pageDocVersion: PAGE_DOC_VERSION });
+export const pageCatalogHash = contractHash({ operationCatalogHash, fileDetails, fileLimits: FILE_LIMITS,
+  namedParameterCard: namedParameterCard(), unavailable, pageDocVersion: PAGE_DOC_VERSION });
 export const pageDocsHash = contractHash({ pageCatalogHash, pageDocs: PAGE_DOCS, legacyReadable: [...LEGACY_READABLE] });
 
 export function infoMetadata({ buildId = 'unreported', browserReady = false } = {}) {
@@ -76,7 +104,9 @@ export function infoMetadata({ buildId = 'unreported', browserReady = false } = 
     units: { length: 'mm', angle: 'degrees', volume: 'mm^3', scale: 'dimensionless' },
     ready: browserReady, modeling: browserReady ? 'available' : 'not_ready',
     methods: [...PAGE_METHODS], filesMethods: [...FILE_METHODS],
-    docs: ['start', 'coordinates', 'errors', 'api.execute', 'api.query-geometry', 'recipes.mounting-plate', 'recipe.file-workflow'],
+    docs: ['start', 'coordinates', 'errors', 'api.execute', 'api.named-parameters', 'api.query-geometry',
+      'recipes.mounting-plate', 'recipe.file-workflow'],
+    fileLimits: FILE_LIMITS,
     strictOperations: [...migratedOperationIds], otherOperations: 'advisory; actual page adapter and kernel result determine availability',
     unavailable: unavailable.map(({ id, description }) => ({ id, reason: description })),
     limitations: ['Page API visibility does not confirm ChatGPT sidebar script execution.',
@@ -110,7 +140,8 @@ export function getTool(input) {
   if (!input || Array.isArray(input) || typeof input.id !== 'string')
     contractError('PARAM_SCHEMA_INVALID', 'input.id', 'Provide a registered tool ID.');
   let card;
-  if (input.id.startsWith('files.') && FILE_METHODS.includes(input.id.slice(6))) card = fileCard(input.id.slice(6));
+  if (input.id === 'document.parameters') card = namedParameterCard();
+  else if (input.id.startsWith('files.') && FILE_METHODS.includes(input.id.slice(6))) card = fileCard(input.id.slice(6));
   else if (unavailable.some(item => item.id === input.id)) card = pageCards().find(item => item.id === input.id);
   else {
     if (['import', 'remove'].includes(input.id))

@@ -7,8 +7,8 @@
     "pageApiVersion": "1.0.0",
     "transport": "in-page",
     "entrypoint": "window.webcad.api",
-    "catalogHash": "sha256:da782e473d52e89e4076d222b45c073d454eceacc7c41c9a22756107bfaafe79",
-    "docsHash": "sha256:2eb7f5df54d3e14f3a9896c847b343188f4044ab0b429228a5d36a4011dde3c3",
+    "catalogHash": "sha256:bd1964ad0befd44e1fb29e46a4bf5fecd2a9c42462ec3dd4a5945a788c077d44",
+    "docsHash": "sha256:b8fb0434ccf0fe8b7d6a8f33b0e3a28df76911a52c6c68af57aa47af4de3d7be",
     "units": {
       "length": "mm",
       "angle": "degrees",
@@ -47,10 +47,17 @@
       "coordinates",
       "errors",
       "api.execute",
+      "api.named-parameters",
       "api.query-geometry",
       "recipes.mounting-plate",
       "recipe.file-workflow"
     ],
+    "fileLimits": {
+      "maxBytes": 20971520,
+      "maxResources": 32,
+      "maxTotalBytes": 67108864,
+      "ttlSeconds": 1800
+    },
     "strictOperations": [
       "box",
       "hole",
@@ -9623,13 +9630,93 @@
       "docsHash": "sha256:6c863f03799dff5502f05ba272597a8758f2c301a8ff7060bf53f6dc4c88f361"
     },
     {
+      "id": "document.parameters",
+      "title": "命名参数与尺寸联动",
+      "category": "document",
+      "version": "1.0.0",
+      "description": "通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。",
+      "synonyms": [
+        "参数",
+        "尺寸",
+        "联动",
+        "expression",
+        "length",
+        "binding"
+      ],
+      "implementationStatus": "implemented",
+      "contractStatus": "page-command",
+      "strictContract": false,
+      "runtimeAvailability": "requires_ready_page",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "context",
+          "idempotencyKey",
+          "action",
+          "args"
+        ],
+        "properties": {
+          "context": {
+            "description": "Current sessionId, documentId, documentInstanceId and expectedRevision."
+          },
+          "idempotencyKey": {
+            "type": "string"
+          },
+          "action": {
+            "const": "document.parameters"
+          },
+          "args": {
+            "type": "object",
+            "required": [
+              "parameters"
+            ],
+            "properties": {
+              "parameters": {
+                "description": "Name -> {value:number|string,unit:\"mm\"|\"scalar\"}; merged with current definitions."
+              },
+              "bindings": {
+                "description": "Feature ID -> numeric params dot path -> expression; merged with existing bindings."
+              }
+            }
+          }
+        }
+      },
+      "outputContract": "Committed revision plus getState().parameters/parameterValues; a failed expression leaves the previous model intact.",
+      "minimalExample": {
+        "action": "document.parameters",
+        "args": {
+          "parameters": {
+            "length": {
+              "value": 63,
+              "unit": "mm"
+            }
+          }
+        }
+      },
+      "errorCodes": [
+        "PARAM_CYCLE",
+        "PARAM_UNDEFINED",
+        "PARAM_UNIT_MISMATCH",
+        "PARAM_PATH_INVALID",
+        "PARAMETER_BOUND",
+        "UNSAFE_LEGACY_REFERENCE",
+        "REVISION_CONFLICT"
+      ],
+      "knownUnsupportedCases": [
+        "No angular/area expression binding in this milestone.",
+        "Indexed face/edge references downstream of a changed feature are rejected when stability cannot be proven."
+      ],
+      "docs": "api.named-parameters",
+      "docsHash": "sha256:6186560c377f39e0e5d9452b1723d923c6b447c30a77f0871eaab2c51dd31394"
+    },
+    {
       "id": "files.register",
       "title": "files.register",
       "category": "file",
       "version": "1.0.0",
-      "description": "File, Blob, ArrayBuffer or Uint8Array; optional safe file name and MIME.",
-      "inputContract": "File, Blob, ArrayBuffer or Uint8Array; optional safe file name and MIME.",
-      "outputContract": "Page resource ID plus byte length and SHA-256; no server upload ticket.",
+      "description": "register({name,data,mime?}); data is File, Blob, ArrayBuffer or Uint8Array; name is a safe basename.",
+      "inputContract": "register({name,data,mime?}); data is File, Blob, ArrayBuffer or Uint8Array; name is a safe basename.",
+      "outputContract": "status=registered; resourceId, name, MIME, byte length, SHA-256 and expiry.",
       "units": {
         "length": "mm",
         "angle": "degrees"
@@ -9637,24 +9724,34 @@
       "implementationStatus": "page-adapter",
       "contractStatus": "browser-file-adapter",
       "runtimeAvailability": "requires_ready_page",
+      "limits": {
+        "maxBytes": 20971520,
+        "maxResources": 32,
+        "maxTotalBytes": 67108864,
+        "ttlSeconds": 1800
+      },
       "caveats": [],
       "errorCodes": [
         "CAPABILITY_UNAVAILABLE",
         "REVISION_CONFLICT",
         "INSTANCE_MISMATCH",
         "UNSAVED_REPLACEMENT",
-        "HASH_MISMATCH"
+        "HASH_MISMATCH",
+        "SIZE_LIMIT",
+        "RESOURCE_LIMIT",
+        "RESOURCE_EXPIRED",
+        "PERMISSION_REQUIRED"
       ],
-      "docsHash": "sha256:90e09f086f9de34a5446dca131b6b8642b06bf83dfbbe6c2dd60156e56e82a70"
+      "docsHash": "sha256:6abe0c2fd5ff6094e8d1126d98ecd7491a1c0293fb1df71d946fb17ca037d9a6"
     },
     {
       "id": "files.new",
       "title": "files.new",
       "category": "file",
       "version": "1.0.0",
-      "description": "Complete current context; unsaved replacement needs genuine user confirmation.",
-      "inputContract": "Complete current context; unsaved replacement needs genuine user confirmation.",
-      "outputContract": "New document identity and instance.",
+      "description": "new({context}); complete current context; dirty replacement is always rejected by page API.",
+      "inputContract": "new({context}); complete current context; dirty replacement is always rejected by page API.",
+      "outputContract": "New document identity and instance on commit.",
       "units": {
         "length": "mm",
         "angle": "degrees"
@@ -9662,24 +9759,34 @@
       "implementationStatus": "page-adapter",
       "contractStatus": "browser-file-adapter",
       "runtimeAvailability": "requires_ready_page",
+      "limits": {
+        "maxBytes": 20971520,
+        "maxResources": 32,
+        "maxTotalBytes": 67108864,
+        "ttlSeconds": 1800
+      },
       "caveats": [],
       "errorCodes": [
         "CAPABILITY_UNAVAILABLE",
         "REVISION_CONFLICT",
         "INSTANCE_MISMATCH",
         "UNSAVED_REPLACEMENT",
-        "HASH_MISMATCH"
+        "HASH_MISMATCH",
+        "SIZE_LIMIT",
+        "RESOURCE_LIMIT",
+        "RESOURCE_EXPIRED",
+        "PERMISSION_REQUIRED"
       ],
-      "docsHash": "sha256:f3f5702a87a110cce93e6c4e69dc0fd23fdbb2bb0c8b5a4c40f1923e4d1b9470"
+      "docsHash": "sha256:79739161ab65e3dfb944d07a371831813ba011f51ed67bdd7cf0c367567e688b"
     },
     {
       "id": "files.open",
       "title": "files.open",
       "category": "file",
       "version": "1.0.0",
-      "description": "Complete current context and registered native .webcad bytes.",
-      "inputContract": "Complete current context and registered native .webcad bytes.",
-      "outputContract": "Rebuilt document; new documentInstanceId.",
+      "description": "open({context,resourceId}); registered .webcad/.json resource; dirty replacement is rejected.",
+      "inputContract": "open({context,resourceId}); registered .webcad/.json resource; dirty replacement is rejected.",
+      "outputContract": "Rebuilt document with new documentInstanceId.",
       "units": {
         "length": "mm",
         "angle": "degrees"
@@ -9687,23 +9794,33 @@
       "implementationStatus": "page-adapter",
       "contractStatus": "browser-file-adapter",
       "runtimeAvailability": "requires_ready_page",
+      "limits": {
+        "maxBytes": 20971520,
+        "maxResources": 32,
+        "maxTotalBytes": 67108864,
+        "ttlSeconds": 1800
+      },
       "caveats": [],
       "errorCodes": [
         "CAPABILITY_UNAVAILABLE",
         "REVISION_CONFLICT",
         "INSTANCE_MISMATCH",
         "UNSAVED_REPLACEMENT",
-        "HASH_MISMATCH"
+        "HASH_MISMATCH",
+        "SIZE_LIMIT",
+        "RESOURCE_LIMIT",
+        "RESOURCE_EXPIRED",
+        "PERMISSION_REQUIRED"
       ],
-      "docsHash": "sha256:6f6c7843566a66c51677fcf988dcf34dd9e889c7c10e257b537b5f6c3ea75d4c"
+      "docsHash": "sha256:2f87d01b4c09b2613b5cea90c33d57b09e0034f78efd18328ee95eb5b002ca5a"
     },
     {
       "id": "files.import",
       "title": "files.import",
       "category": "file",
       "version": "1.0.0",
-      "description": "Complete current context and registered STEP/BREP bytes.",
-      "inputContract": "Complete current context and registered STEP/BREP bytes.",
+      "description": "import({context,resourceId}); registered STEP/STP/BREP/BRP resource.",
+      "inputContract": "import({context,resourceId}); registered STEP/STP/BREP/BRP resource.",
       "outputContract": "Imported source-backed feature in current project.",
       "units": {
         "length": "mm",
@@ -9712,6 +9829,12 @@
       "implementationStatus": "page-adapter",
       "contractStatus": "browser-file-adapter",
       "runtimeAvailability": "requires_ready_page",
+      "limits": {
+        "maxBytes": 20971520,
+        "maxResources": 32,
+        "maxTotalBytes": 67108864,
+        "ttlSeconds": 1800
+      },
       "caveats": [
         "IGES requires unavailable local conversion in the static build."
       ],
@@ -9720,18 +9843,22 @@
         "REVISION_CONFLICT",
         "INSTANCE_MISMATCH",
         "UNSAVED_REPLACEMENT",
-        "HASH_MISMATCH"
+        "HASH_MISMATCH",
+        "SIZE_LIMIT",
+        "RESOURCE_LIMIT",
+        "RESOURCE_EXPIRED",
+        "PERMISSION_REQUIRED"
       ],
-      "docsHash": "sha256:55ab073fc010fb643c8c16ee6546792a67c6929298f3fb336b7745c47c1db192"
+      "docsHash": "sha256:12e195c4dcd3c59a755799a371b3fb3183e13dbeb2f9f85418f81d0daef13d5b"
     },
     {
       "id": "files.save",
       "title": "files.save",
       "category": "file",
       "version": "1.0.0",
-      "description": "Complete current context.",
-      "inputContract": "Complete current context.",
-      "outputContract": "Self-contained native project Blob and source snapshot.",
+      "description": "save({context,name?}); complete current context.",
+      "inputContract": "save({context,name?}); complete current context.",
+      "outputContract": "status=generated native project resource with exact source snapshot; not a disk save.",
       "units": {
         "length": "mm",
         "angle": "degrees"
@@ -9739,24 +9866,34 @@
       "implementationStatus": "page-adapter",
       "contractStatus": "browser-file-adapter",
       "runtimeAvailability": "requires_ready_page",
+      "limits": {
+        "maxBytes": 20971520,
+        "maxResources": 32,
+        "maxTotalBytes": 67108864,
+        "ttlSeconds": 1800
+      },
       "caveats": [],
       "errorCodes": [
         "CAPABILITY_UNAVAILABLE",
         "REVISION_CONFLICT",
         "INSTANCE_MISMATCH",
         "UNSAVED_REPLACEMENT",
-        "HASH_MISMATCH"
+        "HASH_MISMATCH",
+        "SIZE_LIMIT",
+        "RESOURCE_LIMIT",
+        "RESOURCE_EXPIRED",
+        "PERMISSION_REQUIRED"
       ],
-      "docsHash": "sha256:0fd6740ecea8d25a4b6f7fb48e2e6cff0a4f380d1e243d9add1a755b461d227f"
+      "docsHash": "sha256:1ea04f419e2f5eea9a84a2a1a82709c2eef5d27b4ba4337e8358f5a3f708bf70"
     },
     {
       "id": "files.export",
       "title": "files.export",
       "category": "file",
       "version": "1.0.0",
-      "description": "Complete current context, format step/stl/brep/png; optional body IDs.",
-      "inputContract": "Complete current context, format step/stl/brep/png; optional body IDs.",
-      "outputContract": "Generated Blob and exact source snapshot.",
+      "description": "export({context,format,ids?,name?}); format step/stl/brep/png.",
+      "inputContract": "export({context,format,ids?,name?}); format step/stl/brep/png.",
+      "outputContract": "status=generated output resource with exact source snapshot.",
       "units": {
         "length": "mm",
         "angle": "degrees"
@@ -9764,24 +9901,34 @@
       "implementationStatus": "page-adapter",
       "contractStatus": "browser-file-adapter",
       "runtimeAvailability": "requires_ready_page",
+      "limits": {
+        "maxBytes": 20971520,
+        "maxResources": 32,
+        "maxTotalBytes": 67108864,
+        "ttlSeconds": 1800
+      },
       "caveats": [],
       "errorCodes": [
         "CAPABILITY_UNAVAILABLE",
         "REVISION_CONFLICT",
         "INSTANCE_MISMATCH",
         "UNSAVED_REPLACEMENT",
-        "HASH_MISMATCH"
+        "HASH_MISMATCH",
+        "SIZE_LIMIT",
+        "RESOURCE_LIMIT",
+        "RESOURCE_EXPIRED",
+        "PERMISSION_REQUIRED"
       ],
-      "docsHash": "sha256:70cc06f066d8092105fa78e01bf1b871f9b4b13ea4b721f2845e34d89b2d34f1"
+      "docsHash": "sha256:b8a6a0ad22e80e734a369b094d2db3f161e90173a1e631e7ee68e9bc8460fc39"
     },
     {
       "id": "files.read",
       "title": "files.read",
       "category": "file",
       "version": "1.0.0",
-      "description": "Current page resource ID.",
-      "inputContract": "Current page resource ID.",
-      "outputContract": "Its Blob/bytes; the host may need a bounded transfer adapter.",
+      "description": "read({resourceId,as?}); as is blob (default) or bytes.",
+      "inputContract": "read({resourceId,as?}); as is blob (default) or bytes.",
+      "outputContract": "Actual Blob or Uint8Array; host JSON boundaries may need bounded transfer.",
       "units": {
         "length": "mm",
         "angle": "degrees"
@@ -9789,24 +9936,34 @@
       "implementationStatus": "page-adapter",
       "contractStatus": "browser-file-adapter",
       "runtimeAvailability": "requires_ready_page",
+      "limits": {
+        "maxBytes": 20971520,
+        "maxResources": 32,
+        "maxTotalBytes": 67108864,
+        "ttlSeconds": 1800
+      },
       "caveats": [],
       "errorCodes": [
         "CAPABILITY_UNAVAILABLE",
         "REVISION_CONFLICT",
         "INSTANCE_MISMATCH",
         "UNSAVED_REPLACEMENT",
-        "HASH_MISMATCH"
+        "HASH_MISMATCH",
+        "SIZE_LIMIT",
+        "RESOURCE_LIMIT",
+        "RESOURCE_EXPIRED",
+        "PERMISSION_REQUIRED"
       ],
-      "docsHash": "sha256:655bb133486a1d255c671c44a77ae082f27f73595392f7f88952f080a937c21d"
+      "docsHash": "sha256:5da9b91d9eb043226e6bafc68c47a405c9f8a86a903a43c4eb936a0effc035fb"
     },
     {
       "id": "files.download",
       "title": "files.download",
       "category": "file",
       "version": "1.0.0",
-      "description": "Current generated resource ID.",
-      "inputContract": "Current generated resource ID.",
-      "outputContract": "Browser download initiated; disk completion cannot be claimed.",
+      "description": "download({resourceId}); generated output only.",
+      "inputContract": "download({resourceId}); generated output only.",
+      "outputContract": "status=download_initiated; disk completion cannot be claimed.",
       "units": {
         "length": "mm",
         "angle": "degrees"
@@ -9814,24 +9971,34 @@
       "implementationStatus": "page-adapter",
       "contractStatus": "browser-file-adapter",
       "runtimeAvailability": "requires_ready_page",
+      "limits": {
+        "maxBytes": 20971520,
+        "maxResources": 32,
+        "maxTotalBytes": 67108864,
+        "ttlSeconds": 1800
+      },
       "caveats": [],
       "errorCodes": [
         "CAPABILITY_UNAVAILABLE",
         "REVISION_CONFLICT",
         "INSTANCE_MISMATCH",
         "UNSAVED_REPLACEMENT",
-        "HASH_MISMATCH"
+        "HASH_MISMATCH",
+        "SIZE_LIMIT",
+        "RESOURCE_LIMIT",
+        "RESOURCE_EXPIRED",
+        "PERMISSION_REQUIRED"
       ],
-      "docsHash": "sha256:a7e74a6c00b7addacf6bf411bec1a3cef809ec9c54883f1a21aa8a901420f0cf"
+      "docsHash": "sha256:66a266114771aa32b5e123ff1684b37395a560c2f0cc75a25b76ff47f3fbcc67"
     },
     {
       "id": "files.write",
       "title": "files.write",
       "category": "file",
       "version": "1.0.0",
-      "description": "Current generated resource and previously authorized File System Access handle.",
-      "inputContract": "Current generated resource and previously authorized File System Access handle.",
-      "outputContract": "Written, closed and read-back-verified snapshot, subject to browser permissions.",
+      "description": "write({resourceId,handle}); previously authorized FileSystemFileHandle.",
+      "inputContract": "write({resourceId,handle}); previously authorized FileSystemFileHandle.",
+      "outputContract": "status=write_verified after close and size/SHA-256 readback; snapshot confirmation is separate.",
       "units": {
         "length": "mm",
         "angle": "degrees"
@@ -9839,24 +10006,34 @@
       "implementationStatus": "page-adapter",
       "contractStatus": "browser-file-adapter",
       "runtimeAvailability": "requires_ready_page",
+      "limits": {
+        "maxBytes": 20971520,
+        "maxResources": 32,
+        "maxTotalBytes": 67108864,
+        "ttlSeconds": 1800
+      },
       "caveats": [],
       "errorCodes": [
         "CAPABILITY_UNAVAILABLE",
         "REVISION_CONFLICT",
         "INSTANCE_MISMATCH",
         "UNSAVED_REPLACEMENT",
-        "HASH_MISMATCH"
+        "HASH_MISMATCH",
+        "SIZE_LIMIT",
+        "RESOURCE_LIMIT",
+        "RESOURCE_EXPIRED",
+        "PERMISSION_REQUIRED"
       ],
-      "docsHash": "sha256:5402a61a36765ca728f89449d91331a8f7fcf39047f981043caf69dd1b02946d"
+      "docsHash": "sha256:2ad87829b3c8ea65319762524dc4f3b565c0a33a354fbb15656c90b5aa1de032"
     },
     {
       "id": "files.release",
       "title": "files.release",
       "category": "file",
       "version": "1.0.0",
-      "description": "Current page resource ID.",
-      "inputContract": "Current page resource ID.",
-      "outputContract": "Resource and owned Object URL released.",
+      "description": "release({resourceId}); current page resource ID.",
+      "inputContract": "release({resourceId}); current page resource ID.",
+      "outputContract": "Page resource released; an already started download URL is revoked by its timer.",
       "units": {
         "length": "mm",
         "angle": "degrees"
@@ -9864,15 +10041,25 @@
       "implementationStatus": "page-adapter",
       "contractStatus": "browser-file-adapter",
       "runtimeAvailability": "requires_ready_page",
+      "limits": {
+        "maxBytes": 20971520,
+        "maxResources": 32,
+        "maxTotalBytes": 67108864,
+        "ttlSeconds": 1800
+      },
       "caveats": [],
       "errorCodes": [
         "CAPABILITY_UNAVAILABLE",
         "REVISION_CONFLICT",
         "INSTANCE_MISMATCH",
         "UNSAVED_REPLACEMENT",
-        "HASH_MISMATCH"
+        "HASH_MISMATCH",
+        "SIZE_LIMIT",
+        "RESOURCE_LIMIT",
+        "RESOURCE_EXPIRED",
+        "PERMISSION_REQUIRED"
       ],
-      "docsHash": "sha256:b52c1c385dcf14f7c311f273d9c904c5fea9203633c34970b21ba91bf9d49a8e"
+      "docsHash": "sha256:abab2bea44ab543b3a2dae772ecd0ac8fc7bd3501afc532259fe33c074798f71"
     },
     {
       "id": "import.iges",
@@ -9908,8 +10095,9 @@
     "coordinates": "Lengths are millimetres; angles degrees; volume mm^3; scale dimensionless. Coordinates are right-handed world XYZ unless the individual tool states otherwise.\nbox width/depth/height means positive X/Y/Z extent from [0,0,0]. It does not center at the origin.\nhole and multiHole use radius, never diameter. multiHole.points are 1..100 world [x,y,z] cutter START points, not local XY. Depth is positive; direction is 1 or -1 along axis X/Y/Z, default Z/+1. These tools do not accept through.\nfaceHole.point is world XYZ on a planar face. through=true computes sufficient depth from the body bounds; otherwise positive depth is required. Face direction comes from exact topology.\nFace and edge indices are zero-based within one body at one snapshot. No index is a stable semantic name. Prefer query selectionToken for feature.add. Current-model tokens cannot retarget a historical feature.edit.\ntransform rotates/scales about world origin, applies rotations X/Y/Z, then translates; absolute positioning sets final bounding-box center. Its legacy contract is unchanged.\nslot.angle is degrees, independent of the sign of cut direction.",
     "errors": "Errors contain code,path,message,retryable,recoveryAction. A failure before commit has commitState=not_committed; unknown outcomes must preserve unknown status and cannot claim rollback.\nPARAM_SCHEMA_INVALID / PARAM_RANGE_INVALID: correct the named field without silently changing requested dimensions.\nUNKNOWN_OPERATION / OPERATION_VERSION_UNSUPPORTED / SCHEMA_MISMATCH / CAPABILITY_UNAVAILABLE: READ_TOOL_CONTRACT and check current runtime capabilities.\nDOCUMENT_MISMATCH / INSTANCE_MISMATCH / REVISION_CONFLICT / STALE_REFERENCE / UNSAFE_LEGACY_REFERENCE: READ_STATE_AND_REPLAN; do not retry stale IDs or guess another face.\nNO_MATCH / AMBIGUOUS_SELECTION / SELECTION_CONFLICT: refine or correct selection; never silently choose the first match.\nGEOMETRY_INVALID / NO_MATERIAL_REMOVED: review geometry and explicit dimensions. No automatic radius or size reduction.\nPREVIEW_ACTIVE / RESOURCE_LIMIT / IDEMPOTENCY_KEY_REUSED: resolve the reported constraint; do not change idempotency keys merely to bypass an uncertain result.\nPERSISTENCE_FAILED / RESULT_UNKNOWN: distinguish committed memory from durable storage or unknown delivery. No durable guarantee in M1. When no automatic action exists, recoveryAction=NONE.",
     "api.execute": "execute(request) 使用当前 CommandService 的结构化请求：{context:{sessionId,documentId,documentInstanceId,expectedRevision},idempotencyKey,action,args}。feature.add 的 args 使用真实工具卡的 op、opVersion、schemaHash、params、refs；feature.edit 使用 featureId、opVersion、schemaHash、params 补丁。严格参数契约目前仅覆盖 box、hole、multiHole、faceHole、fillet、chamfer、shell。其他操作的卡片是 advisory，不得把它当成严格 v2 可执行保证。\n同一页面修改由原命令队列串行处理。幂等回执只在当前 documentInstanceId 的有限内存范围内有效，不跨页面重载。成功提交与后续显示或文件写入失败应分别报告。",
+    "api.named-parameters": "读取 getState().parameters 和 parameterValues。execute({context,idempotencyKey,action:\"document.parameters\",args:{parameters:{length:{value:50,unit:\"mm\"},edgeMargin:{value:5,unit:\"mm\"}},bindings:{\"<实际板特征ID>\":{\"width\":\"length\"},\"<实际孔特征ID>\":{\"points.1.0\":\"length-edgeMargin\",\"points.3.0\":\"length-edgeMargin\"}}}}) 在一个撤销步骤内计算受影响特征并重建。后续只传 parameters:{length:{value:63,unit:\"mm\"}} 更新数值，原绑定保持。\n参数定义按名称合并；绑定按特征 ID 和数值路径合并。单位仅 mm/scalar，表达式支持有界四则运算和已注册函数，不执行 JS。未定义参数、循环、单位不符、越界或不安全的后续拓扑索引会拒绝并保留原模型。已绑定字段的直接数值编辑返回 PARAMETER_BOUND；请通过参数表或 document.parameters 修改。",
     "api.query-geometry": "Read current state first. Input is {context:{sessionId,documentId,documentInstanceId,expectedRevision},bodyId,kind,filter,requireUnique?,limit?,cursor?}.\nkind=face accepts surfaceType:\"plane\", normal:{direction:[x,y,z],sameDirection?:true,angleToleranceDeg?:0.1}, atExtreme:{axis:\"X\"|\"Y\"|\"Z\",side:\"min\"|\"max\",toleranceMm?:0.01}. Normals use world coordinates and topological orientation; open-shell outward direction is not guaranteed. atExtreme compares a principal-axis supporting plane to the body's exact bounds.\nkind=edge accepts curveType:\"line\"|\"circle\", lengthRangeMm:{min?,max?}, radiusRangeMm:{min?,max?}, onFaceToken. Ranges need at least one bound and min<=max. onFaceToken must identify one current face; its boundaries include both outer and hole loops. loopRole is not implemented. Circle results include exact radiusMm and center. Cylindrical face filtering is not implemented; use circular edges to inspect hole radii/positions.\nrequireUnique defaults true; zero matches returns NO_MATCH, multiple matches returns AMBIGUOUS_SELECTION with candidates. No automatic first-match choice. requireUnique=false returns all-match count and paged items; limit defaults20/max100. selectionToken represents the entire matching index set, not just the visible page. Cursor binds the same snapshot, filter, uniqueness mode and limit; repeat these values when paging.\nTokens bind documentInstanceId, revision, bodyId, kind, exact BRep fingerprint and indices. Tokens are invalid after any revision change or document reload. At execution refs must match the selected body. Supported token operations: fillet/chamfer/shell/faceHole, feature.add only. Token plus explicit faceId/faceIds/edgeIds/allEdges conflicts. A current final-model token is not a stable historical reference.\nWhile the Worker is busy or preview is active the query is rejected, never silently run against preview geometry. Limit 1000 tokens and 1000 pagination cursors per instance. Exhaustion rejects new queries, without silently reusing expired IDs; start a new document instance when appropriate.",
-    "recipes.mounting-plate": "四孔板示例，尺寸单位 mm。先调用 info()/getState() 取得当前完整上下文，再用 getTool({id:\"box\"}) 与 getTool({id:\"multiHole\"}) 读取实际版本、schemaHash 与示例。新增 box：{width:50,depth:30,height:3}、refs:[]。取得实际板件 bodyId 与新 revision 后新增 multiHole：{radius:2,depth:5,axis:\"Z\",direction:-1,points:[[5,5,4],[45,5,4],[5,25,4],[45,25,4]]}、refs:[实际 bodyId]。刀具从全局 Z=4 向下切至 Z=-1。体积期望值是 4500-48π mm³；须以当前精确 B-Rep 测量和导出回读验证。修改尺寸要显式编辑板件与相应孔位，目前不提供命名参数联动。",
-    "recipe.file-workflow": "浏览器文件流程：api.files.register(File|Blob|ArrayBuffer|Uint8Array) 登记本页资源，api.files.new/open/import 使用完整当前工程上下文操作真实字节，api.files.save/export 生成带快照信息的 Blob。api.files.read 读取页面资源；api.files.download 只能报告已触发下载；api.files.write 只在已授权文件句柄写入、关闭及回读核验后报告写入。api.files.release 释放资源及 Object URL。\n生成 Blob 不等于写盘，下载启动不等于写盘成功。旧快照写入不能清除新 revision 的 dirty。新建/打开必须保护未保存工程。File/Blob 不保证能跨侧边栏 JSON 通道传递；宿主不能传字节时由用户在页面选择文件。当前静态版不含本机 IGES 转换器及服务端矢量转换器。"
+    "recipes.mounting-plate": "四孔板示例，尺寸单位 mm。先调用 info()/getState() 取得当前完整上下文，再用 getTool({id:\"box\"}) 与 getTool({id:\"multiHole\"}) 读取实际版本、schemaHash 与示例。新增 box：{width:50,depth:30,height:3}、refs:[]。取得实际板件 bodyId 与新 revision 后新增 multiHole：{radius:2,depth:5,axis:\"Z\",direction:-1,points:[[5,5,4],[45,5,4],[5,25,4],[45,25,4]]}、refs:[实际 bodyId]。刀具从全局 Z=4 向下切至 Z=-1。体积期望值是 4500-48π mm³；须以当前精确 B-Rep 测量和导出回读验证。\n命名参数已通过 execute action document.parameters 接出；可绑定板长和右孔 X 到 length 与 length-edgeMargin，再只改 length。具体示例见 docs/examples/page-api-plate.js。",
+    "recipe.file-workflow": "浏览器文件流程：api.files.register({name,data,mime?}) 登记 File/Blob/ArrayBuffer/Uint8Array 真实字节，返回 resourceId。api.files.new({context})、open/import({context,resourceId}) 操作当前工程；save({context,name?})、export({context,format,ids?,name?}) 返回 status=generated 的资源描述。read({resourceId,as:\"blob\"|\"bytes\"}) 返回实际 Blob 或 Uint8Array。download({resourceId}) 返回 download_initiated；write({resourceId,handle}) 仅在已授权句柄写入、关闭与 SHA-256/大小回读匹配后返回 write_verified。release({resourceId}) 释放页面资源；已启动下载的 Object URL 由定时器回收，不因 release 立即撤销。\n单资源 20 MiB、最多 32 个、总计 64 MiB、有效期 30 分钟。生成 Blob 不等于写盘，下载启动不等于写盘成功。旧快照写入不能清除新 revision 的 dirty。页面 API 的新建/打开遇 dirty 一律拒绝 UNSAVED_REPLACEMENT；UI 的真实用户确认是独立路径。File/Blob 不保证能跨侧边栏 JSON 通道传递；宿主不能传字节时由用户在页面选择文件。当前静态版不含本机 IGES 转换器及服务端矢量转换器。"
   }
 }

@@ -1,4 +1,5 @@
 async (page) => {
+  const testContext=await page.context().browser().newContext();page=await testContext.newPage();
   const network=[],sockets=[];
   page.on('request',r=>network.push({method:r.method(),url:r.url()}));page.on('websocket',s=>sockets.push(s.url()));
   await page.goto('http://127.0.0.1:17670/');
@@ -63,5 +64,5 @@ async (page) => {
   await clean.close();
   result.network=network;result.sockets=sockets;
   if(sockets.length||network.some(r=>r.method!=='GET'||/\/mcp|\/ai-bridge|\/api\//.test(r.url)))throw new Error('Unexpected application network');
-  return result;
+  await testContext.close();return result;
 }
