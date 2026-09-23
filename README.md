@@ -2,9 +2,9 @@
 
 ## 2026-09-23 首批 AI 接口升级（M0/M1A/M1B）
 
-保留原 14 个 MCP 工具，增量提供 bootstrap、search_tools、get_tool、read_docs、get_state_v2、query_geometry、execute_v2，共 21 个工具。新入口严格校验工程/运行实例/版本，选择令牌绑定当前精确几何快照，幂等回执仅保证同一浏览器工程运行实例的内存范围。box、hole、multiHole、faceHole、fillet、chamfer、shell 已迁入 v2 严格契约，其余操作仍经旧接口调用。说明见 [M1 工具契约](docs/M1-TOOL-CONTRACTS.md)。
+保留原 21 个 MCP 工具，M2A 增加 9 个文件工作流工具，共 30 个。M0/M1 新入口严格校验工程/运行实例/版本，选择令牌绑定当前精确几何快照，幂等回执仅保证同一浏览器工程运行实例的内存范围。box、hole、multiHole、faceHole、fillet、chamfer、shell 已迁入 v2 严格契约，其余操作仍经旧接口调用。说明见 [M1 工具契约](docs/M1-TOOL-CONTRACTS.md) 与 [MCP 文件工作流](docs/MCP-GUIDE.zh-CN.md#10-m2a-工程与文件闭环)。
 
-本机复验使用 `npm test`、`npm run test:local-fixtures`；真实 MCP 验收须先在隔离端口启动 `node scripts/serve.mjs --port 17667` 并打开一个空测试页面，再运行 `npm run test:e2e`。构建仍为 `npm run build`。本批不提供跨重启 exactly-once、文件生命周期 API、关联参数或 80% 业务覆盖率保证。
+本机回归使用 `npm test`、`npm run test:local-fixtures`；真实 MCP 验收须在隔离端口启动服务并连接专用测试页面。M2A 增加文件生命周期 API，但不提供跨重启 exactly-once、关联参数或完整装配能力。
 
 WebCAD 是一个本机运行的浏览器三维建模工作台，面向小型五金、板件、框扣和参数化实体设计。几何由浏览器中的 OpenCascade/Replicad 计算；项目服务仅绑定 `127.0.0.1:667`，并提供同机 MCP 接口供 AI 操作当前打开的模型。
 
@@ -14,7 +14,7 @@ WebCAD 是一个本机运行的浏览器三维建模工作台，面向小型五�
 - 实体/面/边选择，精确 XYZ 移动，面上鼠标取孔位，组合和拆散多实体复合模型。
 - SVG、DXF、DWG、矢量 PDF、PDF-compatible AI 的 LOGO/路径导入；可粘贴 SVG 或闭合 SVG `d` 路径。
 - 矢量路径可生成面或实体；LOGO 支持凹凸、深度和默认 7° 脱模斜度。
-- STEP/BREP 导入、STEP/STL/BREP 导出、`.webcad` 参数历史保存、金属材质预览与中英文界面。
+- STEP/BREP 导入、STEP/STL/BREP 导出、`.webcad` 自包含参数历史保存、金属材质预览与中英文界面。
 - 本机 MCP：`http://127.0.0.1:667/mcp`。
 
 ## 启动
@@ -40,7 +40,7 @@ WebCAD 是一个本机运行的浏览器三维建模工作台，面向小型五�
 - “编辑 → 直线阵列 / 环形阵列”按步进位移或指定轴心复制实体。数量包含原件，阵列存为一个复合实体；环形 360° 时均匀环绕，部分角度包含起点与终点。
 - 选择“边”模式，再选边做圆角或倒角；未指定边时作用于全部边。抽壳需要选择待移除的面。无效半径、厚度或几何会显示错误，应调整参数。
 - 左键拖动旋转，滚轮缩放，右键拖动平移；“视图”提供标准方向、正交/透视切换、适合窗口、实体/边线/线框、网格、测量和截图。
-- “保存工程”下载 `.webcad`，保留参数、历史和导入源数据；“导出”下载 STEP、STL 或 BREP，可选择只导出选中的实体。浏览器按自身下载设置决定保存位置。
+- “保存工程”可生成 `.webcad` 工程并保留参数、历史和导入源字节；“导出”可生成 STEP、STL 或 BREP，可选择只导出选中的实体。MCP 文件流程由客户端文件适配器实际取回、校验 SHA-256 并写入用户授权目录。
 
 撤销/重做按钮和 Ctrl+Z / Ctrl+Shift+Z 用于回退编辑。浏览器本地自动恢复不能替代保存工程；清除浏览器站点数据会删除本地恢复数据。
 
@@ -98,7 +98,7 @@ node scripts/serve.mjs
 {"mcpServers":{"webcad":{"url":"http://127.0.0.1:667/mcp"}}}
 ```
 
-MCP 导出返回 base64 数据、格式和 MIME，由调用客户端保存；页面手工导出仍是浏览器下载。我们没有修改现有 Codex 配置。14 个 MCP 工具的列表、调用示例、取消和本机访问边界见 [MCP 使用指南](docs/MCP-GUIDE.zh-CN.md)，其中记录当前 31 类操作目录和 11 类参数化快捷模型。
+兼容的 `webcad_export` 仍可返回 base64 数据；M2A 文件工具通过 artifactId 提供受控下载，客户端适配器校验长度和 SHA-256 并确认写盘。我们没有修改现有 Codex 配置。原 21 个工具、增量文件工具及完整闭环配方见 [MCP 使用指南](docs/MCP-GUIDE.zh-CN.md)，其中包含 31 类操作目录和 11 类参数化快捷模型。
 
 ## 参数化快捷建模与双语工作台
 
@@ -112,7 +112,7 @@ MCP 需使用 `node scripts/serve.mjs` 的本地服务；Vite 开发服务本身
 
 ## IGS 样本学习与正式 MCP 文档
 
-[MCP 使用指南](docs/MCP-GUIDE.zh-CN.md)提供 14 个工具、客户端配置和完整代码示例；[连接配置示例](docs/mcp-client.example.json)不自动修改用户设置。
+[MCP 使用指南](docs/MCP-GUIDE.zh-CN.md)提供原 21 个工具、M2A 文件工作流、客户端配置和完整代码示例；[连接配置示例](docs/mcp-client.example.json)不自动修改用户设置。
 
 原始 IGS 样本用于提炼双空心柱安装板、法兰轴套两种参数模板，以及圆头槽加工操作；这些功能不表示对源 IGS 曲面集合的修复、闭合或完整原件复刻。
 

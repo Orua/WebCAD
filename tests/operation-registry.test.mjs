@@ -117,7 +117,7 @@ test('refs and version gates fail closed; advisory operations are excluded from 
 
 test('static discovery reports unknown runtime without session, deterministic pagination and bounded input', () => {
   const info = bootstrap();
-  assert.equal(info.apiVersion, apiVersion); assert.equal(info.catalogHash, catalogHash); assert.equal(info.docsHash, docsHash);
+  assert.equal(info.apiVersion, apiVersion); assert.equal(info.catalogHash, searchTools({query: ""}).catalogHash); assert.notEqual(info.catalogHash, catalogHash); assert.equal(info.docsHash, docsHash);
   assert.equal(info.capabilities.modeling, 'not_ready'); assert.equal(info.serverInstanceId, null);
   const first = searchTools({ query: '', limit: 2 });
   assert.equal(first.items.length, 2); assert.ok(first.nextCursor);

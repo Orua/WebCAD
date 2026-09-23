@@ -46,7 +46,7 @@ export function createCommandService(adapter) {
       const include=input.include??['summary','bodies','capabilities'];
       if(!Array.isArray(include)||include.some(x=>!['summary','features','bodies','selection','capabilities'].includes(x)))fail('PARAM_SCHEMA_INVALID','include','Unknown state field');
       const r={status:'read',context:contextOf(s),persistence:s.persistence,preview:{active:!!s.preview,computing:!!s.previewComputing}};
-      if(include.includes('summary'))r.summary={name:s.documentName,featureCount:s.features.length,bodyCount:s.bodies.length,busy:s.busy,kernelReady:s.kernelReady};
+      if(include.includes('summary'))r.summary={name:s.documentName,featureCount:s.features.length,bodyCount:s.bodies.length,busy:s.busy,kernelReady:s.kernelReady,dirty:!!s.dirty};
       if(include.includes('features'))r.features=clone(s.features);
       if(include.includes('bodies'))r.bodies=clone(s.bodies);
       if(include.includes('selection'))r.selection={bodyIds:clone(s.selectedIds),topology:clone(s.selectedTopology)};
@@ -137,5 +137,21 @@ export function createCommandService(adapter) {
     }
   }
   function execute(input,options={}){const job=tail.then(()=>executeOnce(input,options));tail=job.catch(()=>{});return job;}
-  return {getState,queryGeometry,execute};
+  function fileCommand(input,options={}){
+    const run=async()=>{
+      const requestId=options.requestId??uid();let before;
+      try{
+        before=snapshot();object(input,['context','action','args'],'input');context(input.context,before);available(before);
+        if(!['new','open','import','save','export'].includes(input.action))fail('PARAM_SCHEMA_INVALID','action','Unknown file action');
+        const result=await adapter.execute(`file_${input.action}`,input.args??{},{...options,expectedRevision:before.revision});
+        const after=snapshot(),readOnly=['save','export'].includes(input.action);return {status:readOnly?'read':'committed',requestId,context:contextOf(readOnly?before:after),...result};
+      }catch(error){
+        const after=snapshot();
+        if(before&&(before.revision!==after.revision||before.documentInstanceId!==after.documentInstanceId))return {status:'unknown',commitState:'unknown',requestId,error:{code:'RESULT_UNKNOWN',path:'result',message:error.message,retryable:false,recoveryAction:'READ_STATE_AND_REPLAN'}};
+        return errorResult(error,requestId,after);
+      }
+    };
+    const job=tail.then(run);tail=job.catch(()=>{});return job;
+  }
+  return {getState,queryGeometry,execute,fileCommand};
 }

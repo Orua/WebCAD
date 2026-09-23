@@ -1,5 +1,13 @@
 # WebCAD project architecture
 
+## M2A document and file boundary (2026-09-23)
+
+`scripts/document-assets.mjs` adds nine public MCP file tools and local capability-protected raw-byte PUT/GET endpoints. `scripts/artifact-store.mjs` keeps bounded temporary resources (20 MiB each, 128 uploads/resources and 256 MiB total, 30 minute TTL). Only opaque IDs form storage paths. `scripts/file-transfer-client.mjs` is the real client adapter: an explicitly authorized existing directory, same-origin loopback transfers, SHA-256/size verification, file sync/readback and atomic no-overwrite hard-link commit. Generated, transferred, and client-confirmed written are separate states; the server cannot independently prove a remote client's disk durability.
+
+New/open/import/save/export go through `CommandService.fileCommand` with the complete document/instance/revision context and the existing main rebuild/import/export functions. Open/new refuse dirty documents. Import only appends STEP/BREP/IGES source-backed features; it cannot replace a project. Successful reopen retains documentId, creates documentInstanceId and starts fresh undo history. Failed parsing/conversion/rebuild does not commit a replacement. A save acknowledgement clears dirty only for the identical current instance and revision. UI browser downloads keep dirty because starting a download cannot prove disk write. PNG export captures only the current viewport.
+
+Native projects embed imported geometry bytes; they need no original path or temporary asset cache. IGES uses the existing local OCP converter with an early environment probe. Restart destroys the in-memory resource registry; no cross-restart exactly-once guarantee is offered. Discovery and recipes are available through bootstrap/search/get_tool/read_docs; see `recipe.file-workflow`. Run `npm run test:e2e:m2a` for the public-MCP product chain and `npm run test:ui:m2a` separately for UI regression.
+
 ## M1 command boundary (2026-09-23)
 
 `src/command-service.js` validates v2 context/actions and calls the existing main transaction; it owns bounded in-memory receipts and snapshot-bound geometry selection tokens, without a second document or CAD kernel. `src/ui-selection-adapter.js` supplies missing UI topology only at the UI boundary. Explicit API topology is never replaced with UI selection.
@@ -17,7 +25,7 @@ WebCAD is an independent local project copied from CadViewer. The source CadView
 - `src/ui.js`, `src/style.css`: Chinese CAD workspace, command dialogs, trees and properties.
 - `src/cad-worker.js`: persistent Replicad/OpenCascade WASM exact geometry worker, feature replay, tessellation and export.
 - `dist/`: Vite production output including local WASM/assets. Distribute it with installed server dependencies for offline launch; otherwise npm install is needed.
-- `scripts/serve.mjs`: Node built-in HTTP static server; loopback port 667; no upload/business API. `/healthz` identifies this server. Static paths accept GET/HEAD; /mcp accepts standard MCP POST. URL decoding, path containment and realpath containment prevent serving files outside mapped roots.
+- `scripts/serve.mjs`: Node built-in HTTP server; loopback port 667. `/healthz` identifies this server. Static paths accept GET/HEAD; /mcp accepts standard MCP POST; M2A file transfers use capability-protected `/api/assets` and `/api/artifacts/:id`. URL decoding, path containment and realpath containment prevent serving files outside mapped roots.
 - `start-server.cmd`: Windows startup, recognizes/reuses own service, refuses unrelated port conflicts, conditionally builds missing dist, starts hidden server via PowerShell, opens the default browser.
 - `cad-viewer/` and `cad-data/`: retained read-only viewer/resources, mapped independently by the static server.
 

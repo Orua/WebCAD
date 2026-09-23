@@ -24,6 +24,7 @@ const server=http.createServer(async(req,res)=>{
  const fail=(code,message)=>{res.writeHead(code,{'Content-Type':'text/plain; charset=utf-8'});res.end(message);};
  if(!localRequestAllowed(req))return fail(403,'Local Host/Origin required');
  if(req.url?.split('?')[0]==='/mcp')return bridge.handle(req,res);
+ if(req.url?.split('?')[0]==='/api/assets'||req.url?.split('?')[0]?.startsWith('/api/artifacts/')){try{return await bridge.handleFileRequest(req,res);}catch(error){return fail(500,error.message||'File transfer failed');}}
  if(req.url?.split('?')[0]==='/api/logo-import')return handleLogoImport(req,res);
  if(req.url?.split('?')[0]==='/api/iges-import')return handleIgesImport(req,res);
  if(!['GET','HEAD'].includes(req.method))return fail(405,'Only GET and HEAD are supported for static files.');

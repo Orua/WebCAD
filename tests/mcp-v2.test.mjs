@@ -53,7 +53,7 @@ const value=result=>{
 test('seven additive stable MCP tools expose strict inputs and structured schemas, static docs work without tabs',async t=>{
  const ctx=await setup(t);
  const before=await ctx.client.listTools();
- assert.equal(before.tools.length,21);
+ assert.equal(before.tools.length,30); // Original 21 plus nine additive file tools.
  for(const name of ['bootstrap','search_tools','get_tool','read_docs','get_state_v2','query_geometry','execute_v2']){
   const tool=before.tools.find(x=>x.name===`webcad_${name}`);
   assert(tool);assert.equal(tool.inputSchema.additionalProperties,false);assert(tool.outputSchema);

@@ -1,6 +1,6 @@
 # WebCAD MCP 使用指南
 
-本指南供 AI 代理、MCP 客户端和维护者使用。接口已按当前 `scripts/mcp-bridge.mjs`、`src/operation-catalog.js`、`src/main.js` 的 `executeAI` 核对。WebCAD 的 AI 操作与页面操作共用建模事务、精确几何内核及视口；不是另一套独立 CAD 引擎。
+本指南供 AI 代理、MCP 客户端和维护者使用。WebCAD 的 AI 操作与页面操作共用建模事务、精确几何内核及视口；不是另一套独立 CAD 引擎。原 21 个 MCP 工具保持兼容；M2A 文件工具为增量入口。
 
 ## 1. 启动和连接
 
@@ -35,7 +35,9 @@
 - `busy=true` 或存在未完成 `preview` 时先让当前操作结束。不要同时通过页面和 AI 编辑同一模型。
 - MCP 工具成功值目前位于 `content` 的 text 项中，内容是 JSON 字符串，需要再 `JSON.parse`。失败值通常带 `isError:true`，其 text JSON 为 `{ "error": "..." }`；协议或参数校验失败也可能由 SDK 直接抛出异常。
 
-## 3. 当前 14 个工具
+## 3. 原有 14 个基础工具（兼容保留）
+
+M1 已在其上增加 7 个 v2 工具，本批再增加 9 个文件工具；当前共 30 个。下表仅列原有的14个基础工具，后续章节说明增量入口。
 
 下表中 **S** 为 `sessionId`，**R** 为 `expectedRevision`。它们是字段简写，调用时必须使用完整字段名。标记“可选”的字段可以省略。
 
@@ -288,6 +290,46 @@ node scripts/mcp-client-smoke.mjs --session <明确会话ID> --exercise
 两个新模板和槽加工来自本轮 30 个 IGS 样本分析的共性需求，不代表对任一源文件的原始参数历史恢复或完整实体复刻。IGS 的曲面集合/散面分析结果也不等于已完成修复、闭合或复刻原件。样本分析和实际验收分别记录在 [IGS30 分析记录](../agent/output/igs30/REVIEW.md) 与 [IGS30 验收记录](../agent/output/igs30/ACCEPTANCE.md)；请以验收记录中实际执行的项目为准，本指南不预先宣称测试通过。
 
 本轮仍为 14 个 MCP 工具，操作目录为 30 类，快速模板为 11 类。协议/JSON Schema 检查只证明接口描述可读取，不能替代几何正确性验证；IGS 曲面集合也不能单独证明对应原件已被实体复刻。测试执行情况见 [IGS30 验收记录](../agent/output/igs30/ACCEPTANCE.md)。
+
+## 10. M2A 工程与文件闭环
+
+原有 21 个 MCP 工具保持可用，新增 9 个文件工具，共 30 个。通过 `webcad_bootstrap` 的 `entrypoints.fileTools`、`webcad_search_tools`、`webcad_get_tool` 和 `webcad_read_docs` 动态发现文件卡；文件卡 URI 为 `webcad://file-tools/<suffix>/1.0.0`。用 `webcad_read_docs({docId:"recipe.file-workflow"})` 读取完整配方。以下是受控文件传输流程，不使用页面 DOM、模拟鼠标、文件选择框或内部 `window` API 代替公开 MCP 接口。
+
+### 输入文件：登记、上传、打开或导入
+
+1. 先调用 `webcad_file_capabilities({})`。客户端在用户明确授权的本地路径读取文件，计算字节数及 SHA-256，然后调用 `webcad_register_asset({name,size,sha256,mime?})`。name 最长255字符、size 为0至20 MiB整数、sha256 为64位十六进制、可选 mime 最长127字符。注册只返回 `uploadUrl`/`uploadToken`；客户端对该 URL 发起原始字节 HTTP `PUT`，只有校验成功的 PUT 响应才会给 `assetId`。Asset ID 格式 `ast_` 加48位小写十六进制。
+2. 文件和制品大小上限均为20 MiB，临时资源 TTL 为1800秒。上传 URL/token 只授权对应资源，不接受任意服务端路径。
+3. 每个工程操作的 `context` 都必须完整提供 `{sessionId,documentId,documentInstanceId,expectedRevision}`，这些值从当前状态读取，不可猜测。`webcad_open_asset({context,assetId})` 只接受 `.webcad` 或 `.json` 工程，dirty 工程一律拒绝替换；`webcad_import_asset({context,assetId})` 只追加 STEP/BREP/IGES，拒绝 `.webcad`。`webcad_new_document({context})` 新建空工程。IGES 需要本机 OCP 转换环境；不可用时报告 `OCP_UNAVAILABLE`。
+4. STEP/BREP/IGES 导入形成的源字节会嵌入之后保存的 `.webcad` 工程；该工程不依赖临时 assetId、原始路径或上传缓存。重新打开工程会产生新的 `documentInstanceId`，先前实例的选择令牌不可复用。
+
+项目提供 Node 客户端适配器，可在已有 MCP `client` 和服务端基础 URL 下执行实际传输：
+
+```js
+import { uploadAsset, downloadArtifact } from '../scripts/file-transfer-client.mjs';
+
+// directory 必须是用户明确授权、已存在的绝对目录；filePath 是相对此目录的文件路径。
+const uploaded = await uploadAsset(client, {
+  filePath: 'inputs/part.step', directory: 'C:/Users/me/WebCAD-files',
+  baseUrl: 'http://127.0.0.1:667'
+});
+const assetId = uploaded.assetId; // 仅在受限 PUT 成功并校验后返回
+
+// artifact 取自 webcad_save_document / webcad_export_artifact 的响应。
+const written = await downloadArtifact(client, artifact, {
+  directory: 'C:/Users/me/WebCAD-files', baseUrl: 'http://127.0.0.1:667', name: 'part.step'
+});
+```
+
+`directory` 在两种函数中都必须是存在的绝对目录。`uploadAsset` 的 `filePath` 必须解析到该目录内部；`downloadArtifact` 实际 GET 字节、验证大小和 SHA-256、拒绝覆盖已有文件、做磁盘读回校验后再确认写入。适配器没有授权任意服务器路径，也不接受服务端提供的目标路径。
+
+### 保存或导出：生成、取回、校验、写入确认
+
+1. `webcad_save_document({context})` 为指定 revision 生成自包含 `.webcad` artifact。`webcad_export_artifact({context,format,ids?})` 接受 step/stl/brep/png；ids 可省略，否则必须唯一且最多200个。读取当前 state 获取最新 revision；不得自行猜测或递增版本。
+2. 资源 ID 格式为 `art_` 加48位小写十六进制。工具返回 artifact 元数据只表示**已生成**。客户端必须通过受限文件传输适配器对下载地址真实 HTTP `GET`，核对 size 和 SHA-256，再写入用户授权目录。下载成功与写入声明是不同状态。
+3. 适配器拒绝目录穿越、越界 URL、超大响应、过期资源和覆盖冲突。确认写入后，调用 `webcad_confirm_artifact_written({artifactId,size,sha256})`。旧 revision 对应的 artifact 仍可以成功下载并写入；若当前工程已变化，确认响应可为 `written:true, documentSaved:false`。`documentSaved:false` 只表示这份旧快照不能将当前文档标为 clean，不代表客户端写文件失败。保存期间的新编辑仍保持 dirty。服务端只能记录客户端已经校验并写入的声明，不能独立证明客户端磁盘 fsync。
+4. `webcad_release_resource({resourceId})` 可提前释放归属资源。生成、下载、客户端声明写入三种状态保持区分。遇到 `SIZE_LIMIT`、`RESOURCE_EXPIRED`、`HASH_MISMATCH`、`UNSAVED_REPLACEMENT`、`REVISION_CONFLICT`、`INSTANCE_MISMATCH`、`FORMAT_UNSUPPORTED` 或 `OCP_UNAVAILABLE` 时停止并报告准确错误。
+
+完整无鼠标闭环为：创建/编辑 → 检查 → 保存 `.webcad` → 客户端取回并确认写入 → 上传该文件并重开 → 再编辑 → 导出 STEP/BREP/STL → 客户端取回、校验及写入 → 重新登记并导入回读。接口细节以实时文件工具卡为准；不承诺跨服务重启 exactly-once。
 
 ## LOGO 平面凹凸字
 

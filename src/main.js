@@ -168,7 +168,7 @@ async function exportData(format='step',ids){
   if(busy)throw new Error('请等待当前计算完成。');setBusy(true,'正在生成导出文件…');
   try{return await request('export',{format,ids});}finally{setBusy(false);}
 }
-async function saveProject(){download(JSON.stringify(documentModel,null,2),safeName(documentModel.name)+'.webcad','application/json');dirty=false;setStatus('工程已另存为 .webcad，包含参数历史和导入源文件。');refresh();}
+async function saveProject(){download(JSON.stringify(documentModel,null,2),safeName(documentModel.name)+'.webcad','application/json');setStatus('工程下载已发起；浏览器未确认磁盘写入，未保存标记保留。');refresh();}
 function chooseFile(){return new Promise(resolve=>{const input=document.createElement('input');input.type='file';input.accept='.webcad,.json,.step,.stp,.brep,.brp,.iges,.igs,.stl';input.multiple=true;input.addEventListener('change',()=>resolve([...input.files]));input.addEventListener('cancel',()=>resolve([]));input.click();});}
 function base64(array){let text='';for(let i=0;i<array.length;i+=0x8000)text+=String.fromCharCode(...array.subarray(i,i+0x8000));return btoa(text);}
 function validateDocument(doc){
@@ -177,15 +177,17 @@ function validateDocument(doc){
   const ids=new Set();for(const f of doc.features){if(!f.id||ids.has(f.id)||typeof f.op!=='string'||!f.params||!Array.isArray(f.refs))throw new Error('工程特征结构无效。');for(const ref of f.refs)if(!ids.has(ref))throw new Error('工程包含无效的操作引用。');ids.add(f.id);}
   return {version:1,documentId:typeof doc.documentId==='string'&&doc.documentId.length>0&&doc.documentId.length<=150?doc.documentId:crypto.randomUUID(),name:String(doc.name||'导入工程'),features:doc.features,imports:doc.imports,hidden:Array.isArray(doc.hidden)?doc.hidden:[],appearance:doc.appearance&&typeof doc.appearance==='object'?doc.appearance:{}};
 }
-async function openFiles(files,{confirmReplace=true}={}){
-  if(busy)return;
+async function openFiles(files,{confirmReplace=true,signal,expectedRevision,mcp=false}={}){
+  if(busy){if(mcp)throw new Error('Worker is busy');return;}
   for(const file of files){
+    checkTransaction(signal,expectedRevision);
     if(file.size>150*1024*1024)throw new Error('单文件超过 150 MB。请先拆分模型后再打开。');
     const ext=file.name.split('.').pop().toLowerCase();
     if(['webcad','json'].includes(ext)){
       const next=validateDocument(JSON.parse(await file.text()));
+      if(mcp&&dirty)throw Object.assign(new Error('Save the current document before opening another project.'),{code:'UNSAVED_REPLACEMENT'});
       if(confirmReplace&&dirty&&!confirm('打开工程将替换当前设计。尚未另存的设计可取消后先保存。继续打开？'))return;
-      await rebuild(next,{fit:true,newInstance:true});dirty=false;refresh();
+      await rebuild(next,{fit:true,newInstance:true,record:false,signal,expectedRevision});undoStack=[];redoStack=[];dirty=false;refresh();
     }else{
       if(ext==='stl')throw new Error('STL 是三角网格，精确建模请使用 STEP、BREP 或 IGS。');
       const isIges=['igs','iges'].includes(ext);
@@ -198,8 +200,8 @@ async function openFiles(files,{confirmReplace=true}={}){
       }else next.imports[key]={format,data:base64(new Uint8Array(await file.arrayBuffer()))};
       next.features.push({id,op:'import',name:file.name,params:{key},refs:[]});
       if(!next.features.slice(0,-1).length)next.name=file.name.replace(/\.[^.]+$/,'');
-      await rebuild(next,{fit:true,select:id});
-      if(isIges){const d=next.imports[key].source;ui.showInfo('IGS 导入诊断',`源文件 ${d.name}：${d.topology?.faces??'?'} 面，${d.topology?.shells??'?'} 壳，${d.topology?.solids??'?'} 实体。未自动修复；散面请尝试曲面缝合，开放壳不能直接当实体加工。`);}
+      await rebuild(next,{fit:true,select:id,signal,expectedRevision});
+      if(isIges&&!mcp){const d=next.imports[key].source;ui.showInfo('IGS 导入诊断',`源文件 ${d.name}：${d.topology?.faces??'?'} 面，${d.topology?.shells??'?'} 壳，${d.topology?.solids??'?'} 实体。未自动修复；散面请尝试曲面缝合，开放壳不能直接当实体加工。`);}
     }
   }
 }
@@ -329,8 +331,9 @@ const ready=(async()=>{
 })();
 // Public automation surface also used by reproducible acceptance checks; never runs arbitrary code.
 function getState(){return {revision,document:clone(documentModel),bodies:bodies.map(({id,name,bounds,volume,solidCount,faceGroups,edges})=>({id,name,bounds,volume,solidCount,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,dirty,preview:!!previewNext};}
-function aiState(){return {revision,documentName:documentModel.name,features:clone(documentModel.features),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),bodies:bodies.map(({id,name,bounds,volume,solidCount,faceGroups,edges})=>({id,name,bounds,volume,solidCount,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,preview:!!previewNext};}
+function aiState(){return {revision,dirty,documentId:documentModel.documentId,documentInstanceId,documentName:documentModel.name,features:clone(documentModel.features),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),bodies:bodies.map(({id,name,bounds,volume,solidCount,faceGroups,edges})=>({id,name,bounds,volume,solidCount,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,preview:!!previewNext};}
 async function executeAI(command,args={},options={}){
+  if(command==='file_command')return commandService.fileCommand(args,options);
   if(command==='get_state_v2')return commandService.getState(args);
   if(command==='query_geometry')return commandService.queryGeometry(args);
   if(command==='execute_v2')return commandService.execute(args,options);
@@ -338,6 +341,33 @@ async function executeAI(command,args={},options={}){
   if(command==='get_state')return aiState();
   if(command==='get_templates')return QUICK_MODELS;
   if(busy||previewNext)throw new Error('Finish current operation or preview before AI editing.');
+  if(command==='file_save'){
+    const savedRevision=revision,instance=documentInstanceId,docId=documentModel.documentId;
+    const bytes=new TextEncoder().encode(JSON.stringify(clone(documentModel),null,2));
+    checkTransaction(options.signal,savedRevision);
+    return {revision:savedRevision,documentId:docId,documentInstanceId:instance,encoding:'base64',data:base64(bytes),extension:'webcad',mime:'application/json'};
+  }else if(command==='acknowledge_save'){
+    if(args.documentId!==documentModel.documentId||args.documentInstanceId!==documentInstanceId||args.savedRevision!==revision)return {saved:false,dirty,revision,reason:'SNAPSHOT_CHANGED'};
+    dirty=false;refresh();return {saved:true,dirty:false,revision,documentId:documentModel.documentId,documentInstanceId};
+  }else if(command==='file_new'){
+    if(dirty)throw Object.assign(new Error('Save the current document before creating a new project.'),{code:'UNSAVED_REPLACEMENT'});
+    await rebuild(emptyDocument(),{...options,fit:true,newInstance:true,record:false});undoStack=[];redoStack=[];selectedIds=[];dirty=false;refresh();
+    return {dirty};
+  }else if(command==='file_open'||command==='file_import'){
+    const ext=args.name?.split('.').pop().toLowerCase();
+    const allowed=command==='file_open'?['webcad','json']:['step','stp','brep','brp','igs','iges'];
+    if(!allowed.includes(ext))throw Object.assign(new Error('Unsupported file type for this action.'),{code:'FORMAT_UNSUPPORTED'});
+    if(command==='file_open'&&dirty)throw Object.assign(new Error('Save the current document before opening another project.'),{code:'UNSAVED_REPLACEMENT'});
+    if(typeof args.name!=='string'||typeof args.data!=='string'||args.data.length>28*1024*1024)throw new Error('ASSET_INVALID: missing or oversized asset payload.');
+    const raw=atob(args.data),bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
+    const file=new File([bytes],args.name,{type:args.mime||'application/octet-stream'});
+    await openFiles([file],{...options,confirmReplace:false,mcp:true});
+    return {dirty};
+  }else if(command==='file_export'){
+    const result=args.format==='png'?{extension:'png',mime:'image/png',data:Uint8Array.from(atob(viewport.screenshot().split(',')[1]),c=>c.charCodeAt(0))}:await exportData(args.format,args.ids);
+    checkTransaction(options.signal,options.expectedRevision);
+    return {revision,extension:result.extension,mime:result.mime,encoding:'base64',data:base64(typeof result.data==='string'?new TextEncoder().encode(result.data):new Uint8Array(result.data))};
+  }
   if(command==='inspect_geometry'){
     const startRevision=revision;const result=await request('measure',{bodyId:args.bodyId,topologyType:args.kind,topologyId:args.topologyId});
     if(args.kind==='face'&&result.geomType==='PLANE')Object.assign(result,await request('faceInfo',{bodyId:args.bodyId,faceId:args.topologyId}));
