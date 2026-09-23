@@ -1,9 +1,11 @@
-import { apiVersion, catalogHash, getOperation, listOperations, migratedOperationIds } from './operation-registry.js';
+import { apiVersion, catalogHash as operationCatalogHash, getOperation, listOperations, migratedOperationIds } from './operation-registry.js';
+import { fileCatalogHash, getFileTool, listFileTools } from './file-contracts.js';
 import { contractError, contractHash, validateSchema } from './contracts/operation-schema.js';
 
 const string = (maxLength = 150) => ({ type: 'string', minLength: 1, maxLength });
 const object = properties => ({ type: 'object', properties, additionalProperties: false });
 const version = '1.0.0';
+const fileToolIdSet = new Set(listFileTools().map(card => card.id.slice(5)));
 const docs = {
   'api.query-geometry': `Read current state first. Input is {context:{sessionId,documentId,documentInstanceId,expectedRevision},bodyId,kind,filter,requireUnique?,limit?,cursor?}.
 kind=face accepts surfaceType:"plane", normal:{direction:[x,y,z],sameDirection?:true,angleToleranceDeg?:0.1}, atExtreme:{axis:"X"|"Y"|"Z",side:"min"|"max",toleranceMm?:0.01}. Normals use world coordinates and topological orientation; open-shell outward direction is not guaranteed. atExtreme compares a principal-axis supporting plane to the body's exact bounds.
@@ -13,10 +15,10 @@ Tokens bind documentInstanceId, revision, bodyId, kind, exact BRep fingerprint a
 While the Worker is busy or preview is active the query is rejected, never silently run against preview geometry. Limit 1000 tokens and 1000 pagination cursors per instance. Exhaustion rejects new queries, without silently reusing expired IDs; start a new document instance when appropriate.`,
   start: `WebCAD local API ${apiVersion}
 The authoritative modeling kernel and document remain in the browser Worker. Static help requires no browser; execution requires a ready browser session. This is not a second Node CAD kernel.
-Workflow: webcad_bootstrap -> webcad_list_sessions -> webcad_get_state_v2 -> webcad_search_tools -> webcad_get_tool -> webcad_query_geometry when topology is needed -> webcad_execute_v2 -> inspect/measure -> legacy webcad_export.
+Workflow: webcad_bootstrap -> webcad_list_sessions -> webcad_get_state_v2 -> webcad_search_tools -> webcad_get_tool -> webcad_query_geometry when topology is needed -> webcad_execute_v2 -> inspect/measure. For native files use webcad_register_asset -> client PUT -> webcad_open_asset/webcad_import_asset -> webcad_save_document or webcad_export_artifact -> client download adapter -> webcad_confirm_artifact_written.
 Never model with DOM clicks or simulated mouse input. UI regression automation is separate. Explicit refs never fall back to current UI selection.
 Only box, hole, multiHole, faceHole, fillet, chamfer, shell have a migrated strict v2 parameter contract. Legacy operations remain documented and available through their existing entrypoints; schema metadata is not proof of kernel success.
-Read api.execute-v2 for the command envelope, coordinates for units, errors for recovery, recipes.mounting-plate for a coordinate-driven recipe.
+Read api.execute-v2 for the command envelope, coordinates for units, errors for recovery, recipes.mounting-plate for a coordinate-driven recipe, and recipe.file-workflow for the complete native-file transfer lifecycle.
 Cache key: trusted server identity + authorization scope + apiVersion + catalogHash + op ID/version. Check hashes on reconnection. Do not cache sessionId, revision, indices, selection tokens or unchecked body IDs as permanent facts. Repository caches belong in agent/cache/webcad/.`,
   coordinates: `Lengths are millimetres; angles degrees; volume mm^3; scale dimensionless. Coordinates are right-handed world XYZ unless the individual tool states otherwise.
 box width/depth/height means positive X/Y/Z extent from [0,0,0]. It does not center at the origin.
@@ -34,7 +36,7 @@ feature.remove args:{bodyIds:[current IDs]}; unique nonempty current bodies only
 feature.add selectionToken is supported only by faceHole,fillet,chamfer,shell. It conflicts with explicit faceId/faceIds/edgeIds/allEdges. Validate user input first, resolve token at the current snapshot, then validate full kernel params. feature.edit does not accept tokens; unsafe downstream index references fail UNSAFE_LEGACY_REFERENCE.
 Success/failure/unknown and commitState are separate. A committed operation must not be reported rolled back because a late cancellation or view update failed. A transport failure can mean unknown, not not_committed. Legacy response shapes remain unchanged.
 Idempotency is same documentInstanceId, in-memory and bounded for M1. Identical retries reuse the receipt; reusing a key for different commands fails. The capacity is 1000 receipts per instance; new commands are rejected at capacity and existing receipts are not evicted. Restart or reload does not provide durable receipt guarantees.
-No implicit batch, preview lifecycle, native file save/open or durable receipt is promised by M1. Legacy export remains the export entrypoint.`,
+No implicit batch, preview lifecycle or cross-restart exactly-once guarantee is provided. Native file lifecycle is described by recipe.file-workflow; legacy export remains available for compatibility.`,
   errors: `Errors contain code,path,message,retryable,recoveryAction. A failure before commit has commitState=not_committed; unknown outcomes must preserve unknown status and cannot claim rollback.
 PARAM_SCHEMA_INVALID / PARAM_RANGE_INVALID: correct the named field without silently changing requested dimensions.
 UNKNOWN_OPERATION / OPERATION_VERSION_UNSUPPORTED / SCHEMA_MISMATCH / CAPABILITY_UNAVAILABLE: READ_TOOL_CONTRACT and check current runtime capabilities.
@@ -50,27 +52,38 @@ PERSISTENCE_FAILED / RESULT_UNKNOWN: distinguish committed memory from durable s
 4. Inspect exact B-Rep dimensions and volume. Expected extents 50 x 30 x 3 mm, four holes diameter 4 mm; volume = 4500 - 48*pi mm^3. The starts at Z=4 and depth 5 reach Z=-1; this uses fixed depth, not multiHole.through.
 5. To modify use feature.edit with the actual featureId, same operation contract, explicit parameter patch and new context/key. Measure the changed result.
 6. Export via webcad_export. Client must save returned bytes and verify STEP readback. A recipe or an export response alone is not a verified saved file or a completed acceptance test.`,
+  'recipe.file-workflow': `Native file workflow, version ${version}. Nine additive MCP file tools preserve the original 21 tools (30 total). Discover them via bootstrap, search_tools, get_tool, or webcad://file-tools/<suffix>/1.0.0. Use only public MCP and the client transfer adapter; do not use DOM, simulated input, file dialogs, or internal window APIs.
+1. Read file_capabilities, then call register_asset({name,size,sha256,mime?}). Names are 1..255 chars, size is an integer from 0 to 20 MiB, sha256 is 64 hex digits, mime is optional up to 127 chars. It returns uploadUrl/uploadToken; PUT raw bytes using the token. Only a successful verified PUT returns assetId. Asset IDs and artifact IDs are ast_/art_ plus 48 lowercase hex digits. Assets/artifacts are each capped at 20 MiB and expire after 1800 seconds.
+2. Every document operation uses context:{sessionId,documentId,documentInstanceId,expectedRevision}, all required from current state. new_document creates a new document subject to replacement protection. open_asset({context,assetId}) accepts .webcad or .json projects only and always rejects replacing a dirty document. import_asset({context,assetId}) appends STEP/BREP/IGES only; it rejects .webcad. IGES requires OCP and returns OCP_UNAVAILABLE when absent. Imported source bytes are embedded in saved .webcad data; no temporary assetId or source path dependency. Reopening creates a new documentInstanceId; old instance tokens/requests are invalid.
+3. save_document({context}) creates a self-contained .webcad artifact for that revision. export_artifact({context,format,ids?}) accepts step/stl/brep/png; ids, when supplied, must be unique and contain at most 200 IDs. Export and save are pinned to the supplied revision.
+4. Generated artifact metadata is not a download. The client adapter must GET the actual bytes, verify size and SHA-256, and write under its explicitly authorized directory. It must reject path traversal, out-of-scope links, oversized data, expired capabilities and existing-file conflicts. generated, downloaded, and client-declared-written are distinct statuses.
+5. confirm_artifact_written({artifactId,size,sha256}) records only the client's assertion that it verified and wrote those bytes. The server cannot independently prove filesystem fsync/durability. Confirmation clears dirty only for a matching current .webcad snapshot/revision; intervening edits remain dirty. release_resource({resourceId}) releases an owned ast_/art_ resource early.
+Errors: SIZE_LIMIT, RESOURCE_EXPIRED, HASH_MISMATCH, UNSAVED_REPLACEMENT, REVISION_CONFLICT, INSTANCE_MISMATCH, FORMAT_UNSUPPORTED, OCP_UNAVAILABLE. Stop and report the exact code; do not guess IDs or weaken checks. The flow makes no cross-restart exactly-once claim.`,
 };
 const docAliases = {
   'webcad://docs/start': 'start', 'webcad://docs/coordinates': 'coordinates',
   'webcad://docs/errors': 'errors', 'webcad://docs/api.execute-v2': 'api.execute-v2',
   'webcad://recipes/mounting-plate/1.0.0': 'recipes.mounting-plate',
+  'webcad://recipes/file-workflow/1.0.0': 'recipe.file-workflow',
 };
-export const docsHash = contractHash({ docs, cards: listOperations() });
+export const catalogHash = contractHash({ operations: operationCatalogHash, fileTools: fileCatalogHash });
+export const docsHash = contractHash({ docs, cards: listOperations(), fileCards: listFileTools() });
 
 export function bootstrap({ serverInstanceId = null, buildId = 'unreported', browserReady = false } = {}) {
   return { product: 'WebCAD', buildId, apiVersion, serverInstanceId, catalogHash, docsHash,
     mode: 'local-node-bridge-browser-worker', units: { length: 'mm', angle: 'degrees', volume: 'mm^3', scale: 'dimensionless' },
-    entrypoints: { docs: ['start', 'coordinates', 'api.execute-v2', 'api.query-geometry', 'errors', 'recipes.mounting-plate'],
-      nextTools: ['webcad_list_sessions', 'webcad_get_state_v2', 'webcad_search_tools', 'webcad_get_tool'],
-      read: 'webcad_read_docs', execute: 'webcad_execute_v2', export: 'webcad_export' },
+    entrypoints: { docs: ['start', 'coordinates', 'api.execute-v2', 'api.query-geometry', 'errors', 'recipes.mounting-plate', 'recipe.file-workflow'],
+      fileTools: listFileTools().map(card => card.toolName),
+      nextTools: ['webcad_list_sessions', 'webcad_get_state_v2', 'webcad_search_tools', 'webcad_get_tool', 'webcad_file_capabilities', 'webcad_register_asset', 'webcad_new_document', 'webcad_open_asset', 'webcad_import_asset', 'webcad_save_document', 'webcad_export_artifact', 'webcad_confirm_artifact_written', 'webcad_release_resource'],
+      read: 'webcad_read_docs', execute: 'webcad_execute_v2', export: 'webcad_export', exportArtifact:'webcad_export_artifact', transfer: 'client file-transfer adapter' },
     limits: { operationIdLength: 60, idLength: 150, nameLength: 120, searchLength: 500, idempotencyKeyLength: 128,
-      cursorLength: 2048, searchLimit: 50, docsLimitChars: 16000, receiptsPerInstance: 1000, selectionTokensPerInstance: 1000, queryCursorsPerInstance: 1000, migratedOperations: [...migratedOperationIds] },
+      cursorLength: 2048, searchLimit: 50, docsLimitChars: 16000, uploadBytes: 20 * 1024 * 1024, artifactBytes: 20 * 1024 * 1024, assetTtlSeconds: 1800, artifactTtlSeconds: 1800, receiptsPerInstance: 1000, selectionTokensPerInstance: 1000, queryCursorsPerInstance: 1000, migratedOperations: [...migratedOperationIds] },
     idempotencyGuarantee: { scope: 'same documentInstanceId; in-memory bounded receipts', durable: false,
       survivesReload: false, survivesBridgeReconnect: 'only while the same browser instance and cached receipt remain alive' },
     capabilities: { staticDocumentation: 'available', modeling: browserReady ? 'available' : 'not_ready',
       v2Operations: [...migratedOperationIds], allOtherOperations: 'legacy entrypoints only; advisory schemas',
-      fileLifecycleV2: 'unavailable', persistentReceipts: 'unavailable' } };
+      fileTransfer: 'available', modelFileCommands: browserReady ? 'available' : 'not_ready',
+      fileLifecycle: browserReady ? 'available' : 'not_ready', clientFileTransfer: 'available', persistentReceipts: 'unavailable' } };
 }
 
 function cursorOffset(cursor, scope) {
@@ -92,7 +105,7 @@ export function searchTools(input, runtime = {}) {
   const words = query.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);
   const scope = { catalogHash, query, category: category || null, sessionId: sessionId || null };
   const offset = cursorOffset(cursor, scope);
-  const matches = listOperations().filter(card => card.id !== 'import' && card.id !== 'remove')
+  const matches = [...listOperations(), ...listFileTools()].filter(card => card.id !== 'import' && card.id !== 'remove')
     .filter(card => !category || card.category === category)
     .filter(card => words.every(word => `${card.id} ${card.title} ${card.synonyms.join(' ')} ${card.description}`.toLocaleLowerCase().includes(word)));
   if (offset > matches.length) contractError('PARAM_RANGE_INVALID', 'cursor', 'Cursor offset exceeds the result count.');
@@ -105,7 +118,7 @@ export function searchTools(input, runtime = {}) {
 
 export function getTool(input) {
   validateSchema({ ...object({ id: string(60), version: string(60) }), required: ['id'] }, input, 'input');
-  const card = getOperation(input.id);
+  const card = input.id.startsWith('file.') || input.id.startsWith('webcad_') || fileToolIdSet.has(input.id) ? getFileTool(input.id) : getOperation(input.id);
   if (input.version !== undefined && input.version !== card.version) contractError('OPERATION_VERSION_UNSUPPORTED', 'version', 'Requested operation version is not registered.', 'READ_TOOL_CONTRACT');
   return { ...card, docsHash: contractHash(card), runtimeAvailability: 'unknown' };
 }
@@ -117,9 +130,10 @@ export function readDocs(input) {
   let text, actualVersion = version;
   if (Object.hasOwn(docs, id)) text = docs[id];
   else {
-    const match = /^webcad:\/\/operations\/([A-Za-z][A-Za-z0-9]*)\/([^/]+)$/.exec(id);
+    const match = /^webcad:\/\/(operations|file-tools)\/([^/]+)\/([^/]+)$/.exec(id);
     if (!match) contractError('PARAM_SCHEMA_INVALID', 'docId', 'Unknown documentation ID; filesystem paths are not accepted.', 'READ_TOOL_CONTRACT');
-    const card = getTool({ id: match[1], version: match[2] });
+    const card = match[1] === 'file-tools' ? getFileTool(match[2]) : getTool({ id: match[2], version: match[3] });
+    if (match[1] === 'file-tools' && card.version !== match[3]) contractError('OPERATION_VERSION_UNSUPPORTED', 'version', 'Requested file tool version is not registered.', 'READ_TOOL_CONTRACT');
     text = JSON.stringify(card, null, 2); actualVersion = card.version;
   }
   if (input.version !== undefined && input.version !== actualVersion) contractError('OPERATION_VERSION_UNSUPPORTED', 'version', 'Requested documentation version is not registered.', 'READ_TOOL_CONTRACT');
@@ -130,4 +144,4 @@ export function readDocs(input) {
     nextCursor: offset + limit < text.length ? cursorAt(scope, offset + limit) : null };
 }
 
-export function listDocumentation() { return Object.keys(docs).sort().map(docId => ({ docId, version })); }
+export function listDocumentation() { return [...Object.keys(docs).sort().map(docId => ({ docId, version })), ...listFileTools().map(card => ({ docId: `webcad://file-tools/${card.id.slice(5)}/${card.version}`, version: card.version }))]; }

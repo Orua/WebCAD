@@ -6,6 +6,7 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import { z } from 'zod';
 import { operationCatalog } from '../src/operation-catalog.js';
 import { bootstrap, searchTools, getTool, readDocs } from '../src/ai-docs.js';
+import { createDocumentAssets } from './document-assets.mjs';
 
 export function localRequestAllowed(req, { requireOrigin=false }={}) {
   const port=req.socket.localPort;
@@ -106,10 +107,10 @@ function v2Failure(error,requestId,args){
  return {status:unknown?'unknown':'failed',requestId,...(args.idempotencyKey?{idempotencyKey:args.idempotencyKey}:{}),error:{code:unknown?'RESULT_UNKNOWN':error.code||'CAPABILITY_UNAVAILABLE',path:error.path||'',message:error.message||String(error),retryable:false,recoveryAction:unknown?'READ_STATE_AND_CHECK_RECEIPT':error.recoveryAction||'READ_STATE_AND_REPLAN'},commitState:unknown?'unknown':'not_committed'};
 }
 
-export function createMCPBridge(httpServer,{commandTimeout=90000}={}) {
+export function createMCPBridge(httpServer,{commandTimeout=90000,artifactRoot}={}) {
  const serverInstanceId=randomUUID();
  const sourceHash=createHash('sha256');
- for(const source of ['./mcp-bridge.mjs','../src/ai-docs.js','../src/operation-registry.js','../src/operation-catalog.js'])sourceHash.update(readFileSync(new URL(source,import.meta.url)));
+ for(const source of ['./mcp-bridge.mjs','./document-assets.mjs','./artifact-store.mjs','./file-transfer-client.mjs','./iges-import.mjs','../src/file-contracts.js','../src/main.js','../src/command-service.js','../src/ai-docs.js','../src/operation-registry.js','../src/operation-catalog.js'])sourceHash.update(readFileSync(new URL(source,import.meta.url)));
  const buildId=`mcp-source-${sourceHash.digest('hex').slice(0,16)}`;
  const sessions=new Map();
  const wss=new WebSocketServer({noServer:true,maxPayload:32*1024*1024});
@@ -151,6 +152,7 @@ export function createMCPBridge(httpServer,{commandTimeout=90000}={}) {
   };
   const result=session.tail.then(run,run);session.tail=result.catch(()=>{});return result;
  }
+ const fileService=createDocumentAssets({command,allowed:localRequestAllowed,root:artifactRoot});
  function makeServer(){
   const mcp=new McpServer({name:'WebCAD',version:'0.2.0'});
   mcp.registerTool('webcad_get_operations',{description:'Read supported operation parameter schemas, units, reference constraints and topology help before modeling. No browser session needed.',inputSchema:{}},async()=>textResult(operationCatalog));
@@ -171,6 +173,7 @@ export function createMCPBridge(httpServer,{commandTimeout=90000}={}) {
     }catch(error){return structuredResult(v2Failure(error,requestId,args));}
    });
   }
+  fileService.registerTools(mcp);
   return mcp;
  }
  async function handle(req,res){
@@ -180,7 +183,7 @@ export function createMCPBridge(httpServer,{commandTimeout=90000}={}) {
   res.on('close',()=>{transport.close().catch(()=>{});server.close().catch(()=>{});});
   try{await server.connect(transport);await transport.handleRequest(req,res);}catch(e){if(!res.headersSent)res.writeHead(500,{'Content-Type':'application/json'}).end(JSON.stringify({jsonrpc:'2.0',id:null,error:{code:-32603,message:e.message}}));}
  }
- return {handle,close(){clearInterval(timer);for(const s of sessions.values())s.ws.terminate();wss.close();},sessions};
+ return {handle,handleFileRequest:fileService.handle,close(){clearInterval(timer);for(const s of sessions.values())s.ws.terminate();wss.close();return fileService.close();},sessions};
 }
 
 

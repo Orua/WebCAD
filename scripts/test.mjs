@@ -7,7 +7,7 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
   contracts: [
-    'command-service', 'document-identity', 'logo-import-request', 'operation-registry',
+    'artifact-store', 'command-service', 'document-identity', 'logo-import-request', 'operation-registry',
     'parameter-calculator', 'recovery-isolation', 'selection-contract',
     'tool-state', 'viewport-transform',
   ],
@@ -19,7 +19,7 @@ const groups = {
     'position-tools', 'reference-curves', 'reference-integration',
     'surface-repair', 'vector-profile',
   ],
-  mcp: ['bridge-cancellation', 'mcp-bridge', 'mcp-v2'],
+  mcp: ['bridge-cancellation', 'mcp-bridge', 'mcp-v2', 'document-assets'],
   'local-fixtures': ['iges-import', 'iges-roundtrip'],
 };
 const fixturePaths = [
@@ -33,8 +33,8 @@ function stop(status, message, code) {
 }
 
 const group = process.argv[2] || 'portable';
-if (process.argv.length > 3 || !['portable', 'e2e', ...Object.keys(groups)].includes(group)) {
-  stop('FAIL', 'Usage: node scripts/test.mjs [portable|contracts|kernel|mcp|e2e|local-fixtures]', 1);
+if (process.argv.length > 3 || !['portable', 'e2e', 'e2e-m2a', 'e2e-m2a-portable', 'ui-m2a', ...Object.keys(groups)].includes(group)) {
+  stop('FAIL', 'Usage: node scripts/test.mjs [portable|contracts|kernel|mcp|e2e|e2e-m2a|ui-m2a|local-fixtures]', 1);
 }
 const expected = Object.values(groups).flat().map(name => `${name}.test.mjs`);
 const found = fs.readdirSync(path.join(root, 'tests')).filter(name => name.endsWith('.test.mjs'));
@@ -51,7 +51,14 @@ if (group === 'local-fixtures') {
 }
 
 let args;
-if (group === 'e2e') {
+if (group === 'e2e-m2a-portable') {
+  args = ['tests/m2a-portability.mjs'];
+} else if (group === 'e2e-m2a') {
+  args = ['tests/m2a-e2e.mjs'];
+} else if (group === 'ui-m2a') {
+  if (!process.env.WEBCAD_PLAYWRIGHT_CLI || !fs.existsSync(process.env.WEBCAD_PLAYWRIGHT_CLI)) stop('BLOCKED', 'Set WEBCAD_PLAYWRIGHT_CLI to the installed Playwright CLI JavaScript entrypoint; open the isolated webcad-m2a session first.', 2);
+  args = [process.env.WEBCAD_PLAYWRIGHT_CLI, '-s=webcad-m2a', 'run-code', '--filename', 'tests/m2a-ui.js'];
+} else if (group === 'e2e') {
   console.log('[e2e] Requires a task-owned isolated service and exactly one empty ready WebCAD test page. The test refuses an existing design. WEBCAD_TEST_URL defaults to http://127.0.0.1:17667/mcp.');
   args = ['tests/m1-e2e.mjs'];
 } else {
