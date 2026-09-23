@@ -38,7 +38,7 @@ export class CADViewport {
     this.renderer.domElement.addEventListener('pointerup',e=>{if(this.gizmo.axis||Date.now()<(this.suppressPickUntil||0)||!this.down||this.down[2]!==0||Math.hypot(e.clientX-this.down[0],e.clientY-this.down[1])>5)return;this.pick(e);});
     this.renderer.domElement.addEventListener('pointermove',e=>this.onMove(e));
     this.resizeObserver=new ResizeObserver(()=>this.resize());this.resizeObserver.observe(host);
-    this.renderer.setAnimationLoop(()=>{this.controls.update();this.renderer.render(this.scene,this.camera);});this.resize();this.updateHud();
+    this.frameSequence=0;this.renderer.setAnimationLoop(()=>{try{this.renderFrame();}catch(error){this.displayError=error.message;this.callbacks.onRenderError?.(error);}});this.resize();this.updateHud();
   }
   resize(){const {width,height}=this.host.getBoundingClientRect();if(width<1||height<1)return;this.camera.aspect=width/height;if(this.camera.isOrthographicCamera){this.camera.left=-this.camera.top*this.camera.aspect;this.camera.right=this.camera.top*this.camera.aspect;}this.camera.updateProjectionMatrix();this.renderer.setSize(width,height);}
   disposeObject(root){root.traverse(o=>{o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose();});}
@@ -183,6 +183,10 @@ export class CADViewport {
   }
   drawSketch(){this.clearGuides();const points=this.sketch.points.map(p=>new THREE.Vector3(p[0],p[1],.04));if(points.length>1)this.guideRoot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([...points,points[0]]),new THREE.LineBasicMaterial({color:0x008d7e,depthTest:false})));for(const point of points){const dot=new THREE.Mesh(new THREE.SphereGeometry(this.span*.007,10,6),new THREE.MeshBasicMaterial({color:0x008d7e}));dot.position.copy(point);this.guideRoot.add(dot);}this.overlay.querySelector('[data-count]').textContent=`${points.length} ${say('个顶点','vertices')}`;}
   cancelTask(){this.callbacks.onInteraction?.(null);this.sketch=null;this.measuring=null;this.controls.enableRotate=true;this.overlay.style.display='none';this.clearGuides();this.updateHud();}
+  markModel(context){this.modelContext={...context};this.displayError=null;}
+  renderFrame(){this.controls.update();this.renderer.render(this.scene,this.camera);this.renderedContext=this.modelContext?{...this.modelContext}:null;this.frameSequence++;this.displayError=null;}
+  async frame(){await new Promise(resolve=>requestAnimationFrame(resolve));this.renderFrame();return this.displayState();}
+  displayState(){return {model:this.modelContext||null,rendered:this.renderedContext||null,frame:this.frameSequence,status:this.displayError?'failed':this.renderedContext?'rendered':'pending',error:this.displayError||null,camera:{projection:this.camera.isOrthographicCamera?'orthographic':'perspective',position:this.camera.position.toArray(),target:this.controls.target.toArray(),up:this.camera.up.toArray()}};}
   screenshot(){this.renderer.render(this.scene,this.camera);return this.renderer.domElement.toDataURL('image/png');}
   destroy(){this.resizeObserver.disconnect();this.renderer.setAnimationLoop(null);this.controls.dispose();this.gizmo.dispose();this.disposeObject(this.scene);this.metals.dispose();this.renderer.dispose();}
 }

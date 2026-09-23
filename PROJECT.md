@@ -1,6 +1,14 @@
 # WebCAD project architecture
 
+## Default product path (2026-09-23 correction)
+
+The product is a static browser application. A normal user opens `dist/` through HTTPS or a localhost static host; the browser Worker runs Replicad/OpenCascade against the current document. The public integration target is `window.webcad.api`, with read-only `info/getState/searchTools/getTool/readDocs` and structured modeling, geometry, view, capture and browser-file methods. `src/page-api-docs.js` derives operation cards from the real registry and provides page-specific discovery without requiring a network service. Client access from an existing ChatGPT sidebar remains unverified until that actual client executes an authorized page call and returns its result.
+
+Node/npm, Vite, test runners and the old server remain development/history tooling. They are not runtime requirements for the static product. Normal startup must not depend on `/mcp`, `/ai-bridge`, asset transfer endpoints, a local converter, or a server welcome message. Static IGES import and server-backed vector conversion are unavailable until a real browser implementation exists. A generated Blob, initiated download and verified file-handle write are distinct outcomes.
+
 ## M2A document and file boundary (2026-09-23)
+
+Historical MCP implementation and its test evidence follow. This section records prior behavior, not the default static architecture or a page API acceptance result.
 
 `scripts/document-assets.mjs` adds nine public MCP file tools and local capability-protected raw-byte PUT/GET endpoints. `scripts/artifact-store.mjs` keeps bounded temporary resources (20 MiB each, 128 uploads/resources and 256 MiB total, 30 minute TTL). Only opaque IDs form storage paths. `scripts/file-transfer-client.mjs` is the real client adapter: an explicitly authorized existing directory, same-origin loopback transfers, SHA-256/size verification, file sync/readback and atomic no-overwrite hard-link commit. Generated, transferred, and client-confirmed written are separate states; the server cannot independently prove a remote client's disk durability.
 
@@ -24,18 +32,18 @@ WebCAD is an independent local project copied from CadViewer. The source CadView
 - `src/viewport.js`: Three.js display, camera, selection, topology highlighting and sketch interaction.
 - `src/ui.js`, `src/style.css`: Chinese CAD workspace, command dialogs, trees and properties.
 - `src/cad-worker.js`: persistent Replicad/OpenCascade WASM exact geometry worker, feature replay, tessellation and export.
-- `dist/`: Vite production output including local WASM/assets. Distribute it with installed server dependencies for offline launch; otherwise npm install is needed.
-- `scripts/serve.mjs`: Node built-in HTTP server; loopback port 667. `/healthz` identifies this server. Static paths accept GET/HEAD; /mcp accepts standard MCP POST; M2A file transfers use capability-protected `/api/assets` and `/api/artifacts/:id`. URL decoding, path containment and realpath containment prevent serving files outside mapped roots.
-- `start-server.cmd`: Windows startup, recognizes/reuses own service, refuses unrelated port conflicts, conditionally builds missing dist, starts hidden server via PowerShell, opens the default browser.
-- `cad-viewer/` and `cad-data/`: retained read-only viewer/resources, mapped independently by the static server.
+- `dist/`: Vite static production output including Worker/WASM/assets; serve by HTTPS or localhost static hosting with correct base URLs and MIME types. Node server dependencies do not belong in the browser runtime.
+- `scripts/serve.mjs`: legacy/development Node HTTP service, including the old MCP and transfer endpoints. It is not the normal user launch path.
+- `start-server.cmd`: legacy local launcher; do not present it as the static product entrypoint.
+- `cad-viewer/` and `cad-data/`: retained read-only viewer/resources; their old URL mapping does not establish static-subpath support.
 
 The app receives bytes selected by the user in the browser; geometry and files do not need a backend processing service. `.webcad` stores the feature sequence and imported source bytes. Imported STEP contains geometry, not recoverable upstream design history. Mesh display is derived from exact worker shapes; STEP/BREP export comes from those shapes, not reconstruction from triangles.
 
 ## Verification and delivery
 
-Run the Vite build after changes. User-facing acceptance must exercise commands and native project reopen through the UI, then inspect exported STEP independently where geometric correctness matters. The existing temporary native checker at `agent/temp/verify-step.py` uses a development machine's native CAD runtime and is not an application dependency. Keep actual results under `agent/output/`; do not claim tests from this architecture document.
+Run the Vite build after changes. User-facing page acceptance must exercise the public API against a static deployment, reopen a native project and inspect exported STEP independently where geometric correctness matters. The existing temporary native checker at `agent/temp/verify-step.py` uses a development machine's native CAD runtime and is not an application dependency. Keep actual results under `agent/output/`; do not claim tests from this architecture document.
 
-Node syntax checks do not prove HTTP behavior, CAD behavior or graphical quality. Verify the packaged static server after stopping only the task-owned development process. No external deployment is part of this project setup.
+Node syntax checks do not prove browser CAD behavior or graphical quality. Verify static assets at root and subpath, Worker/WASM loading and the page workflow directly. No external deployment is part of this project setup.
 
 ## Storage and licenses
 
@@ -46,6 +54,8 @@ Agent records belong under `agent/`, backups under timestamped `agent/backups/`,
 The current command set includes cylindrical hole cutting from a global X/Y/Z origin along a selected signed principal axis; linear patterns with per-copy XYZ translation; and circular patterns around an explicit principal axis and center. Pattern counts include the original and results are compound shapes. Full-circle placement omits a duplicate endpoint; partial-angle patterns include both endpoints. The viewport can switch orthographic/perspective projection without changing model geometry. These descriptions match the source command contract; operation acceptance remains in the recorded test results.
 
 ## Local MCP integration
+
+Legacy development history only; this is not the product integration path.
 
 Official MCP SDK Streamable HTTP runs at /mcp. scripts/mcp-bridge.mjs registers explicit-session tools and forwards allowed commands via /ai-bridge WebSocket to src/ai-bridge.js. The browser adapter calls the same main API as UI operations; no second kernel or arbitrary code evaluation exists. Every mutating request carries expectedRevision and is serialized per tab. The frontend checks cancellation/version again before commit. MCP export returns base64 data for the client to save. Connected pages update through the same rebuild/render path. SDK, ws and zod are runtime dependencies; launcher installs missing dependencies even if dist already exists. Configuration examples and tests are in agent/output/MCP.md; no user Codex configuration was changed.
 
