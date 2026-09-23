@@ -1,5 +1,11 @@
 # WebCAD
 
+## 2026-09-23 首批 AI 接口升级（M0/M1A/M1B）
+
+保留原 14 个 MCP 工具，增量提供 bootstrap、search_tools、get_tool、read_docs、get_state_v2、query_geometry、execute_v2，共 21 个工具。新入口严格校验工程/运行实例/版本，选择令牌绑定当前精确几何快照，幂等回执仅保证同一浏览器工程运行实例的内存范围。box、hole、multiHole、faceHole、fillet、chamfer、shell 已迁入 v2 严格契约，其余操作仍经旧接口调用。说明见 [M1 工具契约](docs/M1-TOOL-CONTRACTS.md)。
+
+本机复验使用 `npm test`、`npm run test:local-fixtures`；真实 MCP 验收须先在隔离端口启动 `node scripts/serve.mjs --port 17667` 并打开一个空测试页面，再运行 `npm run test:e2e`。构建仍为 `npm run build`。本批不提供跨重启 exactly-once、文件生命周期 API、关联参数或 80% 业务覆盖率保证。
+
 WebCAD 是一个本机运行的浏览器三维建模工作台，面向小型五金、板件、框扣和参数化实体设计。几何由浏览器中的 OpenCascade/Replicad 计算；项目服务仅绑定 `127.0.0.1:667`，并提供同机 MCP 接口供 AI 操作当前打开的模型。
 
 ## 当前功能

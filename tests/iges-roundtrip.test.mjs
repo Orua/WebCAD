@@ -4,7 +4,7 @@ import init from 'replicad-opencascadejs';
 import {convertIges} from '../scripts/iges-import.mjs';
 import {CadKernel} from '../src/cad-kernel.js';
 import {importIgesFile} from '../src/iges-import-client.js';
-const bytes=fs.readFileSync('G:/TEXT-TO-CAD/工程图3D_20260914/GC/HS13006.igs');
+const bytes=fs.readFileSync(process.env.WEBCAD_IGES_ROUNDTRIP_FIXTURE||'G:/TEXT-TO-CAD/工程图3D_20260914/GC/HS13006.igs');
 const packet=await convertIges({name:'HS13006.igs',data:bytes.toString('base64')});
 const fakeFile={name:'HS13006.igs',size:bytes.length,arrayBuffer:async()=>bytes};
 const imported=await importIgesFile(fakeFile,array=>Buffer.from(array).toString('base64'),async(url,request)=>{

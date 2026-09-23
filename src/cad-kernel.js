@@ -8,6 +8,7 @@ import { buildFittedSurface } from './fitted-surface.js';
 import { buildFaceThickness } from './surface-thickness.js';
 import { extractPlaneSection, extractFaceBoundary } from './reference-curves.js';
 import { sewFaces, surfaceTrim, diagnoseSurface } from './surface-repair.js';
+import { queryShapeGeometry } from './geometry-query.js';
 
 // This adapter owns every BRep handle; displayed topology IDs are array indices,
 // not OpenCascade's transient hash codes. It is also executable in Node tests.
@@ -428,6 +429,14 @@ export class CadKernel {
   }
   faceInfo(bodyId,faceId) {
     const {face,...info}=this.planarFace(this.activeShape(bodyId),faceId);dispose(face);return info;
+  }
+  async queryGeometry(bodyId, kind, filter = {}) {
+    const shape = this.activeShape(bodyId);
+    const result = queryShapeGeometry(shape, this.oc, kind, filter);
+    const bytes = new TextEncoder().encode(shape.serialize());
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    const geometryFingerprint = 'brep-sha256:' + Array.from(new Uint8Array(digest), value => value.toString(16).padStart(2, '0')).join('');
+    return { bodyId, ...result, geometryFingerprint };
   }
   measure(bodyId,topologyType,topologyId) {
     const shape=this.activeShape(bodyId);

@@ -1,5 +1,13 @@
 # WebCAD project architecture
 
+## M1 command boundary (2026-09-23)
+
+`src/command-service.js` validates v2 context/actions and calls the existing main transaction; it owns bounded in-memory receipts and snapshot-bound geometry selection tokens, without a second document or CAD kernel. `src/ui-selection-adapter.js` supplies missing UI topology only at the UI boundary. Explicit API topology is never replaced with UI selection.
+
+`src/operation-registry.js` derives all cards from the existing catalog and migrates seven verified operations to strict finite JSON validation through `src/contracts/operation-schema.js` (a documented fail-closed subset, not a general-purpose JSON Schema implementation). `src/ai-docs.js` exposes versioned help and hashes to Node and browser. `src/geometry-query.js` executes exact BRep queries in the existing Worker. `scripts/mcp-bridge.mjs` keeps the 14 legacy tools and adds seven v2 controls with structured output.
+
+Version-1 files retain a persistent `documentId`; opening a document creates a new `documentInstanceId`. Recovery writes use per-instance keys, retain legacy recovery reads and capture snapshots before asynchronous storage. Memory commit and display warnings are distinct. Persistence remains best-effort IndexedDB checkpointing, not durable atomic document/receipt commit. See `agent/output/M1_ACCEPTANCE.md` for local evidence and `docs/M1-TOOL-CONTRACTS.md` for public limits.
+
 WebCAD is an independent local project copied from CadViewer. The source CadViewer project is not a runtime dependency and must not be edited by WebCAD tasks.
 
 ## Runtime
