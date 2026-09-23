@@ -39,7 +39,7 @@ const FILE_LIMITS = Object.freeze({ maxBytes: 20 * 1024 * 1024, maxResources: 32
   maxTotalBytes: 64 * 1024 * 1024, ttlSeconds: 1800 });
 const unavailable = [
   { id: 'import.iges', title: 'IGES/IGS 导入', description: '当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。' },
-  { id: 'import.vector-server', title: 'DWG/DXF/PDF/AI 服务端矢量转换', description: '当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。' },
+  { id: 'import.vector-server', title: 'SVG/DWG/DXF/PDF/AI 服务端矢量转换', description: '当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。' },
 ];
 const pageWording = text => text
   .replaceAll('webcad_inspect_geometry(sessionId,bodyId,kind,topologyId)', 'queryGeometry(request) or measure(request)')

@@ -7,7 +7,7 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
   contracts: [
-    'page-api', 'browser-files', 'artifact-store', 'command-service', 'document-identity', 'logo-import-request', 'operation-registry',
+    'browser-logo-input', 'page-api', 'browser-files', 'artifact-store', 'command-service', 'document-identity', 'logo-import-request', 'operation-registry',
     'parameter-calculator', 'named-parameters', 'recovery-isolation', 'selection-contract',
     'tool-state', 'viewport-transform',
   ],

@@ -7,8 +7,8 @@
     "pageApiVersion": "1.0.0",
     "transport": "in-page",
     "entrypoint": "window.webcad.api",
-    "catalogHash": "sha256:a0ae4375727fcb7df3c95d81485ff0de108e46422e2323a91c12f5256009726c",
-    "docsHash": "sha256:99a039656d7932b9f4115e584456ede8de5e1fd91364c681870614699445ac00",
+    "catalogHash": "sha256:dad2379d1bc21c70c835cc5245ebf8dbb6862fdb4ea32e008b7e6c0f971a6443",
+    "docsHash": "sha256:c8c2e5d1e20c378994c3be497d89b847aba926367326a445109535fb483fb2c6",
     "units": {
       "length": "mm",
       "angle": "degrees",
@@ -10585,7 +10585,7 @@
     },
     {
       "id": "import.vector-server",
-      "title": "DWG/DXF/PDF/AI 服务端矢量转换",
+      "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
       "description": "当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。",
       "category": "unavailable",
       "version": "1.0.0",
@@ -10595,7 +10595,7 @@
       "errorCodes": [
         "CAPABILITY_UNAVAILABLE"
       ],
-      "docsHash": "sha256:0ca27d7d40cf15053ac09c3e3c23874f62be822990b98ed4755ad84c7969655f"
+      "docsHash": "sha256:93c42d3ea9334b83e5e982ceeb40019889e2e2bb058e3d63156451bfbcfbfab7"
     }
   ],
   "docs": {
