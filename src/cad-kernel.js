@@ -9,6 +9,8 @@ import { buildFaceThickness } from './surface-thickness.js';
 import { extractPlaneSection, extractFaceBoundary } from './reference-curves.js';
 import { sewFaces, surfaceTrim, diagnoseSurface } from './surface-repair.js';
 import { queryShapeGeometry } from './geometry-query.js';
+import { buildReferenceExtrude } from './reference-profile-extrude.js';
+import { buildReferenceLoft } from './reference-profile-loft.js';
 
 // This adapter owns every BRep handle; displayed topology IDs are array indices,
 // not OpenCascade's transient hash codes. It is also executable in Node tests.
@@ -103,7 +105,9 @@ export class CadKernel {
       case 'fittedSurface': return buildFittedSurface(p,cad);
       case 'thickenFace': return buildFaceThickness(source(),p,cad);
       case 'planeSection': return extractPlaneSection(source(),{plane:p.plane||'XY',offset:p.offset??0},cad);
-      case 'faceBoundary': return extractFaceBoundary(source(),p.faceId,cad);
+      case 'faceBoundary': return extractFaceBoundary(source(),p.faceId,cad,{boundary:p.boundary??'all'});
+      case 'referenceExtrude': return buildReferenceExtrude(source(),p,cad);
+      case 'referenceLoft': return buildReferenceLoft(sources,p,cad);
       case 'sewFaces': return sewFaces({refs:sources,tolerance:p.tolerance??0.01,makeSolid:p.makeSolid??false},cad);
       case 'surfaceTrim': {
         if(sources.length!==2)throw new Error('修剪需要源对象和实体刀具');
@@ -394,7 +398,7 @@ export class CadKernel {
           }
           active.set(current, feature);
         }
-        const keepOriginal = ['copy','planeSection','faceBoundary','surfaceTrim'].includes(feature.op) || (['mirror','extractSolid'].includes(feature.op) && feature.params?.keepOriginal !== false);
+        const keepOriginal = ['copy','planeSection','faceBoundary','surfaceTrim','referenceExtrude','referenceLoft'].includes(feature.op) || (['mirror','extractSolid'].includes(feature.op) && feature.params?.keepOriginal !== false);
         if (!keepOriginal) for (const id of feature.refs || []) active.delete(id);
       }
       const bodies = [...active].map(([id, feature]) => {

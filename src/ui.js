@@ -1,5 +1,6 @@
 import { toolDisabledReason } from './tool-state.js';
 import { TRIAL_SAMPLES } from './trial-samples.js';
+import { referenceProfileNames, referenceProfileFields, referenceProfileNotes } from './reference-profile-tools.js';
 import { METAL_FINISHES } from './metal-materials.js';
 import { QUICK_MODELS } from './quick-models.js';
 import { createLogoImportUI } from './browser-logo-input.js';
@@ -46,6 +47,7 @@ const fields = {
 const choiceNames={rectangle:'矩形',circle:'圆形',polygon:'多边形',roundedRectangle:'圆角矩形',arc:'圆弧',sector:'扇形',segment:'弓形','1':'轴正方向','-1':'轴负方向'};
 Object.assign(names,advancedNames); Object.assign(fields,advancedFields);
 Object.assign(names,referenceNames); Object.assign(fields,referenceFields); Object.assign(advancedNotes,referenceNotes);
+Object.assign(names,referenceProfileNames); Object.assign(fields,referenceProfileFields); Object.assign(advancedNotes,referenceProfileNotes);
 Object.assign(choiceNames,{shell:'曲面壳（未封口）',spline:'样条逼近'});
 Object.assign(names,{vectorProfile:'导入路径'});Object.assign(choiceNames,{solid:'实体',face:'平面'});
 addTranslations({'脱模斜度（°）':'Draft angle (degrees)','默认脱模斜度 7°，0° 为直壁；凹字向底部收窄，凸字向顶部收窄，承载面处轮廓保持原尺寸。':'Default draft is 7 degrees; 0 gives straight walls. Engraving narrows toward the bottom, embossing toward the top; the contour at the supporting face stays unchanged.'});
@@ -166,6 +168,7 @@ export function createUI(root,callbacks={}) {
  const toolHelp={selectTool:'取消当前工具，返回箭头选择',group:'将选中实体组合为复合体，保持各实体独立，不做布尔合并',explode:'将复合体中的实体拆成可独立选择和编辑的对象；单一实体请先分割',logo:'在一个选定平面上导入闭合 LOGO 轮廓并凹刻或凸起',cut:'相减顺序：先选保留主体，再选切除刀具',shell:'选面后移除开口面并生成壁厚',fillet:'选择指定边，或明确勾选全部边',chamfer:'选择指定边，或明确勾选全部边',sketch:'绘制闭合轮廓，随后拉伸成实体',faceHole:'在选定平面上向实体内部打孔',faceExtrude:'沿选定平面的法向增加或切除材料'};
  categories.创建.push(['参考曲线',['planeSection','faceBoundary']]);
  categories.加工.push(['曲面处理',['sewFaces','surfaceTrim']]);
+ categories.创建.push(['参考轮廓成体',['referenceExtrude','referenceLoft']]);
  function group(label){const g=element('div',{class:'ribbon-group'}),row=element('div',{class:'ribbon-tools'});g.append(row,element('div',{class:'ribbon-group-label'},label));q('.ribbon').append(g);return row;}
  function renderRibbon(){
   q('.ribbon').replaceChildren();toolButtons.length=0;

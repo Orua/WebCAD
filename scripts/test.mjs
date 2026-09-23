@@ -16,7 +16,7 @@ const groups = {
     'curved-logo', 'fitted-surface', 'geometry-query', 'group-explode',
     'hardware-templates', 'igs-tools', 'igs30-slot', 'igs30-templates',
     'incremental-rebuild', 'kernel', 'logo-draft', 'logo-kernel', 'logo-model',
-    'position-tools', 'reference-curves', 'reference-integration',
+    'position-tools', 'reference-curves', 'reference-integration', 'reference-profiles',
     'surface-repair', 'vector-profile',
   ],
   mcp: ['bridge-cancellation', 'mcp-bridge', 'mcp-v2', 'document-assets'],
@@ -32,7 +32,7 @@ function stop(status, message, code) {
   process.exit(code);
 }
 
-const browserGroups={'page-browser':'page-api-browser','parameters-browser':'page-parameters-browser','products-browser':'page-products-browser','page-boundaries':'page-boundaries-browser','page-ui':'page-ui-browser','trial-browser':'trial-browser'};
+const browserGroups={'page-browser':'page-api-browser','parameters-browser':'page-parameters-browser','products-browser':'page-products-browser','page-boundaries':'page-boundaries-browser','page-ui':'page-ui-browser','trial-browser':'trial-browser','reference-browser':'reference-profiles-browser'};
 const group = process.argv[2] || 'portable';
 if (process.argv.length > 3 || !['portable', 'e2e', 'e2e-m2a', 'e2e-m2a-portable', 'ui-m2a', ...Object.keys(browserGroups), ...Object.keys(groups)].includes(group)) {
   stop('FAIL', 'Usage: node scripts/test.mjs [portable|contracts|kernel|mcp|e2e|e2e-m2a|ui-m2a|local-fixtures|trial-browser]', 1);
@@ -52,7 +52,9 @@ if (group === 'local-fixtures') {
 }
 
 let args;
-if (Object.hasOwn(browserGroups,group)) {
+if(group==='reference-browser') {
+  args=['scripts/run-reference-browser.mjs'];
+} else if (Object.hasOwn(browserGroups,group)) {
   if(!process.env.WEBCAD_PLAYWRIGHT_CLI||!fs.existsSync(process.env.WEBCAD_PLAYWRIGHT_CLI))stop('BLOCKED','Set WEBCAD_PLAYWRIGHT_CLI and open an isolated webcad-page-api Chrome session; serve dist with scripts/serve-static.mjs.',2);
   args=[process.env.WEBCAD_PLAYWRIGHT_CLI,'-s=webcad-page-api','run-code','--filename',`tests/${browserGroups[group]}.js`];
 } else if (group === 'e2e-m2a-portable') {
