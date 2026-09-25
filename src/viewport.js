@@ -31,20 +31,22 @@ export class CADViewport {
     this.studioLights=[hemisphere,light,fill];
     this.modelRoot=new THREE.Group();this.scene.add(this.modelRoot);this.guideRoot=new THREE.Group();this.scene.add(this.guideRoot);
     this.anchorProxy=new THREE.Object3D();this.scene.add(this.anchorProxy);
-    this.anchorVisual=new THREE.Group();this.anchorVisual.add(new THREE.Mesh(new THREE.SphereGeometry(1.15,12,10),new THREE.MeshBasicMaterial({color:0xe56d23,depthTest:false})));this.anchorVisual.add(new THREE.AxesHelper(12));this.anchorVisual.renderOrder=900;this.scene.add(this.anchorVisual);
+    this.anchorVisual=new THREE.Group();this.anchorVisual.renderOrder=900;this.scene.add(this.anchorVisual);
+    this.anchorVisible=localStorage.getItem('webcad.anchorVisible')!=='false';
+    this.anchorMarker=document.createElement('span');this.anchorMarker.className='cad-anchor-orb';this.anchorMarker.setAttribute('aria-label','参考锚点');host.append(this.anchorMarker);
     this.anchorGizmo=new TransformControls(this.camera,this.renderer.domElement);this.anchorGizmo.setMode('translate');this.anchorGizmo.setSpace('world');this.anchorGizmo.setSize(.72);this.anchorGizmoHelper=this.anchorGizmo.getHelper();this.anchorGizmoHelper.visible=false;this.scene.add(this.anchorGizmoHelper);this.anchorDragEnabled=false;
     this.anchorGizmo.addEventListener('dragging-changed',event=>{this.controls.enabled=!event.value;});
-    this.anchorGizmo.addEventListener('mouseDown',()=>{this.anchorStart=this.anchorProxy.position.clone();});
+    this.anchorGizmo.addEventListener('mouseDown',()=>{this.anchorStart=this.anchorProxy.position.clone();this.anchorAxis=this.anchorGizmo.axis;});
     this.anchorGizmo.addEventListener('objectChange',()=>this.anchorVisual.position.copy(this.anchorProxy.position));
-    this.anchorGizmo.addEventListener('mouseUp',()=>{const origin=this.anchorProxy.position.toArray();if(this.anchorStart&&this.anchorStart.distanceTo(this.anchorProxy.position)>1e-8){Promise.resolve(this.callbacks.onWorkFrameMove?.(origin)).catch(error=>{this.anchorProxy.position.copy(this.anchorStart);this.anchorVisual.position.copy(this.anchorStart);this.callbacks.onTransformError?.(error);});}this.anchorStart=null;});
+    this.anchorGizmo.addEventListener('mouseUp',()=>{if(this.anchorStart&&this.lastPointerEvent){const candidates=this.findSnapCandidates(this.lastPointerEvent,{constraint:this.anchorAxis,start:this.anchorStart}),candidate=candidates.length?candidates[(this.snapCandidateIndex||0)%candidates.length]:null;if(candidate){this.anchorProxy.position.copy(candidate.point);this.anchorVisual.position.copy(candidate.point);}}const origin=this.anchorProxy.position.toArray(),start=this.anchorStart;this.anchorStart=null;this.anchorAxis=null;if(start&&start.distanceTo(this.anchorProxy.position)>1e-8){Promise.resolve(this.callbacks.onWorkFrameMove?.(origin)).catch(error=>{this.anchorProxy.position.copy(start);this.anchorVisual.position.copy(start);this.callbacks.onTransformError?.(error);});}});
     this.grid=new THREE.GridHelper(200,40,0x99acb8,0xd5dce3);this.grid.rotation.x=Math.PI/2;this.grid.position.z=-.01;this.scene.add(this.grid);
-    this.axes=new THREE.AxesHelper(20);this.scene.add(this.axes);this.raycaster=new THREE.Raycaster();this.pointer=new THREE.Vector2();this.span=50;
+    this.axes=new THREE.AxesHelper(20);this.axes.visible=false;this.scene.add(this.axes);this.raycaster=new THREE.Raycaster();this.pointer=new THREE.Vector2();this.span=50;
     this.hud=document.createElement('div');this.hud.style.cssText='position:absolute;left:18px;bottom:38px;pointer-events:none;color:#64748b;font:11px monospace;z-index:2';host.append(this.hud);
-    const badge=document.createElement('div');badge.style.cssText='position:absolute;right:18px;top:57px;pointer-events:none;color:#64748b;font-size:11px;z-index:2';badge.textContent='Z ↑  ·  毫米 mm';host.append(badge);
     this.overlay=document.createElement('div');this.overlay.className='viewport-task';this.overlay.style.cssText='display:none;position:absolute;left:50%;top:20px;transform:translateX(-50%);background:#fff;padding:14px 18px;border:1px solid #cbd5e1;border-radius:10px;box-shadow:0 8px 30px #14213320;z-index:12;min-width:320px;color:#243446;font-size:12px';host.append(this.overlay);
     this.renderer.domElement.addEventListener('pointerdown',e=>{this.down=[e.clientX,e.clientY,e.button];});
     this.renderer.domElement.addEventListener('pointerup',e=>{if(this.gizmo.axis||Date.now()<(this.suppressPickUntil||0)||!this.down||this.down[2]!==0||Math.hypot(e.clientX-this.down[0],e.clientY-this.down[1])>5)return;this.pick(e);});
     this.renderer.domElement.addEventListener('pointermove',e=>this.onMove(e));
+    window.addEventListener('keydown',e=>{if(e.key!=='Tab'||!(this.measuring||this.anchorDragEnabled)||!this.snapCandidates?.length||e.target instanceof HTMLElement&&(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)||e.target.isContentEditable))return;e.preventDefault();this.snapCandidateIndex=((this.snapCandidateIndex||0)+1)%this.snapCandidates.length;this.showSnapCandidate();});
     this.resizeObserver=new ResizeObserver(()=>this.resize());this.resizeObserver.observe(host);
     this.frameSequence=0;this.renderer.setAnimationLoop(()=>{try{this.renderFrame();}catch(error){this.displayError=error.message;this.callbacks.onRenderError?.(error);}});this.resize();this.updateHud();
   }
@@ -52,8 +54,9 @@ export class CADViewport {
   disposeObject(root){root.traverse(o=>{o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose();});}
   clearGuides(){for(const child of [...this.guideRoot.children]){this.disposeObject(child);this.guideRoot.remove(child);}}
   setWorkFrame(frame){if(!frame)return;this.anchorProxy.position.fromArray(frame.origin);this.anchorProxy.quaternion.fromArray(frame.quaternion);this.anchorVisual.position.copy(this.anchorProxy.position);this.anchorVisual.quaternion.copy(this.anchorProxy.quaternion);if(frame.locked)this.setAnchorDrag(false);}
+  setAnchorVisible(visible){this.anchorVisible=!!visible;this.anchorMarker.hidden=!this.anchorVisible;localStorage.setItem('webcad.anchorVisible',String(this.anchorVisible));}
   setAnchorDrag(enabled){this.anchorDragEnabled=!!enabled;this.anchorGizmoHelper.visible=this.anchorDragEnabled;if(this.anchorDragEnabled){this.setGizmo('off');this.anchorGizmo.attach(this.anchorProxy);}else{this.anchorGizmo.detach();this.controls.enabled=true;}}
-  cancelAnchorDrag(){if(this.anchorStart){this.anchorProxy.position.copy(this.anchorStart);this.anchorVisual.position.copy(this.anchorStart);this.anchorStart=null;}this.setAnchorDrag(false);}
+  cancelAnchorDrag(){if(this.anchorStart){this.anchorProxy.position.copy(this.anchorStart);this.anchorVisual.position.copy(this.anchorStart);this.anchorStart=null;}this.snapCandidates=[];this.setAnchorDrag(false);}
   setBodies(bodies,hidden=[]){
     // Keep unchanged GPU objects alive. Kernel render versions survive a rebuild
     // only when the exact geometry was reused (including undo/preview branches).
@@ -149,14 +152,33 @@ export class CADViewport {
     this.clipPlanes=enabled?[new THREE.Plane(normal,-Number(position))]:[];this.applyClipping();
   }
   isVisiblePoint(point){return this.clipPlanes.every(plane=>plane.distanceToPoint(point)>=-1e-7);}
-  snapPoint(event,fallback){
-    if(!this.snapEnabled)return fallback;const rect=this.renderer.domElement.getBoundingClientRect();let best=11,found=null;
+  findSnapCandidates(event,{constraint=null,start=null}={}){
+    if(!this.snapEnabled)return [];
+    const rect=this.renderer.domElement.getBoundingClientRect(),radius=event.pointerType==='touch'?22:10,all=[];
     for(const entry of this.objects.values()){if(!entry.root.visible)continue;
-      for(const item of entry.body.snapPoints||[]){const world=new THREE.Vector3(...item.point);if(!this.isVisiblePoint(world))continue;const projected=world.clone().project(this.camera);if(projected.z<-1||projected.z>1)continue;
-        const d=Math.hypot((projected.x+1)*rect.width/2+rect.left-event.clientX,(1-projected.y)*rect.height/2+rect.top-event.clientY);
-        if(d<best){best=d;found=world;}
+      for(const item of entry.body.snapPoints||[]){const point=new THREE.Vector3(...item.point);if(!this.isVisiblePoint(point))continue;
+        if(start&&constraint&&['X','Y','Z','XY','XZ','YZ'].includes(constraint)&&[0,1,2].some(i=>!constraint.includes('XYZ'[i])&&Math.abs(point.getComponent(i)-start.getComponent(i))>1e-5))continue;
+        const projected=point.clone().project(this.camera);if(projected.z<-1||projected.z>1)continue;
+        const distancePx=Math.hypot((projected.x+1)*rect.width/2+rect.left-event.clientX,(1-projected.y)*rect.height/2+rect.top-event.clientY);
+        if(distancePx<=radius)all.push({point,type:item.type,bodyId:entry.body.id,edgeId:item.edgeId,distancePx,projected});
       }
-    }return found||fallback;
+    }
+    all.sort((a,b)=>a.distancePx-b.distancePx||({endpoint:0,midpoint:1,center:2}[a.type]??3)-({endpoint:0,midpoint:1,center:2}[b.type]??3));
+    const visible=[],meshes=[...this.objects.values()].filter(entry=>entry.root.visible).map(entry=>entry.mesh),ray=new THREE.Raycaster(),epsilon=Math.max(.02,this.span*1e-4);
+    for(const candidate of all.slice(0,40)){
+      ray.setFromCamera(new THREE.Vector2(candidate.projected.x,candidate.projected.y),this.camera);
+      const hit=ray.intersectObjects(meshes,false).find(item=>this.isVisiblePoint(item.point));
+      if(hit&&hit.distance+epsilon<ray.ray.origin.distanceTo(candidate.point))continue;
+      if(!visible.some(other=>other.point.distanceTo(candidate.point)<1e-7&&other.type===candidate.type))visible.push(candidate);
+      if(visible.length>=12)break;
+    }
+    return visible;
+  }
+  showSnapCandidate(){const item=this.snapCandidates?.[this.snapCandidateIndex||0];if(!item)return;const label={endpoint:say('CAD 顶点','CAD vertex'),midpoint:say('真实边中点','Arc-length midpoint'),center:say('解析圆心','Circle center')}[item.type]||item.type;this.hud.textContent=`${label} · ${item.point.toArray().map(v=>Number(v.toFixed(4))).join(', ')} mm · ${this.snapCandidates.length>1?say('Tab 切换候选','Tab cycles candidates'):''}`;}
+  snapPoint(event,fallback){
+    const candidates=this.findSnapCandidates(event),same=this.lastSnapPosition&&Math.hypot(event.clientX-this.lastSnapPosition[0],event.clientY-this.lastSnapPosition[1])<3;
+    this.snapCandidates=candidates;if(!same)this.snapCandidateIndex=0;
+    return candidates[this.snapCandidateIndex||0]?.point||fallback;
   }
   ray(e){const r=this.renderer.domElement.getBoundingClientRect();this.pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);this.raycaster.setFromCamera(this.pointer,this.camera);this.raycaster.params.Line.threshold=this.span*.008;return this.raycaster;}
   pick(e){
@@ -179,9 +201,9 @@ export class CADViewport {
     else if(type==='face'&&hit){const index=hit.faceIndex*3;topologyId=hit.object.userData.body.faceGroups?.find(g=>index>=g.start&&index<g.start+g.count)?.faceId;}
     this.callbacks.onPick?.(hit?{id:hit.object.userData.bodyId,type,topologyId,point:(type==='face'?hit.point:this.snapPoint(e,hit.point)).toArray()}:null,e.shiftKey||e.ctrlKey||e.metaKey);
   }
-  onMove(e){if(!this.sketch)return;const p=this.ray(e).ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,0,1),0),new THREE.Vector3());if(p)this.hud.textContent=`XY · X ${p.x.toFixed(1)}  Y ${p.y.toFixed(1)} mm · ${this.sketch.points.length} ${say('点','points')}`;}
+  onMove(e){this.lastPointerEvent=e;if(this.sketch){const p=this.ray(e).ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,0,1),0),new THREE.Vector3());if(p)this.hud.textContent=`XY · X ${p.x.toFixed(1)}  Y ${p.y.toFixed(1)} mm · ${this.sketch.points.length} ${say('点','points')}`;return;}if(this.measuring||this.anchorDragEnabled){const moved=!this.lastSnapPosition||Math.hypot(e.clientX-this.lastSnapPosition[0],e.clientY-this.lastSnapPosition[1])>3;if(moved){this.snapCandidateIndex=0;this.lastSnapPosition=[e.clientX,e.clientY];}this.snapCandidates=this.findSnapCandidates(e,{constraint:this.anchorStart?this.anchorAxis:null,start:this.anchorStart});if(this.snapCandidates.length)this.showSnapCandidate();else this.updateHud();}}
   setDisplay(mode){this.mode=mode;for(const entry of this.objects.values()){entry.mesh.visible=mode!=='wire';entry.edges.visible=!entry.body.indices.length||mode!=='solid'||this.selectionMode==='edge';}}
-  toggleGrid(){this.grid.visible=!this.grid.visible;this.axes.visible=this.grid.visible;return this.grid.visible;}
+  toggleGrid(){this.grid.visible=!this.grid.visible;return this.grid.visible;}
   bounds(){const box=new THREE.Box3();for(const entry of this.objects.values())if(entry.root.visible){box.expandByPoint(new THREE.Vector3(...entry.body.bounds.min));box.expandByPoint(new THREE.Vector3(...entry.body.bounds.max));}if(box.isEmpty())box.set(new THREE.Vector3(-15,-15,-5),new THREE.Vector3(15,15,20));return box;}
   fit(){const box=this.bounds(),center=box.getCenter(new THREE.Vector3()),size=box.getSize(new THREE.Vector3());this.span=Math.max(size.x,size.y,size.z,5);const dir=this.camera.position.clone().sub(this.controls.target).normalize();const aspect=this.camera.aspect||1;const extent=this.span*Math.max(1,1/aspect)*1.55;const distance=extent/(2*Math.tan(THREE.MathUtils.degToRad(35/2)));if(this.camera.isOrthographicCamera){this.camera.top=extent/2;this.camera.bottom=-extent/2;this.camera.left=-extent*aspect/2;this.camera.right=extent*aspect/2;this.camera.zoom=1;}this.controls.target.copy(center);this.camera.position.copy(center).addScaledVector(dir,distance);this.camera.near=Math.max(.001,this.span/10000);this.camera.far=Math.max(10000,this.span*500);this.camera.updateProjectionMatrix();this.controls.update();this.updateHud();}
   setProjection(mode){const old=this.camera,aspect=old.aspect||1;if((mode==='orthographic')===!!old.isOrthographicCamera)return;const cam=mode==='orthographic'?new THREE.OrthographicCamera(-50,50,50,-50,.01,100000):new THREE.PerspectiveCamera(35,aspect,.01,100000);cam.aspect=aspect;cam.position.copy(old.position);cam.up.copy(old.up);cam.quaternion.copy(old.quaternion);this.camera=cam;this.gizmo.camera=cam;this.controls.object=cam;this.controls.update();this.fit();}
@@ -200,7 +222,7 @@ export class CADViewport {
   drawSketch(){this.clearGuides();const points=this.sketch.points.map(p=>new THREE.Vector3(p[0],p[1],.04));if(points.length>1)this.guideRoot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([...points,points[0]]),new THREE.LineBasicMaterial({color:0x008d7e,depthTest:false})));for(const point of points){const dot=new THREE.Mesh(new THREE.SphereGeometry(this.span*.007,10,6),new THREE.MeshBasicMaterial({color:0x008d7e}));dot.position.copy(point);this.guideRoot.add(dot);}this.overlay.querySelector('[data-count]').textContent=`${points.length} ${say('个顶点','vertices')}`;}
   cancelTask(){this.callbacks.onInteraction?.(null);this.sketch=null;this.measuring=null;this.controls.enableRotate=true;this.overlay.style.display='none';this.clearGuides();this.updateHud();}
   markModel(context){this.modelContext={...context};this.displayError=null;}
-  renderFrame(){this.controls.update();this.renderer.render(this.scene,this.camera);this.renderedContext=this.modelContext?{...this.modelContext}:null;this.frameSequence++;this.displayError=null;}
+  renderFrame(){this.controls.update();this.renderer.render(this.scene,this.camera);const position=this.anchorProxy.position.clone().project(this.camera),width=this.host.clientWidth,height=this.host.clientHeight;this.anchorMarker.style.transform=`translate(${(position.x+1)*width/2}px,${(1-position.y)*height/2}px)`;this.anchorMarker.hidden=!this.anchorVisible||position.z>1;this.renderedContext=this.modelContext?{...this.modelContext}:null;this.frameSequence++;this.displayError=null;}
   async frame(){await new Promise(resolve=>requestAnimationFrame(resolve));this.renderFrame();return this.displayState();}
   displayState(){return {model:this.modelContext||null,rendered:this.renderedContext||null,frame:this.frameSequence,status:this.displayError?'failed':this.renderedContext?'rendered':'pending',error:this.displayError||null,camera:{projection:this.camera.isOrthographicCamera?'orthographic':'perspective',position:this.camera.position.toArray(),target:this.controls.target.toArray(),up:this.camera.up.toArray()}};}
   screenshot(){this.renderer.render(this.scene,this.camera);return this.renderer.domElement.toDataURL('image/png');}

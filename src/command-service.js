@@ -24,7 +24,8 @@ function errorResult(e,requestId,s){return {status:'failed',requestId,error:{cod
 // A single browser document remains authoritative. No DOM, UI selection or kernel copy.
 export function createCommandService(adapter) {
   let tail=Promise.resolve(),instance=null;
-  const receipts=new Map(),tokens=new Map(),cursors=new Map();
+  const receipts=new Map(),tokens=new Map(),cursors=new Map(),referenceTokens=new Map();
+  let referenceTokenRevision=-1;
   function contract(op,args){
     if(!adapter.allowAdvisory||migratedOperationIds.includes(op))return assertOperationContract(op,args);
     const card=getOperation(op);
@@ -34,7 +35,7 @@ export function createCommandService(adapter) {
     return card;
   }
   function parameters(op,params){if(migratedOperationIds.includes(op))return normalizeOperationParams(op,params);finiteTree(params);validateOperationExample(op,params);return clone(params);}
-  function snapshot(){const s=adapter.snapshot();if(instance!==s.documentInstanceId){instance=s.documentInstanceId;receipts.clear();tokens.clear();cursors.clear();}return s;}
+  function snapshot(){const s=adapter.snapshot();if(instance!==s.documentInstanceId){instance=s.documentInstanceId;receipts.clear();tokens.clear();cursors.clear();referenceTokens.clear();referenceTokenRevision=-1;}return s;}
   function context(input,s,{revision=true}={}){
     object(input,['sessionId','documentId','documentInstanceId','expectedRevision'],'context');
     for(const k of ['sessionId','documentId','documentInstanceId'])string(input[k],`context.${k}`);
@@ -52,6 +53,9 @@ export function createCommandService(adapter) {
     return t;
   }
   async function verifyToken(t){const result=await adapter.query({bodyId:t.bodyId,kind:t.kind,filter:{}});if(result.geometryFingerprint!==t.geometryFingerprint)fail('STALE_REFERENCE','selectionToken','Geometry fingerprint changed','QUERY_GEOMETRY_AGAIN');}
+  function registerReferenceCandidates(contextValue,items){const s=snapshot();context(contextValue,s);if(referenceTokenRevision!==s.revision){referenceTokens.clear();referenceTokenRevision=s.revision;}if(referenceTokens.size+items.length>1000)fail('RESOURCE_LIMIT','queryReferences','Reference token cache is full');for(const item of items)referenceTokens.set(item.referenceId,clone(item));}
+  async function verifiedReference(referenceId,s){string(referenceId,'args.referenceId',128);const item=referenceTokens.get(referenceId);if(!item||item.context.documentInstanceId!==s.documentInstanceId||item.context.revision!==s.revision)fail('STALE_REFERENCE','args.referenceId','Reference belongs to an older model snapshot','QUERY_REFERENCES_AGAIN');const source=item.source;if(source?.bodyId){if(!s.bodies.some(body=>body.id===source.bodyId))fail('STALE_REFERENCE','args.referenceId','Source body is missing','QUERY_REFERENCES_AGAIN');if(source.geometryFingerprint){const kind=source.topologyKind==='face'?'face':'edge',current=await adapter.query({bodyId:source.bodyId,kind,filter:{}});if(current.geometryFingerprint!==source.geometryFingerprint)fail('STALE_REFERENCE','args.referenceId','Source geometry has changed','QUERY_REFERENCES_AGAIN');}}return item;}
+  async function verifyNamedPlacement(placement,s,refs){const a=placement?.sourceAnchor;if(a?.kind!=='named')return;const anchor=s.referenceSystem?.bodyAnchors?.find(item=>item.anchorId===a.anchorId&&item.status==='valid');if(!anchor||!refs.includes(anchor.bodyId)||!s.bodies.some(body=>body.id===anchor.bodyId))fail('STALE_REFERENCE','args.placement.sourceAnchor','Named source anchor is not on the current source body');const current=await adapter.query({bodyId:anchor.bodyId,kind:'edge',filter:{}});if(current.geometryFingerprint!==anchor.geometryFingerprint)fail('STALE_REFERENCE','args.placement.sourceAnchor','Named source anchor geometry changed','QUERY_REFERENCES_AGAIN');}
   function getState(input={}){
     const requestId=uid();let s;
     try{s=snapshot();object(input,['sessionId','include'],'input');string(input.sessionId,'sessionId');if(input.sessionId!==s.sessionId)fail('INSTANCE_MISMATCH','sessionId','Unknown current session');
@@ -98,13 +102,17 @@ export function createCommandService(adapter) {
       fingerprint=canonical({...input,context:{...input.context,sessionId:undefined}});
       const previous=receipts.get(key);
       if(previous){if(previous.fingerprint!==fingerprint)fail('IDEMPOTENCY_KEY_REUSED','idempotencyKey','Key has a different payload');return clone(previous.result);}
-      const allowPreview=['preview.commit','preview.cancel'].includes(input.action);
+      const allowPreview=['preview.update','preview.commit','preview.cancel'].includes(input.action);
       context(input.context,s);available(s,allowPreview);finiteTree(input);
       if(receipts.size>=1000)fail('RESOURCE_LIMIT','idempotencyKey','1000 receipts per document instance; no receipts are silently evicted');
       if(options.signal?.aborted)fail('CANCELLED','context','Cancelled before commit');
       const a=clone(input.args);let command,args,op,refs=[];
       switch(input.action){
-        case 'preview.start':case 'feature.add':{
+        case 'preview.start':{
+          if(a?.fileImport!==undefined){object(a,['fileImport'],'args');object(a.fileImport,['resourceId','name','mime','data','placement'],'args.fileImport');for(const key of ['resourceId','name','data'])string(a.fileImport[key],`args.fileImport.${key}`,key==='data'?28*1024*1024:200);if(!/\.(step|stp|brep|brp)$/i.test(a.fileImport.name))fail('FORMAT_UNSUPPORTED','args.fileImport.name','File preview requires STEP or BREP');if(a.fileImport.placement===undefined)fail('FRAME_INVALID','args.fileImport.placement','Explicit file placement required');command='preview_file';args={fileImport:{...a.fileImport,placement:resolvePlacement(a.fileImport.placement,s.referenceSystem,'import',{})},previewIdentity:{previewId:uid(),generation:1,baseRevision:s.revision,owner:'api'}};break;}
+        }
+        // Ordinary preview and add share the same feature contract.
+        case 'feature.add':{
           object(a,['op','opVersion','schemaHash','params','refs','name','selectionToken','placement'],'args');string(a.op,'args.op',60);op=a.op;
           contract(op,a);ids(a.refs,'args.refs');validateOperationRefs(op,a.refs);refs=a.refs;
           if(refs.some(id=>!s.bodies.some(b=>b.id===id)))fail('STALE_REFERENCE','args.refs','Reference is not a current body');
@@ -117,8 +125,21 @@ export function createCommandService(adapter) {
             if(op==='faceHole'&&t.ids.length!==1)fail('AMBIGUOUS_SELECTION','selectionToken','One face is required');
             if(['fillet','chamfer'].includes(op))a.params.edgeIds=t.ids;else if(['shell','smoothTransition'].includes(op))a.params.faceIds=t.ids;else a.params.faceId=t.ids[0];
           }
-          a.params=parameters(op,a.params);if(['transform','copy'].includes(op)&&a.params.mode&&a.placement===undefined)fail('FRAME_INVALID','args.placement','Spatial transform mode requires explicit placement');if(a.name!==undefined)string(a.name,'args.name',120);
-          command=input.action==='preview.start'?'preview_feature':'add_feature';args={op,params:a.params,refs,name:a.name,placement:resolvePlacement(a.placement,s.referenceSystem,op,a.params)};break;
+          a.params=parameters(op,a.params);if(['transform','copy'].includes(op)&&a.params.mode&&a.placement===undefined)fail('FRAME_INVALID','args.placement','Spatial transform mode requires explicit placement');if(a.name!==undefined)string(a.name,'args.name',120);await verifyNamedPlacement(a.placement,s,refs);
+          command=input.action==='preview.start'?'preview_feature':'add_feature';args={op,params:a.params,refs,name:a.name,placement:resolvePlacement(a.placement,s.referenceSystem,op,a.params),...(input.action==='preview.start'?{previewIdentity:{previewId:uid(),generation:1,baseRevision:s.revision,owner:'api'}}:{})};break;
+        }
+        case 'preview.update':{
+          object(a,['previewId','expectedGeneration','patch'],'args');string(a.previewId,'args.previewId',128);integer(a.expectedGeneration,'args.expectedGeneration',1);
+          if(!s.previewInfo||!s.previewDraft||s.previewInfo.previewId!==a.previewId||s.previewInfo.generation!==a.expectedGeneration)fail('STALE_REFERENCE','args.previewId','Preview identity or generation changed','READ_STATE_AND_REPLAN');
+          object(a.patch,['params','placement'],'args.patch');if(!Object.keys(a.patch).length)fail('PARAM_SCHEMA_INVALID','args.patch','Preview patch must change params or placement');
+          const draft=s.previewDraft;op=draft.op;
+          if(op==='import'){if(a.patch.params!==undefined||a.patch.placement===undefined)fail('PARAM_SCHEMA_INVALID','args.patch','File preview update only accepts placement');const placement=resolvePlacement(a.patch.placement,s.referenceSystem,'import',{});command='preview_file_update';args={placement,previewIdentity:{...s.previewInfo,generation:s.previewInfo.generation+1}};break;}
+          const merged={...draft.params,...(a.patch.params??{})};
+          const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,draft.params,a.patch.params??{}):parameters(op,merged);
+          const rawPlacement=a.patch.placement??(draft.placement?{version:1,frame:{kind:'snapshot',origin:draft.placement.frameSnapshot.origin,quaternion:draft.placement.frameSnapshot.quaternion},sourceAnchor:draft.placement.sourceAnchor}:undefined);
+          await verifyNamedPlacement(rawPlacement,s,draft.refs||[]);
+          const placement=resolvePlacement(rawPlacement,s.referenceSystem,op,params);
+          command='preview_update';args={op,params,refs:draft.refs,name:draft.name,placement,previewIdentity:{...s.previewInfo,generation:s.previewInfo.generation+1}};break;
         }
         case 'feature.edit':{
           object(a,['featureId','opVersion','schemaHash','params','name','placement'],'args');string(a.featureId,'args.featureId');
@@ -126,7 +147,7 @@ export function createCommandService(adapter) {
           const feature=s.features[index];op=feature.op;contract(op,a);
           if(a.params&&Object.keys(a.params).length&&s.features.slice(index+1).some(f=>['edgeIds','faceIds','faceId'].some(k=>Object.hasOwn(f.params,k))))fail('UNSAFE_LEGACY_REFERENCE','args.featureId','Downstream index references cannot be proven stable; edit rejected','RESELECT_TOPOLOGY');
           const merged=['transform','copy'].includes(op)&&a.params?.mode&&!feature.params.mode?a.params:{...feature.params,...a.params};
-          const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,feature.params,a.params):parameters(op,merged);if(['transform','copy'].includes(op)&&params.mode&&a.placement===undefined&&!feature.placement)fail('FRAME_INVALID','args.placement','Spatial transform mode requires explicit placement');if(a.name!==undefined)string(a.name,'args.name',120);
+          const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,feature.params,a.params):parameters(op,merged);if(['transform','copy'].includes(op)&&params.mode&&a.placement===undefined&&!feature.placement)fail('FRAME_INVALID','args.placement','Spatial transform mode requires explicit placement');if(a.name!==undefined)string(a.name,'args.name',120);await verifyNamedPlacement(a.placement,s,feature.refs||[]);
           command='edit_feature';args={featureId:a.featureId,params,name:a.name,...(Object.hasOwn(a,'placement')?{placement:resolvePlacement(a.placement,s.referenceSystem,op,params)}:{})};break;
         }
         case 'document.parameters':
@@ -135,8 +156,11 @@ export function createCommandService(adapter) {
           command='set_parameters';args=clone(a);break;
         case 'feature.remove':object(a,['bodyIds'],'args');ids(a.bodyIds,'args.bodyIds',true);if(a.bodyIds.some(id=>!s.bodies.some(b=>b.id===id)))fail('STALE_REFERENCE','args.bodyIds','Body is not current');refs=a.bodyIds;command='remove';args={ids:refs};break;
         case 'history.undo':case 'history.redo':case 'document.refresh':object(a,[],'args');command=input.action.split('.')[1];args={};break;
-        case 'preview.commit':case 'preview.cancel':object(a,[],'args');command=input.action;args={};break;
-        default:if(REFERENCE_ACTIONS.includes(input.action)){args={action:input.action,referenceSystem:applyReferenceAction(s.referenceSystem,input.action,a)};command='reference_action';break;}if(Object.hasOwn(EDITOR_ACTIONS,input.action)){({command,args}=validateEditorAction(input.action,a,s));break;}fail('PARAM_SCHEMA_INVALID','action','Unsupported action');
+        case 'preview.commit':case 'preview.cancel':{
+          if(s.previewInfo){object(a,['previewId','expectedGeneration'],'args');string(a.previewId,'args.previewId',128);integer(a.expectedGeneration,'args.expectedGeneration',1);if(a.previewId!==s.previewInfo.previewId||a.expectedGeneration!==s.previewInfo.generation)fail('STALE_REFERENCE','args.previewId','Preview identity or generation changed','READ_STATE_AND_REPLAN');}
+          else object(a,[],'args');command=input.action;args=clone(a);break;
+        }
+        default:if(REFERENCE_ACTIONS.includes(input.action)){let proof;if(input.action==='reference.setWorkFrame'&&a?.referenceId!==undefined){const item=await verifiedReference(a.referenceId,s);if(item.kind!=='point'||!item.worldPoint?.every((v,i)=>Math.abs(v-a.origin?.[i])<=1e-6))fail('SOURCE_ANCHOR_INVALID','args.referenceId','Reference point does not match requested origin');delete a.referenceId;}if(input.action==='reference.setBodyAnchor'){if(!s.bodies.some(body=>body.id===a?.bodyId))fail('STALE_REFERENCE','args.bodyId','Body is not current');const item=await verifiedReference(a.referenceId,s);if(item.kind!=='point'||item.source?.bodyId!==a.bodyId||!item.source.geometryFingerprint)fail('SOURCE_ANCHOR_INVALID','args.referenceId','Exact point on the specified body required');proof={bodyId:a.bodyId,worldPoint:item.worldPoint,geometryFingerprint:item.source.geometryFingerprint};}args={action:input.action,referenceSystem:applyReferenceAction(s.referenceSystem,input.action,a,proof)};command='reference_action';break;}if(Object.hasOwn(EDITOR_ACTIONS,input.action)){({command,args}=validateEditorAction(input.action,a,s));break;}fail('PARAM_SCHEMA_INVALID','action','Unsupported action');
       }
       context(input.context,snapshot());available(snapshot(),allowPreview);revisionBefore=s.revision;
       await adapter.execute(command,args,{signal:options.signal,expectedRevision:s.revision});
@@ -152,7 +176,8 @@ export function createCommandService(adapter) {
       if(command==='editor_action')result.validation={geometry:input.action==='body.explode'?'passed':'unchanged',editor:'passed'};
       if(command==='reference_action'){result.validation={geometry:'unchanged',reference:'passed'};result.referenceSystem=clone(after.referenceSystem);}
       if(args?.placement)result.resolvedPlacement={...describeResolvedPlacement(op,args.params,args.placement),geometryValidated:result.status==='committed',referenceQuality:'provided-coordinates',binding:'snapshot'};
-      if(input.action.startsWith('preview.'))result.preview={active:!!after.preview,computing:!!after.previewComputing};
+      if(args?.fileImport?.placement)result.resolvedPlacement={...describeResolvedPlacement('import',{},args.fileImport.placement),geometryValidated:false,referenceQuality:'provided-coordinates',binding:'snapshot'};
+      if(input.action.startsWith('preview.')){if(['preview.start','preview.update'].includes(input.action))result={...result,status:'previewing',commitState:'not_committed',validation:{geometry:'previewed',placement:args.placement||args.fileImport?.placement?'passed':'not_applicable'}};result.preview={active:!!after.preview,computing:!!after.previewComputing,...(after.previewInfo?{previewId:after.previewInfo.previewId,generation:after.previewInfo.generation,baseRevision:after.previewInfo.baseRevision}: {})};}
       receipts.set(key,{fingerprint,result:clone(result)});return result;
     }catch(e){
       const now=snapshot();let result=errorResult(e,requestId,now);
@@ -188,5 +213,5 @@ export function createCommandService(adapter) {
     };
     const job=tail.then(run);tail=job.catch(()=>{});return job;
   }
-  return {getState,queryGeometry,execute,fileCommand};
+  return {getState,queryGeometry,registerReferenceCandidates,execute,fileCommand};
 }

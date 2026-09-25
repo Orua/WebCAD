@@ -2,7 +2,7 @@
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "label": "读取文件字节",
   "synonyms": [
     "读取文件字节",
@@ -36,5 +36,5 @@
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:db7637441b2282e0aff4ee6a86995cde1b9fbd8fa69ffef86e18b12e8d981831"
+  "docsHash": "sha256:07ddde265085668abac4271dddfc119227327f65661fc5bba638dca102bf7109"
 }

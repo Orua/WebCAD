@@ -154,7 +154,20 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "选面增厚",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:3250d6ce2bbe2fa4b209586c8f1047f97870a3d4c4c791d5e0f307052008c354"
+  "docsHash": "sha256:48c6b6781121ac183ad90606ba8e6b8e5ce5c5f8a70e0ef3f59a03ee69a339e2"
 }

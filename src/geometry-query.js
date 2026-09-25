@@ -1,6 +1,7 @@
 import * as cad from 'replicad';
 import { topologyDetails } from './smooth-transition.js';
 import { planarFace } from './reference-profile-wires.js';
+import {halfLengthPoint} from './arc-length.js';
 
 const dispose = value => { try { value?.delete(); } catch {} };
 const surfaceTypes={plane:'plane',cylinder:'cylindre',cylindre:'cylindre',cone:'cone',sphere:'sphere',torus:'torus',bezier:'bezier_surface',bspline:'bspline_surface',revolution:'revolution_surface',extrusion:'extrusion_surface',offset:'offset_surface',other:'other_surface'};
@@ -87,6 +88,9 @@ function faceSummary(face, id, oc) {
 }
 function edgeSummary(edge, id, oc) {
   const item = { kind: 'edge', topologyId: id, edgeId: id, geomType: edge.geomType, curveType: edge.geomType.toLowerCase(), lengthMm: cad.measureLength(edge) };
+  item.startPoint=vectorTuple(edge.startPoint);
+  item.endPoint=vectorTuple(edge.endPoint);
+  item.lengthMidpoint=halfLengthPoint(edge,oc,item.lengthMm);
   if (item.geomType === 'BSPLINE_CURVE') {
     let adaptor,spline;
     try {adaptor=new oc.BRepAdaptor_Curve(edge.wrapped);spline=adaptor.BSpline();item.spline={degree:spline.Degree(),poleCount:spline.NbPoles(),knotCount:spline.NbKnots(),continuityAssessment:'not_computed'};}
@@ -146,7 +150,7 @@ export function queryShapeGeometry(shape, oc, kind, filter = {}) {
     parts.forEach((part, id) => {
       if (boundary && !boundary.some(edge => edge.isSame(part))) return;
       const item = kind === 'face' ? faceSummary(part, id, oc) : edgeSummary(part, id, oc);
-      if(kind==='edge')Object.assign(item,topology[id]);
+      if(kind==='edge'){Object.assign(item,topology[id]);item.midpoint=item.lengthMidpoint;}
       else item.edgeIds=topology.filter(edge=>edge.adjacentFaceIds.includes(id)).map(edge=>edge.edgeId);
       if (kind === 'face') {
         if (!matchesFace(item, normalized, bounds)) return;

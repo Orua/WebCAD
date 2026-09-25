@@ -251,6 +251,18 @@
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -276,5 +288,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:a236d209f784bf6d7c67e8049165c973ea5c375fa7ebd136a52a8ec5e114b148"
+  "docsHash": "sha256:4d96d256cfe558ad909100afcbb726a3f058ba8e44dbb44249e2d581cb8ae2cd"
 }

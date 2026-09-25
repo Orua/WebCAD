@@ -1,4 +1,5 @@
 import {placementPolicy} from './placement-policy.js';
+import {resolveAlignPose} from './align-mode.js';
 
 const fail=(code,path,message)=>{throw Object.assign(new Error(message),{code,path,recoveryAction:'READ_STATE_AND_REPLAN'});};
 const plain=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
@@ -30,7 +31,13 @@ export function validateReferenceSystem(system){
     if(typeof saved.frameId!=='string'||!saved.frameId||ids.has(saved.frameId)||!Number.isSafeInteger(saved.frameVersion)||saved.frameVersion<1||typeof saved.name!=='string'||!saved.name.trim()||saved.name.length>100)fail('FRAME_INVALID',path,'Invalid saved frame identity');
     validateFrame({origin:saved.origin,quaternion:saved.quaternion},path);ids.add(saved.frameId);
   }
-  if(system.bodyAnchors.length)fail('CAPABILITY_UNAVAILABLE','referenceSystem.bodyAnchors','Body anchor persistence is not enabled');
+  const anchorIds=new Set();
+  for(const [index,anchor] of system.bodyAnchors.entries()){
+    const path=`referenceSystem.bodyAnchors.${index}`;
+    fields(anchor,['anchorId','anchorVersion','bodyId','name','worldPoint','quaternion','geometryFingerprint','status'],path);
+    if(typeof anchor.anchorId!=='string'||!anchor.anchorId||anchorIds.has(anchor.anchorId)||!Number.isSafeInteger(anchor.anchorVersion)||anchor.anchorVersion<1||typeof anchor.bodyId!=='string'||!anchor.bodyId||typeof anchor.name!=='string'||!anchor.name.trim()||anchor.name.length>100||typeof anchor.geometryFingerprint!=='string'||!anchor.geometryFingerprint.startsWith('brep-sha256:')||!['valid','stale'].includes(anchor.status))fail('FRAME_INVALID',path,'Invalid body anchor identity or proof');
+    vector(anchor.worldPoint,3,`${path}.worldPoint`);validateFrame({origin:anchor.worldPoint,quaternion:anchor.quaternion},path);anchorIds.add(anchor.anchorId);
+  }
   return structuredClone(system);
 }
 export function rotateVector(q,v){
@@ -59,23 +66,28 @@ export function resolvePlacement(placement,system,op,params={}){
     const saved=system.savedFrames.find(x=>x.frameId===f.frameId);if(!saved||saved.frameVersion!==f.expectedFrameVersion)fail('STALE_REFERENCE','args.placement.frame','Saved frame changed');
     frame=validateFrame({origin:saved.origin,quaternion:saved.quaternion},'referenceSystem.savedFrames');sourceFrameRef={kind:'saved',frameId:f.frameId,frameVersion:f.expectedFrameVersion};
   }else fail('FRAME_INVALID','args.placement.frame.kind','Unknown frame kind');
-  const a=placement.sourceAnchor??{kind:'model-origin'};fields(a,['kind','point'],'args.placement.sourceAnchor');
-  if(!['model-origin','bottom-center','bounds-center','point'].includes(a.kind))fail('PLACEMENT_NOT_APPLICABLE','args.placement.sourceAnchor.kind','Unsupported source anchor');
+  const a=placement.sourceAnchor??{kind:'model-origin'};fields(a,['kind','point','anchorId'],'args.placement.sourceAnchor');
+  if(!['model-origin','bottom-center','bounds-center','point','named'].includes(a.kind))fail('PLACEMENT_NOT_APPLICABLE','args.placement.sourceAnchor.kind','Unsupported source anchor');
   if((policy==='T'||policy==='S'||policy==='X'&&!['transform','copy'].includes(op))&&a.kind!=='model-origin')fail('PLACEMENT_NOT_APPLICABLE','args.placement.sourceAnchor','This operation uses local coordinates without a source anchor');
   if(policy==='S'){vector(params.point,3,'args.params.point');if(op==='logo'&&params.placementVersion!==2)fail('PLACEMENT_NOT_APPLICABLE','args.params.placementVersion','Explicit logo placement requires version 2 target-face mode');}
   if(['transform','copy'].includes(op)){
     if(!params.mode)fail('COORDINATE_MODE_CONFLICT','args.params.mode','Explicit placement requires a transform mode');
     if(['positionMode','x','y','z','rx','ry','rz'].some(key=>Object.hasOwn(params,key)))fail('COORDINATE_MODE_CONFLICT','args.params','Legacy position fields conflict with the spatial mode');
-    if(params.mode==='align')fail('CAPABILITY_UNAVAILABLE','args.params.mode','Constrained align mode is not enabled in this stage');
+    if(params.mode==='align'){if(a.kind!=='model-origin')fail('COORDINATE_MODE_CONFLICT','args.placement.sourceAnchor','Align mode declares its source point explicitly');resolveAlignPose(params,frame);}
     if(params.mode==='translate')vector(params.delta,3,'args.params.delta');
     else if(params.mode==='toPoint'){vector(params.targetPoint,3,'args.params.targetPoint');if(params.orientation!==undefined&&!['preserve','align-frame'].includes(params.orientation))fail('PARAM_SCHEMA_INVALID','args.params.orientation','Invalid orientation');}
     else if(params.mode==='rotate'){vector(params.pivot,3,'args.params.pivot');vector(params.axisVector,3,'args.params.axisVector');if(Math.hypot(...params.axisVector)<=1e-12||!Number.isFinite(params.angleDeg))fail('PARAM_RANGE_INVALID','args.params','Rotate needs a nonzero axis and finite angle');}
     else if(params.mode==='scale'){vector(params.pivot,3,'args.params.pivot');if(!Number.isFinite(params.scale)||params.scale<=0)fail('PARAM_RANGE_INVALID','args.params.scale','Scale must be positive');}
+    else if(params.mode==='align'){}
     else fail('PARAM_SCHEMA_INVALID','args.params.mode','Unknown spatial mode');
   }
   if(op==='referenceExtrude')vector(params.direction,3,'args.params.direction');
-  if(a.kind==='point')vector(a.point,3,'args.placement.sourceAnchor.point');else if(Object.keys(a).length!==1)fail('FRAME_INVALID','args.placement.sourceAnchor','Unexpected source point');
-  const sourcePoint=a.kind==='point'?a.point:a.kind==='model-origin'?[0,0,0]:op==='box'?[params.width/2,params.depth/2,a.kind==='bounds-center'?params.height/2:0]:null;
+  if(a.kind==='point')vector(a.point,3,'args.placement.sourceAnchor.point');
+  else if(a.kind==='named'){if(!['transform','copy'].includes(op)||Object.keys(a).length!==2||typeof a.anchorId!=='string'||!a.anchorId)fail('PLACEMENT_NOT_APPLICABLE','args.placement.sourceAnchor','Named anchors require a current transform/copy source');}
+  else if(Object.keys(a).length!==1)fail('FRAME_INVALID','args.placement.sourceAnchor','Unexpected source point');
+  const named=a.kind==='named'?system.bodyAnchors.find(item=>item.anchorId===a.anchorId&&item.status==='valid'):null;
+  if(a.kind==='named'&&!named)fail('STALE_REFERENCE','args.placement.sourceAnchor.anchorId','Named source anchor is missing or stale');
+  const sourcePoint=a.kind==='named'?[...named.worldPoint]:a.kind==='point'?a.point:a.kind==='model-origin'?[0,0,0]:op==='box'?[params.width/2,params.depth/2,a.kind==='bounds-center'?params.height/2:0]:null;
   if(sourcePoint?.some(n=>!Number.isFinite(n)))fail('FRAME_INVALID','args.params','Source dimensions must be finite');
   return {version:1,resolverVersion:1,frameSnapshot:frame,sourceAnchor:structuredClone(a),sourceFrameRef,sourcePoint};
 }
@@ -84,9 +96,10 @@ export function validateResolvedPlacement(placement,op){
   fields(placement,['version','resolverVersion','frameSnapshot','sourceAnchor','sourceFrameRef','sourcePoint'],path);
   if(placement.version!==1||placement.resolverVersion!==1||!['C','T','S','X'].includes(placementPolicy(op)))fail('FRAME_INVALID',path,'Unsupported resolved placement');
   validateFrame(placement.frameSnapshot,`${path}.frameSnapshot`);
-  fields(placement.sourceAnchor,['kind','point'],`${path}.sourceAnchor`);
-  if(!['model-origin','bottom-center','bounds-center','point'].includes(placement.sourceAnchor.kind))fail('FRAME_INVALID',`${path}.sourceAnchor.kind`,'Unknown source anchor');
+  fields(placement.sourceAnchor,['kind','point','anchorId'],`${path}.sourceAnchor`);
+  if(!['model-origin','bottom-center','bounds-center','point','named'].includes(placement.sourceAnchor.kind))fail('FRAME_INVALID',`${path}.sourceAnchor.kind`,'Unknown source anchor');
   if(placement.sourceAnchor.kind==='point')vector(placement.sourceAnchor.point,3,`${path}.sourceAnchor.point`);
+  else if(placement.sourceAnchor.kind==='named'){if(typeof placement.sourceAnchor.anchorId!=='string'||!placement.sourceAnchor.anchorId||Object.keys(placement.sourceAnchor).length!==2)fail('FRAME_INVALID',`${path}.sourceAnchor`,'Invalid named anchor');}
   else if(Object.keys(placement.sourceAnchor).length!==1)fail('FRAME_INVALID',`${path}.sourceAnchor`,'Unexpected anchor point');
   if(placement.sourcePoint!==null)vector(placement.sourcePoint,3,`${path}.sourcePoint`);
   fields(placement.sourceFrameRef,['kind','frameId','frameVersion'],`${path}.sourceFrameRef`);
@@ -96,7 +109,7 @@ export function validateResolvedPlacement(placement,op){
   if(ref.kind==='saved'&&(typeof ref.frameId!=='string'||!ref.frameId))fail('FRAME_INVALID',`${path}.sourceFrameRef.frameId`,'Missing saved frame ID');
   return structuredClone(placement);
 }
-export function describeResolvedPlacement(op,params,resolved){
+export function describeResolvedPlacement(op,params={},resolved){
   const frame=resolved.frameSnapshot,point=p=>worldPoint(frame,p),vector=v=>rotateVector(frame.quaternion,v),axis={X:[1,0,0],Y:[0,1,0],Z:[0,0,1]}[params.axis||'Z'];
   const base={frameSnapshot:frame,sourcePoint:resolved.sourcePoint,coordinateSemantics:'explicit-local-frame',placementValidated:true,geometryValidated:false};
   if(['hole','slot'].includes(op))return {...base,worldPoint:point([params.x??0,params.y??0,params.z??0]),worldAxis:vector(axis.map(v=>v*(params.direction??1)))};
@@ -112,6 +125,7 @@ export function describeResolvedPlacement(op,params,resolved){
     if(params.mode==='toPoint')return {...base,worldPoint:point(params.targetPoint)};
     if(params.mode==='rotate')return {...base,worldPoint:point(params.pivot),worldAxis:vector(params.axisVector)};
     if(params.mode==='scale')return {...base,worldPoint:point(params.pivot)};
+    if(params.mode==='align'){const pose=resolveAlignPose(params,frame);return {...base,worldPoint:pose.targetPoint,worldAxis:pose.worldAxis,sourcePoint:pose.sourcePoint,fullyConstrained:true};}
   }
   return {...base,worldPoint:[...frame.origin]};
 }

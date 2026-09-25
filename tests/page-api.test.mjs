@@ -42,6 +42,14 @@ test('editor discovery covers every registered UI route and supports paginated i
   assert.equal(getTool({id:'body.appearance'}).minimalExample.args.color,'#e87939');
   const page=readDocs({docId:'api.ui-coverage',limitChars:1000});assert(page.nextCursor);
 });
+test('file preview resolves only a registered STEP resource before entering the command queue',async()=>{
+ const f=fixture();let request;f.host.execute=async input=>{request=input;return {status:'previewing'};};
+ const registered=await f.api.files.register({name:'source.step',data:new Uint8Array([1,2,3])});
+ const placement={version:1,frame:{kind:'world'},sourceAnchor:{kind:'model-origin'}};
+ const result=await f.api.execute({context:context(),idempotencyKey:'file-preview',action:'preview.start',args:{fileImport:{resourceId:registered.resourceId,placement}}});
+ assert.equal(result.status,'previewing');assert.equal(request.args.fileImport.name,'source.step');assert.equal(request.args.fileImport.data,'AQID');
+ assert.equal((await f.api.execute({context:context(),idempotencyKey:'bad',action:'preview.start',args:{fileImport:{resourceId:'missing',placement}}})).error.code,'RESOURCE_EXPIRED');
+});
 test('explicit view controls validate before host mutation and point measurement states its source',async()=>{
   const f=fixture();
   for(const args of [{display:'bad'},{snap:1},{grid:'yes'},{camera:{position:[0,0,0],target:[0,0,0]}},{gizmo:'scale'},{selectionMode:'vertex'},{language:'de'}]){

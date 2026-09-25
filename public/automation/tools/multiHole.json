@@ -282,7 +282,19 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "多位置打孔",
+  "placementPolicy": {
+    "mode": "tool-frame",
+    "placementSupported": true,
+    "originUsage": "cutter-start-reference",
+    "orientationUsage": "cutter-direction-and-cross-section",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:7975b19873e54e559127b2ae157e612389572f05048d1ace6a2ad7fb3a550fd1"
+  "docsHash": "sha256:e807b5b1dfe2061294c937cd40b69bde82ea82ad10745929eb13853ea1a4e87b"
 }

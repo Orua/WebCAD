@@ -1,5 +1,13 @@
 # WebCAD 页面 API
 
+## 工作基准与来源基点（v1.8）
+
+当前用户界面将 `referenceSystem.workFrame` 呈现为唯一“参考锚点”：可见小号呼吸球可隐藏，编辑时先预览草稿，再点击“应用锚点”提交一次正式 `reference.setWorkFrame`。原始世界坐标系不提供可见编辑入口，现有 API 坐标语义保持兼容。新增模型仅在占用当前锚点位置时使其沿 Z 向上自动避让；单纯在旁边增加高度不会挪动锚点。显隐属于本地 UI 偏好，不改变工程 revision。
+
+连接后先读 `connect({queries:["基准 放置"],includeContracts:true})` 的 `requestContext` 和工具卡；工具卡 `placementPolicy` 说明当前操作能否放置、旧世界坐标与新局部坐标的区别。新建板件的最小例子在 [frame-placement.js](examples/frame-placement.js)。`reference.setWorkFrame` 使用最新 revision 和幂等键；`feature.add` 的 `placement:{version:1,frame:{kind:"work",expectedFrameVersion},sourceAnchor:{kind:"bottom-center"}}` 冻结当前工作基准。`queryReferences` 返回精确/派生类型、几何指纹与 `referenceId`，最近边点或修剪面点必须提供 `near`；跨 revision、工程实例或几何修改后重新查询。`reference.setBodyAnchor` 只能用当前对象的精确点 `referenceId`。`transform`/`copy` 的 `align` 必须给足源点/轴/面内方向、目标点/轴/面内方向及方向关系；欠约束明确失败。
+
+普通预览 `preview.start` 后按 `previewId` 和 `generation` 调用 `preview.update`、`preview.commit` 或 `preview.cancel`。文件预览使用 `fileImport:{resourceId,placement}`，只能更新 placement；旧代次不能提交。批次 `run` 的 `execute` 步骤透传动作和参数，但不是全有全无事务。`files.save` 只生成资源，必须经下载或校验写入后才算落盘。未知 placement 字段、非有限坐标及混用旧新定位都应拒绝。
+
 首次调用优先使用 `window.webcad.api.connect({queries:[能力关键词]})`，再用 `getTools({ids})` 批量读卡。按需说明、离线工具库和缓存失效规则见 [AI 工具发现](AI-DISCOVERY.zh-CN.md)。本页后续为详细配方和接口参考，不需要首次连接全文读取。
 
 ## 从 DXF 正视与侧视校验圆线圈

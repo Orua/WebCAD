@@ -2,7 +2,7 @@
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "label": "导入",
   "synonyms": [
     "导入",
@@ -24,6 +24,18 @@
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": "registered-file-only"
+  },
   "caveats": [
     "IGES requires unavailable local conversion in the static build."
   ],
@@ -38,5 +50,5 @@
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:fd90b2f0e5a2efa57ded1a3ff0605b3ab2d703406c4ddb021c3cd80747cfe33c"
+  "docsHash": "sha256:e9cba991e016304c6e610061c1cd2a235abebbffeda69f2c5f3a2125cf61960b"
 }

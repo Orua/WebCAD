@@ -2,7 +2,7 @@
   "id": "queryGeometry",
   "title": "queryGeometry",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,limit?,cursor?})。",
   "synonyms": [
     "queryGeometry",
@@ -24,5 +24,5 @@
     "NO_MATCH",
     "AMBIGUOUS_SELECTION"
   ],
-  "docsHash": "sha256:0f7992c7120c16f6ff9c57bc7db610f2eeece2f78ab0e7c8860f179ec8095192"
+  "docsHash": "sha256:bfc522f1b5f206c8d4b90e412f7786c3ada319e79799ec941f96e61fa1419949"
 }

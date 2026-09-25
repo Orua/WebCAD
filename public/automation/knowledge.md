@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.7.0 · sha256:a1db56c16edf3782b06dccf675d5fdb156a1b46ebf21c1035e3182e6a4421ebd
+API 1.8.0 · sha256:2ef50b44c1d6f0c7dc944f1972d7eee49537bbb87461ff35c2607192ae338f35
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -39,7 +39,7 @@ traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBo
 
 ## api.editor
 
-所有编辑动作均使用 execute({context,idempotencyKey,action,args}) 或 run 的 execute 步骤。先 getTool({id:动作名称})，不要猜字段。document.rename 修改工程名称；feature.rename 可改导入件名称；body.visibility 指定 bodyIds/visible；body.appearance 设置 color/finish；document.appearance 设置工程默认 finish；body.explode 拆多实体组合。颜色 #RRGGBB，null 重置；finish:null 跟随工程，design 显示原色，金属材质暂时盖住原色但保留其数值。getState().colors/appearance/renderFinish/hidden 可读回。外观/显隐/改名不重算几何，保存到 .webcad 且支持撤销。preview.start 与 feature.add 相同输入；preview.commit/cancel 的 args={}。预览开始/取消不提交工程，检查回执 preview.active，随后读取 getState().preview。
+所有编辑动作均使用 execute({context,idempotencyKey,action,args}) 或 run 的 execute 步骤。先 getTool({id:动作名称})，不要猜字段。document.rename 修改工程名称；feature.rename 可改导入件名称；body.visibility 指定 bodyIds/visible；body.appearance 设置 color/finish；document.appearance 设置工程默认 finish；body.explode 拆多实体组合。颜色 #RRGGBB，null 重置；finish:null 跟随工程，design 显示原色，金属材质暂时盖住原色但保留其数值。getState().colors/appearance/renderFinish/hidden 可读回。外观/显隐/改名不重算几何，保存到 .webcad 且支持撤销。preview.start 的普通特征 args 同 feature.add；文件来源用 fileImport:{resourceId,placement}。回执返回 previewId/generation，更新用 preview.update 的 expectedGeneration，提交或取消也必须带当前预览身份；旧 UI 预览继续接受空 args。草稿不改工程 revision。
 
 ## api.execute
 
@@ -73,7 +73,7 @@ queryGeometry({context,bodyId,kind:"face"|"edge",filter:{},requireUnique:false,l
 
 ## api.references
 
-工作基准属于工程元数据；世界原点固定不动。getState().referenceSystem.workFrame 给出 origin、quaternion、locked、frameVersion。通过 execute 的 reference.setWorkFrame、resetWorkFrame、setLocked 修改，每次成功写入增加工程 revision，可撤销、不重建 BRep。feature.add/feature.edit 可显式传 placement:{version:1,frame:{kind:"world"|"snapshot"|"work"|"saved",...},sourceAnchor:{kind:"model-origin"|"bottom-center"|"bounds-center"|"point",point?}}。work 必须传 expectedFrameVersion。持久化特征保存 frameSnapshot，后续移动工作基准不会移动旧特征。独立创建 C、刀具 T、faceHole/logo、transform/copy 的新模式，以及镜像、阵列、分割、截面、referenceExtrude 支持 placement。N 类拓扑操作和旧 curvedLogo 不接受无意义定位。transform/copy 的新 mode 为 translate、toPoint、rotate、scale；align 尚未开放。box 用 bottom-center 时底面中心对准锚点；刀具局部点和轴按基准变换。保存工程使用 version:2，仍可打开旧 version:1 工程。
+世界原点不可修改；工作基准是工程元数据，getState().referenceSystem.workFrame 返回 origin/quaternion/locked/frameVersion。reference.setWorkFrame、resetWorkFrame、setLocked 与保存/激活/改名/删除具名基准均经 execute 的 revision 与幂等检查，可撤销且不移动旧实体。queryReferences({context,kind:"point"|"axis"|"frame",bodyIds,filter:{types?,near?},limit?,offset?,requireUnique?}) 返回精确 B-Rep 或明确派生候选、referenceId、几何指纹、歧义和分页；edge-nearest/trimmed-face-point 必须给 near:{point:[x,y,z],radiusMm}。圆心不冒充面内点；凹面/有孔面面积重心标为不保证落在修剪区域。referenceId 在工程 revision、实例或几何指纹变化后失效。reference.setBodyAnchor 需要当前对象的精确点 referenceId、bodyId、name、单位 quaternion；保存版本和指纹。已知刚体 transform/copy 继承锚点，改形无法证明映射时标记 stale，named 锚点定位拒绝旧来源。placement:{version:1,frame:{kind:"world"|"snapshot"|"work"|"saved",...},sourceAnchor:{kind:"model-origin"|"bottom-center"|"bounds-center"|"named"|"point",anchorId?,point?}}；work/saved 要对应版本，历史保存 frameSnapshot。各工具卡 placementPolicy 声明定位是否适用。transform/copy 新 mode 有 translate、toPoint、rotate、scale、align；align 必须给源/目标点、轴、面内方向、同向/反向、间隙和扭转角，缺失或退化拒绝。旧世界坐标 API 语义保留。新版工程 version:2，仍读取 version:1。
 
 ## api.reliability
 
@@ -126,15 +126,38 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
       "reference.setWorkFrame"
     ],
     "method": "execute",
-    "usage": "UI 中约束拖动锚点，松手时只提交一次 reference.setWorkFrame。"
+    "usage": "UI 中约束拖动参考锚点，松手仅更新任务草稿；用户点击应用后提交一次 reference.setWorkFrame。"
+  },
+  "anchorVisibility": {
+    "tools": [
+      "getUILayout",
+      "getState"
+    ],
+    "method": "getUILayout",
+    "usage": "参考锚点呼吸球显隐为本地 UI 偏好，不改变工程、固定原始坐标或几何 revision。"
+  },
+  "commandSearch": {
+    "tools": [
+      "searchTools"
+    ],
+    "method": "searchTools",
+    "usage": "全局命令搜索使用现有工具名称与 ID；AI 可直接 searchTools，不需打开对话框。"
   },
   "reference.snapNearest": {
     "tools": [
-      "queryReferences",
+      "queryGeometry",
       "reference.setWorkFrame"
     ],
     "method": "execute",
-    "usage": "从选定边的当前精确端点或圆心候选中选最近点，再提交 reference.setWorkFrame。"
+    "usage": "查询选定 CAD 边的精确端点、弧长中点与解析圆心，明确选中一个候选后提交工作基准。"
+  },
+  "reference.alignSelectedFace": {
+    "tools": [
+      "queryGeometry",
+      "reference.setWorkFrame"
+    ],
+    "method": "execute",
+    "usage": "选定当前精确平面面片，读取法向；以当前工作 X 作为面内方向，确认后更新工作基准方向。"
   },
   "renderQuality": {
     "tools": [
@@ -1294,9 +1317,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "高级放样",
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:2de4bf31837ed2426bf3cfbaac6f5e8ea39171c8fc94df76067e5efe68cbf0dd"
+  "docsHash": "sha256:2283b9246731bf3472c6b04a326ad214bb982e4ea227c9a041826cb97cd29d6e"
 }
 ```
 
@@ -1639,9 +1674,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "解析线弧轮廓",
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:1bfe28e9b221d67dc753b1d91234001a0719c09e3238e34f677cef9a31f58abd"
+  "docsHash": "sha256:ca79a9ddeef0a619fa6b28cb59030226dde1aed51df1fd59d14cc59c70c47b93"
 }
 ```
 
@@ -1810,9 +1857,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "整件圆边",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:15ec33fd39990dd5cee5ec1e52a0b73f8dd43986de2399e25b92da83eb17c2ae"
+  "docsHash": "sha256:1118af9792eea3f68d1c3c735164ff34ea707041ffbfade0f0b7b3e21d939407"
 }
 ```
 
@@ -1997,9 +2057,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "长方体",
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "bottom-center",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:a91b051d37d3d0a5eead1a960c7a09f3a38f3d7466f6e8918b55f79d179cbf4d"
+  "docsHash": "sha256:1a5c42c44adaba15d925bf79ce66bdc3bc9dc8dc2dd0bcf8c9dfa8e9d6d6cb35"
 }
 ```
 
@@ -2236,9 +2308,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "倒角",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:38c18c05d33103fd9c56a6272066abb1a4cffd2188fe1eac3e83610de1fc3bed"
+  "docsHash": "sha256:d626df45b49b0c2dbbda5f9b28ddf838d404b174484e50634c9009bc003aba38"
 }
 ```
 
@@ -2426,9 +2511,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "环形阵列",
+  "placementPolicy": {
+    "mode": "spatial-operation",
+    "placementSupported": true,
+    "originUsage": "axis-plane-pivot-or-vector",
+    "orientationUsage": "declared-transform-or-direction",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:ca4fe54786b255018f46fc75ed7b241dc24e469147b16ecbcb424a33e21ab87a"
+  "docsHash": "sha256:ca72e651d93d723094d277ef735d1eb21c4a40642f3efd97dad4092fae240591"
 }
 ```
 
@@ -2596,9 +2693,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "圆锥",
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "bottom-center",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:4da414de9b462edfd38990c404564e9ce6ae07438ca981131ce157f1b29f6b1b"
+  "docsHash": "sha256:154d0e8a2a5d72f1876f296edb299d23249f9154caf9ce5c301dd0b0ba23487d"
 }
 ```
 
@@ -2706,6 +2815,67 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "angleDeg": {
         "type": "number",
         "description": "Signed rotation angle (degrees)"
+      },
+      "sourcePoint": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "sourceAxis": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "sourceUp": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "targetAxis": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "targetUp": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "axisRelation": {
+        "type": "string",
+        "description": "Same or opposite axis direction",
+        "enum": [
+          "same",
+          "opposite"
+        ]
+      },
+      "gapMm": {
+        "type": "number",
+        "description": "Signed gap along target axis (mm)"
+      },
+      "twistAngleDeg": {
+        "type": "number",
+        "description": "Explicit in-plane twist angle (degrees)"
       }
     },
     "required": [],
@@ -2742,7 +2912,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "复制"
   ],
   "description": "Copy with scale, rotation and translation",
-  "schemaHash": "sha256:1a4fc4e740f33b8081d47d3b37800b637a305d67f3ad452747920c8c9affdb26",
+  "schemaHash": "sha256:6ba9932df2b7e4298603b6a6ba5f03b2a8a3e1d7ee8b4eab9ce0bc0ca6af4e97",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -2845,9 +3015,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "复制",
+  "placementPolicy": {
+    "mode": "spatial-operation",
+    "placementSupported": true,
+    "originUsage": "axis-plane-pivot-or-vector",
+    "orientationUsage": "declared-transform-or-direction",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:7efb33f22f04b6b0f98ebb088fddd34f6a65537fd16fc56bfd63e05072d64e2a"
+  "docsHash": "sha256:5022f8d3b28e28afb1d5dd66b7b2edcf1aceb84131d228ea649aa129bcd66326"
 }
 ```
 
@@ -3125,9 +3307,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "曲线扫掠",
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:b7ac6055168a56903faa431050f8311af31944625f42f6df36810e611d3aba4a"
+  "docsHash": "sha256:4b315ff67ab5528ee146e409c8c17cff07bec9ffa8d8cee858005ddf2fd20c6f"
 }
 ```
 
@@ -3430,9 +3624,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "曲面 LOGO",
+  "placementPolicy": {
+    "mode": "legacy-only",
+    "placementSupported": false,
+    "notApplicableReason": "Existing curved-logo entry retains legacy semantics",
+    "originUsage": "legacy-geometry-only",
+    "orientationUsage": "legacy-only",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:cfbdd897bb51780352fd380fdce5607f4d5e98ec31cb4b67578a450a43096835"
+  "docsHash": "sha256:e257737d17b0a82b093a36664e35396b8a91c4187e62ea100f5b7bc1afa909e8"
 }
 ```
 
@@ -3579,9 +3786,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "相减",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:f9ad1deda480819ad4b019f6202f7dd0343892dd0890e25a23f582f09550c24b"
+  "docsHash": "sha256:d8d2cacce694de1f32a5a197bf3e36e0b9da40830fc3a0a252c02c60d37c299b"
 }
 ```
 
@@ -3743,9 +3963,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "圆柱",
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "bottom-center",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:78f1a08e36f9a3e274cbcaa93a1bc401b7e246a0d577d6033fcd8e74b47687d1"
+  "docsHash": "sha256:f34464544a2ab428cc188acd78489f81bf50c6cacdb875a9c58eba70bd9e0be5"
 }
 ```
 
@@ -3924,9 +4156,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "提取指定面",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:7a50bd8e600fd8d4a68ffab31d9e37ed66a0d4c4017a4755c19fc9b1f5a2ccac"
+  "docsHash": "sha256:bf59336d93e71c4ba2b9a6cb4d7cab618e35208f2b6b8ac101425bc1649ee31d"
 }
 ```
 
@@ -4093,9 +4338,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "提取壳",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:bf485ae315be83f0f17df1301b482787173b1a554e262d47701404045fba3175"
+  "docsHash": "sha256:2fdc906016795aacca4820c4f58c2d764ac0567312d775dd3c0d196553752658"
 }
 ```
 
@@ -4255,9 +4513,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "提取实体",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:63c6740d2ceef10539d4fb7f4573ce1b7a2fcaafa7fdd84415be053ed4d34a02"
+  "docsHash": "sha256:7a50cd47f282e560f1728f1563a4616cf7844721c76a4ae671a5a3f17dc8b3e8"
 }
 ```
 
@@ -4485,9 +4756,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "拉伸",
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:71fda17133160ee5f8af35162830d676250c97c9674a05babc9190b078666be1"
+  "docsHash": "sha256:3160f3595ee6a26a940bd13d1ced3c6f8486305d47c2e3deac6bf06972e742cc"
 }
 ```
 
@@ -4650,9 +4933,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "提取面边界",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:048bf1fb85d2870b3c3a95b2b84acc9b6b03e8895bd0d19da20f5f49088a2275"
+  "docsHash": "sha256:e49ceb3e4ff2ff26ec4390e88dfc26c32bb6ceef5479c9fb4260001dd9c39380"
 }
 ```
 
@@ -4817,9 +5113,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "面上拉伸",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:6ba5ebc1b6fbbb5453e81c95563ae1604d08b384cf9748c1b95ef470fec0f1f1"
+  "docsHash": "sha256:db523a5e530cb9bea564b40e1151783fc398f4564d1eba2acb0c7f03c3e971b9"
 }
 ```
 
@@ -5070,9 +5379,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "面上打孔",
+  "placementPolicy": {
+    "mode": "target-face",
+    "placementSupported": true,
+    "originUsage": "target-face-point",
+    "orientationUsage": "face-compatible-direction",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:b8ce48f6be600e0c567249d202fc644d5ff61e6d2ebf1f330a86d6d709334f6f"
+  "docsHash": "sha256:3a786504736b0901c22a36c24ea7439bd70d3dacfd641fa48eeaa25c8d3b74be"
 }
 ```
 
@@ -5309,9 +5630,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "圆角",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:584969a2c9d1d11487d2ebbad0c7b8d1ef74221316408ba3c1384e5a488422bc"
+  "docsHash": "sha256:3e31a76cb0f0b6f40d86f209bfa9900446312f4b5d965dd7d46f51a1312e5a5b"
 }
 ```
 
@@ -5587,9 +5921,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "拟合曲面",
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:036cc9ea0e9dbd279aa7aaff55d2b0ac72e210dd2829bb31782017fd75e47fe5"
+  "docsHash": "sha256:eb9abb0ee51793bb43cda6a651c0c1f1e233833913833dc06484b051a0bd9a96"
 }
 ```
 
@@ -5736,9 +6082,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "组合",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:a541fe7299c85845e2ccba5c8a3a153b3739d1240129b07213d351f3e2d51f72"
+  "docsHash": "sha256:58b8486a88121524fac2477296507064c999e0bbf27b7c5e3a2f272d32a0370e"
 }
 ```
 
@@ -5975,9 +6334,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "打孔",
+  "placementPolicy": {
+    "mode": "tool-frame",
+    "placementSupported": true,
+    "originUsage": "cutter-start-reference",
+    "orientationUsage": "cutter-direction-and-cross-section",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:aeb2fbf5fa96a349a3c543382029c345f6c03d22884bafaba7001a576569f9d9"
+  "docsHash": "sha256:2cfb75a81e4f89a2246aa4b54940668fc7b72f2a7dbb65236f9c4779efdd5048"
 }
 ```
 
@@ -6124,9 +6495,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "相交",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:551201e4331aa89e7f31d3d8e428c5d5e63149f54259a43c1959bd832cc2551e"
+  "docsHash": "sha256:2397f81b2bf674befd24bbfcc32f8fb38c48bc140309c45f611ec03881f77e38"
 }
 ```
 
@@ -6297,9 +6681,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "直线阵列",
+  "placementPolicy": {
+    "mode": "spatial-operation",
+    "placementSupported": true,
+    "originUsage": "axis-plane-pivot-or-vector",
+    "orientationUsage": "declared-transform-or-direction",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:6822e042c0783408b84ee2e21e36cfab01830080b2c61790cbc249975a9494f5"
+  "docsHash": "sha256:7fdbbb1d5886ffebe9c05676308a0d1295c016128e96a60f1bcf2857039e6656"
 }
 ```
 
@@ -6505,9 +6901,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "放样",
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:9b71214aa12832780ba12f0201898ba36c6d0785d86551888fff3f9ea67ca65c"
+  "docsHash": "sha256:d0d2ad7250b6886e273043ca7b9737a2962835eccaaf3290907a6796dd8a9aac"
 }
 ```
 
@@ -6867,9 +7275,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "LOGO",
+  "placementPolicy": {
+    "mode": "target-face",
+    "placementSupported": true,
+    "originUsage": "target-face-point",
+    "orientationUsage": "face-compatible-direction",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:4042a2a4672f69a65111f2016b37711dff46c7723f553c66a488ab434b6e2851"
+  "docsHash": "sha256:f4d15952d8756f12bf94ddda828d4f5946332dde3aee2c0a8fe314275dd15819"
 }
 ```
 
@@ -7033,9 +7453,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "镜像",
+  "placementPolicy": {
+    "mode": "spatial-operation",
+    "placementSupported": true,
+    "originUsage": "axis-plane-pivot-or-vector",
+    "orientationUsage": "declared-transform-or-direction",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:23566d741c94c3b79ea561b0010bcb6d1363fa52874efddc75e85e47038986bf"
+  "docsHash": "sha256:07bc1c4503465f85cef00f68b09ee25b73cad9684684ecdfc3e23f93164ab6e7"
 }
 ```
 
@@ -7293,9 +7725,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "批量圆柱凸台",
+  "placementPolicy": {
+    "mode": "tool-frame",
+    "placementSupported": true,
+    "originUsage": "cutter-start-reference",
+    "orientationUsage": "cutter-direction-and-cross-section",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:ddfaf3527282949c6c5d3924e01d6050b5fb544b2fc3805951c519aabe6c5a0a"
+  "docsHash": "sha256:35ea8309e4a9aae4a84b6e2b63ee22cba93e5324c975ebe8c98c002bd390035a"
 }
 ```
 
@@ -7586,9 +8030,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "多位置打孔",
+  "placementPolicy": {
+    "mode": "tool-frame",
+    "placementSupported": true,
+    "originUsage": "cutter-start-reference",
+    "orientationUsage": "cutter-direction-and-cross-section",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:7975b19873e54e559127b2ae157e612389572f05048d1ace6a2ad7fb3a550fd1"
+  "docsHash": "sha256:e807b5b1dfe2061294c937cd40b69bde82ea82ad10745929eb13853ea1a4e87b"
 }
 ```
 
@@ -7885,9 +8341,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "批量矩形凹槽",
+  "placementPolicy": {
+    "mode": "tool-frame",
+    "placementSupported": true,
+    "originUsage": "cutter-start-reference",
+    "orientationUsage": "cutter-direction-and-cross-section",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:4722cb3e9f7fb53ca7eba1d7ff74107eaf338d8a1603c5a4724bd56e73093228"
+  "docsHash": "sha256:ca87e5baecdc5d57e144c5a27ed01fb203ea61bf740b3d9155d38b88a3f0d3c3"
 }
 ```
 
@@ -8049,9 +8517,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "提取真实截面",
+  "placementPolicy": {
+    "mode": "spatial-operation",
+    "placementSupported": true,
+    "originUsage": "axis-plane-pivot-or-vector",
+    "orientationUsage": "declared-transform-or-direction",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:446a70b59c5355f833ec5dd3641e169c3df5c8b864fbd8246450ac34c861f388"
+  "docsHash": "sha256:5cc84b772d534763c2383707e83f74bb3490f78d0d552819dc5294dabb6dc47f"
 }
 ```
 
@@ -13027,9 +13507,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "快捷模型",
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:7cfe93edf2160c0417c7a06577440112bf2f8f4420c48a4c1fb1848268b9bb38"
+  "docsHash": "sha256:ac292b8395f9ac25d195fb665836acf5fe65686a601b8b8e1cc3a3e32d1777f3"
 }
 ```
 
@@ -13206,9 +13698,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "参考轮廓拉伸",
+  "placementPolicy": {
+    "mode": "spatial-operation",
+    "placementSupported": true,
+    "originUsage": "axis-plane-pivot-or-vector",
+    "orientationUsage": "declared-transform-or-direction",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:feb1c271f795d727ae1e1c1178226af404a2045e4fedff7510f024642e6f52dd"
+  "docsHash": "sha256:a6479a38c16e33b736f49a73a776c4ba0c57ee7ce9e324f82ba151b6903984af"
 }
 ```
 
@@ -13365,9 +13869,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "参考截面放样",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:0a805e080dce9a59f84c55f20a7d74395f1e7603b36ac13e73527512629bde26"
+  "docsHash": "sha256:c59d186ac7f19bf515154ef7bfb5b0d0dbe68820c9a21994f7bfc91a1381dd3b"
 }
 ```
 
@@ -13601,9 +14118,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "旋转成型",
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:9c6d30bb6f313acd44b258a50f76a9fad6bb6ff2d504a093b1c7efe225aa85cf"
+  "docsHash": "sha256:b36cde98a8ed74d144f5bd4a991d3a71a66de8e09b1fcfc13b934022eeb53124"
 }
 ```
 
@@ -13763,9 +14292,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "曲面缝合",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:17e2af2f4fbbd9198d7d8ac793b34197f0186d8c7bea25fb1f4f261622e4c839"
+  "docsHash": "sha256:847b7724222c662478cae272a1febe44f31668a0e8c04b182f267b7c842a2654"
 }
 ```
 
@@ -13969,9 +14511,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "抽壳",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:3c7fbd0cffc8e989cb69290b3a2ef7e8ea9fd4aa3178c294acf36001f05a1cab"
+  "docsHash": "sha256:8b2761a083986819b68dea4450d3eaad228aaf23c6034b4565f4caef43830ff8"
 }
 ```
 
@@ -14185,9 +14740,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "长圆槽",
+  "placementPolicy": {
+    "mode": "tool-frame",
+    "placementSupported": true,
+    "originUsage": "cutter-start-reference",
+    "orientationUsage": "cutter-direction-and-cross-section",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:b276a538e385f660e11f536b66a9bde2a9ad7f6f9d3dcc27c62f5052578c6d9b"
+  "docsHash": "sha256:e64f4b42735713779cf6a2dcafb8fce3695e62cb81d761d825b6c9ba9f821c87"
 }
 ```
 
@@ -14396,9 +14963,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "平滑过渡",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:6c8e1e8e56595d0c68618add7e10775c1f488f891f55040037c26418cb54b0d3"
+  "docsHash": "sha256:5a5c7ed827e87008fe81661a2abf80fb277eb557b12bd1deee08f844ebee844b"
 }
 ```
 
@@ -14552,9 +15132,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "球体",
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "bounds-center",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:7b1a89e8ac0ee33cf94c2a97ddf28e79dc6051da52dfa8e5b2a7e5abb8638141"
+  "docsHash": "sha256:815061e1d1d48a3e846bbe762484f722a0bf736eb17b4d3c101d3dc9f1377e0b"
 }
 ```
 
@@ -14720,9 +15312,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "分割",
+  "placementPolicy": {
+    "mode": "spatial-operation",
+    "placementSupported": true,
+    "originUsage": "axis-plane-pivot-or-vector",
+    "orientationUsage": "declared-transform-or-direction",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:fdd7f0858652b472fadd2981d86b3d42045e2994709c1bdc133b9fff452ab891"
+  "docsHash": "sha256:576687ea9810c779fa3d304bb7b4a602dd12e3641367b0f1437d376a7623d81b"
 }
 ```
 
@@ -14891,9 +15495,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "实体修剪面",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:fd45e84009f1828e4ba08c20c406a8804dc2a9de854e0afc0a24ec7b4aebbc61"
+  "docsHash": "sha256:eb7f825717e49953b16c7b421b8651f7179330c6ef073e3ea966225652cece90"
 }
 ```
 
@@ -15128,9 +15745,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "扫掠",
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:e5580c750c054b7517eaf1f932af36c7a5c0b30738fc2daa7c112b23ab91b18a"
+  "docsHash": "sha256:091535d01c6f72cb152ed98b7b5b914ecdf348f82b7aa0b7afd0ce45756a0dc8"
 }
 ```
 
@@ -15293,9 +15922,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "选面增厚",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:3250d6ce2bbe2fa4b209586c8f1047f97870a3d4c4c791d5e0f307052008c354"
+  "docsHash": "sha256:48c6b6781121ac183ad90606ba8e6b8e5ce5c5f8a70e0ef3f59a03ee69a339e2"
 }
 ```
 
@@ -15457,9 +16099,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "圆环",
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "bounds-center",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:1617f817c18f8b57ea3c579c4764bbf437aae318d2167f0d0245978eff492557"
+  "docsHash": "sha256:c596ae84130f2b2fc8d25d78453509e2a94f9853f2500475a8fd9a154c265cdb"
 }
 ```
 
@@ -15567,6 +16221,67 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "angleDeg": {
         "type": "number",
         "description": "Signed rotation angle (degrees)"
+      },
+      "sourcePoint": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "sourceAxis": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "sourceUp": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "targetAxis": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "targetUp": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "axisRelation": {
+        "type": "string",
+        "description": "Same or opposite axis direction",
+        "enum": [
+          "same",
+          "opposite"
+        ]
+      },
+      "gapMm": {
+        "type": "number",
+        "description": "Signed gap along target axis (mm)"
+      },
+      "twistAngleDeg": {
+        "type": "number",
+        "description": "Explicit in-plane twist angle (degrees)"
       }
     },
     "required": [],
@@ -15604,7 +16319,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "旋转"
   ],
   "description": "Scale, rotate X/Y/Z about origin, then translate",
-  "schemaHash": "sha256:b7d90fc837b6054fea6dd07197e413dfb750164719d749dd007ccf9925964880",
+  "schemaHash": "sha256:979f834ea28e4d8267138b449923bf1abc5bcebc12f60636ae0732590580bb29",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -15707,9 +16422,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "移动 / 旋转",
+  "placementPolicy": {
+    "mode": "spatial-operation",
+    "placementSupported": true,
+    "originUsage": "axis-plane-pivot-or-vector",
+    "orientationUsage": "declared-transform-or-direction",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:f48edbe59ee7187f4cc6ac221a5962723aff66f09feff625a2a7d30a36bfe07c"
+  "docsHash": "sha256:8e65a666143eea5ea7271d5c662db9cf69df39623715ff6d7cfd9f3964bdd1ef"
 }
 ```
 
@@ -15856,9 +16583,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "合并",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:fc61d60d374fc58987bbc64f4ac6040059591f53e3816fdd1b70fd286fd8bae0"
+  "docsHash": "sha256:83228d1444d5c5351ef7845664df64b0ada211e5b8d57d207c19c14beac7f31c"
 }
 ```
 
@@ -16146,9 +16886,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "导入路径",
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:9d86802ef24de64660106f84f0c6b83e5f545632c939c21c0ccd65c64a122771"
+  "docsHash": "sha256:1736a5f53f3d8e4f09f68eae184c46078ccba868a3597e49ec11c5224b3c20e6"
 }
 ```
 
@@ -16380,6 +17132,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -16403,7 +17167,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:cb4e7f4b9d7a669bfd918766d06789b4ac146c4868b7fef1520fddd00ad4074c"
+  "docsHash": "sha256:b5593566e05a0a4cf56e5d5785425a53d5c0833293c9370fe9afa769355ccfa9"
 }
 ```
 
@@ -16593,6 +17357,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -16613,7 +17389,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:67dc87f489e400bdb94661a8ee783ad5057da24ce845054ed32f4a472266923e"
+  "docsHash": "sha256:32cf5c883f9bba48f4441f24a1b33a4e0750b59d566c7f161037233a084b3871"
 }
 ```
 
@@ -16887,6 +17663,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -16913,7 +17701,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:d2eac170788bc27edc3cadd63bfd82672ba03c91ce6b8918388711128dbd2606"
+  "docsHash": "sha256:2fdde197f9f1ac600b1bb4c8739bc7939899707a1d600ee7e3a558929fcd288a"
 }
 ```
 
@@ -17173,6 +17961,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -17198,7 +17998,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3c039be62b7d5f99a57ac3ff01371fd5000d58b92efa44f7b0007cb99f7b4a9e"
+  "docsHash": "sha256:77b3edf88509125905c5e5d689cdcdb1549d042564290d589497726a464772db"
 }
 ```
 
@@ -17416,6 +18216,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -17438,7 +18250,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:6cb08300e43af39f242dd5467a88e4c13f1ce49c6a23e4a6641c5fc22c08d6f3"
+  "docsHash": "sha256:59487b009ae299629d7917b484f092e4b86af4f7c264094db4bb68d6ccc8326a"
 }
 ```
 
@@ -17698,6 +18510,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -17723,7 +18547,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:870c20c6a74b3c16d79222feb40e2b61c416bf8084285d51ea87d7aa5ccc7009"
+  "docsHash": "sha256:56641222f5d9f9947fa2df3a3d23bb40f7026bc7814c77137f695ca5f52a938a"
 }
 ```
 
@@ -17997,6 +18821,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -18023,7 +18859,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:1befd9934047467c74f6baeeedc14b3ff720cce61d6ed849eecb4ef5cdf769e0"
+  "docsHash": "sha256:c8baa4fcfa8bc11c24bad699d74fba25800cc04a855368325950a599d6d5f8dc"
 }
 ```
 
@@ -18297,6 +19133,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -18323,7 +19171,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:ee02979c66aa5713683826d1fcfe7b59f796668adcc3e6b2fdc06779d9d08b88"
+  "docsHash": "sha256:ebe25aa7fbc2090897979c04379c201e849dafef678324eed70cd16df283fd8b"
 }
 ```
 
@@ -18569,6 +19417,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -18593,7 +19453,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:61ba946bf07a9e145e996359543b5e7ac1785b79174e02aa4f3deba1b5f69c79"
+  "docsHash": "sha256:c864e29bef696ba0ed8b8ebfd44674e3e23f6c73a88debdcc279e189d98470be"
 }
 ```
 
@@ -18853,6 +19713,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -18878,7 +19750,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:a236d209f784bf6d7c67e8049165c973ea5c375fa7ebd136a52a8ec5e114b148"
+  "docsHash": "sha256:4d96d256cfe558ad909100afcbb726a3f058ba8e44dbb44249e2d581cb8ae2cd"
 }
 ```
 
@@ -19152,6 +20024,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -19178,7 +20062,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:09f59a8b4c0db8c0d56dd44dbe438fef8ea6ed10784014d0bddafdfe89795355"
+  "docsHash": "sha256:d54340c99f00e6f8a7990dd3815774727092349b0853b3f6c2c998259b123270"
 }
 ```
 
@@ -19410,6 +20294,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -19433,7 +20329,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:327c9ced171c0d1b92cb02660e8ae3c8f409782f04190d91d89142510cef9108"
+  "docsHash": "sha256:d79521c2bcfd2bdfb4e7e0535e06e821d22d8d1fb796b0c60a13c5c8154b04af"
 }
 ```
 
@@ -19679,6 +20575,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -19703,7 +20611,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:57905141206ef7d9256747359fcae417d16e594afbe02d14c5144bfc9bf44d7d"
+  "docsHash": "sha256:af584c0444c02b8e727762da101caf564c7abca2274ff48423a78e89cd380bf2"
 }
 ```
 
@@ -19963,6 +20871,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -19988,7 +20908,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:8b21efb02136114c7d019e39f474a7395076d193a994a5baced511ca64a56dce"
+  "docsHash": "sha256:490f2e9cf741dcab91db60ac0c5072626a3df8aea828fec9468fd33fd7a87f92"
 }
 ```
 
@@ -20206,6 +21126,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -20228,7 +21160,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:02780ca7037d3df2338f7a0e05903b87370153c7ab4fc5e4fc11f6197bbf9fcb"
+  "docsHash": "sha256:3adf1f03fc823bccd5a857e0225c4e84392063920d2cc77c9dbf5bee9914fba6"
 }
 ```
 
@@ -20480,6 +21412,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -20503,7 +21447,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:e595bf231ac141520b058c8bff6ac6f6a46210ada63a6f06acd53791b66621a5"
+  "docsHash": "sha256:c57513aeba0919a45006e3a9ecd32689ec3a72e6965968a7b496161f8743a0df"
 }
 ```
 
@@ -20791,6 +21735,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -20818,7 +21774,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:0983ba599b7ed6fc94d7b8575429ef0c589bdf433bc38f5d2714e635f3e91ef1"
+  "docsHash": "sha256:583405c5044d9265df6fa6030b2054f40df87650259e84d9a68514178aa1dca1"
 }
 ```
 
@@ -21078,6 +22034,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -21103,7 +22071,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:a1c5e95250d587e310252bcc9a0713be2d4611a7ddcb4af12bd82d4e5ee83595"
+  "docsHash": "sha256:b3e5c33963b3565f178c45b76a4177ef87ccb2b7ad4031975d58706733f14ac6"
 }
 ```
 
@@ -21377,6 +22345,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -21403,7 +22383,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:9c3d9e65ab2dcdcdd1304769cb75cb0c0204c823fa65dbc1e3acceecf549c63a"
+  "docsHash": "sha256:35ac7174fb2e63ec6058474030cf6fb3616e1df7019420d3ba839a7c2c88e3ff"
 }
 ```
 
@@ -21593,6 +22573,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -21613,7 +22605,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:fe055e8e7d24a449b3679e59d054e2dcaf46fecec22aba5c1f310992bb187610"
+  "docsHash": "sha256:1d1e0885418da8b5ecd59b6605d20a159e482dc74c34260f97cdf9b68d02b42b"
 }
 ```
 
@@ -21845,6 +22837,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       ]
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -21867,7 +22871,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:0e413528f5bd20b83475bf14e04b388745dcd9cf7a3b9e432ff02cd984e10069"
+  "docsHash": "sha256:83fcacad73774a9ff2f3a7bfe3d921afe752fa12d5c99107c3d7a4ed9438f8d9"
 }
 ```
 
@@ -22119,6 +23123,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -22142,7 +23158,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:bdb1d1a8642272bcef85e75ead863f3e472a0c52076e1ff689d2871323814e76"
+  "docsHash": "sha256:67d976f457f04bf004374008189e27c88e8485256c59e59f3541ba377c119879"
 }
 ```
 
@@ -22422,6 +23438,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -22447,7 +23475,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:5dee0c4b69bfe49260142ab85d6f895187c8d3ff50305f1b809fd6ffd3e9732b"
+  "docsHash": "sha256:37f9c9ab239a46ca34dc723a59b30a1630286b31a1544ed3f5faca8aac8065ce"
 }
 ```
 
@@ -22665,6 +23693,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -22687,7 +23727,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:ae0ae6f3b7146af73d5b3d9485d98f8a28bbd733378b496c84969ee6825dd892"
+  "docsHash": "sha256:f43d620ebb2587ffe4b75813f23acc3b176c5edbb30dc510c8aa5ed5deb2c04d"
 }
 ```
 
@@ -22891,6 +23931,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -22912,7 +23964,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3a818307b594d3ca272714e9899bd4195d65d82d99521b3841bca3f4972e9550"
+  "docsHash": "sha256:1aeb749455d77a317f5e93020dd5a513139f1c50bc5bba519bc45c9c1921e0c7"
 }
 ```
 
@@ -23130,6 +24182,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -23152,7 +24216,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:6ff19536558869f15750a738d484780e4b37ff5af55359e24bdc972017b125fb"
+  "docsHash": "sha256:1437f56f13732b665f7684613742b12140a27693771e922680067edfa5021317"
 }
 ```
 
@@ -23342,6 +24406,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -23362,7 +24438,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:8795becc0341215465b5d212b49bdc37970fe806ceea5dc0654f9cad5563d224"
+  "docsHash": "sha256:1a419c2fce0711c4b13f82f3f4ab9f47fbb51c2a7a55ba2104aa71c3a03b0514"
 }
 ```
 
@@ -23642,6 +24718,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -23667,7 +24755,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:0d1b07e31aada6cb5b3d2f81fa03328892e3ca031ee5f9bf90ddd40c69f0a020"
+  "docsHash": "sha256:5e8f422622482aa6545893422c328d63a8d27b778abfa4c9eeab1d8fc430b11d"
 }
 ```
 
@@ -23903,6 +24991,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -23928,7 +25028,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:82ec1fdb4dcd804a066f4f1cdc3c793c539ef25d8c787351f489c07ee8aadc7f"
+  "docsHash": "sha256:2b06f909051140a76c658893bb5ecb2e6d5d84c5a37e8ed8f24f9b57806825bf"
 }
 ```
 
@@ -24208,6 +25308,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -24233,7 +25345,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:e5be388a0ba868691001594dfdaebe0eb36fcbaed9d69a4c022735d2bd8adcef"
+  "docsHash": "sha256:a332f1683c8d08f2b2c731ad8dfde57dbfcc2595c1a76f08007c7d002f0d2d9b"
 }
 ```
 
@@ -24533,6 +25645,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -24560,7 +25684,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:ab0231c98afcd5f9d4256db5e81c626a86b35138fa4ef61e282bf7930ee00ecc"
+  "docsHash": "sha256:715d669164a82206f99c83b2fadb5f6c7e1480844cc762eec2571282a3860eb5"
 }
 ```
 
@@ -24840,6 +25964,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -24865,7 +26001,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:a024487eeab5d25bd447d6471a151f05cf232b015a3885bd42e8ade33a964633"
+  "docsHash": "sha256:53848f68a226e1aa5287062c98a5c5ec149639b66c04ae725f0473d4cef512fb"
 }
 ```
 
@@ -25055,6 +26191,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "step": 0.1
     }
   ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
@@ -25075,7 +26223,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:9b48263157e1d806e0e8432bcbfd56ad1683c49f54139f95cd21e0246cd4125f"
+  "docsHash": "sha256:ef6acd98ff8313027ce6e32997e99dde2c8a74b0fff5b594b0ad32db815ed6f1"
 }
 ```
 
@@ -25086,7 +26234,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "createRequestContext",
   "title": "createRequestContext",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "createRequestContext(context?); omit to read the current context.",
   "synonyms": [
     "createRequestContext",
@@ -25105,7 +26253,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:b83486252d57c7cdfadffc08b65817a10b27b4a1a5d1056361113876151b46aa"
+  "docsHash": "sha256:4b7dd686fc2ff37e9300120a089be0d621b0106c042702dff1d0c2fb9d1f35e1"
 }
 ```
 
@@ -25116,7 +26264,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "getUILayout()",
   "synonyms": [
     "getUILayout",
@@ -25133,7 +26281,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
   "errorCodes": [],
   "docs": "api.workspace",
-  "docsHash": "sha256:52cc660698e752122d7ff75ab69c26dcc7fd9eea26912474688bf4941252486d"
+  "docsHash": "sha256:2db27cc1cd88b9ddfb548cb6e8d366cca6128a301180359281b0cc899cfb4772"
 }
 ```
 
@@ -25144,7 +26292,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setRenderQuality",
   "title": "setRenderQuality",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "setRenderQuality({context,quality:\"draft\"|\"standard\"|\"fine\"|\"ultra\"})",
   "synonyms": [
     "setRenderQuality",
@@ -25168,7 +26316,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "DISPLAY_FAILED"
   ],
   "docs": "api.workspace",
-  "docsHash": "sha256:aee52ff0ec9ea47c6a7da96fbb80278469be022c15f59797e1bab4fba527b5c0"
+  "docsHash": "sha256:97d4030c46abb83e05019200c91b860a3b946e140e9f4740ac05c63341e08f82"
 }
 ```
 
@@ -25179,7 +26327,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "invoke({method,args}); public method name or files.*.",
   "synonyms": [
     "invoke",
@@ -25197,7 +26345,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_SCHEMA_INVALID"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:383759d5433ac3f29196418a35c8e1a01b55c7e5e95d6f6a2366c8e0676f7195"
+  "docsHash": "sha256:4fad7b0a95529261599dd1894127f9959b15326b8314ebc3fc23b7c6b263e87e"
 }
 ```
 
@@ -25208,7 +26356,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "submit",
   "title": "submit",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/setView/setRenderQuality/files.save/files.export/files.import.",
   "synonyms": [
     "submit",
@@ -25230,7 +26378,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:c814507d104970c8c9a985859c3725d774d31e6c5902a86b3f830faf8274ad35"
+  "docsHash": "sha256:9c47c82575b3a310b9491b29e54b0b88b5860a8740f5e26799ba9bddfada5337"
 }
 ```
 
@@ -25241,7 +26389,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getJob",
   "title": "getJob",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "getJob({jobId})",
   "synonyms": [
     "getJob",
@@ -25260,7 +26408,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "JOB_NOT_FOUND"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:6dc859f7d77c7fccddb612b3adaec40bbd388959cdc417276cfc7fc415af3899"
+  "docsHash": "sha256:1218254436aa96a5aac811a9aae92d21ae04d731834d45b353d5bd41fa791662"
 }
 ```
 
@@ -25271,7 +26419,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "cancelJob",
   "title": "cancelJob",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "cancelJob({jobId})",
   "synonyms": [
     "cancelJob",
@@ -25288,7 +26436,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "JOB_NOT_FOUND"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:0b19ca0355c9b5907d3f1e9dcdd950cfa4391408c0cba30ee373116bc87d6130"
+  "docsHash": "sha256:367c9abe21e77aacc7c4980573ef9418748d3f3b1c68a77d113404ac44025e02"
 }
 ```
 
@@ -25299,7 +26447,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.",
   "synonyms": [
     "connect",
@@ -25319,7 +26467,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:e8d5f8e3300ab5e8326cb139f62d7ef0d661291e19f89962e97a8076384461d6"
+  "docsHash": "sha256:bc270a7982eb5199355d3070397c5ae5b76f4be9bfff41a0757695ed4d900b62"
 }
 ```
 
@@ -25330,7 +26478,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "info",
   "title": "info",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "info() 无参数。",
   "synonyms": [
     "info",
@@ -25345,7 +26493,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "runtimeAvailability": "requires_page",
   "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
   "errorCodes": [],
-  "docsHash": "sha256:8dc790e848a943f35c3141ba53a8826cd7305d552cefdae5e3ce38cff6e5d929"
+  "docsHash": "sha256:c864e278ba64414c64f1e0e509d876f077c9d281eb85d3c2f65932b05a10bb5b"
 }
 ```
 
@@ -25356,7 +26504,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities/references。",
   "synonyms": [
     "getState",
@@ -25376,7 +26524,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_SCHEMA_INVALID",
     "INSTANCE_MISMATCH"
   ],
-  "docsHash": "sha256:c9a8519f5f3c63a3eef1955de2989e7776395fc0af685276c737f33ec12538b0"
+  "docsHash": "sha256:3219b3d641ad05264bc71d3fe9407f17a0bc17bd61b2371452c6ec3b4cc71fa6"
 }
 ```
 
@@ -25387,7 +26535,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "searchTools",
   "title": "searchTools",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。",
   "synonyms": [
     "searchTools",
@@ -25407,7 +26555,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:828422b53aa435aedbeb5e7ec9cb4dac2c8a35c4a7932e03f7c2be1f3ae36814"
+  "docsHash": "sha256:28875722510d8d127fc02d90e767ab320323955ad0cbc9a2d5a7d8a2422a289c"
 }
 ```
 
@@ -25418,7 +26566,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getTools",
   "title": "getTools",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.",
   "synonyms": [
     "getTools",
@@ -25439,7 +26587,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CATALOG_CHANGED"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:43b7d988d94bbc43f5148396660f5828a33ee2c4079acbcb880efd4935db8379"
+  "docsHash": "sha256:7ac50e8c1f20a5b4f9d5c51e4da336dac72f6eead3f1ed0592d4247a83ffd882"
 }
 ```
 
@@ -25450,7 +26598,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getTool",
   "title": "getTool",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。",
   "synonyms": [
     "getTool",
@@ -25470,7 +26618,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "UNKNOWN_OPERATION",
     "OPERATION_VERSION_UNSUPPORTED"
   ],
-  "docsHash": "sha256:7941015e750b22315b18c9d1cb862ed0bee2020a1ec1bc62b73ad958e6ec52b8"
+  "docsHash": "sha256:86b69e908b45b4a692330c4f4d18ed717618f0fff63bbe7a51a26f31f0c615ec"
 }
 ```
 
@@ -25481,7 +26629,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "readDocs",
   "title": "readDocs",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。",
   "synonyms": [
     "readDocs",
@@ -25501,7 +26649,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_RANGE_INVALID",
     "OPERATION_VERSION_UNSUPPORTED"
   ],
-  "docsHash": "sha256:b5a86d9df46a21b6e42670b15dc009e136a5aaf6e942703b3c499fa02a00b55e"
+  "docsHash": "sha256:2a478d198a4117aff90229e4b80ff79db84653bb7aa2ed4685911c10c90932ba"
 }
 ```
 
@@ -25512,7 +26660,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "queryGeometry",
   "title": "queryGeometry",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,limit?,cursor?})。",
   "synonyms": [
     "queryGeometry",
@@ -25534,7 +26682,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "NO_MATCH",
     "AMBIGUOUS_SELECTION"
   ],
-  "docsHash": "sha256:0f7992c7120c16f6ff9c57bc7db610f2eeece2f78ab0e7c8860f179ec8095192"
+  "docsHash": "sha256:bfc522f1b5f206c8d4b90e412f7786c3ada319e79799ec941f96e61fa1419949"
 }
 ```
 
@@ -25545,16 +26693,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "queryReferences",
   "title": "queryReferences",
   "category": "page-method",
-  "version": "1.7.0",
-  "description": "queryReferences({context,bodyIds:[],kind:\"point\",filter?:{types?:[\"world-origin\",\"work-origin\",\"endpoint\",\"circle-center\"]},limit?,requireUnique?})。",
+  "version": "1.8.0",
+  "description": "queryReferences({context,bodyIds:[],kind:\"point\"|\"axis\"|\"frame\",filter?:{types?:[\"cad-vertex\",\"edge-midpoint\",\"circle-center\",\"edge-nearest\",\"trimmed-face-point\",...],near?:{point:[x,y,z],radiusMm}},limit?,offset?,requireUnique?})。",
   "synonyms": [
     "queryReferences",
     "参考点",
     "工作基准",
     "几何吸附"
   ],
-  "inputContract": "queryReferences({context,bodyIds:[],kind:\"point\",filter?:{types?:[\"world-origin\",\"work-origin\",\"endpoint\",\"circle-center\"]},limit?,requireUnique?})。",
-  "outputContract": "当前工程的精确坐标候选、来源、总数和截断状态；不写模型。",
+  "inputContract": "queryReferences({context,bodyIds:[],kind:\"point\"|\"axis\"|\"frame\",filter?:{types?:[\"cad-vertex\",\"edge-midpoint\",\"circle-center\",\"edge-nearest\",\"trimmed-face-point\",...],near?:{point:[x,y,z],radiusMm}},limit?,offset?,requireUnique?})。",
+  "outputContract": "当前工程的 B-Rep 或明确派生候选、referenceId、来源指纹、歧义及分页；最近点必须传 near，不写模型。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -25564,7 +26712,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "STALE_REFERENCE",
     "AMBIGUOUS_REFERENCE"
   ],
-  "docsHash": "sha256:99675fececbaf8ee21927467fd9a31879aa533f04747119d030f2c44d0f1324c"
+  "docsHash": "sha256:99af1593695ebbf3cdf3c0f2a631ae12af259955bd884a68663674f0c8b6a07c"
 }
 ```
 
@@ -25575,7 +26723,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "resolvePlacement",
   "title": "resolvePlacement",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。",
   "synonyms": [
     "resolvePlacement",
@@ -25594,7 +26742,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "FRAME_INVALID",
     "PLACEMENT_NOT_APPLICABLE"
   ],
-  "docsHash": "sha256:87fd89a0d98b764ebea07fe71bddbd375be7df7e19516b428acc1bf2fa1a8402"
+  "docsHash": "sha256:ece464b0f1c67d431f6bcdb93faacc82d4b1eb1ea8e3fe620e554f4dd534915e"
 }
 ```
 
@@ -25605,7 +26753,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "execute({context,idempotencyKey,action,args}); action 来自当前命令合同。",
   "synonyms": [
     "execute",
@@ -25627,7 +26775,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_SCHEMA_INVALID",
     "GEOMETRY_INVALID"
   ],
-  "docsHash": "sha256:ff767a0cc2a6ad3ebc0f7d44373572579a5084cd890d2edc68304f035027238a"
+  "docsHash": "sha256:ff5d8ecbc0d278af9c953b0250a986952d31119c6554b6a58fa68ed41ed32faf"
 }
 ```
 
@@ -25638,7 +26786,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "measure",
   "title": "measure",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需非负整数 topologyId。",
   "synonyms": [
     "measure",
@@ -25660,7 +26808,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:c340e7ad29659bd312b45037b6115f86cb2a2af8056fb1b83fc62319f36b129b"
+  "docsHash": "sha256:99db6e4860d0425fe649fd89e8ca37fcc34a4dd6d634b040f818be371f4cbc84"
 }
 ```
 
@@ -25671,7 +26819,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectPrintability",
   "title": "inspectPrintability",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "inspectPrintability({context,bodyId,angleLimitDeg?:45}); angleLimitDeg 在 0 与 90 度之间。",
   "synonyms": [
     "inspectPrintability",
@@ -25694,7 +26842,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.printability",
-  "docsHash": "sha256:ee13e3eaf4cde9eb34774d0c1777b733aff74909c2d022597b67c67f6b88a5c4"
+  "docsHash": "sha256:dd763aeb615a127f7a331389b30d0770d08d802f6098704b39a4be4edd64b4fa"
 }
 ```
 
@@ -25705,7 +26853,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "fitProfile",
   "title": "fitProfile",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "fitProfile({context,kind:\"circle\"|\"line\",plane?:\"XY\"|\"XZ\"|\"YZ\",points:[[u,v],...],maxResidualMm?}); 3–1000 点。",
   "synonyms": [
     "fitProfile",
@@ -25729,7 +26877,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.profile-fitting",
-  "docsHash": "sha256:fa11801492ebe8399bc57361124b9f9d7edc490a578af256e798c4eaad5c1a11"
+  "docsHash": "sha256:3632c83c6eb6d78494eef1efd17533756620a7705cad012cab9b3735bdba1041"
 }
 ```
 
@@ -25740,7 +26888,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "traceTwinWindow",
   "title": "traceTwinWindow",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBottomY,simplifyToleranceMm?:0..0.2}); 四条上到下 XY 采样曲线，每条3–2000点。",
   "synonyms": [
     "traceTwinWindow",
@@ -25762,7 +26910,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.dwg-spline-twin-window",
-  "docsHash": "sha256:68837960d116e0062832d6a4e47952e0fcc5f7f3f5b1fa6a4015bdd942276cd3"
+  "docsHash": "sha256:3bf7669a3cef3f061d9d35000541411c18b0a5d1572f3cd92ce946f85872edbe"
 }
 ```
 
@@ -25773,7 +26921,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "executeText",
   "title": "executeText",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "executeText({context,idempotencyKey,text,dryRun?}); 每行 add <op> key=value 或 measure <bodyId|$last>。",
   "synonyms": [
     "executeText",
@@ -25796,7 +26944,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.text-command",
-  "docsHash": "sha256:6de26ed61d451daeec5b078a8962a8e02eb2ae9bfac3ef1c678237aea7b9209c"
+  "docsHash": "sha256:007f93dc0ff3219d8d77281d90edfa5edd2bfc536187957ab24080913110539d"
 }
 ```
 
@@ -25807,7 +26955,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "setDisplayPreferences({context,values}); values 为部分配置，字段及范围见 api.display-preferences。",
   "synonyms": [
     "setDisplayPreferences",
@@ -25832,7 +26980,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.display-preferences",
-  "docsHash": "sha256:1e8888104b644d07b781d81a84cab43b2f38809250c5b7a833f185865cbc0b26"
+  "docsHash": "sha256:f65a2eed62c55e5f274901b549b0486f314744cd61124449a86a54dc95c25e60"
 }
 ```
 
@@ -25843,7 +26991,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getLogoConverter",
   "title": "getLogoConverter",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "getLogoConverter()；读取当前浏览器 localStorage 的配置。",
   "synonyms": [
     "getLogoConverter",
@@ -25858,7 +27006,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:4877e3f8815b6e6987a795901292d815dd3c2d181a89bc30b4c7054f0cadea4d"
+  "docsHash": "sha256:efd74328b4093d411193998f20910e8f1151a4078dd12ccc47ea4d7f73de6389"
 }
 ```
 
@@ -25869,7 +27017,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setLogoConverter",
   "title": "setLogoConverter",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "setLogoConverter({context,url,key?})；URL 必须含 userid，空 key 保留原值。",
   "synonyms": [
     "setLogoConverter",
@@ -25885,7 +27033,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:a534e0d191feb28ce7ccf0a6695a81e85432054fc0cb27a57b54ee44ca8fe9fa"
+  "docsHash": "sha256:c428d9cd57c2e99f19ba58d1803e10d6467f1a9af4c6c4c8d1409ee74e3259a9"
 }
 ```
 
@@ -25896,7 +27044,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "convertLogoPdf",
   "title": "convertLogoPdf",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "convertLogoPdf({context,name,data,targetWidthMm?})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。",
   "synonyms": [
     "convertLogoPdf",
@@ -25912,7 +27060,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:a8f2e5f1c5d6fce0478b647725e42fc5558d4c058a1fc1f46d6133b2da4383f9"
+  "docsHash": "sha256:5c92257fd5010313c58ebc1c6919fb68c2ffa312c8b17decf24c86bb4db5229d"
 }
 ```
 
@@ -25923,7 +27071,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?}); 详见 api.views；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
   "synonyms": [
     "setView",
@@ -25948,7 +27096,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:beb3335337abc2ce4503ffde7388cbe0630b93ccb289537babbcaf613b47f268"
+  "docsHash": "sha256:e3d000b72cca7859d85a08dd6e52b296d204e92fa11a12037928e9f30813fc23"
 }
 ```
 
@@ -25959,7 +27107,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "redraw",
   "title": "redraw",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "redraw({context}); 不接受额外字段。",
   "synonyms": [
     "redraw",
@@ -25980,7 +27128,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "DISPLAY_FAILED"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:847049152ac51a78307a2fdf339c1cce5180b75adea87c2b0ef731a143239829"
+  "docsHash": "sha256:6751dcc59a1a8a91f5b71392581d9628e2d24e0508f87a9e9160756d158cdbc3"
 }
 ```
 
@@ -25991,7 +27139,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "capture({context}); 不接受额外字段。",
   "synonyms": [
     "capture",
@@ -26012,7 +27160,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "DISPLAY_FAILED"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:cd528481e37a3defce461532ec74bdf50a8f7122f1f7c4cf6eedf0d22815e237"
+  "docsHash": "sha256:00a4061cb8fd09f966cedec0fb7ebfc820957dec44d6a47a5bbe4e4eba9b033b"
 }
 ```
 
@@ -26023,7 +27171,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}).",
   "synonyms": [
     "run",
@@ -26047,7 +27195,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "IDEMPOTENCY_KEY_REUSED",
     "STALE_REFERENCE"
   ],
-  "docsHash": "sha256:a93eb9dbdb3ed9f3791f904fd73b5f884b038a4bbfa57d0e547ee022cd082b22"
+  "docsHash": "sha256:47fcea6275fbf818fcc37b56add253ecdc77b8bd5f22438432fbb7121765ed8f"
 }
 ```
 
@@ -26059,7 +27207,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "工程改名",
   "description": "修改工程名称，保留几何。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -26075,7 +27223,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:ea8a41869f2df83559961ef564f584d9c4876296fdffdb6c1621aa8d49d98083"
+  "docsHash": "sha256:a0a38ebbff7c489c901977d3b6c1d77bdf17c30addb2908b87ce6acc103f69ae"
 }
 ```
 
@@ -26087,7 +27235,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "特征改名 实体名称",
   "description": "修改历史步骤及同 ID 实体名称，导入件也可使用。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -26105,7 +27253,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:f722e6c911093647b4af407681eee3828459c136d42fc9412a20b9bbff867f03"
+  "docsHash": "sha256:e1580afad711c45b76ab68aa2050356eb0daaffd655acc86f5792c46d73b9c77"
 }
 ```
 
@@ -26117,7 +27265,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "显示 隐藏实体",
   "description": "显隐指定当前实体，不删除几何。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -26137,7 +27285,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:584bd9ac6db7858dbf91c1c8f90a4c5e9a87134df99fb49305d9c4aac7f64cf5"
+  "docsHash": "sha256:25d4d1f30d3d230126b7e36ba3786c3e8c127dd2b26d9bead526a658215534e9"
 }
 ```
 
@@ -26149,7 +27297,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "实体原色 颜色 金属 材质",
   "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -26184,7 +27332,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:99e8785cd2a746d7c71a55f24a7f27bca4acd8bf3b56b92dcf2f5df461fc83e5"
+  "docsHash": "sha256:3d4ca27a72eae6762e06180a83cdb34b8b2c94573d70b2f44a465934bbf9acfc"
 }
 ```
 
@@ -26196,7 +27344,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "工程渲染 金属色",
   "description": "设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -26225,7 +27373,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:5cd9d9c71447aaf507d57d9bffba60dc0e57962aea2b1cdefd95c71c81ac2101"
+  "docsHash": "sha256:91bb83eb0dba9fb1a12bdb4eedaad73fcf536aba3605ba0926e7a0b7ec21677a"
 }
 ```
 
@@ -26237,7 +27385,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "组合拆散 多实体分解",
   "description": "将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -26253,64 +27401,64 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:067d8f10a5c22b1c18c18ed8ce97140135c0d0bd4e144131ea14882583bc46d3"
+  "docsHash": "sha256:362ebfb344dc468c1e4926cb1d1ab8330eeeed6650fa9345feea775fdf6ec254"
 }
 ```
 
-## 工具 reference.setWorkFrame · 设置工作基准
+## 工具 reference.setWorkFrame · 设置参考锚点（工作基准）
 
 ```json
 {
   "id": "reference.setWorkFrame",
-  "title": "设置工作基准",
-  "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；单位四元数，锁定时拒绝。",
+  "title": "设置参考锚点（工作基准）",
+  "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"reference.setWorkFrame\",args}); args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；单位四元数，锁定时拒绝。",
+  "inputContract": "execute({context,idempotencyKey,action:\"reference.setWorkFrame\",args}); args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:f2c0aef9bf23ade625e3b602cdbb01cc0c7e927ddf53559a5ed81377ed1cb5b9"
+  "docsHash": "sha256:afc9c41cbedeefd216585a63399e67f385dc1d79e4cf5616f0a1d449f3917a7e"
 }
 ```
 
-## 工具 reference.resetWorkFrame · 重置工作基准
+## 工具 reference.resetWorkFrame · 重置参考锚点（工作基准）
 
 ```json
 {
   "id": "reference.resetWorkFrame",
-  "title": "重置工作基准",
+  "title": "重置参考锚点（工作基准）",
   "description": "args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.resetWorkFrame\",args}); args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:131c653db351b76d48876546194ab7bae0a2f70be28b9a0c8448202560e72367"
+  "docsHash": "sha256:abfcf8e87545ab2df2afeba617667047c48ecbe1b000cb9323fed82fa904e0b7"
 }
 ```
 
-## 工具 reference.setLocked · 锁定工作基准
+## 工具 reference.setLocked · 锁定参考锚点（工作基准）
 
 ```json
 {
   "id": "reference.setLocked",
-  "title": "锁定工作基准",
+  "title": "锁定参考锚点（工作基准）",
   "description": "args:{locked:boolean}；可撤销的元数据操作。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.setLocked\",args}); args:{locked:boolean}；可撤销的元数据操作。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:cdc1d5a0b11832069886522a1322c3728bdc65bf942a195abdcf4286bb190db2"
+  "docsHash": "sha256:b5490b8c4af06fa6596ddad5c90c924dee2cf963ac82136d4b9fbbee728491bc"
 }
 ```
 
@@ -26322,14 +27470,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "保存具名基准",
   "description": "args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.saveFrame\",args}); args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:7e3295a61dcce9837aec117a5f99599d0d5d399dd3cce28256f48c5ef574063b"
+  "docsHash": "sha256:647085f5c7ce7365cae57f794b78af4fddf05f2796dd6a49efedf9b1f2ea4b0f"
 }
 ```
 
@@ -26341,14 +27489,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "激活具名基准",
   "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.activateFrame\",args}); args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:8ec0bcc986d11710c1c76ecff9eeb1dcd57a7d22489292f545a852aa97fc46ca"
+  "docsHash": "sha256:9c6c7183381cde9fdeea33cc8e731cf0d388f495e2e5ba42ac55710529108346"
 }
 ```
 
@@ -26360,14 +27508,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重命名具名基准",
   "description": "args:{frameId,expectedFrameVersion,name}。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.renameFrame\",args}); args:{frameId,expectedFrameVersion,name}。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:0b7a9baa25c871dea18464862ebdefc7cb2592a2f8ea8e3d3b6225f7aa4e98a6"
+  "docsHash": "sha256:33e5ef63bf91bf54f5b2a40210b2faf64417a310c20c1d610b9a1a2a0b9eb33a"
 }
 ```
 
@@ -26379,14 +27527,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "删除具名基准",
   "description": "args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.deleteFrame\",args}); args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:1cc4aa10026140e355a23dfa781634b52b7e422fc113407c2a21139d487e9e7e"
+  "docsHash": "sha256:cc79eaf0676f1166b654fcfa306951ec71212677a1fd6a64116bca9260410e3b"
 }
 ```
 
@@ -26396,16 +27544,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 {
   "id": "reference.setBodyAnchor",
   "title": "对象锚点",
-  "description": "当前阶段尚未开放；需要精确几何指纹证明。",
+  "description": "args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "category": "command",
-  "version": "1.7.0",
-  "implementationStatus": "unavailable",
+  "version": "1.8.0",
+  "implementationStatus": "implemented",
   "contractStatus": "page-command",
-  "runtimeAvailability": "unavailable",
-  "inputContract": "execute({context,idempotencyKey,action:\"reference.setBodyAnchor\",args}); 当前阶段尚未开放；需要精确几何指纹证明。",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"reference.setBodyAnchor\",args}); args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:7c8ab14ef5b1beed56f4666d13d372a0402db5380737fc428488b951ae05e7b1"
+  "docsHash": "sha256:b10367ec2796db679f7f1b44dcf00b5b1cdb5391f361a2653ab967637d0b8c6e"
 }
 ```
 
@@ -26415,16 +27563,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 {
   "id": "reference.deleteBodyAnchor",
   "title": "删除对象锚点",
-  "description": "当前阶段尚未开放；需要精确几何指纹证明。",
+  "description": "args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
   "category": "command",
-  "version": "1.7.0",
-  "implementationStatus": "unavailable",
+  "version": "1.8.0",
+  "implementationStatus": "implemented",
   "contractStatus": "page-command",
-  "runtimeAvailability": "unavailable",
-  "inputContract": "execute({context,idempotencyKey,action:\"reference.deleteBodyAnchor\",args}); 当前阶段尚未开放；需要精确几何指纹证明。",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"reference.deleteBodyAnchor\",args}); args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:1778ae0bb7d473c3bc32d82d97c0d66e1f827ba2970e3d1da7b55d99c3a7a04a"
+  "docsHash": "sha256:4ff170b4cadfd4b378f8ce034ac1a3d2d83221bf0e57e6da8265b0cbd0c81773"
 }
 ```
 
@@ -26434,16 +27582,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 {
   "id": "feature.add",
   "title": "新增几何",
-  "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡。当前 box/hole 支持 placement。",
+  "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"feature.add\",args}); args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡。当前 box/hole 支持 placement。",
+  "inputContract": "execute({context,idempotencyKey,action:\"feature.add\",args}); args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:1e8ead49829cbe700d86755d607481bb3e70c235c152e440a3d99082cdb942e5"
+  "docsHash": "sha256:c9b25ab632b818700541703cfaa5cae133ddbaf3188981044e93d6099f9724f7"
 }
 ```
 
@@ -26455,14 +27603,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "修改参数",
   "description": "args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"feature.edit\",args}); args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:51ad5676fd1483eafcff84bac392e36a85c45c0d862d5a638ea9687a38dcc204"
+  "docsHash": "sha256:68ff59ae2ec3947fed0e9d2c88ff125f565b027e3e9c046bdf12893e9b39a2ae"
 }
 ```
 
@@ -26474,14 +27622,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "删除实体",
   "description": "args:{bodyIds}，不可使用历史已替换 ID。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"feature.remove\",args}); args:{bodyIds}，不可使用历史已替换 ID。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:0c02d3bce0549bd81f6310f3f8ddd8c6632f1f8c03f12c4576f609f59f021f1a"
+  "docsHash": "sha256:4de2a194da823c7492e36f5001398f867d5e441bf8b1d25673a59fa3afee4b8c"
 }
 ```
 
@@ -26493,14 +27641,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "撤销",
   "description": "args:{}；撤销一个已提交步骤。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"history.undo\",args}); args:{}；撤销一个已提交步骤。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:b2b9d86074fc39a373be7799eb4873b88bfd3d6c3272c6c35a75bfa5dc0af1ca"
+  "docsHash": "sha256:81eb1ab5dc997c460d4e59558012f1f0998008ccc75738451bd642a21c50e1ec"
 }
 ```
 
@@ -26512,14 +27660,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重做",
   "description": "args:{}；重做一个步骤。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"history.redo\",args}); args:{}；重做一个步骤。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:88141d7fe3ceb3d5e99f2c1717d346f5e421df30e4b571447c9f1f74ba18f34c"
+  "docsHash": "sha256:67a12983bbbb04a05371eed79bf0db72486dac5a28aa8004b484755b77719ea5"
 }
 ```
 
@@ -26531,33 +27679,52 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重建工程",
   "description": "args:{}；重建当前历史。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"document.refresh\",args}); args:{}；重建当前历史。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:3efe02c97f79f7d9ecabf909cb11358bc22ec55276b81426cf2335f14c874b39"
+  "docsHash": "sha256:6107e53f2e70431e28a3449970b1dc4dfbf480acd514bce922fdce0cdc8379f7"
 }
 ```
 
-## 工具 preview.start · 预览模型
+## 工具 preview.start · 预览模型或文件插入
 
 ```json
 {
   "id": "preview.start",
-  "title": "预览模型",
-  "description": "args 同 feature.add；显式 refs，不使用 UI 选择。已存在预览先取消。",
+  "title": "预览模型或文件插入",
+  "description": "普通特征 args 同 feature.add；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"preview.start\",args}); args 同 feature.add；显式 refs，不使用 UI 选择。已存在预览先取消。",
+  "inputContract": "execute({context,idempotencyKey,action:\"preview.start\",args}); 普通特征 args 同 feature.add；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:cef8aca5b222ff113754b9b85ce08d845ff6e176da3526195dc11b89dcce8b38"
+  "docsHash": "sha256:7cfe2e8608d73458098b502b97e58b55df2fadde8d32f4bb406a81b55784e858"
+}
+```
+
+## 工具 preview.update · 更新预览
+
+```json
+{
+  "id": "preview.update",
+  "title": "更新预览",
+  "description": "args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
+  "category": "command",
+  "version": "1.8.0",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"preview.update\",args}); args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "docs": "api.editor",
+  "docsHash": "sha256:a29b659355c9653acbd79322e0144748669ae9c80588b90e4c75f3ca7c360165"
 }
 ```
 
@@ -26567,16 +27734,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 {
   "id": "preview.commit",
   "title": "应用预览",
-  "description": "args:{}；提交当前预览，一个撤销步骤。",
+  "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"preview.commit\",args}); args:{}；提交当前预览，一个撤销步骤。",
+  "inputContract": "execute({context,idempotencyKey,action:\"preview.commit\",args}); 新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:6d5935cb1a7127b0e6e0ea455495e75f10fed8937323981fca5f18ec9268b262"
+  "docsHash": "sha256:9482aa53fbe42a2c5d758b9748b2b27f40c387bb842e65146a54441456baea44"
 }
 ```
 
@@ -26586,16 +27753,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 {
   "id": "preview.cancel",
   "title": "取消预览",
-  "description": "args:{}；恢复已提交模型。开始/取消不增加 revision，回执 preview.active 表示实际预览状态。",
+  "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"preview.cancel\",args}); args:{}；恢复已提交模型。开始/取消不增加 revision，回执 preview.active 表示实际预览状态。",
+  "inputContract": "execute({context,idempotencyKey,action:\"preview.cancel\",args}); 新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:9b1b40a6aeecdb459f0e7979013915c05dc0af244614c4d3c20e8109c0f194ed"
+  "docsHash": "sha256:4e7196b72759ef4ae83074938337d5f989f0ce936ba786322a55613f4ae2e695"
 }
 ```
 
@@ -26606,7 +27773,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。",
   "synonyms": [
     "参数",
@@ -26680,7 +27847,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Indexed face/edge references downstream of a changed feature are rejected when stability cannot be proven."
   ],
   "docs": "api.named-parameters",
-  "docsHash": "sha256:2f86ca6fc63af3fd355d70e5e72f16137731a1f9b89f508cfe435e5075f62ab7"
+  "docsHash": "sha256:90c2defb80ad6c3363b17ab7496a02fd367ecae9344bcd4528e410cf346222f6"
 }
 ```
 
@@ -26691,7 +27858,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.capabilities",
   "title": "files.capabilities",
   "category": "file",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "label": "文件能力",
   "synonyms": [
     "文件能力",
@@ -26725,7 +27892,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:dfd94cedf0dd799e54bb4456fc2ad839547e5105d2e8db9e544b778d6db905bb"
+  "docsHash": "sha256:9ed11019bd8e7883309994875c9d2e6b80055594f984c3caff461f2063c25611"
 }
 ```
 
@@ -26736,7 +27903,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "label": "登记文件资源",
   "synonyms": [
     "登记文件资源",
@@ -26770,7 +27937,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:bd853195979e197e88f2ea258137677aefc9cb6fb9a2ab353585dcb07368b9b3"
+  "docsHash": "sha256:85dd9b4af43bdcc393bd0eda94b36099560e1159c430fbc8838f5486298474fa"
 }
 ```
 
@@ -26781,7 +27948,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "label": "新建工程",
   "synonyms": [
     "新建工程",
@@ -26815,7 +27982,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:7d9c0a53aebe38b352897d936aa3c80cb2b6b538f4bb37dd402d7a312c452956"
+  "docsHash": "sha256:78f454dc68e3bfc68164707ee3f9e5630ea2f0fbe16af61ca2d55d4c270c5b63"
 }
 ```
 
@@ -26826,7 +27993,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "label": "打开工程",
   "synonyms": [
     "打开工程",
@@ -26860,7 +28027,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:f509c2935ed0c3931f7d9b928a7a3d278b166cd09d5a205243c81070476df25d"
+  "docsHash": "sha256:2d17a53611782328a0db10b56d3a5739014b942ecb5ab51f9b31a2f1fb4aa913"
 }
 ```
 
@@ -26871,7 +28038,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "label": "导入",
   "synonyms": [
     "导入",
@@ -26893,6 +28060,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": "registered-file-only"
+  },
   "caveats": [
     "IGES requires unavailable local conversion in the static build."
   ],
@@ -26907,7 +28086,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:fd90b2f0e5a2efa57ded1a3ff0605b3ab2d703406c4ddb021c3cd80747cfe33c"
+  "docsHash": "sha256:e9cba991e016304c6e610061c1cd2a235abebbffeda69f2c5f3a2125cf61960b"
 }
 ```
 
@@ -26918,7 +28097,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "label": "保存工程",
   "synonyms": [
     "保存工程",
@@ -26952,7 +28131,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:7f446399804f8e374de2276d131fa5c9d72b2cb49f14ae19a4ed5731f04e7bb9"
+  "docsHash": "sha256:f9500acdb3d3757f4dafdc4d81069f423b24afbb10e526299dbd8010e4ab9b39"
 }
 ```
 
@@ -26963,7 +28142,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "label": "导出文件",
   "synonyms": [
     "导出文件",
@@ -26997,7 +28176,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:e86d07ed433f9b7a32ec262e428920c64e950ab1f1d76fa7b1ad1c4f03702178"
+  "docsHash": "sha256:79d52a28f71f170a38bbd7ce72ebd568b4d8211ca1e58fd5f87ccad7296e898d"
 }
 ```
 
@@ -27008,7 +28187,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "label": "读取文件字节",
   "synonyms": [
     "读取文件字节",
@@ -27042,7 +28221,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:db7637441b2282e0aff4ee6a86995cde1b9fbd8fa69ffef86e18b12e8d981831"
+  "docsHash": "sha256:07ddde265085668abac4271dddfc119227327f65661fc5bba638dca102bf7109"
 }
 ```
 
@@ -27053,7 +28232,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "label": "下载文件",
   "synonyms": [
     "下载文件",
@@ -27087,7 +28266,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:5e8b6adf359b4d555d91aefc65c9ad1f5fa376773317022ce9ab1da30a9be0ee"
+  "docsHash": "sha256:4d213948838c055f700c6910f734d37f8eb4996353278bf8ce365027cc12b5bc"
 }
 ```
 
@@ -27098,7 +28277,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "label": "写入文件",
   "synonyms": [
     "写入文件",
@@ -27132,7 +28311,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:394d8cde8bffb7e26da2e17daae25500925436ac43efb3dc17287fd1c2c33ee6"
+  "docsHash": "sha256:dc7b8a0c8a9752e42168d92010025f9050b9b6f784152e2251c0e7dbce5c5929"
 }
 ```
 
@@ -27143,7 +28322,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "label": "释放文件资源",
   "synonyms": [
     "释放文件资源",
@@ -27177,7 +28356,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:b386f2cc6d3a3c8d99f116a817e59cda14de3be870c2b6a3477690000ed8e041"
+  "docsHash": "sha256:2b4297e732e79b7b3606d492cbd49876f15f4219e4ffdf7fb137904dfcc5131b"
 }
 ```
 
@@ -27189,14 +28368,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "IGES/IGS 导入",
   "description": "当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。",
   "category": "unavailable",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
   "errorCodes": [
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:2faabf92a369609e548c94b9dc7033b79eb42d49f24b06b8094543099969c67b"
+  "docsHash": "sha256:7d8fe1ae19186d5e2523e1d1db4c2e5176566c5d7b23752284a7f4c14f2d6afb"
 }
 ```
 
@@ -27208,13 +28387,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
   "description": "当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。",
   "category": "unavailable",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
   "errorCodes": [
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:b766b04761f71228102373dfc8777cc2602991420244ed4b060bca18ff48478f"
+  "docsHash": "sha256:fe95cca667e428ff8ac483120cd5df6e9e3d17a986b8a657f836c08753d8aa84"
 }
 ```

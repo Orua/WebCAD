@@ -79,7 +79,9 @@ for (const entry of entries) {
   for (const field of entry.definition.fields || []) if (!Object.hasOwn(entry.definition.defaults, field.key)) throw new Error('Missing default for ' + entry.kind + '.' + field.key);
 }
 export const QUICK_MODEL_ENTRIES = Object.freeze(byKind);
-export const QUICK_MODELS = Object.freeze(Object.fromEntries(entries.map(entry => [entry.kind, entry.definition])));
+// Each template declares a stable insertion semantic. The catalog uses its
+// source modeling origin until that template defines and tests a richer anchor.
+export const QUICK_MODELS = Object.freeze(Object.fromEntries(entries.map(entry => [entry.kind, Object.freeze({...entry.definition,defaultInsertionAnchor:entry.definition.defaultInsertionAnchor||'model-origin'})])));
 export const QUICK_MODEL_VISIBLE_KINDS = Object.freeze(entries.map(entry => entry.kind).filter(kind => !hiddenFromPicker.has(kind)));
 export function buildQuickModel(params, cad, options = {}) {
   const entry = QUICK_MODEL_ENTRIES[params?.kind];

@@ -1,14 +1,14 @@
 {
   "id": "preview.start",
-  "title": "预览模型",
-  "description": "args 同 feature.add；显式 refs，不使用 UI 选择。已存在预览先取消。",
+  "title": "预览模型或文件插入",
+  "description": "普通特征 args 同 feature.add；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"preview.start\",args}); args 同 feature.add；显式 refs，不使用 UI 选择。已存在预览先取消。",
+  "inputContract": "execute({context,idempotencyKey,action:\"preview.start\",args}); 普通特征 args 同 feature.add；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:cef8aca5b222ff113754b9b85ce08d845ff6e176da3526195dc11b89dcce8b38"
+  "docsHash": "sha256:7cfe2e8608d73458098b502b97e58b55df2fadde8d32f4bb406a81b55784e858"
 }

@@ -2,7 +2,7 @@
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}).",
   "synonyms": [
     "run",
@@ -26,5 +26,5 @@
     "IDEMPOTENCY_KEY_REUSED",
     "STALE_REFERENCE"
   ],
-  "docsHash": "sha256:a93eb9dbdb3ed9f3791f904fd73b5f884b038a4bbfa57d0e547ee022cd082b22"
+  "docsHash": "sha256:47fcea6275fbf818fcc37b56add253ecdc77b8bd5f22438432fbb7121765ed8f"
 }

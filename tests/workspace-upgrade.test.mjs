@@ -46,7 +46,7 @@ test('5 MiB project payload decodes exactly without regex stack overflow; larger
  }
 });
 test('all configurable header/tab/control actions have public routes',()=>{
- assert.equal(UI_LAYOUT.tabs.length,7);assert(Object.isFrozen(UI_LAYOUT.tabs));
+ assert.deepEqual(UI_LAYOUT.tabs.map(tab=>tab.id),['create','edit','machine','surface','inspect','view']);assert(Object.isFrozen(UI_LAYOUT.tabs));
  const actions=[...UI_LAYOUT.header.map(x=>x.action),...UI_LAYOUT.tabs.flatMap(tab=>tab.groups.flatMap(([,items])=>items)),...Object.values(UI_LAYOUT.controls).flatMap(c=>c.action?[c.action]:c.items.map(([,action])=>action))];
  for(const action of actions)assert(UI_API_ROUTES[action],action);
 });

@@ -8,27 +8,28 @@ import { TOOL_LABELS } from './tool-labels.js';
 import { QUICK_MODELS } from './quick-models.js';
 import { SEARCH_VERSION, createToolIndex } from './tool-discovery.js';
 import { CONNECTION_POLICY, CONNECTION_GUIDE, MODELING_WORKFLOW } from './automation-guidance.js';
-import {PLACEMENT_POLICIES} from './placement-policy.js';
-const PAGE_DOC_VERSION = '1.7.0';
+import {PLACEMENT_POLICIES,placementContract} from './placement-policy.js';
+const PAGE_DOC_VERSION = '1.8.0';
 const commandSpecs={...EDITOR_ACTIONS,
-  'reference.setWorkFrame':{title:'设置工作基准',description:'args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；单位四元数，锁定时拒绝。'},
-  'reference.resetWorkFrame':{title:'重置工作基准',description:'args:{scope:"position"|"orientation"|"all"}；只重置指定部分。'},
-  'reference.setLocked':{title:'锁定工作基准',description:'args:{locked:boolean}；可撤销的元数据操作。'},
+  'reference.setWorkFrame':{title:'设置参考锚点（工作基准）',description:'args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。'},
+  'reference.resetWorkFrame':{title:'重置参考锚点（工作基准）',description:'args:{scope:"position"|"orientation"|"all"}；只重置指定部分。'},
+  'reference.setLocked':{title:'锁定参考锚点（工作基准）',description:'args:{locked:boolean}；可撤销的元数据操作。'},
   'reference.saveFrame':{title:'保存具名基准',description:'args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。'},
   'reference.activateFrame':{title:'激活具名基准',description:'args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。'},
   'reference.renameFrame':{title:'重命名具名基准',description:'args:{frameId,expectedFrameVersion,name}。'},
   'reference.deleteFrame':{title:'删除具名基准',description:'args:{frameId,expectedFrameVersion}；已冻结特征不受影响。'},
-  'reference.setBodyAnchor':{title:'对象锚点',description:'当前阶段尚未开放；需要精确几何指纹证明。',status:'unavailable'},
-  'reference.deleteBodyAnchor':{title:'删除对象锚点',description:'当前阶段尚未开放；需要精确几何指纹证明。',status:'unavailable'},
-  'feature.add':{title:'新增几何',description:'args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡。当前 box/hole 支持 placement。'},
+  'reference.setBodyAnchor':{title:'对象锚点',description:'args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。'},
+  'reference.deleteBodyAnchor':{title:'删除对象锚点',description:'args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。'},
+  'feature.add':{title:'新增几何',description:'args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。'},
   'feature.edit':{title:'修改参数',description:'args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。'},
   'feature.remove':{title:'删除实体',description:'args:{bodyIds}，不可使用历史已替换 ID。'},
   'history.undo':{title:'撤销',description:'args:{}；撤销一个已提交步骤。'},
   'history.redo':{title:'重做',description:'args:{}；重做一个步骤。'},
   'document.refresh':{title:'重建工程',description:'args:{}；重建当前历史。'},
-  'preview.start':{title:'预览模型',description:'args 同 feature.add；显式 refs，不使用 UI 选择。已存在预览先取消。'},
-  'preview.commit':{title:'应用预览',description:'args:{}；提交当前预览，一个撤销步骤。'},
-  'preview.cancel':{title:'取消预览',description:'args:{}；恢复已提交模型。开始/取消不增加 revision，回执 preview.active 表示实际预览状态。'}
+  'preview.start':{title:'预览模型或文件插入',description:'普通特征 args 同 feature.add；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision。'},
+  'preview.update':{title:'更新预览',description:'args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。'},
+  'preview.commit':{title:'应用预览',description:'新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。'},
+  'preview.cancel':{title:'取消预览',description:'新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。'}
 };
 function commandCard(id){const s=commandSpecs[id];return {id,title:s.title,description:s.description,category:'command',version:PAGE_DOC_VERSION,implementationStatus:s.status??'implemented',contractStatus:'page-command',runtimeAvailability:s.status==='unavailable'?'unavailable':'requires_ready_page',inputContract:'execute({context,idempotencyKey,action:"'+id+'",args}); '+s.description,fields:s.fields,allowedFinishes:id.includes('appearance')?FINISH_KEYS:undefined,minimalExample:s.example?{action:id,args:s.example}:undefined,outputContract:'检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。',docs:id.startsWith('reference.')?'api.references':'api.editor'};}
 export const EXAMPLES=Object.freeze([]);
@@ -36,7 +37,7 @@ const PAGE_METHODS = Object.freeze(['createRequestContext','getUILayout','setRen
   'execute', 'measure', 'inspectPrintability', 'fitProfile', 'traceTwinWindow', 'executeText', 'setDisplayPreferences', 'getLogoConverter', 'setLogoConverter', 'convertLogoPdf', 'setView', 'redraw', 'capture', 'run']);
 const FILE_METHODS = Object.freeze(['capabilities', 'register', 'new', 'open', 'import', 'save', 'export', 'read', 'download', 'write', 'release']);
 const PAGE_DOCS = Object.freeze({
-  'api.references':'工作基准属于工程元数据；世界原点固定不动。getState().referenceSystem.workFrame 给出 origin、quaternion、locked、frameVersion。通过 execute 的 reference.setWorkFrame、resetWorkFrame、setLocked 修改，每次成功写入增加工程 revision，可撤销、不重建 BRep。feature.add/feature.edit 可显式传 placement:{version:1,frame:{kind:"world"|"snapshot"|"work"|"saved",...},sourceAnchor:{kind:"model-origin"|"bottom-center"|"bounds-center"|"point",point?}}。work 必须传 expectedFrameVersion。持久化特征保存 frameSnapshot，后续移动工作基准不会移动旧特征。独立创建 C、刀具 T、faceHole/logo、transform/copy 的新模式，以及镜像、阵列、分割、截面、referenceExtrude 支持 placement。N 类拓扑操作和旧 curvedLogo 不接受无意义定位。transform/copy 的新 mode 为 translate、toPoint、rotate、scale；align 尚未开放。box 用 bottom-center 时底面中心对准锚点；刀具局部点和轴按基准变换。保存工程使用 version:2，仍可打开旧 version:1 工程。',
+  'api.references':'世界原点不可修改；工作基准是工程元数据，getState().referenceSystem.workFrame 返回 origin/quaternion/locked/frameVersion。reference.setWorkFrame、resetWorkFrame、setLocked 与保存/激活/改名/删除具名基准均经 execute 的 revision 与幂等检查，可撤销且不移动旧实体。queryReferences({context,kind:"point"|"axis"|"frame",bodyIds,filter:{types?,near?},limit?,offset?,requireUnique?}) 返回精确 B-Rep 或明确派生候选、referenceId、几何指纹、歧义和分页；edge-nearest/trimmed-face-point 必须给 near:{point:[x,y,z],radiusMm}。圆心不冒充面内点；凹面/有孔面面积重心标为不保证落在修剪区域。referenceId 在工程 revision、实例或几何指纹变化后失效。reference.setBodyAnchor 需要当前对象的精确点 referenceId、bodyId、name、单位 quaternion；保存版本和指纹。已知刚体 transform/copy 继承锚点，改形无法证明映射时标记 stale，named 锚点定位拒绝旧来源。placement:{version:1,frame:{kind:"world"|"snapshot"|"work"|"saved",...},sourceAnchor:{kind:"model-origin"|"bottom-center"|"bounds-center"|"named"|"point",anchorId?,point?}}；work/saved 要对应版本，历史保存 frameSnapshot。各工具卡 placementPolicy 声明定位是否适用。transform/copy 新 mode 有 translate、toPoint、rotate、scale、align；align 必须给源/目标点、轴、面内方向、同向/反向、间隙和扭转角，缺失或退化拒绝。旧世界坐标 API 语义保留。新版工程 version:2，仍读取 version:1。',
   'api.query-geometry':'queryGeometry({context,bodyId,kind:"face"|"edge",filter:{},requireUnique:false,limit:20}) 返回精确 BRep 候选、总数、分页及快照绑定令牌。face.surfaceType 筛选支持 plane/cylinder/cone/sphere/torus/bspline/bezier/revolution/extrusion/offset/other；edge.curveType 支持 line/circle/ellipse/hyperbola/parabola/bspline/bezier/offset/other，也兼容内核原始小写类型（cylindre、bspline_surface、bspline_curve 等）。返回 geomType/surfaceType/curveType 保留实际内核编码。plane 另包含已证实共面的 BSpline（planar=true）。normal 和 atExtreme 仍仅适用于可识别平面；非平面不能伪造统一法向。BSpline 返回 spline 次数、控制点数量与节点数量，尚不返回完整控制网或 G0/G1/G2 认证。圆边返回 radiusMm/center/axis；radiusRangeMm 不适用于椭圆。拓扑编号和 selectionToken 只属于返回的工程实例与 revision。改模型后重新查询。',
   'api.reliability':'所有带 context 的页面入口接受 getState().context（revision）或 connect().requestContext（expectedRevision）。createRequestContext(context?) 可显式转换；两字段同时出现且不一致时报错，绝不自动采用新版本。大文件使用 files.register/read，禁止塞进批次或反复回传模型上下文。files.save 生成资源，files.download 只发起下载；files.write 返回 verified 才证明句柄文件写入校验。单资源仍限 20 MiB，总资源 64 MiB。统一异常入口 await api.invoke({method,args}) 支持当前页面方法及 files.*；原同步发现和 files 方法保持兼容，可抛带 code 的异常。后台计算回执：submit({jobId,method,args}) 立即返回 queued，轮询 getJob({jobId})，完全相同 jobId/参数只取原任务；不得换 key 重复提交超时任务。状态 queued/running/committed/completed/partial/failed/unknown/cancelled，result 保留原回执与 context。进度 progress:null 表示内核未提供可测百分比。cancelJob 只能取消尚未运行任务，运行中的内核不承诺中断。仅当前页面内存中保留最多100任务，刷新后先检查模型，不自动重放；无额外服务。',
   'api.workspace':'UI 配置源 src/ui-layout.js：tabs/groups/controls/header/panels/defaultTab，修改后构建生成静态站点。getUILayout() 读取当前完整配置。文件、创建、曲面、编辑、加工、检查、视图七个选项卡与常用操作共一行，工程名称放在左侧设计树顶部。浏览器标题显示未保存标记及工程名称；URL document 参数仅区分当前工程，不是可恢复工程的分享链接。setRenderQuality({context,quality}) 提供 draft/standard/fine/ultra 四档，getState().renderQuality 提供毫米公差、角度公差（弧度）及三角面数。只重算显示网格，不改工程 revision、精确 BRep 或 STEP 导出；不是屏幕自适应网格。OpenCascade 可保留已有更细网格，降档不承诺减少三角面数。当前不提供斑马纹、曲率梳和精确 G0/G1/G2 连续性认证；导入 STEP 也不能反推原始特征历史。',
@@ -74,7 +75,7 @@ const PAGE_DOCS = Object.freeze({
   'api.display-preferences':'全局设置在顶部全局设置按钮。setDisplayPreferences({context,values})：defaultColor/background 为 #RRGGBB，defaultFinish 为材质键；environmentMode 为 studio（均匀工作室，默认）或 hdr（原 HDR）。exposure 0.1–3；environmentIntensity 0–3；environmentRotation/lightAzimuth -180–180 度（绕世界Z）；lightElevation -89–89 度；roughnessOffset 0–0.6（只影响金属）；keyIntensity/fillIntensity/ambientIntensity 0–6。字段均可部分更新。getState().displayPreferences 读当前值。cookie 保存一年，同源浏览器自动读取，persisted=false 表示未持久化。全局设置不属于工程撤销历史；单体显式颜色和材质优先，工程 document.appearance finish:null 跟随全局，否则保持工程覆盖。UI 可选标准、柔和、明暗对比预设或恢复默认。环境反射方向与直接光源方向是不同设置；金属凹凸不等于实体几何缺陷。',
   "api.smooth-transition": "autoRound 是严格 v2 整件圆边：params:{radius:0.1}，refs:[bodyId]，所有尖锐边统一处理，失败不部分提交。smoothTransition 是严格 v2 面组过渡：params:{radius:0.1,faceIds:[当前相邻面序号,...]}，refs:[bodyId]。选至少两个相邻面，仅对其公共尖缝联动倒圆。queryGeometry 边含 startPoint/endPoint/midpoint/bounds/adjacentFaceIds/normalAngleDeg/sharp/degenerate，面含 edgeIds；按位置和邻接找交线。getState().bodies[].transitionReport 含 processedEdgeIds/processedSeams/remainingSharpEdges/remainingSharpEdgeCount。过大半径、自交、未消除目标尖缝或抽样发现非边界新尖缝时拒绝，原模型保留。局部过渡与未选面的结束边界可能锐利，boundarySharpEdges 单独报告。检查法向为边上20/50/80%三点与1度阈值，不是曲率连续证明或全部顶点认证。未选原有锐边（如文字边）保留，不能宣称整件无利角。UI 加工→曲面处理→整件圆边/平滑过渡，选实体或 Ctrl 多选面，预览再确认。完成后用 feature.edit 修改原特征 params.radius，会从源几何重建并重算后续步骤；不是在结果上再倒一次圆角。",
   'api.logo': `统一 LOGO：工具栏“加工→LOGO”与页面 execute({action:"feature.add",args:{op:"logo",...}}) 共用建模内核。先 getState() 得到当前 bodyId/revision，queryGeometry({context,bodyId,kind:"face",requireUnique:false}) 找精确 BRep 面与 faceId；放置点 point 必须为该面的三维 XYZ。新操作 params 使用 {placementVersion:2,faceId,point:[x,y,z],mode:"engrave"|"emboss",depth:显式正数,draftAngle:0,scale:1,angle:0,offsetX:0,offsetY:0,mirrorX:false,regions:[{outer:[[x,y],...],holes:[]}],source:{kind:"reviewed-contours",reviewed:true,original:{...}}}，refs:[bodyId]。source.reviewed=true 是调用者已复核轮廓来源、尺寸和孔洞的明确声明；新流程不猜深度。平面可凹刻/凸字/拔模，非平面只允许 mode=engrave 且 draftAngle=0，仍受原曲面边界、接缝、薄壁校验。创建时记录源 BRep 哈希作快照审计；历史重建以稳定的面几何签名、类型、面积与中心校验，不能把跨内核不稳定的原始序列化字节误作历史匹配依据。旧 logo 缺少 placementVersion 沿用原平面语义，旧 curvedLogo 只供历史兼容。轮廓单位 mm、局部 X 为全局 X 投影到目标面切平面（X 法向附近改 Y）、局部 Y=法向×局部 X。浏览器 UI 本地读取 .logo.json/受限 SVG/粘贴 SVG 或闭合 d；外部 AI 可直接提供经复核的 regions，不能把 SVG 字符串当 regions。SVG 曲线离散误差源尺度约 0.005 mm，等比放大后误差也按比例增加。静态版没有位图/复杂矢量转换服务。`,
-  'api.editor': '所有编辑动作均使用 execute({context,idempotencyKey,action,args}) 或 run 的 execute 步骤。先 getTool({id:动作名称})，不要猜字段。document.rename 修改工程名称；feature.rename 可改导入件名称；body.visibility 指定 bodyIds/visible；body.appearance 设置 color/finish；document.appearance 设置工程默认 finish；body.explode 拆多实体组合。颜色 #RRGGBB，null 重置；finish:null 跟随工程，design 显示原色，金属材质暂时盖住原色但保留其数值。getState().colors/appearance/renderFinish/hidden 可读回。外观/显隐/改名不重算几何，保存到 .webcad 且支持撤销。preview.start 与 feature.add 相同输入；preview.commit/cancel 的 args={}。预览开始/取消不提交工程，检查回执 preview.active，随后读取 getState().preview。',
+  'api.editor': '所有编辑动作均使用 execute({context,idempotencyKey,action,args}) 或 run 的 execute 步骤。先 getTool({id:动作名称})，不要猜字段。document.rename 修改工程名称；feature.rename 可改导入件名称；body.visibility 指定 bodyIds/visible；body.appearance 设置 color/finish；document.appearance 设置工程默认 finish；body.explode 拆多实体组合。颜色 #RRGGBB，null 重置；finish:null 跟随工程，design 显示原色，金属材质暂时盖住原色但保留其数值。getState().colors/appearance/renderFinish/hidden 可读回。外观/显隐/改名不重算几何，保存到 .webcad 且支持撤销。preview.start 的普通特征 args 同 feature.add；文件来源用 fileImport:{resourceId,placement}。回执返回 previewId/generation，更新用 preview.update 的 expectedGeneration，提交或取消也必须带当前预览身份；旧 UI 预览继续接受空 args。草稿不改工程 revision。',
   'api.ui-coverage': '界面动作与 AI 等价接口（手势以坐标和显式参数代替）：\n'+JSON.stringify(UI_API_ROUTES,null,2),
   'recipe.examples': '打开用户提供的 .webcad 工程：经授权取得文件字节，await api.files.register({name,data}) 后调用 files.open({context,resourceId})。context 在读文件前取得；遇并发修改拒绝，未保存工程不能替换。读取卡片 files.write 了解真实磁盘保存；仅 files.save 生成字节不清除 dirty。正式界面不提供预置示例。',
   'api.run': `${CONNECTION_POLICY} 调用 await window.webcad.api.run(request)。一次提交最多 20 步。禁止 JS/eval、路径读写和隐式选择。\n请求 {context:{sessionId,documentId,documentInstanceId,expectedRevision},idempotencyKey:"唯一键",steps:[{id:"ring",method:"add",args:{op:"torus",params:{majorRadius:15,minorRadius:2.5}}},{id:"size",method:"measure",args:{bodyId:{"$ref":"ring.createdBodyIds.0"}}}]}。context 必须来自本页 getState()；revision 转为 expectedRevision。线径5、内径25：minorRadius=2.5，majorRadius=15，外径35。\nadd 是 feature.add 的适配器，自动读取当前工具版本/schemaHash，接受 op/params/refs/name；几何参数、来源与实体引用仍须先读工具卡。advisory 操作并未因此升级为严格契约。refs 可用已有 body ID 或先前成功回执的 {$ref:"stepId.createdBodyIds"}。\n可用方法：add、execute、info、getState、searchTools、getTool、readDocs、queryGeometry、measure、setView、redraw、files.capabilities/register/import/save/export/release。execute 接受 action/args；context 和每步幂等键由批次提供。files.register 使用 {name,base64,mime?}；输入大小受批次 3 MiB 限制。LOGO 轮廓可直接放入建模 params.regions，无需点文件选择器；PDF/SVG 字节不是闭合轮廓。\n步骤可省略 args。id 使用字母开头的 1..40 位字母数字下划线连字符；批次 key 最多80字符，当前文档实例最多保留100份回执。失败立即停止，completed/partial/failed/unknown 必须区分，atomic=false 表示先前成功步骤保留，可用 history.undo 逐步撤销。重新提交完全相同 key/请求返回原回执而不重复建模；更改请求需新 key；幂等仅本页面文档实例有效，重载后先读状态。\nfiles.save/export 返回 generated 资源，未证明磁盘保存；脚本客户端再 files.read/download/write，面板使用“下载”按钮只证明发起下载。新建/打开工程和截图使用专用页面 API，不属于批次。几何修改由旧有命令队列执行，其他 UI/客户端插入修改后批次停止，不自动接受新 revision。`,
@@ -149,7 +150,7 @@ function fileCard(name) {
     label: TOOL_LABELS[name] || name, synonyms:[TOOL_LABELS[name] || name, name],
     description: input, inputContract: input, outputContract: output, units: { length: 'mm', angle: 'degrees' },
     implementationStatus: 'page-adapter', contractStatus: 'browser-file-adapter', runtimeAvailability: 'requires_ready_page',
-    limits: FILE_LIMITS,
+    limits: FILE_LIMITS,...(name==='import'?{placementPolicy:placementContract('import')}:{}),
     caveats: name === 'import' ? ['IGES requires unavailable local conversion in the static build.'] : [],
     errorCodes: ['CAPABILITY_UNAVAILABLE', 'REVISION_CONFLICT', 'INSTANCE_MISMATCH', 'UNSAVED_REPLACEMENT',
       'HASH_MISMATCH', 'SIZE_LIMIT', 'RESOURCE_LIMIT', 'RESOURCE_EXPIRED', 'PERMISSION_REQUIRED'] };
@@ -192,7 +193,7 @@ const METHOD_DETAILS = Object.freeze({
   getTool: ['工具卡 参数 schema 契约', 'getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。', '完整工具卡、版本和 docsHash。'],
   readDocs: ['读取 文档 配方 白名单', 'readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。', '限定长度的说明文本、版本、哈希和分页游标；匹配 knownHash 时 status=not_modified，不重复传文本。'],
   queryGeometry: ['几何查询 面 边 选择令牌', 'queryGeometry({context,bodyId,kind:"face"|"edge",filter,requireUnique?,limit?,cursor?})。', '精确 B-Rep 候选项、歧义信息、快照绑定的 selectionToken 与当前 context。'],
-  queryReferences:['参考点 工作基准 几何吸附','queryReferences({context,bodyIds:[],kind:"point",filter?:{types?:["world-origin","work-origin","endpoint","circle-center"]},limit?,requireUnique?})。','当前工程的精确坐标候选、来源、总数和截断状态；不写模型。'],
+  queryReferences:['参考点 工作基准 几何吸附','queryReferences({context,bodyIds:[],kind:"point"|"axis"|"frame",filter?:{types?:["cad-vertex","edge-midpoint","circle-center","edge-nearest","trimmed-face-point",...],near?:{point:[x,y,z],radiusMm}},limit?,offset?,requireUnique?})。','当前工程的 B-Rep 或明确派生候选、referenceId、来源指纹、歧义及分页；最近点必须传 near，不写模型。'],
   resolvePlacement:['定位解析 工作基准 快照','resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。','持久化 frameSnapshot、来源点、世界位置，placementValidated=true、geometryValidated=false；不写模型。'],
   execute: ['建模 编辑 撤销 参数 命令', 'execute({context,idempotencyKey,action,args}); action 来自当前命令合同。', 'CommandService 的 committed/no_change/failed/unknown、revision 和实际创建 ID。'],
   measure: ['测量 实测 体积 包围尺寸 半径', 'measure({context,bodyId,kind?:"body"|"face"|"edge",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需非负整数 topologyId。', 'status=read、source=exact-brep、单位、当前 context 和内核实测结果。'],
@@ -265,7 +266,7 @@ function templateCards() {
       title:model.label, label:model.label,
       synonyms:[kind,model.label,model.labelEn].filter(Boolean),
       description:model.description || template.description,
-      inputSchema:schema, schemaHash:contractHash(schema), defaults:template.defaults, fields:template.fields,
+      inputSchema:schema, schemaHash:contractHash(schema), defaults:template.defaults, fields:template.fields,placementPolicy:{...placementContract('quickModel'),defaultInsertionAnchor:model.defaultInsertionAnchor||'model-origin'},
       runtimeAvailability:'requires_ready_page',
       usage:'Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.',
       minimalExample:{op:'quickModel',params:template.minimalExample,refs:[]},
@@ -284,6 +285,7 @@ function pageCards() {
       synonyms: [...new Set([...(card.synonyms || []), ...(TOOL_LABELS[card.id] || '').split(/\s*\/\s*/)].filter(Boolean))],
       description: pageWording(card.description),
       coordinateConvention: pageWording(card.coordinateConvention),
+      placementPolicy:placementContract(card.id),
       relatedTools: ['getState', 'getTool', 'queryGeometry', 'execute'],
       apiCompatibility: card.strictContract ? ['page-v2'] : ['page-advisory'],
       runtimeAvailability: 'requires_ready_page',

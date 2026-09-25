@@ -3,7 +3,7 @@
   "title": "工程渲染 金属色",
   "description": "设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -32,5 +32,5 @@
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:5cd9d9c71447aaf507d57d9bffba60dc0e57962aea2b1cdefd95c71c81ac2101"
+  "docsHash": "sha256:91bb83eb0dba9fb1a12bdb4eedaad73fcf536aba3605ba0926e7a0b7ec21677a"
 }

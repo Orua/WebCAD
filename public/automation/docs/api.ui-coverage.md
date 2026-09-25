@@ -28,15 +28,38 @@
       "reference.setWorkFrame"
     ],
     "method": "execute",
-    "usage": "UI 中约束拖动锚点，松手时只提交一次 reference.setWorkFrame。"
+    "usage": "UI 中约束拖动参考锚点，松手仅更新任务草稿；用户点击应用后提交一次 reference.setWorkFrame。"
+  },
+  "anchorVisibility": {
+    "tools": [
+      "getUILayout",
+      "getState"
+    ],
+    "method": "getUILayout",
+    "usage": "参考锚点呼吸球显隐为本地 UI 偏好，不改变工程、固定原始坐标或几何 revision。"
+  },
+  "commandSearch": {
+    "tools": [
+      "searchTools"
+    ],
+    "method": "searchTools",
+    "usage": "全局命令搜索使用现有工具名称与 ID；AI 可直接 searchTools，不需打开对话框。"
   },
   "reference.snapNearest": {
     "tools": [
-      "queryReferences",
+      "queryGeometry",
       "reference.setWorkFrame"
     ],
     "method": "execute",
-    "usage": "从选定边的当前精确端点或圆心候选中选最近点，再提交 reference.setWorkFrame。"
+    "usage": "查询选定 CAD 边的精确端点、弧长中点与解析圆心，明确选中一个候选后提交工作基准。"
+  },
+  "reference.alignSelectedFace": {
+    "tools": [
+      "queryGeometry",
+      "reference.setWorkFrame"
+    ],
+    "method": "execute",
+    "usage": "选定当前精确平面面片，读取法向；以当前工作 X 作为面内方向，确认后更新工作基准方向。"
   },
   "renderQuality": {
     "tools": [

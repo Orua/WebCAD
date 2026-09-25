@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 667 --strictPort",
-    "build": "node scripts/generate-page-docs.mjs && vite build",
+    "build": "node scripts/generate-page-docs.mjs && node scripts/generate-reference-coverage.mjs && vite build && node scripts/verify-release.mjs",
     "agent": "npm run build && node scripts/serve.mjs",
     "agent:cli": "node scripts/webcad-agent.mjs",
     "preview": "vite preview --host 127.0.0.1 --port 667 --strictPort",

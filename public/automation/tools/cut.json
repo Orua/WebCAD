@@ -138,7 +138,20 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "相减",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:f9ad1deda480819ad4b019f6202f7dd0343892dd0890e25a23f582f09550c24b"
+  "docsHash": "sha256:d8d2cacce694de1f32a5a197bf3e36e0b9da40830fc3a0a252c02c60d37c299b"
 }

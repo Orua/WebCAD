@@ -1,14 +1,14 @@
 {
   "id": "feature.add",
   "title": "新增几何",
-  "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡。当前 box/hole 支持 placement。",
+  "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"feature.add\",args}); args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡。当前 box/hole 支持 placement。",
+  "inputContract": "execute({context,idempotencyKey,action:\"feature.add\",args}); args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:1e8ead49829cbe700d86755d607481bb3e70c235c152e440a3d99082cdb942e5"
+  "docsHash": "sha256:c9b25ab632b818700541703cfaa5cae133ddbaf3188981044e93d6099f9724f7"
 }

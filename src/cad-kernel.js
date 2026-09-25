@@ -17,6 +17,9 @@ import { buildReferenceLoft } from './reference-profile-loft.js';
 import { buildSmoothTransition } from './smooth-transition.js';
 import {rotateVector,worldPoint} from './work-frame.js';
 import {placementPolicy} from './placement-policy.js';
+import {halfLengthPoint} from './arc-length.js';
+import {resolveAlignPose} from './align-mode.js';
+import {nearestBrepReferences} from './nearest-brep.js';
 
 // This adapter owns every BRep handle; displayed topology IDs are array indices,
 // not OpenCascade's transient hash codes. It is also executable in Node tests.
@@ -122,6 +125,12 @@ function applySpatialTransform(shape,p,placement){
     const [x,y,z,w]=frame.quaternion,length=Math.hypot(x,y,z);
     if(length>1e-12){const rotated=out.rotate(2*Math.atan2(length,w)*180/Math.PI,[0,0,0],[x/length,y/length,z/length]);dispose(out);out=rotated;}
     const positioned=out.translate(...target);dispose(out);return positioned;
+  }
+  if(p.mode==='align'){
+    const pose=resolveAlignPose(p,frame),[x,y,z,w]=pose.rotationQuaternion,length=Math.hypot(x,y,z);
+    let out=shape.clone();
+    if(length>1e-12){const rotated=out.rotate(2*Math.atan2(length,w)*180/Math.PI,pose.sourcePoint,[x/length,y/length,z/length]);dispose(out);out=rotated;}
+    const positioned=out.translate(...pose.targetPoint.map((v,i)=>v-pose.sourcePoint[i]));dispose(out);return positioned;
   }
   throw Object.assign(new Error('Unsupported spatial transform mode'),{code:'PARAM_SCHEMA_INVALID'});
 }
@@ -534,9 +543,10 @@ export class CadKernel {
       const mappedEdges = wire.edgeGroups.map(g => ({ edgeId: edgeMap.get(g.edgeId), positions: Array.from(wire.lines.slice(g.start * 3, (g.start + g.count) * 3)) }));
       const snapPoints=[];
       edges.forEach((edge,edgeId)=>{
-        for(const [type,get] of [['endpoint',()=>edge.startPoint],['endpoint',()=>edge.endPoint],['midpoint',()=>edge.pointAt(.5)]]) {
+        for(const [type,get] of [['endpoint',()=>edge.startPoint],['endpoint',()=>edge.endPoint]]) {
           const vector=get();try{snapPoints.push({point:vector.toTuple(),type,edgeId});}finally{dispose(vector);}
         }
+        snapPoints.push({point:halfLengthPoint(edge,this.oc,cad.measureLength(edge)),type:'midpoint',edgeId});
         if(edge.geomType==='CIRCLE') {
           const adaptor=new this.oc.BRepAdaptor_Curve(edge.wrapped);let circle,center;
           try{circle=adaptor.Circle();center=circle.Location();snapPoints.push({point:[center.X(),center.Y(),center.Z()],type:'center',edgeId});}finally{[center,circle,adaptor].forEach(dispose);}
@@ -647,10 +657,16 @@ export class CadKernel {
   async queryGeometry(bodyId, kind, filter = {}) {
     const shape = this.activeShape(bodyId);
     const result = queryShapeGeometry(shape, this.oc, kind, filter);
+    return { bodyId, ...result, geometryFingerprint:await this.geometryFingerprint(shape) };
+  }
+  async geometryFingerprint(shape){
     const bytes = new TextEncoder().encode(shape.serialize());
     const digest = await crypto.subtle.digest('SHA-256', bytes);
-    const geometryFingerprint = 'brep-sha256:' + Array.from(new Uint8Array(digest), value => value.toString(16).padStart(2, '0')).join('');
-    return { bodyId, ...result, geometryFingerprint };
+    return 'brep-sha256:' + Array.from(new Uint8Array(digest), value => value.toString(16).padStart(2, '0')).join('');
+  }
+  async nearestGeometry(bodyId,kind,point,options={}){
+    const shape=this.activeShape(bodyId),items=nearestBrepReferences(shape,this.oc,kind,point,options);
+    return {bodyId,kind,items,geometryFingerprint:await this.geometryFingerprint(shape)};
   }
   measure(bodyId,topologyType,topologyId) {
     const shape=this.activeShape(bodyId);

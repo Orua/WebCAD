@@ -3,6 +3,8 @@ import fs from 'node:fs';
 import init from 'replicad-opencascadejs';
 import { CadKernel } from '../src/cad-kernel.js';
 import { normalizeGeometryFilter } from '../src/geometry-query.js';
+import { queryShapeGeometry } from '../src/geometry-query.js';
+import * as cad from 'replicad';
 
 const oc = await init({ wasmBinary: fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm', import.meta.url)) });
 const kernel = new CadKernel(oc);
@@ -29,6 +31,19 @@ try {
   assert.equal((await kernel.queryGeometry('plate', 'edge', { radiusRangeMm: { max: 10 } })).matchCount, 0, 'line radius is absent, never zero');
   assert.equal((await kernel.queryGeometry('plate', 'face', {})).matchCount, 6, 'full candidate count before pagination');
   assert.equal((await kernel.queryGeometry('plate', 'edge', {})).geometryFingerprint, top.geometryFingerprint, 'fingerprint does not depend on query');
+
+  const spline=cad.draw([0,0]).cubicBezierCurveTo([10,0],[1,9],[8,-2]).done().sketchOnPlane('XY');
+  try{
+    const curve=queryShapeGeometry(spline.wire,oc,'edge',{}).items[0],paramMid=[4.625,2.625,0];
+    assert.equal(curve.curveType,'bezier_curve');
+    assert.ok(Math.hypot(...curve.midpoint.map((v,i)=>v-paramMid[i]))>.3,'nonuniform curve midpoint must use travelled length');
+    const bezier=t=>{const u=1-t;return [3*u*u*t+24*u*t*t+10*t*t*t,27*u*u*t-6*u*t*t];};
+    const steps=20000,dist=[],points=[];let total=0,previous=bezier(0);
+    for(let i=1;i<=steps;i++){const p=bezier(i/steps);total+=Math.hypot(p[0]-previous[0],p[1]-previous[1]);dist.push(total);points.push(p);previous=p;}
+    const index=dist.findIndex(d=>d>=total/2),fraction=((total/2)-(dist[index-1]||0))/(dist[index]-(dist[index-1]||0));
+    const expected=points[index].map((v,i)=>(points[index-1]?.[i]??0)*(1-fraction)+v*fraction);
+    assert.ok(Math.hypot(curve.midpoint[0]-expected[0],curve.midpoint[1]-expected[1])<1e-4,'half length agrees with independent fine polyline integration');
+  }finally{spline.delete();}
 
   for (const [kind, filter] of [
     ['face', { surfaceType: 'invented' }], ['face', { curveType: 'line' }], ['face', { loopRole: 'outer' }],

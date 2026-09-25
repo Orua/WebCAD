@@ -1,14 +1,14 @@
 {
   "id": "preview.commit",
   "title": "应用预览",
-  "description": "args:{}；提交当前预览，一个撤销步骤。",
+  "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"preview.commit\",args}); args:{}；提交当前预览，一个撤销步骤。",
+  "inputContract": "execute({context,idempotencyKey,action:\"preview.commit\",args}); 新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:6d5935cb1a7127b0e6e0ea455495e75f10fed8937323981fca5f18ec9268b262"
+  "docsHash": "sha256:9482aa53fbe42a2c5d758b9748b2b27f40c387bb842e65146a54441456baea44"
 }

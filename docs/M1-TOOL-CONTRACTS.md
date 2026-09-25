@@ -1,5 +1,7 @@
 # M1 operation contracts and static AI documentation
 
+This is the historical M1 contract reference. The current browser page API is v1.8.0 and its generated `public/automation/manifest.json` and per-tool cards are authoritative for placement. Legacy examples without `placement` retain world-coordinate behavior. CLI/MCP adapters remain compatibility paths and do not imply that the static IIS page requires a backend service.
+
 `src/operation-registry.js` composes the existing base, advanced and reference
 catalogs. It does not initialize the CAD kernel, DOM, Worker, or a second document.
 `src/ai-docs.js` serves bounded static bootstrap/search/tool/document results in

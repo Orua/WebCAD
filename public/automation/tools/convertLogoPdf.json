@@ -2,7 +2,7 @@
   "id": "convertLogoPdf",
   "title": "convertLogoPdf",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "convertLogoPdf({context,name,data,targetWidthMm?})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。",
   "synonyms": [
     "convertLogoPdf",
@@ -18,5 +18,5 @@
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:a8f2e5f1c5d6fce0478b647725e42fc5558d4c058a1fc1f46d6133b2da4383f9"
+  "docsHash": "sha256:5c92257fd5010313c58ebc1c6919fb68c2ffa312c8b17decf24c86bb4db5229d"
 }

@@ -2,7 +2,7 @@
   "id": "submit",
   "title": "submit",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/setView/setRenderQuality/files.save/files.export/files.import.",
   "synonyms": [
     "submit",
@@ -24,5 +24,5 @@
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:c814507d104970c8c9a985859c3725d774d31e6c5902a86b3f830faf8274ad35"
+  "docsHash": "sha256:9c47c82575b3a310b9491b29e54b0b88b5860a8740f5e26799ba9bddfada5337"
 }

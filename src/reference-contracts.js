@@ -5,7 +5,7 @@ const exact=(value,keys,path='args')=>{if(!value||typeof value!=='object'||Array
 const name=value=>{if(typeof value!=='string'||!value.trim()||value.length>100)fail('PARAM_SCHEMA_INVALID','args.name','Name must be 1–100 characters');return value.trim();};
 const version=value=>{if(!Number.isSafeInteger(value)||value<1)fail('PARAM_SCHEMA_INVALID','args.expectedFrameVersion','Positive frame version required');};
 export const REFERENCE_ACTIONS=Object.freeze(['reference.setWorkFrame','reference.resetWorkFrame','reference.setLocked','reference.saveFrame','reference.activateFrame','reference.renameFrame','reference.deleteFrame','reference.setBodyAnchor','reference.deleteBodyAnchor']);
-export function applyReferenceAction(referenceSystem,action,args){
+export function applyReferenceAction(referenceSystem,action,args,proof){
   const next=validateReferenceSystem(referenceSystem),work=next.workFrame;
   if(!REFERENCE_ACTIONS.includes(action))fail('PARAM_SCHEMA_INVALID','action','Unknown reference action');
   if(action==='reference.setWorkFrame'){
@@ -32,6 +32,17 @@ export function applyReferenceAction(referenceSystem,action,args){
     exact(args,action==='reference.renameFrame'?['frameId','expectedFrameVersion','name']:['frameId','expectedFrameVersion']);version(args.expectedFrameVersion);
     const index=next.savedFrames.findIndex(x=>x.frameId===args.frameId);if(index<0||next.savedFrames[index].frameVersion!==args.expectedFrameVersion)fail('STALE_REFERENCE','args.frameId','Saved frame changed');
     if(action==='reference.deleteFrame')next.savedFrames.splice(index,1);else{next.savedFrames[index].name=name(args.name);next.savedFrames[index].frameVersion++;}
-  }else fail('CAPABILITY_UNAVAILABLE','action','Body anchors require exact geometry verification and are not enabled in this stage');
+  }else if(action==='reference.setBodyAnchor'){
+    exact(args,['bodyId','anchorId','name','referenceId','quaternion','expectedAnchorVersion']);
+    if(typeof args.bodyId!=='string'||!args.bodyId||typeof args.referenceId!=='string'||!args.referenceId)fail('PARAM_SCHEMA_INVALID','args','Current body and reference token required');
+    const label=name(args.name),quaternion=validateFrame({origin:[0,0,0],quaternion:args.quaternion},'args').quaternion;
+    if(!proof||proof.bodyId!==args.bodyId||!proof.geometryFingerprint?.startsWith('brep-sha256:')||!Array.isArray(proof.worldPoint))fail('STALE_REFERENCE','args.referenceId','Verified body reference required');
+    if(args.anchorId===undefined){if(args.expectedAnchorVersion!==undefined)fail('PARAM_SCHEMA_INVALID','args.expectedAnchorVersion','Version only applies to an update');next.bodyAnchors.push({anchorId:crypto.randomUUID(),anchorVersion:1,bodyId:args.bodyId,name:label,worldPoint:[...proof.worldPoint],quaternion,geometryFingerprint:proof.geometryFingerprint,status:'valid'});}
+    else{version(args.expectedAnchorVersion);const anchor=next.bodyAnchors.find(item=>item.anchorId===args.anchorId&&item.bodyId===args.bodyId);if(!anchor||anchor.anchorVersion!==args.expectedAnchorVersion)fail('STALE_REFERENCE','args.anchorId','Body anchor changed');Object.assign(anchor,{anchorVersion:anchor.anchorVersion+1,name:label,worldPoint:[...proof.worldPoint],quaternion,geometryFingerprint:proof.geometryFingerprint,status:'valid'});}
+  }else if(action==='reference.deleteBodyAnchor'){
+    exact(args,['bodyId','anchorId','expectedAnchorVersion']);version(args.expectedAnchorVersion);
+    const index=next.bodyAnchors.findIndex(item=>item.anchorId===args.anchorId&&item.bodyId===args.bodyId);
+    if(index<0||next.bodyAnchors[index].anchorVersion!==args.expectedAnchorVersion)fail('STALE_REFERENCE','args.anchorId','Body anchor changed');next.bodyAnchors.splice(index,1);
+  }else fail('PARAM_SCHEMA_INVALID','action','Unknown reference action');
   return next;
 }
