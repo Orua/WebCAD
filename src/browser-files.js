@@ -159,6 +159,10 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
       const bytes = new Uint8Array(await source.blob.arrayBuffer());
       return run(context, 'import', { name: source.name, mime: source.mime, data: base64FromBytes(bytes),...(placement===undefined?{}:{placement,idempotencyKey}) });
     },
+    async previewInput({resourceId}={}){
+      const source=inputFor(resourceId,['step','stp','brep','brp']);
+      return {name:source.name,mime:source.mime,data:base64FromBytes(new Uint8Array(await source.blob.arrayBuffer()))};
+    },
     new({ context } = {}) { return run(context, 'new'); },
     save({ context, name } = {}) { return generated({ context, action: 'save', name }); },
     export({ context, format, ids, name } = {}) {

@@ -1,14 +1,14 @@
 {
   "id": "reference.setBodyAnchor",
   "title": "对象锚点",
-  "description": "当前阶段尚未开放；需要精确几何指纹证明。",
+  "description": "args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "category": "command",
-  "version": "1.7.0",
-  "implementationStatus": "unavailable",
+  "version": "1.8.0",
+  "implementationStatus": "implemented",
   "contractStatus": "page-command",
-  "runtimeAvailability": "unavailable",
-  "inputContract": "execute({context,idempotencyKey,action:\"reference.setBodyAnchor\",args}); 当前阶段尚未开放；需要精确几何指纹证明。",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"reference.setBodyAnchor\",args}); args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:7c8ab14ef5b1beed56f4666d13d372a0402db5380737fc428488b951ae05e7b1"
+  "docsHash": "sha256:b10367ec2796db679f7f1b44dcf00b5b1cdb5391f361a2653ab967637d0b8c6e"
 }

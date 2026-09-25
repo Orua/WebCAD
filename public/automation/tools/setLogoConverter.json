@@ -2,7 +2,7 @@
   "id": "setLogoConverter",
   "title": "setLogoConverter",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "setLogoConverter({context,url,key?})；URL 必须含 userid，空 key 保留原值。",
   "synonyms": [
     "setLogoConverter",
@@ -18,5 +18,5 @@
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:a534e0d191feb28ce7ccf0a6695a81e85432054fc0cb27a57b54ee44ca8fe9fa"
+  "docsHash": "sha256:c428d9cd57c2e99f19ba58d1803e10d6467f1a9af4c6c4c8d1409ee74e3259a9"
 }

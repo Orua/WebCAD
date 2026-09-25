@@ -13,4 +13,12 @@ const category={
 };
 export const PLACEMENT_POLICIES=Object.freeze(Object.fromEntries(Object.entries(category).flatMap(([policy,ids])=>ids.map(id=>[id,policy]))));
 export function placementPolicy(id){return PLACEMENT_POLICIES[id];}
+const defaultAnchor={box:'bottom-center',cylinder:'bottom-center',cone:'bottom-center',sphere:'bounds-center',torus:'bounds-center',import:'model-origin',quickModel:'model-origin'};
+export function placementContract(id){
+  const code=placementPolicy(id);if(!code)return null;
+  const supported=code!=='N'&&code!=='L';
+  const originUsage={C:'new-object-insertion',T:'cutter-start-reference',S:'target-face-point',X:'axis-plane-pivot-or-vector',N:'target-topology-unchanged',L:'legacy-geometry-only'}[code];
+  const orientationUsage={C:'new-object-orientation',T:'cutter-direction-and-cross-section',S:'face-compatible-direction',X:'declared-transform-or-direction',N:'none',L:'legacy-only'}[code];
+  return {mode:{C:'creation-frame',T:'tool-frame',S:'target-face',X:'spatial-operation',N:'not-applicable',L:'legacy-only'}[code],placementSupported:supported,...(!supported?{notApplicableReason:code==='N'?'Operation acts on existing topology without relocating it':'Existing curved-logo entry retains legacy semantics'}:{}),originUsage,orientationUsage,legacyCoordinates:'world',newCoordinates:supported?'frame-local':'not-applicable',sourceAnchorRequired:code==='C',defaultInsertionAnchor:code==='C'?(defaultAnchor[id]||'model-origin'):null,historyBinding:supported?'snapshot':'legacy',previewSupported:id==='import'?'registered-file-only':true};
+}
 export function assertPlacementCoverage(){const registered=listOperations().map(op=>op.id);const missing=registered.filter(id=>!placementPolicy(id));const obsolete=Object.keys(PLACEMENT_POLICIES).filter(id=>!registered.includes(id));if(missing.length||obsolete.length)throw new Error(`Placement policy coverage: missing ${missing.join(', ')}; obsolete ${obsolete.join(', ')}`);return registered.length;}

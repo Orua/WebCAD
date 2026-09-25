@@ -11,6 +11,7 @@ import {normalizeRequest,requestContext} from './page-context.js';
 import {createPageJobs} from './page-jobs.js';
 import {renderQuality} from './render-quality.js';
 import {UI_LAYOUT} from './ui-layout.js';
+import {validateReferenceQuery} from './reference-query.js';
 
 // Only structured, bounded commands cross this boundary. No mutable app objects escape.
 export function createPageAPI(host){
@@ -31,7 +32,7 @@ export function createPageAPI(host){
   }
   const guarded=fn=>async(input={})=>{try{return await fn(normalizeRequest(input));}catch(e){return failure(e);}};
   const rawFiles=createBrowserFiles({command:input=>host.files(input),confirmSaved:host.confirmSaved});
-  const files=Object.fromEntries(Object.entries(rawFiles).map(([key,fn])=>[key,input=>fn(normalizeRequest(input))]));
+  const files=Object.fromEntries(Object.entries(rawFiles).filter(([key])=>key!=='previewInput').map(([key,fn])=>[key,input=>fn(normalizeRequest(input))]));
   const viewKeys=['context','direction','projection','fit','selectedIds','section','display','grid','snap','gizmo','selectionMode','camera','language'];
   const api={
     connect:(input={})=>{
@@ -63,8 +64,8 @@ export function createPageAPI(host){
     getUILayout:()=>structuredClone(UI_LAYOUT),
     createRequestContext:(context=current().context)=>requestContext(context),
     searchTools:input=>searchTools(input,{browserReady:current().summary.kernelReady}),getTools,getTool,readDocs,
-    execute:async input=>{let request;try{request=normalizeRequest(input);}catch(e){return failure(e);}try{return await host.execute(request);}catch(e){return {...failure(e),status:'unknown',commitState:'unknown',error:{...failure(e).error,recoveryAction:'INSPECT_STATE_BEFORE_RETRY'}};}},queryGeometry:guarded(input=>host.query(input)),
-    queryReferences:guarded(async input=>{check(input,['context','bodyIds','kind','filter','limit','requireUnique']);if(input.kind!=='point')fail('PARAM_SCHEMA_INVALID','Current reference query supports kind=point');if(!Array.isArray(input.bodyIds)||input.bodyIds.length>200||input.bodyIds.some(id=>typeof id!=='string'))fail('PARAM_SCHEMA_INVALID','bodyIds must be an explicit bounded list');const filter=input.filter??{};if(!filter||typeof filter!=='object'||Array.isArray(filter)||Object.keys(filter).some(k=>k!=='types'))fail('PARAM_SCHEMA_INVALID','Unknown reference filter');if(filter.types!==undefined&&(!Array.isArray(filter.types)||filter.types.some(t=>!['world-origin','work-origin','endpoint','circle-center'].includes(t))))fail('PARAM_SCHEMA_INVALID','Unsupported point type');const limit=input.limit??20;if(!Number.isInteger(limit)||limit<1||limit>100)fail('PARAM_RANGE_INVALID','limit must be 1..100');const result=await host.references({...input,limit});check(input,['context','bodyIds','kind','filter','limit','requireUnique']);return result;}),
+    execute:async input=>{let request;try{request=normalizeRequest(input);}catch(e){return failure(e);}let submitted=false;try{if(request?.action==='preview.start'&&request.args?.fileImport){const file=request.args.fileImport;if(Object.keys(request.args).some(key=>key!=='fileImport')||!file||typeof file!=='object'||Object.keys(file).some(key=>!['resourceId','name','placement'].includes(key)))fail('PARAM_SCHEMA_INVALID','File preview takes only fileImport with resourceId and placement');const source=await rawFiles.previewInput({resourceId:file.resourceId});request={...request,args:{fileImport:{...source,resourceId:file.resourceId,placement:file.placement}}};}submitted=true;return await host.execute(request);}catch(e){return submitted?{...failure(e),status:'unknown',commitState:'unknown',error:{...failure(e).error,recoveryAction:'INSPECT_STATE_BEFORE_RETRY'}}:failure(e);}},queryGeometry:guarded(input=>host.query(input)),
+    queryReferences:guarded(async input=>{check(input,['context','bodyIds','kind','filter','limit','offset','requireUnique']);const request=validateReferenceQuery(input),result=await host.references(request);check(input,['context','bodyIds','kind','filter','limit','offset','requireUnique']);return result;}),
     resolvePlacement:guarded(async input=>{check(input,['context','op','params','refs','placement']);if(typeof input.op!=='string'||!Array.isArray(input.refs)||input.refs.some(id=>typeof id!=='string')||!input.params||typeof input.params!=='object')fail('PARAM_SCHEMA_INVALID','op, params and refs required');const result=await host.resolvePlacement(input);check(input,['context','op','params','refs','placement']);return result;}),
     setRenderQuality:guarded(async input=>{check(input,['context','quality']);renderQuality(input.quality);await host.quality(input.quality);check(input,['context','quality']);return {status:'applied',context:current().context,renderQuality:current().renderQuality,display:host.display()};}),
     measure:guarded(async input=>{

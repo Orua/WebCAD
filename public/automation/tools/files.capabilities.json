@@ -2,7 +2,7 @@
   "id": "files.capabilities",
   "title": "files.capabilities",
   "category": "file",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "label": "文件能力",
   "synonyms": [
     "文件能力",
@@ -36,5 +36,5 @@
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:dfd94cedf0dd799e54bb4456fc2ad839547e5105d2e8db9e544b778d6db905bb"
+  "docsHash": "sha256:9ed11019bd8e7883309994875c9d2e6b80055594f984c3caff461f2063c25611"
 }

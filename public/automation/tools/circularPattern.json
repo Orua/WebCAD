@@ -179,7 +179,19 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "环形阵列",
+  "placementPolicy": {
+    "mode": "spatial-operation",
+    "placementSupported": true,
+    "originUsage": "axis-plane-pivot-or-vector",
+    "orientationUsage": "declared-transform-or-direction",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:ca4fe54786b255018f46fc75ed7b241dc24e469147b16ecbcb424a33e21ab87a"
+  "docsHash": "sha256:ca72e651d93d723094d277ef735d1eb21c4a40642f3efd97dad4092fae240591"
 }

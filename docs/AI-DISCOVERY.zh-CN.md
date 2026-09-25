@@ -1,5 +1,7 @@
 # AI 连接、发现与契约缓存
 
+定位能力先读 `connect({queries:["工作基准 放置"],includeContracts:true})`，再按需读 `api.references`。每张操作卡的 `placementPolicy` 是机器可读入口：`placementSupported:false` 给出不适用原因；`sourceAnchorRequired`、`defaultInsertionAnchor` 和 `historyBinding` 决定生成规则。只缓存静态卡与文档，比较实时 `catalogHash`、`docsHash`、卡片 `docsHash`；不缓存工程 context、实体 ID、拓扑编号和 referenceId。构建不匹配时重新连接/读卡后再执行。旧 CLI/MCP 卡不能代表当前页面定位能力。
+
 WebCAD 使用统一注册表生成页面工具卡、按需文档和可选离线库。工具发现适用于全部操作、文件、视图与工程命令；没有按某个零件硬编码执行流程，也不调用额外语言模型。
 
 ## 1.4 握手与建模流程

@@ -18,6 +18,7 @@ self.onmessage = ({ data }) => {
       else if(type==='faceInfo')result=engine.faceInfo(data.bodyId,data.faceId);
       else if(type==='logoTarget')result=await engine.logoTarget(data.bodyId,data.faceId);
       else if(type==='queryGeometry')result=await engine.queryGeometry(data.bodyId,data.kind,data.filter);
+      else if(type==='nearestGeometry')result=await engine.nearestGeometry(data.bodyId,data.kind,data.point,data.options);
       else if(type==='measure'){
         if(Array.isArray(data.ids)){
           const items=data.ids.map(id=>engine.measure(data.bodyId,data.selectionType||data.topologyType,id));

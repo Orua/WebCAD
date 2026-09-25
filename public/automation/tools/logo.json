@@ -351,7 +351,19 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "LOGO",
+  "placementPolicy": {
+    "mode": "target-face",
+    "placementSupported": true,
+    "originUsage": "target-face-point",
+    "orientationUsage": "face-compatible-direction",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:4042a2a4672f69a65111f2016b37711dff46c7723f553c66a488ab434b6e2851"
+  "docsHash": "sha256:f4d15952d8756f12bf94ddda828d4f5946332dde3aee2c0a8fe314275dd15819"
 }

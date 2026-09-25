@@ -2,7 +2,7 @@
   "id": "getTools",
   "title": "getTools",
   "category": "page-method",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.",
   "synonyms": [
     "getTools",
@@ -23,5 +23,5 @@
     "CATALOG_CHANGED"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:43b7d988d94bbc43f5148396660f5828a33ee2c4079acbcb880efd4935db8379"
+  "docsHash": "sha256:7ac50e8c1f20a5b4f9d5c51e4da336dac72f6eead3f1ed0592d4247a83ffd882"
 }

@@ -99,6 +99,67 @@
       "angleDeg": {
         "type": "number",
         "description": "Signed rotation angle (degrees)"
+      },
+      "sourcePoint": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "sourceAxis": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "sourceUp": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "targetAxis": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "targetUp": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "axisRelation": {
+        "type": "string",
+        "description": "Same or opposite axis direction",
+        "enum": [
+          "same",
+          "opposite"
+        ]
+      },
+      "gapMm": {
+        "type": "number",
+        "description": "Signed gap along target axis (mm)"
+      },
+      "twistAngleDeg": {
+        "type": "number",
+        "description": "Explicit in-plane twist angle (degrees)"
       }
     },
     "required": [],
@@ -135,7 +196,7 @@
     "复制"
   ],
   "description": "Copy with scale, rotation and translation",
-  "schemaHash": "sha256:1a4fc4e740f33b8081d47d3b37800b637a305d67f3ad452747920c8c9affdb26",
+  "schemaHash": "sha256:6ba9932df2b7e4298603b6a6ba5f03b2a8a3e1d7ee8b4eab9ce0bc0ca6af4e97",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -238,7 +299,19 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "复制",
+  "placementPolicy": {
+    "mode": "spatial-operation",
+    "placementSupported": true,
+    "originUsage": "axis-plane-pivot-or-vector",
+    "orientationUsage": "declared-transform-or-direction",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:7efb33f22f04b6b0f98ebb088fddd34f6a65537fd16fc56bfd63e05072d64e2a"
+  "docsHash": "sha256:5022f8d3b28e28afb1d5dd66b7b2edcf1aceb84131d228ea649aa129bcd66326"
 }

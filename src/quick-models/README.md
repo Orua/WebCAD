@@ -1,5 +1,7 @@
 # 快捷模型目录
 
+每个 `definition.js` 应声明稳定的 `defaultInsertionAnchor`（`model-origin`、`bottom-center` 或 `bounds-center`）。未声明的既有模板目前按 `model-origin` 兼容。工具卡 `template.*.placementPolicy.defaultInsertionAnchor` 会暴露该规则。改变模板参数时保持来源局部坐标和基点定义稳定；若尺寸变化导致已命名来源点移动，应在历史重建中重算该点，无法证明旧锚点映射时标记过期。不要为通过定位测试暗中把所有模板居中。
+
 每个快捷模型有一个独立目录，目录名就是持久的 `kind`。已保存工程和页面 API 都依赖这个值，不要随显示名称一起改名。
 
 目录内容：

@@ -1,14 +1,14 @@
 {
   "id": "reference.setWorkFrame",
-  "title": "设置工作基准",
-  "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；单位四元数，锁定时拒绝。",
+  "title": "设置参考锚点（工作基准）",
+  "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"reference.setWorkFrame\",args}); args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；单位四元数，锁定时拒绝。",
+  "inputContract": "execute({context,idempotencyKey,action:\"reference.setWorkFrame\",args}); args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:f2c0aef9bf23ade625e3b602cdbb01cc0c7e927ddf53559a5ed81377ed1cb5b9"
+  "docsHash": "sha256:afc9c41cbedeefd216585a63399e67f385dc1d79e4cf5616f0a1d449f3917a7e"
 }

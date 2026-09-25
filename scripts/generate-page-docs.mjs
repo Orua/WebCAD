@@ -1,6 +1,7 @@
-import { mkdir, writeFile, copyFile, readFile } from 'node:fs/promises';
+import { mkdir, writeFile, copyFile, readFile, readdir, unlink } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { createStaticPageApiIndex, getTool, infoMetadata, readDocs, searchTools } from '../src/page-api-docs.js';
 import { UI_API_ROUTES, requireUIRoute } from '../src/ui-api-coverage.js';
 import { TOOL_CATEGORIES } from '../src/ui-toolbars.js';
@@ -9,7 +10,9 @@ import { CONNECTION_POLICY } from '../src/automation-guidance.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const target = resolve(root, 'public', 'automation');
-const metadata = infoMetadata();
+const commit=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8',cwd:root}).trim();
+const dirty=!!execFileSync('git',['status','--porcelain'],{encoding:'utf8',cwd:root}).trim();
+const metadata = infoMetadata({buildId:`${commit}${dirty?'-working':''}`});
 const cards = [];
 let cursor;
 do {
@@ -38,9 +41,12 @@ await writeFile(resolve(target, 'index.json'), JSON.stringify(index, null, 2) + 
 await writeFile(resolve(target, 'index.md'), createStaticPageApiIndex(), 'utf8');
 await mkdir(resolve(target,'tools'),{recursive:true});
 await mkdir(resolve(target,'docs'),{recursive:true});
+for(const [folder,expected] of [['tools',new Set(cards.map(card=>card.id+'.json'))],['docs',new Set(Object.keys(docs).map(id=>id+'.md'))]]){
+  for(const name of await readdir(resolve(target,folder))){if(!expected.has(name)&&name.endsWith(folder==='tools'?'.json':'.md'))await unlink(resolve(target,folder,name));}
+}
 for(const card of cards)await writeFile(resolve(target,'tools',card.id+'.json'),JSON.stringify(card,null,2)+'\n');
 for(const [id,text] of Object.entries(docs))await writeFile(resolve(target,'docs',id+'.md'),'# '+id+'\n\n'+text+'\n');
-const manifest={version:metadata.pageApiVersion,searchVersion:metadata.discovery.searchVersion,catalogHash:metadata.catalogHash,docsHash:metadata.docsHash,
+const manifest={version:metadata.pageApiVersion,buildId:metadata.buildId,searchVersion:metadata.discovery.searchVersion,catalogHash:metadata.catalogHash,docsHash:metadata.docsHash,
   tools:cards.map(c=>({id:c.id,title:c.title,label:c.label,category:c.category,version:c.version,docsHash:c.docsHash,url:'tools/'+c.id+'.json'})),
   docs:Object.keys(docs).map(id=>({id,docsHash:docHashes[id],url:'docs/'+id+'.md'})),
   cache:{scope:'static contracts and docs only',removeMissingIds:true,validateWith:'window.webcad.api.connect'},
@@ -90,3 +96,6 @@ await writeFile(resolve(root,'public','llms.txt'), '# WebCAD\n\n'+CONNECTION_POL
 console.log(`Generated ${cards.length} page cards in ${target}`);
 
 await copyFile(resolve(root,'docs/examples/page-api-plate.js'),resolve(target,'page-api-plate.js'));
+await copyFile(resolve(root,'docs/examples/frame-placement.js'),resolve(target,'frame-placement.js'));
+await mkdir(resolve(root,'public','docs'),{recursive:true});
+await copyFile(resolve(root,'docs/USER-GUIDE.zh-CN.md'),resolve(root,'public','docs','USER-GUIDE.zh-CN.md'));

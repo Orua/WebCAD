@@ -4967,7 +4967,19 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "快捷模型",
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:7cfe93edf2160c0417c7a06577440112bf2f8f4420c48a4c1fb1848268b9bb38"
+  "docsHash": "sha256:ac292b8395f9ac25d195fb665836acf5fe65686a601b8b8e1cc3a3e32d1777f3"
 }

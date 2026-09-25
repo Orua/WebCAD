@@ -294,7 +294,20 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "曲面 LOGO",
+  "placementPolicy": {
+    "mode": "legacy-only",
+    "placementSupported": false,
+    "notApplicableReason": "Existing curved-logo entry retains legacy semantics",
+    "originUsage": "legacy-geometry-only",
+    "orientationUsage": "legacy-only",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:cfbdd897bb51780352fd380fdce5607f4d5e98ec31cb4b67578a450a43096835"
+  "docsHash": "sha256:e257737d17b0a82b093a36664e35396b8a91c4187e62ea100f5b7bc1afa909e8"
 }

@@ -1,14 +1,14 @@
 {
   "id": "preview.cancel",
   "title": "取消预览",
-  "description": "args:{}；恢复已提交模型。开始/取消不增加 revision，回执 preview.active 表示实际预览状态。",
+  "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"preview.cancel\",args}); args:{}；恢复已提交模型。开始/取消不增加 revision，回执 preview.active 表示实际预览状态。",
+  "inputContract": "execute({context,idempotencyKey,action:\"preview.cancel\",args}); 新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:9b1b40a6aeecdb459f0e7979013915c05dc0af244614c4d3c20e8109c0f194ed"
+  "docsHash": "sha256:4e7196b72759ef4ae83074938337d5f989f0ce936ba786322a55613f4ae2e695"
 }

@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.7.0 · 操作目录 sha256:a1db56c16edf3782b06dccf675d5fdb156a1b46ebf21c1035e3182e6a4421ebd
+API 1.8.0 · 操作目录 sha256:2ef50b44c1d6f0c7dc944f1972d7eee49537bbb87461ff35c2607192ae338f35
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -153,7 +153,7 @@ API 1.7.0 · 操作目录 sha256:a1db56c16edf3782b06dccf675d5fdb156a1b46ebf21c10
 - `getTool` · page-method · getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。
 - `readDocs` · page-method · readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。
 - `queryGeometry` · page-method · queryGeometry({context,bodyId,kind:"face"|"edge",filter,requireUnique?,limit?,cursor?})。
-- `queryReferences` · page-method · queryReferences({context,bodyIds:[],kind:"point",filter?:{types?:["world-origin","work-origin","endpoint","circle-center"]},limit?,requireUnique?})。
+- `queryReferences` · page-method · queryReferences({context,bodyIds:[],kind:"point"|"axis"|"frame",filter?:{types?:["cad-vertex","edge-midpoint","circle-center","edge-nearest","trimmed-face-point",...],near?:{point:[x,y,z],radiusMm}},limit?,offset?,requireUnique?})。
 - `resolvePlacement` · page-method · resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。
 - `execute` · page-method · execute({context,idempotencyKey,action,args}); action 来自当前命令合同。
 - `measure` · page-method · measure({context,bodyId,kind?:"body"|"face"|"edge",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需非负整数 topologyId。
@@ -175,24 +175,25 @@ API 1.7.0 · 操作目录 sha256:a1db56c16edf3782b06dccf675d5fdb156a1b46ebf21c10
 - `body.appearance` · page-command · color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。
 - `document.appearance` · page-command · 设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。
 - `body.explode` · page-command · 将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。
-- `reference.setWorkFrame` · page-command · args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；单位四元数，锁定时拒绝。
+- `reference.setWorkFrame` · page-command · args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。
 - `reference.resetWorkFrame` · page-command · args:{scope:"position"|"orientation"|"all"}；只重置指定部分。
 - `reference.setLocked` · page-command · args:{locked:boolean}；可撤销的元数据操作。
 - `reference.saveFrame` · page-command · args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。
 - `reference.activateFrame` · page-command · args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。
 - `reference.renameFrame` · page-command · args:{frameId,expectedFrameVersion,name}。
 - `reference.deleteFrame` · page-command · args:{frameId,expectedFrameVersion}；已冻结特征不受影响。
-- `reference.setBodyAnchor` · page-command · 当前阶段尚未开放；需要精确几何指纹证明。
-- `reference.deleteBodyAnchor` · page-command · 当前阶段尚未开放；需要精确几何指纹证明。
-- `feature.add` · page-command · args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡。当前 box/hole 支持 placement。
+- `reference.setBodyAnchor` · page-command · args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。
+- `reference.deleteBodyAnchor` · page-command · args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。
+- `feature.add` · page-command · args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。
 - `feature.edit` · page-command · args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。
 - `feature.remove` · page-command · args:{bodyIds}，不可使用历史已替换 ID。
 - `history.undo` · page-command · args:{}；撤销一个已提交步骤。
 - `history.redo` · page-command · args:{}；重做一个步骤。
 - `document.refresh` · page-command · args:{}；重建当前历史。
-- `preview.start` · page-command · args 同 feature.add；显式 refs，不使用 UI 选择。已存在预览先取消。
-- `preview.commit` · page-command · args:{}；提交当前预览，一个撤销步骤。
-- `preview.cancel` · page-command · args:{}；恢复已提交模型。开始/取消不增加 revision，回执 preview.active 表示实际预览状态。
+- `preview.start` · page-command · 普通特征 args 同 feature.add；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision。
+- `preview.update` · page-command · args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。
+- `preview.commit` · page-command · 新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。
+- `preview.cancel` · page-command · 新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。
 - `document.parameters` · page-command · 通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。
 - `files.capabilities` · browser-file-adapter · capabilities(); no arguments.
 - `files.register` · browser-file-adapter · register({name,data,mime?}); data is File, Blob, ArrayBuffer or Uint8Array; name is a safe basename.
