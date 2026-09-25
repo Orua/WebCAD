@@ -1,0 +1,26 @@
+{
+  "id": "connect",
+  "title": "connect",
+  "category": "page-method",
+  "version": "1.3.1",
+  "description": "connect({queries?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries. Read-only; works while the kernel starts.",
+  "synonyms": [
+    "connect",
+    "连接",
+    "发现",
+    "工具",
+    "缓存"
+  ],
+  "inputContract": "connect({queries?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries. Read-only; works while the kernel starts.",
+  "outputContract": "精简的当前 context/requestContext、就绪与预览、实体引用、工具搜索结果、可选批量契约及缓存版本；详见 api.discovery。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Read methods may return a structured state error or throw a coded contract error.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID"
+  ],
+  "docs": "api.discovery",
+  "docsHash": "sha256:9850d55b8dd34a61343e1b553b8a98b7525a5803b10ae511dbc2fa9a75308a6a"
+}

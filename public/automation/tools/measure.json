@@ -1,0 +1,28 @@
+{
+  "id": "measure",
+  "title": "measure",
+  "category": "page-method",
+  "version": "1.3.1",
+  "description": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需非负整数 topologyId。",
+  "synonyms": [
+    "measure",
+    "测量",
+    "实测",
+    "体积",
+    "包围尺寸",
+    "半径"
+  ],
+  "inputContract": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需非负整数 topologyId。",
+  "outputContract": "status=read、source=exact-brep、单位、当前 context 和内核实测结果。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "STALE_REFERENCE",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docsHash": "sha256:e5ef26e63ee0656cabe1050b55fb37af750ab4fda1b34cef7cb2d06b542b30eb"
+}

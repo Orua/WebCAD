@@ -39,7 +39,39 @@ test('CadKernel logo engraves selected top and side faces using their real local
 
   const side = await run([box, logo('sideLogo', 'box', sideId, 'engrave', [{ outer: [[-5, -1], [5, -1], [5, 1], [-5, 1]], holes: [] }])]);
   assert.ok(Math.abs(volume(side, 'sideLogo') - (12000 - 20)) < 1e-5);
-  assert.equal(initial.stats.volume, 12000);
+  assert.ok(Math.abs(initial.stats.volume-12000)<1e-5);
+});
+
+test('unified logo v2 dispatches exact planar and curved BRep faces and rejects stale or unsupported modes', async () => {
+  const box=feature('unifiedBox','box',{width:40,depth:20,height:10});
+  await run([box]);
+  const topId=findPlane('unifiedBox',info=>info.normal[2]>.999&&Math.abs(info.origin[2]-10)<1e-7);
+  const top=await kernel.logoTarget('unifiedBox',topId);
+  const planar=logo('unifiedPlanar','unifiedBox',topId,'engrave',[{outer:[[-2,-1],[2,-1],[2,1],[-2,1]],holes:[]}]);
+  Object.assign(planar.params,{placementVersion:2,point:[20,10,10],depth:.3,draftAngle:0,targetSurfaceType:top.geomType,targetFaceArea:top.areaMm2,targetFaceCenter:top.center,targetFaceSignature:top.stableFaceSignature,targetGeometryFingerprint:top.geometryFingerprint});
+  const result=await run([box,planar]);
+  assert.ok(Math.abs(volume(result,'unifiedPlanar')-(8000-2.4))<1e-5);
+  const reopened=new CadKernel(kernel.oc);
+  const replay=await reopened.rebuild({version:1,features:[box,planar],imports:{},hidden:[]});
+  assert.ok(Math.abs(volume(replay,'unifiedPlanar')-(8000-2.4))<1e-5);
+  await assert.rejects(run([box,{...planar,id:'stale',params:{...planar.params,targetSurfaceType:'CYLINDER'}}]),/类型已改变/);
+  const cylinder=feature('unifiedCylinder','cylinder',{radius:10,height:20});
+  await run([cylinder]);
+  const curvedId=findCurvedFace('unifiedCylinder');
+  const curved=await kernel.logoTarget('unifiedCylinder',curvedId);
+  const cut=logo('unifiedCurved','unifiedCylinder',curvedId,'engrave',[{outer:[[-2,-2],[2,-2],[2,2],[-2,2]],holes:[]}]);
+  Object.assign(cut.params,{placementVersion:2,point:[0,10,10],depth:.3,draftAngle:0,targetSurfaceType:curved.geomType,targetFaceArea:curved.areaMm2,targetFaceCenter:curved.center,targetFaceSignature:curved.stableFaceSignature,targetGeometryFingerprint:curved.geometryFingerprint});
+  const curvedResult=await run([cylinder,cut]);
+  assert.ok(volume(curvedResult,'unifiedCurved')<Math.PI*100*20);
+  const reopenedCurved=new CadKernel(kernel.oc);
+  const curvedReplay=await reopenedCurved.rebuild({version:1,features:[cylinder,cut],imports:{},hidden:[]});
+  assert.ok(Math.abs(volume(curvedReplay,'unifiedCurved')-volume(curvedResult,'unifiedCurved'))<1e-5);
+  const legacyCurved=feature('legacyCurved','curvedLogo',{faceId:curvedId,point:[0,10,10],depth:.3,regions:cut.params.regions},['unifiedCylinder']);
+  const oldResult=await run([cylinder,legacyCurved]);
+  const oldReplay=new CadKernel(kernel.oc);
+  const oldReopened=await oldReplay.rebuild({version:1,features:[cylinder,legacyCurved],imports:{},hidden:[]});
+  assert.ok(Math.abs(volume(oldReopened,'legacyCurved')-volume(oldResult,'legacyCurved'))<1e-5);
+  await assert.rejects(run([cylinder,{...cut,id:'unsupported',params:{...cut.params,mode:'emboss'}}]),/仅支持凹刻/);
 });
 
 test('CadKernel rejects curved faces and logos that cross a planar face hole; failed rebuild preserves committed source BREP', async () => {

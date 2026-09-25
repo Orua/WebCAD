@@ -1,4 +1,5 @@
 import { assertOperationContract, normalizeOperationParams, normalizeOperationPatch, validateOperationRefs, migratedOperationIds, getOperation, validateOperationExample } from './operation-registry.js';
+import { EDITOR_ACTIONS, validateEditorAction } from './editor-actions.js';
 
 const clone=structuredClone;
 const uid=()=>crypto.randomUUID();
@@ -41,7 +42,7 @@ export function createCommandService(adapter) {
     if(input.documentInstanceId!==s.documentInstanceId)fail('INSTANCE_MISMATCH','context.documentInstanceId','Document was reloaded','READ_STATE_AND_REPLAN');
     if(revision&&input.expectedRevision!==s.revision)fail('REVISION_CONFLICT','context.expectedRevision','Model revision changed; no change performed','READ_STATE_AND_REPLAN');
   }
-  function available(s){if(!s.kernelReady)fail('CAPABILITY_UNAVAILABLE','context','Kernel is not ready');if(s.preview||s.previewComputing)fail('PREVIEW_ACTIVE','context','Apply or cancel the UI preview');if(s.busy)fail('CAPABILITY_UNAVAILABLE','context','Worker is busy');}
+  function available(s,allowPreview=false){if(!s.kernelReady)fail('CAPABILITY_UNAVAILABLE','context','Kernel is not ready');if((s.preview&&!allowPreview)||s.previewComputing)fail('PREVIEW_ACTIVE','context','Apply or cancel the UI preview');if(s.busy)fail('CAPABILITY_UNAVAILABLE','context','Worker is busy');}
   function token(value,s,bodyId,kind){
     string(value,'selectionToken',2048);const t=tokens.get(value);
     if(!t||t.documentInstanceId!==s.documentInstanceId||t.revision!==s.revision)fail('STALE_REFERENCE','selectionToken','Selection is not in the current snapshot','QUERY_GEOMETRY_AGAIN');
@@ -94,26 +95,27 @@ export function createCommandService(adapter) {
       fingerprint=canonical({...input,context:{...input.context,sessionId:undefined}});
       const previous=receipts.get(key);
       if(previous){if(previous.fingerprint!==fingerprint)fail('IDEMPOTENCY_KEY_REUSED','idempotencyKey','Key has a different payload');return clone(previous.result);}
-      context(input.context,s);available(s);finiteTree(input);
+      const allowPreview=['preview.commit','preview.cancel'].includes(input.action);
+      context(input.context,s);available(s,allowPreview);finiteTree(input);
       if(receipts.size>=1000)fail('RESOURCE_LIMIT','idempotencyKey','1000 receipts per document instance; no receipts are silently evicted');
       if(options.signal?.aborted)fail('CANCELLED','context','Cancelled before commit');
       const a=clone(input.args);let command,args,op,refs=[];
       switch(input.action){
-        case 'feature.add':{
+        case 'preview.start':case 'feature.add':{
           object(a,['op','opVersion','schemaHash','params','refs','name','selectionToken'],'args');string(a.op,'args.op',60);op=a.op;
           contract(op,a);ids(a.refs,'args.refs');validateOperationRefs(op,a.refs);refs=a.refs;
           if(refs.some(id=>!s.bodies.some(b=>b.id===id)))fail('STALE_REFERENCE','args.refs','Reference is not a current body');
           if(a.selectionToken!==undefined){
-            if(!['fillet','chamfer','shell','faceHole'].includes(op))fail('SELECTION_CONFLICT','args.selectionToken','Operation does not accept a token');
+            if(!['fillet','chamfer','shell','faceHole','smoothTransition'].includes(op))fail('SELECTION_CONFLICT','args.selectionToken','Operation does not accept a token');
             if(!a.params||['edgeIds','faceIds','faceId','allEdges'].some(k=>Object.hasOwn(a.params,k)))fail('SELECTION_CONFLICT','args.params','Token conflicts with explicit topology');
             // Validate user input before injecting trusted topology indices.
             normalizeOperationParams(op,a.params,{phase:'input',selectionToken:a.selectionToken});
             const t=token(a.selectionToken,s,refs[0],['fillet','chamfer'].includes(op)?'edge':'face');await verifyToken(t);
             if(op==='faceHole'&&t.ids.length!==1)fail('AMBIGUOUS_SELECTION','selectionToken','One face is required');
-            if(['fillet','chamfer'].includes(op))a.params.edgeIds=t.ids;else if(op==='shell')a.params.faceIds=t.ids;else a.params.faceId=t.ids[0];
+            if(['fillet','chamfer'].includes(op))a.params.edgeIds=t.ids;else if(['shell','smoothTransition'].includes(op))a.params.faceIds=t.ids;else a.params.faceId=t.ids[0];
           }
           a.params=parameters(op,a.params);if(a.name!==undefined)string(a.name,'args.name',120);
-          command='add_feature';args={op,params:a.params,refs,name:a.name};break;
+          command=input.action==='preview.start'?'preview_feature':'add_feature';args={op,params:a.params,refs,name:a.name};break;
         }
         case 'feature.edit':{
           object(a,['featureId','opVersion','schemaHash','params','name'],'args');string(a.featureId,'args.featureId');
@@ -129,17 +131,20 @@ export function createCommandService(adapter) {
           command='set_parameters';args=clone(a);break;
         case 'feature.remove':object(a,['bodyIds'],'args');ids(a.bodyIds,'args.bodyIds',true);if(a.bodyIds.some(id=>!s.bodies.some(b=>b.id===id)))fail('STALE_REFERENCE','args.bodyIds','Body is not current');refs=a.bodyIds;command='remove';args={ids:refs};break;
         case 'history.undo':case 'history.redo':case 'document.refresh':object(a,[],'args');command=input.action.split('.')[1];args={};break;
-        default:fail('PARAM_SCHEMA_INVALID','action','Unsupported action');
+        case 'preview.commit':case 'preview.cancel':object(a,[],'args');command=input.action;args={};break;
+        default:if(Object.hasOwn(EDITOR_ACTIONS,input.action)){({command,args}=validateEditorAction(input.action,a,s));break;}fail('PARAM_SCHEMA_INVALID','action','Unsupported action');
       }
-      context(input.context,snapshot());available(snapshot());revisionBefore=s.revision;
+      context(input.context,snapshot());available(snapshot(),allowPreview);revisionBefore=s.revision;
       await adapter.execute(command,args,{signal:options.signal,expectedRevision:s.revision});
       const after=snapshot();let result;
       if(after.revision===revisionBefore)result={status:'no_change',requestId,context:contextOf(after),commitState:'not_committed'};
       else{
         const createdFeatureIds=after.features.filter(f=>!s.features.some(x=>x.id===f.id)).map(f=>f.id);
         const createdBodyIds=after.bodies.filter(b=>!s.bodies.some(x=>x.id===b.id)).map(b=>b.id);
-        result={status:'committed',requestId,transactionId:uid(),documentId:after.documentId,documentInstanceId:after.documentInstanceId,revisionBefore,revisionAfter:after.revision,createdFeatureIds,createdBodyIds,replacements:s.bodies.filter(b=>!after.bodies.some(x=>x.id===b.id)).flatMap(b=>createdBodyIds.map(id=>({before:b.id,after:id}))),validation:{geometry:'passed',...(['hole','multiHole','faceHole'].includes(op)?{materialRemoved:true}:{})},persistence:after.persistence,warnings:after.warnings??[]};
+        result={status:'committed',requestId,transactionId:uid(),documentId:after.documentId,documentInstanceId:after.documentInstanceId,revisionBefore,revisionAfter:after.revision,createdFeatureIds,createdBodyIds,replacements:s.bodies.filter(b=>!after.bodies.some(x=>x.id===b.id)).flatMap(b=>createdBodyIds.map(id=>({before:b.id,after:id}))),validation:{geometry:'passed',...(['hole','multiHole','multiPocket','faceHole'].includes(op)?{materialRemoved:true}:{}),...(op==='multiBoss'?{materialAdded:true}:{})},persistence:after.persistence,warnings:after.warnings??[]};
       }
+      if(command==='editor_action')result.validation={geometry:input.action==='body.explode'?'passed':'unchanged',editor:'passed'};
+      if(input.action.startsWith('preview.'))result.preview={active:!!after.preview,computing:!!after.previewComputing};
       receipts.set(key,{fingerprint,result:clone(result)});return result;
     }catch(e){
       const now=snapshot();let result=errorResult(e,requestId,now);

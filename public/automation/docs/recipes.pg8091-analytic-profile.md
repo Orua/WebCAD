@@ -1,0 +1,3 @@
+# recipes.pg8091-analytic-profile
+
+PG8091 改模版源线试建：从源 DWG 只读转换 DXF 后，用 text-to-cad/agent/tools/cad-learning/run-silent.ps1 调用 export_dxf_arc_profile.py。外 handle F6,FE,FF,F8,F7,FB,F9,FA,FD,FC；中心圆孔 F5（单个 CIRCLE 被拆为两条精确半圆弧）；弧槽孔 100,102,103,101,105,104；--height 5 取自侧视，--join 0.01。导出 JSON 的 params 可直接传入 api.run({context:{...api.getState().context,expectedRevision:api.getState().context.revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'part',method:'add',args:{op:'arcProfile',refs:[],params:data.params}},{id:'size',method:'measure',args:{bodyId:{$ref:'part.createdBodyIds.0'}}}]})。先读取 getTool({id:'arcProfile'}) 和 recipes.analytic-arc-profile。源 DXF 解析外宽约41.208906 mm、图面标40.6 mm，差约0.608906 mm；未解释前按源线候选，不缩放成名义尺寸。只建正视等深实体，不推断侧面局部加工。

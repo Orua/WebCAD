@@ -1,0 +1,26 @@
+{
+  "id": "getTool",
+  "title": "getTool",
+  "category": "page-method",
+  "version": "1.3.1",
+  "description": "getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。",
+  "synonyms": [
+    "getTool",
+    "工具卡",
+    "参数",
+    "schema",
+    "契约"
+  ],
+  "inputContract": "getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。",
+  "outputContract": "完整工具卡、版本和 docsHash。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Read methods may return a structured state error or throw a coded contract error.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED"
+  ],
+  "docsHash": "sha256:6046d0eff5d8a3154e19d6316bee0e0935c09ff2644898f6860f37c04f40c0f8"
+}

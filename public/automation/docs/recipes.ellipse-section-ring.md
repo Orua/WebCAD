@@ -1,0 +1,3 @@
+# recipes.ellipse-section-ring
+
+椭圆截面圆环：UI 在“快捷模型”选择同名工具，AI 先 getTool({id:"quickModel"}) 查 kind=ellipseSectionRing 参数。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"ring",method:"add",args:{op:"quickModel",refs:[],params:{kind:"ellipseSectionRing",innerDiameter:37.4,sectionWidth:4.1,sectionDepth:5}}},{id:"size",method:"measure",args:{bodyId:{$ref:"ring.createdBodyIds.0"}}}]})。内径、正面带宽和侧深独立；沿圆形中心线扫掠精确椭圆截面，外径=内径+2×带宽。要求内径≥2.5×带宽、宽深均正且不等；失败整步回滚。PG6148 源 DWG 同心圆内Ø37.4/外Ø45.6、侧深5，而把侧深当圆线径会错误得到外Ø47.4；椭圆截面是对两投影的试拟，不是源已证实曲面。名义候选单实体45.6×45.6×5 mm、约2099.141486 mm³。读 status、measure、rendered revision；feature.edit 可调历史。

@@ -14,6 +14,13 @@ let out=await run([box,f('section','planeSection',{plane:'XY',offset:5},['box'])
 assert.equal(out.bodies.length,2);assert.equal(out.bodies[1].edges.length,4);assert.equal(out.bodies[1].indices.length,0);
 out=await run([box,f('boundary','faceBoundary',{faceId:0},['box'])]);
 assert.equal(out.bodies.length,2);assert.equal(out.bodies[1].edges.length,4);
+out=await run([box,f('oneFace','extractFaces',{faceIds:[0]},['box'])]);
+assert.equal(out.bodies.length,2);assert.equal(out.bodies[0].solidCount,1);assert.equal(out.bodies[1].solidCount,0);
+assert.equal(out.bodies[0].faceGroups.length,6);assert.equal(out.bodies[1].faceGroups.length,1);
+out=await run([box,f('manyFaces','extractFaces',{faceIds:[0,2,4]},['box'])]);
+assert.equal(out.bodies.length,2);assert.equal(out.bodies[0].faceGroups.length,6);assert.equal(out.bodies[1].faceGroups.length,3);
+await assert.rejects(()=>run([box,f('badFaces','extractFaces',{faceIds:[6]},['box'])]),/范围/);
+out=await run([box]);assert.equal(out.bodies.length,1,'failed face extraction does not commit');
 out=await run([box,f('sewn','sewFaces',{makeSolid:true},['box'])]);
 assert.equal(out.bodies.length,1);assert.equal(out.bodies[0].solidCount,1);assert.ok(Math.abs(out.bodies[0].volume-1000)<1e-6);
 const exported=await kernel.export('step');
@@ -30,9 +37,12 @@ console.log('PASS reference integration: wire display, preserved source, sewn vo
 const outerCylinder=cad.makeCylinder(5,2),innerCylinder=cad.makeCylinder(2,2),ring=outerCylinder.cut(innerCylinder);
 const ringFaces=ring.faces,topIndex=ringFaces.findIndex(face=>face.geomType==='PLANE'&&Math.abs(face.center.z-2)<1e-7);
 const allBoundary=extractFaceBoundary(ring,topIndex,cad),outerBoundary=extractFaceBoundary(ring,topIndex,cad,{boundary:'outer'});
+const extractedTop=await kernel.operation(f('ringFace','extractFaces',{faceIds:[topIndex]},['ring']),new Map([['ring',ring]]),{});
+assert.equal(extractedTop.wires.length,2,'single face extraction preserves its inner hole');
+assert.ok(Math.abs(cad.measureArea(extractedTop)-21*Math.PI)<1e-6);
 const allEdges=allBoundary.edges,outerEdges=outerBoundary.edges;
 assert.equal(allEdges.length,2);assert.equal(outerEdges.length,1);
 assert.ok(Math.abs(outerEdges[0].length-10*Math.PI)<1e-6);
 assert.ok(Math.abs(cad.measureVolume(ring)-42*Math.PI)<1e-6);
-[...allEdges,...outerEdges,...ringFaces,allBoundary,outerBoundary,ring,innerCylinder,outerCylinder].forEach(x=>x.delete());
+[...allEdges,...outerEdges,...ringFaces,allBoundary,outerBoundary,extractedTop,ring,innerCylinder,outerCylinder].forEach(x=>x.delete());
 console.log('PASS explicit outer-only boundary excludes hole without modifying source');

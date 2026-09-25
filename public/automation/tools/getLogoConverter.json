@@ -1,0 +1,21 @@
+{
+  "id": "getLogoConverter",
+  "title": "getLogoConverter",
+  "category": "page-method",
+  "version": "1.3.1",
+  "description": "getLogoConverter()；读取当前浏览器 localStorage 的配置。",
+  "synonyms": [
+    "getLogoConverter",
+    "LOGO",
+    "PDF",
+    "转换配置",
+    "URL"
+  ],
+  "inputContract": "getLogoConverter()；读取当前浏览器 localStorage 的配置。",
+  "outputContract": "configured、url、key、hasKey；Key 对同源页面脚本可读。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:4cec1f0bdf08d2462f741672579e945b99f1412f2d2d97bb0914d2feb2aaa9a7"
+}

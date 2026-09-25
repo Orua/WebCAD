@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import init from 'replicad-opencascadejs';
+import {CadKernel} from '../src/cad-kernel.js';
+import {readDocs} from '../src/page-api-docs.js';
+
+const kernel=new CadKernel(await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))}));
+const polarPoints=({count,radius,startAngle=0,z})=>Array.from({length:count},(_,i)=>{
+  const angle=(startAngle+i*360/count)*Math.PI/180;
+  return [radius*Math.cos(angle),radius*Math.sin(angle),z];
+});
+const plate={id:'ring',op:'quickModel',refs:[],params:{kind:'washer',innerDiameter:20,sectionSize:4.5,innerHeight:3.6}};
+const hole={id:'seats',op:'multiHole',refs:['ring'],params:{radius:1.5,depth:0.5,axis:'Z',direction:-1,points:polarPoints({count:16,radius:12.25,startAngle:90,z:1.8})}};
+const run=features=>kernel.rebuild({version:1,features,imports:{},hidden:[]});
+assert.match(readDocs({docId:'recipes.polar-hole-ring'}).text,/PG3389/);
+const result=await run([plate,hole]);
+assert.equal(result.stats.solids,1);
+const size=result.bodies[0].bounds.max.map((value,i)=>value-result.bodies[0].bounds.min[i]);
+[29,29,3.6].forEach((value,i)=>assert.ok(Math.abs(size[i]-value)<1e-6,`bound ${i}: ${size[i]}`));
+const expected=Math.PI*(14.5**2-10**2)*3.6-16*Math.PI*1.5**2*0.5;
+assert.ok(Math.abs(result.stats.volume-expected)<1e-4,`volume ${result.stats.volume} vs ${expected}`);
+const step=await kernel.export('step');
+const imported=await kernel.rebuild({version:1,features:[{id:'imported',op:'import',params:{key:'pg3389'},refs:[]}],imports:{pg3389:{format:'step',data:Buffer.from(step.data).toString('base64')}},hidden:[]});
+assert.equal(imported.stats.solids,1);
+assert.ok(Math.abs(imported.stats.volume-expected)<1e-4);
+const before=(await kernel.export('brep')).data;
+await assert.rejects(run([plate,{...hole,params:{...hole.params,points:polarPoints({count:16,radius:16,startAngle:90,z:1.8})}}]));
+assert.equal((await kernel.export('brep')).data,before);
+kernel.dispose();
+console.log('PASS PG3389 ring and 16 polar seats: source bounds, exact volume, STEP roundtrip, invalid rollback');

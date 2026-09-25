@@ -1,0 +1,80 @@
+{
+  "id": "document.parameters",
+  "title": "命名参数与尺寸联动",
+  "category": "document",
+  "version": "1.3.1",
+  "description": "通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。",
+  "synonyms": [
+    "参数",
+    "尺寸",
+    "联动",
+    "expression",
+    "length",
+    "binding"
+  ],
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "strictContract": false,
+  "runtimeAvailability": "requires_ready_page",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ],
+    "properties": {
+      "context": {
+        "description": "Current sessionId, documentId, documentInstanceId and expectedRevision."
+      },
+      "idempotencyKey": {
+        "type": "string"
+      },
+      "action": {
+        "const": "document.parameters"
+      },
+      "args": {
+        "type": "object",
+        "required": [
+          "parameters"
+        ],
+        "properties": {
+          "parameters": {
+            "description": "Name -> {value:number|string,unit:\"mm\"|\"scalar\"}; merged with current definitions."
+          },
+          "bindings": {
+            "description": "Feature ID -> numeric params dot path -> expression; merged with existing bindings."
+          }
+        }
+      }
+    }
+  },
+  "outputContract": "Committed revision plus getState().parameters/parameterValues; a failed expression leaves the previous model intact.",
+  "minimalExample": {
+    "action": "document.parameters",
+    "args": {
+      "parameters": {
+        "length": {
+          "value": 63,
+          "unit": "mm"
+        }
+      }
+    }
+  },
+  "errorCodes": [
+    "PARAM_CYCLE",
+    "PARAM_UNDEFINED",
+    "PARAM_UNIT_MISMATCH",
+    "PARAM_PATH_INVALID",
+    "PARAMETER_BOUND",
+    "UNSAFE_LEGACY_REFERENCE",
+    "REVISION_CONFLICT"
+  ],
+  "knownUnsupportedCases": [
+    "No angular/area expression binding in this milestone.",
+    "Indexed face/edge references downstream of a changed feature are rejected when stability cannot be proven."
+  ],
+  "docs": "api.named-parameters",
+  "docsHash": "sha256:e540949c27813659d3bfb4d3d6e4da06b542407a3df5b4e1583b4bfd0c9c2f31"
+}

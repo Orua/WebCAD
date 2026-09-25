@@ -42,6 +42,13 @@ test('old radius/world XYZ semantics and legal defaults are retained without coe
     { radius: 2, depth: 5, points: [[5, 5, 4]], axis: 'Z', direction: 1 });
   assert.deepEqual(normalizeOperationParams('faceHole', { radius: 2, depth: 5, point: [5, 5, 3], faceId: 0 }),
     { radius: 2, depth: 5, point: [5, 5, 3], faceId: 0, through: false });
+  assert.deepEqual(normalizeOperationParams('extractFaces', { faceIds: [0, 2] }), { faceIds: [0, 2] });
+  assert.deepEqual(normalizeOperationParams('extractShell', { shellIndex: 1 }), { shellIndex: 1 });
+  fails(() => normalizeOperationParams('extractShell', { shellIndex: -1 }), 'PARAM_RANGE_INVALID');
+  fails(() => normalizeOperationParams('extractShell', { shellIndex: 0.5 }), 'PARAM_SCHEMA_INVALID');
+  assert.equal(getOperation('extractShell').preservesInputs, true);
+  fails(() => normalizeOperationParams('extractFaces', { faceIds: [] }), 'PARAM_RANGE_INVALID');
+  fails(() => normalizeOperationParams('extractFaces', { faceIds: [0, 0] }), 'PARAM_SCHEMA_INVALID');
   assert.equal(normalizeOperationParams('shell', { thickness: -1, faceIds: [0] }).thickness, -1);
   assert.deepEqual(normalizeOperationParams('box', { width: 50, depth: 30, height: 3 }), { width: 50, depth: 30, height: 3 });
 });

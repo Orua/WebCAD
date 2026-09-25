@@ -1,0 +1,27 @@
+{
+  "id": "getTools",
+  "title": "getTools",
+  "category": "page-method",
+  "version": "1.3.1",
+  "description": "getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.",
+  "synonyms": [
+    "getTools",
+    "批量",
+    "工具卡",
+    "缓存",
+    "契约"
+  ],
+  "inputContract": "getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.",
+  "outputContract": "逐项 read/not_modified/error；read.card 是完整契约，单个未知 ID 不丢失其他结果。目录漂移返回 CATALOG_CHANGED。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Read methods may return a structured state error or throw a coded contract error.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "CATALOG_CHANGED"
+  ],
+  "docs": "api.discovery",
+  "docsHash": "sha256:49ede27b9b9e9f0ceb82e8fca3843267c3c411c12a122d640cb7f176efbf2548"
+}

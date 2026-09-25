@@ -1,0 +1,26 @@
+{
+  "id": "readDocs",
+  "title": "readDocs",
+  "category": "page-method",
+  "version": "1.3.1",
+  "description": "readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。",
+  "synonyms": [
+    "readDocs",
+    "读取",
+    "文档",
+    "配方",
+    "白名单"
+  ],
+  "inputContract": "readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。",
+  "outputContract": "限定长度的说明文本、版本、哈希和分页游标；匹配 knownHash 时 status=not_modified，不重复传文本。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Read methods may return a structured state error or throw a coded contract error.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "OPERATION_VERSION_UNSUPPORTED"
+  ],
+  "docsHash": "sha256:c8593c620372dccd15fcc8498463ed64057de95ee04ccec740e33fefc5fac530"
+}

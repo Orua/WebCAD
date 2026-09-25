@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import { MetalMaterials, METAL_FINISHES } from './metal-materials.js';
 import { getLanguage } from './i18n.js';
+import { loadDisplayPreferences } from './display-preferences.js';
 const say=(zh,en)=>getLanguage()==='en'?en:zh;
 
 const COLORS = [0xaac4d9, 0xc5b395, 0x91bdb1, 0xb3a6c8, 0x9db5c6, 0xc39e9e];
@@ -12,12 +13,12 @@ export class CADViewport {
     this.scene=new THREE.Scene(); this.scene.background=new THREE.Color('#eef1f5');
     this.camera=new THREE.PerspectiveCamera(35,1,0.01,100000); this.camera.up.set(0,0,1); this.camera.position.set(90,-110,85);
     this.renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true}); this.renderer.setPixelRatio(Math.min(window.devicePixelRatio,2)); this.renderer.outputColorSpace=THREE.SRGBColorSpace;
-    this.finishKey='design';try{const saved=localStorage.getItem('webcad.metalFinish');if(METAL_FINISHES[saved])this.finishKey=saved;}catch{}
+    this.displayPreferences=loadDisplayPreferences();this.finishKey=this.displayPreferences.defaultFinish;
     this.metals=new MetalMaterials(this.renderer,this.scene,{onError:error=>this.callbacks.onRenderError?.(error)});
     this.metals.ready.then(()=>this.setMetalFinish(this.finishKey));
     host.append(this.renderer.domElement); this.renderer.domElement.setAttribute('aria-label','三维建模视口'); this.renderer.domElement.tabIndex=0;
     this.controls=new OrbitControls(this.camera,this.renderer.domElement); this.controls.enableDamping=true; this.controls.dampingFactor=.12;
-    this.partFinishes={};this.snapEnabled=true;this.clipPlanes=[];this.renderer.localClippingEnabled=true;
+    this.partFinishes={};this.partColors={};this.snapEnabled=true;this.clipPlanes=[];this.renderer.localClippingEnabled=true;
     this.gizmoProxy=new THREE.Object3D();this.scene.add(this.gizmoProxy);
     this.gizmo=new TransformControls(this.camera,this.renderer.domElement);this.gizmo.setSize(.8);this.gizmo.setSpace('world');this.gizmoMode='off';this.scene.add(this.gizmo.getHelper());
     this.gizmo.addEventListener('dragging-changed',event=>{this.controls.enabled=!event.value;});
@@ -62,9 +63,9 @@ export class CADViewport {
       geometry.setAttribute('position',new THREE.Float32BufferAttribute(body.positions,3));
       if(body.normals?.length)geometry.setAttribute('normal',new THREE.Float32BufferAttribute(body.normals,3));
       geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(body.indices),1));if(!body.normals?.length)geometry.computeVertexNormals();
-      const color=COLORS[i%COLORS.length];const material=new THREE.MeshStandardMaterial({color,metalness:.15,roughness:.42,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1,side:THREE.DoubleSide});
+      const defaultColor=this.displayPreferences.defaultColor,color=this.partColors[body.id]||defaultColor;const material=new THREE.MeshStandardMaterial({color,metalness:.15,roughness:.42,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1,side:THREE.DoubleSide});
       this.metals.apply(material,this.partFinishes[body.id]||this.finishKey,{bounds:body.bounds,baseColor:color});material.clippingPlanes=this.clipPlanes;
-      const mesh=new THREE.Mesh(geometry,material);mesh.userData={bodyId:body.id,body,baseColor:color,type:'body'};root.add(mesh);
+      const mesh=new THREE.Mesh(geometry,material);mesh.userData={bodyId:body.id,body,baseColor:color,defaultColor,type:'body'};root.add(mesh);
       const edges=new THREE.Group();
       for(const edge of body.edges||[]){if(edge.positions.length<6)continue;const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(edge.positions,3));const line=new THREE.LineSegments(geo,new THREE.LineBasicMaterial({color:0x465b6e,transparent:true,opacity:.72}));line.userData={bodyId:body.id,type:'edge',edgeId:edge.edgeId};edges.add(line);}
       if(!edges.children.length){const outline=new THREE.LineSegments(new THREE.EdgesGeometry(geometry,25),new THREE.LineBasicMaterial({color:0x465b6e}));outline.userData={bodyId:body.id,type:'outline'};edges.add(outline);}
@@ -74,7 +75,7 @@ export class CADViewport {
   setHidden(ids){this.hidden=ids;this.objects.forEach((entry,id)=>entry.root.visible=!ids.includes(id));this.updateHud();}
   setSelection(ids=[],topology=null){
     this.selected=ids;this.topology=topology;
-    for(const [id,entry] of this.objects){const active=ids.includes(id),design=(this.partFinishes[id]||this.finishKey)==='design';if(design)entry.mesh.material.color.set(active?0x63c4b6:entry.mesh.userData.baseColor);entry.mesh.material.emissive.set(active&&design?0x08332d:0x000000);entry.edges.children.forEach(line=>{const edge=topology?.bodyId===id&&topology?.type==='edge'&&topology.ids.includes(line.userData.edgeId);line.material.color.set(edge?0xf08e2b:active?0x127566:0x465b6e);line.material.opacity=edge?1:.72;});}
+    for(const [id,entry] of this.objects){const active=ids.includes(id),design=(this.partFinishes[id]||this.finishKey)==='design';if(design)entry.mesh.material.color.set(entry.mesh.userData.baseColor);entry.mesh.material.emissive.set(active?0x080b0b:0x000000);entry.edges.children.forEach(line=>{const edge=topology?.bodyId===id&&topology?.type==='edge'&&topology.ids.includes(line.userData.edgeId);line.material.color.set(edge?0xf08e2b:active?0x127566:0x465b6e);line.material.opacity=edge?1:.72;});}
     if(this.faceOverlay){this.modelRoot.remove(this.faceOverlay);this.disposeObject(this.faceOverlay);this.faceOverlay=null;}
     if(topology?.type==='face'){const entry=this.objects.get(topology.bodyId);if(entry&&!this.hidden.includes(topology.bodyId)){const indices=[];for(const g of entry.body.faceGroups||[])if(topology.ids.includes(g.faceId))for(let i=g.start;i<g.start+g.count;i++)indices.push(entry.body.indices[i]);if(indices.length){const geo=new THREE.BufferGeometry();geo.setAttribute('position',entry.mesh.geometry.getAttribute('position').clone());geo.setIndex(indices);this.faceOverlay=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xf7ac50,transparent:true,opacity:.48,side:THREE.DoubleSide,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}));this.modelRoot.add(this.faceOverlay);}}}
     this.applyClipping();this.syncGizmo();
@@ -85,12 +86,16 @@ export class CADViewport {
     this.finishKey=key;
     const metal=key!=='design'||Object.entries(this.partFinishes).some(([id,finish])=>this.objects.has(id)&&finish!=='design');
     this.renderer.toneMapping=metal?THREE.ACESFilmicToneMapping:THREE.NoToneMapping;
-    this.renderer.toneMappingExposure=1;
-    const intensity=metal?[.7,1.3,.6]:[2.4,3.1,1.8];
+    const p=this.displayPreferences;
+    this.renderer.toneMappingExposure=p.exposure;
+    this.scene.background.set(p.background);
+    const intensity=metal?[p.ambientIntensity,p.keyIntensity,p.fillIntensity]:[p.ambientIntensity*2.4/.7,p.keyIntensity*3.1/1.3,p.fillIntensity*1.8/.6];
     this.studioLights?.forEach((light,index)=>light.intensity=intensity[index]);
-    for(const [id,entry] of this.objects)this.metals.apply(entry.mesh.material,this.partFinishes[id]||key,{bounds:entry.body.bounds,baseColor:entry.mesh.userData.baseColor});
+    const az=p.lightAzimuth*Math.PI/180,el=p.lightElevation*Math.PI/180;
+    this.studioLights?.[1].position.set(100*Math.cos(el)*Math.cos(az),100*Math.cos(el)*Math.sin(az),100*Math.sin(el));
+    this.studioLights?.[2].position.set(-100*Math.cos(az),-100*Math.sin(az),50);
+    for(const [id,entry] of this.objects){entry.mesh.userData.defaultColor=p.defaultColor;entry.mesh.userData.baseColor=this.partColors[id]||p.defaultColor;this.metals.apply(entry.mesh.material,this.partFinishes[id]||key,{bounds:entry.body.bounds,baseColor:entry.mesh.userData.baseColor,displayPreferences:p});}
     this.setSelection(this.selected,this.topology);
-    try{localStorage.setItem('webcad.metalFinish',key);}catch{}
     return METAL_FINISHES[key].label;
   }
   setPartMetal(ids,key){if(!METAL_FINISHES[key])throw new Error('Unknown material');for(const id of ids)this.partFinishes={...this.partFinishes,[id]:key};this.setMetalFinish(this.finishKey);}
@@ -129,6 +134,7 @@ export class CADViewport {
   applyClipping(){this.modelRoot.traverse(object=>{if(object.material){for(const material of [object.material].flat()){material.clippingPlanes=this.clipPlanes;material.needsUpdate=true;}}});}
   setSection({axis='Z',position=0,enabled=true}={}){
     if(!['X','Y','Z'].includes(axis)||!Number.isFinite(Number(position)))throw new Error('Invalid section plane');
+    this.sectionState={axis,position:Number(position),enabled:!!enabled};
     const normal=new THREE.Vector3(axis==='X'?1:0,axis==='Y'?1:0,axis==='Z'?1:0);
     this.clipPlanes=enabled?[new THREE.Plane(normal,-Number(position))]:[];this.applyClipping();
   }

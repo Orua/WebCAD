@@ -1,0 +1,28 @@
+{
+  "id": "execute",
+  "title": "execute",
+  "category": "page-method",
+  "version": "1.3.1",
+  "description": "execute({context,idempotencyKey,action,args}); action 来自当前命令合同。",
+  "synonyms": [
+    "execute",
+    "建模",
+    "编辑",
+    "撤销",
+    "参数",
+    "命令"
+  ],
+  "inputContract": "execute({context,idempotencyKey,action,args}); action 来自当前命令合同。",
+  "outputContract": "CommandService 的 committed/no_change/failed/unknown、revision 和实际创建 ID。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "CommandService structured result; inspect status and commitState.",
+  "errorCodes": [
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "PARAM_SCHEMA_INVALID",
+    "GEOMETRY_INVALID"
+  ],
+  "docsHash": "sha256:c2f52aab4df692114f2570b35f615daa18035a37638534db4ad6a96961d50d17"
+}

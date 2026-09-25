@@ -1,0 +1,40 @@
+{
+  "id": "files.export",
+  "title": "files.export",
+  "category": "file",
+  "version": "1.3.1",
+  "label": "导出文件",
+  "synonyms": [
+    "导出文件",
+    "export"
+  ],
+  "description": "export({context,format,ids?,name?}); format step/stl/brep/png.",
+  "inputContract": "export({context,format,ids?,name?}); format step/stl/brep/png.",
+  "outputContract": "status=generated output resource with exact source snapshot.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees"
+  },
+  "implementationStatus": "page-adapter",
+  "contractStatus": "browser-file-adapter",
+  "runtimeAvailability": "requires_ready_page",
+  "limits": {
+    "maxBytes": 20971520,
+    "maxResources": 32,
+    "maxTotalBytes": 67108864,
+    "ttlSeconds": 1800
+  },
+  "caveats": [],
+  "errorCodes": [
+    "CAPABILITY_UNAVAILABLE",
+    "REVISION_CONFLICT",
+    "INSTANCE_MISMATCH",
+    "UNSAVED_REPLACEMENT",
+    "HASH_MISMATCH",
+    "SIZE_LIMIT",
+    "RESOURCE_LIMIT",
+    "RESOURCE_EXPIRED",
+    "PERMISSION_REQUIRED"
+  ],
+  "docsHash": "sha256:56b156bcd9c51d45d5a6b507d5178304a4b4ac012cb37fee7e9d84669c80e12b"
+}

@@ -3,17 +3,16 @@ import { QUICK_MODELS } from './quick-models.js';
 import { assertJsonValue, contractError, contractHash, validateSchema } from './contracts/operation-schema.js';
 
 export const apiVersion = '2.0';
-export const migratedOperationIds = Object.freeze(['box', 'hole', 'multiHole', 'faceHole', 'fillet', 'chamfer', 'shell']);
+export const migratedOperationIds = Object.freeze(['box', 'hole', 'multiHole', 'multiPocket', 'multiBoss', 'faceHole', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell']);
 const migrated = new Set(migratedOperationIds);
 const clone = value => JSON.parse(JSON.stringify(value));
-const topology = new Set(['faceHole', 'fillet', 'chamfer', 'shell']);
-const topologyConvention = operationCatalog.topology.replace('Face tools require a planar face.',
-  'Only faceHole, faceExtrude and logo require planar support. curvedLogo, thickenFace, faceBoundary and surfaceTrim follow their individual surface restrictions.');
-const defaults = { box: {}, hole: { x: 0, y: 0, z: 0, axis: 'Z', direction: 1 },
-  multiHole: { axis: 'Z', direction: 1 }, faceHole: { through: false }, fillet: {}, chamfer: {}, shell: {} };
+const topology = new Set(['faceHole', 'fillet', 'chamfer', 'shell', 'smoothTransition']);
+const topologyConvention = operationCatalog.topology;
+const defaults = { autoRound:{}, smoothTransition: {}, box: {}, hole: { x: 0, y: 0, z: 0, axis: 'Z', direction: 1 },
+  multiHole: { axis: 'Z', direction: 1 }, multiPocket:{axis:'Z',direction:-1}, multiBoss:{axis:'Z',direction:1}, faceHole: { through: false }, fillet: {}, chamfer: {}, shell: {}, extractFaces:{}, extractShell:{} };
 const triangle = [[-1, -1], [1, -1], [0, 1]];
 const regions = [{ outer: triangle }];
-const examples = {
+const examples = { autoRound:{radius:0.1}, smoothTransition:{radius:0.1,faceIds:[0,1]},
   box: { width: 50, depth: 30, height: 3 }, cylinder: { radius: 10, height: 20 }, sphere: { radius: 10 },
   cone: { radius1: 10, radius2: 0, height: 20 }, torus: { majorRadius: 10, minorRadius: 2 },
   extrude: { profile: 'rectangle', width: 20, depth: 10, height: 5 },
@@ -23,6 +22,8 @@ const examples = {
   transform: { x: 10 }, copy: { x: 10 }, mirror: { plane: 'YZ' },
   hole: { radius: 2, depth: 5, x: 5, y: 5, z: 4, axis: 'Z', direction: -1 },
   multiHole: { radius: 2, depth: 5, axis: 'Z', direction: -1, points: [[5, 5, 4], [45, 5, 4], [5, 25, 4], [45, 25, 4]] },
+  multiPocket:{depth:0.5,axis:'Z',direction:-1,pockets:[{x:10,y:10,z:3,width:6,height:4},{x:25,y:10,z:3,width:6,height:4,cornerRadius:0.5}]},
+  multiBoss:{radius:2,height:3,axis:'Z',direction:1,points:[[10,10,3],[30,10,3]]},
   faceHole: { faceId: 0, point: [5, 5, 3], radius: 2, through: true },
   faceExtrude: { faceId: 0, height: 2 }, fillet: { radius: 0.5, edgeIds: [0] },
   chamfer: { distance: 0.5, edgeIds: [0] }, shell: { thickness: 1, faceIds: [0] },
@@ -30,13 +31,14 @@ const examples = {
   linearPattern: { count: 3, dx: 20 }, circularPattern: { count: 3, angle: 360, axis: 'Z' },
   split: { plane: 'XY', offset: 1 }, extractSolid: { solidIndex: 0 }, group: {}, union: {}, cut: {}, intersect: {},
   quickModel: { kind: 'tube' }, remove: {}, import: {},
-  logo: { faceId: 0, mode: 'engrave', depth: 0.2, regions },
+  logo: { placementVersion:2, faceId: 0, point:[5,5,3], mode: 'engrave', depth: 0.2, draftAngle:0, regions, source:{kind:'reviewed-contours',reviewed:true} },
   vectorProfile: { regions, output: 'solid', height: 2 },
+  arcProfile: { outer:[{type:'line',points:[[0,0],[10,0]]},{type:'line',points:[[10,0],[10,5]]},{type:'line',points:[[10,5],[0,5]]},{type:'line',points:[[0,5],[0,0]]}],height:2 },
   curveSweep: { pathType: 'arc', points: [[10, 0, 0], [7.071, 7.071, 0], [0, 10, 0]], radius: 1 },
   advancedLoft: { sections: [{ z: 0, points: triangle }, { z: 10, points: triangle }] },
   fittedSurface: { points: [0, 5, 10].map(y => [0, 5, 10].map(x => [x, y, 0])) },
   thickenFace: { faceId: 0, thickness: 1 }, curvedLogo: { faceId: 0, point: [10, 0, 5], depth: 0.2, regions },
-  planeSection: { plane: 'XY', offset: 1 }, faceBoundary: { faceId: 0 },
+  planeSection: { plane: 'XY', offset: 1 }, faceBoundary: { faceId: 0 }, extractFaces:{faceIds:[0]}, extractShell:{shellIndex:0},
   sewFaces: { tolerance: 0.01, makeSolid: false }, surfaceTrim: { faceId: 0, mode: 'intersect' },
   referenceExtrude: { direction: [0,0,1], distance: 3 }, referenceLoft: { ruled: false },
 };
@@ -62,8 +64,9 @@ function schemaFor(id, source) {
   if (id === 'fillet' || id === 'chamfer') {
     schema.properties.edgeIds.minItems = 1;
     schema.properties.edgeIds.uniqueItems = true;
-    schema.anyOf = [{ required: ['edgeIds'] }, { required: ['allEdges'], properties: { allEdges: { const: true } } }];
-    schema.not = { required: ['edgeIds', 'allEdges'], properties: { allEdges: { const: true } } };
+    schema.properties.faceIds.minItems = 1;
+    schema.properties.faceIds.uniqueItems = true;
+    schema.anyOf = [{ required: ['edgeIds'] }, { required: ['faceIds'] }, { required: ['allEdges'], properties: { allEdges: { const: true } } }];
   }
   if (id === 'shell') {
     schema.properties.faceIds.uniqueItems = true;
@@ -82,14 +85,14 @@ function refsFor(refs) {
 
 function categoryFor(id) {
   if (['remove', 'import'].includes(id)) return 'document';
-  if (['planeSection', 'faceBoundary', 'referenceExtrude', 'referenceLoft'].includes(id)) return 'reference';
+  if (['planeSection', 'faceBoundary', 'extractFaces', 'extractShell', 'referenceExtrude', 'referenceLoft'].includes(id)) return 'reference';
   if (['fittedSurface', 'thickenFace', 'sewFaces', 'surfaceTrim', 'curvedLogo', 'advancedLoft'].includes(id)) return 'surface';
   if (['transform', 'copy', 'mirror', 'linearPattern', 'circularPattern', 'group', 'extractSolid', 'split'].includes(id)) return 'organization';
   return operationCatalog.operations[id].refs === 0 ? 'creation' : 'modification';
 }
 
-const names = { box: ['长方体', '安装板', 'plate'], hole: ['孔', '钻孔', 'radius'], multiHole: ['多孔', '孔位', 'mounting plate'],
-  faceHole: ['面钻孔', '贯穿'], fillet: ['圆角'], chamfer: ['倒角'], shell: ['抽壳', '壁厚'],
+const names = { box: ['长方体', '安装板', 'plate'], hole: ['孔', '钻孔', 'radius'], multiHole: ['多孔', '孔位', 'mounting plate'], multiPocket:['多凹槽','批量凹刻','rectangular pocket','recess'], multiBoss:['多凸台','批量圆柱凸台','cylindrical boss'],
+  smoothTransition:['平滑过渡','接缝','利角','blend'], faceHole: ['面钻孔', '贯穿'], fillet: ['圆角'], chamfer: ['倒角'], shell: ['抽壳', '壁厚'],
   referenceExtrude: ['参考轮廓', '精确曲线', '拉伸'], referenceLoft: ['参考截面', '精确曲线', '放样'] };
 
 function buildCard(id, source) {
@@ -101,7 +104,7 @@ function buildCard(id, source) {
     location: 'args.selectionToken', featureAddOnly: true,
     conflictsWith: ['faceId', 'faceIds', 'edgeIds', 'allEdges'],
     phases: 'Validate user params with phase=input and selectionToken, resolve against current snapshot, then validate complete params with phase=resolved.' } : { supported: false };
-  const preserves = ['copy', 'planeSection', 'faceBoundary', 'surfaceTrim', 'referenceExtrude', 'referenceLoft'].includes(id) ? true
+  const preserves = ['copy', 'planeSection', 'faceBoundary', 'extractFaces', 'extractShell', 'surfaceTrim', 'referenceExtrude', 'referenceLoft'].includes(id) ? true
     : ['mirror', 'extractSolid'].includes(id) ? 'unless keepOriginal=false' : false;
   const minRefs = refsSchema.minItems;
   const example = { op: id, params: clone(examples[id]), refs: Array.from({ length: minRefs }, (_, i) => `<current-bodyId-${i + 1}>`),
@@ -116,12 +119,14 @@ function buildCard(id, source) {
   if (!strict) known.push('This operation has not migrated to the strict v2 contract. Its schema remains advisory; use the documented legacy entry.');
   if (special) known.push(id === 'remove' ? 'Use webcad_remove or v2 feature.remove; not feature.add.' : 'File lifecycle automation is deferred to M2; browser import is not a zero-mouse API.');
   const editRule = ['fillet', 'chamfer'].includes(id)
-    ? 'On edit, patch edgeIds selects explicit-edge mode and removes prior allEdges. Patch allEdges=true selects all-edge mode and removes prior edgeIds. Supplying both in one patch conflicts. Amount is merged from existing params; edgeIds must be a nonempty complete selection.' : 'Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.';
+    ? 'On edit, patch edgeIds or faceIds selects that exact current topology scope and removes the other scope. Patch allEdges=true selects all body edges. Supplying multiple scopes in one patch conflicts. Amount is merged from existing params.' : 'Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.';
   const contract = { id, version, inputSchema, refsSchema,
     defaults: id === 'quickModel' ? Object.fromEntries(Object.entries(QUICK_MODELS).map(([kind, definition]) => [kind, clone(definition.defaults)])) : defaults[id] || {},
     selectionTokenSupport: selector, editRule, units: operationCatalog.units,
     coordinateConvention: id === 'box' ? 'World [0,0,0] to [width,depth,height], all in mm.'
       : ['hole', 'multiHole'].includes(id) ? 'World XYZ cutter start, signed principal axis, radius in mm (not diameter), fixed positive depth. No through parameter.'
+        : id==='multiPocket' ? 'Each world XYZ is a pocket cutter start center; shared positive depth cuts along signed axis. Width/height directions: Z axis X/Y, X axis Y/Z, Y axis Z/X. No automatic through or inferred surface.'
+          : id==='multiBoss' ? 'Each world XYZ is a boss base center; shared radius and positive height extend along signed X/Y/Z. Each must fuse to one solid and add material. No bore.'
         : id === 'faceHole' ? 'World XYZ point on a planar face. Drill inward along the negative outward face normal. through computes depth from body bounds.'
           : `${topologyConvention} ${source.notes || source.description}` };
   return { ...contract, title: source.description, category: categoryFor(id), synonyms: names[id] || [id],
@@ -133,7 +138,7 @@ function buildCard(id, source) {
     preconditions: [minRefs ? 'Use current referenced bodies in the same document instance and revision.' : 'Use explicit empty refs for independent creation.',
       ...(topology.has(id) ? ['Resolve topology against the current snapshot; do not reuse indices across revisions.'] : [])],
     postconditions: ['A successful modeling operation commits one undoable history transaction; invalid geometry must not commit.'],
-    resultShapeTypes: ['planeSection', 'faceBoundary'].includes(id) ? ['curve compound'] : id === 'fittedSurface' ? ['face']
+    resultShapeTypes: ['planeSection', 'faceBoundary'].includes(id) ? ['curve compound'] : id === 'extractFaces' ? ['face','compound of faces'] : id === 'extractShell' ? ['shell'] : id === 'fittedSurface' ? ['face']
       : ['advancedLoft', 'vectorProfile', 'sewFaces', 'surfaceTrim'].includes(id) ? ['solid', 'shell', 'face (operation-dependent)'] : special ? [] : ['solid', 'compound (operation-dependent)'],
     consumesInputs: minRefs > 0 && preserves !== true, preservesInputs: preserves, createsResults: id !== 'remove',
     sideEffects: ['Updates active document history and derived view on commit.'], permissions: ['Authorized local modeling session; no external upload.'],
@@ -145,7 +150,8 @@ function buildCard(id, source) {
       explanation: strict ? 'Rejected before kernel execution.' : 'v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement.' }],
     errorCodes: ['PARAM_SCHEMA_INVALID', 'PARAM_RANGE_INVALID', 'UNKNOWN_OPERATION', 'OPERATION_VERSION_UNSUPPORTED', 'SCHEMA_MISMATCH', 'CAPABILITY_UNAVAILABLE', 'GEOMETRY_INVALID',
       ...(topology.has(id) ? ['SELECTION_CONFLICT', 'STALE_REFERENCE', 'UNSAFE_LEGACY_REFERENCE'] : []),
-      ...(['hole', 'multiHole', 'faceHole'].includes(id) ? ['NO_MATERIAL_REMOVED'] : [])],
+      ...(['hole', 'multiHole', 'multiPocket', 'faceHole'].includes(id) ? ['NO_MATERIAL_REMOVED'] : []),
+      ...(id==='multiBoss'?['NO_MATERIAL_ADDED']:[])],
     recoveryActions: ['CORRECT_PARAMETERS', 'READ_STATE_AND_REPLAN', 'READ_TOOL_CONTRACT', 'NONE'],
     relatedTools: ['webcad_get_state_v2', 'webcad_query_geometry', strict ? 'webcad_execute_v2' : 'webcad_add_feature'],
     recipes: ['box', 'hole', 'multiHole'].includes(id) ? ['recipes.mounting-plate'] : [],
@@ -189,8 +195,9 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
     schema.required = (schema.required || []).filter(k => !['faceId', 'faceIds'].includes(k));
     if (op === 'fillet' || op === 'chamfer') { delete schema.anyOf; delete schema.not; }
   }
-  if ((op === 'fillet' || op === 'chamfer') && params.allEdges === true && Object.hasOwn(params, 'edgeIds')) {
-    contractError('SELECTION_CONFLICT', 'params.edgeIds', 'allEdges=true conflicts with edgeIds.');
+  if (op === 'fillet' || op === 'chamfer') {
+    const scopes = Number(Object.hasOwn(params, 'edgeIds')) + Number(Object.hasOwn(params, 'faceIds')) + Number(params.allEdges === true);
+    if (scopes > 1) contractError('SELECTION_CONFLICT', 'params', 'Choose exactly one of edgeIds, faceIds, or allEdges=true.');
   }
   validateSchema(schema, params);
   return { ...clone(defaults[op]), ...clone(params) };
@@ -201,9 +208,11 @@ export function normalizeOperationPatch(op, previousParams, patch) {
   if (!patch || typeof patch !== 'object' || Array.isArray(patch)) contractError('PARAM_SCHEMA_INVALID', 'params', 'Expected a parameter patch object.');
   const merged = { ...previousParams, ...patch };
   if (op === 'fillet' || op === 'chamfer') {
-    if (patch.allEdges === true && Object.hasOwn(patch, 'edgeIds')) contractError('SELECTION_CONFLICT', 'params.edgeIds', 'One patch cannot select both edge modes.');
-    if (Object.hasOwn(patch, 'edgeIds')) delete merged.allEdges;
-    else if (patch.allEdges === true) delete merged.edgeIds;
+    const scopes = Number(Object.hasOwn(patch, 'edgeIds')) + Number(Object.hasOwn(patch, 'faceIds')) + Number(patch.allEdges === true);
+    if (scopes > 1) contractError('SELECTION_CONFLICT', 'params', 'One patch cannot select multiple edge scopes.');
+    if (Object.hasOwn(patch, 'edgeIds')) { delete merged.faceIds; delete merged.allEdges; }
+    else if (Object.hasOwn(patch, 'faceIds')) { delete merged.edgeIds; delete merged.allEdges; }
+    else if (patch.allEdges === true) { delete merged.edgeIds; delete merged.faceIds; }
   }
   return normalizeOperationParams(op, merged);
 }

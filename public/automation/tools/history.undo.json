@@ -1,0 +1,14 @@
+{
+  "id": "history.undo",
+  "title": "撤销",
+  "description": "args:{}；撤销一个已提交步骤。",
+  "category": "command",
+  "version": "1.3.1",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"history.undo\",args}); args:{}；撤销一个已提交步骤。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "docs": "api.editor",
+  "docsHash": "sha256:ae8244a4358ea2b897fbe650e58e784e73fdf82bb721a0eb04667b4926f0d238"
+}

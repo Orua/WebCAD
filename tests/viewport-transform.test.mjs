@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import { CADViewport } from '../src/viewport.js';
+import { DISPLAY_DEFAULTS } from '../src/display-preferences.js';
 
 function viewport(){
  const v=Object.create(CADViewport.prototype);
- Object.assign(v,{objects:new Map(),modelRoot:new THREE.Group(),selected:['a'],hidden:[],partFinishes:{},finishKey:'design',clipPlanes:[],mode:'edges',metals:{apply(){}},gizmo:{enabled:true},gizmoProxy:new THREE.Object3D(),gizmoOrigin:new THREE.Vector3(),callbacks:{},syncs:0});
+ Object.assign(v,{objects:new Map(),modelRoot:new THREE.Group(),selected:['a'],hidden:[],partFinishes:{},partColors:{},displayPreferences:{...DISPLAY_DEFAULTS},finishKey:'design',clipPlanes:[],mode:'edges',metals:{apply(){}},gizmo:{enabled:true},gizmoProxy:new THREE.Object3D(),gizmoOrigin:new THREE.Vector3(),callbacks:{},syncs:0});
  v.setDisplay=()=>{};v.setMetalFinish=()=>{};v.applyClipping=()=>{};v.updateHud=()=>{};v.syncGizmo=()=>{v.syncs++;};
  return v;
 }

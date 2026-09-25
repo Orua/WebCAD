@@ -1,0 +1,36 @@
+{
+  "id": "document.appearance",
+  "title": "工程渲染 金属色",
+  "description": "设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
+  "category": "command",
+  "version": "1.3.1",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"document.appearance\",args}); 设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
+  "fields": [
+    "finish"
+  ],
+  "allowedFinishes": [
+    "design",
+    "light-gold",
+    "nickel",
+    "24k-gold",
+    "gunmetal",
+    "matt-nickel",
+    "matt-light-gold",
+    "matt-24k-gold",
+    "matt-gunmetal",
+    "antique-brass",
+    "antique-silver"
+  ],
+  "minimalExample": {
+    "action": "document.appearance",
+    "args": {
+      "finish": "nickel"
+    }
+  },
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "docs": "api.editor",
+  "docsHash": "sha256:3849f0308eb30da06109145d20f91f490951166080bc4a6526a7481137f8f048"
+}

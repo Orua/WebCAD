@@ -1,0 +1,22 @@
+{
+  "id": "setLogoConverter",
+  "title": "setLogoConverter",
+  "category": "page-method",
+  "version": "1.3.1",
+  "description": "setLogoConverter({context,url,key?})；URL 必须含 userid，空 key 保留原值。",
+  "synonyms": [
+    "setLogoConverter",
+    "LOGO",
+    "PDF",
+    "转换",
+    "URL",
+    "Key"
+  ],
+  "inputContract": "setLogoConverter({context,url,key?})；URL 必须含 userid，空 key 保留原值。",
+  "outputContract": "status=applied、配置状态；URL/Key 保存在当前浏览器 localStorage，不进入工程。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:c260f0f4ef225d7796e0b8522bd78c86bd75fe6dd6dc99fee6fea52843e56c04"
+}

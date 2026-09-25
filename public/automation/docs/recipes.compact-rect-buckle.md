@@ -1,0 +1,3 @@
+# recipes.compact-rect-buckle
+
+紧凑圆线方扣：UI 在快捷模型中选择“方扣”，AI 先用 getTool({id:"quickModel"}) 读 kind=rectBuckle 的当前参数。例：const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"frame",method:"add",args:{op:"quickModel",refs:[],params:{kind:"rectBuckle",section:"round",innerWidth:10,innerHeight:25,sectionSize:3.5,innerRadius:0.9,gapWidth:0}}},{id:"size",method:"measure",args:{bodyId:{$ref:"frame.createdBodyIds.0"}}}]})。圆线闭合方框与日字扣的内宽高下限为线径 2.5 倍；开缝圆框、方线框仍为 4 倍。0<innerRadius<内短边/2，截面 0.5–20 mm，内宽高上限 200 mm。PG10251 的名义正视由此形成外 17×32、外 R4.4、深 3.5 mm 单实体候选；原 DWG 使用回退预览，尚不能据此断言其它表面特征已完整复刻。读每步回执、精确测量、当前 rendered revision；用 feature.edit 修改历史参数。

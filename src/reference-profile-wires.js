@@ -9,7 +9,7 @@ const endpoints = edge => {
   try { return [point(curve.startPoint), point(curve.endPoint), curve.isClosed]; }
   finally { dispose(curve); }
 };
-function planarFace(shape, cad) {
+export function planarFace(shape, cad) {
   if (shape.geomType === 'PLANE') return true;
   // A STEP/IGES planar patch is often encoded as a degree-one BSpline surface.
   // Every control point on a single plane is a sufficient exact geometric proof.
@@ -60,7 +60,7 @@ function assembleClosed(edges, cad) {
     nodes[b].incident.push(index);
     return [a, b];
   });
-  check(nodes.every(n => n.incident.length === 2), '轮廓有开口或分叉，不能自动补缝');
+  check(nodes.every(n => n.incident.length === 2), '轮廓有开口或分叉，或端点偏差超过 1e-7 mm。源文件的闭合标志可能依赖较大容差；本工具未自动补缝');
   const seen = new Set(), ordered = [];
   let current = links[0][0];
   while (seen.size < edges.length) {

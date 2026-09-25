@@ -15,6 +15,7 @@ self.onmessage = ({ data }) => {
       else if(type==='rebuild')result=await engine.rebuild(data.document);
       else if(type==='export')result=await engine.export(data.format,data.ids);
       else if(type==='faceInfo')result=engine.faceInfo(data.bodyId,data.faceId);
+      else if(type==='logoTarget')result=await engine.logoTarget(data.bodyId,data.faceId);
       else if(type==='queryGeometry')result=await engine.queryGeometry(data.bodyId,data.kind,data.filter);
       else if(type==='measure'){
         if(Array.isArray(data.ids)){

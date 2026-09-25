@@ -7,17 +7,18 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
   contracts: [
-    'browser-logo-input', 'page-api', 'browser-files', 'artifact-store', 'command-service', 'document-identity', 'logo-import-request', 'operation-registry',
+    'tool-discovery', 'browser-logo-input', 'page-batch', 'page-api', 'browser-files', 'artifact-store', 'command-service', 'document-identity', 'logo-import-request', 'operation-registry',
     'parameter-calculator', 'named-parameters', 'recovery-isolation', 'selection-contract',
-    'tool-state', 'viewport-transform',
+    'tool-state', 'viewport-transform', 'dfam-inspection', 'profile-fitting', 'text-commands',
   ],
   kernel: [
     'advanced-integration', 'advanced-kernel', 'advanced-loft', 'curve-sweep',
     'curved-logo', 'fitted-surface', 'geometry-query', 'group-explode',
-    'hardware-templates', 'igs-tools', 'igs30-slot', 'igs30-templates',
+    'hardware-templates', 'igs-tools', 'igs30-slot', 'igs30-templates', 'multi-pocket', 'multi-boss', 'dwg-ring-bar', 'dwg-rounded-frame', 'dwg-compact-rect', 'dwg-chamfered-section', 'dwg-compact-slider', 'dwg-figure-eight-capsule', 'dwg-u-end-hole-plate', 'dwg-twin-window-plate', 'dwg-small-twin-window', 'dwg-spline-twin-window', 'dwg-ellipse-bar', 'dwg-ellipse-open-wire', 'dwg-ellipse-u-wire', 'dwg-analytic-arc-profile', 'dwg-profile-loop', 'dwg-capsule-wire', 'dwg-arc-band-plate', 'dwg-ellipse-section-ring', 'dwg-flat-washer', 'dwg-polar-hole-ring', 'dwg-bowed-twin-window', 'dwg-arched-twin-window', 'dwg-d-flat-frame', 'dwg-gable-open-frame', 'dwg-ellipse-section-rect',
     'incremental-rebuild', 'kernel', 'logo-draft', 'logo-kernel', 'logo-model',
     'position-tools', 'reference-curves', 'reference-integration', 'reference-profiles',
-    'surface-repair', 'vector-profile',
+    'surface-repair', 'vector-profile', 'extract-shell-kernel', 'query-planar-spline',
+    'planar-thickness-invariant', 'round-edit-preferences', 'rounding-modes', 'smooth-transition',
   ],
   mcp: ['bridge-cancellation', 'mcp-bridge', 'mcp-v2', 'document-assets', 'agent-cli'],
   'local-fixtures': ['iges-import', 'iges-roundtrip'],

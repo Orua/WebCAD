@@ -1,0 +1,27 @@
+{
+  "id": "body.visibility",
+  "title": "显示 隐藏实体",
+  "description": "显隐指定当前实体，不删除几何。",
+  "category": "command",
+  "version": "1.3.1",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"body.visibility\",args}); 显隐指定当前实体，不删除几何。",
+  "fields": [
+    "bodyIds",
+    "visible"
+  ],
+  "minimalExample": {
+    "action": "body.visibility",
+    "args": {
+      "bodyIds": [
+        "<bodyId>"
+      ],
+      "visible": false
+    }
+  },
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "docs": "api.editor",
+  "docsHash": "sha256:b28acf6ffc4e243983bef73b9dbec14eac58c03411563e4dcdafca5bea791588"
+}

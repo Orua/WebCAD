@@ -1,0 +1,30 @@
+{
+  "id": "fitProfile",
+  "title": "fitProfile",
+  "category": "page-method",
+  "version": "1.3.1",
+  "description": "fitProfile({context,kind:\"circle\"|\"line\",plane?:\"XY\"|\"XZ\"|\"YZ\",points:[[u,v],...],maxResidualMm?}); 3–1000 点。",
+  "synonyms": [
+    "fitProfile",
+    "计算拟合",
+    "圆",
+    "直线",
+    "截面点",
+    "残差"
+  ],
+  "inputContract": "fitProfile({context,kind:\"circle\"|\"line\",plane?:\"XY\"|\"XZ\"|\"YZ\",points:[[u,v],...],maxResidualMm?}); 3–1000 点。",
+  "outputContract": "status=read、圆心/半径或直线方向、最大/RMS 残差、当前 context；不生成几何。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "FIT_DEGENERATE",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docs": "api.profile-fitting",
+  "docsHash": "sha256:ba03794c713890c114d5ab7d4f2812433416694060a75e7aa4c750c23dc32d1f"
+}

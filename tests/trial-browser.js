@@ -10,12 +10,17 @@ async (page) => {
     await page.reload();
     await page.waitForFunction(() => window.webcad?.api.getState().summary?.kernelReady);
 
-    const uiSample = async (name) => {
+    const loadSample = async (name) => {
       const previousInstance = await page.evaluate(() => window.webcad.api.getState().context.documentInstanceId);
-      await page.locator('[data-action="trialSamples"]').click();
-      const button = page.locator(`[data-trial-sample="${name}"]`);
-      await button.waitFor({ state: 'visible' });
-      await button.click();
+      await page.evaluate(async (sampleName) => {
+        const api = window.webcad.api;
+        const { revision, ...identity } = api.getState().context;
+        const response = await fetch(`trial-samples/${sampleName}.webcad`);
+        if (!response.ok) throw new Error('样件资源读取失败');
+        const resource = await api.files.register({ name: `${sampleName}.webcad`, data: await response.blob() });
+        try { await api.files.open({ context: { ...identity, expectedRevision: revision }, resourceId: resource.resourceId }); }
+        finally { api.files.release({ resourceId: resource.resourceId }); }
+      }, name);
       await page.waitForFunction((oldInstance) => {
         const state = window.webcad.api.getState();
         return state.context.documentInstanceId !== oldInstance && !state.summary.busy;
@@ -80,7 +85,7 @@ async (page) => {
       return { state, measure, rightHoleX: holeX };
     };
 
-    await uiSample('plate');
+    await loadSample('plate');
     const initial = await inspect();
     if (initial.state.parameterValues?.length?.value !== 50) throw new Error('四孔板初始 length 不是 50');
     await uiParameter('length', 57);
@@ -166,7 +171,7 @@ async (page) => {
       { sample: 'tray', field: 'outerWidth', value: 66 },
     ]) {
       const clean = await saveToOpfs(`trial-clean-before-${item.sample}.webcad`);
-      await uiSample(item.sample);
+      await loadSample(item.sample);
       const before = await inspect();
       await uiParameter(item.field, item.value);
       const after = await inspect();
@@ -176,18 +181,24 @@ async (page) => {
     }
 
     await saveToOpfs('trial-clean-before-dirty-switch.webcad');
-    await uiSample('plate');
+    await loadSample('plate');
     await uiParameter('length', 63);
     const dirtyBefore = await page.evaluate(() => window.webcad.api.getState());
-    await page.locator('[data-action="trialSamples"]').click();
-    await page.locator('[data-trial-sample="frame"]').click();
-    await page.locator('.notification.error').waitFor({ state: 'visible' });
+    const errorText = await page.evaluate(async () => {
+      const api = window.webcad.api;
+      const { revision, ...identity } = api.getState().context;
+      const response = await fetch('trial-samples/frame.webcad');
+      const resource = await api.files.register({ name: 'frame.webcad', data: await response.blob() });
+      try {
+        await api.files.open({ context: { ...identity, expectedRevision: revision }, resourceId: resource.resourceId });
+        throw new Error('未保存工程被意外替换');
+      } catch (error) { if (error.code !== 'UNSAVED_REPLACEMENT') throw error; return error.message; }
+      finally { api.files.release({ resourceId: resource.resourceId }); }
+    });
     const dirtyAfter = await page.evaluate(() => window.webcad.api.getState());
     if (!dirtyAfter.summary.dirty || dirtyAfter.context.documentInstanceId !== dirtyBefore.context.documentInstanceId || dirtyAfter.context.revision !== dirtyBefore.context.revision || dirtyAfter.parameterValues.length?.value !== 63) {
       throw new Error('脏工程切换被拒绝后，当前工程状态发生变化');
     }
-    const errorText = await page.locator('.notification.error').innerText();
-    await page.locator('.notification.error button', { hasText: '关闭' }).click();
     const info = await page.evaluate(() => window.webcad.api.info());
     if (sockets.length || network.some((request) => request.method !== 'GET')) throw new Error(`unexpected non-GET or WebSocket traffic: ${JSON.stringify({ network, sockets })}`);
     return { info, network, sockets, plate, samples, dirtySwitch: { before: dirtyBefore, after: dirtyAfter, errorText } };

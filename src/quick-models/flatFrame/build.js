@@ -1,0 +1,6 @@
+import { buildLegacyQuickModel } from '../legacy-geometry.js';
+
+// Replace this implementation to give flatFrame independent geometry.
+export function build(params, cad, options, context) {
+  return buildLegacyQuickModel({ ...params, kind: 'flatFrame' }, cad, options, context.definitions, context.buildNested);
+}

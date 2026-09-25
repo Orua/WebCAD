@@ -1,0 +1,14 @@
+{
+  "id": "feature.add",
+  "title": "新增几何",
+  "description": "args:{op,opVersion,schemaHash,params,refs,name?}；先 getTool 读取操作卡。",
+  "category": "command",
+  "version": "1.3.1",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"feature.add\",args}); args:{op,opVersion,schemaHash,params,refs,name?}；先 getTool 读取操作卡。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "docs": "api.editor",
+  "docsHash": "sha256:c363614006ff45044c2c191a235a0d0efe4f0a8df30c4192814372cefe2acd16"
+}

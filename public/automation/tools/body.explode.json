@@ -1,0 +1,23 @@
+{
+  "id": "body.explode",
+  "title": "组合拆散 多实体分解",
+  "description": "将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。",
+  "category": "command",
+  "version": "1.3.1",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"body.explode\",args}); 将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。",
+  "fields": [
+    "bodyId"
+  ],
+  "minimalExample": {
+    "action": "body.explode",
+    "args": {
+      "bodyId": "<bodyId>"
+    }
+  },
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "docs": "api.editor",
+  "docsHash": "sha256:5b8f27b9cfdc67aef7a0944969992012ff8b9e796233fcfe2bacfbbb68d53efb"
+}

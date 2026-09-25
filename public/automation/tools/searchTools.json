@@ -1,0 +1,26 @@
+{
+  "id": "searchTools",
+  "title": "searchTools",
+  "category": "page-method",
+  "version": "1.3.1",
+  "description": "searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。",
+  "synonyms": [
+    "searchTools",
+    "搜索",
+    "工具",
+    "中文",
+    "目录"
+  ],
+  "inputContract": "searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。",
+  "outputContract": "工具摘要、label/docsHash、score/matchedTerms、total、nextCursor、catalogHash；结果是候选能力，不是已验证的执行计划。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Read methods may return a structured state error or throw a coded contract error.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID"
+  ],
+  "docs": "api.discovery",
+  "docsHash": "sha256:d2d1aa88533dd9c9ae64385b8ae2658ce5e01efc3531b28b177149a40ef004ca"
+}
