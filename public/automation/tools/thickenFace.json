@@ -155,6 +155,6 @@
   },
   "label": "选面增厚",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:1b369f3b6fae8d159c590fcf0d4d592275cb25df767f356ab8437a63b82e6608"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:3250d6ce2bbe2fa4b209586c8f1047f97870a3d4c4c791d5e0f307052008c354"
 }

@@ -1,8 +1,8 @@
 {
-  "version": "1.3.1",
-  "searchVersion": "1",
-  "catalogHash": "sha256:85e1d03e3fda76a41901ccabf0f9c05a250d5aa326cc6243449e4a91b82aecce",
-  "docsHash": "sha256:f3404a8ffc2bbaa9abca195ca1260a8057fcba711928f4f0295192ef6336b566",
+  "version": "1.7.0",
+  "searchVersion": "2",
+  "catalogHash": "sha256:a1db56c16edf3782b06dccf675d5fdb156a1b46ebf21c1035e3182e6a4421ebd",
+  "docsHash": "sha256:919b7b2eab488d95da563c95ce506b4090a697776e6550c39eebcbbc3f2afba1",
   "tools": [
     {
       "id": "advancedLoft",
@@ -10,7 +10,7 @@
       "label": "高级放样",
       "category": "surface",
       "version": "legacy-1",
-      "docsHash": "sha256:b5cc0d98ef86f3c400d8072d74b3600fb5c3ecf64220fcf69606250c34fcefd1",
+      "docsHash": "sha256:2de4bf31837ed2426bf3cfbaac6f5e8ea39171c8fc94df76067e5efe68cbf0dd",
       "url": "tools/advancedLoft.json"
     },
     {
@@ -19,7 +19,7 @@
       "label": "解析线弧轮廓",
       "category": "creation",
       "version": "legacy-1",
-      "docsHash": "sha256:52d507d2f605f7f0e07b475b36e72580e938e759569f2633ee6760b57f7c2251",
+      "docsHash": "sha256:1bfe28e9b221d67dc753b1d91234001a0719c09e3238e34f677cef9a31f58abd",
       "url": "tools/arcProfile.json"
     },
     {
@@ -28,7 +28,7 @@
       "label": "整件圆边",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:233bf0d94d33c0d964fd0db7af1453636d6392195eef08850981347131d1e1c3",
+      "docsHash": "sha256:15ec33fd39990dd5cee5ec1e52a0b73f8dd43986de2399e25b92da83eb17c2ae",
       "url": "tools/autoRound.json"
     },
     {
@@ -37,7 +37,7 @@
       "label": "长方体",
       "category": "creation",
       "version": "1.0.0",
-      "docsHash": "sha256:63118f22239e39c8fc7f943d9972ed0e3745cb9cdbaf58aedc7fb50c100d9422",
+      "docsHash": "sha256:a91b051d37d3d0a5eead1a960c7a09f3a38f3d7466f6e8918b55f79d179cbf4d",
       "url": "tools/box.json"
     },
     {
@@ -46,7 +46,7 @@
       "label": "倒角",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:c70b06316252137a1d1328fcfc2a851a64e4f4ff474cecb065d7f00b986ec4f4",
+      "docsHash": "sha256:38c18c05d33103fd9c56a6272066abb1a4cffd2188fe1eac3e83610de1fc3bed",
       "url": "tools/chamfer.json"
     },
     {
@@ -55,7 +55,7 @@
       "label": "环形阵列",
       "category": "organization",
       "version": "legacy-1",
-      "docsHash": "sha256:1176df61bc33a58415da0c874cbed82b41f3b24af0dd95f4d6a2d4c9b9206b51",
+      "docsHash": "sha256:ca4fe54786b255018f46fc75ed7b241dc24e469147b16ecbcb424a33e21ab87a",
       "url": "tools/circularPattern.json"
     },
     {
@@ -64,7 +64,7 @@
       "label": "圆锥",
       "category": "creation",
       "version": "legacy-1",
-      "docsHash": "sha256:a7df686e0c5898727cf34ec0c5a1b71051c31b89df65d00cc597a53d89edba09",
+      "docsHash": "sha256:4da414de9b462edfd38990c404564e9ce6ae07438ca981131ce157f1b29f6b1b",
       "url": "tools/cone.json"
     },
     {
@@ -73,7 +73,7 @@
       "label": "复制",
       "category": "organization",
       "version": "legacy-1",
-      "docsHash": "sha256:e57ce1925fc5bf04df71095e3967eec728acd952f04a8f4bca16ff80696d765c",
+      "docsHash": "sha256:7efb33f22f04b6b0f98ebb088fddd34f6a65537fd16fc56bfd63e05072d64e2a",
       "url": "tools/copy.json"
     },
     {
@@ -82,7 +82,7 @@
       "label": "曲线扫掠",
       "category": "creation",
       "version": "legacy-1",
-      "docsHash": "sha256:ea3a49a52445006ff057ef3902ab9ca328498a324f5201c4b6dfa9f950b4babe",
+      "docsHash": "sha256:b7ac6055168a56903faa431050f8311af31944625f42f6df36810e611d3aba4a",
       "url": "tools/curveSweep.json"
     },
     {
@@ -91,7 +91,7 @@
       "label": "曲面 LOGO",
       "category": "surface",
       "version": "legacy-1",
-      "docsHash": "sha256:b36f57806dd4c1fd4d920fbe436af30b9348ca294e1e7406ea129752b56994cd",
+      "docsHash": "sha256:cfbdd897bb51780352fd380fdce5607f4d5e98ec31cb4b67578a450a43096835",
       "url": "tools/curvedLogo.json"
     },
     {
@@ -100,7 +100,7 @@
       "label": "相减",
       "category": "modification",
       "version": "legacy-1",
-      "docsHash": "sha256:5b073e226df6aa763855de80d9a5507a780599ae91599d542ddd052196a3e9c7",
+      "docsHash": "sha256:f9ad1deda480819ad4b019f6202f7dd0343892dd0890e25a23f582f09550c24b",
       "url": "tools/cut.json"
     },
     {
@@ -109,7 +109,7 @@
       "label": "圆柱",
       "category": "creation",
       "version": "legacy-1",
-      "docsHash": "sha256:b9020a89d61279a1cf10f36415fd950a55e95e832c1d5a7df6b91eefa1f6ecca",
+      "docsHash": "sha256:78f1a08e36f9a3e274cbcaa93a1bc401b7e246a0d577d6033fcd8e74b47687d1",
       "url": "tools/cylinder.json"
     },
     {
@@ -118,7 +118,7 @@
       "label": "提取指定面",
       "category": "reference",
       "version": "1.0.0",
-      "docsHash": "sha256:502aaa6414b27067751e421980dd43797b27d74c5e1646b41e5d219c4ea3ac3d",
+      "docsHash": "sha256:7a50bd8e600fd8d4a68ffab31d9e37ed66a0d4c4017a4755c19fc9b1f5a2ccac",
       "url": "tools/extractFaces.json"
     },
     {
@@ -127,7 +127,7 @@
       "label": "提取壳",
       "category": "reference",
       "version": "1.0.0",
-      "docsHash": "sha256:7b51fe4f20dc8fe504918ba1df2ba022b8946c2e6ab93d12c0a19ab302f58ad3",
+      "docsHash": "sha256:bf485ae315be83f0f17df1301b482787173b1a554e262d47701404045fba3175",
       "url": "tools/extractShell.json"
     },
     {
@@ -136,7 +136,7 @@
       "label": "提取实体",
       "category": "organization",
       "version": "legacy-1",
-      "docsHash": "sha256:b61ef928f0d4c3c78fb221d911e52b8197be5afeaece6b866093837e83ed0c36",
+      "docsHash": "sha256:63c6740d2ceef10539d4fb7f4573ce1b7a2fcaafa7fdd84415be053ed4d34a02",
       "url": "tools/extractSolid.json"
     },
     {
@@ -145,7 +145,7 @@
       "label": "拉伸",
       "category": "creation",
       "version": "legacy-1",
-      "docsHash": "sha256:ee3fbfd641e8f98f44dee5fe918cf18b8eafdf5f971424e76e6a1daf016eb446",
+      "docsHash": "sha256:71fda17133160ee5f8af35162830d676250c97c9674a05babc9190b078666be1",
       "url": "tools/extrude.json"
     },
     {
@@ -154,7 +154,7 @@
       "label": "提取面边界",
       "category": "reference",
       "version": "legacy-1",
-      "docsHash": "sha256:c20594e3f590189586d7586d1275e1936f7f1dca0af75cc04bdc55041cfb99c0",
+      "docsHash": "sha256:048bf1fb85d2870b3c3a95b2b84acc9b6b03e8895bd0d19da20f5f49088a2275",
       "url": "tools/faceBoundary.json"
     },
     {
@@ -163,7 +163,7 @@
       "label": "面上拉伸",
       "category": "modification",
       "version": "legacy-1",
-      "docsHash": "sha256:fe00beda0045942e63caccf45d9038bcb90ec22b3cd21d3a4ff8ec9fe39a925b",
+      "docsHash": "sha256:6ba5ebc1b6fbbb5453e81c95563ae1604d08b384cf9748c1b95ef470fec0f1f1",
       "url": "tools/faceExtrude.json"
     },
     {
@@ -172,7 +172,7 @@
       "label": "面上打孔",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:d761bbbdf9d8441dd1f2672466c4525daf5302db9fe9ec92b8765bda8aaee23e",
+      "docsHash": "sha256:b8ce48f6be600e0c567249d202fc644d5ff61e6d2ebf1f330a86d6d709334f6f",
       "url": "tools/faceHole.json"
     },
     {
@@ -181,7 +181,7 @@
       "label": "圆角",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:e77fc741a23ea1ce47df43daf5d0ad96931a0c475696501561ab5ff5c5171f88",
+      "docsHash": "sha256:584969a2c9d1d11487d2ebbad0c7b8d1ef74221316408ba3c1384e5a488422bc",
       "url": "tools/fillet.json"
     },
     {
@@ -190,7 +190,7 @@
       "label": "拟合曲面",
       "category": "surface",
       "version": "legacy-1",
-      "docsHash": "sha256:443c07f2c8d5132e5c93cbc2b9581290983e62f26d165cde06e5729f5d08e941",
+      "docsHash": "sha256:036cc9ea0e9dbd279aa7aaff55d2b0ac72e210dd2829bb31782017fd75e47fe5",
       "url": "tools/fittedSurface.json"
     },
     {
@@ -199,7 +199,7 @@
       "label": "组合",
       "category": "organization",
       "version": "legacy-1",
-      "docsHash": "sha256:056f3d26e79e2e9d655b60a5753b2ecbe09c92dfc16c723d2f303c2e6d41737e",
+      "docsHash": "sha256:a541fe7299c85845e2ccba5c8a3a153b3739d1240129b07213d351f3e2d51f72",
       "url": "tools/group.json"
     },
     {
@@ -208,7 +208,7 @@
       "label": "打孔",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:06d6da10a76e82a54dbf8a52c74ca6eec7ffbb909b4a5a99cb78d54d0757a871",
+      "docsHash": "sha256:aeb2fbf5fa96a349a3c543382029c345f6c03d22884bafaba7001a576569f9d9",
       "url": "tools/hole.json"
     },
     {
@@ -217,7 +217,7 @@
       "label": "相交",
       "category": "modification",
       "version": "legacy-1",
-      "docsHash": "sha256:756a1b8cc52417f85929a259fd5a345fee0c09d30e4e8ccdce86ebb7ef27438d",
+      "docsHash": "sha256:551201e4331aa89e7f31d3d8e428c5d5e63149f54259a43c1959bd832cc2551e",
       "url": "tools/intersect.json"
     },
     {
@@ -226,7 +226,7 @@
       "label": "直线阵列",
       "category": "organization",
       "version": "legacy-1",
-      "docsHash": "sha256:a2e99a489fdc57aba5d1fae8c173897cc058d2478a5fb4839e711e1d17cc3bc1",
+      "docsHash": "sha256:6822e042c0783408b84ee2e21e36cfab01830080b2c61790cbc249975a9494f5",
       "url": "tools/linearPattern.json"
     },
     {
@@ -235,7 +235,7 @@
       "label": "放样",
       "category": "creation",
       "version": "legacy-1",
-      "docsHash": "sha256:d0a44615d116ef381004aed73735a030662f6c03dea43a16750f0f89d762e271",
+      "docsHash": "sha256:9b71214aa12832780ba12f0201898ba36c6d0785d86551888fff3f9ea67ca65c",
       "url": "tools/loft.json"
     },
     {
@@ -244,7 +244,7 @@
       "label": "LOGO",
       "category": "modification",
       "version": "legacy-1",
-      "docsHash": "sha256:49b71aa0e5858f87c4b79f910ed7a196cb69d9219cbcf5673ac6b589d3ea3199",
+      "docsHash": "sha256:4042a2a4672f69a65111f2016b37711dff46c7723f553c66a488ab434b6e2851",
       "url": "tools/logo.json"
     },
     {
@@ -253,7 +253,7 @@
       "label": "镜像",
       "category": "organization",
       "version": "legacy-1",
-      "docsHash": "sha256:5b8e311f54ce83144718140249667489fd11b469976d463f1f8ec9059bda2912",
+      "docsHash": "sha256:23566d741c94c3b79ea561b0010bcb6d1363fa52874efddc75e85e47038986bf",
       "url": "tools/mirror.json"
     },
     {
@@ -262,7 +262,7 @@
       "label": "批量圆柱凸台",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:8b9ade33b6394504fc98c537369eb036a3376b29f46394f3c4b18745e7a0ece1",
+      "docsHash": "sha256:ddfaf3527282949c6c5d3924e01d6050b5fb544b2fc3805951c519aabe6c5a0a",
       "url": "tools/multiBoss.json"
     },
     {
@@ -271,7 +271,7 @@
       "label": "多位置打孔",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:a9f08906383a84cb29157613b73a81652bd6d6c560954853d52cbbc4ee3bd4ae",
+      "docsHash": "sha256:7975b19873e54e559127b2ae157e612389572f05048d1ace6a2ad7fb3a550fd1",
       "url": "tools/multiHole.json"
     },
     {
@@ -280,7 +280,7 @@
       "label": "批量矩形凹槽",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:a77b2f7bf196a0db54f2af3e5b96c55f0e0360aa763d89efaabe7df95382b642",
+      "docsHash": "sha256:4722cb3e9f7fb53ca7eba1d7ff74107eaf338d8a1603c5a4724bd56e73093228",
       "url": "tools/multiPocket.json"
     },
     {
@@ -289,7 +289,7 @@
       "label": "提取真实截面",
       "category": "reference",
       "version": "legacy-1",
-      "docsHash": "sha256:46a8fbef709d03ccaef04f09c5eae126d0c6de7feeb66d344a0dfa726ee2718e",
+      "docsHash": "sha256:446a70b59c5355f833ec5dd3641e169c3df5c8b864fbd8246450ac34c861f388",
       "url": "tools/planeSection.json"
     },
     {
@@ -298,7 +298,7 @@
       "label": "快捷模型",
       "category": "creation",
       "version": "legacy-1",
-      "docsHash": "sha256:0a4506e778dc43025c3d24f01266fbe04257751e6cfb93ffd287cdf58ee89ddd",
+      "docsHash": "sha256:7cfe93edf2160c0417c7a06577440112bf2f8f4420c48a4c1fb1848268b9bb38",
       "url": "tools/quickModel.json"
     },
     {
@@ -307,7 +307,7 @@
       "label": "参考轮廓拉伸",
       "category": "reference",
       "version": "legacy-1",
-      "docsHash": "sha256:25be404736c6ed9882aefc31b4d8cc9b1be35786f646461990d025e9c00afa4f",
+      "docsHash": "sha256:feb1c271f795d727ae1e1c1178226af404a2045e4fedff7510f024642e6f52dd",
       "url": "tools/referenceExtrude.json"
     },
     {
@@ -316,7 +316,7 @@
       "label": "参考截面放样",
       "category": "reference",
       "version": "legacy-1",
-      "docsHash": "sha256:36f278c677781acf6d7964a9189d338198dda41abbaf1d3a238f4712e7bfa58f",
+      "docsHash": "sha256:0a805e080dce9a59f84c55f20a7d74395f1e7603b36ac13e73527512629bde26",
       "url": "tools/referenceLoft.json"
     },
     {
@@ -325,7 +325,7 @@
       "label": "旋转成型",
       "category": "creation",
       "version": "legacy-1",
-      "docsHash": "sha256:f76efc33f08799ca2acb4cf1f6b274d1d70f386091431506187b7f0928759ab6",
+      "docsHash": "sha256:9c6d30bb6f313acd44b258a50f76a9fad6bb6ff2d504a093b1c7efe225aa85cf",
       "url": "tools/revolve.json"
     },
     {
@@ -334,7 +334,7 @@
       "label": "曲面缝合",
       "category": "surface",
       "version": "legacy-1",
-      "docsHash": "sha256:5a7fc9ed25889af7f9a9e20d3815bcf31d3375a367671185f5f01e5ba5b721ab",
+      "docsHash": "sha256:17e2af2f4fbbd9198d7d8ac793b34197f0186d8c7bea25fb1f4f261622e4c839",
       "url": "tools/sewFaces.json"
     },
     {
@@ -343,7 +343,7 @@
       "label": "抽壳",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:c06e4836e43cb11a4773b5c97893dc539117e365c700f78b48d8f9b314696e06",
+      "docsHash": "sha256:3c7fbd0cffc8e989cb69290b3a2ef7e8ea9fd4aa3178c294acf36001f05a1cab",
       "url": "tools/shell.json"
     },
     {
@@ -352,7 +352,7 @@
       "label": "长圆槽",
       "category": "modification",
       "version": "legacy-1",
-      "docsHash": "sha256:b41109f051173135f4b7df060f5570f72d471657353a282f0a86debc9f261f42",
+      "docsHash": "sha256:b276a538e385f660e11f536b66a9bde2a9ad7f6f9d3dcc27c62f5052578c6d9b",
       "url": "tools/slot.json"
     },
     {
@@ -361,7 +361,7 @@
       "label": "平滑过渡",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:c13d8f81d5e01808255b30947945f4a1a6a02aa842a8b5e271b81ea6259b1684",
+      "docsHash": "sha256:6c8e1e8e56595d0c68618add7e10775c1f488f891f55040037c26418cb54b0d3",
       "url": "tools/smoothTransition.json"
     },
     {
@@ -370,7 +370,7 @@
       "label": "球体",
       "category": "creation",
       "version": "legacy-1",
-      "docsHash": "sha256:1426e4418964eda39c17f8bd3790602c7151829b23663c0b384e89f0e3f6497f",
+      "docsHash": "sha256:7b1a89e8ac0ee33cf94c2a97ddf28e79dc6051da52dfa8e5b2a7e5abb8638141",
       "url": "tools/sphere.json"
     },
     {
@@ -379,7 +379,7 @@
       "label": "分割",
       "category": "organization",
       "version": "legacy-1",
-      "docsHash": "sha256:ee8b3902afbb4f0e8a6bf7337100aa4a8678f9876b4d3f905fdac7c0fcc45f82",
+      "docsHash": "sha256:fdd7f0858652b472fadd2981d86b3d42045e2994709c1bdc133b9fff452ab891",
       "url": "tools/split.json"
     },
     {
@@ -388,7 +388,7 @@
       "label": "实体修剪面",
       "category": "surface",
       "version": "legacy-1",
-      "docsHash": "sha256:2de7bc45f84eec2fd3faa0fdd95238cf06c6932e2a8c9cd9d26bc18a8d5bcc0b",
+      "docsHash": "sha256:fd45e84009f1828e4ba08c20c406a8804dc2a9de854e0afc0a24ec7b4aebbc61",
       "url": "tools/surfaceTrim.json"
     },
     {
@@ -397,7 +397,7 @@
       "label": "扫掠",
       "category": "creation",
       "version": "legacy-1",
-      "docsHash": "sha256:723e3e20174ed5a07f62f4662abf5829ecb28f9cdba69f5735053248d9c646ac",
+      "docsHash": "sha256:e5580c750c054b7517eaf1f932af36c7a5c0b30738fc2daa7c112b23ab91b18a",
       "url": "tools/sweep.json"
     },
     {
@@ -406,7 +406,7 @@
       "label": "选面增厚",
       "category": "surface",
       "version": "legacy-1",
-      "docsHash": "sha256:1b369f3b6fae8d159c590fcf0d4d592275cb25df767f356ab8437a63b82e6608",
+      "docsHash": "sha256:3250d6ce2bbe2fa4b209586c8f1047f97870a3d4c4c791d5e0f307052008c354",
       "url": "tools/thickenFace.json"
     },
     {
@@ -415,7 +415,7 @@
       "label": "圆环",
       "category": "creation",
       "version": "legacy-1",
-      "docsHash": "sha256:44056038088f9a19da6d63a52b4190757209b4a61b66bf0b175e8937392fd60c",
+      "docsHash": "sha256:1617f817c18f8b57ea3c579c4764bbf437aae318d2167f0d0245978eff492557",
       "url": "tools/torus.json"
     },
     {
@@ -424,7 +424,7 @@
       "label": "移动 / 旋转",
       "category": "organization",
       "version": "legacy-1",
-      "docsHash": "sha256:25afabe319fa4196042278b11820f506bf2e47ab84a13be1b4cc86c6e48f5d33",
+      "docsHash": "sha256:f48edbe59ee7187f4cc6ac221a5962723aff66f09feff625a2a7d30a36bfe07c",
       "url": "tools/transform.json"
     },
     {
@@ -433,7 +433,7 @@
       "label": "合并",
       "category": "modification",
       "version": "legacy-1",
-      "docsHash": "sha256:ed9cdd556a3760b62ab7460e84af4940f86071613780508d20f16a2255efc29e",
+      "docsHash": "sha256:fc61d60d374fc58987bbc64f4ac6040059591f53e3816fdd1b70fd286fd8bae0",
       "url": "tools/union.json"
     },
     {
@@ -442,311 +442,752 @@
       "label": "导入路径",
       "category": "creation",
       "version": "legacy-1",
-      "docsHash": "sha256:9d51dac2f394dc5df4a060e3700844be56daddb70a8a0eea983fe09d40f17235",
+      "docsHash": "sha256:9d86802ef24de64660106f84f0c6b83e5f545632c939c21c0ccd65c64a122771",
       "url": "tools/vectorProfile.json"
+    },
+    {
+      "id": "template.uEndHolePlate",
+      "title": "半圆冠双端孔 U 板",
+      "label": "半圆冠双端孔 U 板",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:cb4e7f4b9d7a669bfd918766d06789b4ac146c4868b7fef1520fddd00ad4074c",
+      "url": "tools/template.uEndHolePlate.json"
+    },
+    {
+      "id": "template.ellipseSectionRing",
+      "title": "椭圆截面圆环",
+      "label": "椭圆截面圆环",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:67dc87f489e400bdb94661a8ee783ad5057da24ce845054ed32f4a472266923e",
+      "url": "tools/template.ellipseSectionRing.json"
+    },
+    {
+      "id": "template.arcBandPlate",
+      "title": "双孔弧形带板",
+      "label": "双孔弧形带板",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:d2eac170788bc27edc3cadd63bfd82672ba03c91ce6b8918388711128dbd2606",
+      "url": "tools/template.arcBandPlate.json"
+    },
+    {
+      "id": "template.gableOpenFrame",
+      "title": "斜肩开口框",
+      "label": "斜肩开口框",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:3c039be62b7d5f99a57ac3ff01371fd5000d58b92efa44f7b0007cb99f7b4a9e",
+      "url": "tools/template.gableOpenFrame.json"
+    },
+    {
+      "id": "template.ellipseSectionRectFrame",
+      "title": "椭圆截面圆角方框",
+      "label": "椭圆截面圆角方框",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:6cb08300e43af39f242dd5467a88e4c13f1ce49c6a23e4a6641c5fc22c08d6f3",
+      "url": "tools/template.ellipseSectionRectFrame.json"
+    },
+    {
+      "id": "template.dFlatFrame",
+      "title": "独立底角 R 平板 D 框",
+      "label": "独立底角 R 平板 D 框",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:870c20c6a74b3c16d79222feb40e2b61c416bf8084285d51ea87d7aa5ccc7009",
+      "url": "tools/template.dFlatFrame.json"
+    },
+    {
+      "id": "template.archedTwinWindowPlate",
+      "title": "圆弧拱弯平板双窗扣",
+      "label": "圆弧拱弯平板双窗扣",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:1befd9934047467c74f6baeeedc14b3ff720cce61d6ed849eecb4ef5cdf769e0",
+      "url": "tools/template.archedTwinWindowPlate.json"
+    },
+    {
+      "id": "template.bowedTwinWindowPlate",
+      "title": "鼓侧边平板双窗扣",
+      "label": "鼓侧边平板双窗扣",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:ee02979c66aa5713683826d1fcfe7b59f796668adcc3e6b2fdc06779d9d08b88",
+      "url": "tools/template.bowedTwinWindowPlate.json"
+    },
+    {
+      "id": "template.flatFrame",
+      "title": "独立内外圆角平面框",
+      "label": "独立内外圆角平面框",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:61ba946bf07a9e145e996359543b5e7ac1785b79174e02aa4f3deba1b5f69c79",
+      "url": "tools/template.flatFrame.json"
+    },
+    {
+      "id": "template.roundedFlatFrame",
+      "title": "圆边独立 R 平面框",
+      "label": "圆边独立 R 平面框",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:a236d209f784bf6d7c67e8049165c973ea5c375fa7ebd136a52a8ec5e114b148",
+      "url": "tools/template.roundedFlatFrame.json"
+    },
+    {
+      "id": "template.twinWindowPlate",
+      "title": "平板双窗扣",
+      "label": "平板双窗扣",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:09f59a8b4c0db8c0d56dd44dbe438fef8ea6ed10784014d0bddafdfe89795355",
+      "url": "tools/template.twinWindowPlate.json"
+    },
+    {
+      "id": "template.mountingPlate",
+      "title": "双孔圆角安装板",
+      "label": "双孔圆角安装板",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:327c9ced171c0d1b92cb02660e8ae3c8f409782f04190d91d89142510cef9108",
+      "url": "tools/template.mountingPlate.json"
+    },
+    {
+      "id": "template.fourHolePlate",
+      "title": "四孔安装板",
+      "label": "四孔安装板",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:57905141206ef7d9256747359fcae417d16e594afbe02d14c5144bfc9bf44d7d",
+      "url": "tools/template.fourHolePlate.json"
+    },
+    {
+      "id": "template.bossPlate",
+      "title": "双空心柱安装板",
+      "label": "双空心柱安装板",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:8b21efb02136114c7d019e39f474a7395076d193a994a5baced511ca64a56dce",
+      "url": "tools/template.bossPlate.json"
+    },
+    {
+      "id": "template.flangedBushing",
+      "title": "法兰轴套",
+      "label": "法兰轴套",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:02780ca7037d3df2338f7a0e05903b87370153c7ab4fc5e4fc11f6197bbf9fcb",
+      "url": "tools/template.flangedBushing.json"
+    },
+    {
+      "id": "template.openArcRing",
+      "title": "大开口 C 环",
+      "label": "大开口 C 环",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:e595bf231ac141520b058c8bff6ac6f6a46210ada63a6f06acd53791b66621a5",
+      "url": "tools/template.openArcRing.json"
+    },
+    {
+      "id": "template.roundedBossTray",
+      "title": "圆角双柱薄壁壳",
+      "label": "圆角双柱薄壁壳",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:0983ba599b7ed6fc94d7b8575429ef0c589bdf433bc38f5d2714e635f3e91ef1",
+      "url": "tools/template.roundedBossTray.json"
+    },
+    {
+      "id": "template.roundBadge",
+      "title": "双柱圆牌底座",
+      "label": "双柱圆牌底座",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:a1c5e95250d587e310252bcc9a0713be2d4611a7ddcb4af12bd82d4e5ee83595",
+      "url": "tools/template.roundBadge.json"
+    },
+    {
+      "id": "template.thinWallTray",
+      "title": "双空心柱薄壁壳",
+      "label": "双空心柱薄壁壳",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:9c3d9e65ab2dcdcdd1304769cb75cb0c0204c823fa65dbc1e3acceecf549c63a",
+      "url": "tools/template.thinWallTray.json"
+    },
+    {
+      "id": "template.tube",
+      "title": "圆筒（C件默认）",
+      "label": "圆筒（C件默认）",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:fe055e8e7d24a449b3679e59d054e2dcaf46fecec22aba5c1f310992bb187610",
+      "url": "tools/template.tube.json"
+    },
+    {
+      "id": "template.counterboreTool",
+      "title": "沉孔／沉头孔刀具",
+      "label": "沉孔／沉头孔刀具",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:0e413528f5bd20b83475bf14e04b388745dcd9cf7a3b9e432ff02cd984e10069",
+      "url": "tools/template.counterboreTool.json"
+    },
+    {
+      "id": "template.ring",
+      "title": "圆圈",
+      "label": "圆圈",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:bdb1d1a8642272bcef85e75ead863f3e472a0c52076e1ff689d2871323814e76",
+      "url": "tools/template.ring.json"
+    },
+    {
+      "id": "template.ringBar",
+      "title": "圆环内接横杆",
+      "label": "圆环内接横杆",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:5dee0c4b69bfe49260142ab85d6f895187c8d3ff50305f1b809fd6ffd3e9732b",
+      "url": "tools/template.ringBar.json"
+    },
+    {
+      "id": "template.ellipseBar",
+      "title": "椭圆圈固定横杆",
+      "label": "椭圆圈固定横杆",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:ae0ae6f3b7146af73d5b3d9485d98f8a28bbd733378b496c84969ee6825dd892",
+      "url": "tools/template.ellipseBar.json"
+    },
+    {
+      "id": "template.ellipseOpenWire",
+      "title": "内真椭圆开缝圆线圈",
+      "label": "内真椭圆开缝圆线圈",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:3a818307b594d3ca272714e9899bd4195d65d82d99521b3841bca3f4972e9550",
+      "url": "tools/template.ellipseOpenWire.json"
+    },
+    {
+      "id": "template.profileLoop",
+      "title": "圆角扁方截面直段长圈",
+      "label": "圆角扁方截面直段长圈",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:6ff19536558869f15750a738d484780e4b37ff5af55359e24bdc972017b125fb",
+      "url": "tools/template.profileLoop.json"
+    },
+    {
+      "id": "template.capsuleWire",
+      "title": "圆线直段长圈",
+      "label": "圆线直段长圈",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:8795becc0341215465b5d212b49bdc37970fe806ceea5dc0654f9cad5563d224",
+      "url": "tools/template.capsuleWire.json"
+    },
+    {
+      "id": "template.dBuckle",
+      "title": "D 扣",
+      "label": "D 扣",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:0d1b07e31aada6cb5b3d2f81fa03328892e3ca031ee5f9bf90ddd40c69f0a020",
+      "url": "tools/template.dBuckle.json"
+    },
+    {
+      "id": "template.dBarBuckle",
+      "title": "独立圆横杆 D 扣",
+      "label": "独立圆横杆 D 扣",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:82ec1fdb4dcd804a066f4f1cdc3c793c539ef25d8c787351f489c07ee8aadc7f",
+      "url": "tools/template.dBarBuckle.json"
+    },
+    {
+      "id": "template.rectBuckle",
+      "title": "方扣",
+      "label": "方扣",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:e5be388a0ba868691001594dfdaebe0eb36fcbaed9d69a4c022735d2bd8adcef",
+      "url": "tools/template.rectBuckle.json"
+    },
+    {
+      "id": "template.sliderBuckle",
+      "title": "日字扣",
+      "label": "日字扣",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:ab0231c98afcd5f9d4256db5e81c626a86b35138fa4ef61e282bf7930ee00ecc",
+      "url": "tools/template.sliderBuckle.json"
+    },
+    {
+      "id": "template.ovalBuckle",
+      "title": "四圆弧旦扣",
+      "label": "四圆弧旦扣",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:a024487eeab5d25bd447d6471a151f05cf232b015a3885bd42e8ade33a964633",
+      "url": "tools/template.ovalBuckle.json"
+    },
+    {
+      "id": "template.washer",
+      "title": "平垫圈",
+      "label": "平垫圈",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:9b48263157e1d806e0e8432bcbfd56ad1683c49f54139f95cd21e0246cd4125f",
+      "url": "tools/template.washer.json"
+    },
+    {
+      "id": "createRequestContext",
+      "title": "createRequestContext",
+      "category": "page-method",
+      "version": "1.7.0",
+      "docsHash": "sha256:b83486252d57c7cdfadffc08b65817a10b27b4a1a5d1056361113876151b46aa",
+      "url": "tools/createRequestContext.json"
+    },
+    {
+      "id": "getUILayout",
+      "title": "getUILayout",
+      "category": "page-method",
+      "version": "1.7.0",
+      "docsHash": "sha256:52cc660698e752122d7ff75ab69c26dcc7fd9eea26912474688bf4941252486d",
+      "url": "tools/getUILayout.json"
+    },
+    {
+      "id": "setRenderQuality",
+      "title": "setRenderQuality",
+      "category": "page-method",
+      "version": "1.7.0",
+      "docsHash": "sha256:aee52ff0ec9ea47c6a7da96fbb80278469be022c15f59797e1bab4fba527b5c0",
+      "url": "tools/setRenderQuality.json"
+    },
+    {
+      "id": "invoke",
+      "title": "invoke",
+      "category": "page-method",
+      "version": "1.7.0",
+      "docsHash": "sha256:383759d5433ac3f29196418a35c8e1a01b55c7e5e95d6f6a2366c8e0676f7195",
+      "url": "tools/invoke.json"
+    },
+    {
+      "id": "submit",
+      "title": "submit",
+      "category": "page-method",
+      "version": "1.7.0",
+      "docsHash": "sha256:c814507d104970c8c9a985859c3725d774d31e6c5902a86b3f830faf8274ad35",
+      "url": "tools/submit.json"
+    },
+    {
+      "id": "getJob",
+      "title": "getJob",
+      "category": "page-method",
+      "version": "1.7.0",
+      "docsHash": "sha256:6dc859f7d77c7fccddb612b3adaec40bbd388959cdc417276cfc7fc415af3899",
+      "url": "tools/getJob.json"
+    },
+    {
+      "id": "cancelJob",
+      "title": "cancelJob",
+      "category": "page-method",
+      "version": "1.7.0",
+      "docsHash": "sha256:0b19ca0355c9b5907d3f1e9dcdd950cfa4391408c0cba30ee373116bc87d6130",
+      "url": "tools/cancelJob.json"
     },
     {
       "id": "connect",
       "title": "connect",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:9850d55b8dd34a61343e1b553b8a98b7525a5803b10ae511dbc2fa9a75308a6a",
+      "version": "1.7.0",
+      "docsHash": "sha256:e8d5f8e3300ab5e8326cb139f62d7ef0d661291e19f89962e97a8076384461d6",
       "url": "tools/connect.json"
     },
     {
       "id": "info",
       "title": "info",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:22efe105959348511643e34bb3adb08d82832b7c2a1b8737ebf512569ff32902",
+      "version": "1.7.0",
+      "docsHash": "sha256:8dc790e848a943f35c3141ba53a8826cd7305d552cefdae5e3ce38cff6e5d929",
       "url": "tools/info.json"
     },
     {
       "id": "getState",
       "title": "getState",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:6c0dd2cf58f158ffca243ed5e75994da21aace940ee7165cec01f7c3a7074b51",
+      "version": "1.7.0",
+      "docsHash": "sha256:c9a8519f5f3c63a3eef1955de2989e7776395fc0af685276c737f33ec12538b0",
       "url": "tools/getState.json"
     },
     {
       "id": "searchTools",
       "title": "searchTools",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:d2d1aa88533dd9c9ae64385b8ae2658ce5e01efc3531b28b177149a40ef004ca",
+      "version": "1.7.0",
+      "docsHash": "sha256:828422b53aa435aedbeb5e7ec9cb4dac2c8a35c4a7932e03f7c2be1f3ae36814",
       "url": "tools/searchTools.json"
     },
     {
       "id": "getTools",
       "title": "getTools",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:49ede27b9b9e9f0ceb82e8fca3843267c3c411c12a122d640cb7f176efbf2548",
+      "version": "1.7.0",
+      "docsHash": "sha256:43b7d988d94bbc43f5148396660f5828a33ee2c4079acbcb880efd4935db8379",
       "url": "tools/getTools.json"
     },
     {
       "id": "getTool",
       "title": "getTool",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:6046d0eff5d8a3154e19d6316bee0e0935c09ff2644898f6860f37c04f40c0f8",
+      "version": "1.7.0",
+      "docsHash": "sha256:7941015e750b22315b18c9d1cb862ed0bee2020a1ec1bc62b73ad958e6ec52b8",
       "url": "tools/getTool.json"
     },
     {
       "id": "readDocs",
       "title": "readDocs",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:c8593c620372dccd15fcc8498463ed64057de95ee04ccec740e33fefc5fac530",
+      "version": "1.7.0",
+      "docsHash": "sha256:b5a86d9df46a21b6e42670b15dc009e136a5aaf6e942703b3c499fa02a00b55e",
       "url": "tools/readDocs.json"
     },
     {
       "id": "queryGeometry",
       "title": "queryGeometry",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:f22a89b556eeaffe6e43b5ab7c515418edbb9e813a53ccdc528cd056b618a714",
+      "version": "1.7.0",
+      "docsHash": "sha256:0f7992c7120c16f6ff9c57bc7db610f2eeece2f78ab0e7c8860f179ec8095192",
       "url": "tools/queryGeometry.json"
+    },
+    {
+      "id": "queryReferences",
+      "title": "queryReferences",
+      "category": "page-method",
+      "version": "1.7.0",
+      "docsHash": "sha256:99675fececbaf8ee21927467fd9a31879aa533f04747119d030f2c44d0f1324c",
+      "url": "tools/queryReferences.json"
+    },
+    {
+      "id": "resolvePlacement",
+      "title": "resolvePlacement",
+      "category": "page-method",
+      "version": "1.7.0",
+      "docsHash": "sha256:87fd89a0d98b764ebea07fe71bddbd375be7df7e19516b428acc1bf2fa1a8402",
+      "url": "tools/resolvePlacement.json"
     },
     {
       "id": "execute",
       "title": "execute",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:c2f52aab4df692114f2570b35f615daa18035a37638534db4ad6a96961d50d17",
+      "version": "1.7.0",
+      "docsHash": "sha256:ff767a0cc2a6ad3ebc0f7d44373572579a5084cd890d2edc68304f035027238a",
       "url": "tools/execute.json"
     },
     {
       "id": "measure",
       "title": "measure",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:e5ef26e63ee0656cabe1050b55fb37af750ab4fda1b34cef7cb2d06b542b30eb",
+      "version": "1.7.0",
+      "docsHash": "sha256:c340e7ad29659bd312b45037b6115f86cb2a2af8056fb1b83fc62319f36b129b",
       "url": "tools/measure.json"
     },
     {
       "id": "inspectPrintability",
       "title": "inspectPrintability",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:944b6bfe3496b109df1a7f43c472b1b6de7eef81dbb597db1c4135a3ae5fbf07",
+      "version": "1.7.0",
+      "docsHash": "sha256:ee13e3eaf4cde9eb34774d0c1777b733aff74909c2d022597b67c67f6b88a5c4",
       "url": "tools/inspectPrintability.json"
     },
     {
       "id": "fitProfile",
       "title": "fitProfile",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:ba03794c713890c114d5ab7d4f2812433416694060a75e7aa4c750c23dc32d1f",
+      "version": "1.7.0",
+      "docsHash": "sha256:fa11801492ebe8399bc57361124b9f9d7edc490a578af256e798c4eaad5c1a11",
       "url": "tools/fitProfile.json"
     },
     {
       "id": "traceTwinWindow",
       "title": "traceTwinWindow",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:464b9611b56bd32cdf72f1d7f8182705a89ee7ab87950cd54c16ee88cefbc34d",
+      "version": "1.7.0",
+      "docsHash": "sha256:68837960d116e0062832d6a4e47952e0fcc5f7f3f5b1fa6a4015bdd942276cd3",
       "url": "tools/traceTwinWindow.json"
     },
     {
       "id": "executeText",
       "title": "executeText",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:08d617be58bfbeede521c3652071193c8b0286b50112ca322eacea15fa93ea9d",
+      "version": "1.7.0",
+      "docsHash": "sha256:6de26ed61d451daeec5b078a8962a8e02eb2ae9bfac3ef1c678237aea7b9209c",
       "url": "tools/executeText.json"
     },
     {
       "id": "setDisplayPreferences",
       "title": "setDisplayPreferences",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:caf1cd9a8f8da0cd20544d697afa2fd76124db7ff9ac93643814d6c8cbab64af",
+      "version": "1.7.0",
+      "docsHash": "sha256:1e8888104b644d07b781d81a84cab43b2f38809250c5b7a833f185865cbc0b26",
       "url": "tools/setDisplayPreferences.json"
     },
     {
       "id": "getLogoConverter",
       "title": "getLogoConverter",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:4cec1f0bdf08d2462f741672579e945b99f1412f2d2d97bb0914d2feb2aaa9a7",
+      "version": "1.7.0",
+      "docsHash": "sha256:4877e3f8815b6e6987a795901292d815dd3c2d181a89bc30b4c7054f0cadea4d",
       "url": "tools/getLogoConverter.json"
     },
     {
       "id": "setLogoConverter",
       "title": "setLogoConverter",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:c260f0f4ef225d7796e0b8522bd78c86bd75fe6dd6dc99fee6fea52843e56c04",
+      "version": "1.7.0",
+      "docsHash": "sha256:a534e0d191feb28ce7ccf0a6695a81e85432054fc0cb27a57b54ee44ca8fe9fa",
       "url": "tools/setLogoConverter.json"
     },
     {
       "id": "convertLogoPdf",
       "title": "convertLogoPdf",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:8fa4430163de278186d556cb77a88c08c9c0a7c35ea2b0c61297129451939879",
+      "version": "1.7.0",
+      "docsHash": "sha256:a8f2e5f1c5d6fce0478b647725e42fc5558d4c058a1fc1f46d6133b2da4383f9",
       "url": "tools/convertLogoPdf.json"
     },
     {
       "id": "setView",
       "title": "setView",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:781182a8f653799dc49abe35ec781fe6a09a671c8b6e9168938684ebbaad8476",
+      "version": "1.7.0",
+      "docsHash": "sha256:beb3335337abc2ce4503ffde7388cbe0630b93ccb289537babbcaf613b47f268",
       "url": "tools/setView.json"
     },
     {
       "id": "redraw",
       "title": "redraw",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:7a2fac90b6ffb05c9f07a11403c6fa6036b3270cd75bacef54d35c3557f02f88",
+      "version": "1.7.0",
+      "docsHash": "sha256:847049152ac51a78307a2fdf339c1cce5180b75adea87c2b0ef731a143239829",
       "url": "tools/redraw.json"
     },
     {
       "id": "capture",
       "title": "capture",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:41c5b36e6f8905b7605354a2809e1fbc65b14275111e7a02daddcc7b422e17c8",
+      "version": "1.7.0",
+      "docsHash": "sha256:cd528481e37a3defce461532ec74bdf50a8f7122f1f7c4cf6eedf0d22815e237",
       "url": "tools/capture.json"
     },
     {
       "id": "run",
       "title": "run",
       "category": "page-method",
-      "version": "1.3.1",
-      "docsHash": "sha256:67ba06919718aa9fd604029da953bc48ce09f496e9c1bb5dcfba1d5e1d686baa",
+      "version": "1.7.0",
+      "docsHash": "sha256:a93eb9dbdb3ed9f3791f904fd73b5f884b038a4bbfa57d0e547ee022cd082b22",
       "url": "tools/run.json"
     },
     {
       "id": "document.rename",
       "title": "工程改名",
       "category": "command",
-      "version": "1.3.1",
-      "docsHash": "sha256:c8740d5daaa1f0b11a6d9a6a8f5875bda6ea8014cb95a5f33c976b2d289ab8e6",
+      "version": "1.7.0",
+      "docsHash": "sha256:ea8a41869f2df83559961ef564f584d9c4876296fdffdb6c1621aa8d49d98083",
       "url": "tools/document.rename.json"
     },
     {
       "id": "feature.rename",
       "title": "特征改名 实体名称",
       "category": "command",
-      "version": "1.3.1",
-      "docsHash": "sha256:b32d254c86425dc91e10259daac804e01cd6f700d225d0b502b47a3f4b99788c",
+      "version": "1.7.0",
+      "docsHash": "sha256:f722e6c911093647b4af407681eee3828459c136d42fc9412a20b9bbff867f03",
       "url": "tools/feature.rename.json"
     },
     {
       "id": "body.visibility",
       "title": "显示 隐藏实体",
       "category": "command",
-      "version": "1.3.1",
-      "docsHash": "sha256:b28acf6ffc4e243983bef73b9dbec14eac58c03411563e4dcdafca5bea791588",
+      "version": "1.7.0",
+      "docsHash": "sha256:584bd9ac6db7858dbf91c1c8f90a4c5e9a87134df99fb49305d9c4aac7f64cf5",
       "url": "tools/body.visibility.json"
     },
     {
       "id": "body.appearance",
       "title": "实体原色 颜色 金属 材质",
       "category": "command",
-      "version": "1.3.1",
-      "docsHash": "sha256:592759596dd89dd1280bc00e2ac9ac4f144ef0bdad98e686700a49c73a666103",
+      "version": "1.7.0",
+      "docsHash": "sha256:99e8785cd2a746d7c71a55f24a7f27bca4acd8bf3b56b92dcf2f5df461fc83e5",
       "url": "tools/body.appearance.json"
     },
     {
       "id": "document.appearance",
       "title": "工程渲染 金属色",
       "category": "command",
-      "version": "1.3.1",
-      "docsHash": "sha256:3849f0308eb30da06109145d20f91f490951166080bc4a6526a7481137f8f048",
+      "version": "1.7.0",
+      "docsHash": "sha256:5cd9d9c71447aaf507d57d9bffba60dc0e57962aea2b1cdefd95c71c81ac2101",
       "url": "tools/document.appearance.json"
     },
     {
       "id": "body.explode",
       "title": "组合拆散 多实体分解",
       "category": "command",
-      "version": "1.3.1",
-      "docsHash": "sha256:5b8f27b9cfdc67aef7a0944969992012ff8b9e796233fcfe2bacfbbb68d53efb",
+      "version": "1.7.0",
+      "docsHash": "sha256:067d8f10a5c22b1c18c18ed8ce97140135c0d0bd4e144131ea14882583bc46d3",
       "url": "tools/body.explode.json"
+    },
+    {
+      "id": "reference.setWorkFrame",
+      "title": "设置工作基准",
+      "category": "command",
+      "version": "1.7.0",
+      "docsHash": "sha256:f2c0aef9bf23ade625e3b602cdbb01cc0c7e927ddf53559a5ed81377ed1cb5b9",
+      "url": "tools/reference.setWorkFrame.json"
+    },
+    {
+      "id": "reference.resetWorkFrame",
+      "title": "重置工作基准",
+      "category": "command",
+      "version": "1.7.0",
+      "docsHash": "sha256:131c653db351b76d48876546194ab7bae0a2f70be28b9a0c8448202560e72367",
+      "url": "tools/reference.resetWorkFrame.json"
+    },
+    {
+      "id": "reference.setLocked",
+      "title": "锁定工作基准",
+      "category": "command",
+      "version": "1.7.0",
+      "docsHash": "sha256:cdc1d5a0b11832069886522a1322c3728bdc65bf942a195abdcf4286bb190db2",
+      "url": "tools/reference.setLocked.json"
+    },
+    {
+      "id": "reference.saveFrame",
+      "title": "保存具名基准",
+      "category": "command",
+      "version": "1.7.0",
+      "docsHash": "sha256:7e3295a61dcce9837aec117a5f99599d0d5d399dd3cce28256f48c5ef574063b",
+      "url": "tools/reference.saveFrame.json"
+    },
+    {
+      "id": "reference.activateFrame",
+      "title": "激活具名基准",
+      "category": "command",
+      "version": "1.7.0",
+      "docsHash": "sha256:8ec0bcc986d11710c1c76ecff9eeb1dcd57a7d22489292f545a852aa97fc46ca",
+      "url": "tools/reference.activateFrame.json"
+    },
+    {
+      "id": "reference.renameFrame",
+      "title": "重命名具名基准",
+      "category": "command",
+      "version": "1.7.0",
+      "docsHash": "sha256:0b7a9baa25c871dea18464862ebdefc7cb2592a2f8ea8e3d3b6225f7aa4e98a6",
+      "url": "tools/reference.renameFrame.json"
+    },
+    {
+      "id": "reference.deleteFrame",
+      "title": "删除具名基准",
+      "category": "command",
+      "version": "1.7.0",
+      "docsHash": "sha256:1cc4aa10026140e355a23dfa781634b52b7e422fc113407c2a21139d487e9e7e",
+      "url": "tools/reference.deleteFrame.json"
+    },
+    {
+      "id": "reference.setBodyAnchor",
+      "title": "对象锚点",
+      "category": "command",
+      "version": "1.7.0",
+      "docsHash": "sha256:7c8ab14ef5b1beed56f4666d13d372a0402db5380737fc428488b951ae05e7b1",
+      "url": "tools/reference.setBodyAnchor.json"
+    },
+    {
+      "id": "reference.deleteBodyAnchor",
+      "title": "删除对象锚点",
+      "category": "command",
+      "version": "1.7.0",
+      "docsHash": "sha256:1778ae0bb7d473c3bc32d82d97c0d66e1f827ba2970e3d1da7b55d99c3a7a04a",
+      "url": "tools/reference.deleteBodyAnchor.json"
     },
     {
       "id": "feature.add",
       "title": "新增几何",
       "category": "command",
-      "version": "1.3.1",
-      "docsHash": "sha256:c363614006ff45044c2c191a235a0d0efe4f0a8df30c4192814372cefe2acd16",
+      "version": "1.7.0",
+      "docsHash": "sha256:1e8ead49829cbe700d86755d607481bb3e70c235c152e440a3d99082cdb942e5",
       "url": "tools/feature.add.json"
     },
     {
       "id": "feature.edit",
       "title": "修改参数",
       "category": "command",
-      "version": "1.3.1",
-      "docsHash": "sha256:a6d32b08a93f438f45a1560b63da03ec5a3f1678eb5c5e155804982d587facda",
+      "version": "1.7.0",
+      "docsHash": "sha256:51ad5676fd1483eafcff84bac392e36a85c45c0d862d5a638ea9687a38dcc204",
       "url": "tools/feature.edit.json"
     },
     {
       "id": "feature.remove",
       "title": "删除实体",
       "category": "command",
-      "version": "1.3.1",
-      "docsHash": "sha256:12df0c68bdcf184b3c3d748b274b18e7ecd15328a0bd982d4b254a3acaf0b0f3",
+      "version": "1.7.0",
+      "docsHash": "sha256:0c02d3bce0549bd81f6310f3f8ddd8c6632f1f8c03f12c4576f609f59f021f1a",
       "url": "tools/feature.remove.json"
     },
     {
       "id": "history.undo",
       "title": "撤销",
       "category": "command",
-      "version": "1.3.1",
-      "docsHash": "sha256:ae8244a4358ea2b897fbe650e58e784e73fdf82bb721a0eb04667b4926f0d238",
+      "version": "1.7.0",
+      "docsHash": "sha256:b2b9d86074fc39a373be7799eb4873b88bfd3d6c3272c6c35a75bfa5dc0af1ca",
       "url": "tools/history.undo.json"
     },
     {
       "id": "history.redo",
       "title": "重做",
       "category": "command",
-      "version": "1.3.1",
-      "docsHash": "sha256:c85d4c67e5fb33de4b7de6ad218c46c4bf8fb1974f1ef343b076290d606050b7",
+      "version": "1.7.0",
+      "docsHash": "sha256:88141d7fe3ceb3d5e99f2c1717d346f5e421df30e4b571447c9f1f74ba18f34c",
       "url": "tools/history.redo.json"
     },
     {
       "id": "document.refresh",
       "title": "重建工程",
       "category": "command",
-      "version": "1.3.1",
-      "docsHash": "sha256:8bcc60aaa09c607c589ae2b74486405c02c667c4155d8f21c4901ddce895fb8d",
+      "version": "1.7.0",
+      "docsHash": "sha256:3efe02c97f79f7d9ecabf909cb11358bc22ec55276b81426cf2335f14c874b39",
       "url": "tools/document.refresh.json"
     },
     {
       "id": "preview.start",
       "title": "预览模型",
       "category": "command",
-      "version": "1.3.1",
-      "docsHash": "sha256:468151f2576fa126a5aa48c3d19c822c13b2e0974cc518f7fbbad6b225122312",
+      "version": "1.7.0",
+      "docsHash": "sha256:cef8aca5b222ff113754b9b85ce08d845ff6e176da3526195dc11b89dcce8b38",
       "url": "tools/preview.start.json"
     },
     {
       "id": "preview.commit",
       "title": "应用预览",
       "category": "command",
-      "version": "1.3.1",
-      "docsHash": "sha256:a3d7dae7c59aef1b2308bf855ba7a4a699dfae072ace5e5bbfa5d5a11e4d5d31",
+      "version": "1.7.0",
+      "docsHash": "sha256:6d5935cb1a7127b0e6e0ea455495e75f10fed8937323981fca5f18ec9268b262",
       "url": "tools/preview.commit.json"
     },
     {
       "id": "preview.cancel",
       "title": "取消预览",
       "category": "command",
-      "version": "1.3.1",
-      "docsHash": "sha256:b80c7f8b8e51cf7f36c2e34ac65ff07cd6a2e611df4e5199b1ee506d3d408b23",
+      "version": "1.7.0",
+      "docsHash": "sha256:9b1b40a6aeecdb459f0e7979013915c05dc0af244614c4d3c20e8109c0f194ed",
       "url": "tools/preview.cancel.json"
     },
     {
       "id": "document.parameters",
       "title": "命名参数与尺寸联动",
       "category": "document",
-      "version": "1.3.1",
-      "docsHash": "sha256:e540949c27813659d3bfb4d3d6e4da06b542407a3df5b4e1583b4bfd0c9c2f31",
+      "version": "1.7.0",
+      "docsHash": "sha256:2f86ca6fc63af3fd355d70e5e72f16137731a1f9b89f508cfe435e5075f62ab7",
       "url": "tools/document.parameters.json"
     },
     {
@@ -754,8 +1195,8 @@
       "title": "files.capabilities",
       "label": "文件能力",
       "category": "file",
-      "version": "1.3.1",
-      "docsHash": "sha256:13b857f8b8ef0fd3cd3bb48376c96a806b029ac70ad70f18dcb4bdad5720c9f8",
+      "version": "1.7.0",
+      "docsHash": "sha256:dfd94cedf0dd799e54bb4456fc2ad839547e5105d2e8db9e544b778d6db905bb",
       "url": "tools/files.capabilities.json"
     },
     {
@@ -763,8 +1204,8 @@
       "title": "files.register",
       "label": "登记文件资源",
       "category": "file",
-      "version": "1.3.1",
-      "docsHash": "sha256:92ccfe0bcea8af4cdb7410d9839ef680e0aed4eca2dc48df786092b6ad191a03",
+      "version": "1.7.0",
+      "docsHash": "sha256:bd853195979e197e88f2ea258137677aefc9cb6fb9a2ab353585dcb07368b9b3",
       "url": "tools/files.register.json"
     },
     {
@@ -772,8 +1213,8 @@
       "title": "files.new",
       "label": "新建工程",
       "category": "file",
-      "version": "1.3.1",
-      "docsHash": "sha256:4a4cd71ec9cd37e331a99467429907d38d81a9cf658f978d6553a6831f55e9f7",
+      "version": "1.7.0",
+      "docsHash": "sha256:7d9c0a53aebe38b352897d936aa3c80cb2b6b538f4bb37dd402d7a312c452956",
       "url": "tools/files.new.json"
     },
     {
@@ -781,8 +1222,8 @@
       "title": "files.open",
       "label": "打开工程",
       "category": "file",
-      "version": "1.3.1",
-      "docsHash": "sha256:b74ffb3c4fc307a3235df5be031e8cf69a39155a53106ebb2e38fc7bce4d2974",
+      "version": "1.7.0",
+      "docsHash": "sha256:f509c2935ed0c3931f7d9b928a7a3d278b166cd09d5a205243c81070476df25d",
       "url": "tools/files.open.json"
     },
     {
@@ -790,8 +1231,8 @@
       "title": "files.import",
       "label": "导入",
       "category": "file",
-      "version": "1.3.1",
-      "docsHash": "sha256:ef41f73284f623b18bbba6b3e9561076a11ed1f33eb41228f35950aeab8ffcc5",
+      "version": "1.7.0",
+      "docsHash": "sha256:fd90b2f0e5a2efa57ded1a3ff0605b3ab2d703406c4ddb021c3cd80747cfe33c",
       "url": "tools/files.import.json"
     },
     {
@@ -799,8 +1240,8 @@
       "title": "files.save",
       "label": "保存工程",
       "category": "file",
-      "version": "1.3.1",
-      "docsHash": "sha256:d58d3e3bec2171e9db852329088ef66915ed820182facac7ef5c44166a1e732c",
+      "version": "1.7.0",
+      "docsHash": "sha256:7f446399804f8e374de2276d131fa5c9d72b2cb49f14ae19a4ed5731f04e7bb9",
       "url": "tools/files.save.json"
     },
     {
@@ -808,8 +1249,8 @@
       "title": "files.export",
       "label": "导出文件",
       "category": "file",
-      "version": "1.3.1",
-      "docsHash": "sha256:56b156bcd9c51d45d5a6b507d5178304a4b4ac012cb37fee7e9d84669c80e12b",
+      "version": "1.7.0",
+      "docsHash": "sha256:e86d07ed433f9b7a32ec262e428920c64e950ab1f1d76fa7b1ad1c4f03702178",
       "url": "tools/files.export.json"
     },
     {
@@ -817,8 +1258,8 @@
       "title": "files.read",
       "label": "读取文件字节",
       "category": "file",
-      "version": "1.3.1",
-      "docsHash": "sha256:bdedb54e641f49d214d21344947b89031ce117f33b82d6d6999de79ef002e961",
+      "version": "1.7.0",
+      "docsHash": "sha256:db7637441b2282e0aff4ee6a86995cde1b9fbd8fa69ffef86e18b12e8d981831",
       "url": "tools/files.read.json"
     },
     {
@@ -826,8 +1267,8 @@
       "title": "files.download",
       "label": "下载文件",
       "category": "file",
-      "version": "1.3.1",
-      "docsHash": "sha256:dcc25599bac14e2584404bca10df9353e291114b1159a9a4e4bf592990cc9293",
+      "version": "1.7.0",
+      "docsHash": "sha256:5e8b6adf359b4d555d91aefc65c9ad1f5fa376773317022ce9ab1da30a9be0ee",
       "url": "tools/files.download.json"
     },
     {
@@ -835,8 +1276,8 @@
       "title": "files.write",
       "label": "写入文件",
       "category": "file",
-      "version": "1.3.1",
-      "docsHash": "sha256:e19a426277c20d095fa33c6bf8e1aa30bf6518d4e1025a662f3c9c52b2f8e4b0",
+      "version": "1.7.0",
+      "docsHash": "sha256:394d8cde8bffb7e26da2e17daae25500925436ac43efb3dc17287fd1c2c33ee6",
       "url": "tools/files.write.json"
     },
     {
@@ -844,31 +1285,31 @@
       "title": "files.release",
       "label": "释放文件资源",
       "category": "file",
-      "version": "1.3.1",
-      "docsHash": "sha256:dd937493d7a41b265dd6efb25c1aa2d60182335e3e61171278f055e6c8719c4f",
+      "version": "1.7.0",
+      "docsHash": "sha256:b386f2cc6d3a3c8d99f116a817e59cda14de3be870c2b6a3477690000ed8e041",
       "url": "tools/files.release.json"
     },
     {
       "id": "import.iges",
       "title": "IGES/IGS 导入",
       "category": "unavailable",
-      "version": "1.3.1",
-      "docsHash": "sha256:759b4f24cb6eacad74b6541e16edf2fa6ac95ec2095f7f7970175bbc876dfbce",
+      "version": "1.7.0",
+      "docsHash": "sha256:2faabf92a369609e548c94b9dc7033b79eb42d49f24b06b8094543099969c67b",
       "url": "tools/import.iges.json"
     },
     {
       "id": "import.vector-server",
       "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
       "category": "unavailable",
-      "version": "1.3.1",
-      "docsHash": "sha256:61b0e6da0d559c662ddd6c0a9bfd4a42af1adc0e813713e261534eb7749b8438",
+      "version": "1.7.0",
+      "docsHash": "sha256:b766b04761f71228102373dfc8777cc2602991420244ed4b060bca18ff48478f",
       "url": "tools/import.vector-server.json"
     }
   ],
   "docs": [
     {
       "id": "api.connection",
-      "docsHash": "sha256:6dfda5ff76ea691b0251ef7174f0631c60164e7629d727ec20456a598cb3eb37",
+      "docsHash": "sha256:21925cc6176ae2d8328909eb0d7e2482dbb90b0122921ec39f0b0a06b79c011e",
       "url": "docs/api.connection.md"
     },
     {
@@ -923,8 +1364,18 @@
     },
     {
       "id": "api.query-geometry",
-      "docsHash": "sha256:eafe711a82c9f4b86cc89c36d54cc48a93362ad8e7ff1bdb31fb4ef347534f74",
+      "docsHash": "sha256:c0d8333c90bb898b41079518c24cf816bef15b3ca99cef86cf015f7eac46581b",
       "url": "docs/api.query-geometry.md"
+    },
+    {
+      "id": "api.references",
+      "docsHash": "sha256:ec47422d56fe5a5e4f722a45f71f2fae0ba536233c51ba04c1e12ba08120a62a",
+      "url": "docs/api.references.md"
+    },
+    {
+      "id": "api.reliability",
+      "docsHash": "sha256:4dffa06a40eb809071248203b59eae08b7cb62ae8e2396c4841e23901fe10c3c",
+      "url": "docs/api.reliability.md"
     },
     {
       "id": "api.run",
@@ -943,13 +1394,23 @@
     },
     {
       "id": "api.ui-coverage",
-      "docsHash": "sha256:32a08461ce8563976f88b9ef514a7fd3dbd0e551d7e02ec5727aa9a880c4510e",
+      "docsHash": "sha256:9b0fd4a8e03dfaf899f895eeead46565f74dfc1f78dfdad5df6b49f7235e0abf",
       "url": "docs/api.ui-coverage.md"
     },
     {
       "id": "api.views",
       "docsHash": "sha256:584b36174866caadeca5c87f8cfe8fa40d1145bd87d28333ef07eb279e36dcbf",
       "url": "docs/api.views.md"
+    },
+    {
+      "id": "api.workflow",
+      "docsHash": "sha256:5159915e3be118f496b91c1713e1552f1e5641ba46a793edbe7f26662258abee",
+      "url": "docs/api.workflow.md"
+    },
+    {
+      "id": "api.workspace",
+      "docsHash": "sha256:2ea3ed7a5fcbb07fa259b464e2484fd9b23bf6eec7eb9c68772e75ab28a3c4df",
+      "url": "docs/api.workspace.md"
     },
     {
       "id": "coordinates",

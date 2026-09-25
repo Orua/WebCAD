@@ -163,6 +163,6 @@
   },
   "label": "直线阵列",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:a2e99a489fdc57aba5d1fae8c173897cc058d2478a5fb4839e711e1d17cc3bc1"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:6822e042c0783408b84ee2e21e36cfab01830080b2c61790cbc249975a9494f5"
 }

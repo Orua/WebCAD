@@ -5,6 +5,8 @@ import { createPageAPI } from '../src/page-api.js';
 import { searchTools, getTool, getTools, readDocs, infoMetadata, pageCatalogHash, pageDocsHash } from '../src/page-api-docs.js';
 import { createToolLibrary } from '../src/tool-discovery.js';
 import { TOOL_LABELS } from '../src/tool-labels.js';
+import { QUICK_MODELS } from '../src/quick-models.js';
+import { validateSchema } from '../src/contracts/operation-schema.js';
 
 const ids = query => searchTools({query,limit:5}).items.map(item=>item.id);
 const fixture = () => {
@@ -125,4 +127,35 @@ test('generated manifest supports per-item invalidation and offline module match
   for(const entry of manifest.tools)assert.equal(entry.docsHash,getTool({id:entry.id}).docsHash);
   for(const entry of manifest.docs)assert.equal(entry.docsHash,readDocs({docId:entry.id}).docsHash);
   assert.equal(await readFile(new URL('tool-library.mjs',base),'utf8'),await readFile(new URL('../src/tool-discovery.js',import.meta.url),'utf8'));
+});
+
+test('template names route to small complete variant cards with executable parent examples',()=>{
+  const parent=getTool({id:'quickModel'});
+  for(const [kind,model] of Object.entries(QUICK_MODELS)){
+    const id=`template.${kind}`,card=getTool({id});
+    assert(ids(model.label).includes(id),`${model.label}: ${ids(model.label)}`);
+    assert.equal(card.operationId,'quickModel');assert(!card.templates);
+    assert.deepEqual(card.inputSchema,parent.inputSchema.oneOf.find(s=>s.properties.kind.const===kind));
+    assert.equal(card.minimalExample.op,'quickModel');
+    validateSchema(card.inputSchema,card.normalExample.params);
+  }
+  assert.equal(ids('圆圈')[0],'template.ring');
+  assert.equal(ids('帮我画一个圆圈')[0],'template.ring');
+  assert(JSON.stringify(getTool({id:'template.ring'})).length < 12000);
+  assert.deepEqual(ids('画一个xyzunknown'),[],'stopword 一个 must not route to arbitrary tools');
+});
+
+test('handshake reads known contracts directly and reports execution blockers without writes',()=>{
+  const {api,state,writes}=fixture();
+  const c=api.connect({toolIds:['advancedLoft','template.ring','missing']});
+  assert.equal(c.canExecute,true);assert.equal(c.transport,'in-page');
+  assert.equal(c.protocol.legacySurface,false);
+  assert.deepEqual(c.contracts.items.map(x=>x.status),['read','read','error']);
+  assert.deepEqual(c.results,[]);
+  state.summary.busy=true;
+  const busy=api.connect();assert.equal(busy.ready,true);assert.equal(busy.canExecute,false);assert.deepEqual(busy.blockers,['BUSY']);
+  state.preview.active=true;assert.equal(api.connect().nextAction,'FINISH_PREVIEW');
+  state.summary.kernelReady=false;assert(api.connect().blockers.includes('KERNEL_LOADING'));
+  for(const toolIds of [['box','box'],[null],Array.from({length:21},(_,i)=>String(i))])assert.throws(()=>api.connect({toolIds}),{code:'PARAM_SCHEMA_INVALID'});
+  assert.equal(writes(),0);
 });

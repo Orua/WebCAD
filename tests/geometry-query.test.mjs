@@ -31,7 +31,7 @@ try {
   assert.equal((await kernel.queryGeometry('plate', 'edge', {})).geometryFingerprint, top.geometryFingerprint, 'fingerprint does not depend on query');
 
   for (const [kind, filter] of [
-    ['face', { surfaceType: 'cylinder' }], ['face', { curveType: 'line' }], ['face', { loopRole: 'outer' }],
+    ['face', { surfaceType: 'invented' }], ['face', { curveType: 'line' }], ['face', { loopRole: 'outer' }],
     ['face', { normal: { direction: [0, 0, 0] } }], ['face', { normal: { direction: [0, 0, Infinity] } }],
     ['face', { normal: { direction: [0, 0, 1], sameDirection: 'true' } }],
     ['face', { atExtreme: { axis: 'Z', side: 'max', typo: 1 } }],

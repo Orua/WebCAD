@@ -169,6 +169,6 @@
   },
   "label": "参考轮廓拉伸",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:25be404736c6ed9882aefc31b4d8cc9b1be35786f646461990d025e9c00afa4f"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:feb1c271f795d727ae1e1c1178226af404a2045e4fedff7510f024642e6f52dd"
 }

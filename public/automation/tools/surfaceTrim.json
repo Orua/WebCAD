@@ -161,6 +161,6 @@
   },
   "label": "实体修剪面",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:2de7bc45f84eec2fd3faa0fdd95238cf06c6932e2a8c9cd9d26bc18a8d5bcc0b"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:fd45e84009f1828e4ba08c20c406a8804dc2a9de854e0afc0a24ec7b4aebbc61"
 }

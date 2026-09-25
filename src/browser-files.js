@@ -19,8 +19,11 @@ function basename(name) {
 }
 
 function bytesFromBase64(data) {
+  // Repeated capture/group regexes overflow V8's stack on ordinary multi-MB
+  // STEP projects. Scan flat characters and validate padding separately.
   if (typeof data !== 'string' || data.length > Math.ceil(MAX_BYTES / 3) * 4 + 4 ||
-      !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/u.test(data)) {
+      data.length % 4 !== 0 || /[^A-Za-z0-9+/=]/u.test(data) ||
+      (data.includes('=') && !/^[A-Za-z0-9+/]*={1,2}$/u.test(data))) {
     throw failure('ASSET_INVALID', 'Invalid or oversized base64 file payload');
   }
   let binary;
@@ -150,10 +153,11 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
       const bytes = new Uint8Array(await source.blob.arrayBuffer());
       return run(context, 'open', { name: source.name, mime: source.mime, data: base64FromBytes(bytes) });
     },
-    async import({ context, resourceId } = {}) {
+    async import({ context, resourceId, placement, idempotencyKey } = {}) {
       const source = inputFor(resourceId, ['step', 'stp', 'brep', 'brp']);
+      if(placement!==undefined&&(typeof idempotencyKey!=='string'||!idempotencyKey||idempotencyKey.length>128))throw failure('PARAM_SCHEMA_INVALID','Placed import requires an idempotencyKey');
       const bytes = new Uint8Array(await source.blob.arrayBuffer());
-      return run(context, 'import', { name: source.name, mime: source.mime, data: base64FromBytes(bytes) });
+      return run(context, 'import', { name: source.name, mime: source.mime, data: base64FromBytes(bytes),...(placement===undefined?{}:{placement,idempotencyKey}) });
     },
     new({ context } = {}) { return run(context, 'new'); },
     save({ context, name } = {}) { return generated({ context, action: 'save', name }); },

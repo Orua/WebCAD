@@ -31,7 +31,7 @@ test('extractShell clones one shell, retains its compound source, then permits i
   assert.ok(referenceFields.extractShell.some(field=>field[0]==='shellIndex'));
   assert.equal(referenceNames.extractShell,'提取壳');
   assert.match(referenceNotes.extractShell,/不自动填成实体/);
-  assert.ok(TOOL_CATEGORIES.创建.some(([,actions])=>actions.includes('extractShell')));
+  assert.ok(TOOL_CATEGORIES.曲面.some(([,actions])=>actions.includes('extractShell')));
   assert.deepEqual(UI_API_ROUTES.extractShell.tools,['extractShell']);
   assert.equal(toolDisabledReason('extractShell',{kernelReady:true,busy:false,selectedIds:['compound'],selectedTopology:null,bodies:[{id:'compound',shellCount:2}]}),'');
   assert.match(toolDisabledReason('extractShell',{kernelReady:true,busy:false,selectedIds:['single'],selectedTopology:null,bodies:[{id:'single',shellCount:1}]}),/多个壳/);

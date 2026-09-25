@@ -12,4 +12,6 @@ connect 的 queries 是最多4个短字符串；searchTools 使用单个 query �
 
 拿到契约后使用 api.run({context:connection.requestContext,idempotencyKey:唯一键,steps})。CDP expression 中异步调用应包成 (async()=>JSON.stringify(await window.webcad.api.run(请求对象)))()，配合 awaitPromise:true；不要直接使用顶层 await。修改前确认状态仍新鲜，依赖前步结果用 $ref；按需读取回执，不裁掉错误或必要约束。核对 committed 与当前渲染 revision。只执行用户要求的工作；保存/导出并非普通建模的自动收尾步骤。
 
+先核对页面是否有 api.connect；不存在说明打开的是旧版，不能套用新版文档或偷偷刷新未保存工程。新版公开面只有 window.webcad.api，不沿用旧 action/execute/ready/viewport。握手返回 canExecute/blockers；ready 仅指内核初始化完成，忙碌或预览中仍不能执行。已知能力 ID 可用 connect({toolIds:['advancedLoft','transform'],includeContracts:true})，一次拿到实时上下文和完整卡。模板按名称检索，读 template.* 的单模板卡；按卡里的 minimalExample 用 op:quickModel 执行，不把 template.* 当几何操作 ID。
+
 静态文档可直接按页面 base URL 读取 automation/quickstart.md、automation/tools/<id>.json、automation/docs/<docId>.md。HTTP 读取 JSON 必须按 UTF-8 解码，避免中文乱码。manifest/index 为程序索引输入，不要将全目录或全库打印进模型上下文。缓存只包含静态契约，不能代替实时工程状态。

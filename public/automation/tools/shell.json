@@ -196,6 +196,6 @@
   },
   "label": "抽壳",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:c06e4836e43cb11a4773b5c97893dc539117e365c700f78b48d8f9b314696e06"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:3c7fbd0cffc8e989cb69290b3a2ef7e8ea9fd4aa3178c294acf36001f05a1cab"
 }

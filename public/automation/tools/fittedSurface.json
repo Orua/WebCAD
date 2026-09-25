@@ -268,6 +268,6 @@
   },
   "label": "拟合曲面",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:443c07f2c8d5132e5c93cbc2b9581290983e62f26d165cde06e5729f5d08e941"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:036cc9ea0e9dbd279aa7aaff55d2b0ac72e210dd2829bb31782017fd75e47fe5"
 }

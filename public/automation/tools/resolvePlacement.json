@@ -1,0 +1,25 @@
+{
+  "id": "resolvePlacement",
+  "title": "resolvePlacement",
+  "category": "page-method",
+  "version": "1.7.0",
+  "description": "resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。",
+  "synonyms": [
+    "resolvePlacement",
+    "定位解析",
+    "工作基准",
+    "快照"
+  ],
+  "inputContract": "resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。",
+  "outputContract": "持久化 frameSnapshot、来源点、世界位置，placementValidated=true、geometryValidated=false；不写模型。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "REVISION_CONFLICT",
+    "FRAME_INVALID",
+    "PLACEMENT_NOT_APPLICABLE"
+  ],
+  "docsHash": "sha256:87fd89a0d98b764ebea07fe71bddbd375be7df7e19516b428acc1bf2fa1a8402"
+}

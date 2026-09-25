@@ -1,0 +1,25 @@
+{
+  "id": "createRequestContext",
+  "title": "createRequestContext",
+  "category": "page-method",
+  "version": "1.7.0",
+  "description": "createRequestContext(context?); omit to read the current context.",
+  "synonyms": [
+    "createRequestContext",
+    "上下文",
+    "版本",
+    "转换"
+  ],
+  "inputContract": "createRequestContext(context?); omit to read the current context.",
+  "outputContract": "sessionId/documentId/documentInstanceId/expectedRevision；不修复陈旧状态。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "REVISION_CONFLICT"
+  ],
+  "docs": "api.reliability",
+  "docsHash": "sha256:b83486252d57c7cdfadffc08b65817a10b27b4a1a5d1056361113876151b46aa"
+}

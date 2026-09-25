@@ -1,0 +1,14 @@
+{
+  "id": "reference.activateFrame",
+  "title": "激活具名基准",
+  "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
+  "category": "command",
+  "version": "1.7.0",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"reference.activateFrame\",args}); args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "docs": "api.references",
+  "docsHash": "sha256:8ec0bcc986d11710c1c76ecff9eeb1dcd57a7d22489292f545a852aa97fc46ca"
+}

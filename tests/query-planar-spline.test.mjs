@@ -13,6 +13,9 @@ for (const curved of [false,true]) {
   try {
     const all=queryShapeGeometry(shape,oc,'face',{});
     assert.equal(all.items[0].geomType,'BSPLINE_SURFACE');
+    assert.equal(queryShapeGeometry(shape,oc,'face',{surfaceType:'bspline'}).matchCount,1);
+    assert(all.items[0].spline.degreeU>=1);
+    assert(all.items[0].spline.poleCountV>=2);
     assert.equal(all.items[0].planar,!curved);
     const planes=queryShapeGeometry(shape,oc,'face',{surfaceType:'plane'});
     assert.equal(planes.matchCount,curved?0:1);

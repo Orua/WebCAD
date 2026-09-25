@@ -1,0 +1,30 @@
+{
+  "id": "setRenderQuality",
+  "title": "setRenderQuality",
+  "category": "page-method",
+  "version": "1.7.0",
+  "description": "setRenderQuality({context,quality:\"draft\"|\"standard\"|\"fine\"|\"ultra\"})",
+  "synonyms": [
+    "setRenderQuality",
+    "显示",
+    "精度",
+    "网格",
+    "曲面",
+    "公差"
+  ],
+  "inputContract": "setRenderQuality({context,quality:\"draft\"|\"standard\"|\"fine\"|\"ultra\"})",
+  "outputContract": "status=applied、context、renderQuality、display；只重新网格化。详见 api.workspace。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "REVISION_CONFLICT",
+    "INSTANCE_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "DISPLAY_FAILED"
+  ],
+  "docs": "api.workspace",
+  "docsHash": "sha256:aee52ff0ec9ea47c6a7da96fbb80278469be022c15f59797e1bab4fba527b5c0"
+}

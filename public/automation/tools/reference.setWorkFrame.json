@@ -1,0 +1,14 @@
+{
+  "id": "reference.setWorkFrame",
+  "title": "设置工作基准",
+  "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；单位四元数，锁定时拒绝。",
+  "category": "command",
+  "version": "1.7.0",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"reference.setWorkFrame\",args}); args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；单位四元数，锁定时拒绝。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "docs": "api.references",
+  "docsHash": "sha256:f2c0aef9bf23ade625e3b602cdbb01cc0c7e927ddf53559a5ed81377ed1cb5b9"
+}

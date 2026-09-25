@@ -160,6 +160,6 @@
   },
   "label": "圆锥",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:a7df686e0c5898727cf34ec0c5a1b71051c31b89df65d00cc597a53d89edba09"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:4da414de9b462edfd38990c404564e9ce6ae07438ca981131ce157f1b29f6b1b"
 }

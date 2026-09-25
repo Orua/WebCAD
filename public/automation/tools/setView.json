@@ -2,7 +2,7 @@
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?}); 详见 api.views；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
   "synonyms": [
     "setView",
@@ -27,5 +27,5 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:781182a8f653799dc49abe35ec781fe6a09a671c8b6e9168938684ebbaad8476"
+  "docsHash": "sha256:beb3335337abc2ce4503ffde7388cbe0630b93ccb289537babbcaf613b47f268"
 }

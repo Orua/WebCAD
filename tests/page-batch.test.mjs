@@ -1,6 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createPageBatch} from '../src/page-batch.js';
+
+test('partial receipts identify committed, failed and remaining steps without redoing commits',async()=>{
+  const f=fixture(),req=f.request();
+  req.steps.splice(1,0,{id:'bad',method:'add',args:{op:'box',params:{bad:true}}});
+  const r=await f.run(req);
+  assert.equal(r.status,'partial');assert.equal(r.progress.failedStepId,'bad');
+  assert.deepEqual(r.progress.completedStepIds,['ring']);
+  assert.deepEqual(r.progress.unattemptedStepIds,['size','export']);
+  assert.equal(r.requestContext.expectedRevision,1);
+  assert.equal(r.recovery.action,'READ_STATE_AND_REPLAN_REMAINING');
+  const count=f.count;assert.deepEqual(await f.run(req),r);assert.equal(f.count,count);
+});
 function fixture(){
   let revision=0,count=0;
   const context=()=>({sessionId:'s',documentId:'d',documentInstanceId:'i',revision});

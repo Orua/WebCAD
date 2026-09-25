@@ -1,0 +1,18 @@
+import {mkdir,writeFile,readFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
+import {listOperations} from '../src/operation-registry.js';
+import {PLACEMENT_POLICIES,assertPlacementCoverage} from '../src/placement-policy.js';
+import {EDITOR_ACTIONS} from '../src/editor-actions.js';
+import {REFERENCE_ACTIONS} from '../src/reference-contracts.js';
+import {UI_API_ROUTES} from '../src/ui-api-coverage.js';
+import {infoMetadata} from '../src/page-api-docs.js';
+assertPlacementCoverage();
+const root=resolve(import.meta.dirname,'..');
+const batchSource=await readFile(resolve(root,'src/page-batch.js'),'utf8');
+const batchMethods=[...batchSource.match(/const methods = new Set\(\[([\s\S]*?)\]\)/)?.[1].matchAll(/'([^']+)'/g)||[]].map(x=>x[1]);
+const methods=infoMetadata().methods,files=infoMetadata().filesMethods;
+const geometryVerified=new Set(['box','cylinder','sphere','cone','torus','extrude','revolve','sweep','loft','arcProfile','quickModel','vectorProfile','curveSweep','advancedLoft','fittedSurface','import','hole','multiHole','slot','multiPocket','multiBoss','faceHole','logo','transform','copy','mirror','linearPattern','circularPattern','split','planeSection','referenceExtrude']);
+const operations=listOperations().map(card=>({id:card.id,placementPolicy:PLACEMENT_POLICIES[card.id],toolVersion:card.version,strictContract:card.strictContract===true,uiRoutes:Object.entries(UI_API_ROUTES).filter(([,r])=>r.tools.includes(card.id)).map(([id])=>id),batchSupport:batchMethods.includes('add')?'via add':'not_registered',placementStatus:geometryVerified.has(card.id)?'geometry-tested':(['C','T','S','X'].includes(PLACEMENT_POLICIES[card.id])?'implemented-needs-per-tool-acceptance':PLACEMENT_POLICIES[card.id]==='N'?'not-spatial':'legacy-only')}));
+const report={generatedAt:new Date().toISOString(),baseCommit:'29f6dd28679d67706d82c6dd0f26e77dcd0d69a4',operations,executeActions:[...new Set(['feature.add','feature.edit','feature.remove','document.parameters','document.refresh','history.undo','history.redo','preview.start','preview.commit','preview.cancel',...REFERENCE_ACTIONS,...Object.keys(EDITOR_ACTIONS)])].sort(),pageMethods:methods,fileMethods:files,batchMethods,uiRoutes:Object.entries(UI_API_ROUTES).map(([id,route])=>({id,...route})),textCommands:['add','measure'],compatibilityEntrypoints:['src/ai-bridge.js','scripts/webcad-agent.mjs','src/mcp-bridge.js']};
+await mkdir(resolve(root,'agent/output'),{recursive:true});await writeFile(resolve(root,'agent/output/API_REFERENCE_COVERAGE.json'),JSON.stringify(report,null,2)+'\n');
+console.log(`Coverage inventory: ${operations.length} operations, ${report.executeActions.length} actions, ${methods.length} page methods, ${files.length} file methods, ${batchMethods.length} batch methods, ${report.uiRoutes.length} UI routes`);

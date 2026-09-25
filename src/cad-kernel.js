@@ -1,4 +1,5 @@
 import * as cad from 'replicad';
+import {renderQuality} from './render-quality.js';
 import { buildQuickModel } from './quick-models.js';
 import { buildLogoOnPlane, buildVectorProfile } from './logo-model.js';
 import { buildAdvancedLoft } from './advanced-loft.js';
@@ -14,10 +15,20 @@ import { logoFaceSignature } from './logo-face-signature.js';
 import { buildReferenceExtrude } from './reference-profile-extrude.js';
 import { buildReferenceLoft } from './reference-profile-loft.js';
 import { buildSmoothTransition } from './smooth-transition.js';
+import {rotateVector,worldPoint} from './work-frame.js';
+import {placementPolicy} from './placement-policy.js';
 
 // This adapter owns every BRep handle; displayed topology IDs are array indices,
 // not OpenCascade's transient hash codes. It is also executable in Node tests.
 const dispose = value => { try { value?.delete(); } catch {} };
+function sourcePointForShape(shape,placement){if(placement.sourcePoint!==null)return placement.sourcePoint;const box=shape.boundingBox;try{const [min,max]=box.bounds;return [(min[0]+max[0])/2,(min[1]+max[1])/2,placement.sourceAnchor.kind==='bottom-center'?min[2]:(min[2]+max[2])/2];}finally{dispose(box);}}
+function placeCreation(shape,placement){
+  const {frameSnapshot:frame}=placement,sourcePoint=sourcePointForShape(shape,placement);
+  let out=shape.translate(sourcePoint.map(v=>-v));
+  const [x,y,z,w]=frame.quaternion,axisLength=Math.hypot(x,y,z);
+  if(axisLength>1e-12){const rotated=out.rotate(2*Math.atan2(axisLength,w)*180/Math.PI,[0,0,0],[x/axisLength,y/axisLength,z/axisLength]);dispose(out);out=rotated;}
+  const translated=out.translate(...frame.origin);dispose(out);return translated;
+}
 // Replicad's non-adaptive BRepGProp.VolumeProperties can misread swept
 // B-spline solids by more than 0.1%. Use OCCT's adaptive Gauss-Kronrod
 // integration for the body metadata and explicit measurements alike.
@@ -45,6 +56,7 @@ function planeName(p) {
   if (!['XY', 'XZ', 'YZ'].includes(plane)) throw new Error('平面必须为 XY、XZ 或 YZ');
   return plane;
 }
+function localPlaneBasis(name){return {XY:{x:[1,0,0],normal:[0,0,1],offset:d=>[0,0,d]},XZ:{x:[1,0,0],normal:[0,-1,0],offset:d=>[0,d,0]},YZ:{x:[0,1,0],normal:[1,0,0],offset:d=>[d,0,0]}}[name];}
 function axisVector(p) {
   const value = { X: [1, 0, 0], Y: [0, 1, 0], Z: [0, 0, 1] }[p.axis || 'Z'];
   if (!value) throw new Error('轴方向必须为 X、Y 或 Z');
@@ -97,6 +109,22 @@ function applyTransform(shape, p) {
     return out.translate(...target);
   } catch (error) { dispose(out); throw error; }
 }
+function applySpatialTransform(shape,p,placement){
+  if(!placement?.frameSnapshot)throw Object.assign(new Error('Spatial transform requires a resolved frame'),{code:'FRAME_INVALID'});
+  const frame=placement.frameSnapshot,point=value=>worldPoint(frame,value),vector=value=>rotateVector(frame.quaternion,value);
+  if(p.mode==='translate')return shape.clone().translate(...vector(p.delta));
+  if(p.mode==='rotate'){const axis=vector(p.axisVector),length=Math.hypot(...axis);return shape.clone().rotate(p.angleDeg,point(p.pivot),axis.map(v=>v/length));}
+  if(p.mode==='scale')return shape.clone().scale(p.scale,point(p.pivot));
+  if(p.mode==='toPoint'){
+    const source=sourcePointForShape(shape,placement),target=point(p.targetPoint);
+    if((p.orientation??'preserve')==='preserve')return shape.clone().translate(...target.map((v,i)=>v-source[i]));
+    let out=shape.clone().translate(...source.map(v=>-v));
+    const [x,y,z,w]=frame.quaternion,length=Math.hypot(x,y,z);
+    if(length>1e-12){const rotated=out.rotate(2*Math.atan2(length,w)*180/Math.PI,[0,0,0],[x/length,y/length,z/length]);dispose(out);out=rotated;}
+    const positioned=out.translate(...target);dispose(out);return positioned;
+  }
+  throw Object.assign(new Error('Unsupported spatial transform mode'),{code:'PARAM_SCHEMA_INVALID'});
+}
 function chosenTopology(shape, type, ids) {
   const all = shape[type];
   if (!Array.isArray(ids) || !ids.length || ids.some(id => !Number.isInteger(id) || id < 0 || id >= all.length)) {
@@ -124,7 +152,11 @@ function faceBoundaryEdges(shape, faceIds) {
 export class CadKernel {
   constructor(oc) { cad.setOC(oc); this.oc = oc; this.shapes = new Map(); this.active = new Map(); this.renderCache = new Map(); this.historySignature = []; this.importsSignature = ''; this.renderVersion = 0; }
   async operation(feature, shapes, imports) {
-    const p = feature.params || {}, refs = feature.refs || [];
+    const original=feature.params||{},targetFrame=feature.placement?.frameSnapshot;
+    const p=targetFrame&&['faceHole','logo'].includes(feature.op)?{...original,point:worldPoint(targetFrame,original.point),frameX:rotateVector(targetFrame.quaternion,[1,0,0]),frameNormal:rotateVector(targetFrame.quaternion,[0,0,1])}:original;
+    const refs = feature.refs || [];
+    const frame=feature.placement?.frameSnapshot,point=value=>frame?worldPoint(frame,value):value,vector=value=>frame?rotateVector(frame.quaternion,value):value;
+    const workPlane=(name,offset=0)=>{const basis=localPlaneBasis(name);return new cad.Plane(point(basis.offset(offset)),vector(basis.x),vector(basis.normal));};
     const sources = refs.map(id => { if (!shapes.has(id)) throw new Error(`找不到引用实体 ${id}`); return shapes.get(id); });
     const source = () => { if (sources.length !== 1) throw new Error('此操作需要选择一个实体'); return sources[0]; };
     switch (feature.op) {
@@ -135,7 +167,7 @@ export class CadKernel {
       case 'curvedLogo': return buildCurvedLogo(source(),p,cad);
       case 'fittedSurface': return buildFittedSurface(p,cad);
       case 'thickenFace': return buildFaceThickness(source(),p,cad);
-      case 'planeSection': return extractPlaneSection(source(),{plane:p.plane||'XY',offset:p.offset??0},cad);
+      case 'planeSection': return extractPlaneSection(source(),{plane:p.plane||'XY',offset:p.offset??0,frame},cad);
       case 'faceBoundary': return extractFaceBoundary(source(),p.faceId,cad,{boundary:p.boundary??'all'});
       case 'extractFaces': {
         const shape=source(),all=shape.faces,ids=p.faceIds;
@@ -159,7 +191,7 @@ export class CadKernel {
           return shells[index].clone();
         }finally{shells.forEach(dispose);}
       }
-      case 'referenceExtrude': return buildReferenceExtrude(source(),p,cad);
+      case 'referenceExtrude': return buildReferenceExtrude(source(),frame?{...p,direction:vector(p.direction)}:p,cad);
       case 'referenceLoft': return buildReferenceLoft(sources,p,cad);
       case 'sewFaces': return sewFaces({refs:sources,tolerance:p.tolerance??0.01,makeSolid:p.makeSolid??false},cad);
       case 'surfaceTrim': {
@@ -193,11 +225,12 @@ export class CadKernel {
         finally {[s1,s2,a,b].forEach(dispose);}
       }
       case 'split': {
-        const result=source().split(planeName(p),finite(p,'offset'));
+        const name=planeName(p),offset=finite(p,'offset'),plane=frame?workPlane(name,offset):null;
+        const result=source().split(plane||name,frame?0:offset);
         try {
           if(!result.positive||!result.negative)throw new Error('分割平面未穿过实体内部');
           return cad.makeCompound([result.positive,result.negative]);
-        } finally {dispose(result.positive);dispose(result.negative);}
+        } finally {dispose(result.positive);dispose(result.negative);dispose(plane);}
       }
       case 'group': {
         if(sources.length<2)throw new Error('组合至少需要两个对象');
@@ -213,6 +246,7 @@ export class CadKernel {
         const shape=source(),info=this.planarFace(shape,p.faceId),normal=info.normal;
         let tool,result,vertex,bbox;
         try {
+          if(p.frameNormal&&p.frameNormal.reduce((sum,v,i)=>sum+v*normal[i],0)<1-1e-6)throw Object.assign(new Error('工作基准法向与目标面外法向不一致'),{code:'FRAME_SURFACE_MISMATCH'});
           const point=p.point;
           if(!Array.isArray(point)||point.length!==3||point.some(v=>!Number.isFinite(v)))throw new Error('面钻孔起点必须是有效三维坐标');
           vertex=cad.makeVertex(point);
@@ -246,9 +280,10 @@ export class CadKernel {
         }
         const info=this.planarFace(shape,p.faceId);let prism,vector,anchor,query;
         try {
-          const n=info.normal,seed=Math.abs(n[0])<.9?[1,0,0]:[0,1,0];
+          const n=info.normal,seed=p.frameX|| (Math.abs(n[0])<.9?[1,0,0]:[0,1,0]);
+          if(p.frameNormal&&p.frameNormal.reduce((sum,v,i)=>sum+v*n[i],0)<1-1e-6)throw Object.assign(new Error('工作基准法向与目标面外法向不一致'),{code:'FRAME_SURFACE_MISMATCH'});
           const dot=seed.reduce((s,v,i)=>s+v*n[i],0),projected=seed.map((v,i)=>v-dot*n[i]);
-          const length=Math.hypot(...projected),x=projected.map(v=>v/length);
+          const length=Math.hypot(...projected);if(length<1e-8)throw Object.assign(new Error('工作基准 X 方向与目标面法向平行'),{code:'FRAME_SURFACE_MISMATCH'});const x=projected.map(v=>v/length);
           const y=[n[1]*x[2]-n[2]*x[1],n[2]*x[0]-n[0]*x[2],n[0]*x[1]-n[1]*x[0]];
           let center=info.origin;
           if(p.placementVersion===2){
@@ -311,14 +346,17 @@ export class CadKernel {
         if (item.format === 'brep') return cad.deserializeShape(new TextDecoder().decode(bytes)).asShape3D();
         throw new Error('导入格式不受支持');
       }
-      case 'transform': case 'copy': return applyTransform(source(), p);
-      case 'mirror': return source().clone().mirror(planeName(p));
+      case 'transform': case 'copy': return p.mode?applySpatialTransform(source(),p,feature.placement):applyTransform(source(),p);
+      case 'mirror': {
+        if(!frame)return source().clone().mirror(planeName(p));
+        const plane=workPlane(planeName(p));try{return source().clone().mirror(plane);}finally{dispose(plane);}
+      }
       case 'slot': {
         const shape=source(),length=positive(p,'length',20),width=positive(p,'width',6),depth=positive(p,'depth',5);
         if(length<width)throw new Error('槽总长须大于或等于槽宽');
         const direction=finite(p,'direction',1);if(![1,-1].includes(direction))throw new Error('槽方向必须为 +1 或 -1');
-        const normal=axisVector(p),xDirection={X:[0,1,0],Y:[0,0,1],Z:[1,0,0]}[p.axis||'Z'];
-        const center=[finite(p,'x'),finite(p,'y'),finite(p,'z')],angle=finite(p,'angle');
+        const normal=vector(axisVector(p)),xDirection=vector({X:[0,1,0],Y:[0,0,1],Z:[1,0,0]}[p.axis||'Z']);
+        const center=point([finite(p,'x'),finite(p,'y'),finite(p,'z')]),angle=finite(p,'angle');
         let drawing,plane,sketch,tool,result;
         try {
           drawing=length===width?cad.drawCircle(width/2):cad.drawRoundedRectangle(length,width,width/2);
@@ -333,12 +371,12 @@ export class CadKernel {
       case 'multiHole': {
         const shape=source(),radius=positive(p,'radius'),depth=positive(p,'depth'),direction=finite(p,'direction',1);
         if(![1,-1].includes(direction))throw new Error('钻孔方向必须为 +1 或 -1');
-        const axis=axisVector(p).map(v=>v*direction),points=p.points;
+        const axis=vector(axisVector(p).map(v=>v*direction)),points=p.points;
         if(!Array.isArray(points)||points.length<1||points.length>100||points.some(point=>!Array.isArray(point)||point.length!==3||point.some(v=>!Number.isFinite(v))))throw new Error('多位置光孔须提供 1–100 个有效三维起点');
         let current=shape.clone();
         try {
           for(let index=0;index<points.length;index++){
-            const tool=cad.makeCylinder(radius,depth,points[index],axis);let next;
+            const tool=cad.makeCylinder(radius,depth,point(points[index]),axis);let next;
             try {
               const before=Math.abs(cad.measureVolume(current));next=current.cut(tool);
               const after=next.isNull?0:Math.abs(cad.measureVolume(next));
@@ -353,13 +391,13 @@ export class CadKernel {
         const shape=source(),depth=positive(p,'depth'),direction=finite(p,'direction',-1),pockets=p.pockets;
         if(![1,-1].includes(direction))throw new Error('凹槽方向必须为 +1 或 -1');
         if(!Array.isArray(pockets)||pockets.length<1||pockets.length>64)throw new Error('请提供 1–64 个矩形凹槽');
-        const normal=axisVector(p),xDirection={X:[0,1,0],Y:[0,0,1],Z:[1,0,0]}[p.axis||'Z'];
+        const normal=vector(axisVector(p)),xDirection=vector({X:[0,1,0],Y:[0,0,1],Z:[1,0,0]}[p.axis||'Z']);
         let current=shape.clone();
         try {
           for(let index=0;index<pockets.length;index++){
             const pocket=pockets[index];
             if(!pocket||typeof pocket!=='object'||Array.isArray(pocket))throw new Error(`第 ${index+1} 个凹槽参数无效`);
-            const center=[finite(pocket,'x'),finite(pocket,'y'),finite(pocket,'z')];
+            const center=point([finite(pocket,'x'),finite(pocket,'y'),finite(pocket,'z')]);
             const width=positive(pocket,'width'),height=positive(pocket,'height'),cornerRadius=finite(pocket,'cornerRadius',0);
             if(cornerRadius<0||cornerRadius>=Math.min(width,height)/2)throw new Error(`第 ${index+1} 个凹槽圆角半径须小于短边一半`);
             let drawing,plane,sketch,tool,next;
@@ -380,11 +418,11 @@ export class CadKernel {
         const shape=source(),radius=positive(p,'radius'),height=positive(p,'height'),direction=finite(p,'direction',1),points=p.points;
         if(![1,-1].includes(direction))throw new Error('凸台方向必须为 +1 或 -1');
         if(!Array.isArray(points)||points.length<1||points.length>64||points.some(point=>!Array.isArray(point)||point.length!==3||point.some(v=>!Number.isFinite(v))))throw new Error('请提供 1–64 个有效的凸台底面中心 XYZ');
-        const normal=axisVector(p).map(v=>v*direction);
+        const normal=vector(axisVector(p).map(v=>v*direction));
         let current=shape.clone();
         try {
           for(let index=0;index<points.length;index++){
-            const tool=cad.makeCylinder(radius,height,points[index],normal);let builder,next;
+            const tool=cad.makeCylinder(radius,height,point(points[index]),normal);let builder,next;
             try {
               builder=new (cad.getOC().BRepAlgoAPI_Fuse)(current.wrapped,tool.wrapped);
               builder.Build();next=cad.cast(builder.Shape());
@@ -404,8 +442,11 @@ export class CadKernel {
         const shape = source(), radius = positive(p, 'radius'), depth = positive(p, 'depth');
         const direction = finite(p, 'direction', 1);
         if (![1, -1].includes(direction)) throw new Error('钻孔方向必须为 +1 或 -1');
-        const axis = axisVector(p).map(v => v * direction);
-        const tool = cad.makeCylinder(radius, depth, [finite(p, 'x'), finite(p, 'y'), finite(p, 'z')], axis);
+        const localAxis=axisVector(p).map(v => v * direction),localPoint=[finite(p, 'x'), finite(p, 'y'), finite(p, 'z')];
+        const frame=feature.placement?.frameSnapshot;
+        const axis=frame?rotateVector(frame.quaternion,localAxis):localAxis;
+        const point=frame?worldPoint(frame,localPoint):localPoint;
+        const tool = cad.makeCylinder(radius, depth, point, axis);
         let result;
         try {
           const before = Math.abs(cad.measureVolume(shape));
@@ -416,7 +457,7 @@ export class CadKernel {
         } catch (error) { dispose(result); throw error; } finally { dispose(tool); }
       }
       case 'linearPattern': {
-        const shape = source(), count = instanceCount(p), delta = [finite(p, 'dx'), finite(p, 'dy'), finite(p, 'dz')];
+        const shape = source(), count = instanceCount(p), delta = vector([finite(p, 'dx'), finite(p, 'dy'), finite(p, 'dz')]);
         if (delta.every(v => v === 0)) throw new Error('线性阵列的位移不能全部为 0');
         const instances = [];
         try {
@@ -425,9 +466,9 @@ export class CadKernel {
         } finally { instances.forEach(dispose); }
       }
       case 'circularPattern': {
-        const shape = source(), count = instanceCount(p), angle = positive(p, 'angle', 360), axis = axisVector(p);
+        const shape = source(), count = instanceCount(p), angle = positive(p, 'angle', 360), axis = vector(axisVector(p));
         if (angle > 360) throw new Error('圆周阵列角度不能大于 360°');
-        const center = [finite(p, 'cx'), finite(p, 'cy'), finite(p, 'cz')];
+        const center = point([finite(p, 'cx'), finite(p, 'cy'), finite(p, 'cz')]);
         const step = angle / (angle === 360 ? count : count - 1), instances = [];
         try {
           for (let i = 0; i < count; i++) instances.push(shape.clone().rotate(step * i, center, axis));
@@ -467,9 +508,24 @@ export class CadKernel {
       default: throw new Error(`不支持的操作：${feature.op}`);
     }
   }
+  remesh(quality) {
+    renderQuality(quality);
+    const previous=this.quality;
+    this.quality=quality;
+    try {
+      const bodies=[...this.active].map(([id,feature])=>{
+        const body=this.describe(this.shapes.get(id),feature);
+        body.renderVersion=String(++this.renderVersion);
+        return body;
+      });
+      this.renderCache=new Map(bodies.map(body=>[body.id,{body}]));
+      return {bodies,quality};
+    } catch(error) {this.quality=previous;throw error;}
+  }
   describe(shape, feature) {
-    const mesh = shape.mesh({ tolerance: 0.08, angularTolerance: 0.15 });
-    const wire = shape.meshEdges({ tolerance: 0.06, angularTolerance: 0.12 });
+    const quality=this.quality||'standard', settings=renderQuality(quality);
+    const mesh = shape.mesh(settings);
+    const wire = shape.meshEdges({ tolerance: settings.tolerance*0.75, angularTolerance: settings.angularTolerance*0.8 });
     const faces = shape.faces, edges = shape.edges, solids = shape.solids, shells=Array.from(cad.iterTopo(shape.wrapped,'shell'),item=>cad.cast(item)), bbox = shape.boundingBox;
     try {
       const faceMap = new Map(faces.map((v, i) => [v.hashCode, i])), edgeMap = new Map(edges.map((v, i) => [v.hashCode, i]));
@@ -491,7 +547,7 @@ export class CadKernel {
     } finally { [...faces, ...edges, ...solids, ...shells, bbox].forEach(dispose); }
   }
   async rebuild(document) {
-    if (!document || document.version !== 1 || !Array.isArray(document.features)) throw new Error('无效的 WebCAD 工程');
+    if (!document || ![1,2].includes(document.version) || !Array.isArray(document.features)) throw new Error('无效的 WebCAD 工程');
     const next = new Map(), active = new Map(), ids = new Set(); let current;
     const importsSignature = JSON.stringify(document.imports || {});
     const features = document.features;
@@ -519,6 +575,7 @@ export class CadKernel {
               copies.push(copy);inputs.set(id,copy);
             }
             shape=await this.operation(feature,inputs,document.imports||{});
+            if(shape&&feature.placement&&placementPolicy(feature.op)==='C'){const placed=placeCreation(shape,feature.placement);dispose(shape);shape=placed;}
           } finally {copies.forEach(dispose);}
         }
         if (shape) {

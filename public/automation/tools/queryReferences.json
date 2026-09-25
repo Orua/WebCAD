@@ -1,0 +1,25 @@
+{
+  "id": "queryReferences",
+  "title": "queryReferences",
+  "category": "page-method",
+  "version": "1.7.0",
+  "description": "queryReferences({context,bodyIds:[],kind:\"point\",filter?:{types?:[\"world-origin\",\"work-origin\",\"endpoint\",\"circle-center\"]},limit?,requireUnique?})。",
+  "synonyms": [
+    "queryReferences",
+    "参考点",
+    "工作基准",
+    "几何吸附"
+  ],
+  "inputContract": "queryReferences({context,bodyIds:[],kind:\"point\",filter?:{types?:[\"world-origin\",\"work-origin\",\"endpoint\",\"circle-center\"]},limit?,requireUnique?})。",
+  "outputContract": "当前工程的精确坐标候选、来源、总数和截断状态；不写模型。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "REVISION_CONFLICT",
+    "STALE_REFERENCE",
+    "AMBIGUOUS_REFERENCE"
+  ],
+  "docsHash": "sha256:99675fececbaf8ee21927467fd9a31879aa533f04747119d030f2c44d0f1324c"
+}

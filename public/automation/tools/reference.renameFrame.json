@@ -1,0 +1,14 @@
+{
+  "id": "reference.renameFrame",
+  "title": "重命名具名基准",
+  "description": "args:{frameId,expectedFrameVersion,name}。",
+  "category": "command",
+  "version": "1.7.0",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"reference.renameFrame\",args}); args:{frameId,expectedFrameVersion,name}。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "docs": "api.references",
+  "docsHash": "sha256:0b7a9baa25c871dea18464862ebdefc7cb2592a2f8ea8e3d3b6225f7aa4e98a6"
+}

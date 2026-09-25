@@ -335,6 +335,6 @@
   },
   "label": "解析线弧轮廓",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:52d507d2f605f7f0e07b475b36e72580e938e759569f2633ee6760b57f7c2251"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:1bfe28e9b221d67dc753b1d91234001a0719c09e3238e34f677cef9a31f58abd"
 }

@@ -1,5 +1,7 @@
 import { assertOperationContract, normalizeOperationParams, normalizeOperationPatch, validateOperationRefs, migratedOperationIds, getOperation, validateOperationExample } from './operation-registry.js';
 import { EDITOR_ACTIONS, validateEditorAction } from './editor-actions.js';
+import {REFERENCE_ACTIONS,applyReferenceAction} from './reference-contracts.js';
+import {resolvePlacement,describeResolvedPlacement} from './work-frame.js';
 
 const clone=structuredClone;
 const uid=()=>crypto.randomUUID();
@@ -54,12 +56,13 @@ export function createCommandService(adapter) {
     const requestId=uid();let s;
     try{s=snapshot();object(input,['sessionId','include'],'input');string(input.sessionId,'sessionId');if(input.sessionId!==s.sessionId)fail('INSTANCE_MISMATCH','sessionId','Unknown current session');
       const include=input.include??['summary','bodies','capabilities'];
-      if(!Array.isArray(include)||include.some(x=>!['summary','features','bodies','selection','capabilities'].includes(x)))fail('PARAM_SCHEMA_INVALID','include','Unknown state field');
+      if(!Array.isArray(include)||include.some(x=>!['summary','features','bodies','selection','capabilities','references'].includes(x)))fail('PARAM_SCHEMA_INVALID','include','Unknown state field');
       const r={status:'read',context:contextOf(s),persistence:s.persistence,preview:{active:!!s.preview,computing:!!s.previewComputing}};
       if(include.includes('summary'))r.summary={name:s.documentName,featureCount:s.features.length,bodyCount:s.bodies.length,busy:s.busy,kernelReady:s.kernelReady,dirty:!!s.dirty};
       if(include.includes('features'))r.features=clone(s.features);
       if(include.includes('bodies'))r.bodies=clone(s.bodies);
       if(include.includes('selection'))r.selection={bodyIds:clone(s.selectedIds),topology:clone(s.selectedTopology)};
+      if(include.includes('references'))r.references=clone(s.referenceSystem);
       if(include.includes('capabilities'))r.capabilities={runtimeAvailability:s.kernelReady&&!s.busy&&!s.preview&&!s.previewComputing?'available':'not_ready',executeV2Operations:[...migratedOperationIds],geometryQuery:{faces:['plane'],edges:['line','circle'],loopRole:false},idempotencyGuarantee:'same document runtime instance; memory only; no cross-reload guarantee'};
       return r;
     }catch(e){return errorResult(e,requestId,s);}
@@ -102,7 +105,7 @@ export function createCommandService(adapter) {
       const a=clone(input.args);let command,args,op,refs=[];
       switch(input.action){
         case 'preview.start':case 'feature.add':{
-          object(a,['op','opVersion','schemaHash','params','refs','name','selectionToken'],'args');string(a.op,'args.op',60);op=a.op;
+          object(a,['op','opVersion','schemaHash','params','refs','name','selectionToken','placement'],'args');string(a.op,'args.op',60);op=a.op;
           contract(op,a);ids(a.refs,'args.refs');validateOperationRefs(op,a.refs);refs=a.refs;
           if(refs.some(id=>!s.bodies.some(b=>b.id===id)))fail('STALE_REFERENCE','args.refs','Reference is not a current body');
           if(a.selectionToken!==undefined){
@@ -114,16 +117,17 @@ export function createCommandService(adapter) {
             if(op==='faceHole'&&t.ids.length!==1)fail('AMBIGUOUS_SELECTION','selectionToken','One face is required');
             if(['fillet','chamfer'].includes(op))a.params.edgeIds=t.ids;else if(['shell','smoothTransition'].includes(op))a.params.faceIds=t.ids;else a.params.faceId=t.ids[0];
           }
-          a.params=parameters(op,a.params);if(a.name!==undefined)string(a.name,'args.name',120);
-          command=input.action==='preview.start'?'preview_feature':'add_feature';args={op,params:a.params,refs,name:a.name};break;
+          a.params=parameters(op,a.params);if(['transform','copy'].includes(op)&&a.params.mode&&a.placement===undefined)fail('FRAME_INVALID','args.placement','Spatial transform mode requires explicit placement');if(a.name!==undefined)string(a.name,'args.name',120);
+          command=input.action==='preview.start'?'preview_feature':'add_feature';args={op,params:a.params,refs,name:a.name,placement:resolvePlacement(a.placement,s.referenceSystem,op,a.params)};break;
         }
         case 'feature.edit':{
-          object(a,['featureId','opVersion','schemaHash','params','name'],'args');string(a.featureId,'args.featureId');
+          object(a,['featureId','opVersion','schemaHash','params','name','placement'],'args');string(a.featureId,'args.featureId');
           const index=s.features.findIndex(f=>f.id===a.featureId);if(index<0)fail('STALE_REFERENCE','args.featureId','Unknown feature');
           const feature=s.features[index];op=feature.op;contract(op,a);
           if(a.params&&Object.keys(a.params).length&&s.features.slice(index+1).some(f=>['edgeIds','faceIds','faceId'].some(k=>Object.hasOwn(f.params,k))))fail('UNSAFE_LEGACY_REFERENCE','args.featureId','Downstream index references cannot be proven stable; edit rejected','RESELECT_TOPOLOGY');
-          const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,feature.params,a.params):parameters(op,{...feature.params,...a.params});if(a.name!==undefined)string(a.name,'args.name',120);
-          command='edit_feature';args={featureId:a.featureId,params,name:a.name};break;
+          const merged=['transform','copy'].includes(op)&&a.params?.mode&&!feature.params.mode?a.params:{...feature.params,...a.params};
+          const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,feature.params,a.params):parameters(op,merged);if(['transform','copy'].includes(op)&&params.mode&&a.placement===undefined&&!feature.placement)fail('FRAME_INVALID','args.placement','Spatial transform mode requires explicit placement');if(a.name!==undefined)string(a.name,'args.name',120);
+          command='edit_feature';args={featureId:a.featureId,params,name:a.name,...(Object.hasOwn(a,'placement')?{placement:resolvePlacement(a.placement,s.referenceSystem,op,params)}:{})};break;
         }
         case 'document.parameters':
           object(a,['parameters','bindings'],'args');object(a.parameters,Object.keys(a.parameters||{}),'args.parameters');finiteTree(a.parameters);
@@ -132,7 +136,7 @@ export function createCommandService(adapter) {
         case 'feature.remove':object(a,['bodyIds'],'args');ids(a.bodyIds,'args.bodyIds',true);if(a.bodyIds.some(id=>!s.bodies.some(b=>b.id===id)))fail('STALE_REFERENCE','args.bodyIds','Body is not current');refs=a.bodyIds;command='remove';args={ids:refs};break;
         case 'history.undo':case 'history.redo':case 'document.refresh':object(a,[],'args');command=input.action.split('.')[1];args={};break;
         case 'preview.commit':case 'preview.cancel':object(a,[],'args');command=input.action;args={};break;
-        default:if(Object.hasOwn(EDITOR_ACTIONS,input.action)){({command,args}=validateEditorAction(input.action,a,s));break;}fail('PARAM_SCHEMA_INVALID','action','Unsupported action');
+        default:if(REFERENCE_ACTIONS.includes(input.action)){args={action:input.action,referenceSystem:applyReferenceAction(s.referenceSystem,input.action,a)};command='reference_action';break;}if(Object.hasOwn(EDITOR_ACTIONS,input.action)){({command,args}=validateEditorAction(input.action,a,s));break;}fail('PARAM_SCHEMA_INVALID','action','Unsupported action');
       }
       context(input.context,snapshot());available(snapshot(),allowPreview);revisionBefore=s.revision;
       await adapter.execute(command,args,{signal:options.signal,expectedRevision:s.revision});
@@ -141,9 +145,13 @@ export function createCommandService(adapter) {
       else{
         const createdFeatureIds=after.features.filter(f=>!s.features.some(x=>x.id===f.id)).map(f=>f.id);
         const createdBodyIds=after.bodies.filter(b=>!s.bodies.some(x=>x.id===b.id)).map(b=>b.id);
-        result={status:'committed',requestId,transactionId:uid(),documentId:after.documentId,documentInstanceId:after.documentInstanceId,revisionBefore,revisionAfter:after.revision,createdFeatureIds,createdBodyIds,replacements:s.bodies.filter(b=>!after.bodies.some(x=>x.id===b.id)).flatMap(b=>createdBodyIds.map(id=>({before:b.id,after:id}))),validation:{geometry:'passed',...(['hole','multiHole','multiPocket','faceHole'].includes(op)?{materialRemoved:true}:{}),...(op==='multiBoss'?{materialAdded:true}:{})},persistence:after.persistence,warnings:after.warnings??[]};
+        const removedIds=new Set(s.bodies.filter(b=>!after.bodies.some(x=>x.id===b.id)).map(b=>b.id));
+        const replacements=after.features.filter(f=>createdFeatureIds.includes(f.id)&&createdBodyIds.includes(f.id)).flatMap(f=>(f.refs||[]).filter(id=>removedIds.has(id)).map(id=>({before:id,after:f.id})));
+        result={status:'committed',requestId,transactionId:uid(),documentId:after.documentId,documentInstanceId:after.documentInstanceId,revisionBefore,revisionAfter:after.revision,createdFeatureIds,createdBodyIds,replacements,validation:{geometry:'passed',...(args?.placement?{placement:'passed'}:{}),...(['hole','multiHole','multiPocket','faceHole'].includes(op)?{materialRemoved:true}:{}),...(op==='multiBoss'?{materialAdded:true}:{})},persistence:after.persistence,warnings:after.warnings??[]};
       }
       if(command==='editor_action')result.validation={geometry:input.action==='body.explode'?'passed':'unchanged',editor:'passed'};
+      if(command==='reference_action'){result.validation={geometry:'unchanged',reference:'passed'};result.referenceSystem=clone(after.referenceSystem);}
+      if(args?.placement)result.resolvedPlacement={...describeResolvedPlacement(op,args.params,args.placement),geometryValidated:result.status==='committed',referenceQuality:'provided-coordinates',binding:'snapshot'};
       if(input.action.startsWith('preview.'))result.preview={active:!!after.preview,computing:!!after.previewComputing};
       receipts.set(key,{fingerprint,result:clone(result)});return result;
     }catch(e){
@@ -157,16 +165,25 @@ export function createCommandService(adapter) {
   function execute(input,options={}){const job=tail.then(()=>executeOnce(input,options));tail=job.catch(()=>{});return job;}
   function fileCommand(input,options={}){
     const run=async()=>{
-      const requestId=options.requestId??uid();let before;
+      const requestId=options.requestId??uid();let before,key,fingerprint;
       try{
-        before=snapshot();object(input,['context','action','args'],'input');context(input.context,before);available(before);
+        before=snapshot();object(input,['context','action','args'],'input');context(input.context,before,{revision:false});
         if(!['new','open','import','save','export'].includes(input.action))fail('PARAM_SCHEMA_INVALID','action','Unknown file action');
+        if(input.action==='import'&&input.args?.placement!==undefined){
+          key=input.args.idempotencyKey;string(key,'args.idempotencyKey',128);
+          const data=new TextEncoder().encode(canonical({action:input.action,args:input.args,context:{sessionId:input.context.sessionId,documentId:input.context.documentId,documentInstanceId:input.context.documentInstanceId}}));
+          fingerprint=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',data)),v=>v.toString(16).padStart(2,'0')).join('');
+          const previous=receipts.get(key);if(previous){if(previous.fingerprint!==fingerprint)fail('IDEMPOTENCY_KEY_REUSED','args.idempotencyKey','Key has a different payload');return clone(previous.result);}
+          if(receipts.size>=1000)fail('RESOURCE_LIMIT','args.idempotencyKey','Receipt cache full');
+        }
+        context(input.context,before);available(before);
         const result=await adapter.execute(`file_${input.action}`,input.args??{},{...options,expectedRevision:before.revision});
-        const after=snapshot(),readOnly=['save','export'].includes(input.action);return {status:readOnly?'read':'committed',requestId,context:contextOf(readOnly?before:after),...result};
+        const after=snapshot(),readOnly=['save','export'].includes(input.action),receipt={status:readOnly?'read':'committed',requestId,context:contextOf(readOnly?before:after),...result};
+        if(key)receipts.set(key,{fingerprint,result:clone(receipt)});return receipt;
       }catch(error){
         const after=snapshot();
-        if(before&&(before.revision!==after.revision||before.documentInstanceId!==after.documentInstanceId))return {status:'unknown',commitState:'unknown',requestId,error:{code:'RESULT_UNKNOWN',path:'result',message:error.message,retryable:false,recoveryAction:'READ_STATE_AND_REPLAN'}};
-        return errorResult(error,requestId,after);
+        const receipt=before&&(before.revision!==after.revision||before.documentInstanceId!==after.documentInstanceId)?{status:'unknown',commitState:'unknown',requestId,error:{code:'RESULT_UNKNOWN',path:'result',message:error.message,retryable:false,recoveryAction:'READ_STATE_AND_REPLAN'}}:errorResult(error,requestId,after);
+        if(key&&fingerprint&&!receipts.has(key))receipts.set(key,{fingerprint,result:clone(receipt)});return receipt;
       }
     };
     const job=tail.then(run);tail=job.catch(()=>{});return job;

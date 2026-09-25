@@ -1,0 +1,28 @@
+{
+  "id": "submit",
+  "title": "submit",
+  "category": "page-method",
+  "version": "1.7.0",
+  "description": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/setView/setRenderQuality/files.save/files.export/files.import.",
+  "synonyms": [
+    "submit",
+    "异步",
+    "任务",
+    "超时",
+    "后台",
+    "回执"
+  ],
+  "inputContract": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/setView/setRenderQuality/files.save/files.export/files.import.",
+  "outputContract": "立即返回 jobId/status；参数中保留原 context 和幂等键；详见 api.reliability。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "RESOURCE_LIMIT",
+    "IDEMPOTENCY_KEY_REUSED"
+  ],
+  "docs": "api.reliability",
+  "docsHash": "sha256:c814507d104970c8c9a985859c3725d774d31e6c5902a86b3f830faf8274ad35"
+}

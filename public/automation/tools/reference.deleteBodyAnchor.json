@@ -1,0 +1,14 @@
+{
+  "id": "reference.deleteBodyAnchor",
+  "title": "删除对象锚点",
+  "description": "当前阶段尚未开放；需要精确几何指纹证明。",
+  "category": "command",
+  "version": "1.7.0",
+  "implementationStatus": "unavailable",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "unavailable",
+  "inputContract": "execute({context,idempotencyKey,action:\"reference.deleteBodyAnchor\",args}); 当前阶段尚未开放；需要精确几何指纹证明。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "docs": "api.references",
+  "docsHash": "sha256:1778ae0bb7d473c3bc32d82d97c0d66e1f827ba2970e3d1da7b55d99c3a7a04a"
+}

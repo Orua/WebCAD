@@ -149,6 +149,6 @@
   },
   "label": "参考截面放样",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:36f278c677781acf6d7964a9189d338198dda41abbaf1d3a238f4712e7bfa58f"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:0a805e080dce9a59f84c55f20a7d74395f1e7603b36ac13e73527512629bde26"
 }

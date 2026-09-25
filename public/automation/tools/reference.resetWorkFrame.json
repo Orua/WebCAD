@@ -1,0 +1,14 @@
+{
+  "id": "reference.resetWorkFrame",
+  "title": "重置工作基准",
+  "description": "args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
+  "category": "command",
+  "version": "1.7.0",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"reference.resetWorkFrame\",args}); args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "docs": "api.references",
+  "docsHash": "sha256:131c653db351b76d48876546194ab7bae0a2f70be28b9a0c8448202560e72367"
+}

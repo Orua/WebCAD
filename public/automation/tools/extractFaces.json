@@ -171,6 +171,6 @@
   },
   "label": "提取指定面",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:502aaa6414b27067751e421980dd43797b27d74c5e1646b41e5d219c4ea3ac3d"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:7a50bd8e600fd8d4a68ffab31d9e37ed66a0d4c4017a4755c19fc9b1f5a2ccac"
 }
