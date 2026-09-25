@@ -177,6 +177,6 @@
   },
   "label": "长方体",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:63118f22239e39c8fc7f943d9972ed0e3745cb9cdbaf58aedc7fb50c100d9422"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:a91b051d37d3d0a5eead1a960c7a09f3a38f3d7466f6e8918b55f79d179cbf4d"
 }

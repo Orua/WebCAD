@@ -5,12 +5,23 @@ import { contractError, contractHash } from './contracts/operation-schema.js';
 import { EDITOR_ACTIONS, FINISH_KEYS } from './editor-actions.js';
 import { UI_API_ROUTES } from './ui-api-coverage.js';
 import { TOOL_LABELS } from './tool-labels.js';
+import { QUICK_MODELS } from './quick-models.js';
 import { SEARCH_VERSION, createToolIndex } from './tool-discovery.js';
-import { CONNECTION_POLICY, CONNECTION_GUIDE } from './automation-guidance.js';
-const PAGE_DOC_VERSION = '1.3.1';
+import { CONNECTION_POLICY, CONNECTION_GUIDE, MODELING_WORKFLOW } from './automation-guidance.js';
+import {PLACEMENT_POLICIES} from './placement-policy.js';
+const PAGE_DOC_VERSION = '1.7.0';
 const commandSpecs={...EDITOR_ACTIONS,
-  'feature.add':{title:'新增几何',description:'args:{op,opVersion,schemaHash,params,refs,name?}；先 getTool 读取操作卡。'},
-  'feature.edit':{title:'修改参数',description:'args:{featureId,opVersion,schemaHash,params,name?}；params 为补丁。'},
+  'reference.setWorkFrame':{title:'设置工作基准',description:'args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；单位四元数，锁定时拒绝。'},
+  'reference.resetWorkFrame':{title:'重置工作基准',description:'args:{scope:"position"|"orientation"|"all"}；只重置指定部分。'},
+  'reference.setLocked':{title:'锁定工作基准',description:'args:{locked:boolean}；可撤销的元数据操作。'},
+  'reference.saveFrame':{title:'保存具名基准',description:'args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。'},
+  'reference.activateFrame':{title:'激活具名基准',description:'args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。'},
+  'reference.renameFrame':{title:'重命名具名基准',description:'args:{frameId,expectedFrameVersion,name}。'},
+  'reference.deleteFrame':{title:'删除具名基准',description:'args:{frameId,expectedFrameVersion}；已冻结特征不受影响。'},
+  'reference.setBodyAnchor':{title:'对象锚点',description:'当前阶段尚未开放；需要精确几何指纹证明。',status:'unavailable'},
+  'reference.deleteBodyAnchor':{title:'删除对象锚点',description:'当前阶段尚未开放；需要精确几何指纹证明。',status:'unavailable'},
+  'feature.add':{title:'新增几何',description:'args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡。当前 box/hole 支持 placement。'},
+  'feature.edit':{title:'修改参数',description:'args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。'},
   'feature.remove':{title:'删除实体',description:'args:{bodyIds}，不可使用历史已替换 ID。'},
   'history.undo':{title:'撤销',description:'args:{}；撤销一个已提交步骤。'},
   'history.redo':{title:'重做',description:'args:{}；重做一个步骤。'},
@@ -19,13 +30,18 @@ const commandSpecs={...EDITOR_ACTIONS,
   'preview.commit':{title:'应用预览',description:'args:{}；提交当前预览，一个撤销步骤。'},
   'preview.cancel':{title:'取消预览',description:'args:{}；恢复已提交模型。开始/取消不增加 revision，回执 preview.active 表示实际预览状态。'}
 };
-function commandCard(id){const s=commandSpecs[id];return {id,title:s.title,description:s.description,category:'command',version:PAGE_DOC_VERSION,implementationStatus:'implemented',contractStatus:'page-command',runtimeAvailability:'requires_ready_page',inputContract:'execute({context,idempotencyKey,action:"'+id+'",args}); '+s.description,fields:s.fields,allowedFinishes:id.includes('appearance')?FINISH_KEYS:undefined,minimalExample:s.example?{action:id,args:s.example}:undefined,outputContract:'检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。',docs:'api.editor'};}
+function commandCard(id){const s=commandSpecs[id];return {id,title:s.title,description:s.description,category:'command',version:PAGE_DOC_VERSION,implementationStatus:s.status??'implemented',contractStatus:'page-command',runtimeAvailability:s.status==='unavailable'?'unavailable':'requires_ready_page',inputContract:'execute({context,idempotencyKey,action:"'+id+'",args}); '+s.description,fields:s.fields,allowedFinishes:id.includes('appearance')?FINISH_KEYS:undefined,minimalExample:s.example?{action:id,args:s.example}:undefined,outputContract:'检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。',docs:id.startsWith('reference.')?'api.references':'api.editor'};}
 export const EXAMPLES=Object.freeze([]);
-const PAGE_METHODS = Object.freeze(['connect', 'info', 'getState', 'searchTools', 'getTools', 'getTool', 'readDocs', 'queryGeometry',
+const PAGE_METHODS = Object.freeze(['createRequestContext','getUILayout','setRenderQuality','invoke','submit','getJob','cancelJob','connect', 'info', 'getState', 'searchTools', 'getTools', 'getTool', 'readDocs', 'queryGeometry','queryReferences','resolvePlacement',
   'execute', 'measure', 'inspectPrintability', 'fitProfile', 'traceTwinWindow', 'executeText', 'setDisplayPreferences', 'getLogoConverter', 'setLogoConverter', 'convertLogoPdf', 'setView', 'redraw', 'capture', 'run']);
 const FILE_METHODS = Object.freeze(['capabilities', 'register', 'new', 'open', 'import', 'save', 'export', 'read', 'download', 'write', 'release']);
 const PAGE_DOCS = Object.freeze({
+  'api.references':'工作基准属于工程元数据；世界原点固定不动。getState().referenceSystem.workFrame 给出 origin、quaternion、locked、frameVersion。通过 execute 的 reference.setWorkFrame、resetWorkFrame、setLocked 修改，每次成功写入增加工程 revision，可撤销、不重建 BRep。feature.add/feature.edit 可显式传 placement:{version:1,frame:{kind:"world"|"snapshot"|"work"|"saved",...},sourceAnchor:{kind:"model-origin"|"bottom-center"|"bounds-center"|"point",point?}}。work 必须传 expectedFrameVersion。持久化特征保存 frameSnapshot，后续移动工作基准不会移动旧特征。独立创建 C、刀具 T、faceHole/logo、transform/copy 的新模式，以及镜像、阵列、分割、截面、referenceExtrude 支持 placement。N 类拓扑操作和旧 curvedLogo 不接受无意义定位。transform/copy 的新 mode 为 translate、toPoint、rotate、scale；align 尚未开放。box 用 bottom-center 时底面中心对准锚点；刀具局部点和轴按基准变换。保存工程使用 version:2，仍可打开旧 version:1 工程。',
+  'api.query-geometry':'queryGeometry({context,bodyId,kind:"face"|"edge",filter:{},requireUnique:false,limit:20}) 返回精确 BRep 候选、总数、分页及快照绑定令牌。face.surfaceType 筛选支持 plane/cylinder/cone/sphere/torus/bspline/bezier/revolution/extrusion/offset/other；edge.curveType 支持 line/circle/ellipse/hyperbola/parabola/bspline/bezier/offset/other，也兼容内核原始小写类型（cylindre、bspline_surface、bspline_curve 等）。返回 geomType/surfaceType/curveType 保留实际内核编码。plane 另包含已证实共面的 BSpline（planar=true）。normal 和 atExtreme 仍仅适用于可识别平面；非平面不能伪造统一法向。BSpline 返回 spline 次数、控制点数量与节点数量，尚不返回完整控制网或 G0/G1/G2 认证。圆边返回 radiusMm/center/axis；radiusRangeMm 不适用于椭圆。拓扑编号和 selectionToken 只属于返回的工程实例与 revision。改模型后重新查询。',
+  'api.reliability':'所有带 context 的页面入口接受 getState().context（revision）或 connect().requestContext（expectedRevision）。createRequestContext(context?) 可显式转换；两字段同时出现且不一致时报错，绝不自动采用新版本。大文件使用 files.register/read，禁止塞进批次或反复回传模型上下文。files.save 生成资源，files.download 只发起下载；files.write 返回 verified 才证明句柄文件写入校验。单资源仍限 20 MiB，总资源 64 MiB。统一异常入口 await api.invoke({method,args}) 支持当前页面方法及 files.*；原同步发现和 files 方法保持兼容，可抛带 code 的异常。后台计算回执：submit({jobId,method,args}) 立即返回 queued，轮询 getJob({jobId})，完全相同 jobId/参数只取原任务；不得换 key 重复提交超时任务。状态 queued/running/committed/completed/partial/failed/unknown/cancelled，result 保留原回执与 context。进度 progress:null 表示内核未提供可测百分比。cancelJob 只能取消尚未运行任务，运行中的内核不承诺中断。仅当前页面内存中保留最多100任务，刷新后先检查模型，不自动重放；无额外服务。',
+  'api.workspace':'UI 配置源 src/ui-layout.js：tabs/groups/controls/header/panels/defaultTab，修改后构建生成静态站点。getUILayout() 读取当前完整配置。文件、创建、曲面、编辑、加工、检查、视图七个选项卡与常用操作共一行，工程名称放在左侧设计树顶部。浏览器标题显示未保存标记及工程名称；URL document 参数仅区分当前工程，不是可恢复工程的分享链接。setRenderQuality({context,quality}) 提供 draft/standard/fine/ultra 四档，getState().renderQuality 提供毫米公差、角度公差（弧度）及三角面数。只重算显示网格，不改工程 revision、精确 BRep 或 STEP 导出；不是屏幕自适应网格。OpenCascade 可保留已有更细网格，降档不承诺减少三角面数。当前不提供斑马纹、曲率梳和精确 G0/G1/G2 连续性认证；导入 STEP 也不能反推原始特征历史。',
   'api.connection': CONNECTION_GUIDE,
+  'api.workflow': MODELING_WORKFLOW,
   'api.discovery': `首次通过获授权页面脚本通道调用 api.connect({queries:[简短能力关键词]})。无需先遍历源文件或下载全库。connect 同时给出精简的实时 requestContext、ready/busy/preview、最多20个当前实体引用、目录/文档哈希和搜索结果；内核未就绪仍可查契约。queries 最多4项，每项最多500字符，limit 为每项1..10，默认5。结果是相关候选，不自动解释自然语言、不生成操作计划。category 可用于单独 searchTools 过滤；query 为空时分页列出全部工具。\n接着 getTools({ids:[选中的工具ID],expectedCatalogHash:connect返回的catalogHash}) 一次读完整契约，最多20项。includeContracts:true 可在 connect 中直接取得前20个去重命中的契约，contractIdsOmitted 明示未附带的其余ID。已完整缓存的卡可传 knownHashes:{工具ID:docsHash}；匹配只返回 not_modified，新增或变化返回 read.card，未知ID逐项返回 error，不丢失其他卡。不可仅见过摘要哈希就声称持有完整卡。getTools 不省略约束、不截断 schema；getTool 保持兼容。\nconnect 可传 knownCatalogHash/knownDocsHash 检查整体漂移；changed 只表示静态说明变化，实时状态始终重新读取。manifest.json 为每张卡/每篇文档提供 docsHash，可比较增删变化；已删除ID必须从宿主缓存移除。readDocs({docId,knownHash}) 可复用完整文档缓存；knownHash 与 cursor 不可同时使用，分页文档须取完才能缓存为完整文档。缓存版本不能代替当前页面状态。\n可选离线库：一次下载同版本 automation/index.json 与 automation/tool-library.mjs；在具备持久存储能力的宿主保存。import {createToolLibrary} from './tool-library.mjs'; const lib=createToolLibrary(snapshot); lib.search(query) 返回摘要，lib.get(id) 取完整卡，lib.readDoc(id) 取一篇说明；lib.isCurrent(api.connect()) 对比 catalogHash/docsHash，漂移时刷新快照。离线库与页面使用相同搜索实现，所有运行可用性为 unknown；始终从目标页面取得新鲜 requestContext/实体/拓扑。不要把完整快照打印进模型上下文。没有磁盘能力的侧栏直接调用页面搜索即可。`,
   'recipes.pg5752-two-source-parts': `PG5752 A/B 两件源图分别试建：在 text-to-cad 目录通过 run-silent.ps1 调用 export_dxf_arc_profile.py。A 用 --outer 3D2,3D6,3D8,3D9 --hole 3DD --hole 3E1 --height 5 --join 0.01；B 用 --outer 52E,532,52F,530 --hole 579 --hole 57A --height 5 --join 0.05；均指定同一已核对 DXF 与 agent/temp 下不同 --output。A 两孔 R0.85，源标 2-M2，普通圆柱孔不表示螺纹；B 两孔 R1.15，大同心圆的沉孔深度不明。先 getTool({id:'arcProfile'}) 和 getTool({id:'transform'})，把导出 JSON 分别作为 dataA/dataB。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const r=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'a',method:'add',args:{op:'arcProfile',refs:[],params:dataA.params}},{id:'b',method:'add',args:{op:'arcProfile',refs:[],params:dataB.params}},{id:'bDisplay',method:'add',args:{op:'transform',refs:[{$ref:'b.createdBodyIds.0'}],params:{x:60}}},{id:'aSize',method:'measure',args:{bodyId:{$ref:'a.createdBodyIds.0'}}},{id:'bSize',method:'measure',args:{bodyId:{$ref:'bDisplay.createdBodyIds.0'}}}]});检查逐步回执、两个单实体的尺寸体积和渲染 revision。B 的 x=60 仅供同屏对照，不是源图装配定位，不做布尔合并。A 实测40×35.725769605×5 mm、2156.407441 mm³；B 实测33.020453×11.534217×5 mm、808.171586 mm³。装配间距、配合、螺纹和孔口层深仍需源证据。`,
   'recipes.source-arc-band-profile': `PG5752 B 件源线弧带板：先在有效工程视图选 B 件，不混 A 件。DXF 外 ARC 52E(R20)、532(R15) 与端 LINE 52F、530；两只通孔 CIRCLE 579、57A(R1.15)，板厚5。text-to-cad 下用 run-silent.ps1 调用 export_dxf_arc_profile.py，传 --dxf 源 DXF、--output agent/temp 下 JSON、--outer 52E,532,52F,530、--hole 579、--hole 57A、--height 5、--join 0.05。默认0.01会正确拒绝源内弧与端线约0.040002 mm 缝；0.05 为明确修缝容差，导出器保留原 ARC 三点并只把邻接 LINE 端点吸附到弧端，JSON 与 params.source 记录 maxJoinGapMm 和 joinStrategy。AI 先读 getTool({id:'arcProfile'})，再用 const api=window.webcad.api;const {revision,...identity}=api.getState().context;const r=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'part',method:'add',args:{op:'arcProfile',refs:[],params:data.params}},{id:'size',method:'measure',args:{bodyId:{$ref:'part.createdBodyIds.0'}}}]});检查单实体、测量和渲染 revision。另两只 R1.65 同心圆代表更大孔口轮廓，但深度未标；本配方不造沉孔、不建 A 件或装配。修缝后不称原始轮廓完全闭合或制造级复刻。`,
@@ -100,7 +116,7 @@ const fileDetails = {
   register: ['register({name,data,mime?}); data is File, Blob, ArrayBuffer or Uint8Array; name is a safe basename.', 'status=registered; resourceId, name, MIME, byte length, SHA-256 and expiry.'],
   new: ['new({context}); complete current context; dirty replacement is always rejected by page API.', 'New document identity and instance on commit.'],
   open: ['open({context,resourceId}); registered .webcad/.json resource; dirty replacement is rejected.', 'Rebuilt document with new documentInstanceId.'],
-  import: ['import({context,resourceId}); registered STEP/STP/BREP/BRP resource.', 'Imported source-backed feature in current project.'],
+  import: ['import({context,resourceId,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP resource. When placement is present, idempotencyKey is required; run batch injects its own step key.', 'Imported source-backed feature in current project; omitted placement retains legacy source coordinates.'],
   save: ['save({context,name?}); complete current context.', 'status=generated native project resource with exact source snapshot; not a disk save.'],
   export: ['export({context,format,ids?,name?}); format step/stl/brep/png.', 'status=generated output resource with exact source snapshot.'],
   read: ['read({resourceId,as?}); as is blob (default) or bytes.', 'Actual Blob or Uint8Array; host JSON boundaries may need bounded transfer.'],
@@ -160,15 +176,24 @@ function namedParameterCard() {
     docs: 'api.named-parameters' };
 }
 const METHOD_DETAILS = Object.freeze({
-  connect: ['连接 发现 工具 缓存', 'connect({queries?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries. Read-only; works while the kernel starts.', '精简的当前 context/requestContext、就绪与预览、实体引用、工具搜索结果、可选批量契约及缓存版本；详见 api.discovery。'],
-  run: ['批量 AI JSON 指令 无CLI', 'run({context,idempotencyKey,steps}); see readDocs({docId:"api.run"}).', 'completed/partial/failed/unknown、逐步回执、elapsedMs、当前 context/summary/display；atomic=false。'],
+  createRequestContext:['上下文 版本 转换','createRequestContext(context?); omit to read the current context.','sessionId/documentId/documentInstanceId/expectedRevision；不修复陈旧状态。'],
+  getUILayout:['界面 布局 配置 选项卡','getUILayout()','当前版本化 tabs/groups/controls/header/panels 配置。'],
+  setRenderQuality:['显示 精度 网格 曲面 公差','setRenderQuality({context,quality:"draft"|"standard"|"fine"|"ultra"})','status=applied、context、renderQuality、display；只重新网格化。详见 api.workspace。'],
+  invoke:['统一 错误 调用','invoke({method,args}); public method name or files.*.','返回原方法结果；抛错转换为结构化失败。详见 api.reliability。'],
+  submit:['异步 任务 超时 后台 回执','submit({jobId,method,args}); method=run/execute/queryGeometry/measure/setView/setRenderQuality/files.save/files.export/files.import.','立即返回 jobId/status；参数中保留原 context 和幂等键；详见 api.reliability。'],
+  getJob:['任务 状态 轮询 结果','getJob({jobId})','任务 status/progress/phase/elapsedMs/result；result 保留原提交回执。'],
+  cancelJob:['任务 取消','cancelJob({jobId})','cancelled 布尔；运行中拒绝取消且继续可查原回执。'],
+  connect: ['连接 发现 工具 缓存', 'connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.', '当前 context/requestContext、canExecute/blockers/nextAction、版本与迁移说明、实体引用和工具契约。ready 仅为内核状态；canExecute 才计入 busy/preview。详见 api.workflow。'],
+  run: ['批量 AI JSON 指令 无CLI', 'run({context,idempotencyKey,steps}); see readDocs({docId:"api.run"}).', 'completed/partial/failed/unknown、逐步回执、progress/recovery、elapsedMs、回执时的 context/requestContext/summary/display；atomic=false。后续操作前核对实时状态。'],
   info: ['页面信息 构建 就绪', 'info() 无参数。', '构建/API 版本、in-page transport、当前 context、URL、display、就绪状态和能力。'],
-  getState: ['工程状态 特征 实体 参数', 'getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities。', '当前 context、工程状态、parameters、parameterValues、hidden、appearance、colors、renderFinish、view 和 display；不会默认返回导入源字节。'],
+  getState: ['工程状态 特征 实体 参数 基准', 'getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities/references。', '当前 context、referenceSystem、parameters、parameterValues、view 和 display；不会默认返回导入源字节。'],
   searchTools: ['搜索 工具 中文 目录', 'searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。', '工具摘要、label/docsHash、score/matchedTerms、total、nextCursor、catalogHash；结果是候选能力，不是已验证的执行计划。'],
   getTools: ['批量 工具卡 缓存 契约', 'getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.', '逐项 read/not_modified/error；read.card 是完整契约，单个未知 ID 不丢失其他结果。目录漂移返回 CATALOG_CHANGED。'],
   getTool: ['工具卡 参数 schema 契约', 'getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。', '完整工具卡、版本和 docsHash。'],
   readDocs: ['读取 文档 配方 白名单', 'readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。', '限定长度的说明文本、版本、哈希和分页游标；匹配 knownHash 时 status=not_modified，不重复传文本。'],
   queryGeometry: ['几何查询 面 边 选择令牌', 'queryGeometry({context,bodyId,kind:"face"|"edge",filter,requireUnique?,limit?,cursor?})。', '精确 B-Rep 候选项、歧义信息、快照绑定的 selectionToken 与当前 context。'],
+  queryReferences:['参考点 工作基准 几何吸附','queryReferences({context,bodyIds:[],kind:"point",filter?:{types?:["world-origin","work-origin","endpoint","circle-center"]},limit?,requireUnique?})。','当前工程的精确坐标候选、来源、总数和截断状态；不写模型。'],
+  resolvePlacement:['定位解析 工作基准 快照','resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。','持久化 frameSnapshot、来源点、世界位置，placementValidated=true、geometryValidated=false；不写模型。'],
   execute: ['建模 编辑 撤销 参数 命令', 'execute({context,idempotencyKey,action,args}); action 来自当前命令合同。', 'CommandService 的 committed/no_change/failed/unknown、revision 和实际创建 ID。'],
   measure: ['测量 实测 体积 包围尺寸 半径', 'measure({context,bodyId,kind?:"body"|"face"|"edge",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需非负整数 topologyId。', 'status=read、source=exact-brep、单位、当前 context 和内核实测结果。'],
   inspectPrintability: ['成型检查 DfAM 悬垂方向 支撑面积', 'inspectPrintability({context,bodyId,angleLimitDeg?:45}); angleLimitDeg 在 0 与 90 度之间。', 'status=read、当前 context、精确 B-Rep 元数据及显示网格的六方向悬垂面积和支撑柱体粗估；不判定工艺合格。'],
@@ -186,6 +211,9 @@ const METHOD_DETAILS = Object.freeze({
 function methodCard(name) {
   const [synonyms, input, output] = METHOD_DETAILS[name];
   const errors = {
+    createRequestContext:['PARAM_SCHEMA_INVALID','REVISION_CONFLICT'],getUILayout:[],
+    setRenderQuality:['PARAM_SCHEMA_INVALID','REVISION_CONFLICT','INSTANCE_MISMATCH','CAPABILITY_UNAVAILABLE','DISPLAY_FAILED'],
+    invoke:['PARAM_SCHEMA_INVALID'],submit:['PARAM_SCHEMA_INVALID','RESOURCE_LIMIT','IDEMPOTENCY_KEY_REUSED'],getJob:['JOB_NOT_FOUND'],cancelJob:['JOB_NOT_FOUND'],
     connect: ['PARAM_SCHEMA_INVALID','PARAM_RANGE_INVALID'],
     getTools: ['PARAM_SCHEMA_INVALID','PARAM_RANGE_INVALID','CATALOG_CHANGED'],
     run: ['PARAM_SCHEMA_INVALID','RESOURCE_LIMIT','INSTANCE_MISMATCH','REVISION_CONFLICT','IDEMPOTENCY_KEY_REUSED','STALE_REFERENCE'],
@@ -194,6 +222,7 @@ function methodCard(name) {
     getTool: ['PARAM_SCHEMA_INVALID', 'UNKNOWN_OPERATION', 'OPERATION_VERSION_UNSUPPORTED'],
     readDocs: ['PARAM_SCHEMA_INVALID', 'PARAM_RANGE_INVALID', 'OPERATION_VERSION_UNSUPPORTED'],
     queryGeometry: ['INSTANCE_MISMATCH', 'REVISION_CONFLICT', 'STALE_REFERENCE', 'NO_MATCH', 'AMBIGUOUS_SELECTION'],
+    queryReferences:['REVISION_CONFLICT','STALE_REFERENCE','AMBIGUOUS_REFERENCE'],resolvePlacement:['REVISION_CONFLICT','FRAME_INVALID','PLACEMENT_NOT_APPLICABLE'],
     execute: ['INSTANCE_MISMATCH', 'REVISION_CONFLICT', 'PARAM_SCHEMA_INVALID', 'GEOMETRY_INVALID'],
     measure: ['PARAM_SCHEMA_INVALID', 'STALE_REFERENCE', 'REVISION_CONFLICT', 'CAPABILITY_UNAVAILABLE'],
     inspectPrintability: ['PARAM_SCHEMA_INVALID', 'PARAM_RANGE_INVALID', 'STALE_REFERENCE', 'REVISION_CONFLICT', 'CAPABILITY_UNAVAILABLE'],
@@ -208,7 +237,7 @@ function methodCard(name) {
   return { id: name, title: name, category: 'page-method', version: PAGE_DOC_VERSION,
     description: input, synonyms: [name, ...synonyms.split(' ')], inputContract: input, outputContract: output,
     implementationStatus: 'implemented', contractStatus: 'page-method', runtimeAvailability: 'requires_page',
-    errorModel: ['connect', 'info', 'getState', 'searchTools', 'getTools', 'getTool', 'readDocs'].includes(name) ? 'Read methods may return a structured state error or throw a coded contract error.'
+    errorModel: ['createRequestContext','getUILayout','submit','getJob','cancelJob','connect', 'info', 'getState', 'searchTools', 'getTools', 'getTool', 'readDocs'].includes(name) ? 'May throw a coded contract error; use api.invoke for a structured error envelope.'
       : name==='run' ? 'completed/partial/failed/unknown; atomic=false; inspect per-step results and displayMatchesContext. Earlier committed steps remain on failure.'
       : ['execute', 'queryGeometry'].includes(name) ? 'CommandService structured result; inspect status and commitState.'
         : 'Guarded page method returns {status:"failed",commitState:"not_committed",error:{code,message},context} on failure.',
@@ -219,7 +248,31 @@ function methodCard(name) {
     ...(name==='fitProfile'?{docs:'api.profile-fitting'}:{}),
     ...(name==='traceTwinWindow'?{docs:'api.dwg-spline-twin-window'}:{}),
     ...(name==='executeText'?{docs:'api.text-command'}:{}),
+    ...(['createRequestContext','invoke','submit','getJob','cancelJob'].includes(name)?{docs:'api.reliability'}:{}),
+    ...(['getUILayout','setRenderQuality'].includes(name)?{docs:'api.workspace'}:{}),
     ...(name === 'setView' || name === 'redraw' || name === 'capture' ? { docs: 'api.views' } : {}) };
+}
+// Template cards are views of the registered quickModel contract, not new kernel operations.
+// Keep every constraint for the selected variant without sending all sibling templates.
+function templateCards() {
+  const parent = mapPageText(getOperation('quickModel'));
+  return parent.templates.map(template => {
+    const kind = template.kind, model = QUICK_MODELS[kind];
+    const schema = parent.inputSchema.oneOf.find(item => item.properties.kind.const === kind);
+    if (!schema || !model) throw new Error(`Missing registered template contract: ${kind}`);
+    const { templates, defaults, inputSchema, minimalExample, normalExample, schemaHash, ...shared } = parent;
+    return { ...shared, id:`template.${kind}`, category:'template', operationId:'quickModel',
+      title:model.label, label:model.label,
+      synonyms:[kind,model.label,model.labelEn].filter(Boolean),
+      description:model.description || template.description,
+      inputSchema:schema, schemaHash:contractHash(schema), defaults:template.defaults, fields:template.fields,
+      runtimeAvailability:'requires_ready_page',
+      usage:'Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.',
+      minimalExample:{op:'quickModel',params:template.minimalExample,refs:[]},
+      normalExample:{op:'quickModel',params:template.normalExample,refs:[]},
+      knownUnsupportedCases:template.knownUnsupportedCases,
+      relatedTools:['quickModel','measure','feature.edit'], docs:'api.workflow' };
+  });
 }
 let cachedCards;
 function pageCards() {
@@ -234,7 +287,7 @@ function pageCards() {
       relatedTools: ['getState', 'getTool', 'queryGeometry', 'execute'],
       apiCompatibility: card.strictContract ? ['page-v2'] : ['page-advisory'],
       runtimeAvailability: 'requires_ready_page',
-      usage: 'Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. ' + (card.strictContract ? 'Strict v2 validation applies.' : 'Schema is advisory; kernel prerequisites and result verification still apply.'),
+      usage: 'Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. ' + (['C','T'].includes(PLACEMENT_POLICIES[card.id])||['faceHole','logo','transform','copy','mirror','linearPattern','circularPattern','split','planeSection','referenceExtrude'].includes(card.id)?'Explicit placement version 1 is enabled; read api.references. ':'Placement is not enabled for this operation. ') + (card.strictContract ? 'Strict v2 validation applies.' : 'Schema is advisory; kernel prerequisites and result verification still apply.'),
       idempotency: 'Current documentInstanceId in-memory receipts only; no cross-reload guarantee.',
       minimalExample: { ...card.minimalExample,
         referenceInstructions: 'Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().' },
@@ -242,7 +295,7 @@ function pageCards() {
         referenceInstructions: 'Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().' },
       invalidExamples: card.strictContract ? card.invalidExamples : [],
       knownUnsupportedCases: card.knownUnsupportedCases.filter(item => !/MCP|legacy entry|M2/.test(item)) }; }),
-    ...PAGE_METHODS.map(methodCard), ...Object.keys(commandSpecs).map(commandCard), namedParameterCard(), ...FILE_METHODS.map(fileCard),
+    ...templateCards(), ...PAGE_METHODS.map(methodCard), ...Object.keys(commandSpecs).map(commandCard), namedParameterCard(), ...FILE_METHODS.map(fileCard),
     ...unavailable.map(card => ({ ...card, category: 'unavailable', version: PAGE_DOC_VERSION,
       implementationStatus: 'unavailable', contractStatus: 'unavailable', runtimeAvailability: 'unavailable',
       errorCodes: ['CAPABILITY_UNAVAILABLE'] })),
@@ -259,13 +312,19 @@ export function discoveryMetadata() {
     catalogHash: pageCatalogHash, docsHash: pageDocsHash,
     quickstart: 'automation/quickstart.md', manifest: 'automation/manifest.json',
     snapshot: 'automation/index.json', offlineLibrary: 'automation/tool-library.mjs',
+    protocol: { surface:'window.webcad.api', legacySurface:false, authority:'live page contracts',
+      migration:'Old window.webcad.action/execute/ready and repository-generated manuals are not this page API. Reconnect and invalidate mismatched caches; do not guess compatibility.',
+      skill:'automation/webcad-page-api/SKILL.md' },
     guidance: 'Use an authorized background page script channel; never auto-fallback to manual JSON UI. See api.connection for host capability discovery. Connect with includeContracts:true for short capability queries; batch getTools only for missing IDs. Read linked docs only as needed. Search hits are candidates, not plans. Cache contracts by docsHash, never document state or topology IDs.',
     execution: { units: { length: 'mm', angle: 'degrees', volume: 'mm^3' },
+      maxSteps:20, atomic:false, contextField:'requestContext',
       operation: 'run({context:requestContext,idempotencyKey,steps:[{id,method:"add",args:{op,params,refs}}]})',
       command: 'run step {id,method:"execute",args:{action,args}}',
       reference: '{$ref:"previousStep.createdBodyIds.0"}; current body IDs come from this page.',
       receipt: 'Check status, per-step results and displayMatchesContext; atomic=false, stop on failure; unknown requires state inspection before replay.',
-      docs: ['api.run','api.connection','api.discovery'] } };
+      template:'template.* cards are discovery views: run add op:quickModel with params.kind. Copy minimalExample, not the discovery ID.',
+      workflow:'Read relevant cards once; compose named parts in bounded batches; measure key dimensions and setView; inspect receipts and the matching frame. Export only when requested.',
+      docs: ['api.run','api.workflow','api.connection','api.discovery'] } };
 }
 
 export function infoMetadata({ buildId = 'unreported', browserReady = false } = {}) {

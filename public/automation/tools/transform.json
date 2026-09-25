@@ -40,6 +40,65 @@
         "type": "number",
         "description": "Uniform dimensionless scale",
         "exclusiveMinimum": 0
+      },
+      "mode": {
+        "type": "string",
+        "description": "Explicit spatial mode",
+        "enum": [
+          "translate",
+          "toPoint",
+          "rotate",
+          "scale",
+          "align"
+        ]
+      },
+      "delta": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "targetPoint": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "orientation": {
+        "type": "string",
+        "description": "Preserve or align to work frame",
+        "enum": [
+          "preserve",
+          "align-frame"
+        ]
+      },
+      "pivot": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "axisVector": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "angleDeg": {
+        "type": "number",
+        "description": "Signed rotation angle (degrees)"
       }
     },
     "required": [],
@@ -77,7 +136,7 @@
     "旋转"
   ],
   "description": "Scale, rotate X/Y/Z about origin, then translate",
-  "schemaHash": "sha256:38bfd605f8b1f1d8375c8502e171eac8cde933ff2a84356e4786ee908a72fb96",
+  "schemaHash": "sha256:b7d90fc837b6054fea6dd07197e413dfb750164719d749dd007ccf9925964880",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -181,6 +240,6 @@
   },
   "label": "移动 / 旋转",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:25afabe319fa4196042278b11820f506bf2e47ab84a13be1b4cc86c6e48f5d33"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:f48edbe59ee7187f4cc6ac221a5962723aff66f09feff625a2a7d30a36bfe07c"
 }

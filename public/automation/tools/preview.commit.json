@@ -3,12 +3,12 @@
   "title": "应用预览",
   "description": "args:{}；提交当前预览，一个撤销步骤。",
   "category": "command",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"preview.commit\",args}); args:{}；提交当前预览，一个撤销步骤。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:a3d7dae7c59aef1b2308bf855ba7a4a699dfae072ace5e5bbfa5d5a11e4d5d31"
+  "docsHash": "sha256:6d5935cb1a7127b0e6e0ea455495e75f10fed8937323981fca5f18ec9268b262"
 }

@@ -2,7 +2,7 @@
   "id": "info",
   "title": "info",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "info() 无参数。",
   "synonyms": [
     "info",
@@ -15,7 +15,7 @@
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
-  "errorModel": "Read methods may return a structured state error or throw a coded contract error.",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
   "errorCodes": [],
-  "docsHash": "sha256:22efe105959348511643e34bb3adb08d82832b7c2a1b8737ebf512569ff32902"
+  "docsHash": "sha256:8dc790e848a943f35c3141ba53a8826cd7305d552cefdae5e3ce38cff6e5d929"
 }

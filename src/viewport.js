@@ -30,6 +30,13 @@ export class CADViewport {
     const fill=new THREE.DirectionalLight(0xe1edff,1.8);fill.position.set(-60,20,30);this.scene.add(fill);
     this.studioLights=[hemisphere,light,fill];
     this.modelRoot=new THREE.Group();this.scene.add(this.modelRoot);this.guideRoot=new THREE.Group();this.scene.add(this.guideRoot);
+    this.anchorProxy=new THREE.Object3D();this.scene.add(this.anchorProxy);
+    this.anchorVisual=new THREE.Group();this.anchorVisual.add(new THREE.Mesh(new THREE.SphereGeometry(1.15,12,10),new THREE.MeshBasicMaterial({color:0xe56d23,depthTest:false})));this.anchorVisual.add(new THREE.AxesHelper(12));this.anchorVisual.renderOrder=900;this.scene.add(this.anchorVisual);
+    this.anchorGizmo=new TransformControls(this.camera,this.renderer.domElement);this.anchorGizmo.setMode('translate');this.anchorGizmo.setSpace('world');this.anchorGizmo.setSize(.72);this.anchorGizmoHelper=this.anchorGizmo.getHelper();this.anchorGizmoHelper.visible=false;this.scene.add(this.anchorGizmoHelper);this.anchorDragEnabled=false;
+    this.anchorGizmo.addEventListener('dragging-changed',event=>{this.controls.enabled=!event.value;});
+    this.anchorGizmo.addEventListener('mouseDown',()=>{this.anchorStart=this.anchorProxy.position.clone();});
+    this.anchorGizmo.addEventListener('objectChange',()=>this.anchorVisual.position.copy(this.anchorProxy.position));
+    this.anchorGizmo.addEventListener('mouseUp',()=>{const origin=this.anchorProxy.position.toArray();if(this.anchorStart&&this.anchorStart.distanceTo(this.anchorProxy.position)>1e-8){Promise.resolve(this.callbacks.onWorkFrameMove?.(origin)).catch(error=>{this.anchorProxy.position.copy(this.anchorStart);this.anchorVisual.position.copy(this.anchorStart);this.callbacks.onTransformError?.(error);});}this.anchorStart=null;});
     this.grid=new THREE.GridHelper(200,40,0x99acb8,0xd5dce3);this.grid.rotation.x=Math.PI/2;this.grid.position.z=-.01;this.scene.add(this.grid);
     this.axes=new THREE.AxesHelper(20);this.scene.add(this.axes);this.raycaster=new THREE.Raycaster();this.pointer=new THREE.Vector2();this.span=50;
     this.hud=document.createElement('div');this.hud.style.cssText='position:absolute;left:18px;bottom:38px;pointer-events:none;color:#64748b;font:11px monospace;z-index:2';host.append(this.hud);
@@ -44,6 +51,9 @@ export class CADViewport {
   resize(){const {width,height}=this.host.getBoundingClientRect();if(width<1||height<1)return;this.camera.aspect=width/height;if(this.camera.isOrthographicCamera){this.camera.left=-this.camera.top*this.camera.aspect;this.camera.right=this.camera.top*this.camera.aspect;}this.camera.updateProjectionMatrix();this.renderer.setSize(width,height);}
   disposeObject(root){root.traverse(o=>{o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose();});}
   clearGuides(){for(const child of [...this.guideRoot.children]){this.disposeObject(child);this.guideRoot.remove(child);}}
+  setWorkFrame(frame){if(!frame)return;this.anchorProxy.position.fromArray(frame.origin);this.anchorProxy.quaternion.fromArray(frame.quaternion);this.anchorVisual.position.copy(this.anchorProxy.position);this.anchorVisual.quaternion.copy(this.anchorProxy.quaternion);if(frame.locked)this.setAnchorDrag(false);}
+  setAnchorDrag(enabled){this.anchorDragEnabled=!!enabled;this.anchorGizmoHelper.visible=this.anchorDragEnabled;if(this.anchorDragEnabled){this.setGizmo('off');this.anchorGizmo.attach(this.anchorProxy);}else{this.anchorGizmo.detach();this.controls.enabled=true;}}
+  cancelAnchorDrag(){if(this.anchorStart){this.anchorProxy.position.copy(this.anchorStart);this.anchorVisual.position.copy(this.anchorStart);this.anchorStart=null;}this.setAnchorDrag(false);}
   setBodies(bodies,hidden=[]){
     // Keep unchanged GPU objects alive. Kernel render versions survive a rebuild
     // only when the exact geometry was reused (including undo/preview branches).

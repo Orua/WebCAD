@@ -1,0 +1,25 @@
+{
+  "id": "getJob",
+  "title": "getJob",
+  "category": "page-method",
+  "version": "1.7.0",
+  "description": "getJob({jobId})",
+  "synonyms": [
+    "getJob",
+    "任务",
+    "状态",
+    "轮询",
+    "结果"
+  ],
+  "inputContract": "getJob({jobId})",
+  "outputContract": "任务 status/progress/phase/elapsedMs/result；result 保留原提交回执。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
+  "errorCodes": [
+    "JOB_NOT_FOUND"
+  ],
+  "docs": "api.reliability",
+  "docsHash": "sha256:6dc859f7d77c7fccddb612b3adaec40bbd388959cdc417276cfc7fc415af3899"
+}

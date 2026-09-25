@@ -154,6 +154,6 @@
   },
   "label": "提取真实截面",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:46a8fbef709d03ccaef04f09c5eae126d0c6de7feeb66d344a0dfa726ee2718e"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:446a70b59c5355f833ec5dd3641e169c3df5c8b864fbd8246450ac34c861f388"
 }

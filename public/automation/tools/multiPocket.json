@@ -289,6 +289,6 @@
   },
   "label": "批量矩形凹槽",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:a77b2f7bf196a0db54f2af3e5b96c55f0e0360aa763d89efaabe7df95382b642"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:4722cb3e9f7fb53ca7eba1d7ff74107eaf338d8a1603c5a4724bd56e73093228"
 }

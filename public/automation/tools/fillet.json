@@ -229,6 +229,6 @@
   },
   "label": "圆角",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:e77fc741a23ea1ce47df43daf5d0ad96931a0c475696501561ab5ff5c5171f88"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:584969a2c9d1d11487d2ebbad0c7b8d1ef74221316408ba3c1384e5a488422bc"
 }

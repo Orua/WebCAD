@@ -1,0 +1,23 @@
+{
+  "id": "getUILayout",
+  "title": "getUILayout",
+  "category": "page-method",
+  "version": "1.7.0",
+  "description": "getUILayout()",
+  "synonyms": [
+    "getUILayout",
+    "界面",
+    "布局",
+    "配置",
+    "选项卡"
+  ],
+  "inputContract": "getUILayout()",
+  "outputContract": "当前版本化 tabs/groups/controls/header/panels 配置。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
+  "errorCodes": [],
+  "docs": "api.workspace",
+  "docsHash": "sha256:52cc660698e752122d7ff75ab69c26dcc7fd9eea26912474688bf4941252486d"
+}

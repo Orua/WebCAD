@@ -2,7 +2,7 @@
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}).",
   "synonyms": [
     "run",
@@ -13,7 +13,7 @@
     "无CLI"
   ],
   "inputContract": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}).",
-  "outputContract": "completed/partial/failed/unknown、逐步回执、elapsedMs、当前 context/summary/display；atomic=false。",
+  "outputContract": "completed/partial/failed/unknown、逐步回执、progress/recovery、elapsedMs、回执时的 context/requestContext/summary/display；atomic=false。后续操作前核对实时状态。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -26,5 +26,5 @@
     "IDEMPOTENCY_KEY_REUSED",
     "STALE_REFERENCE"
   ],
-  "docsHash": "sha256:67ba06919718aa9fd604029da953bc48ce09f496e9c1bb5dcfba1d5e1d686baa"
+  "docsHash": "sha256:a93eb9dbdb3ed9f3791f904fd73b5f884b038a4bbfa57d0e547ee022cd082b22"
 }

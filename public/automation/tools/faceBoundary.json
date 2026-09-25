@@ -155,6 +155,6 @@
   },
   "label": "提取面边界",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:c20594e3f590189586d7586d1275e1936f7f1dca0af75cc04bdc55041cfb99c0"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:048bf1fb85d2870b3c3a95b2b84acc9b6b03e8895bd0d19da20f5f49088a2275"
 }

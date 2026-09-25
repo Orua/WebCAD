@@ -7,11 +7,15 @@ import {getLogoConverterConfig,setLogoConverterConfig} from './logo-converter-se
 import {compileTextCommands} from './text-commands.js';
 import {fitProfilePoints} from './profile-fitting.js';
 import {traceTwinWindowProfile} from './dwg-spline-twin-window.js';
+import {normalizeRequest,requestContext} from './page-context.js';
+import {createPageJobs} from './page-jobs.js';
+import {renderQuality} from './render-quality.js';
+import {UI_LAYOUT} from './ui-layout.js';
 
 // Only structured, bounded commands cross this boundary. No mutable app objects escape.
 export function createPageAPI(host){
   const current=()=>host.state();
-  const failure=e=>({status:'failed',commitState:'not_committed',error:{code:e.code||'PARAM_SCHEMA_INVALID',message:e.message},context:current().context});
+  const failure=e=>({status:'failed',commitState:'not_committed',error:{code:e.code||'PARAM_SCHEMA_INVALID',message:e.message,path:e.path??null,retryable:false,recoveryAction:e.recoveryAction||(e.code==='REVISION_CONFLICT'?'READ_STATE_AND_REPLAN':'READ_TOOL_AND_CORRECT_PARAMS')},context:current().context});
   const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
   function check(input,keys,requiredContext=true){
     if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!keys.includes(k)))fail('PARAM_SCHEMA_INVALID','Unexpected request fields');
@@ -25,32 +29,44 @@ export function createPageAPI(host){
     if(s.summary.busy||!s.summary.kernelReady||s.preview.active||s.preview.computing)fail('CAPABILITY_UNAVAILABLE','Finish computation/preview before this request');
     return s;
   }
-  const guarded=fn=>async(input={})=>{try{return await fn(input);}catch(e){return failure(e);}};
-  const files=createBrowserFiles({command:input=>host.files(input),confirmSaved:host.confirmSaved});
+  const guarded=fn=>async(input={})=>{try{return await fn(normalizeRequest(input));}catch(e){return failure(e);}};
+  const rawFiles=createBrowserFiles({command:input=>host.files(input),confirmSaved:host.confirmSaved});
+  const files=Object.fromEntries(Object.entries(rawFiles).map(([key,fn])=>[key,input=>fn(normalizeRequest(input))]));
   const viewKeys=['context','direction','projection','fit','selectedIds','section','display','grid','snap','gizmo','selectionMode','camera','language'];
   const api={
     connect:(input={})=>{
-      if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!['queries','limit','includeContracts','knownCatalogHash','knownDocsHash','knownHashes'].includes(k)))fail('PARAM_SCHEMA_INVALID','Unexpected connect fields');
+      if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!['queries','toolIds','limit','includeContracts','knownCatalogHash','knownDocsHash','knownHashes'].includes(k)))fail('PARAM_SCHEMA_INVALID','Unexpected connect fields');
       const queries=input.queries??[],limit=input.limit??5;
       if(!Array.isArray(queries)||queries.length>4||queries.some(q=>typeof q!=='string'||q.length>500)||!Number.isInteger(limit)||limit<1||limit>10)fail('PARAM_SCHEMA_INVALID','Use up to 4 queries of 500 characters and limit 1..10');
       if(input.includeContracts!==undefined&&typeof input.includeContracts!=='boolean')fail('PARAM_SCHEMA_INVALID','includeContracts must be boolean');
+      const toolIds=input.toolIds??[];
+      if(!Array.isArray(toolIds)||toolIds.length>20||new Set(toolIds).size!==toolIds.length||toolIds.some(id=>typeof id!=='string'||!id.length||id.length>150))fail('PARAM_SCHEMA_INVALID','toolIds must contain up to 20 unique tool IDs');
       for(const k of ['knownCatalogHash','knownDocsHash'])if(input[k]!==undefined&&(typeof input[k]!=='string'||!/^sha256:[a-f0-9]{64}$/.test(input[k])))fail('PARAM_SCHEMA_INVALID',`${k} must be a sha256 hash`);
       const s=current(),metadata=discoveryMetadata(),{revision,...identity}=s.context;
       const results=queries.map(query=>({query,...searchTools({query,limit},{browserReady:s.summary.kernelReady})}));
-      const ids=[...new Set(results.flatMap(result=>result.items.map(item=>item.id)))];
+      const ids=[...new Set([...toolIds,...results.flatMap(result=>result.items.map(item=>item.id))])];
+      const blockers=[...(!s.summary.kernelReady?['KERNEL_LOADING']:[]),...(s.summary.busy?['BUSY']:[]),...(s.preview?.active||s.preview?.computing?['PREVIEW_ACTIVE']:[])];
       const response={product:'WebCAD',buildId:host.buildId,transport:'in-page',...metadata,
         context:{...s.context},requestContext:{...identity,expectedRevision:revision},
+        ...(s.referenceSystem?.workFrame?{reference:{version:1,workFrame:{origin:[...s.referenceSystem.workFrame.origin],quaternion:[...s.referenceSystem.workFrame.quaternion],locked:s.referenceSystem.workFrame.locked,frameVersion:s.referenceSystem.workFrame.frameVersion},placementVersion:1}}:{}),
         ready:s.summary.kernelReady,busy:s.summary.busy,preview:{active:s.preview?.active===true,computing:s.preview?.computing===true},
+        canExecute:blockers.length===0, blockers,
+        nextAction:blockers.includes('PREVIEW_ACTIVE')?'FINISH_PREVIEW':blockers.length?'WAIT_AND_RECONNECT':ids.length?'READ_CONTRACTS_AND_PLAN':'SEARCH_CAPABILITIES',
         bodies:(s.bodies||[]).slice(0,20).map(({id,name,kind})=>({id,...(name?{name}:{}),...(kind?{kind}:{})})),
         bodyCount:(s.bodies||[]).length,bodiesTruncated:(s.bodies||[]).length>20,
         cache:{catalogChanged:input.knownCatalogHash!==metadata.catalogHash,docsChanged:input.knownDocsHash!==metadata.docsHash},results};
-      if(input.includeContracts&&ids.length){response.contracts=getTools({ids:ids.slice(0,20),knownHashes:input.knownHashes});response.contractIdsOmitted=ids.slice(20);}
+      if((input.includeContracts||toolIds.length)&&ids.length){response.contracts=getTools({ids:ids.slice(0,20),knownHashes:input.knownHashes});response.contractIdsOmitted=ids.slice(20);}
       return response;
     },
     info:()=>({...infoMetadata({buildId:host.buildId,browserReady:current().summary.kernelReady}),transport:'in-page',context:current().context,page:{url:location.href,topLevel:window===window.top},display:host.display()}),
-    getState:(input={})=>({...host.state(input),display:host.display()}),
+    getState:(input={})=>{const state=host.state(input);return {...state,requestContext:requestContext(state.context),display:host.display()};},
+    getUILayout:()=>structuredClone(UI_LAYOUT),
+    createRequestContext:(context=current().context)=>requestContext(context),
     searchTools:input=>searchTools(input,{browserReady:current().summary.kernelReady}),getTools,getTool,readDocs,
-    execute:input=>host.execute(input),queryGeometry:input=>host.query(input),
+    execute:async input=>{let request;try{request=normalizeRequest(input);}catch(e){return failure(e);}try{return await host.execute(request);}catch(e){return {...failure(e),status:'unknown',commitState:'unknown',error:{...failure(e).error,recoveryAction:'INSPECT_STATE_BEFORE_RETRY'}};}},queryGeometry:guarded(input=>host.query(input)),
+    queryReferences:guarded(async input=>{check(input,['context','bodyIds','kind','filter','limit','requireUnique']);if(input.kind!=='point')fail('PARAM_SCHEMA_INVALID','Current reference query supports kind=point');if(!Array.isArray(input.bodyIds)||input.bodyIds.length>200||input.bodyIds.some(id=>typeof id!=='string'))fail('PARAM_SCHEMA_INVALID','bodyIds must be an explicit bounded list');const filter=input.filter??{};if(!filter||typeof filter!=='object'||Array.isArray(filter)||Object.keys(filter).some(k=>k!=='types'))fail('PARAM_SCHEMA_INVALID','Unknown reference filter');if(filter.types!==undefined&&(!Array.isArray(filter.types)||filter.types.some(t=>!['world-origin','work-origin','endpoint','circle-center'].includes(t))))fail('PARAM_SCHEMA_INVALID','Unsupported point type');const limit=input.limit??20;if(!Number.isInteger(limit)||limit<1||limit>100)fail('PARAM_RANGE_INVALID','limit must be 1..100');const result=await host.references({...input,limit});check(input,['context','bodyIds','kind','filter','limit','requireUnique']);return result;}),
+    resolvePlacement:guarded(async input=>{check(input,['context','op','params','refs','placement']);if(typeof input.op!=='string'||!Array.isArray(input.refs)||input.refs.some(id=>typeof id!=='string')||!input.params||typeof input.params!=='object')fail('PARAM_SCHEMA_INVALID','op, params and refs required');const result=await host.resolvePlacement(input);check(input,['context','op','params','refs','placement']);return result;}),
+    setRenderQuality:guarded(async input=>{check(input,['context','quality']);renderQuality(input.quality);await host.quality(input.quality);check(input,['context','quality']);return {status:'applied',context:current().context,renderQuality:current().renderQuality,display:host.display()};}),
     measure:guarded(async input=>{
       check(input,['context','bodyId','kind','topologyId','points']);
       if(input.points!==undefined){
@@ -119,6 +135,17 @@ export function createPageAPI(host){
       return {status:'read',mime:'image/png',dataUrl,context:current().context,display};
     }),files:Object.freeze(files),
   };
-  api.run=createPageBatch(api);
+  const run=createPageBatch(api);
+  api.run=guarded(input=>run(input));
+  const callable=new Set([...Object.keys(api),...Object.keys(files).map(k=>`files.${k}`)]);
+  api.invoke=async(input={})=>{
+    try{
+      if(!input||Object.keys(input).some(k=>!['method','args'].includes(k))||!callable.has(input.method))fail('PARAM_SCHEMA_INVALID','Unknown method; read info().methods');
+      const [name,member]=input.method.split('.');
+      return await (member?api[name][member](input.args):api[name](input.args));
+    }catch(e){return e.result||failure(e);}
+  };
+  Object.assign(api,createPageJobs(api));
+  for(const name of ['submit','getJob','cancelJob'])callable.add(name);
   return Object.freeze(api);
 }

@@ -159,6 +159,6 @@
   },
   "label": "提取壳",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:7b51fe4f20dc8fe504918ba1df2ba022b8946c2e6ab93d12c0a19ab302f58ad3"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:bf485ae315be83f0f17df1301b482787173b1a554e262d47701404045fba3175"
 }

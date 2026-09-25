@@ -4968,6 +4968,6 @@
   },
   "label": "快捷模型",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:0a4506e778dc43025c3d24f01266fbe04257751e6cfb93ffd287cdf58ee89ddd"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:7cfe93edf2160c0417c7a06577440112bf2f8f4420c48a4c1fb1848268b9bb38"
 }

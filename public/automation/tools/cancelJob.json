@@ -1,0 +1,23 @@
+{
+  "id": "cancelJob",
+  "title": "cancelJob",
+  "category": "page-method",
+  "version": "1.7.0",
+  "description": "cancelJob({jobId})",
+  "synonyms": [
+    "cancelJob",
+    "任务",
+    "取消"
+  ],
+  "inputContract": "cancelJob({jobId})",
+  "outputContract": "cancelled 布尔；运行中拒绝取消且继续可查原回执。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
+  "errorCodes": [
+    "JOB_NOT_FOUND"
+  ],
+  "docs": "api.reliability",
+  "docsHash": "sha256:0b19ca0355c9b5907d3f1e9dcdd950cfa4391408c0cba30ee373116bc87d6130"
+}

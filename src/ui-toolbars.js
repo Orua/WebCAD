@@ -1,5 +1,2 @@
-// Shared toolbar inventory: the build verifies every action has an AI route.
-export const TOOL_CATEGORIES={编辑:[['选择',['selectTool']],['变换与复制',['transform','copy','mirror']],['组合与拆散',['group','explode']],['交互手柄',['gizmoTranslate','gizmoRotate','gizmoOff']],['阵列',['linearPattern','circularPattern']],['管理',['remove']]],创建:[['基本实体',['box','cylinder','sphere','cone','torus']],['轮廓成型',['sketch','vectorProfile','arcProfile','extrude','revolve','sweep','loft','curveSweep','advancedLoft','fittedSurface']],['快捷模型',['quickModel']]],加工:[['布尔运算',['union','cut','intersect']],['孔与槽',['hole','multiHole','slot','multiPocket','multiBoss']],['面与边',['faceHole','faceExtrude','logo','thickenFace','fillet','chamfer','shell']],['拆分',['split','extractSolid']]],视图:[]};
- TOOL_CATEGORIES.创建.push(['参考曲线',['planeSection','faceBoundary','extractFaces','extractShell']]);
- TOOL_CATEGORIES.加工.push(['曲面处理',['autoRound','smoothTransition','sewFaces','surfaceTrim']]);
- TOOL_CATEGORIES.创建.push(['参考轮廓成体',['referenceExtrude','referenceLoft']]);
+// Shared inventory is generated from the declarative workspace layout.
+export {TOOL_CATEGORIES} from './ui-layout.js';

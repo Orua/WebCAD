@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.3.1 · sha256:85e1d03e3fda76a41901ccabf0f9c05a250d5aa326cc6243449e4a91b82aecce
+API 1.7.0 · sha256:a1db56c16edf3782b06dccf675d5fdb156a1b46ebf21c1035e3182e6a4421ebd
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -17,6 +17,8 @@ JSON.stringify((()=>{const api=window.webcad.api;return {connection:api.connect(
 connect 的 queries 是最多4个短字符串；searchTools 使用单个 query 字符串，两者不能混用。includeContracts=true 时完整卡已在 connection.contracts.items[].card，不要重复 getTool。需要补卡时用 getTools({ids:[实际ID]}) 一次取回；已知 ID 不必搜索。查询拓扑等补充说明可在同次表达式中按 docId 读取。不要为了发现工具构造 api.run 请求：这些只读方法直接调用，无需上下文或幂等键。
 
 拿到契约后使用 api.run({context:connection.requestContext,idempotencyKey:唯一键,steps})。CDP expression 中异步调用应包成 (async()=>JSON.stringify(await window.webcad.api.run(请求对象)))()，配合 awaitPromise:true；不要直接使用顶层 await。修改前确认状态仍新鲜，依赖前步结果用 $ref；按需读取回执，不裁掉错误或必要约束。核对 committed 与当前渲染 revision。只执行用户要求的工作；保存/导出并非普通建模的自动收尾步骤。
+
+先核对页面是否有 api.connect；不存在说明打开的是旧版，不能套用新版文档或偷偷刷新未保存工程。新版公开面只有 window.webcad.api，不沿用旧 action/execute/ready/viewport。握手返回 canExecute/blockers；ready 仅指内核初始化完成，忙碌或预览中仍不能执行。已知能力 ID 可用 connect({toolIds:['advancedLoft','transform'],includeContracts:true})，一次拿到实时上下文和完整卡。模板按名称检索，读 template.* 的单模板卡；按卡里的 minimalExample 用 op:quickModel 执行，不把 template.* 当几何操作 ID。
 
 静态文档可直接按页面 base URL 读取 automation/quickstart.md、automation/tools/<id>.json、automation/docs/<docId>.md。HTTP 读取 JSON 必须按 UTF-8 解码，避免中文乱码。manifest/index 为程序索引输入，不要将全目录或全库打印进模型上下文。缓存只包含静态契约，不能代替实时工程状态。
 
@@ -67,12 +69,15 @@ fitProfile({context,kind:"circle"|"line",plane?:"XY"|"XZ"|"YZ",points:[[u,v],...
 
 ## api.query-geometry
 
-Read current state first. Input is {context:{sessionId,documentId,documentInstanceId,expectedRevision},bodyId,kind,filter,requireUnique?,limit?,cursor?}.
-kind=face accepts surfaceType:"plane", normal:{direction:[x,y,z],sameDirection?:true,angleToleranceDeg?:0.1}, atExtreme:{axis:"X"|"Y"|"Z",side:"min"|"max",toleranceMm?:0.01}. Normals use world coordinates and topological orientation; open-shell outward direction is not guaranteed. atExtreme compares a principal-axis supporting plane to the body's exact bounds.
-kind=edge accepts curveType:"line"|"circle", lengthRangeMm:{min?,max?}, radiusRangeMm:{min?,max?}, onFaceToken. Ranges need at least one bound and min<=max. onFaceToken must identify one current face; its boundaries include both outer and hole loops. loopRole is not implemented. Circle results include exact radiusMm and center. Cylindrical face filtering is not implemented; use circular edges to inspect hole radii/positions.
-requireUnique defaults true; zero matches returns NO_MATCH, multiple matches returns AMBIGUOUS_SELECTION with candidates. No automatic first-match choice. requireUnique=false returns all-match count and paged items; limit defaults20/max100. selectionToken represents the entire matching index set, not just the visible page. Cursor binds the same snapshot, filter, uniqueness mode and limit; repeat these values when paging.
-Tokens bind documentInstanceId, revision, bodyId, kind, exact BRep fingerprint and indices. Tokens are invalid after any revision change or document reload. At execution refs must match the selected body. Supported token operations: fillet/chamfer/shell/faceHole, feature.add only. Token plus explicit faceId/faceIds/edgeIds/allEdges conflicts. A current final-model token is not a stable historical reference.
-While the Worker is busy or preview is active the query is rejected, never silently run against preview geometry. Limit 1000 tokens and 1000 pagination cursors per instance. Exhaustion rejects new queries, without silently reusing expired IDs; start a new document instance when appropriate.
+queryGeometry({context,bodyId,kind:"face"|"edge",filter:{},requireUnique:false,limit:20}) 返回精确 BRep 候选、总数、分页及快照绑定令牌。face.surfaceType 筛选支持 plane/cylinder/cone/sphere/torus/bspline/bezier/revolution/extrusion/offset/other；edge.curveType 支持 line/circle/ellipse/hyperbola/parabola/bspline/bezier/offset/other，也兼容内核原始小写类型（cylindre、bspline_surface、bspline_curve 等）。返回 geomType/surfaceType/curveType 保留实际内核编码。plane 另包含已证实共面的 BSpline（planar=true）。normal 和 atExtreme 仍仅适用于可识别平面；非平面不能伪造统一法向。BSpline 返回 spline 次数、控制点数量与节点数量，尚不返回完整控制网或 G0/G1/G2 认证。圆边返回 radiusMm/center/axis；radiusRangeMm 不适用于椭圆。拓扑编号和 selectionToken 只属于返回的工程实例与 revision。改模型后重新查询。
+
+## api.references
+
+工作基准属于工程元数据；世界原点固定不动。getState().referenceSystem.workFrame 给出 origin、quaternion、locked、frameVersion。通过 execute 的 reference.setWorkFrame、resetWorkFrame、setLocked 修改，每次成功写入增加工程 revision，可撤销、不重建 BRep。feature.add/feature.edit 可显式传 placement:{version:1,frame:{kind:"world"|"snapshot"|"work"|"saved",...},sourceAnchor:{kind:"model-origin"|"bottom-center"|"bounds-center"|"point",point?}}。work 必须传 expectedFrameVersion。持久化特征保存 frameSnapshot，后续移动工作基准不会移动旧特征。独立创建 C、刀具 T、faceHole/logo、transform/copy 的新模式，以及镜像、阵列、分割、截面、referenceExtrude 支持 placement。N 类拓扑操作和旧 curvedLogo 不接受无意义定位。transform/copy 的新 mode 为 translate、toPoint、rotate、scale；align 尚未开放。box 用 bottom-center 时底面中心对准锚点；刀具局部点和轴按基准变换。保存工程使用 version:2，仍可打开旧 version:1 工程。
+
+## api.reliability
+
+所有带 context 的页面入口接受 getState().context（revision）或 connect().requestContext（expectedRevision）。createRequestContext(context?) 可显式转换；两字段同时出现且不一致时报错，绝不自动采用新版本。大文件使用 files.register/read，禁止塞进批次或反复回传模型上下文。files.save 生成资源，files.download 只发起下载；files.write 返回 verified 才证明句柄文件写入校验。单资源仍限 20 MiB，总资源 64 MiB。统一异常入口 await api.invoke({method,args}) 支持当前页面方法及 files.*；原同步发现和 files 方法保持兼容，可抛带 code 的异常。后台计算回执：submit({jobId,method,args}) 立即返回 queued，轮询 getJob({jobId})，完全相同 jobId/参数只取原任务；不得换 key 重复提交超时任务。状态 queued/running/committed/completed/partial/failed/unknown/cancelled，result 保留原回执与 context。进度 progress:null 表示内核未提供可测百分比。cancelJob 只能取消尚未运行任务，运行中的内核不承诺中断。仅当前页面内存中保留最多100任务，刷新后先检查模型，不自动重放；无额外服务。
 
 ## api.run
 
@@ -95,6 +100,56 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
 
 界面动作与 AI 等价接口（手势以坐标和显式参数代替）：
 {
+  "reference.setWorkFrame": {
+    "tools": [
+      "reference.setWorkFrame"
+    ],
+    "method": "execute",
+    "usage": "完整 context、idempotencyKey；args 指定 origin 和单位 quaternion。"
+  },
+  "reference.resetWorkFrame": {
+    "tools": [
+      "reference.resetWorkFrame"
+    ],
+    "method": "execute",
+    "usage": "args.scope 为 position、orientation 或 all。"
+  },
+  "reference.setLocked": {
+    "tools": [
+      "reference.setLocked"
+    ],
+    "method": "execute",
+    "usage": "args.locked 为布尔值。"
+  },
+  "anchorDrag": {
+    "tools": [
+      "reference.setWorkFrame"
+    ],
+    "method": "execute",
+    "usage": "UI 中约束拖动锚点，松手时只提交一次 reference.setWorkFrame。"
+  },
+  "reference.snapNearest": {
+    "tools": [
+      "queryReferences",
+      "reference.setWorkFrame"
+    ],
+    "method": "execute",
+    "usage": "从选定边的当前精确端点或圆心候选中选最近点，再提交 reference.setWorkFrame。"
+  },
+  "renderQuality": {
+    "tools": [
+      "setRenderQuality"
+    ],
+    "method": "setRenderQuality",
+    "usage": "显式 quality=draft/standard/fine/ultra；getState().renderQuality 读公差、三角面数，不修改 BRep。"
+  },
+  "downloadResource": {
+    "tools": [
+      "files.download"
+    ],
+    "method": "files.download",
+    "usage": "使用生成回执的 resourceId 重试下载；不重新生成或清除 dirty。"
+  },
   "advancedLoft": {
     "tools": [
       "advancedLoft"
@@ -461,6 +516,14 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
     "method": "setDisplayPreferences",
     "usage": "显示设置用 setDisplayPreferences；LOGO 转换配置用 getLogoConverter/setLogoConverter，URL/Key 保存在当前浏览器。"
   },
+  "importAtFrame": {
+    "tools": [
+      "files.register",
+      "files.import"
+    ],
+    "method": "files.import",
+    "usage": "用户选定真实 STEP/BREP 文件后登记字节；显式提交当前工作基准版本、来源包围盒中心和幂等键。"
+  },
   "new": {
     "tools": [
       "files.new"
@@ -742,6 +805,33 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
 ## api.views
 
 setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?}) 控制当前视口。display 为 solid/edges/wire；grid/snap 为布尔值；gizmo 为 off/translate/rotate；selectionMode 为 body/face/edge；language 为 zh/en；camera 为 {position:[x,y,z],target:[x,y,z]}，可替代旋转、平移、缩放手势。getState().view 读回设置。direction 可为 top/bottom/front/back/left/right/side/iso；projection 可为 orthographic/perspective；fit 是布尔值；selectedIds 是当前实体 ID 数组，最多 200 个且不得重复。section 为 {axis:"X"|"Y"|"Z",position:有限数字,enabled:布尔值}，仅做显示裁剪，不切割精确 B-Rep。相机与裁剪变化不增加建模 revision。redraw({context}) 重绘当前提交版本；capture({context}) 等待匹配当前模型的渲染帧，返回 image/png dataUrl、context 和 display，失败时可能为 DISPLAY_FAILED。调用前从 getState().context 取完整当前身份与 expectedRevision。
+
+## api.workflow
+
+先连接当前页面，而不是读取另一个工作目录的源码或旧手册。页面 buildId/pageApiVersion/catalogHash/docsHash 决定当前契约；本地知识包只作匹配哈希的缓存。只有诊断真实实现缺陷时才查源码。
+
+1. 通过宿主实际允许的脚本通道调用 api.connect({queries:['任务中的具体能力'],limit:2,includeContracts:true})；已知工具改用 toolIds（最多20个）。canExecute=false 时按 blockers 等待计算或处理预览，不自动提交/取消用户预览。契约已有则不重复读；缓存失配就更新。
+2. 先判断目标几何。圆圈可能指二维圆线或有线径的实体圆环；圆形拉伸是实体，不能冒充二维曲线。模板名命中 template.* 时读取该模板卡；若上下文无法区分影响几何的含义，简短澄清。不支持的目标应说明，不能用相近工具冒充。
+3. 复杂模型按部件和依赖规划：外形/主体、附属件、细节。模型名称（如飞机）不是工具 ID；按放样、曲线扫掠、多边形拉伸、变换等能力检索。先确定尺寸/坐标和关键截面，读这些完整契约，再分阶段执行。模板只在形状确实匹配时使用。概念模型可说明合理尺寸假设；复刻源图时不猜尺寸。
+4. 用 api.run 执行1–20步的有界批次；每步有明确 name/params/refs。创建用 method:add；修改/删除/撤销用 method:execute。后续步骤用 {$ref:'part.createdBodyIds.0'} 读取真实结果，变换后使用变换回执的新 ID，不沿用被替换的旧实体。跨批次重新读状态。所有修改共用页面 Worker/历史；不是修改产品源码或注入任意内核代码。
+5. 在批次中测量关键部件，必要时设轴测/适配视图；最后核对每步 status、实际实体、尺寸/体积、displayMatchesContext，并检查画面。有形状或尺寸要求时，实体数量增加不能单独证明完成。不要对每个参数往返一次，也不要默认导出保存。
+6. partial/failed：查看 progress.failedStepId、completedStepIds、unattemptedStepIds 和原始 error。前面已提交步骤保留；读当前状态后只规划剩余步骤，并给修改后的请求新 key。unknown/宿主超时：先查状态，不能盲目再次创建。相同请求/key只返回原回执，不会继续未完成步骤；回执 context 是当时快照，重连后核对。
+
+示例（通过授权脚本通道；已阅读 template.ring/measure/setView 卡并确认要实体圆环）：
+const api=window.webcad.api;
+const c=api.connect();
+// c.canExecute 必须为 true；尺寸为演示值，不替代用户尺寸。
+await api.run({context:c.requestContext,idempotencyKey:crypto.randomUUID(),steps:[
+ {id:'ring',method:'add',args:{op:'quickModel',name:'圆环',refs:[],params:{kind:'ring',innerDiameter:24,section:'round',sectionSize:3,gapWidth:0}}},
+ {id:'size',method:'measure',args:{bodyId:{$ref:'ring.createdBodyIds.0'}}},
+ {id:'view',method:'setView',args:{direction:'iso',fit:true}}
+]});
+
+删除只针对用户指定范围。用 getState 的当前 body IDs，execute action:feature.remove args:{bodyIds:[...]}；不能把“删除这个模型”无条件解释成清空所有项目。
+
+## api.workspace
+
+UI 配置源 src/ui-layout.js：tabs/groups/controls/header/panels/defaultTab，修改后构建生成静态站点。getUILayout() 读取当前完整配置。文件、创建、曲面、编辑、加工、检查、视图七个选项卡与常用操作共一行，工程名称放在左侧设计树顶部。浏览器标题显示未保存标记及工程名称；URL document 参数仅区分当前工程，不是可恢复工程的分享链接。setRenderQuality({context,quality}) 提供 draft/standard/fine/ultra 四档，getState().renderQuality 提供毫米公差、角度公差（弧度）及三角面数。只重算显示网格，不改工程 revision、精确 BRep 或 STEP 导出；不是屏幕自适应网格。OpenCascade 可保留已有更细网格，降档不承诺减少三角面数。当前不提供斑马纹、曲率梳和精确 G0/G1/G2 连续性认证；导入 STEP 也不能反推原始特征历史。
 
 ## coordinates
 
@@ -1205,8 +1295,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "高级放样",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:b5cc0d98ef86f3c400d8072d74b3600fb5c3ecf64220fcf69606250c34fcefd1"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:2de4bf31837ed2426bf3cfbaac6f5e8ea39171c8fc94df76067e5efe68cbf0dd"
 }
 ```
 
@@ -1550,8 +1640,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "解析线弧轮廓",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:52d507d2f605f7f0e07b475b36e72580e938e759569f2633ee6760b57f7c2251"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:1bfe28e9b221d67dc753b1d91234001a0719c09e3238e34f677cef9a31f58abd"
 }
 ```
 
@@ -1721,8 +1811,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "整件圆边",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:233bf0d94d33c0d964fd0db7af1453636d6392195eef08850981347131d1e1c3"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:15ec33fd39990dd5cee5ec1e52a0b73f8dd43986de2399e25b92da83eb17c2ae"
 }
 ```
 
@@ -1908,8 +1998,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "长方体",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:63118f22239e39c8fc7f943d9972ed0e3745cb9cdbaf58aedc7fb50c100d9422"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:a91b051d37d3d0a5eead1a960c7a09f3a38f3d7466f6e8918b55f79d179cbf4d"
 }
 ```
 
@@ -2147,8 +2237,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "倒角",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:c70b06316252137a1d1328fcfc2a851a64e4f4ff474cecb065d7f00b986ec4f4"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:38c18c05d33103fd9c56a6272066abb1a4cffd2188fe1eac3e83610de1fc3bed"
 }
 ```
 
@@ -2337,8 +2427,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "环形阵列",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:1176df61bc33a58415da0c874cbed82b41f3b24af0dd95f4d6a2d4c9b9206b51"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:ca4fe54786b255018f46fc75ed7b241dc24e469147b16ecbcb424a33e21ab87a"
 }
 ```
 
@@ -2507,8 +2597,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "圆锥",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:a7df686e0c5898727cf34ec0c5a1b71051c31b89df65d00cc597a53d89edba09"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:4da414de9b462edfd38990c404564e9ce6ae07438ca981131ce157f1b29f6b1b"
 }
 ```
 
@@ -2557,6 +2647,65 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "type": "number",
         "description": "Uniform dimensionless scale",
         "exclusiveMinimum": 0
+      },
+      "mode": {
+        "type": "string",
+        "description": "Explicit spatial mode",
+        "enum": [
+          "translate",
+          "toPoint",
+          "rotate",
+          "scale",
+          "align"
+        ]
+      },
+      "delta": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "targetPoint": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "orientation": {
+        "type": "string",
+        "description": "Preserve or align to work frame",
+        "enum": [
+          "preserve",
+          "align-frame"
+        ]
+      },
+      "pivot": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "axisVector": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "angleDeg": {
+        "type": "number",
+        "description": "Signed rotation angle (degrees)"
       }
     },
     "required": [],
@@ -2593,7 +2742,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "复制"
   ],
   "description": "Copy with scale, rotation and translation",
-  "schemaHash": "sha256:ba17eb791abd021a50253de19f3c39df0fe9e45dba31864eca03ab28b6157661",
+  "schemaHash": "sha256:1a4fc4e740f33b8081d47d3b37800b637a305d67f3ad452747920c8c9affdb26",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -2697,8 +2846,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "复制",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:e57ce1925fc5bf04df71095e3967eec728acd952f04a8f4bca16ff80696d765c"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:7efb33f22f04b6b0f98ebb088fddd34f6a65537fd16fc56bfd63e05072d64e2a"
 }
 ```
 
@@ -2977,8 +3126,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "曲线扫掠",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:ea3a49a52445006ff057ef3902ab9ca328498a324f5201c4b6dfa9f950b4babe"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:b7ac6055168a56903faa431050f8311af31944625f42f6df36810e611d3aba4a"
 }
 ```
 
@@ -3282,8 +3431,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "曲面 LOGO",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:b36f57806dd4c1fd4d920fbe436af30b9348ca294e1e7406ea129752b56994cd"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:cfbdd897bb51780352fd380fdce5607f4d5e98ec31cb4b67578a450a43096835"
 }
 ```
 
@@ -3431,8 +3580,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "相减",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:5b073e226df6aa763855de80d9a5507a780599ae91599d542ddd052196a3e9c7"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:f9ad1deda480819ad4b019f6202f7dd0343892dd0890e25a23f582f09550c24b"
 }
 ```
 
@@ -3595,8 +3744,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "圆柱",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:b9020a89d61279a1cf10f36415fd950a55e95e832c1d5a7df6b91eefa1f6ecca"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:78f1a08e36f9a3e274cbcaa93a1bc401b7e246a0d577d6033fcd8e74b47687d1"
 }
 ```
 
@@ -3776,8 +3925,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "提取指定面",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:502aaa6414b27067751e421980dd43797b27d74c5e1646b41e5d219c4ea3ac3d"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:7a50bd8e600fd8d4a68ffab31d9e37ed66a0d4c4017a4755c19fc9b1f5a2ccac"
 }
 ```
 
@@ -3945,8 +4094,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "提取壳",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:7b51fe4f20dc8fe504918ba1df2ba022b8946c2e6ab93d12c0a19ab302f58ad3"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:bf485ae315be83f0f17df1301b482787173b1a554e262d47701404045fba3175"
 }
 ```
 
@@ -4107,8 +4256,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "提取实体",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:b61ef928f0d4c3c78fb221d911e52b8197be5afeaece6b866093837e83ed0c36"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:63c6740d2ceef10539d4fb7f4573ce1b7a2fcaafa7fdd84415be053ed4d34a02"
 }
 ```
 
@@ -4337,8 +4486,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "拉伸",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:ee3fbfd641e8f98f44dee5fe918cf18b8eafdf5f971424e76e6a1daf016eb446"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:71fda17133160ee5f8af35162830d676250c97c9674a05babc9190b078666be1"
 }
 ```
 
@@ -4502,8 +4651,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "提取面边界",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:c20594e3f590189586d7586d1275e1936f7f1dca0af75cc04bdc55041cfb99c0"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:048bf1fb85d2870b3c3a95b2b84acc9b6b03e8895bd0d19da20f5f49088a2275"
 }
 ```
 
@@ -4669,8 +4818,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "面上拉伸",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:fe00beda0045942e63caccf45d9038bcb90ec22b3cd21d3a4ff8ec9fe39a925b"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:6ba5ebc1b6fbbb5453e81c95563ae1604d08b384cf9748c1b95ef470fec0f1f1"
 }
 ```
 
@@ -4922,8 +5071,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "面上打孔",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:d761bbbdf9d8441dd1f2672466c4525daf5302db9fe9ec92b8765bda8aaee23e"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:b8ce48f6be600e0c567249d202fc644d5ff61e6d2ebf1f330a86d6d709334f6f"
 }
 ```
 
@@ -5161,8 +5310,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "圆角",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:e77fc741a23ea1ce47df43daf5d0ad96931a0c475696501561ab5ff5c5171f88"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:584969a2c9d1d11487d2ebbad0c7b8d1ef74221316408ba3c1384e5a488422bc"
 }
 ```
 
@@ -5439,8 +5588,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "拟合曲面",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:443c07f2c8d5132e5c93cbc2b9581290983e62f26d165cde06e5729f5d08e941"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:036cc9ea0e9dbd279aa7aaff55d2b0ac72e210dd2829bb31782017fd75e47fe5"
 }
 ```
 
@@ -5588,8 +5737,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "组合",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:056f3d26e79e2e9d655b60a5753b2ecbe09c92dfc16c723d2f303c2e6d41737e"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:a541fe7299c85845e2ccba5c8a3a153b3739d1240129b07213d351f3e2d51f72"
 }
 ```
 
@@ -5827,8 +5976,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "打孔",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:06d6da10a76e82a54dbf8a52c74ca6eec7ffbb909b4a5a99cb78d54d0757a871"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:aeb2fbf5fa96a349a3c543382029c345f6c03d22884bafaba7001a576569f9d9"
 }
 ```
 
@@ -5976,8 +6125,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "相交",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:756a1b8cc52417f85929a259fd5a345fee0c09d30e4e8ccdce86ebb7ef27438d"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:551201e4331aa89e7f31d3d8e428c5d5e63149f54259a43c1959bd832cc2551e"
 }
 ```
 
@@ -6149,8 +6298,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "直线阵列",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:a2e99a489fdc57aba5d1fae8c173897cc058d2478a5fb4839e711e1d17cc3bc1"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:6822e042c0783408b84ee2e21e36cfab01830080b2c61790cbc249975a9494f5"
 }
 ```
 
@@ -6357,8 +6506,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "放样",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:d0a44615d116ef381004aed73735a030662f6c03dea43a16750f0f89d762e271"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:9b71214aa12832780ba12f0201898ba36c6d0785d86551888fff3f9ea67ca65c"
 }
 ```
 
@@ -6719,8 +6868,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "LOGO",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:49b71aa0e5858f87c4b79f910ed7a196cb69d9219cbcf5673ac6b589d3ea3199"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:4042a2a4672f69a65111f2016b37711dff46c7723f553c66a488ab434b6e2851"
 }
 ```
 
@@ -6885,8 +7034,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "镜像",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:5b8e311f54ce83144718140249667489fd11b469976d463f1f8ec9059bda2912"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:23566d741c94c3b79ea561b0010bcb6d1363fa52874efddc75e85e47038986bf"
 }
 ```
 
@@ -7145,8 +7294,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "批量圆柱凸台",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:8b9ade33b6394504fc98c537369eb036a3376b29f46394f3c4b18745e7a0ece1"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:ddfaf3527282949c6c5d3924e01d6050b5fb544b2fc3805951c519aabe6c5a0a"
 }
 ```
 
@@ -7438,8 +7587,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "多位置打孔",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:a9f08906383a84cb29157613b73a81652bd6d6c560954853d52cbbc4ee3bd4ae"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:7975b19873e54e559127b2ae157e612389572f05048d1ace6a2ad7fb3a550fd1"
 }
 ```
 
@@ -7737,8 +7886,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "批量矩形凹槽",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:a77b2f7bf196a0db54f2af3e5b96c55f0e0360aa763d89efaabe7df95382b642"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:4722cb3e9f7fb53ca7eba1d7ff74107eaf338d8a1603c5a4724bd56e73093228"
 }
 ```
 
@@ -7901,8 +8050,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "提取真实截面",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:46a8fbef709d03ccaef04f09c5eae126d0c6de7feeb66d344a0dfa726ee2718e"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:446a70b59c5355f833ec5dd3641e169c3df5c8b864fbd8246450ac34c861f388"
 }
 ```
 
@@ -12879,8 +13028,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "快捷模型",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:0a4506e778dc43025c3d24f01266fbe04257751e6cfb93ffd287cdf58ee89ddd"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:7cfe93edf2160c0417c7a06577440112bf2f8f4420c48a4c1fb1848268b9bb38"
 }
 ```
 
@@ -13058,8 +13207,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "参考轮廓拉伸",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:25be404736c6ed9882aefc31b4d8cc9b1be35786f646461990d025e9c00afa4f"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:feb1c271f795d727ae1e1c1178226af404a2045e4fedff7510f024642e6f52dd"
 }
 ```
 
@@ -13217,8 +13366,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "参考截面放样",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:36f278c677781acf6d7964a9189d338198dda41abbaf1d3a238f4712e7bfa58f"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:0a805e080dce9a59f84c55f20a7d74395f1e7603b36ac13e73527512629bde26"
 }
 ```
 
@@ -13453,8 +13602,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "旋转成型",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:f76efc33f08799ca2acb4cf1f6b274d1d70f386091431506187b7f0928759ab6"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:9c6d30bb6f313acd44b258a50f76a9fad6bb6ff2d504a093b1c7efe225aa85cf"
 }
 ```
 
@@ -13615,8 +13764,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "曲面缝合",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:5a7fc9ed25889af7f9a9e20d3815bcf31d3375a367671185f5f01e5ba5b721ab"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:17e2af2f4fbbd9198d7d8ac793b34197f0186d8c7bea25fb1f4f261622e4c839"
 }
 ```
 
@@ -13821,8 +13970,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "抽壳",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:c06e4836e43cb11a4773b5c97893dc539117e365c700f78b48d8f9b314696e06"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:3c7fbd0cffc8e989cb69290b3a2ef7e8ea9fd4aa3178c294acf36001f05a1cab"
 }
 ```
 
@@ -14037,8 +14186,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "长圆槽",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:b41109f051173135f4b7df060f5570f72d471657353a282f0a86debc9f261f42"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:b276a538e385f660e11f536b66a9bde2a9ad7f6f9d3dcc27c62f5052578c6d9b"
 }
 ```
 
@@ -14248,8 +14397,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "平滑过渡",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:c13d8f81d5e01808255b30947945f4a1a6a02aa842a8b5e271b81ea6259b1684"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:6c8e1e8e56595d0c68618add7e10775c1f488f891f55040037c26418cb54b0d3"
 }
 ```
 
@@ -14404,8 +14553,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "球体",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:1426e4418964eda39c17f8bd3790602c7151829b23663c0b384e89f0e3f6497f"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:7b1a89e8ac0ee33cf94c2a97ddf28e79dc6051da52dfa8e5b2a7e5abb8638141"
 }
 ```
 
@@ -14572,8 +14721,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "分割",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:ee8b3902afbb4f0e8a6bf7337100aa4a8678f9876b4d3f905fdac7c0fcc45f82"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:fdd7f0858652b472fadd2981d86b3d42045e2994709c1bdc133b9fff452ab891"
 }
 ```
 
@@ -14743,8 +14892,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "实体修剪面",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:2de7bc45f84eec2fd3faa0fdd95238cf06c6932e2a8c9cd9d26bc18a8d5bcc0b"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:fd45e84009f1828e4ba08c20c406a8804dc2a9de854e0afc0a24ec7b4aebbc61"
 }
 ```
 
@@ -14980,8 +15129,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "扫掠",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:723e3e20174ed5a07f62f4662abf5829ecb28f9cdba69f5735053248d9c646ac"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:e5580c750c054b7517eaf1f932af36c7a5c0b30738fc2daa7c112b23ab91b18a"
 }
 ```
 
@@ -15145,8 +15294,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "选面增厚",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:1b369f3b6fae8d159c590fcf0d4d592275cb25df767f356ab8437a63b82e6608"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:3250d6ce2bbe2fa4b209586c8f1047f97870a3d4c4c791d5e0f307052008c354"
 }
 ```
 
@@ -15309,8 +15458,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "圆环",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:44056038088f9a19da6d63a52b4190757209b4a61b66bf0b175e8937392fd60c"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:1617f817c18f8b57ea3c579c4764bbf437aae318d2167f0d0245978eff492557"
 }
 ```
 
@@ -15359,6 +15508,65 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "type": "number",
         "description": "Uniform dimensionless scale",
         "exclusiveMinimum": 0
+      },
+      "mode": {
+        "type": "string",
+        "description": "Explicit spatial mode",
+        "enum": [
+          "translate",
+          "toPoint",
+          "rotate",
+          "scale",
+          "align"
+        ]
+      },
+      "delta": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "targetPoint": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "orientation": {
+        "type": "string",
+        "description": "Preserve or align to work frame",
+        "enum": [
+          "preserve",
+          "align-frame"
+        ]
+      },
+      "pivot": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "axisVector": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "angleDeg": {
+        "type": "number",
+        "description": "Signed rotation angle (degrees)"
       }
     },
     "required": [],
@@ -15396,7 +15604,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "旋转"
   ],
   "description": "Scale, rotate X/Y/Z about origin, then translate",
-  "schemaHash": "sha256:38bfd605f8b1f1d8375c8502e171eac8cde933ff2a84356e4786ee908a72fb96",
+  "schemaHash": "sha256:b7d90fc837b6054fea6dd07197e413dfb750164719d749dd007ccf9925964880",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -15500,8 +15708,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "移动 / 旋转",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:25afabe319fa4196042278b11820f506bf2e47ab84a13be1b4cc86c6e48f5d33"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:f48edbe59ee7187f4cc6ac221a5962723aff66f09feff625a2a7d30a36bfe07c"
 }
 ```
 
@@ -15649,8 +15857,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "合并",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:ed9cdd556a3760b62ab7460e84af4940f86071613780508d20f16a2255efc29e"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:fc61d60d374fc58987bbc64f4ac6040059591f53e3816fdd1b70fd286fd8bae0"
 }
 ```
 
@@ -15939,8 +16147,9148 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "label": "导入路径",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:9d51dac2f394dc5df4a060e3700844be56daddb70a8a0eea983fe09d40f17235"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:9d86802ef24de64660106f84f0c6b83e5f545632c939c21c0ccd65c64a122771"
+}
+```
+
+## 工具 template.uEndHolePlate · 半圆冠双端孔 U 板
+
+```json
+{
+  "id": "template.uEndHolePlate",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "半圆冠双端孔 U 板",
+  "category": "template",
+  "synonyms": [
+    "uEndHolePlate",
+    "半圆冠双端孔 U 板",
+    "Arched U plate with two end holes"
+  ],
+  "description": "半圆冠与两条等宽直腿连成一块平板，直腿末端各有一个贯穿孔；内外冠同心，孔沿厚度方向贯穿。适合源图确认的单片 U 件，不含另一装配件、螺纹或截面圆杆。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "半圆冠双端孔 U 板",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "One flat U plate with concentric semicircular crowns, equal-width straight legs and one through-hole at each end. No second assembly component, thread or round-wire section.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "uEndHolePlate"
+      },
+      "outerWidth": {
+        "type": "number",
+        "default": 22,
+        "description": "Outer width"
+      },
+      "innerWidth": {
+        "type": "number",
+        "default": 10,
+        "description": "Inner width"
+      },
+      "totalHeight": {
+        "type": "number",
+        "default": 31.7,
+        "description": "Total height"
+      },
+      "thickness": {
+        "type": "number",
+        "default": 3,
+        "description": "Plate thickness"
+      },
+      "holeDiameter": {
+        "type": "number",
+        "default": 3.3,
+        "description": "End-hole diameter"
+      },
+      "holeInset": {
+        "type": "number",
+        "default": 2.7,
+        "description": "Hole center inset from leg end"
+      }
+    }
+  },
+  "schemaHash": "sha256:edcf1879de3a33d5bbe2df10b353ae1238c755a58d164f004e33d8ae36b2cf91",
+  "defaults": {
+    "outerWidth": 22,
+    "innerWidth": 10,
+    "totalHeight": 31.7,
+    "thickness": 3,
+    "holeDiameter": 3.3,
+    "holeInset": 2.7
+  },
+  "fields": [
+    {
+      "key": "outerWidth",
+      "label": "外宽",
+      "labelEn": "Outer width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerWidth",
+      "label": "内宽",
+      "labelEn": "Inner width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "totalHeight",
+      "label": "外总高",
+      "labelEn": "Total height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "thickness",
+      "label": "板厚",
+      "labelEn": "Plate thickness",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "holeDiameter",
+      "label": "两端通孔直径",
+      "labelEn": "End-hole diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "holeInset",
+      "label": "孔心距直腿端面",
+      "labelEn": "Hole center inset from leg end",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "uEndHolePlate"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "uEndHolePlate",
+      "outerWidth": 22,
+      "innerWidth": 10,
+      "totalHeight": 31.7,
+      "thickness": 3,
+      "holeDiameter": 3.3,
+      "holeInset": 2.7
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:cb4e7f4b9d7a669bfd918766d06789b4ac146c4868b7fef1520fddd00ad4074c"
+}
+```
+
+## 工具 template.ellipseSectionRing · 椭圆截面圆环
+
+```json
+{
+  "id": "template.ellipseSectionRing",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "椭圆截面圆环",
+  "category": "template",
+  "synonyms": [
+    "ellipseSectionRing",
+    "椭圆截面圆环",
+    "Circular ring with elliptical section"
+  ],
+  "description": "正面环带宽和侧面深度独立输入，沿圆形中心线扫掠椭圆截面；截面形状是可编辑候选，须按源图验证。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "椭圆截面圆环",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Circular ring swept from an elliptical section with independent front band width and side depth. Section shape is an editable candidate to verify against the source.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "ellipseSectionRing"
+      },
+      "innerDiameter": {
+        "type": "number",
+        "default": 37.4,
+        "description": "Inner front diameter"
+      },
+      "sectionWidth": {
+        "type": "number",
+        "default": 4.1,
+        "description": "Front band width"
+      },
+      "sectionDepth": {
+        "type": "number",
+        "default": 5,
+        "description": "Side depth"
+      }
+    }
+  },
+  "schemaHash": "sha256:3d0b1d31f7aefd9865f5b85bbd8e9ed8ef2697254f5b9cc1f31aa81c91a09643",
+  "defaults": {
+    "innerDiameter": 37.4,
+    "sectionWidth": 4.1,
+    "sectionDepth": 5
+  },
+  "fields": [
+    {
+      "key": "innerDiameter",
+      "label": "正面内径",
+      "labelEn": "Inner front diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sectionWidth",
+      "label": "正面料宽",
+      "labelEn": "Front band width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sectionDepth",
+      "label": "侧面总深度",
+      "labelEn": "Side depth",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "ellipseSectionRing"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "ellipseSectionRing",
+      "innerDiameter": 37.4,
+      "sectionWidth": 4.1,
+      "sectionDepth": 5
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:67dc87f489e400bdb94661a8ee783ad5057da24ce845054ed32f4a472266923e"
+}
+```
+
+## 工具 template.arcBandPlate · 双孔弧形带板
+
+```json
+{
+  "id": "template.arcBandPlate",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "双孔弧形带板",
+  "category": "template",
+  "synonyms": [
+    "arcBandPlate",
+    "双孔弧形带板",
+    "Two-hole annular band plate"
+  ],
+  "description": "同心圆弧带板，角度、厚度、两端孔距与沉孔独立输入；用于分体环段，螺纹和装配件须另建。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "双孔弧形带板",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Annular band segment with editable sweep, plate thickness, symmetric end-hole inset and optional counterbores. Threads and mating parts are separate.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "arcBandPlate"
+      },
+      "outerRadius": {
+        "type": "number",
+        "default": 20,
+        "description": "Outer radius"
+      },
+      "innerRadius": {
+        "type": "number",
+        "default": 15,
+        "description": "Inner radius"
+      },
+      "centerAngle": {
+        "type": "number",
+        "default": 270,
+        "description": "Arc center angle"
+      },
+      "spanAngle": {
+        "type": "number",
+        "default": 111.2807337553,
+        "description": "Arc sweep angle"
+      },
+      "thickness": {
+        "type": "number",
+        "default": 5,
+        "description": "Plate thickness"
+      },
+      "holeInsetAngle": {
+        "type": "number",
+        "default": 8.4521160504,
+        "description": "Hole inset from each end"
+      },
+      "holeDiameter": {
+        "type": "number",
+        "default": 2.3,
+        "description": "Through-hole diameter"
+      },
+      "recessDiameter": {
+        "type": "number",
+        "default": 3.3,
+        "description": "Top recess diameter"
+      },
+      "recessDepth": {
+        "type": "number",
+        "default": 0,
+        "description": "Top recess depth"
+      }
+    }
+  },
+  "schemaHash": "sha256:e830ea706fffdb7ebc9a3a4e9cbe29a974db49c6eb5203d6516eacb5a25ba3b7",
+  "defaults": {
+    "outerRadius": 20,
+    "innerRadius": 15,
+    "centerAngle": 270,
+    "spanAngle": 111.2807337553,
+    "thickness": 5,
+    "holeInsetAngle": 8.4521160504,
+    "holeDiameter": 2.3,
+    "recessDiameter": 3.3,
+    "recessDepth": 0
+  },
+  "fields": [
+    {
+      "key": "outerRadius",
+      "label": "外弧半径",
+      "labelEn": "Outer radius",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerRadius",
+      "label": "内弧半径",
+      "labelEn": "Inner radius",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "centerAngle",
+      "label": "弧中心角（°）",
+      "labelEn": "Arc center angle",
+      "type": "number",
+      "min": -360,
+      "step": 1
+    },
+    {
+      "key": "spanAngle",
+      "label": "弧跨度（°）",
+      "labelEn": "Arc sweep angle",
+      "type": "number",
+      "min": 1,
+      "step": 1
+    },
+    {
+      "key": "thickness",
+      "label": "板厚",
+      "labelEn": "Plate thickness",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "holeInsetAngle",
+      "label": "两端孔退让角（°）",
+      "labelEn": "Hole inset from each end",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "holeDiameter",
+      "label": "通孔直径",
+      "labelEn": "Through-hole diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "recessDiameter",
+      "label": "上表面沉孔直径",
+      "labelEn": "Top recess diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "recessDepth",
+      "label": "上表面沉孔深度",
+      "labelEn": "Top recess depth",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "arcBandPlate"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "arcBandPlate",
+      "outerRadius": 20,
+      "innerRadius": 15,
+      "centerAngle": 270,
+      "spanAngle": 111.2807337553,
+      "thickness": 5,
+      "holeInsetAngle": 8.4521160504,
+      "holeDiameter": 2.3,
+      "recessDiameter": 3.3,
+      "recessDepth": 0
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:d2eac170788bc27edc3cadd63bfd82672ba03c91ce6b8918388711128dbd2606"
+}
+```
+
+## 工具 template.gableOpenFrame · 斜肩开口框
+
+```json
+{
+  "id": "template.gableOpenFrame",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "斜肩开口框",
+  "category": "template",
+  "synonyms": [
+    "gableOpenFrame",
+    "斜肩开口框",
+    "Open gable frame"
+  ],
+  "description": "两只直腿与屋顶形斜肩组成开口框，端部按指定 R 做两段圆角与短平底。内外宽、内外肩高、内外峰高、板厚分别输入。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "斜肩开口框",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Open gable frame with straight legs, sloped shoulders and rounded open ends. Independent inner/outer widths, shoulder and peak heights, depth and end radius.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "gableOpenFrame"
+      },
+      "outerWidth": {
+        "type": "number",
+        "default": 25,
+        "description": "Outer width"
+      },
+      "innerWidth": {
+        "type": "number",
+        "default": 20,
+        "description": "Inner width"
+      },
+      "outerPeakHeight": {
+        "type": "number",
+        "default": 16,
+        "description": "Outer peak height"
+      },
+      "outerShoulderHeight": {
+        "type": "number",
+        "default": 12.4,
+        "description": "Outer shoulder height"
+      },
+      "innerPeakHeight": {
+        "type": "number",
+        "default": 13.5,
+        "description": "Inner peak height"
+      },
+      "innerShoulderHeight": {
+        "type": "number",
+        "default": 10.5,
+        "description": "Inner shoulder height"
+      },
+      "thickness": {
+        "type": "number",
+        "default": 4,
+        "description": "Plate depth"
+      },
+      "endRadius": {
+        "type": "number",
+        "default": 1,
+        "description": "Leg end radius"
+      }
+    }
+  },
+  "schemaHash": "sha256:1565c4c48254166298ad3b200b2149c53efc3d159869acdfcd5e30b854dca721",
+  "defaults": {
+    "outerWidth": 25,
+    "innerWidth": 20,
+    "outerPeakHeight": 16,
+    "outerShoulderHeight": 12.4,
+    "innerPeakHeight": 13.5,
+    "innerShoulderHeight": 10.5,
+    "thickness": 4,
+    "endRadius": 1
+  },
+  "fields": [
+    {
+      "key": "outerWidth",
+      "label": "外宽",
+      "labelEn": "Outer width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerWidth",
+      "label": "内宽",
+      "labelEn": "Inner width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "outerPeakHeight",
+      "label": "外峰高",
+      "labelEn": "Outer peak height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "outerShoulderHeight",
+      "label": "外肩高",
+      "labelEn": "Outer shoulder height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerPeakHeight",
+      "label": "内峰高",
+      "labelEn": "Inner peak height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerShoulderHeight",
+      "label": "内肩高",
+      "labelEn": "Inner shoulder height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "thickness",
+      "label": "板厚",
+      "labelEn": "Plate depth",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "endRadius",
+      "label": "脚端 R",
+      "labelEn": "Leg end radius",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "gableOpenFrame"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "gableOpenFrame",
+      "outerWidth": 25,
+      "innerWidth": 20,
+      "outerPeakHeight": 16,
+      "outerShoulderHeight": 12.4,
+      "innerPeakHeight": 13.5,
+      "innerShoulderHeight": 10.5,
+      "thickness": 4,
+      "endRadius": 1
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:3c039be62b7d5f99a57ac3ff01371fd5000d58b92efa44f7b0007cb99f7b4a9e"
+}
+```
+
+## 工具 template.ellipseSectionRectFrame · 椭圆截面圆角方框
+
+```json
+{
+  "id": "template.ellipseSectionRectFrame",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "椭圆截面圆角方框",
+  "category": "template",
+  "synonyms": [
+    "ellipseSectionRectFrame",
+    "椭圆截面圆角方框",
+    "Rounded rectangle with elliptical section"
+  ],
+  "description": "以独立正面料宽和侧面深度构造椭圆截面，沿圆角矩形中心线扫掠；内 R 为平面内孔圆角，不自动等于侧面 R。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "椭圆截面圆角方框",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Sweep an elliptical cross-section around a rounded rectangular centerline. Front band width and side depth are independent; the inner planar radius is separate from section shape.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "ellipseSectionRectFrame"
+      },
+      "innerWidth": {
+        "type": "number",
+        "default": 25,
+        "description": "Inner width"
+      },
+      "innerHeight": {
+        "type": "number",
+        "default": 19,
+        "description": "Inner height"
+      },
+      "innerRadius": {
+        "type": "number",
+        "default": 2.5,
+        "description": "Inner planar radius"
+      },
+      "sectionWidth": {
+        "type": "number",
+        "default": 5.5,
+        "description": "Front band width"
+      },
+      "sectionDepth": {
+        "type": "number",
+        "default": 6,
+        "description": "Side depth"
+      }
+    }
+  },
+  "schemaHash": "sha256:24949e5fb813da995a3f71559079fcc1a9190dfed543adf04d4140e2befbe91a",
+  "defaults": {
+    "innerWidth": 25,
+    "innerHeight": 19,
+    "innerRadius": 2.5,
+    "sectionWidth": 5.5,
+    "sectionDepth": 6
+  },
+  "fields": [
+    {
+      "key": "innerWidth",
+      "label": "内宽",
+      "labelEn": "Inner width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerHeight",
+      "label": "内高",
+      "labelEn": "Inner height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerRadius",
+      "label": "平面内 R",
+      "labelEn": "Inner planar radius",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sectionWidth",
+      "label": "正面料宽",
+      "labelEn": "Front band width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sectionDepth",
+      "label": "侧面深度",
+      "labelEn": "Side depth",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "ellipseSectionRectFrame"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "ellipseSectionRectFrame",
+      "innerWidth": 25,
+      "innerHeight": 19,
+      "innerRadius": 2.5,
+      "sectionWidth": 5.5,
+      "sectionDepth": 6
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:6cb08300e43af39f242dd5467a88e4c13f1ce49c6a23e4a6641c5fc22c08d6f3"
+}
+```
+
+## 工具 template.dFlatFrame · 独立底角 R 平板 D 框
+
+```json
+{
+  "id": "template.dFlatFrame",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "独立底角 R 平板 D 框",
+  "category": "template",
+  "synonyms": [
+    "dFlatFrame",
+    "独立底角 R 平板 D 框",
+    "Flat D frame with independent bottom radii"
+  ],
+  "description": "半圆冠、直腿与独立内外底角 R 的平板 D 框；可按实际宽度切开底部中央。厚度为平板厚度，不代替圆线截面。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "独立底角 R 平板 D 框",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Flat D frame with semicircular crown, straight legs, independent inner/outer bottom radii and optional measured bottom gap. Thickness is a flat plate depth, not a round-wire section.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "dFlatFrame"
+      },
+      "outerWidth": {
+        "type": "number",
+        "default": 28,
+        "description": "Outer width"
+      },
+      "outerHeight": {
+        "type": "number",
+        "default": 25,
+        "description": "Outer height"
+      },
+      "innerWidth": {
+        "type": "number",
+        "default": 20,
+        "description": "Inner width"
+      },
+      "innerHeight": {
+        "type": "number",
+        "default": 17,
+        "description": "Inner height"
+      },
+      "outerBottomRadius": {
+        "type": "number",
+        "default": 3.5,
+        "description": "Outer bottom radius"
+      },
+      "innerBottomRadius": {
+        "type": "number",
+        "default": 2,
+        "description": "Inner bottom radius"
+      },
+      "thickness": {
+        "type": "number",
+        "default": 4,
+        "description": "Flat plate thickness"
+      },
+      "gapWidth": {
+        "type": "number",
+        "default": 0,
+        "description": "Bottom gap (0 = closed)"
+      }
+    }
+  },
+  "schemaHash": "sha256:81a899846c39ba787b0174975500350728b24836f23cc1c4adfdfaeb94e1ac86",
+  "defaults": {
+    "outerWidth": 28,
+    "outerHeight": 25,
+    "innerWidth": 20,
+    "innerHeight": 17,
+    "outerBottomRadius": 3.5,
+    "innerBottomRadius": 2,
+    "thickness": 4,
+    "gapWidth": 0
+  },
+  "fields": [
+    {
+      "key": "outerWidth",
+      "label": "外宽",
+      "labelEn": "Outer width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "outerHeight",
+      "label": "外高",
+      "labelEn": "Outer height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerWidth",
+      "label": "内宽",
+      "labelEn": "Inner width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerHeight",
+      "label": "内高",
+      "labelEn": "Inner height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "outerBottomRadius",
+      "label": "底外 R",
+      "labelEn": "Outer bottom radius",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "innerBottomRadius",
+      "label": "底内 R",
+      "labelEn": "Inner bottom radius",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "thickness",
+      "label": "平板厚度",
+      "labelEn": "Flat plate thickness",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "gapWidth",
+      "label": "底部实际缝宽（0 闭合）",
+      "labelEn": "Bottom gap (0 = closed)",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "dFlatFrame"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "dFlatFrame",
+      "outerWidth": 28,
+      "outerHeight": 25,
+      "innerWidth": 20,
+      "innerHeight": 17,
+      "outerBottomRadius": 3.5,
+      "innerBottomRadius": 2,
+      "thickness": 4,
+      "gapWidth": 0
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:870c20c6a74b3c16d79222feb40e2b61c416bf8084285d51ea87d7aa5ccc7009"
+}
+```
+
+## 工具 template.archedTwinWindowPlate · 圆弧拱弯平板双窗扣
+
+```json
+{
+  "id": "template.archedTwinWindowPlate",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "圆弧拱弯平板双窗扣",
+  "category": "template",
+  "synonyms": [
+    "archedTwinWindowPlate",
+    "圆弧拱弯平板双窗扣",
+    "Cylindrically arched twin-window plate"
+  ],
+  "description": "圆角双窗平面轮廓沿 Y 方向投影裁切同轴圆筒薄壁，形成侧视圆弧拱弯。适用于薄条一体双窗；径向板厚、外弧半径独立输入。圆线框及独立圆杆须用其它工具。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "圆弧拱弯平板双窗扣",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Intersect a rounded twin-window footprint with a coaxial cylindrical wall to create an arched plate. Set outer bend radius and radial thickness independently. Projected strip construction without source-specific edge treatment; round-wire frames need another tool.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "archedTwinWindowPlate"
+      },
+      "outerWidth": {
+        "type": "number",
+        "default": 32.9,
+        "description": "Outer width"
+      },
+      "outerHeight": {
+        "type": "number",
+        "default": 25.5,
+        "description": "Outer height"
+      },
+      "outerRadius": {
+        "type": "number",
+        "default": 3,
+        "description": "Outer planar radius"
+      },
+      "windowWidth": {
+        "type": "number",
+        "default": 25.4,
+        "description": "Window width"
+      },
+      "totalInnerHeight": {
+        "type": "number",
+        "default": 18.5,
+        "description": "Total inner height"
+      },
+      "windowRadius": {
+        "type": "number",
+        "default": 0.5,
+        "description": "Window planar radius"
+      },
+      "barWidth": {
+        "type": "number",
+        "default": 3.5,
+        "description": "Center bar width"
+      },
+      "bendRadius": {
+        "type": "number",
+        "default": 43.90964782342324,
+        "description": "Outer bend radius"
+      },
+      "radialThickness": {
+        "type": "number",
+        "default": 2.3,
+        "description": "Radial thickness"
+      }
+    }
+  },
+  "schemaHash": "sha256:726ebe97a743251282d155561fd6e3920731fdf0a6dc0389f3324f0485c80da0",
+  "defaults": {
+    "outerWidth": 32.9,
+    "outerHeight": 25.5,
+    "outerRadius": 3,
+    "windowWidth": 25.4,
+    "totalInnerHeight": 18.5,
+    "windowRadius": 0.5,
+    "barWidth": 3.5,
+    "bendRadius": 43.90964782342324,
+    "radialThickness": 2.3
+  },
+  "fields": [
+    {
+      "key": "outerWidth",
+      "label": "外宽",
+      "labelEn": "Outer width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "outerHeight",
+      "label": "外高",
+      "labelEn": "Outer height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "outerRadius",
+      "label": "外轮廓平面 R",
+      "labelEn": "Outer planar radius",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "windowWidth",
+      "label": "每孔净宽",
+      "labelEn": "Window width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "totalInnerHeight",
+      "label": "双孔与中条总高",
+      "labelEn": "Total inner height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "windowRadius",
+      "label": "孔角平面 R",
+      "labelEn": "Window planar radius",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "barWidth",
+      "label": "中条宽",
+      "labelEn": "Center bar width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "bendRadius",
+      "label": "外侧拱弧 R",
+      "labelEn": "Outer bend radius",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "radialThickness",
+      "label": "径向板厚",
+      "labelEn": "Radial thickness",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "archedTwinWindowPlate"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "archedTwinWindowPlate",
+      "outerWidth": 32.9,
+      "outerHeight": 25.5,
+      "outerRadius": 3,
+      "windowWidth": 25.4,
+      "totalInnerHeight": 18.5,
+      "windowRadius": 0.5,
+      "barWidth": 3.5,
+      "bendRadius": 43.90964782342324,
+      "radialThickness": 2.3
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:1befd9934047467c74f6baeeedc14b3ff720cce61d6ed849eecb4ef5cdf769e0"
+}
+```
+
+## 工具 template.bowedTwinWindowPlate · 鼓侧边平板双窗扣
+
+```json
+{
+  "id": "template.bowedTwinWindowPlate",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "鼓侧边平板双窗扣",
+  "category": "template",
+  "synonyms": [
+    "bowedTwinWindowPlate",
+    "鼓侧边平板双窗扣",
+    "Bowed-side twin-window plate"
+  ],
+  "description": "上下直边、两侧大圆弧鼓边与四角小 R 相切；两个跑道形窗孔及中横条一体成板，可选前后边缘倒圆。左右、上下镜像参数模型，源图有微小非对称时只能近似。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "鼓侧边平板双窗扣",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "A flat plate with straight top/bottom, tangent bowed sides and four small corner arcs, plus two symmetric capsule windows. Optional edge fillet. Symmetric parameter model only.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "bowedTwinWindowPlate"
+      },
+      "outerHeight": {
+        "type": "number",
+        "default": 24.5,
+        "description": "Outer height"
+      },
+      "topStraightWidth": {
+        "type": "number",
+        "default": 30.2527,
+        "description": "Top/bottom straight length"
+      },
+      "sideRadius": {
+        "type": "number",
+        "default": 35.688467,
+        "description": "Bowed side radius"
+      },
+      "cornerRadius": {
+        "type": "number",
+        "default": 6,
+        "description": "Corner radius"
+      },
+      "windowWidth": {
+        "type": "number",
+        "default": 32,
+        "description": "Window width"
+      },
+      "windowHeight": {
+        "type": "number",
+        "default": 6.55,
+        "description": "Window height"
+      },
+      "windowSpacing": {
+        "type": "number",
+        "default": 10.35,
+        "description": "Window center spacing"
+      },
+      "thickness": {
+        "type": "number",
+        "default": 3.7,
+        "description": "Thickness"
+      },
+      "edgeRadius": {
+        "type": "number",
+        "default": 0.8,
+        "description": "Front/back edge radius"
+      }
+    }
+  },
+  "schemaHash": "sha256:c1792aa35a137151ab07d6e2d34d89ddb1b127fb163fc83507ba517ee5e4e8b0",
+  "defaults": {
+    "outerHeight": 24.5,
+    "topStraightWidth": 30.2527,
+    "sideRadius": 35.688467,
+    "cornerRadius": 6,
+    "windowWidth": 32,
+    "windowHeight": 6.55,
+    "windowSpacing": 10.35,
+    "thickness": 3.7,
+    "edgeRadius": 0.8
+  },
+  "fields": [
+    {
+      "key": "outerHeight",
+      "label": "外高",
+      "labelEn": "Outer height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "topStraightWidth",
+      "label": "上/下直段长度",
+      "labelEn": "Top/bottom straight length",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sideRadius",
+      "label": "侧边鼓弧 R",
+      "labelEn": "Bowed side radius",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "cornerRadius",
+      "label": "四角 R",
+      "labelEn": "Corner radius",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "windowWidth",
+      "label": "每孔净宽",
+      "labelEn": "Window width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "windowHeight",
+      "label": "每孔净高",
+      "labelEn": "Window height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "windowSpacing",
+      "label": "两孔中心距",
+      "labelEn": "Window center spacing",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "thickness",
+      "label": "板厚",
+      "labelEn": "Thickness",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "edgeRadius",
+      "label": "前后边缘 R",
+      "labelEn": "Front/back edge radius",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "bowedTwinWindowPlate"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "bowedTwinWindowPlate",
+      "outerHeight": 24.5,
+      "topStraightWidth": 30.2527,
+      "sideRadius": 35.688467,
+      "cornerRadius": 6,
+      "windowWidth": 32,
+      "windowHeight": 6.55,
+      "windowSpacing": 10.35,
+      "thickness": 3.7,
+      "edgeRadius": 0.8
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:ee02979c66aa5713683826d1fcfe7b59f796668adcc3e6b2fdc06779d9d08b88"
+}
+```
+
+## 工具 template.flatFrame · 独立内外圆角平面框
+
+```json
+{
+  "id": "template.flatFrame",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "独立内外圆角平面框",
+  "category": "template",
+  "synonyms": [
+    "flatFrame",
+    "独立内外圆角平面框",
+    "Flat frame with independent corner radii"
+  ],
+  "description": "内外轮廓分别定义，框宽与厚度独立；圆角可等于短边一半形成跑道环。参数模板，不是原 IGS 完整复刻。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "独立内外圆角平面框",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Independent inner/outer outlines and thickness. Half-short-side radii allow capsule frames. A parametric tool, not a complete reconstruction of an IGS part.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "flatFrame"
+      },
+      "outerWidth": {
+        "type": "number",
+        "default": 40,
+        "description": "Outer width"
+      },
+      "outerHeight": {
+        "type": "number",
+        "default": 28,
+        "description": "Outer height"
+      },
+      "innerWidth": {
+        "type": "number",
+        "default": 28,
+        "description": "Inner width"
+      },
+      "innerHeight": {
+        "type": "number",
+        "default": 16,
+        "description": "Inner height"
+      },
+      "outerRadius": {
+        "type": "number",
+        "default": 5,
+        "description": "Outer corner radius"
+      },
+      "innerRadius": {
+        "type": "number",
+        "default": 3,
+        "description": "Inner corner radius"
+      },
+      "thickness": {
+        "type": "number",
+        "default": 3,
+        "description": "Thickness"
+      }
+    }
+  },
+  "schemaHash": "sha256:a6c589be1f3b119f3e8a9eb98362b5f040128ca8ce4394651ba83bdbc645c1b9",
+  "defaults": {
+    "outerWidth": 40,
+    "outerHeight": 28,
+    "innerWidth": 28,
+    "innerHeight": 16,
+    "outerRadius": 5,
+    "innerRadius": 3,
+    "thickness": 3
+  },
+  "fields": [
+    {
+      "key": "outerWidth",
+      "label": "外宽",
+      "labelEn": "Outer width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "outerHeight",
+      "label": "外高",
+      "labelEn": "Outer height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerWidth",
+      "label": "内宽",
+      "labelEn": "Inner width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerHeight",
+      "label": "内高",
+      "labelEn": "Inner height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "outerRadius",
+      "label": "外轮廓 R",
+      "labelEn": "Outer corner radius",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "innerRadius",
+      "label": "内轮廓 R",
+      "labelEn": "Inner corner radius",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "thickness",
+      "label": "厚度",
+      "labelEn": "Thickness",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "flatFrame"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "flatFrame",
+      "outerWidth": 40,
+      "outerHeight": 28,
+      "innerWidth": 28,
+      "innerHeight": 16,
+      "outerRadius": 5,
+      "innerRadius": 3,
+      "thickness": 3
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:61ba946bf07a9e145e996359543b5e7ac1785b79174e02aa4f3deba1b5f69c79"
+}
+```
+
+## 工具 template.roundedFlatFrame · 圆边独立 R 平面框
+
+```json
+{
+  "id": "template.roundedFlatFrame",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "圆边独立 R 平面框",
+  "category": "template",
+  "synonyms": [
+    "roundedFlatFrame",
+    "圆边独立 R 平面框",
+    "Rounded frame with independent radii"
+  ],
+  "description": "独立内外圆角的闭合平面框，再以指定 R 一次倒圆所有尖边。圆边 R 必须显式给出；若内核无法完成则整步失败，不自动缩小。R 接近半厚可作外观候选，不保证精确半圆截面。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "圆边独立 R 平面框",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "A flat frame with independent inner and outer corner radii, then one exact fillet of every sharp edge. The specified edge radius fails atomically if unsolvable. Near half-thickness can approximate a round section but is not certified as a semicircle.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "roundedFlatFrame"
+      },
+      "outerWidth": {
+        "type": "number",
+        "default": 40,
+        "description": "Outer width"
+      },
+      "outerHeight": {
+        "type": "number",
+        "default": 28,
+        "description": "Outer height"
+      },
+      "innerWidth": {
+        "type": "number",
+        "default": 30,
+        "description": "Inner width"
+      },
+      "innerHeight": {
+        "type": "number",
+        "default": 18,
+        "description": "Inner height"
+      },
+      "outerRadius": {
+        "type": "number",
+        "default": 5,
+        "description": "Outer corner radius"
+      },
+      "innerRadius": {
+        "type": "number",
+        "default": 2,
+        "description": "Inner corner radius"
+      },
+      "thickness": {
+        "type": "number",
+        "default": 4,
+        "description": "Thickness"
+      },
+      "edgeRadius": {
+        "type": "number",
+        "default": 1.5,
+        "description": "All-edge fillet radius"
+      }
+    }
+  },
+  "schemaHash": "sha256:1715129c7ae378b725f09e0429c798460ba5083d2eecec8f64cf7055927f4415",
+  "defaults": {
+    "outerWidth": 40,
+    "outerHeight": 28,
+    "innerWidth": 30,
+    "innerHeight": 18,
+    "outerRadius": 5,
+    "innerRadius": 2,
+    "thickness": 4,
+    "edgeRadius": 1.5
+  },
+  "fields": [
+    {
+      "key": "outerWidth",
+      "label": "外宽",
+      "labelEn": "Outer width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "outerHeight",
+      "label": "外高",
+      "labelEn": "Outer height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerWidth",
+      "label": "内宽",
+      "labelEn": "Inner width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerHeight",
+      "label": "内高",
+      "labelEn": "Inner height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "outerRadius",
+      "label": "外轮廓 R",
+      "labelEn": "Outer corner radius",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "innerRadius",
+      "label": "内轮廓 R",
+      "labelEn": "Inner corner radius",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "thickness",
+      "label": "厚度",
+      "labelEn": "Thickness",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "edgeRadius",
+      "label": "整件圆边 R",
+      "labelEn": "All-edge fillet radius",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "roundedFlatFrame"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "roundedFlatFrame",
+      "outerWidth": 40,
+      "outerHeight": 28,
+      "innerWidth": 30,
+      "innerHeight": 18,
+      "outerRadius": 5,
+      "innerRadius": 2,
+      "thickness": 4,
+      "edgeRadius": 1.5
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:a236d209f784bf6d7c67e8049165c973ea5c375fa7ebd136a52a8ec5e114b148"
+}
+```
+
+## 工具 template.twinWindowPlate · 平板双窗扣
+
+```json
+{
+  "id": "template.twinWindowPlate",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "平板双窗扣",
+  "category": "template",
+  "synonyms": [
+    "twinWindowPlate",
+    "平板双窗扣",
+    "Flat twin-window buckle"
+  ],
+  "description": "独立外 R 和孔 R 的平板双窗，中间是板体一部分；整件前后尖边按指定 R 倒圆。两个孔等宽等高且上下对称，不含圆杆、偏置孔或侧向拱弯。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "平板双窗扣",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "A flat plate with two equal symmetric rounded windows and an integral center bridge. Independent outline, window and front/back edge radii. No round bar, offset windows or side arch.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "twinWindowPlate"
+      },
+      "outerWidth": {
+        "type": "number",
+        "default": 44.8,
+        "description": "Outer width"
+      },
+      "outerHeight": {
+        "type": "number",
+        "default": 26.6,
+        "description": "Outer height"
+      },
+      "outerRadius": {
+        "type": "number",
+        "default": 3.5,
+        "description": "Outer planar radius"
+      },
+      "windowWidth": {
+        "type": "number",
+        "default": 37.8,
+        "description": "Window clear width"
+      },
+      "totalInnerHeight": {
+        "type": "number",
+        "default": 19.6,
+        "description": "Total inner height"
+      },
+      "windowRadius": {
+        "type": "number",
+        "default": 2,
+        "description": "Window planar radius"
+      },
+      "barWidth": {
+        "type": "number",
+        "default": 3.5,
+        "description": "Center bridge width"
+      },
+      "thickness": {
+        "type": "number",
+        "default": 3.5,
+        "description": "Plate thickness"
+      },
+      "edgeRadius": {
+        "type": "number",
+        "default": 0.5,
+        "description": "Front/back edge radius"
+      }
+    }
+  },
+  "schemaHash": "sha256:040be496b12d70a3893764bb4a657f6f8422288db4b7173c404cce2cad13f1a1",
+  "defaults": {
+    "outerWidth": 44.8,
+    "outerHeight": 26.6,
+    "outerRadius": 3.5,
+    "windowWidth": 37.8,
+    "totalInnerHeight": 19.6,
+    "windowRadius": 2,
+    "barWidth": 3.5,
+    "thickness": 3.5,
+    "edgeRadius": 0.5
+  },
+  "fields": [
+    {
+      "key": "outerWidth",
+      "label": "外宽",
+      "labelEn": "Outer width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "outerHeight",
+      "label": "外高",
+      "labelEn": "Outer height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "outerRadius",
+      "label": "外平面 R",
+      "labelEn": "Outer planar radius",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "windowWidth",
+      "label": "每孔净宽",
+      "labelEn": "Window clear width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "totalInnerHeight",
+      "label": "双孔与横条总内高",
+      "labelEn": "Total inner height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "windowRadius",
+      "label": "孔内平面 R",
+      "labelEn": "Window planar radius",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "barWidth",
+      "label": "中横条正面宽",
+      "labelEn": "Center bridge width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "thickness",
+      "label": "整板厚度",
+      "labelEn": "Plate thickness",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "edgeRadius",
+      "label": "前后边缘截面 R",
+      "labelEn": "Front/back edge radius",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "twinWindowPlate"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "twinWindowPlate",
+      "outerWidth": 44.8,
+      "outerHeight": 26.6,
+      "outerRadius": 3.5,
+      "windowWidth": 37.8,
+      "totalInnerHeight": 19.6,
+      "windowRadius": 2,
+      "barWidth": 3.5,
+      "thickness": 3.5,
+      "edgeRadius": 0.5
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:09f59a8b4c0db8c0d56dd44dbe438fef8ea6ed10784014d0bddafdfe89795355"
+}
+```
+
+## 工具 template.mountingPlate · 双孔圆角安装板
+
+```json
+{
+  "id": "template.mountingPlate",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "双孔圆角安装板",
+  "category": "template",
+  "synonyms": [
+    "mountingPlate",
+    "双孔圆角安装板",
+    "Two-hole rounded mounting plate"
+  ],
+  "description": "孔沿 X 对称，中心距单独定义；孔为贯穿光孔，不含螺纹、沉头或沉孔。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "双孔圆角安装板",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Two symmetric X-axis holes with independent center spacing. Plain through holes only; no threads, countersinks or counterbores.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "mountingPlate"
+      },
+      "width": {
+        "type": "number",
+        "default": 40,
+        "description": "Plate width X"
+      },
+      "depth": {
+        "type": "number",
+        "default": 16,
+        "description": "Plate depth Y"
+      },
+      "thickness": {
+        "type": "number",
+        "default": 3,
+        "description": "Thickness"
+      },
+      "cornerRadius": {
+        "type": "number",
+        "default": 3,
+        "description": "Outer corner radius"
+      },
+      "holeDiameter": {
+        "type": "number",
+        "default": 4,
+        "description": "Hole diameter"
+      },
+      "holeSpacing": {
+        "type": "number",
+        "default": 24,
+        "description": "Hole center spacing"
+      }
+    }
+  },
+  "schemaHash": "sha256:4ad5da2e952135dc4a111e2d3d74560651f6b791679f8e6de6ce882bc892ed87",
+  "defaults": {
+    "width": 40,
+    "depth": 16,
+    "thickness": 3,
+    "cornerRadius": 3,
+    "holeDiameter": 4,
+    "holeSpacing": 24
+  },
+  "fields": [
+    {
+      "key": "width",
+      "label": "板宽 X",
+      "labelEn": "Plate width X",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "depth",
+      "label": "板深 Y",
+      "labelEn": "Plate depth Y",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "thickness",
+      "label": "厚度",
+      "labelEn": "Thickness",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "cornerRadius",
+      "label": "外角 R",
+      "labelEn": "Outer corner radius",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "holeDiameter",
+      "label": "孔径",
+      "labelEn": "Hole diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "holeSpacing",
+      "label": "两孔中心距",
+      "labelEn": "Hole center spacing",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "mountingPlate"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "mountingPlate",
+      "width": 40,
+      "depth": 16,
+      "thickness": 3,
+      "cornerRadius": 3,
+      "holeDiameter": 4,
+      "holeSpacing": 24
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:327c9ced171c0d1b92cb02660e8ae3c8f409782f04190d91d89142510cef9108"
+}
+```
+
+## 工具 template.fourHolePlate · 四孔安装板
+
+```json
+{
+  "id": "template.fourHolePlate",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "四孔安装板",
+  "category": "template",
+  "synonyms": [
+    "fourHolePlate",
+    "四孔安装板",
+    "Four-hole mounting plate"
+  ],
+  "description": "矩形板四角各一个贯穿光孔，孔中心到左右及前后边的距离分别可调；可选外角 R。不含螺纹或沉孔。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "四孔安装板",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Rectangular plate with four through holes. Set X/Y edge insets and optional outer corner radius; no threads or counterbores.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "fourHolePlate"
+      },
+      "width": {
+        "type": "number",
+        "default": 50,
+        "description": "Plate width X"
+      },
+      "depth": {
+        "type": "number",
+        "default": 30,
+        "description": "Plate depth Y"
+      },
+      "thickness": {
+        "type": "number",
+        "default": 3,
+        "description": "Thickness"
+      },
+      "cornerRadius": {
+        "type": "number",
+        "default": 0,
+        "description": "Outer corner radius"
+      },
+      "holeDiameter": {
+        "type": "number",
+        "default": 4,
+        "description": "Hole diameter"
+      },
+      "insetX": {
+        "type": "number",
+        "default": 5,
+        "description": "Hole inset X"
+      },
+      "insetY": {
+        "type": "number",
+        "default": 5,
+        "description": "Hole inset Y"
+      }
+    }
+  },
+  "schemaHash": "sha256:77d89a0632a9d40127fd9fc9a3f65e3cab353ae346939405b077f3ba99712ed5",
+  "defaults": {
+    "width": 50,
+    "depth": 30,
+    "thickness": 3,
+    "cornerRadius": 0,
+    "holeDiameter": 4,
+    "insetX": 5,
+    "insetY": 5
+  },
+  "fields": [
+    {
+      "key": "width",
+      "label": "板宽 X",
+      "labelEn": "Plate width X",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "depth",
+      "label": "板深 Y",
+      "labelEn": "Plate depth Y",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "thickness",
+      "label": "厚度",
+      "labelEn": "Thickness",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "cornerRadius",
+      "label": "外角 R",
+      "labelEn": "Outer corner radius",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "holeDiameter",
+      "label": "孔径",
+      "labelEn": "Hole diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "insetX",
+      "label": "左右孔心边距",
+      "labelEn": "Hole inset X",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "insetY",
+      "label": "前后孔心边距",
+      "labelEn": "Hole inset Y",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "fourHolePlate"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "fourHolePlate",
+      "width": 50,
+      "depth": 30,
+      "thickness": 3,
+      "cornerRadius": 0,
+      "holeDiameter": 4,
+      "insetX": 5,
+      "insetY": 5
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:57905141206ef7d9256747359fcae417d16e594afbe02d14c5144bfc9bf44d7d"
+}
+```
+
+## 工具 template.bossPlate · 双空心柱安装板
+
+```json
+{
+  "id": "template.bossPlate",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "双空心柱安装板",
+  "category": "template",
+  "synonyms": [
+    "bossPlate",
+    "双空心柱安装板",
+    "Two hollow-boss mounting plate"
+  ],
+  "description": "圆角板上两根对称空心圆柱凸台，孔贯穿凸台与板。参数化通用实体，不代表螺纹、沉孔或原产品复刻。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "双空心柱安装板",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "A rounded plate with two symmetric hollow cylindrical bosses; each bore passes through both boss and plate. Generic parametric geometry, not a threaded, counterbored, or source-product reconstruction.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "bossPlate"
+      },
+      "width": {
+        "type": "number",
+        "default": 40,
+        "description": "Plate width X"
+      },
+      "depth": {
+        "type": "number",
+        "default": 16,
+        "description": "Plate depth Y"
+      },
+      "thickness": {
+        "type": "number",
+        "default": 3,
+        "description": "Plate thickness"
+      },
+      "cornerRadius": {
+        "type": "number",
+        "default": 3,
+        "description": "Plate corner radius"
+      },
+      "bossSpacing": {
+        "type": "number",
+        "default": 24,
+        "description": "Boss center spacing"
+      },
+      "bossOuterDiameter": {
+        "type": "number",
+        "default": 8,
+        "description": "Boss outer diameter"
+      },
+      "boreDiameter": {
+        "type": "number",
+        "default": 4,
+        "description": "Through-bore diameter"
+      },
+      "bossHeight": {
+        "type": "number",
+        "default": 6,
+        "description": "Boss height (below plate)"
+      }
+    }
+  },
+  "schemaHash": "sha256:ba6dfc00399719920fd18433ac7fc9ea5e76adecfe6df9c4f05e8ba6ee1dedc5",
+  "defaults": {
+    "width": 40,
+    "depth": 16,
+    "thickness": 3,
+    "cornerRadius": 3,
+    "bossSpacing": 24,
+    "bossOuterDiameter": 8,
+    "boreDiameter": 4,
+    "bossHeight": 6
+  },
+  "fields": [
+    {
+      "key": "width",
+      "label": "板宽 X",
+      "labelEn": "Plate width X",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "depth",
+      "label": "板深 Y",
+      "labelEn": "Plate depth Y",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "thickness",
+      "label": "板厚",
+      "labelEn": "Plate thickness",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "cornerRadius",
+      "label": "板角 R",
+      "labelEn": "Plate corner radius",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "bossSpacing",
+      "label": "凸台中心距",
+      "labelEn": "Boss center spacing",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "bossOuterDiameter",
+      "label": "凸台外径",
+      "labelEn": "Boss outer diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "boreDiameter",
+      "label": "通孔直径",
+      "labelEn": "Through-bore diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "bossHeight",
+      "label": "凸台高度（板下）",
+      "labelEn": "Boss height (below plate)",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "bossPlate"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "bossPlate",
+      "width": 40,
+      "depth": 16,
+      "thickness": 3,
+      "cornerRadius": 3,
+      "bossSpacing": 24,
+      "bossOuterDiameter": 8,
+      "boreDiameter": 4,
+      "bossHeight": 6
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:8b21efb02136114c7d019e39f474a7395076d193a994a5baced511ca64a56dce"
+}
+```
+
+## 工具 template.flangedBushing · 法兰轴套
+
+```json
+{
+  "id": "template.flangedBushing",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "法兰轴套",
+  "category": "template",
+  "synonyms": [
+    "flangedBushing",
+    "法兰轴套",
+    "Flanged bushing"
+  ],
+  "description": "同轴法兰与圆筒轴套，直孔贯穿全长。通用参数化实体，不含螺纹或原产品特征复刻。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "法兰轴套",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "A coaxial flange and cylindrical bushing with a straight bore through the full length. Generic parametric geometry, with no threads or source-product feature reconstruction.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "flangedBushing"
+      },
+      "bodyDiameter": {
+        "type": "number",
+        "default": 12,
+        "description": "Bushing body diameter"
+      },
+      "flangeDiameter": {
+        "type": "number",
+        "default": 20,
+        "description": "Flange diameter"
+      },
+      "boreDiameter": {
+        "type": "number",
+        "default": 6,
+        "description": "Through-bore diameter"
+      },
+      "bodyHeight": {
+        "type": "number",
+        "default": 10,
+        "description": "Body height"
+      },
+      "flangeThickness": {
+        "type": "number",
+        "default": 3,
+        "description": "Flange thickness"
+      }
+    }
+  },
+  "schemaHash": "sha256:d3b527b2e8a84b428a623e8e2a7b694808f63949e4b9a39b96f07b14af62fcc9",
+  "defaults": {
+    "bodyDiameter": 12,
+    "flangeDiameter": 20,
+    "boreDiameter": 6,
+    "bodyHeight": 10,
+    "flangeThickness": 3
+  },
+  "fields": [
+    {
+      "key": "bodyDiameter",
+      "label": "轴套外径",
+      "labelEn": "Bushing body diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "flangeDiameter",
+      "label": "法兰外径",
+      "labelEn": "Flange diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "boreDiameter",
+      "label": "通孔直径",
+      "labelEn": "Through-bore diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "bodyHeight",
+      "label": "筒体高度",
+      "labelEn": "Body height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "flangeThickness",
+      "label": "法兰厚度",
+      "labelEn": "Flange thickness",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "flangedBushing"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "flangedBushing",
+      "bodyDiameter": 12,
+      "flangeDiameter": 20,
+      "boreDiameter": 6,
+      "bodyHeight": 10,
+      "flangeThickness": 3
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:02780ca7037d3df2338f7a0e05903b87370153c7ab4fc5e4fc11f6197bbf9fcb"
+}
+```
+
+## 工具 template.openArcRing · 大开口 C 环
+
+```json
+{
+  "id": "template.openArcRing",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "大开口 C 环",
+  "category": "template",
+  "synonyms": [
+    "openArcRing",
+    "大开口 C 环",
+    "Wide-gap C ring"
+  ],
+  "description": "恒截面圆弧环，开口角度可调，适合开口环、钩环和未闭合圆框的基础毛坯；不包含端头球、铰链或变截面。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "大开口 C 环",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Constant-section circular arc with an adjustable opening angle for C rings, hook rings and open circular frames. End balls, hinges and variable sections are excluded.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "openArcRing"
+      },
+      "section": {
+        "type": "string",
+        "default": "round",
+        "description": "Section",
+        "enum": [
+          "round",
+          "square",
+          "chamferedSquare"
+        ]
+      },
+      "innerDiameter": {
+        "type": "number",
+        "default": 30,
+        "description": "Inner diameter"
+      },
+      "sectionSize": {
+        "type": "number",
+        "default": 4,
+        "description": "Wire diameter / square size"
+      },
+      "sectionRadius": {
+        "type": "number",
+        "default": 0.4,
+        "description": "Square section corner R"
+      },
+      "sectionChamfer": {
+        "type": "number",
+        "default": 0.6,
+        "description": "Square section chamfer C"
+      },
+      "openingAngle": {
+        "type": "number",
+        "default": 70,
+        "description": "Opening angle (degrees)"
+      }
+    }
+  },
+  "schemaHash": "sha256:fd9e7eae0a0571cc1fe30148fe3ecc5958bcdcef7e9efcebdbe3bcc52939cb1f",
+  "defaults": {
+    "section": "round",
+    "innerDiameter": 30,
+    "sectionSize": 4,
+    "sectionRadius": 0.4,
+    "sectionChamfer": 0.6,
+    "openingAngle": 70
+  },
+  "fields": [
+    {
+      "key": "innerDiameter",
+      "label": "内径",
+      "labelEn": "Inner diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "section",
+      "label": "截面",
+      "labelEn": "Section",
+      "type": "select",
+      "options": [
+        {
+          "value": "round",
+          "label": "圆线",
+          "labelEn": "Round wire"
+        },
+        {
+          "value": "square",
+          "label": "圆角方线",
+          "labelEn": "Rounded square"
+        },
+        {
+          "value": "chamferedSquare",
+          "label": "倒角方线",
+          "labelEn": "Chamfered square"
+        }
+      ]
+    },
+    {
+      "key": "sectionSize",
+      "label": "线径／方线边长",
+      "labelEn": "Wire diameter / square size",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sectionRadius",
+      "label": "方线截面 R（圆线忽略）",
+      "labelEn": "Square section corner R",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "sectionChamfer",
+      "label": "方线截面倒角 C（仅倒角方线）",
+      "labelEn": "Square section chamfer C",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "openingAngle",
+      "label": "开口角度（°）",
+      "labelEn": "Opening angle (degrees)",
+      "type": "number",
+      "min": 5,
+      "step": 1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "openArcRing"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "openArcRing",
+      "section": "round",
+      "innerDiameter": 30,
+      "sectionSize": 4,
+      "sectionRadius": 0.4,
+      "sectionChamfer": 0.6,
+      "openingAngle": 70
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:e595bf231ac141520b058c8bff6ac6f6a46210ada63a6f06acd53791b66621a5"
+}
+```
+
+## 工具 template.roundedBossTray · 圆角双柱薄壁壳
+
+```json
+{
+  "id": "template.roundedBossTray",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "圆角双柱薄壁壳",
+  "category": "template",
+  "synonyms": [
+    "roundedBossTray",
+    "圆角双柱薄壁壳",
+    "Rounded tray with two hollow bosses"
+  ],
+  "description": "圆角矩形薄壁壳，顶部敞口，内底带两根空心柱。外圆角、壁厚、底厚和柱尺寸均可调；直壁无拔模，不包含卡扣、文字或表面花纹。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "圆角双柱薄壁壳",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Open rounded-rectangle tray with two hollow bosses on the inner floor. Outer corner radius, wall/floor thickness and boss dimensions are editable. Straight walls only; no draft, clips, lettering or texture.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "roundedBossTray"
+      },
+      "outerWidth": {
+        "type": "number",
+        "default": 60,
+        "description": "Outer width X"
+      },
+      "outerDepth": {
+        "type": "number",
+        "default": 38,
+        "description": "Outer depth Y"
+      },
+      "height": {
+        "type": "number",
+        "default": 12,
+        "description": "Total height"
+      },
+      "cornerRadius": {
+        "type": "number",
+        "default": 6,
+        "description": "Outer corner radius"
+      },
+      "wallThickness": {
+        "type": "number",
+        "default": 2,
+        "description": "Wall thickness"
+      },
+      "floorThickness": {
+        "type": "number",
+        "default": 2,
+        "description": "Floor thickness"
+      },
+      "bossSpacing": {
+        "type": "number",
+        "default": 30,
+        "description": "Boss center spacing X"
+      },
+      "bossOuterDiameter": {
+        "type": "number",
+        "default": 7,
+        "description": "Boss outer diameter"
+      },
+      "boreDiameter": {
+        "type": "number",
+        "default": 3,
+        "description": "Through-bore diameter"
+      },
+      "bossHeight": {
+        "type": "number",
+        "default": 7,
+        "description": "Boss height above inner floor"
+      }
+    }
+  },
+  "schemaHash": "sha256:18cdf0d2cc4dca5a95a8e120ccdb57184d5372dc60b8cea2999b40769ded8656",
+  "defaults": {
+    "outerWidth": 60,
+    "outerDepth": 38,
+    "height": 12,
+    "cornerRadius": 6,
+    "wallThickness": 2,
+    "floorThickness": 2,
+    "bossSpacing": 30,
+    "bossOuterDiameter": 7,
+    "boreDiameter": 3,
+    "bossHeight": 7
+  },
+  "fields": [
+    {
+      "key": "outerWidth",
+      "label": "外宽 X",
+      "labelEn": "Outer width X",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "outerDepth",
+      "label": "外深 Y",
+      "labelEn": "Outer depth Y",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "height",
+      "label": "壳体总高",
+      "labelEn": "Total height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "cornerRadius",
+      "label": "外轮廓圆角 R",
+      "labelEn": "Outer corner radius",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "wallThickness",
+      "label": "侧壁厚",
+      "labelEn": "Wall thickness",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "floorThickness",
+      "label": "底板厚",
+      "labelEn": "Floor thickness",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "bossSpacing",
+      "label": "两柱中心距 X",
+      "labelEn": "Boss center spacing X",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "bossOuterDiameter",
+      "label": "柱外径",
+      "labelEn": "Boss outer diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "boreDiameter",
+      "label": "贯穿孔径",
+      "labelEn": "Through-bore diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "bossHeight",
+      "label": "内底面以上柱高",
+      "labelEn": "Boss height above inner floor",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "roundedBossTray"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "roundedBossTray",
+      "outerWidth": 60,
+      "outerDepth": 38,
+      "height": 12,
+      "cornerRadius": 6,
+      "wallThickness": 2,
+      "floorThickness": 2,
+      "bossSpacing": 30,
+      "bossOuterDiameter": 7,
+      "boreDiameter": 3,
+      "bossHeight": 7
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:0983ba599b7ed6fc94d7b8575429ef0c589bdf433bc38f5d2714e635f3e91ef1"
+}
+```
+
+## 工具 template.roundBadge · 双柱圆牌底座
+
+```json
+{
+  "id": "template.roundBadge",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "双柱圆牌底座",
+  "category": "template",
+  "synonyms": [
+    "roundBadge",
+    "双柱圆牌底座",
+    "Round badge base with two posts"
+  ],
+  "description": "圆形牌面、正面环形凸边和背面两根安装柱组成一个实体。可选空心柱；不包含品牌图案、齿纹、拱面或生产尺寸。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "双柱圆牌底座",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "One solid combining a round badge plate, raised front rim and two rear mounting posts. Posts may be hollow. Brand artwork, knurling, doming and production dimensions are excluded.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "roundBadge"
+      },
+      "diameter": {
+        "type": "number",
+        "default": 40,
+        "description": "Badge diameter"
+      },
+      "thickness": {
+        "type": "number",
+        "default": 2,
+        "description": "Plate thickness"
+      },
+      "rimWidth": {
+        "type": "number",
+        "default": 2,
+        "description": "Front rim width"
+      },
+      "rimHeight": {
+        "type": "number",
+        "default": 0.8,
+        "description": "Front rim height"
+      },
+      "postSpacing": {
+        "type": "number",
+        "default": 18,
+        "description": "Rear post spacing X"
+      },
+      "postDiameter": {
+        "type": "number",
+        "default": 4,
+        "description": "Rear post diameter"
+      },
+      "postHeight": {
+        "type": "number",
+        "default": 4,
+        "description": "Rear post height"
+      },
+      "postBoreDiameter": {
+        "type": "number",
+        "default": 0,
+        "description": "Post bore diameter (0 = solid)"
+      }
+    }
+  },
+  "schemaHash": "sha256:5dc09d8ceef886d0a0609f63127835d3751f0d85faeb9416af088e06bde93925",
+  "defaults": {
+    "diameter": 40,
+    "thickness": 2,
+    "rimWidth": 2,
+    "rimHeight": 0.8,
+    "postSpacing": 18,
+    "postDiameter": 4,
+    "postHeight": 4,
+    "postBoreDiameter": 0
+  },
+  "fields": [
+    {
+      "key": "diameter",
+      "label": "牌面直径",
+      "labelEn": "Badge diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "thickness",
+      "label": "牌面厚度",
+      "labelEn": "Plate thickness",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "rimWidth",
+      "label": "正面环边宽",
+      "labelEn": "Front rim width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "rimHeight",
+      "label": "正面环边高度",
+      "labelEn": "Front rim height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "postSpacing",
+      "label": "背柱中心距 X",
+      "labelEn": "Rear post spacing X",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "postDiameter",
+      "label": "背柱直径",
+      "labelEn": "Rear post diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "postHeight",
+      "label": "背柱高度",
+      "labelEn": "Rear post height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "postBoreDiameter",
+      "label": "背柱孔径（0 为实心）",
+      "labelEn": "Post bore diameter (0 = solid)",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "roundBadge"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "roundBadge",
+      "diameter": 40,
+      "thickness": 2,
+      "rimWidth": 2,
+      "rimHeight": 0.8,
+      "postSpacing": 18,
+      "postDiameter": 4,
+      "postHeight": 4,
+      "postBoreDiameter": 0
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:a1c5e95250d587e310252bcc9a0713be2d4611a7ddcb4af12bd82d4e5ee83595"
+}
+```
+
+## 工具 template.thinWallTray · 双空心柱薄壁壳
+
+```json
+{
+  "id": "template.thinWallTray",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "双空心柱薄壁壳",
+  "category": "template",
+  "synonyms": [
+    "thinWallTray",
+    "双空心柱薄壁壳",
+    "Open tray with two hollow bosses"
+  ],
+  "description": "单一熔接实体，XY 居中、底面 Z=0、顶部敞口。内腔净宽=外宽−2×壁厚，净深=外深−2×壁厚，净高=总高−底厚。两柱沿 X 对称，柱高从内底面起算，孔贯穿柱和底板。仅直壁、直角、无拔模/圆角/螺纹；不是装配体。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "双空心柱薄壁壳",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "One fused solid, centered in XY, bottom at Z=0, open top. Clear cavity width/depth = outer width/depth minus twice wall thickness; clear height = height minus floor thickness. Two X-symmetric bosses rise from the inner floor; bores pass through bosses and floor. Straight walls/corners only; no draft, fillets, threads or assembly relationships.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "thinWallTray"
+      },
+      "outerWidth": {
+        "type": "number",
+        "default": 60,
+        "description": "Outer width X"
+      },
+      "outerDepth": {
+        "type": "number",
+        "default": 36,
+        "description": "Outer depth Y"
+      },
+      "height": {
+        "type": "number",
+        "default": 14,
+        "description": "Total height"
+      },
+      "wallThickness": {
+        "type": "number",
+        "default": 2,
+        "description": "Wall thickness"
+      },
+      "floorThickness": {
+        "type": "number",
+        "default": 2,
+        "description": "Floor thickness"
+      },
+      "bossSpacing": {
+        "type": "number",
+        "default": 30,
+        "description": "Boss center spacing X"
+      },
+      "bossOuterDiameter": {
+        "type": "number",
+        "default": 8,
+        "description": "Boss outer diameter"
+      },
+      "boreDiameter": {
+        "type": "number",
+        "default": 3,
+        "description": "Through-bore diameter"
+      },
+      "bossHeight": {
+        "type": "number",
+        "default": 8,
+        "description": "Boss height above inner floor"
+      }
+    }
+  },
+  "schemaHash": "sha256:dfedc0667b3c24f9b146ff25bdf4b8f5479611af9a805bc7cd123e68689bd1a2",
+  "defaults": {
+    "outerWidth": 60,
+    "outerDepth": 36,
+    "height": 14,
+    "wallThickness": 2,
+    "floorThickness": 2,
+    "bossSpacing": 30,
+    "bossOuterDiameter": 8,
+    "boreDiameter": 3,
+    "bossHeight": 8
+  },
+  "fields": [
+    {
+      "key": "outerWidth",
+      "label": "外宽 X",
+      "labelEn": "Outer width X",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "outerDepth",
+      "label": "外深 Y",
+      "labelEn": "Outer depth Y",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "height",
+      "label": "壳体总高",
+      "labelEn": "Total height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "wallThickness",
+      "label": "侧壁厚",
+      "labelEn": "Wall thickness",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "floorThickness",
+      "label": "底板厚",
+      "labelEn": "Floor thickness",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "bossSpacing",
+      "label": "两柱中心距 X",
+      "labelEn": "Boss center spacing X",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "bossOuterDiameter",
+      "label": "柱外径",
+      "labelEn": "Boss outer diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "boreDiameter",
+      "label": "贯穿孔径",
+      "labelEn": "Through-bore diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "bossHeight",
+      "label": "内底面以上柱高",
+      "labelEn": "Boss height above inner floor",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "thinWallTray"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "thinWallTray",
+      "outerWidth": 60,
+      "outerDepth": 36,
+      "height": 14,
+      "wallThickness": 2,
+      "floorThickness": 2,
+      "bossSpacing": 30,
+      "bossOuterDiameter": 8,
+      "boreDiameter": 3,
+      "bossHeight": 8
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:9c3d9e65ab2dcdcdd1304769cb75cb0c0204c823fa65dbc1e3acceecf549c63a"
+}
+```
+
+## 工具 template.tube · 圆筒（C件默认）
+
+```json
+{
+  "id": "template.tube",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "圆筒（C件默认）",
+  "category": "template",
+  "synonyms": [
+    "tube",
+    "圆筒（C件默认）",
+    "Tube (C-part default)"
+  ],
+  "description": "同轴圆筒，外径 13.4、内径 12.4、高度 3 为用户 C 件默认值。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "圆筒（C件默认）",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Coaxial tube; defaults 13.4 outer diameter, 12.4 inner diameter and 3 height for the user C-part.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "tube"
+      },
+      "outerDiameter": {
+        "type": "number",
+        "default": 13.4,
+        "description": "Outer diameter"
+      },
+      "innerDiameter": {
+        "type": "number",
+        "default": 12.4,
+        "description": "Inner diameter"
+      },
+      "height": {
+        "type": "number",
+        "default": 3,
+        "description": "Height"
+      }
+    }
+  },
+  "schemaHash": "sha256:47132b24d0e50031562073f7400455aa94633c0f2a1236eef38156f07444fb1f",
+  "defaults": {
+    "outerDiameter": 13.4,
+    "innerDiameter": 12.4,
+    "height": 3
+  },
+  "fields": [
+    {
+      "key": "outerDiameter",
+      "label": "外径",
+      "labelEn": "Outer diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerDiameter",
+      "label": "内径",
+      "labelEn": "Inner diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "height",
+      "label": "高度",
+      "labelEn": "Height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "tube"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "tube",
+      "outerDiameter": 13.4,
+      "innerDiameter": 12.4,
+      "height": 3
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:fe055e8e7d24a449b3679e59d054e2dcaf46fecec22aba5c1f310992bb187610"
+}
+```
+
+## 工具 template.counterboreTool · 沉孔／沉头孔刀具
+
+```json
+{
+  "id": "template.counterboreTool",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "沉孔／沉头孔刀具",
+  "category": "template",
+  "synonyms": [
+    "counterboreTool",
+    "沉孔／沉头孔刀具",
+    "Counterbore / countersink tool"
+  ],
+  "description": "这是刀具实体：入口在 Z=0，沿 +Z；移动定位到工件表面，必要时旋转 180°，先选主体再选刀具相减。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "沉孔／沉头孔刀具",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Tool solid: entry at Z=0, extending along +Z. Position at the workpiece surface, rotate 180 degrees if needed, then select the body first and subtract the tool.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "counterboreTool"
+      },
+      "holeDiameter": {
+        "type": "number",
+        "default": 4,
+        "description": "Hole diameter"
+      },
+      "depth": {
+        "type": "number",
+        "default": 8,
+        "description": "Total depth"
+      },
+      "headDiameter": {
+        "type": "number",
+        "default": 8,
+        "description": "Head diameter"
+      },
+      "headDepth": {
+        "type": "number",
+        "default": 2,
+        "description": "Head depth"
+      },
+      "style": {
+        "type": "string",
+        "default": "bore",
+        "description": "Style",
+        "enum": [
+          "bore",
+          "sink"
+        ]
+      }
+    }
+  },
+  "schemaHash": "sha256:d8433c98173d51022b5ecfba0f9762a461cf58c48299c93f08d12b8280be60cf",
+  "defaults": {
+    "holeDiameter": 4,
+    "depth": 8,
+    "headDiameter": 8,
+    "headDepth": 2,
+    "style": "bore"
+  },
+  "fields": [
+    {
+      "key": "holeDiameter",
+      "label": "孔直径",
+      "labelEn": "Hole diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "depth",
+      "label": "总深",
+      "labelEn": "Total depth",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "headDiameter",
+      "label": "头径",
+      "labelEn": "Head diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "headDepth",
+      "label": "头深",
+      "labelEn": "Head depth",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "style",
+      "label": "类型",
+      "labelEn": "Style",
+      "type": "select",
+      "options": [
+        {
+          "value": "bore",
+          "label": "沉孔",
+          "labelEn": "Counterbore"
+        },
+        {
+          "value": "sink",
+          "label": "沉头孔",
+          "labelEn": "Countersink"
+        }
+      ]
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "counterboreTool"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "counterboreTool",
+      "holeDiameter": 4,
+      "depth": 8,
+      "headDiameter": 8,
+      "headDepth": 2,
+      "style": "bore"
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:0e413528f5bd20b83475bf14e04b388745dcd9cf7a3b9e432ff02cd984e10069"
+}
+```
+
+## 工具 template.ring · 圆圈
+
+```json
+{
+  "id": "template.ring",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "圆圈",
+  "category": "template",
+  "synonyms": [
+    "ring",
+    "圆圈",
+    "Ring"
+  ],
+  "description": "同心圆恒截面单圈；开缝为底部正中平行平切。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "圆圈",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "同心圆恒截面单圈；开缝为底部正中平行平切。",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "ring"
+      },
+      "section": {
+        "type": "string",
+        "default": "round",
+        "description": "Section",
+        "enum": [
+          "round",
+          "square",
+          "chamferedSquare"
+        ]
+      },
+      "sectionSize": {
+        "type": "number",
+        "default": 3,
+        "description": "Wire diameter / square size"
+      },
+      "sectionRadius": {
+        "type": "number",
+        "default": 0.3,
+        "description": "Square section corner R"
+      },
+      "sectionChamfer": {
+        "type": "number",
+        "default": 0.6,
+        "description": "Square section chamfer C"
+      },
+      "gapWidth": {
+        "type": "number",
+        "default": 0,
+        "description": "Bottom gap (0 = closed)"
+      },
+      "innerDiameter": {
+        "type": "number",
+        "default": 24,
+        "description": "Inner diameter"
+      }
+    }
+  },
+  "schemaHash": "sha256:2ceab3f6495b3bf74eb40bef7e4fa6c073567e3911684f82409b920ef0fff522",
+  "defaults": {
+    "section": "round",
+    "sectionSize": 3,
+    "sectionRadius": 0.3,
+    "sectionChamfer": 0.6,
+    "gapWidth": 0,
+    "innerDiameter": 24
+  },
+  "fields": [
+    {
+      "key": "innerDiameter",
+      "label": "内径",
+      "labelEn": "Inner diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "section",
+      "label": "截面",
+      "labelEn": "Section",
+      "type": "select",
+      "options": [
+        {
+          "value": "round",
+          "label": "圆线",
+          "labelEn": "Round wire"
+        },
+        {
+          "value": "square",
+          "label": "圆角方线",
+          "labelEn": "Rounded square"
+        },
+        {
+          "value": "chamferedSquare",
+          "label": "倒角方线",
+          "labelEn": "Chamfered square"
+        }
+      ]
+    },
+    {
+      "key": "sectionSize",
+      "label": "线径／方线边长",
+      "labelEn": "Wire diameter / square size",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sectionRadius",
+      "label": "方线截面 R（圆线忽略）",
+      "labelEn": "Square section corner R",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "sectionChamfer",
+      "label": "方线截面倒角 C（仅倒角方线）",
+      "labelEn": "Square section chamfer C",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "gapWidth",
+      "label": "底部实际缝宽（0 闭合）",
+      "labelEn": "Bottom gap (0 = closed)",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "ring"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "ring",
+      "section": "round",
+      "sectionSize": 3,
+      "sectionRadius": 0.3,
+      "sectionChamfer": 0.6,
+      "gapWidth": 0,
+      "innerDiameter": 24
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:bdb1d1a8642272bcef85e75ead863f3e472a0c52076e1ff689d2871323814e76"
+}
+```
+
+## 工具 template.ringBar · 圆环内接横杆
+
+```json
+{
+  "id": "template.ringBar",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "圆环内接横杆",
+  "category": "template",
+  "synonyms": [
+    "ringBar",
+    "圆环内接横杆",
+    "Ring with fixed crossbar"
+  ],
+  "description": "同心圆恒截面框与一根沿 X 的圆杆融合为单一实体。横杆可沿 Y 及厚度 Z 微调；不包含活动杆、铰链或精确接头过渡。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "圆环内接横杆",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "A constant-section circular frame fused to one round X-axis crossbar. The bar has editable Y and depth Z offsets. Moving bars, hinges and exact joint transitions are excluded.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "ringBar"
+      },
+      "section": {
+        "type": "string",
+        "default": "round",
+        "description": "Section",
+        "enum": [
+          "round",
+          "square",
+          "chamferedSquare"
+        ]
+      },
+      "innerDiameter": {
+        "type": "number",
+        "default": 20,
+        "description": "Ring inner diameter"
+      },
+      "sectionSize": {
+        "type": "number",
+        "default": 3,
+        "description": "Wire diameter / square size"
+      },
+      "sectionRadius": {
+        "type": "number",
+        "default": 0.3,
+        "description": "Square section corner R"
+      },
+      "sectionChamfer": {
+        "type": "number",
+        "default": 0.6,
+        "description": "Square section chamfer C"
+      },
+      "barDiameter": {
+        "type": "number",
+        "default": 2,
+        "description": "Bar diameter"
+      },
+      "barOffset": {
+        "type": "number",
+        "default": 0,
+        "description": "Bar Y offset"
+      },
+      "barDepthOffset": {
+        "type": "number",
+        "default": 0,
+        "description": "Bar Z depth offset"
+      }
+    }
+  },
+  "schemaHash": "sha256:fe9453c63f7c389dd88318f342a21c484406ed7e1d54ed53d2be69ce7b139669",
+  "defaults": {
+    "section": "round",
+    "innerDiameter": 20,
+    "sectionSize": 3,
+    "sectionRadius": 0.3,
+    "sectionChamfer": 0.6,
+    "barDiameter": 2,
+    "barOffset": 0,
+    "barDepthOffset": 0
+  },
+  "fields": [
+    {
+      "key": "innerDiameter",
+      "label": "环内径",
+      "labelEn": "Ring inner diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "section",
+      "label": "截面",
+      "labelEn": "Section",
+      "type": "select",
+      "options": [
+        {
+          "value": "round",
+          "label": "圆线",
+          "labelEn": "Round wire"
+        },
+        {
+          "value": "square",
+          "label": "圆角方线",
+          "labelEn": "Rounded square"
+        },
+        {
+          "value": "chamferedSquare",
+          "label": "倒角方线",
+          "labelEn": "Chamfered square"
+        }
+      ]
+    },
+    {
+      "key": "sectionSize",
+      "label": "线径／方线边长",
+      "labelEn": "Wire diameter / square size",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sectionRadius",
+      "label": "方线截面 R（圆线忽略）",
+      "labelEn": "Square section corner R",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "sectionChamfer",
+      "label": "方线截面倒角 C（仅倒角方线）",
+      "labelEn": "Square section chamfer C",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "barDiameter",
+      "label": "横杆直径",
+      "labelEn": "Bar diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "barOffset",
+      "label": "横杆 Y 偏移",
+      "labelEn": "Bar Y offset",
+      "type": "number",
+      "min": -100,
+      "step": 0.1
+    },
+    {
+      "key": "barDepthOffset",
+      "label": "横杆 Z 错层",
+      "labelEn": "Bar Z depth offset",
+      "type": "number",
+      "min": -100,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "ringBar"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "ringBar",
+      "section": "round",
+      "innerDiameter": 20,
+      "sectionSize": 3,
+      "sectionRadius": 0.3,
+      "sectionChamfer": 0.6,
+      "barDiameter": 2,
+      "barOffset": 0,
+      "barDepthOffset": 0
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:5dee0c4b69bfe49260142ab85d6f895187c8d3ff50305f1b809fd6ffd3e9732b"
+}
+```
+
+## 工具 template.ellipseBar · 椭圆圈固定横杆
+
+```json
+{
+  "id": "template.ellipseBar",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "椭圆圈固定横杆",
+  "category": "template",
+  "synonyms": [
+    "ellipseBar",
+    "椭圆圈固定横杆",
+    "Elliptical ring with fixed bar"
+  ],
+  "description": "从内真椭圆外偏线扫掠圆线，再融合居中固定圆杆。圆线外包围须精确回读；接头过渡与源样条仍须对照。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "椭圆圈固定横杆",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Offset a true inner ellipse for a round-wire sweep and fuse one centered fixed round bar. Read back exact bounds; source spline and joint continuity still require comparison.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "ellipseBar"
+      },
+      "innerWidth": {
+        "type": "number",
+        "default": 35,
+        "description": "Inner ellipse major diameter"
+      },
+      "innerHeight": {
+        "type": "number",
+        "default": 25,
+        "description": "Inner ellipse minor diameter"
+      },
+      "sectionSize": {
+        "type": "number",
+        "default": 5,
+        "description": "Wire diameter / square size"
+      },
+      "barDiameter": {
+        "type": "number",
+        "default": 5,
+        "description": "Bar diameter"
+      },
+      "barDepthOffset": {
+        "type": "number",
+        "default": 0,
+        "description": "Bar Z depth offset"
+      }
+    }
+  },
+  "schemaHash": "sha256:bbae47f98797114053862a99d585d47efd134d29f78d8a75fa31b4572466abd0",
+  "defaults": {
+    "innerWidth": 35,
+    "innerHeight": 25,
+    "sectionSize": 5,
+    "barDiameter": 5,
+    "barDepthOffset": 0
+  },
+  "fields": [
+    {
+      "key": "innerWidth",
+      "label": "内椭圆长径",
+      "labelEn": "Inner ellipse major diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerHeight",
+      "label": "内椭圆短径",
+      "labelEn": "Inner ellipse minor diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sectionSize",
+      "label": "线径／方线边长",
+      "labelEn": "Wire diameter / square size",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "barDiameter",
+      "label": "横杆直径",
+      "labelEn": "Bar diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "barDepthOffset",
+      "label": "横杆 Z 错层",
+      "labelEn": "Bar Z depth offset",
+      "type": "number",
+      "min": -100,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "ellipseBar"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "ellipseBar",
+      "innerWidth": 35,
+      "innerHeight": 25,
+      "sectionSize": 5,
+      "barDiameter": 5,
+      "barDepthOffset": 0
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:ae0ae6f3b7146af73d5b3d9485d98f8a28bbd733378b496c84969ee6825dd892"
+}
+```
+
+## 工具 template.ellipseOpenWire · 内真椭圆开缝圆线圈
+
+```json
+{
+  "id": "template.ellipseOpenWire",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "内真椭圆开缝圆线圈",
+  "category": "template",
+  "synonyms": [
+    "ellipseOpenWire",
+    "内真椭圆开缝圆线圈",
+    "Open round-wire ellipse from inner outline"
+  ],
+  "description": "以内孔真椭圆外偏半线径扫掠圆线；底部正中用平行平面切出真实缝宽。外轮廓真椭圆的图纸不可使用本工具。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "内真椭圆开缝圆线圈",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Sweep round wire along a half-wire outward offset of a true inner ellipse, then cut a bottom-center parallel flat gap. Source drawings with a true outer ellipse need another tool.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "ellipseOpenWire"
+      },
+      "innerWidth": {
+        "type": "number",
+        "default": 15,
+        "description": "Inner width"
+      },
+      "innerHeight": {
+        "type": "number",
+        "default": 20,
+        "description": "Inner height"
+      },
+      "sectionSize": {
+        "type": "number",
+        "default": 3.5,
+        "description": "Wire diameter / square size"
+      },
+      "gapWidth": {
+        "type": "number",
+        "default": 0.2,
+        "description": "Bottom-center parallel gap width"
+      }
+    }
+  },
+  "schemaHash": "sha256:7f860ae884b91285bbd5df3211901159c35bf9a8fc7b694351f9a70f49f450de",
+  "defaults": {
+    "innerWidth": 15,
+    "innerHeight": 20,
+    "sectionSize": 3.5,
+    "gapWidth": 0.2
+  },
+  "fields": [
+    {
+      "key": "innerWidth",
+      "label": "内宽",
+      "labelEn": "Inner width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerHeight",
+      "label": "内高",
+      "labelEn": "Inner height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sectionSize",
+      "label": "线径／方线边长",
+      "labelEn": "Wire diameter / square size",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "gapWidth",
+      "label": "底中实际平切缝宽",
+      "labelEn": "Bottom-center parallel gap width",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "ellipseOpenWire"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "ellipseOpenWire",
+      "innerWidth": 15,
+      "innerHeight": 20,
+      "sectionSize": 3.5,
+      "gapWidth": 0.2
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:3a818307b594d3ca272714e9899bd4195d65d82d99521b3841bca3f4972e9550"
+}
+```
+
+## 工具 template.profileLoop · 圆角扁方截面直段长圈
+
+```json
+{
+  "id": "template.profileLoop",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "圆角扁方截面直段长圈",
+  "category": "template",
+  "synonyms": [
+    "profileLoop",
+    "圆角扁方截面直段长圈",
+    "Capsule loop with rounded rectangular section"
+  ],
+  "description": "两端半圆、上下直段的闭合长圈；正面料宽、侧面厚度和截面 R 独立。R 可等于截面短边一半，形成两圆端加直段的截面。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "圆角扁方截面直段长圈",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Closed capsule loop with semicircular ends and straight runs. Front width, side depth and section radius are independent; a half-short-side radius forms an exact stadium section.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "profileLoop"
+      },
+      "innerWidth": {
+        "type": "number",
+        "default": 35.2,
+        "description": "Inner width"
+      },
+      "innerHeight": {
+        "type": "number",
+        "default": 14.6,
+        "description": "Inner height"
+      },
+      "sectionWidth": {
+        "type": "number",
+        "default": 5.5,
+        "description": "Front section width"
+      },
+      "sectionDepth": {
+        "type": "number",
+        "default": 6,
+        "description": "Side section depth"
+      },
+      "sectionRadius": {
+        "type": "number",
+        "default": 2.5,
+        "description": "Square section corner R"
+      }
+    }
+  },
+  "schemaHash": "sha256:7255952b663b7d7bf9175c42aa9080a66c9cd9c57b2776e4d74ee8377c304ef7",
+  "defaults": {
+    "innerWidth": 35.2,
+    "innerHeight": 14.6,
+    "sectionWidth": 5.5,
+    "sectionDepth": 6,
+    "sectionRadius": 2.5
+  },
+  "fields": [
+    {
+      "key": "innerWidth",
+      "label": "内宽",
+      "labelEn": "Inner width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerHeight",
+      "label": "内高",
+      "labelEn": "Inner height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sectionWidth",
+      "label": "正面料宽",
+      "labelEn": "Front section width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sectionDepth",
+      "label": "侧面厚度",
+      "labelEn": "Side section depth",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sectionRadius",
+      "label": "方线截面 R（圆线忽略）",
+      "labelEn": "Square section corner R",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "profileLoop"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "profileLoop",
+      "innerWidth": 35.2,
+      "innerHeight": 14.6,
+      "sectionWidth": 5.5,
+      "sectionDepth": 6,
+      "sectionRadius": 2.5
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:6ff19536558869f15750a738d484780e4b37ff5af55359e24bdc972017b125fb"
+}
+```
+
+## 工具 template.capsuleWire · 圆线直段长圈
+
+```json
+{
+  "id": "template.capsuleWire",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "圆线直段长圈",
+  "category": "template",
+  "synonyms": [
+    "capsuleWire",
+    "圆线直段长圈",
+    "Round-wire capsule loop"
+  ],
+  "description": "闭合圆线长圈：两端精确半圆、上下直段，内宽高与圆线直径独立输入。未标缝宽时不猜接缝。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "圆线直段长圈",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Closed round-wire capsule loop with exact semicircular ends and straight runs. Set inner width, inner height and wire diameter; an unmarked seam is not guessed.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "capsuleWire"
+      },
+      "innerWidth": {
+        "type": "number",
+        "default": 34.9,
+        "description": "Inner width"
+      },
+      "innerHeight": {
+        "type": "number",
+        "default": 13.9,
+        "description": "Inner height"
+      },
+      "sectionSize": {
+        "type": "number",
+        "default": 6.1,
+        "description": "Wire diameter / square size"
+      }
+    }
+  },
+  "schemaHash": "sha256:8bbcb0d1a8b6e25623cb6c35bb7fbae24d0d1d1f2c4c859dccb6246f0be4412b",
+  "defaults": {
+    "innerWidth": 34.9,
+    "innerHeight": 13.9,
+    "sectionSize": 6.1
+  },
+  "fields": [
+    {
+      "key": "innerWidth",
+      "label": "内宽",
+      "labelEn": "Inner width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerHeight",
+      "label": "内高",
+      "labelEn": "Inner height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sectionSize",
+      "label": "线径／方线边长",
+      "labelEn": "Wire diameter / square size",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "capsuleWire"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "capsuleWire",
+      "innerWidth": 34.9,
+      "innerHeight": 13.9,
+      "sectionSize": 6.1
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:8795becc0341215465b5d212b49bdc37970fe806ceea5dc0654f9cad5563d224"
+}
+```
+
+## 工具 template.dBuckle · D 扣
+
+```json
+{
+  "id": "template.dBuckle",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "D 扣",
+  "category": "template",
+  "synonyms": [
+    "dBuckle",
+    "D 扣",
+    "D buckle"
+  ],
+  "description": "半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "D 扣",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "dBuckle"
+      },
+      "section": {
+        "type": "string",
+        "default": "round",
+        "description": "Section",
+        "enum": [
+          "round",
+          "square",
+          "chamferedSquare"
+        ]
+      },
+      "sectionSize": {
+        "type": "number",
+        "default": 3,
+        "description": "Wire diameter / square size"
+      },
+      "sectionRadius": {
+        "type": "number",
+        "default": 0.3,
+        "description": "Square section corner R"
+      },
+      "sectionChamfer": {
+        "type": "number",
+        "default": 0.6,
+        "description": "Square section chamfer C"
+      },
+      "gapWidth": {
+        "type": "number",
+        "default": 0,
+        "description": "Bottom gap (0 = closed)"
+      },
+      "innerWidth": {
+        "type": "number",
+        "default": 24,
+        "description": "Inner width"
+      },
+      "innerHeight": {
+        "type": "number",
+        "default": 19,
+        "description": "Inner height"
+      },
+      "innerRadius": {
+        "type": "number",
+        "default": 2,
+        "description": "Bottom inner radius"
+      }
+    }
+  },
+  "schemaHash": "sha256:53b4704be8d47e37f268903ca6ccc64fd736ea6653f862b81bdb571725052558",
+  "defaults": {
+    "section": "round",
+    "sectionSize": 3,
+    "sectionRadius": 0.3,
+    "sectionChamfer": 0.6,
+    "gapWidth": 0,
+    "innerWidth": 24,
+    "innerHeight": 19,
+    "innerRadius": 2
+  },
+  "fields": [
+    {
+      "key": "innerWidth",
+      "label": "内宽",
+      "labelEn": "Inner width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerHeight",
+      "label": "内高",
+      "labelEn": "Inner height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "section",
+      "label": "截面",
+      "labelEn": "Section",
+      "type": "select",
+      "options": [
+        {
+          "value": "round",
+          "label": "圆线",
+          "labelEn": "Round wire"
+        },
+        {
+          "value": "square",
+          "label": "圆角方线",
+          "labelEn": "Rounded square"
+        },
+        {
+          "value": "chamferedSquare",
+          "label": "倒角方线",
+          "labelEn": "Chamfered square"
+        }
+      ]
+    },
+    {
+      "key": "sectionSize",
+      "label": "线径／方线边长",
+      "labelEn": "Wire diameter / square size",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sectionRadius",
+      "label": "方线截面 R（圆线忽略）",
+      "labelEn": "Square section corner R",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "sectionChamfer",
+      "label": "方线截面倒角 C（仅倒角方线）",
+      "labelEn": "Square section chamfer C",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "innerRadius",
+      "label": "底内 R",
+      "labelEn": "Bottom inner radius",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "gapWidth",
+      "label": "底部实际缝宽（0 闭合）",
+      "labelEn": "Bottom gap (0 = closed)",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "dBuckle"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "dBuckle",
+      "section": "round",
+      "sectionSize": 3,
+      "sectionRadius": 0.3,
+      "sectionChamfer": 0.6,
+      "gapWidth": 0,
+      "innerWidth": 24,
+      "innerHeight": 19,
+      "innerRadius": 2
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:0d1b07e31aada6cb5b3d2f81fa03328892e3ca031ee5f9bf90ddd40c69f0a020"
+}
+```
+
+## 工具 template.dBarBuckle · 独立圆横杆 D 扣
+
+```json
+{
+  "id": "template.dBarBuckle",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "独立圆横杆 D 扣",
+  "category": "template",
+  "synonyms": [
+    "dBarBuckle",
+    "独立圆横杆 D 扣",
+    "D buckle with round bar"
+  ],
+  "description": "圆角方线 U 主体与固定圆杆融合；杆底与脚底齐平。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "独立圆横杆 D 扣",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "圆角方线 U 主体与固定圆杆融合；杆底与脚底齐平。",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "dBarBuckle"
+      },
+      "section": {
+        "type": "string",
+        "default": "square",
+        "description": "section"
+      },
+      "sectionSize": {
+        "type": "number",
+        "default": 6,
+        "description": "Wire diameter / square size"
+      },
+      "sectionRadius": {
+        "type": "number",
+        "default": 0.6,
+        "description": "Square section corner R"
+      },
+      "sectionChamfer": {
+        "type": "number",
+        "default": 0.6,
+        "description": "sectionChamfer"
+      },
+      "gapWidth": {
+        "type": "number",
+        "default": 0,
+        "description": "gapWidth"
+      },
+      "innerWidth": {
+        "type": "number",
+        "default": 32,
+        "description": "Inner width"
+      },
+      "innerHeight": {
+        "type": "number",
+        "default": 24,
+        "description": "Inner height"
+      },
+      "barDiameter": {
+        "type": "number",
+        "default": 4.5,
+        "description": "Bar diameter"
+      }
+    }
+  },
+  "schemaHash": "sha256:d34dc010471b3b4da89308376612b4ca0ff1c9396bd3e86f1d8be17b6cdc0b19",
+  "defaults": {
+    "section": "square",
+    "sectionSize": 6,
+    "sectionRadius": 0.6,
+    "sectionChamfer": 0.6,
+    "gapWidth": 0,
+    "innerWidth": 32,
+    "innerHeight": 24,
+    "barDiameter": 4.5
+  },
+  "fields": [
+    {
+      "key": "innerWidth",
+      "label": "内宽",
+      "labelEn": "Inner width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerHeight",
+      "label": "内高",
+      "labelEn": "Inner height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sectionSize",
+      "label": "线径／方线边长",
+      "labelEn": "Wire diameter / square size",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sectionRadius",
+      "label": "方线截面 R（圆线忽略）",
+      "labelEn": "Square section corner R",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "barDiameter",
+      "label": "固定横杆直径",
+      "labelEn": "Bar diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "dBarBuckle"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "dBarBuckle",
+      "section": "square",
+      "sectionSize": 6,
+      "sectionRadius": 0.6,
+      "sectionChamfer": 0.6,
+      "gapWidth": 0,
+      "innerWidth": 32,
+      "innerHeight": 24,
+      "barDiameter": 4.5
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:82ec1fdb4dcd804a066f4f1cdc3c793c539ef25d8c787351f489c07ee8aadc7f"
+}
+```
+
+## 工具 template.rectBuckle · 方扣
+
+```json
+{
+  "id": "template.rectBuckle",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "方扣",
+  "category": "template",
+  "synonyms": [
+    "rectBuckle",
+    "方扣",
+    "Rectangular buckle"
+  ],
+  "description": "恒截面圆角矩形框；闭合圆线可用内短边≥2.5 倍线径的紧凑框，其余至少 4 倍截面尺寸。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "方扣",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Constant-section rounded rectangular frame. A closed round-wire frame supports an inner short side at least 2.5 times the wire diameter; other variants require four times the section size.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "rectBuckle"
+      },
+      "section": {
+        "type": "string",
+        "default": "round",
+        "description": "Section",
+        "enum": [
+          "round",
+          "square",
+          "chamferedSquare"
+        ]
+      },
+      "sectionSize": {
+        "type": "number",
+        "default": 3,
+        "description": "Wire diameter / square size"
+      },
+      "sectionRadius": {
+        "type": "number",
+        "default": 0.3,
+        "description": "Square section corner R"
+      },
+      "sectionChamfer": {
+        "type": "number",
+        "default": 0.6,
+        "description": "Square section chamfer C"
+      },
+      "gapWidth": {
+        "type": "number",
+        "default": 0,
+        "description": "Bottom gap (0 = closed)"
+      },
+      "innerWidth": {
+        "type": "number",
+        "default": 28,
+        "description": "Inner width"
+      },
+      "innerHeight": {
+        "type": "number",
+        "default": 20,
+        "description": "Inner height"
+      },
+      "innerRadius": {
+        "type": "number",
+        "default": 3,
+        "description": "Frame inner radius"
+      }
+    }
+  },
+  "schemaHash": "sha256:1ada5c25825ae2ab47af04edd42a021cbf04544c138a70f67e831ad27d2071f3",
+  "defaults": {
+    "section": "round",
+    "sectionSize": 3,
+    "sectionRadius": 0.3,
+    "sectionChamfer": 0.6,
+    "gapWidth": 0,
+    "innerWidth": 28,
+    "innerHeight": 20,
+    "innerRadius": 3
+  },
+  "fields": [
+    {
+      "key": "innerWidth",
+      "label": "内宽",
+      "labelEn": "Inner width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerHeight",
+      "label": "内高",
+      "labelEn": "Inner height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "section",
+      "label": "截面",
+      "labelEn": "Section",
+      "type": "select",
+      "options": [
+        {
+          "value": "round",
+          "label": "圆线",
+          "labelEn": "Round wire"
+        },
+        {
+          "value": "square",
+          "label": "圆角方线",
+          "labelEn": "Rounded square"
+        },
+        {
+          "value": "chamferedSquare",
+          "label": "倒角方线",
+          "labelEn": "Chamfered square"
+        }
+      ]
+    },
+    {
+      "key": "sectionSize",
+      "label": "线径／方线边长",
+      "labelEn": "Wire diameter / square size",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sectionRadius",
+      "label": "方线截面 R（圆线忽略）",
+      "labelEn": "Square section corner R",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "sectionChamfer",
+      "label": "方线截面倒角 C（仅倒角方线）",
+      "labelEn": "Square section chamfer C",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "innerRadius",
+      "label": "框内 R",
+      "labelEn": "Frame inner radius",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "gapWidth",
+      "label": "底部实际缝宽（0 闭合）",
+      "labelEn": "Bottom gap (0 = closed)",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "rectBuckle"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "rectBuckle",
+      "section": "round",
+      "sectionSize": 3,
+      "sectionRadius": 0.3,
+      "sectionChamfer": 0.6,
+      "gapWidth": 0,
+      "innerWidth": 28,
+      "innerHeight": 20,
+      "innerRadius": 3
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:e5be388a0ba868691001594dfdaebe0eb36fcbaed9d69a4c022735d2bd8adcef"
+}
+```
+
+## 工具 template.sliderBuckle · 日字扣
+
+```json
+{
+  "id": "template.sliderBuckle",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "日字扣",
+  "category": "template",
+  "synonyms": [
+    "sliderBuckle",
+    "日字扣",
+    "Slider buckle"
+  ],
+  "description": "外框整体内高；固定圆杆偏移上正下负，不支持开缝。闭合圆线框可用内短边≥2.5倍线径的紧凑双窗，且每侧孔高至少为线径。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "日字扣",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "The inner height spans the full frame; the fused round bar has an editable vertical offset and no opening. Compact round-wire frames require an inner short side at least 2.5 wire diameters and each window at least one wire diameter high.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "sliderBuckle"
+      },
+      "section": {
+        "type": "string",
+        "default": "round",
+        "description": "Section",
+        "enum": [
+          "round",
+          "square",
+          "chamferedSquare"
+        ]
+      },
+      "sectionSize": {
+        "type": "number",
+        "default": 3,
+        "description": "Wire diameter / square size"
+      },
+      "sectionRadius": {
+        "type": "number",
+        "default": 0.3,
+        "description": "Square section corner R"
+      },
+      "sectionChamfer": {
+        "type": "number",
+        "default": 0.6,
+        "description": "Square section chamfer C"
+      },
+      "gapWidth": {
+        "type": "number",
+        "default": 0,
+        "description": "gapWidth"
+      },
+      "innerWidth": {
+        "type": "number",
+        "default": 30,
+        "description": "Inner width"
+      },
+      "innerHeight": {
+        "type": "number",
+        "default": 24,
+        "description": "Inner height"
+      },
+      "innerRadius": {
+        "type": "number",
+        "default": 3,
+        "description": "Frame inner radius"
+      },
+      "barDiameter": {
+        "type": "number",
+        "default": 2.5,
+        "description": "Bar diameter"
+      },
+      "barOffset": {
+        "type": "number",
+        "default": 0,
+        "description": "Bar offset (+up)"
+      }
+    }
+  },
+  "schemaHash": "sha256:85986d5c55c3dfb1949b5c4c808ef77d07ae29fa7e13d173591c517f990566d3",
+  "defaults": {
+    "section": "round",
+    "sectionSize": 3,
+    "sectionRadius": 0.3,
+    "sectionChamfer": 0.6,
+    "gapWidth": 0,
+    "innerWidth": 30,
+    "innerHeight": 24,
+    "innerRadius": 3,
+    "barDiameter": 2.5,
+    "barOffset": 0
+  },
+  "fields": [
+    {
+      "key": "innerWidth",
+      "label": "内宽",
+      "labelEn": "Inner width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerHeight",
+      "label": "内高",
+      "labelEn": "Inner height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "section",
+      "label": "截面",
+      "labelEn": "Section",
+      "type": "select",
+      "options": [
+        {
+          "value": "round",
+          "label": "圆线",
+          "labelEn": "Round wire"
+        },
+        {
+          "value": "square",
+          "label": "圆角方线",
+          "labelEn": "Rounded square"
+        },
+        {
+          "value": "chamferedSquare",
+          "label": "倒角方线",
+          "labelEn": "Chamfered square"
+        }
+      ]
+    },
+    {
+      "key": "sectionSize",
+      "label": "线径／方线边长",
+      "labelEn": "Wire diameter / square size",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sectionRadius",
+      "label": "方线截面 R（圆线忽略）",
+      "labelEn": "Square section corner R",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "sectionChamfer",
+      "label": "方线截面倒角 C（仅倒角方线）",
+      "labelEn": "Square section chamfer C",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "innerRadius",
+      "label": "框内 R",
+      "labelEn": "Frame inner radius",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "barDiameter",
+      "label": "横杆直径",
+      "labelEn": "Bar diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "barOffset",
+      "label": "横杆偏移（上正下负）",
+      "labelEn": "Bar offset (+up)",
+      "type": "number",
+      "min": -100,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "sliderBuckle"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "sliderBuckle",
+      "section": "round",
+      "sectionSize": 3,
+      "sectionRadius": 0.3,
+      "sectionChamfer": 0.6,
+      "gapWidth": 0,
+      "innerWidth": 30,
+      "innerHeight": 24,
+      "innerRadius": 3,
+      "barDiameter": 2.5,
+      "barOffset": 0
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:ab0231c98afcd5f9d4256db5e81c626a86b35138fa4ef61e282bf7930ee00ecc"
+}
+```
+
+## 工具 template.ovalBuckle · 四圆弧旦扣
+
+```json
+{
+  "id": "template.ovalBuckle",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "四圆弧旦扣",
+  "category": "template",
+  "synonyms": [
+    "ovalBuckle",
+    "四圆弧旦扣",
+    "Four-arc oval buckle"
+  ],
+  "description": "四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "四圆弧旦扣",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "ovalBuckle"
+      },
+      "section": {
+        "type": "string",
+        "default": "round",
+        "description": "Section",
+        "enum": [
+          "round",
+          "square",
+          "chamferedSquare"
+        ]
+      },
+      "sectionSize": {
+        "type": "number",
+        "default": 3,
+        "description": "Wire diameter / square size"
+      },
+      "sectionRadius": {
+        "type": "number",
+        "default": 0.3,
+        "description": "Square section corner R"
+      },
+      "sectionChamfer": {
+        "type": "number",
+        "default": 0.6,
+        "description": "Square section chamfer C"
+      },
+      "gapWidth": {
+        "type": "number",
+        "default": 0,
+        "description": "Right gap (0 = closed)"
+      },
+      "innerWidth": {
+        "type": "number",
+        "default": 28,
+        "description": "Inner width"
+      },
+      "innerHeight": {
+        "type": "number",
+        "default": 16,
+        "description": "Inner height"
+      },
+      "innerRadius": {
+        "type": "number",
+        "default": 5.6,
+        "description": "End inner radius"
+      }
+    }
+  },
+  "schemaHash": "sha256:fdd884fe8375003f5f2d624f6f6f0c3b22494eb883bc40256f8c5e1195c861e2",
+  "defaults": {
+    "section": "round",
+    "sectionSize": 3,
+    "sectionRadius": 0.3,
+    "sectionChamfer": 0.6,
+    "gapWidth": 0,
+    "innerWidth": 28,
+    "innerHeight": 16,
+    "innerRadius": 5.6
+  },
+  "fields": [
+    {
+      "key": "innerWidth",
+      "label": "内宽",
+      "labelEn": "Inner width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerHeight",
+      "label": "内高",
+      "labelEn": "Inner height",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "section",
+      "label": "截面",
+      "labelEn": "Section",
+      "type": "select",
+      "options": [
+        {
+          "value": "round",
+          "label": "圆线",
+          "labelEn": "Round wire"
+        },
+        {
+          "value": "square",
+          "label": "圆角方线",
+          "labelEn": "Rounded square"
+        },
+        {
+          "value": "chamferedSquare",
+          "label": "倒角方线",
+          "labelEn": "Chamfered square"
+        }
+      ]
+    },
+    {
+      "key": "sectionSize",
+      "label": "线径／方线边长",
+      "labelEn": "Wire diameter / square size",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sectionRadius",
+      "label": "方线截面 R（圆线忽略）",
+      "labelEn": "Square section corner R",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "sectionChamfer",
+      "label": "方线截面倒角 C（仅倒角方线）",
+      "labelEn": "Square section chamfer C",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    },
+    {
+      "key": "innerRadius",
+      "label": "端部内 R",
+      "labelEn": "End inner radius",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "gapWidth",
+      "label": "右端实际缝宽（0 闭合）",
+      "labelEn": "Right gap (0 = closed)",
+      "type": "number",
+      "min": 0,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "ovalBuckle"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "ovalBuckle",
+      "section": "round",
+      "sectionSize": 3,
+      "sectionRadius": 0.3,
+      "sectionChamfer": 0.6,
+      "gapWidth": 0,
+      "innerWidth": 28,
+      "innerHeight": 16,
+      "innerRadius": 5.6
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:a024487eeab5d25bd447d6471a151f05cf232b015a3885bd42e8ade33a964633"
+}
+```
+
+## 工具 template.washer · 平垫圈
+
+```json
+{
+  "id": "template.washer",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "平垫圈",
+  "category": "template",
+  "synonyms": [
+    "washer",
+    "平垫圈",
+    "Flat washer"
+  ],
+  "description": "平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。",
+  "apiCompatibility": [
+    "legacy"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": false,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "NOT_A_STRICT_V2_OPERATION",
+      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "operationId": "quickModel",
+  "label": "平垫圈",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "washer"
+      },
+      "innerDiameter": {
+        "type": "number",
+        "default": 10,
+        "description": "Inner diameter"
+      },
+      "sectionSize": {
+        "type": "number",
+        "default": 3,
+        "description": "Radial width"
+      },
+      "innerHeight": {
+        "type": "number",
+        "default": 1.5,
+        "description": "Thickness"
+      }
+    }
+  },
+  "schemaHash": "sha256:7dc1a95b72b9fe017bb067866b58395a4f663e61b02ca1b6c4eb79b43d766cb3",
+  "defaults": {
+    "innerDiameter": 10,
+    "sectionSize": 3,
+    "innerHeight": 1.5
+  },
+  "fields": [
+    {
+      "key": "innerDiameter",
+      "label": "内径",
+      "labelEn": "Inner diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "sectionSize",
+      "label": "径向宽度",
+      "labelEn": "Radial width",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "innerHeight",
+      "label": "厚度",
+      "labelEn": "Thickness",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    }
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "washer"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "washer",
+      "innerDiameter": 10,
+      "sectionSize": 3,
+      "innerHeight": 1.5
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "docsHash": "sha256:9b48263157e1d806e0e8432bcbfd56ad1683c49f54139f95cd21e0246cd4125f"
+}
+```
+
+## 工具 createRequestContext · createRequestContext
+
+```json
+{
+  "id": "createRequestContext",
+  "title": "createRequestContext",
+  "category": "page-method",
+  "version": "1.7.0",
+  "description": "createRequestContext(context?); omit to read the current context.",
+  "synonyms": [
+    "createRequestContext",
+    "上下文",
+    "版本",
+    "转换"
+  ],
+  "inputContract": "createRequestContext(context?); omit to read the current context.",
+  "outputContract": "sessionId/documentId/documentInstanceId/expectedRevision；不修复陈旧状态。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "REVISION_CONFLICT"
+  ],
+  "docs": "api.reliability",
+  "docsHash": "sha256:b83486252d57c7cdfadffc08b65817a10b27b4a1a5d1056361113876151b46aa"
+}
+```
+
+## 工具 getUILayout · getUILayout
+
+```json
+{
+  "id": "getUILayout",
+  "title": "getUILayout",
+  "category": "page-method",
+  "version": "1.7.0",
+  "description": "getUILayout()",
+  "synonyms": [
+    "getUILayout",
+    "界面",
+    "布局",
+    "配置",
+    "选项卡"
+  ],
+  "inputContract": "getUILayout()",
+  "outputContract": "当前版本化 tabs/groups/controls/header/panels 配置。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
+  "errorCodes": [],
+  "docs": "api.workspace",
+  "docsHash": "sha256:52cc660698e752122d7ff75ab69c26dcc7fd9eea26912474688bf4941252486d"
+}
+```
+
+## 工具 setRenderQuality · setRenderQuality
+
+```json
+{
+  "id": "setRenderQuality",
+  "title": "setRenderQuality",
+  "category": "page-method",
+  "version": "1.7.0",
+  "description": "setRenderQuality({context,quality:\"draft\"|\"standard\"|\"fine\"|\"ultra\"})",
+  "synonyms": [
+    "setRenderQuality",
+    "显示",
+    "精度",
+    "网格",
+    "曲面",
+    "公差"
+  ],
+  "inputContract": "setRenderQuality({context,quality:\"draft\"|\"standard\"|\"fine\"|\"ultra\"})",
+  "outputContract": "status=applied、context、renderQuality、display；只重新网格化。详见 api.workspace。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "REVISION_CONFLICT",
+    "INSTANCE_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "DISPLAY_FAILED"
+  ],
+  "docs": "api.workspace",
+  "docsHash": "sha256:aee52ff0ec9ea47c6a7da96fbb80278469be022c15f59797e1bab4fba527b5c0"
+}
+```
+
+## 工具 invoke · invoke
+
+```json
+{
+  "id": "invoke",
+  "title": "invoke",
+  "category": "page-method",
+  "version": "1.7.0",
+  "description": "invoke({method,args}); public method name or files.*.",
+  "synonyms": [
+    "invoke",
+    "统一",
+    "错误",
+    "调用"
+  ],
+  "inputContract": "invoke({method,args}); public method name or files.*.",
+  "outputContract": "返回原方法结果；抛错转换为结构化失败。详见 api.reliability。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID"
+  ],
+  "docs": "api.reliability",
+  "docsHash": "sha256:383759d5433ac3f29196418a35c8e1a01b55c7e5e95d6f6a2366c8e0676f7195"
+}
+```
+
+## 工具 submit · submit
+
+```json
+{
+  "id": "submit",
+  "title": "submit",
+  "category": "page-method",
+  "version": "1.7.0",
+  "description": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/setView/setRenderQuality/files.save/files.export/files.import.",
+  "synonyms": [
+    "submit",
+    "异步",
+    "任务",
+    "超时",
+    "后台",
+    "回执"
+  ],
+  "inputContract": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/setView/setRenderQuality/files.save/files.export/files.import.",
+  "outputContract": "立即返回 jobId/status；参数中保留原 context 和幂等键；详见 api.reliability。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "RESOURCE_LIMIT",
+    "IDEMPOTENCY_KEY_REUSED"
+  ],
+  "docs": "api.reliability",
+  "docsHash": "sha256:c814507d104970c8c9a985859c3725d774d31e6c5902a86b3f830faf8274ad35"
+}
+```
+
+## 工具 getJob · getJob
+
+```json
+{
+  "id": "getJob",
+  "title": "getJob",
+  "category": "page-method",
+  "version": "1.7.0",
+  "description": "getJob({jobId})",
+  "synonyms": [
+    "getJob",
+    "任务",
+    "状态",
+    "轮询",
+    "结果"
+  ],
+  "inputContract": "getJob({jobId})",
+  "outputContract": "任务 status/progress/phase/elapsedMs/result；result 保留原提交回执。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
+  "errorCodes": [
+    "JOB_NOT_FOUND"
+  ],
+  "docs": "api.reliability",
+  "docsHash": "sha256:6dc859f7d77c7fccddb612b3adaec40bbd388959cdc417276cfc7fc415af3899"
+}
+```
+
+## 工具 cancelJob · cancelJob
+
+```json
+{
+  "id": "cancelJob",
+  "title": "cancelJob",
+  "category": "page-method",
+  "version": "1.7.0",
+  "description": "cancelJob({jobId})",
+  "synonyms": [
+    "cancelJob",
+    "任务",
+    "取消"
+  ],
+  "inputContract": "cancelJob({jobId})",
+  "outputContract": "cancelled 布尔；运行中拒绝取消且继续可查原回执。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
+  "errorCodes": [
+    "JOB_NOT_FOUND"
+  ],
+  "docs": "api.reliability",
+  "docsHash": "sha256:0b19ca0355c9b5907d3f1e9dcdd950cfa4391408c0cba30ee373116bc87d6130"
 }
 ```
 
@@ -15951,8 +25299,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.3.1",
-  "description": "connect({queries?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries. Read-only; works while the kernel starts.",
+  "version": "1.7.0",
+  "description": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.",
   "synonyms": [
     "connect",
     "连接",
@@ -15960,18 +25308,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "工具",
     "缓存"
   ],
-  "inputContract": "connect({queries?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries. Read-only; works while the kernel starts.",
-  "outputContract": "精简的当前 context/requestContext、就绪与预览、实体引用、工具搜索结果、可选批量契约及缓存版本；详见 api.discovery。",
+  "inputContract": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.",
+  "outputContract": "当前 context/requestContext、canExecute/blockers/nextAction、版本与迁移说明、实体引用和工具契约。ready 仅为内核状态；canExecute 才计入 busy/preview。详见 api.workflow。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
-  "errorModel": "Read methods may return a structured state error or throw a coded contract error.",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:9850d55b8dd34a61343e1b553b8a98b7525a5803b10ae511dbc2fa9a75308a6a"
+  "docsHash": "sha256:e8d5f8e3300ab5e8326cb139f62d7ef0d661291e19f89962e97a8076384461d6"
 }
 ```
 
@@ -15982,7 +25330,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "info",
   "title": "info",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "info() 无参数。",
   "synonyms": [
     "info",
@@ -15995,9 +25343,9 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
-  "errorModel": "Read methods may return a structured state error or throw a coded contract error.",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
   "errorCodes": [],
-  "docsHash": "sha256:22efe105959348511643e34bb3adb08d82832b7c2a1b8737ebf512569ff32902"
+  "docsHash": "sha256:8dc790e848a943f35c3141ba53a8826cd7305d552cefdae5e3ce38cff6e5d929"
 }
 ```
 
@@ -16008,26 +25356,27 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.3.1",
-  "description": "getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities。",
+  "version": "1.7.0",
+  "description": "getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities/references。",
   "synonyms": [
     "getState",
     "工程状态",
     "特征",
     "实体",
-    "参数"
+    "参数",
+    "基准"
   ],
-  "inputContract": "getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities。",
-  "outputContract": "当前 context、工程状态、parameters、parameterValues、hidden、appearance、colors、renderFinish、view 和 display；不会默认返回导入源字节。",
+  "inputContract": "getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities/references。",
+  "outputContract": "当前 context、referenceSystem、parameters、parameterValues、view 和 display；不会默认返回导入源字节。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
-  "errorModel": "Read methods may return a structured state error or throw a coded contract error.",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "INSTANCE_MISMATCH"
   ],
-  "docsHash": "sha256:6c0dd2cf58f158ffca243ed5e75994da21aace940ee7165cec01f7c3a7074b51"
+  "docsHash": "sha256:c9a8519f5f3c63a3eef1955de2989e7776395fc0af685276c737f33ec12538b0"
 }
 ```
 
@@ -16038,7 +25387,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "searchTools",
   "title": "searchTools",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。",
   "synonyms": [
     "searchTools",
@@ -16052,13 +25401,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
-  "errorModel": "Read methods may return a structured state error or throw a coded contract error.",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:d2d1aa88533dd9c9ae64385b8ae2658ce5e01efc3531b28b177149a40ef004ca"
+  "docsHash": "sha256:828422b53aa435aedbeb5e7ec9cb4dac2c8a35c4a7932e03f7c2be1f3ae36814"
 }
 ```
 
@@ -16069,7 +25418,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getTools",
   "title": "getTools",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.",
   "synonyms": [
     "getTools",
@@ -16083,14 +25432,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
-  "errorModel": "Read methods may return a structured state error or throw a coded contract error.",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
     "CATALOG_CHANGED"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:49ede27b9b9e9f0ceb82e8fca3843267c3c411c12a122d640cb7f176efbf2548"
+  "docsHash": "sha256:43b7d988d94bbc43f5148396660f5828a33ee2c4079acbcb880efd4935db8379"
 }
 ```
 
@@ -16101,7 +25450,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getTool",
   "title": "getTool",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。",
   "synonyms": [
     "getTool",
@@ -16115,13 +25464,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
-  "errorModel": "Read methods may return a structured state error or throw a coded contract error.",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "UNKNOWN_OPERATION",
     "OPERATION_VERSION_UNSUPPORTED"
   ],
-  "docsHash": "sha256:6046d0eff5d8a3154e19d6316bee0e0935c09ff2644898f6860f37c04f40c0f8"
+  "docsHash": "sha256:7941015e750b22315b18c9d1cb862ed0bee2020a1ec1bc62b73ad958e6ec52b8"
 }
 ```
 
@@ -16132,7 +25481,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "readDocs",
   "title": "readDocs",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。",
   "synonyms": [
     "readDocs",
@@ -16146,13 +25495,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
-  "errorModel": "Read methods may return a structured state error or throw a coded contract error.",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
     "OPERATION_VERSION_UNSUPPORTED"
   ],
-  "docsHash": "sha256:c8593c620372dccd15fcc8498463ed64057de95ee04ccec740e33fefc5fac530"
+  "docsHash": "sha256:b5a86d9df46a21b6e42670b15dc009e136a5aaf6e942703b3c499fa02a00b55e"
 }
 ```
 
@@ -16163,7 +25512,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "queryGeometry",
   "title": "queryGeometry",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,limit?,cursor?})。",
   "synonyms": [
     "queryGeometry",
@@ -16185,7 +25534,67 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "NO_MATCH",
     "AMBIGUOUS_SELECTION"
   ],
-  "docsHash": "sha256:f22a89b556eeaffe6e43b5ab7c515418edbb9e813a53ccdc528cd056b618a714"
+  "docsHash": "sha256:0f7992c7120c16f6ff9c57bc7db610f2eeece2f78ab0e7c8860f179ec8095192"
+}
+```
+
+## 工具 queryReferences · queryReferences
+
+```json
+{
+  "id": "queryReferences",
+  "title": "queryReferences",
+  "category": "page-method",
+  "version": "1.7.0",
+  "description": "queryReferences({context,bodyIds:[],kind:\"point\",filter?:{types?:[\"world-origin\",\"work-origin\",\"endpoint\",\"circle-center\"]},limit?,requireUnique?})。",
+  "synonyms": [
+    "queryReferences",
+    "参考点",
+    "工作基准",
+    "几何吸附"
+  ],
+  "inputContract": "queryReferences({context,bodyIds:[],kind:\"point\",filter?:{types?:[\"world-origin\",\"work-origin\",\"endpoint\",\"circle-center\"]},limit?,requireUnique?})。",
+  "outputContract": "当前工程的精确坐标候选、来源、总数和截断状态；不写模型。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "REVISION_CONFLICT",
+    "STALE_REFERENCE",
+    "AMBIGUOUS_REFERENCE"
+  ],
+  "docsHash": "sha256:99675fececbaf8ee21927467fd9a31879aa533f04747119d030f2c44d0f1324c"
+}
+```
+
+## 工具 resolvePlacement · resolvePlacement
+
+```json
+{
+  "id": "resolvePlacement",
+  "title": "resolvePlacement",
+  "category": "page-method",
+  "version": "1.7.0",
+  "description": "resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。",
+  "synonyms": [
+    "resolvePlacement",
+    "定位解析",
+    "工作基准",
+    "快照"
+  ],
+  "inputContract": "resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。",
+  "outputContract": "持久化 frameSnapshot、来源点、世界位置，placementValidated=true、geometryValidated=false；不写模型。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "REVISION_CONFLICT",
+    "FRAME_INVALID",
+    "PLACEMENT_NOT_APPLICABLE"
+  ],
+  "docsHash": "sha256:87fd89a0d98b764ebea07fe71bddbd375be7df7e19516b428acc1bf2fa1a8402"
 }
 ```
 
@@ -16196,7 +25605,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "execute({context,idempotencyKey,action,args}); action 来自当前命令合同。",
   "synonyms": [
     "execute",
@@ -16218,7 +25627,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_SCHEMA_INVALID",
     "GEOMETRY_INVALID"
   ],
-  "docsHash": "sha256:c2f52aab4df692114f2570b35f615daa18035a37638534db4ad6a96961d50d17"
+  "docsHash": "sha256:ff767a0cc2a6ad3ebc0f7d44373572579a5084cd890d2edc68304f035027238a"
 }
 ```
 
@@ -16229,7 +25638,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "measure",
   "title": "measure",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需非负整数 topologyId。",
   "synonyms": [
     "measure",
@@ -16251,7 +25660,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:e5ef26e63ee0656cabe1050b55fb37af750ab4fda1b34cef7cb2d06b542b30eb"
+  "docsHash": "sha256:c340e7ad29659bd312b45037b6115f86cb2a2af8056fb1b83fc62319f36b129b"
 }
 ```
 
@@ -16262,7 +25671,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectPrintability",
   "title": "inspectPrintability",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "inspectPrintability({context,bodyId,angleLimitDeg?:45}); angleLimitDeg 在 0 与 90 度之间。",
   "synonyms": [
     "inspectPrintability",
@@ -16285,7 +25694,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.printability",
-  "docsHash": "sha256:944b6bfe3496b109df1a7f43c472b1b6de7eef81dbb597db1c4135a3ae5fbf07"
+  "docsHash": "sha256:ee13e3eaf4cde9eb34774d0c1777b733aff74909c2d022597b67c67f6b88a5c4"
 }
 ```
 
@@ -16296,7 +25705,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "fitProfile",
   "title": "fitProfile",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "fitProfile({context,kind:\"circle\"|\"line\",plane?:\"XY\"|\"XZ\"|\"YZ\",points:[[u,v],...],maxResidualMm?}); 3–1000 点。",
   "synonyms": [
     "fitProfile",
@@ -16320,7 +25729,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.profile-fitting",
-  "docsHash": "sha256:ba03794c713890c114d5ab7d4f2812433416694060a75e7aa4c750c23dc32d1f"
+  "docsHash": "sha256:fa11801492ebe8399bc57361124b9f9d7edc490a578af256e798c4eaad5c1a11"
 }
 ```
 
@@ -16331,7 +25740,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "traceTwinWindow",
   "title": "traceTwinWindow",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBottomY,simplifyToleranceMm?:0..0.2}); 四条上到下 XY 采样曲线，每条3–2000点。",
   "synonyms": [
     "traceTwinWindow",
@@ -16353,7 +25762,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.dwg-spline-twin-window",
-  "docsHash": "sha256:464b9611b56bd32cdf72f1d7f8182705a89ee7ab87950cd54c16ee88cefbc34d"
+  "docsHash": "sha256:68837960d116e0062832d6a4e47952e0fcc5f7f3f5b1fa6a4015bdd942276cd3"
 }
 ```
 
@@ -16364,7 +25773,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "executeText",
   "title": "executeText",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "executeText({context,idempotencyKey,text,dryRun?}); 每行 add <op> key=value 或 measure <bodyId|$last>。",
   "synonyms": [
     "executeText",
@@ -16387,7 +25796,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.text-command",
-  "docsHash": "sha256:08d617be58bfbeede521c3652071193c8b0286b50112ca322eacea15fa93ea9d"
+  "docsHash": "sha256:6de26ed61d451daeec5b078a8962a8e02eb2ae9bfac3ef1c678237aea7b9209c"
 }
 ```
 
@@ -16398,7 +25807,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "setDisplayPreferences({context,values}); values 为部分配置，字段及范围见 api.display-preferences。",
   "synonyms": [
     "setDisplayPreferences",
@@ -16423,7 +25832,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.display-preferences",
-  "docsHash": "sha256:caf1cd9a8f8da0cd20544d697afa2fd76124db7ff9ac93643814d6c8cbab64af"
+  "docsHash": "sha256:1e8888104b644d07b781d81a84cab43b2f38809250c5b7a833f185865cbc0b26"
 }
 ```
 
@@ -16434,7 +25843,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getLogoConverter",
   "title": "getLogoConverter",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "getLogoConverter()；读取当前浏览器 localStorage 的配置。",
   "synonyms": [
     "getLogoConverter",
@@ -16449,7 +25858,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:4cec1f0bdf08d2462f741672579e945b99f1412f2d2d97bb0914d2feb2aaa9a7"
+  "docsHash": "sha256:4877e3f8815b6e6987a795901292d815dd3c2d181a89bc30b4c7054f0cadea4d"
 }
 ```
 
@@ -16460,7 +25869,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setLogoConverter",
   "title": "setLogoConverter",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "setLogoConverter({context,url,key?})；URL 必须含 userid，空 key 保留原值。",
   "synonyms": [
     "setLogoConverter",
@@ -16476,7 +25885,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:c260f0f4ef225d7796e0b8522bd78c86bd75fe6dd6dc99fee6fea52843e56c04"
+  "docsHash": "sha256:a534e0d191feb28ce7ccf0a6695a81e85432054fc0cb27a57b54ee44ca8fe9fa"
 }
 ```
 
@@ -16487,7 +25896,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "convertLogoPdf",
   "title": "convertLogoPdf",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "convertLogoPdf({context,name,data,targetWidthMm?})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。",
   "synonyms": [
     "convertLogoPdf",
@@ -16503,7 +25912,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:8fa4430163de278186d556cb77a88c08c9c0a7c35ea2b0c61297129451939879"
+  "docsHash": "sha256:a8f2e5f1c5d6fce0478b647725e42fc5558d4c058a1fc1f46d6133b2da4383f9"
 }
 ```
 
@@ -16514,7 +25923,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?}); 详见 api.views；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
   "synonyms": [
     "setView",
@@ -16539,7 +25948,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:781182a8f653799dc49abe35ec781fe6a09a671c8b6e9168938684ebbaad8476"
+  "docsHash": "sha256:beb3335337abc2ce4503ffde7388cbe0630b93ccb289537babbcaf613b47f268"
 }
 ```
 
@@ -16550,7 +25959,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "redraw",
   "title": "redraw",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "redraw({context}); 不接受额外字段。",
   "synonyms": [
     "redraw",
@@ -16571,7 +25980,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "DISPLAY_FAILED"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:7a2fac90b6ffb05c9f07a11403c6fa6036b3270cd75bacef54d35c3557f02f88"
+  "docsHash": "sha256:847049152ac51a78307a2fdf339c1cce5180b75adea87c2b0ef731a143239829"
 }
 ```
 
@@ -16582,7 +25991,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "capture({context}); 不接受额外字段。",
   "synonyms": [
     "capture",
@@ -16603,7 +26012,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "DISPLAY_FAILED"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:41c5b36e6f8905b7605354a2809e1fbc65b14275111e7a02daddcc7b422e17c8"
+  "docsHash": "sha256:cd528481e37a3defce461532ec74bdf50a8f7122f1f7c4cf6eedf0d22815e237"
 }
 ```
 
@@ -16614,7 +26023,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}).",
   "synonyms": [
     "run",
@@ -16625,7 +26034,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "无CLI"
   ],
   "inputContract": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}).",
-  "outputContract": "completed/partial/failed/unknown、逐步回执、elapsedMs、当前 context/summary/display；atomic=false。",
+  "outputContract": "completed/partial/failed/unknown、逐步回执、progress/recovery、elapsedMs、回执时的 context/requestContext/summary/display；atomic=false。后续操作前核对实时状态。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -16638,7 +26047,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "IDEMPOTENCY_KEY_REUSED",
     "STALE_REFERENCE"
   ],
-  "docsHash": "sha256:67ba06919718aa9fd604029da953bc48ce09f496e9c1bb5dcfba1d5e1d686baa"
+  "docsHash": "sha256:a93eb9dbdb3ed9f3791f904fd73b5f884b038a4bbfa57d0e547ee022cd082b22"
 }
 ```
 
@@ -16650,7 +26059,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "工程改名",
   "description": "修改工程名称，保留几何。",
   "category": "command",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -16664,9 +26073,9 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "name": "圆环设计"
     }
   },
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:c8740d5daaa1f0b11a6d9a6a8f5875bda6ea8014cb95a5f33c976b2d289ab8e6"
+  "docsHash": "sha256:ea8a41869f2df83559961ef564f584d9c4876296fdffdb6c1621aa8d49d98083"
 }
 ```
 
@@ -16678,7 +26087,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "特征改名 实体名称",
   "description": "修改历史步骤及同 ID 实体名称，导入件也可使用。",
   "category": "command",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -16694,9 +26103,9 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "name": "主体"
     }
   },
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:b32d254c86425dc91e10259daac804e01cd6f700d225d0b502b47a3f4b99788c"
+  "docsHash": "sha256:f722e6c911093647b4af407681eee3828459c136d42fc9412a20b9bbff867f03"
 }
 ```
 
@@ -16708,7 +26117,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "显示 隐藏实体",
   "description": "显隐指定当前实体，不删除几何。",
   "category": "command",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -16726,9 +26135,9 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "visible": false
     }
   },
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:b28acf6ffc4e243983bef73b9dbec14eac58c03411563e4dcdafca5bea791588"
+  "docsHash": "sha256:584bd9ac6db7858dbf91c1c8f90a4c5e9a87134df99fb49305d9c4aac7f64cf5"
 }
 ```
 
@@ -16740,7 +26149,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "实体原色 颜色 金属 材质",
   "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。",
   "category": "command",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -16773,9 +26182,9 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "finish": "design"
     }
   },
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:592759596dd89dd1280bc00e2ac9ac4f144ef0bdad98e686700a49c73a666103"
+  "docsHash": "sha256:99e8785cd2a746d7c71a55f24a7f27bca4acd8bf3b56b92dcf2f5df461fc83e5"
 }
 ```
 
@@ -16787,7 +26196,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "工程渲染 金属色",
   "description": "设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
   "category": "command",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -16814,9 +26223,9 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "finish": "nickel"
     }
   },
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:3849f0308eb30da06109145d20f91f490951166080bc4a6526a7481137f8f048"
+  "docsHash": "sha256:5cd9d9c71447aaf507d57d9bffba60dc0e57962aea2b1cdefd95c71c81ac2101"
 }
 ```
 
@@ -16828,7 +26237,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "组合拆散 多实体分解",
   "description": "将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。",
   "category": "command",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -16842,9 +26251,180 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "bodyId": "<bodyId>"
     }
   },
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:5b8f27b9cfdc67aef7a0944969992012ff8b9e796233fcfe2bacfbbb68d53efb"
+  "docsHash": "sha256:067d8f10a5c22b1c18c18ed8ce97140135c0d0bd4e144131ea14882583bc46d3"
+}
+```
+
+## 工具 reference.setWorkFrame · 设置工作基准
+
+```json
+{
+  "id": "reference.setWorkFrame",
+  "title": "设置工作基准",
+  "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；单位四元数，锁定时拒绝。",
+  "category": "command",
+  "version": "1.7.0",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"reference.setWorkFrame\",args}); args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；单位四元数，锁定时拒绝。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "docs": "api.references",
+  "docsHash": "sha256:f2c0aef9bf23ade625e3b602cdbb01cc0c7e927ddf53559a5ed81377ed1cb5b9"
+}
+```
+
+## 工具 reference.resetWorkFrame · 重置工作基准
+
+```json
+{
+  "id": "reference.resetWorkFrame",
+  "title": "重置工作基准",
+  "description": "args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
+  "category": "command",
+  "version": "1.7.0",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"reference.resetWorkFrame\",args}); args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "docs": "api.references",
+  "docsHash": "sha256:131c653db351b76d48876546194ab7bae0a2f70be28b9a0c8448202560e72367"
+}
+```
+
+## 工具 reference.setLocked · 锁定工作基准
+
+```json
+{
+  "id": "reference.setLocked",
+  "title": "锁定工作基准",
+  "description": "args:{locked:boolean}；可撤销的元数据操作。",
+  "category": "command",
+  "version": "1.7.0",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"reference.setLocked\",args}); args:{locked:boolean}；可撤销的元数据操作。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "docs": "api.references",
+  "docsHash": "sha256:cdc1d5a0b11832069886522a1322c3728bdc65bf942a195abdcf4286bb190db2"
+}
+```
+
+## 工具 reference.saveFrame · 保存具名基准
+
+```json
+{
+  "id": "reference.saveFrame",
+  "title": "保存具名基准",
+  "description": "args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
+  "category": "command",
+  "version": "1.7.0",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"reference.saveFrame\",args}); args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "docs": "api.references",
+  "docsHash": "sha256:7e3295a61dcce9837aec117a5f99599d0d5d399dd3cce28256f48c5ef574063b"
+}
+```
+
+## 工具 reference.activateFrame · 激活具名基准
+
+```json
+{
+  "id": "reference.activateFrame",
+  "title": "激活具名基准",
+  "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
+  "category": "command",
+  "version": "1.7.0",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"reference.activateFrame\",args}); args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "docs": "api.references",
+  "docsHash": "sha256:8ec0bcc986d11710c1c76ecff9eeb1dcd57a7d22489292f545a852aa97fc46ca"
+}
+```
+
+## 工具 reference.renameFrame · 重命名具名基准
+
+```json
+{
+  "id": "reference.renameFrame",
+  "title": "重命名具名基准",
+  "description": "args:{frameId,expectedFrameVersion,name}。",
+  "category": "command",
+  "version": "1.7.0",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"reference.renameFrame\",args}); args:{frameId,expectedFrameVersion,name}。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "docs": "api.references",
+  "docsHash": "sha256:0b7a9baa25c871dea18464862ebdefc7cb2592a2f8ea8e3d3b6225f7aa4e98a6"
+}
+```
+
+## 工具 reference.deleteFrame · 删除具名基准
+
+```json
+{
+  "id": "reference.deleteFrame",
+  "title": "删除具名基准",
+  "description": "args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
+  "category": "command",
+  "version": "1.7.0",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"reference.deleteFrame\",args}); args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "docs": "api.references",
+  "docsHash": "sha256:1cc4aa10026140e355a23dfa781634b52b7e422fc113407c2a21139d487e9e7e"
+}
+```
+
+## 工具 reference.setBodyAnchor · 对象锚点
+
+```json
+{
+  "id": "reference.setBodyAnchor",
+  "title": "对象锚点",
+  "description": "当前阶段尚未开放；需要精确几何指纹证明。",
+  "category": "command",
+  "version": "1.7.0",
+  "implementationStatus": "unavailable",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "unavailable",
+  "inputContract": "execute({context,idempotencyKey,action:\"reference.setBodyAnchor\",args}); 当前阶段尚未开放；需要精确几何指纹证明。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "docs": "api.references",
+  "docsHash": "sha256:7c8ab14ef5b1beed56f4666d13d372a0402db5380737fc428488b951ae05e7b1"
+}
+```
+
+## 工具 reference.deleteBodyAnchor · 删除对象锚点
+
+```json
+{
+  "id": "reference.deleteBodyAnchor",
+  "title": "删除对象锚点",
+  "description": "当前阶段尚未开放；需要精确几何指纹证明。",
+  "category": "command",
+  "version": "1.7.0",
+  "implementationStatus": "unavailable",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "unavailable",
+  "inputContract": "execute({context,idempotencyKey,action:\"reference.deleteBodyAnchor\",args}); 当前阶段尚未开放；需要精确几何指纹证明。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "docs": "api.references",
+  "docsHash": "sha256:1778ae0bb7d473c3bc32d82d97c0d66e1f827ba2970e3d1da7b55d99c3a7a04a"
 }
 ```
 
@@ -16854,16 +26434,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 {
   "id": "feature.add",
   "title": "新增几何",
-  "description": "args:{op,opVersion,schemaHash,params,refs,name?}；先 getTool 读取操作卡。",
+  "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡。当前 box/hole 支持 placement。",
   "category": "command",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"feature.add\",args}); args:{op,opVersion,schemaHash,params,refs,name?}；先 getTool 读取操作卡。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "inputContract": "execute({context,idempotencyKey,action:\"feature.add\",args}); args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡。当前 box/hole 支持 placement。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:c363614006ff45044c2c191a235a0d0efe4f0a8df30c4192814372cefe2acd16"
+  "docsHash": "sha256:1e8ead49829cbe700d86755d607481bb3e70c235c152e440a3d99082cdb942e5"
 }
 ```
 
@@ -16873,16 +26453,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 {
   "id": "feature.edit",
   "title": "修改参数",
-  "description": "args:{featureId,opVersion,schemaHash,params,name?}；params 为补丁。",
+  "description": "args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。",
   "category": "command",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"feature.edit\",args}); args:{featureId,opVersion,schemaHash,params,name?}；params 为补丁。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "inputContract": "execute({context,idempotencyKey,action:\"feature.edit\",args}); args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:a6d32b08a93f438f45a1560b63da03ec5a3f1678eb5c5e155804982d587facda"
+  "docsHash": "sha256:51ad5676fd1483eafcff84bac392e36a85c45c0d862d5a638ea9687a38dcc204"
 }
 ```
 
@@ -16894,14 +26474,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "删除实体",
   "description": "args:{bodyIds}，不可使用历史已替换 ID。",
   "category": "command",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"feature.remove\",args}); args:{bodyIds}，不可使用历史已替换 ID。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:12df0c68bdcf184b3c3d748b274b18e7ecd15328a0bd982d4b254a3acaf0b0f3"
+  "docsHash": "sha256:0c02d3bce0549bd81f6310f3f8ddd8c6632f1f8c03f12c4576f609f59f021f1a"
 }
 ```
 
@@ -16913,14 +26493,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "撤销",
   "description": "args:{}；撤销一个已提交步骤。",
   "category": "command",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"history.undo\",args}); args:{}；撤销一个已提交步骤。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:ae8244a4358ea2b897fbe650e58e784e73fdf82bb721a0eb04667b4926f0d238"
+  "docsHash": "sha256:b2b9d86074fc39a373be7799eb4873b88bfd3d6c3272c6c35a75bfa5dc0af1ca"
 }
 ```
 
@@ -16932,14 +26512,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重做",
   "description": "args:{}；重做一个步骤。",
   "category": "command",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"history.redo\",args}); args:{}；重做一个步骤。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:c85d4c67e5fb33de4b7de6ad218c46c4bf8fb1974f1ef343b076290d606050b7"
+  "docsHash": "sha256:88141d7fe3ceb3d5e99f2c1717d346f5e421df30e4b571447c9f1f74ba18f34c"
 }
 ```
 
@@ -16951,14 +26531,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重建工程",
   "description": "args:{}；重建当前历史。",
   "category": "command",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"document.refresh\",args}); args:{}；重建当前历史。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:8bcc60aaa09c607c589ae2b74486405c02c667c4155d8f21c4901ddce895fb8d"
+  "docsHash": "sha256:3efe02c97f79f7d9ecabf909cb11358bc22ec55276b81426cf2335f14c874b39"
 }
 ```
 
@@ -16970,14 +26550,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "预览模型",
   "description": "args 同 feature.add；显式 refs，不使用 UI 选择。已存在预览先取消。",
   "category": "command",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"preview.start\",args}); args 同 feature.add；显式 refs，不使用 UI 选择。已存在预览先取消。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:468151f2576fa126a5aa48c3d19c822c13b2e0974cc518f7fbbad6b225122312"
+  "docsHash": "sha256:cef8aca5b222ff113754b9b85ce08d845ff6e176da3526195dc11b89dcce8b38"
 }
 ```
 
@@ -16989,14 +26569,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "应用预览",
   "description": "args:{}；提交当前预览，一个撤销步骤。",
   "category": "command",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"preview.commit\",args}); args:{}；提交当前预览，一个撤销步骤。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:a3d7dae7c59aef1b2308bf855ba7a4a699dfae072ace5e5bbfa5d5a11e4d5d31"
+  "docsHash": "sha256:6d5935cb1a7127b0e6e0ea455495e75f10fed8937323981fca5f18ec9268b262"
 }
 ```
 
@@ -17008,14 +26588,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "取消预览",
   "description": "args:{}；恢复已提交模型。开始/取消不增加 revision，回执 preview.active 表示实际预览状态。",
   "category": "command",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"preview.cancel\",args}); args:{}；恢复已提交模型。开始/取消不增加 revision，回执 preview.active 表示实际预览状态。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:b80c7f8b8e51cf7f36c2e34ac65ff07cd6a2e611df4e5199b1ee506d3d408b23"
+  "docsHash": "sha256:9b1b40a6aeecdb459f0e7979013915c05dc0af244614c4d3c20e8109c0f194ed"
 }
 ```
 
@@ -17026,7 +26606,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "description": "通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。",
   "synonyms": [
     "参数",
@@ -17100,7 +26680,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Indexed face/edge references downstream of a changed feature are rejected when stability cannot be proven."
   ],
   "docs": "api.named-parameters",
-  "docsHash": "sha256:e540949c27813659d3bfb4d3d6e4da06b542407a3df5b4e1583b4bfd0c9c2f31"
+  "docsHash": "sha256:2f86ca6fc63af3fd355d70e5e72f16137731a1f9b89f508cfe435e5075f62ab7"
 }
 ```
 
@@ -17111,7 +26691,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.capabilities",
   "title": "files.capabilities",
   "category": "file",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "label": "文件能力",
   "synonyms": [
     "文件能力",
@@ -17145,7 +26725,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:13b857f8b8ef0fd3cd3bb48376c96a806b029ac70ad70f18dcb4bdad5720c9f8"
+  "docsHash": "sha256:dfd94cedf0dd799e54bb4456fc2ad839547e5105d2e8db9e544b778d6db905bb"
 }
 ```
 
@@ -17156,7 +26736,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "label": "登记文件资源",
   "synonyms": [
     "登记文件资源",
@@ -17190,7 +26770,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:92ccfe0bcea8af4cdb7410d9839ef680e0aed4eca2dc48df786092b6ad191a03"
+  "docsHash": "sha256:bd853195979e197e88f2ea258137677aefc9cb6fb9a2ab353585dcb07368b9b3"
 }
 ```
 
@@ -17201,7 +26781,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "label": "新建工程",
   "synonyms": [
     "新建工程",
@@ -17235,7 +26815,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:4a4cd71ec9cd37e331a99467429907d38d81a9cf658f978d6553a6831f55e9f7"
+  "docsHash": "sha256:7d9c0a53aebe38b352897d936aa3c80cb2b6b538f4bb37dd402d7a312c452956"
 }
 ```
 
@@ -17246,7 +26826,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "label": "打开工程",
   "synonyms": [
     "打开工程",
@@ -17280,7 +26860,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:b74ffb3c4fc307a3235df5be031e8cf69a39155a53106ebb2e38fc7bce4d2974"
+  "docsHash": "sha256:f509c2935ed0c3931f7d9b928a7a3d278b166cd09d5a205243c81070476df25d"
 }
 ```
 
@@ -17291,15 +26871,15 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "label": "导入",
   "synonyms": [
     "导入",
     "import"
   ],
-  "description": "import({context,resourceId}); registered STEP/STP/BREP/BRP resource.",
-  "inputContract": "import({context,resourceId}); registered STEP/STP/BREP/BRP resource.",
-  "outputContract": "Imported source-backed feature in current project.",
+  "description": "import({context,resourceId,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP resource. When placement is present, idempotencyKey is required; run batch injects its own step key.",
+  "inputContract": "import({context,resourceId,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP resource. When placement is present, idempotencyKey is required; run batch injects its own step key.",
+  "outputContract": "Imported source-backed feature in current project; omitted placement retains legacy source coordinates.",
   "units": {
     "length": "mm",
     "angle": "degrees"
@@ -17327,7 +26907,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:ef41f73284f623b18bbba6b3e9561076a11ed1f33eb41228f35950aeab8ffcc5"
+  "docsHash": "sha256:fd90b2f0e5a2efa57ded1a3ff0605b3ab2d703406c4ddb021c3cd80747cfe33c"
 }
 ```
 
@@ -17338,7 +26918,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "label": "保存工程",
   "synonyms": [
     "保存工程",
@@ -17372,7 +26952,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:d58d3e3bec2171e9db852329088ef66915ed820182facac7ef5c44166a1e732c"
+  "docsHash": "sha256:7f446399804f8e374de2276d131fa5c9d72b2cb49f14ae19a4ed5731f04e7bb9"
 }
 ```
 
@@ -17383,7 +26963,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "label": "导出文件",
   "synonyms": [
     "导出文件",
@@ -17417,7 +26997,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:56b156bcd9c51d45d5a6b507d5178304a4b4ac012cb37fee7e9d84669c80e12b"
+  "docsHash": "sha256:e86d07ed433f9b7a32ec262e428920c64e950ab1f1d76fa7b1ad1c4f03702178"
 }
 ```
 
@@ -17428,7 +27008,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "label": "读取文件字节",
   "synonyms": [
     "读取文件字节",
@@ -17462,7 +27042,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:bdedb54e641f49d214d21344947b89031ce117f33b82d6d6999de79ef002e961"
+  "docsHash": "sha256:db7637441b2282e0aff4ee6a86995cde1b9fbd8fa69ffef86e18b12e8d981831"
 }
 ```
 
@@ -17473,7 +27053,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "label": "下载文件",
   "synonyms": [
     "下载文件",
@@ -17507,7 +27087,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:dcc25599bac14e2584404bca10df9353e291114b1159a9a4e4bf592990cc9293"
+  "docsHash": "sha256:5e8b6adf359b4d555d91aefc65c9ad1f5fa376773317022ce9ab1da30a9be0ee"
 }
 ```
 
@@ -17518,7 +27098,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "label": "写入文件",
   "synonyms": [
     "写入文件",
@@ -17552,7 +27132,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:e19a426277c20d095fa33c6bf8e1aa30bf6518d4e1025a662f3c9c52b2f8e4b0"
+  "docsHash": "sha256:394d8cde8bffb7e26da2e17daae25500925436ac43efb3dc17287fd1c2c33ee6"
 }
 ```
 
@@ -17563,7 +27143,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "label": "释放文件资源",
   "synonyms": [
     "释放文件资源",
@@ -17597,7 +27177,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:dd937493d7a41b265dd6efb25c1aa2d60182335e3e61171278f055e6c8719c4f"
+  "docsHash": "sha256:b386f2cc6d3a3c8d99f116a817e59cda14de3be870c2b6a3477690000ed8e041"
 }
 ```
 
@@ -17609,14 +27189,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "IGES/IGS 导入",
   "description": "当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。",
   "category": "unavailable",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
   "errorCodes": [
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:759b4f24cb6eacad74b6541e16edf2fa6ac95ec2095f7f7970175bbc876dfbce"
+  "docsHash": "sha256:2faabf92a369609e548c94b9dc7033b79eb42d49f24b06b8094543099969c67b"
 }
 ```
 
@@ -17628,13 +27208,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
   "description": "当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。",
   "category": "unavailable",
-  "version": "1.3.1",
+  "version": "1.7.0",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
   "errorCodes": [
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:61b0e6da0d559c662ddd6c0a9bfd4a42af1adc0e813713e261534eb7749b8438"
+  "docsHash": "sha256:b766b04761f71228102373dfc8777cc2602991420244ed4b060bca18ff48478f"
 }
 ```

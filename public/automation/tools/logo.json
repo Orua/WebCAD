@@ -352,6 +352,6 @@
   },
   "label": "LOGO",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:49b71aa0e5858f87c4b79f910ed7a196cb69d9219cbcf5673ac6b589d3ea3199"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:4042a2a4672f69a65111f2016b37711dff46c7723f553c66a488ab434b6e2851"
 }

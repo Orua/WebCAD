@@ -295,6 +295,6 @@
   },
   "label": "曲面 LOGO",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:b36f57806dd4c1fd4d920fbe436af30b9348ca294e1e7406ea129752b56994cd"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:cfbdd897bb51780352fd380fdce5607f4d5e98ec31cb4b67578a450a43096835"
 }

@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.3.1 · 操作目录 sha256:85e1d03e3fda76a41901ccabf0f9c05a250d5aa326cc6243449e4a91b82aecce
+API 1.7.0 · 操作目录 sha256:a1db56c16edf3782b06dccf675d5fdb156a1b46ebf21c1035e3182e6a4421ebd
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -8,6 +8,13 @@ API 1.3.1 · 操作目录 sha256:85e1d03e3fda76a41901ccabf0f9c05a250d5aa326cc624
 
 ## 页面方法
 
+- `createRequestContext`
+- `getUILayout`
+- `setRenderQuality`
+- `invoke`
+- `submit`
+- `getJob`
+- `cancelJob`
 - `connect`
 - `info`
 - `getState`
@@ -16,6 +23,8 @@ API 1.3.1 · 操作目录 sha256:85e1d03e3fda76a41901ccabf0f9c05a250d5aa326cc624
 - `getTool`
 - `readDocs`
 - `queryGeometry`
+- `queryReferences`
+- `resolvePlacement`
 - `execute`
 - `measure`
 - `inspectPrintability`
@@ -96,14 +105,56 @@ API 1.3.1 · 操作目录 sha256:85e1d03e3fda76a41901ccabf0f9c05a250d5aa326cc624
 - `transform` · advisory · Scale, rotate X/Y/Z about origin, then translate
 - `union` · advisory · Fuse bodies
 - `vectorProfile` · advisory · Create independent planar faces or solids from closed vector regions
-- `connect` · page-method · connect({queries?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries. Read-only; works while the kernel starts.
+- `template.uEndHolePlate` · advisory · 半圆冠与两条等宽直腿连成一块平板，直腿末端各有一个贯穿孔；内外冠同心，孔沿厚度方向贯穿。适合源图确认的单片 U 件，不含另一装配件、螺纹或截面圆杆。
+- `template.ellipseSectionRing` · advisory · 正面环带宽和侧面深度独立输入，沿圆形中心线扫掠椭圆截面；截面形状是可编辑候选，须按源图验证。
+- `template.arcBandPlate` · advisory · 同心圆弧带板，角度、厚度、两端孔距与沉孔独立输入；用于分体环段，螺纹和装配件须另建。
+- `template.gableOpenFrame` · advisory · 两只直腿与屋顶形斜肩组成开口框，端部按指定 R 做两段圆角与短平底。内外宽、内外肩高、内外峰高、板厚分别输入。
+- `template.ellipseSectionRectFrame` · advisory · 以独立正面料宽和侧面深度构造椭圆截面，沿圆角矩形中心线扫掠；内 R 为平面内孔圆角，不自动等于侧面 R。
+- `template.dFlatFrame` · advisory · 半圆冠、直腿与独立内外底角 R 的平板 D 框；可按实际宽度切开底部中央。厚度为平板厚度，不代替圆线截面。
+- `template.archedTwinWindowPlate` · advisory · 圆角双窗平面轮廓沿 Y 方向投影裁切同轴圆筒薄壁，形成侧视圆弧拱弯。适用于薄条一体双窗；径向板厚、外弧半径独立输入。圆线框及独立圆杆须用其它工具。
+- `template.bowedTwinWindowPlate` · advisory · 上下直边、两侧大圆弧鼓边与四角小 R 相切；两个跑道形窗孔及中横条一体成板，可选前后边缘倒圆。左右、上下镜像参数模型，源图有微小非对称时只能近似。
+- `template.flatFrame` · advisory · 内外轮廓分别定义，框宽与厚度独立；圆角可等于短边一半形成跑道环。参数模板，不是原 IGS 完整复刻。
+- `template.roundedFlatFrame` · advisory · 独立内外圆角的闭合平面框，再以指定 R 一次倒圆所有尖边。圆边 R 必须显式给出；若内核无法完成则整步失败，不自动缩小。R 接近半厚可作外观候选，不保证精确半圆截面。
+- `template.twinWindowPlate` · advisory · 独立外 R 和孔 R 的平板双窗，中间是板体一部分；整件前后尖边按指定 R 倒圆。两个孔等宽等高且上下对称，不含圆杆、偏置孔或侧向拱弯。
+- `template.mountingPlate` · advisory · 孔沿 X 对称，中心距单独定义；孔为贯穿光孔，不含螺纹、沉头或沉孔。
+- `template.fourHolePlate` · advisory · 矩形板四角各一个贯穿光孔，孔中心到左右及前后边的距离分别可调；可选外角 R。不含螺纹或沉孔。
+- `template.bossPlate` · advisory · 圆角板上两根对称空心圆柱凸台，孔贯穿凸台与板。参数化通用实体，不代表螺纹、沉孔或原产品复刻。
+- `template.flangedBushing` · advisory · 同轴法兰与圆筒轴套，直孔贯穿全长。通用参数化实体，不含螺纹或原产品特征复刻。
+- `template.openArcRing` · advisory · 恒截面圆弧环，开口角度可调，适合开口环、钩环和未闭合圆框的基础毛坯；不包含端头球、铰链或变截面。
+- `template.roundedBossTray` · advisory · 圆角矩形薄壁壳，顶部敞口，内底带两根空心柱。外圆角、壁厚、底厚和柱尺寸均可调；直壁无拔模，不包含卡扣、文字或表面花纹。
+- `template.roundBadge` · advisory · 圆形牌面、正面环形凸边和背面两根安装柱组成一个实体。可选空心柱；不包含品牌图案、齿纹、拱面或生产尺寸。
+- `template.thinWallTray` · advisory · 单一熔接实体，XY 居中、底面 Z=0、顶部敞口。内腔净宽=外宽−2×壁厚，净深=外深−2×壁厚，净高=总高−底厚。两柱沿 X 对称，柱高从内底面起算，孔贯穿柱和底板。仅直壁、直角、无拔模/圆角/螺纹；不是装配体。
+- `template.tube` · advisory · 同轴圆筒，外径 13.4、内径 12.4、高度 3 为用户 C 件默认值。
+- `template.counterboreTool` · advisory · 这是刀具实体：入口在 Z=0，沿 +Z；移动定位到工件表面，必要时旋转 180°，先选主体再选刀具相减。
+- `template.ring` · advisory · 同心圆恒截面单圈；开缝为底部正中平行平切。
+- `template.ringBar` · advisory · 同心圆恒截面框与一根沿 X 的圆杆融合为单一实体。横杆可沿 Y 及厚度 Z 微调；不包含活动杆、铰链或精确接头过渡。
+- `template.ellipseBar` · advisory · 从内真椭圆外偏线扫掠圆线，再融合居中固定圆杆。圆线外包围须精确回读；接头过渡与源样条仍须对照。
+- `template.ellipseOpenWire` · advisory · 以内孔真椭圆外偏半线径扫掠圆线；底部正中用平行平面切出真实缝宽。外轮廓真椭圆的图纸不可使用本工具。
+- `template.profileLoop` · advisory · 两端半圆、上下直段的闭合长圈；正面料宽、侧面厚度和截面 R 独立。R 可等于截面短边一半，形成两圆端加直段的截面。
+- `template.capsuleWire` · advisory · 闭合圆线长圈：两端精确半圆、上下直段，内宽高与圆线直径独立输入。未标缝宽时不猜接缝。
+- `template.dBuckle` · advisory · 半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。
+- `template.dBarBuckle` · advisory · 圆角方线 U 主体与固定圆杆融合；杆底与脚底齐平。
+- `template.rectBuckle` · advisory · 恒截面圆角矩形框；闭合圆线可用内短边≥2.5 倍线径的紧凑框，其余至少 4 倍截面尺寸。
+- `template.sliderBuckle` · advisory · 外框整体内高；固定圆杆偏移上正下负，不支持开缝。闭合圆线框可用内短边≥2.5倍线径的紧凑双窗，且每侧孔高至少为线径。
+- `template.ovalBuckle` · advisory · 四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。
+- `template.washer` · advisory · 平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。
+- `createRequestContext` · page-method · createRequestContext(context?); omit to read the current context.
+- `getUILayout` · page-method · getUILayout()
+- `setRenderQuality` · page-method · setRenderQuality({context,quality:"draft"|"standard"|"fine"|"ultra"})
+- `invoke` · page-method · invoke({method,args}); public method name or files.*.
+- `submit` · page-method · submit({jobId,method,args}); method=run/execute/queryGeometry/measure/setView/setRenderQuality/files.save/files.export/files.import.
+- `getJob` · page-method · getJob({jobId})
+- `cancelJob` · page-method · cancelJob({jobId})
+- `connect` · page-method · connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.
 - `info` · page-method · info() 无参数。
-- `getState` · page-method · getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities。
+- `getState` · page-method · getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities/references。
 - `searchTools` · page-method · searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。
 - `getTools` · page-method · getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.
 - `getTool` · page-method · getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。
 - `readDocs` · page-method · readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。
 - `queryGeometry` · page-method · queryGeometry({context,bodyId,kind:"face"|"edge",filter,requireUnique?,limit?,cursor?})。
+- `queryReferences` · page-method · queryReferences({context,bodyIds:[],kind:"point",filter?:{types?:["world-origin","work-origin","endpoint","circle-center"]},limit?,requireUnique?})。
+- `resolvePlacement` · page-method · resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。
 - `execute` · page-method · execute({context,idempotencyKey,action,args}); action 来自当前命令合同。
 - `measure` · page-method · measure({context,bodyId,kind?:"body"|"face"|"edge",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需非负整数 topologyId。
 - `inspectPrintability` · page-method · inspectPrintability({context,bodyId,angleLimitDeg?:45}); angleLimitDeg 在 0 与 90 度之间。
@@ -124,8 +175,17 @@ API 1.3.1 · 操作目录 sha256:85e1d03e3fda76a41901ccabf0f9c05a250d5aa326cc624
 - `body.appearance` · page-command · color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。
 - `document.appearance` · page-command · 设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。
 - `body.explode` · page-command · 将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。
-- `feature.add` · page-command · args:{op,opVersion,schemaHash,params,refs,name?}；先 getTool 读取操作卡。
-- `feature.edit` · page-command · args:{featureId,opVersion,schemaHash,params,name?}；params 为补丁。
+- `reference.setWorkFrame` · page-command · args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；单位四元数，锁定时拒绝。
+- `reference.resetWorkFrame` · page-command · args:{scope:"position"|"orientation"|"all"}；只重置指定部分。
+- `reference.setLocked` · page-command · args:{locked:boolean}；可撤销的元数据操作。
+- `reference.saveFrame` · page-command · args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。
+- `reference.activateFrame` · page-command · args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。
+- `reference.renameFrame` · page-command · args:{frameId,expectedFrameVersion,name}。
+- `reference.deleteFrame` · page-command · args:{frameId,expectedFrameVersion}；已冻结特征不受影响。
+- `reference.setBodyAnchor` · page-command · 当前阶段尚未开放；需要精确几何指纹证明。
+- `reference.deleteBodyAnchor` · page-command · 当前阶段尚未开放；需要精确几何指纹证明。
+- `feature.add` · page-command · args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡。当前 box/hole 支持 placement。
+- `feature.edit` · page-command · args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。
 - `feature.remove` · page-command · args:{bodyIds}，不可使用历史已替换 ID。
 - `history.undo` · page-command · args:{}；撤销一个已提交步骤。
 - `history.redo` · page-command · args:{}；重做一个步骤。
@@ -138,7 +198,7 @@ API 1.3.1 · 操作目录 sha256:85e1d03e3fda76a41901ccabf0f9c05a250d5aa326cc624
 - `files.register` · browser-file-adapter · register({name,data,mime?}); data is File, Blob, ArrayBuffer or Uint8Array; name is a safe basename.
 - `files.new` · browser-file-adapter · new({context}); complete current context; dirty replacement is always rejected by page API.
 - `files.open` · browser-file-adapter · open({context,resourceId}); registered .webcad/.json resource; dirty replacement is rejected.
-- `files.import` · browser-file-adapter · import({context,resourceId}); registered STEP/STP/BREP/BRP resource.
+- `files.import` · browser-file-adapter · import({context,resourceId,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP resource. When placement is present, idempotencyKey is required; run batch injects its own step key.
 - `files.save` · browser-file-adapter · save({context,name?}); complete current context.
 - `files.export` · browser-file-adapter · export({context,format,ids?,name?}); format step/stl/brep/png.
 - `files.read` · browser-file-adapter · read({resourceId,as?}); as is blob (default) or bytes.

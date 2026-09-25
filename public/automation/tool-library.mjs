@@ -1,6 +1,6 @@
 // Shared by the live page and the downloadable offline library. No network,
 // browser globals, model calls or task-specific operation sequences.
-export const SEARCH_VERSION = '1';
+export const SEARCH_VERSION = '2';
 const clone = value => structuredClone(value);
 const normalize = value => String(value ?? '').normalize('NFKC').toLowerCase();
 const han = /\p{Script=Han}/u;
@@ -14,7 +14,10 @@ function terms(text) {
     if (han.test(part)) {
       // Overlapping CJK pairs allow unspaced sentences without a tokenizer model.
       const chars = [...part];
-      for (let i = 0; i + 1 < chars.length; i++) result.add(chars.slice(i, i + 2).join(''));
+      for (let i = 0; i + 1 < chars.length; i++) {
+        const pair = chars.slice(i, i + 2).join('');
+        if (!stopWords.has(pair)) result.add(pair);
+      }
     } else {
       for (const word of part.split(/[._-]/)) if (!stopWords.has(word)) {
         result.add(word);

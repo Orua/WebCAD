@@ -1,0 +1,14 @@
+{
+  "id": "reference.setLocked",
+  "title": "锁定工作基准",
+  "description": "args:{locked:boolean}；可撤销的元数据操作。",
+  "category": "command",
+  "version": "1.7.0",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"reference.setLocked\",args}); args:{locked:boolean}；可撤销的元数据操作。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "docs": "api.references",
+  "docsHash": "sha256:cdc1d5a0b11832069886522a1322c3728bdc65bf942a195abdcf4286bb190db2"
+}

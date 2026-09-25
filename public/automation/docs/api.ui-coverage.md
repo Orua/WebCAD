@@ -2,6 +2,56 @@
 
 界面动作与 AI 等价接口（手势以坐标和显式参数代替）：
 {
+  "reference.setWorkFrame": {
+    "tools": [
+      "reference.setWorkFrame"
+    ],
+    "method": "execute",
+    "usage": "完整 context、idempotencyKey；args 指定 origin 和单位 quaternion。"
+  },
+  "reference.resetWorkFrame": {
+    "tools": [
+      "reference.resetWorkFrame"
+    ],
+    "method": "execute",
+    "usage": "args.scope 为 position、orientation 或 all。"
+  },
+  "reference.setLocked": {
+    "tools": [
+      "reference.setLocked"
+    ],
+    "method": "execute",
+    "usage": "args.locked 为布尔值。"
+  },
+  "anchorDrag": {
+    "tools": [
+      "reference.setWorkFrame"
+    ],
+    "method": "execute",
+    "usage": "UI 中约束拖动锚点，松手时只提交一次 reference.setWorkFrame。"
+  },
+  "reference.snapNearest": {
+    "tools": [
+      "queryReferences",
+      "reference.setWorkFrame"
+    ],
+    "method": "execute",
+    "usage": "从选定边的当前精确端点或圆心候选中选最近点，再提交 reference.setWorkFrame。"
+  },
+  "renderQuality": {
+    "tools": [
+      "setRenderQuality"
+    ],
+    "method": "setRenderQuality",
+    "usage": "显式 quality=draft/standard/fine/ultra；getState().renderQuality 读公差、三角面数，不修改 BRep。"
+  },
+  "downloadResource": {
+    "tools": [
+      "files.download"
+    ],
+    "method": "files.download",
+    "usage": "使用生成回执的 resourceId 重试下载；不重新生成或清除 dirty。"
+  },
   "advancedLoft": {
     "tools": [
       "advancedLoft"
@@ -367,6 +417,14 @@
     ],
     "method": "setDisplayPreferences",
     "usage": "显示设置用 setDisplayPreferences；LOGO 转换配置用 getLogoConverter/setLogoConverter，URL/Key 保存在当前浏览器。"
+  },
+  "importAtFrame": {
+    "tools": [
+      "files.register",
+      "files.import"
+    ],
+    "method": "files.import",
+    "usage": "用户选定真实 STEP/BREP 文件后登记字节；显式提交当前工作基准版本、来源包围盒中心和幂等键。"
   },
   "new": {
     "tools": [

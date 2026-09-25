@@ -253,6 +253,6 @@
   },
   "label": "高级放样",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:b5cc0d98ef86f3c400d8072d74b3600fb5c3ecf64220fcf69606250c34fcefd1"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:2de4bf31837ed2426bf3cfbaac6f5e8ea39171c8fc94df76067e5efe68cbf0dd"
 }

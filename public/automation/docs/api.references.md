@@ -1,0 +1,3 @@
+# api.references
+
+工作基准属于工程元数据；世界原点固定不动。getState().referenceSystem.workFrame 给出 origin、quaternion、locked、frameVersion。通过 execute 的 reference.setWorkFrame、resetWorkFrame、setLocked 修改，每次成功写入增加工程 revision，可撤销、不重建 BRep。feature.add/feature.edit 可显式传 placement:{version:1,frame:{kind:"world"|"snapshot"|"work"|"saved",...},sourceAnchor:{kind:"model-origin"|"bottom-center"|"bounds-center"|"point",point?}}。work 必须传 expectedFrameVersion。持久化特征保存 frameSnapshot，后续移动工作基准不会移动旧特征。独立创建 C、刀具 T、faceHole/logo、transform/copy 的新模式，以及镜像、阵列、分割、截面、referenceExtrude 支持 placement。N 类拓扑操作和旧 curvedLogo 不接受无意义定位。transform/copy 的新 mode 为 translate、toPoint、rotate、scale；align 尚未开放。box 用 bottom-center 时底面中心对准锚点；刀具局部点和轴按基准变换。保存工程使用 version:2，仍可打开旧 version:1 工程。

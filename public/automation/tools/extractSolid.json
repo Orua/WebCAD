@@ -152,6 +152,6 @@
   },
   "label": "提取实体",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:b61ef928f0d4c3c78fb221d911e52b8197be5afeaece6b866093837e83ed0c36"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:63c6740d2ceef10539d4fb7f4573ce1b7a2fcaafa7fdd84415be053ed4d34a02"
 }

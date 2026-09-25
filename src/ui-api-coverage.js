@@ -2,12 +2,20 @@ import { listOperations } from './operation-registry.js';
 
 // This is the UI-to-public-API inventory, also used by the UI and build gate.
 export const UI_API_ROUTES = Object.freeze({
+  'reference.setWorkFrame':{tools:['reference.setWorkFrame'],method:'execute',usage:'完整 context、idempotencyKey；args 指定 origin 和单位 quaternion。'},
+  'reference.resetWorkFrame':{tools:['reference.resetWorkFrame'],method:'execute',usage:'args.scope 为 position、orientation 或 all。'},
+  'reference.setLocked':{tools:['reference.setLocked'],method:'execute',usage:'args.locked 为布尔值。'},
+  anchorDrag:{tools:['reference.setWorkFrame'],method:'execute',usage:'UI 中约束拖动锚点，松手时只提交一次 reference.setWorkFrame。'},
+  'reference.snapNearest':{tools:['queryReferences','reference.setWorkFrame'],method:'execute',usage:'从选定边的当前精确端点或圆心候选中选最近点，再提交 reference.setWorkFrame。'},
+  renderQuality:{tools:['setRenderQuality'],method:'setRenderQuality',usage:'显式 quality=draft/standard/fine/ultra；getState().renderQuality 读公差、三角面数，不修改 BRep。'},
+  downloadResource:{tools:['files.download'],method:'files.download',usage:'使用生成回执的 resourceId 重试下载；不重新生成或清除 dirty。'},
   ...Object.fromEntries(listOperations().map(c=>[c.id,{tools:[c.id],method:'execute',usage:'feature.add；按工具卡传显式 params/refs，或 run 的 add。'}])),
   multiPocket:{tools:['multiPocket'],method:'execute',usage:'getTool({id:"multiPocket"}) 读取 strict v2 卡；feature.add 或 run add 传 depth/axis/direction/pockets、真实 refs；feature.edit 修改历史凹槽列表。'},
   multiBoss:{tools:['multiBoss'],method:'execute',usage:'getTool({id:"multiBoss"}) 读取 strict v2 卡；feature.add 或 run add 传 radius/height/axis/direction/points 与真实 refs；feature.edit 修改历史凸台。'},
     displayPreferences:{tools:['setDisplayPreferences','getLogoConverter','setLogoConverter'],method:'setDisplayPreferences',usage:'显示设置用 setDisplayPreferences；LOGO 转换配置用 getLogoConverter/setLogoConverter，URL/Key 保存在当前浏览器。'},
   remove:{tools:['feature.remove'],method:'execute',usage:'args:{bodyIds}；删除当前实体。'},
   import:{tools:['files.import'],method:'files.import',usage:'先 files.register 登记真实字节；不模拟文件选择器。'},
+  importAtFrame:{tools:['files.register','files.import'],method:'files.import',usage:'用户选定真实 STEP/BREP 文件后登记字节；显式提交当前工作基准版本、来源包围盒中心和幂等键。'},
   new:{tools:['files.new'],method:'files.new'},open:{tools:['files.open','files.import'],method:'files.open'},
   save:{tools:['files.save','files.download','files.write'],method:'files.save'},export:{tools:['files.export'],method:'files.export'},
   rename:{tools:['document.rename'],method:'execute'},editFeature:{tools:['feature.edit','feature.rename'],method:'execute'},

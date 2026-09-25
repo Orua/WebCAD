@@ -201,6 +201,6 @@
   },
   "label": "平滑过渡",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:c13d8f81d5e01808255b30947945f4a1a6a02aa842a8b5e271b81ea6259b1684"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:6c8e1e8e56595d0c68618add7e10775c1f488f891f55040037c26418cb54b0d3"
 }

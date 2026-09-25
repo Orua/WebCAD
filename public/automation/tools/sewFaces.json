@@ -152,6 +152,6 @@
   },
   "label": "曲面缝合",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:5a7fc9ed25889af7f9a9e20d3815bcf31d3375a367671185f5f01e5ba5b721ab"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:17e2af2f4fbbd9198d7d8ac793b34197f0186d8c7bea25fb1f4f261622e4c839"
 }

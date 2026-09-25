@@ -270,6 +270,6 @@
   },
   "label": "曲线扫掠",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:ea3a49a52445006ff057ef3902ab9ca328498a324f5201c4b6dfa9f950b4babe"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:b7ac6055168a56903faa431050f8311af31944625f42f6df36810e611d3aba4a"
 }

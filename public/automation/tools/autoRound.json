@@ -161,6 +161,6 @@
   },
   "label": "整件圆边",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:233bf0d94d33c0d964fd0db7af1453636d6392195eef08850981347131d1e1c3"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:15ec33fd39990dd5cee5ec1e52a0b73f8dd43986de2399e25b92da83eb17c2ae"
 }

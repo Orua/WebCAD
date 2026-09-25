@@ -283,6 +283,6 @@
   },
   "label": "多位置打孔",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
-  "docsHash": "sha256:a9f08906383a84cb29157613b73a81652bd6d6c560954853d52cbbc4ee3bd4ae"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:7975b19873e54e559127b2ae157e612389572f05048d1ace6a2ad7fb3a550fd1"
 }

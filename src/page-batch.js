@@ -1,9 +1,9 @@
-// JSON transport for both script-capable clients and accessibility-only sidebars.
+// Structured batches over an authorized page script channel (or explicit manual debugging).
 // Every mutation still goes through the existing page API / CommandService.
 const methods = new Set(['add','execute','connect','info','getState','searchTools','getTools','getTool','readDocs',
-  'queryGeometry','measure','fitProfile','inspectPrintability','setView','setDisplayPreferences','redraw','files.capabilities','files.register',
+  'queryGeometry','queryReferences','resolvePlacement','measure','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.capabilities','files.register',
   'files.import','files.save','files.export','files.release']);
-const contextual = new Set(['execute','queryGeometry','measure','fitProfile','inspectPrintability','setView','setDisplayPreferences','redraw','files.import','files.save','files.export']);
+const contextual = new Set(['execute','queryGeometry','queryReferences','resolvePlacement','measure','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.import','files.save','files.export']);
 const bad = (code,message) => { throw Object.assign(new Error(message),{code}); };
 const plain = x => x && typeof x==='object' && !Array.isArray(x);
 const keys = (x,allowed) => { if(!plain(x)||Object.keys(x).some(k=>!allowed.includes(k)))bad('PARAM_SCHEMA_INVALID','Unexpected object fields'); };
@@ -19,9 +19,16 @@ function safe(value,depth=0){
 export function createPageBatch(api){
   const receipts=new Map();let tail=Promise.resolve(),instance;
   async function run(input){
-    let results=[],key,fingerprint,started=false;
+    let results=[],key,fingerprint,started=false,activeStepId=null;
+    const attempted=new Set();
     const startedAt=performance.now();
     const finish=(status,error)=>{const s=api.getState();return {status,idempotencyKey:key,atomic:false,results,
+      requestContext:context(s.context),
+      progress:{completedStepIds:results.filter(item=>!['failed','unknown'].includes(item.result?.status)).map(item=>item.id),
+        failedStepId:status==='completed'?null:activeStepId,
+        unattemptedStepIds:(Array.isArray(input?.steps)?input.steps:[]).filter(step=>typeof step?.id==='string'&&!attempted.has(step.id)).map(step=>step.id)},
+      recovery:status==='completed'?null:{action:status==='unknown'?'INSPECT_STATE_BEFORE_RETRY':'READ_STATE_AND_REPLAN_REMAINING',
+        message:'Earlier committed steps remain. Read current state; do not recreate them. Use a new key for a revised remainder. An identical request/key only retrieves the original receipt.'},
       ...(error?{error:{code:error.code||'BATCH_FAILED',message:error.message}}:{}),
       elapsedMs:Math.round(performance.now()-startedAt),context:s.context,
       summary:s.summary,display:s.display,
@@ -75,9 +82,9 @@ export function createPageBatch(api){
       };
       started=true;
       for(const step of input.steps){
-        check();let args=resolve(step.args||{}),result;
+        activeStepId=step.id;check();attempted.add(step.id);let args=resolve(step.args||{}),result;
         if(step.method==='add'){
-          keys(args,['op','params','refs','name']);
+          keys(args,['op','params','refs','name','placement']);
           const card=api.getTool({id:args.op});
           result=await api.execute({context:expected,idempotencyKey:`${key}:${step.id}`,action:'feature.add',
             args:{...args,refs:args.refs||[],opVersion:card.version,schemaHash:card.schemaHash}});
@@ -88,6 +95,7 @@ export function createPageBatch(api){
         }else{
           if(contextual.has(step.method))args.context=expected;
           if(step.method==='execute')args.idempotencyKey=`${key}:${step.id}`;
+          if(step.method==='files.import'&&args.placement!==undefined)args.idempotencyKey=`${key}:${step.id}`;
           const parts=step.method.split('.');
           result=parts.length===2?await api.files[parts[1]](args):await api[step.method](args);
         }
@@ -99,7 +107,7 @@ export function createPageBatch(api){
         // Advance only using this step's receipt, never silently adopt another writer's revision.
         if(result?.status==='committed')expected=result.context?context(result.context):{...expected,expectedRevision:result.revisionAfter};
       }
-      check();const result=finish('completed');receipts.set(key,{fingerprint,result:structuredClone(result)});return result;
+      activeStepId=null;check();const result=finish('completed');receipts.set(key,{fingerprint,result:structuredClone(result)});return result;
     }catch(e){
       const result=finish(results.length?'partial':'failed',e);
       if(started&&!receipts.has(key))receipts.set(key,{fingerprint,result:structuredClone(result)});

@@ -2,6 +2,18 @@
 
 WebCAD 使用统一注册表生成页面工具卡、按需文档和可选离线库。工具发现适用于全部操作、文件、视图与工程命令；没有按某个零件硬编码执行流程，也不调用额外语言模型。
 
+## 1.4 握手与建模流程
+
+当前页面 `connect` 返回 `protocol`、`canExecute`、`blockers`、`nextAction` 和批次执行说明。`ready` 仅表示内核已加载；忙碌或预览中 `canExecute` 仍为 false。`PREVIEW_ACTIVE` 应先确认当前预览的处理意图，不能因为等待而自动提交/取消。
+
+已知工具可直接 `connect({toolIds:['advancedLoft','transform']})`，最多20个唯一 ID，自动带完整卡并逐项报告未知 ID。发现阶段无需为查询构造 `run`。首次使用按需读 `api.workflow`，复杂模型按部件拆分成最多20步的批次，测量关键尺寸并核对画面。
+
+快捷模型现在有独立的 `template.<kind>` 搜索卡，与 UI 共用中英文名称，从真实父契约派生单模板参数、默认值和限制。例如“画一个圆圈”可找到 `template.ring`。它是说明卡，不是新增的几何操作：执行卡里的 `minimalExample`，仍为 `op:'quickModel', params:{kind:'ring',...}`。二维圆线和实体圆环必须按意图区分。旧的完整 `quickModel` 卡保持兼容。
+
+批次回执新增 `progress.completedStepIds/failedStepId/unattemptedStepIds`、`recovery` 和回执时的 `requestContext`。失败不回滚之前的提交；读实时状态后只规划剩余步骤。相同请求/key只返回原回执，修改后的剩余批次使用新 key。`unknown` 或宿主超时先检查状态，不能盲目重建。
+
+当前公开 API 不再暴露旧的 `window.webcad.action/execute/ready/viewport`。Agent 应先确认页面版本，不能用另一个目录的旧手册假定当前接口。可下载 `automation/webcad-page-api/SKILL.md` 作为宿主技能入口；安装由宿主进行，网页不会安装任何服务。详细运行说明仍以目标页面和匹配哈希的缓存为准。
+
 ## 连接与按需读取
 
 AI 通过宿主已授权的页面脚本通道后台调用公开 API；JSON 面板仅供用户明确要求时手工调试，不能作为 AI 自动回退入口。无脚本通道时报告实际限制。

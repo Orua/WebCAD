@@ -226,6 +226,6 @@
   },
   "label": "旋转成型",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:f76efc33f08799ca2acb4cf1f6b274d1d70f386091431506187b7f0928759ab6"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:9c6d30bb6f313acd44b258a50f76a9fad6bb6ff2d504a093b1c7efe225aa85cf"
 }

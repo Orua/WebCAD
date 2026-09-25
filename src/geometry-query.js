@@ -3,6 +3,9 @@ import { topologyDetails } from './smooth-transition.js';
 import { planarFace } from './reference-profile-wires.js';
 
 const dispose = value => { try { value?.delete(); } catch {} };
+const surfaceTypes={plane:'plane',cylinder:'cylindre',cylindre:'cylindre',cone:'cone',sphere:'sphere',torus:'torus',bezier:'bezier_surface',bspline:'bspline_surface',revolution:'revolution_surface',extrusion:'extrusion_surface',offset:'offset_surface',other:'other_surface'};
+const curveTypes={line:'line',circle:'circle',ellipse:'ellipse',hyperbola:'hyperbola',parabola:'parabola',bezier:'bezier_curve',bspline:'bspline_curve',offset:'offset_curve',other:'other_curve'};
+const knownType=(types,value)=>Object.hasOwn(types,value)||Object.values(types).includes(value);
 function invalid(path, message) {
   throw Object.assign(new Error(message), { code: 'PARAM_SCHEMA_INVALID', path, recoveryAction: 'READ_TOOL_AND_CORRECT_PARAMS' });
 }
@@ -29,7 +32,8 @@ export function normalizeGeometryFilter(kind, filter = {}) {
   object(filter, kind === 'face' ? ['surfaceType', 'normal', 'atExtreme'] : ['curveType', 'lengthRangeMm', 'radiusRangeMm', 'onFaceId'], 'filter');
   const result = { ...filter };
   if (kind === 'face') {
-    if (filter.surfaceType !== undefined && filter.surfaceType !== 'plane') invalid('filter.surfaceType', '首批仅支持 plane 面类型筛选');
+    if (filter.surfaceType !== undefined && !knownType(surfaceTypes,filter.surfaceType)) invalid('filter.surfaceType', 'Unknown surface type; read api.query-geometry');
+    if (filter.surfaceType !== undefined) result.surfaceType=surfaceTypes[filter.surfaceType]||filter.surfaceType;
     if (filter.normal !== undefined) {
       object(filter.normal, ['direction', 'sameDirection', 'angleToleranceDeg'], 'filter.normal');
       const direction = filter.normal.direction;
@@ -47,7 +51,8 @@ export function normalizeGeometryFilter(kind, filter = {}) {
       result.atExtreme = { ...filter.atExtreme, toleranceMm: number(filter.atExtreme.toleranceMm ?? 0.01, 'filter.atExtreme.toleranceMm') };
     }
   } else {
-    if (filter.curveType !== undefined && !['line', 'circle'].includes(filter.curveType)) invalid('filter.curveType', '首批仅支持 line/circle 边类型筛选');
+    if (filter.curveType !== undefined && !knownType(curveTypes,filter.curveType)) invalid('filter.curveType', 'Unknown curve type; read api.query-geometry');
+    if (filter.curveType !== undefined) result.curveType=curveTypes[filter.curveType]||filter.curveType;
     for (const key of ['lengthRangeMm', 'radiusRangeMm']) if (filter[key] !== undefined) result[key] = range(filter[key], `filter.${key}`);
     if (filter.onFaceId !== undefined && (!Number.isInteger(filter.onFaceId) || filter.onFaceId < 0)) invalid('filter.onFaceId', '需要已解析的有效面索引');
   }
@@ -57,7 +62,7 @@ export function normalizeGeometryFilter(kind, filter = {}) {
 function vectorTuple(value) {
   try { return value.toTuple(); } finally { dispose(value); }
 }
-function faceSummary(face, id) {
+function faceSummary(face, id, oc) {
   const item = { kind: 'face', topologyId: id, faceId: id, geomType: face.geomType, surfaceType: face.geomType.toLowerCase(), areaMm2: cad.measureArea(face), center: vectorTuple(face.center) };
   const wires=face.wires;
   try { item.wireCount=wires.length; } finally { wires.forEach(dispose); }
@@ -72,10 +77,21 @@ function faceSummary(face, id) {
     // A shell's topology direction is defined, but not necessarily an outward side.
     item.outwardGuaranteed = false;
   }
+  if(item.geomType==='BSPLINE_SURFACE'){
+    let adaptor,spline;
+    try {adaptor=new oc.BRepAdaptor_Surface(face.wrapped,false);spline=adaptor.BSpline();
+      item.spline={degreeU:spline.UDegree(),degreeV:spline.VDegree(),poleCountU:spline.NbUPoles(),poleCountV:spline.NbVPoles(),knotCountU:spline.NbUKnots(),knotCountV:spline.NbVKnots(),continuityAssessment:'not_computed'};
+    }finally{[spline,adaptor].forEach(dispose);}
+  }
   return item;
 }
 function edgeSummary(edge, id, oc) {
   const item = { kind: 'edge', topologyId: id, edgeId: id, geomType: edge.geomType, curveType: edge.geomType.toLowerCase(), lengthMm: cad.measureLength(edge) };
+  if (item.geomType === 'BSPLINE_CURVE') {
+    let adaptor,spline;
+    try {adaptor=new oc.BRepAdaptor_Curve(edge.wrapped);spline=adaptor.BSpline();item.spline={degree:spline.Degree(),poleCount:spline.NbPoles(),knotCount:spline.NbKnots(),continuityAssessment:'not_computed'};}
+    finally{[spline,adaptor].forEach(dispose);}
+  }
   if (item.geomType === 'CIRCLE') {
     const adaptor = new oc.BRepAdaptor_Curve(edge.wrapped);
     let circle, center, axis, direction;
@@ -93,6 +109,7 @@ function inRange(value, constraint) {
 }
 function matchesFace(item, filter, bounds) {
   if (filter.surfaceType === 'plane' && !item.planar) return false;
+  if (filter.surfaceType && filter.surfaceType !== 'plane' && item.surfaceType !== filter.surfaceType) return false;
   if (filter.normal) {
     if (!item.normal) return false;
     let dot = item.normal.reduce((sum, v, i) => sum + v * filter.normal.direction[i], 0);
@@ -128,7 +145,7 @@ export function queryShapeGeometry(shape, oc, kind, filter = {}) {
     const items = [];
     parts.forEach((part, id) => {
       if (boundary && !boundary.some(edge => edge.isSame(part))) return;
-      const item = kind === 'face' ? faceSummary(part, id) : edgeSummary(part, id, oc);
+      const item = kind === 'face' ? faceSummary(part, id, oc) : edgeSummary(part, id, oc);
       if(kind==='edge')Object.assign(item,topology[id]);
       else item.edgeIds=topology.filter(edge=>edge.adjacentFaceIds.includes(id)).map(edge=>edge.edgeId);
       if (kind === 'face') {

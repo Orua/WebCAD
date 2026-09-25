@@ -43,8 +43,10 @@ export function buildCurvedLogo(source,params,cad) {
     const projectedAnchor=hold(query.wrapped.PointOnShape1(1));
     const point=[projectedAnchor.X(),projectedAnchor.Y(),projectedAnchor.Z()];
     const normal=unit(hold(face.normalAt(point)));
-    const seed=Math.abs(normal[0])<.9?[1,0,0]:[0,1,0];
+    if(params.frameNormal&&dot(params.frameNormal,normal)<1-1e-6)throw Object.assign(new Error('工作基准法向与目标曲面法向不一致'),{code:'FRAME_SURFACE_MISMATCH'});
+    const seed=params.frameX|| (Math.abs(normal[0])<.9?[1,0,0]:[0,1,0]);
     const x=seed.map((v,i)=>v-dot(seed,normal)*normal[i]),length=Math.hypot(...x);
+    if(length<1e-8)throw Object.assign(new Error('工作基准 X 方向与目标曲面法向平行'),{code:'FRAME_SURFACE_MISMATCH'});
     x.forEach((v,i)=>x[i]=v/length);
     const y=[normal[1]*x[2]-normal[2]*x[1],normal[2]*x[0]-normal[0]*x[2],normal[0]*x[1]-normal[1]*x[0]];
     const offsetX=finite(params.offsetX??0,'X偏移'),offsetY=finite(params.offsetY??0,'Y偏移');

@@ -180,6 +180,6 @@
   },
   "label": "环形阵列",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:1176df61bc33a58415da0c874cbed82b41f3b24af0dd95f4d6a2d4c9b9206b51"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:ca4fe54786b255018f46fc75ed7b241dc24e469147b16ecbcb424a33e21ab87a"
 }

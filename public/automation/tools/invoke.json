@@ -1,0 +1,24 @@
+{
+  "id": "invoke",
+  "title": "invoke",
+  "category": "page-method",
+  "version": "1.7.0",
+  "description": "invoke({method,args}); public method name or files.*.",
+  "synonyms": [
+    "invoke",
+    "统一",
+    "错误",
+    "调用"
+  ],
+  "inputContract": "invoke({method,args}); public method name or files.*.",
+  "outputContract": "返回原方法结果；抛错转换为结构化失败。详见 api.reliability。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID"
+  ],
+  "docs": "api.reliability",
+  "docsHash": "sha256:383759d5433ac3f29196418a35c8e1a01b55c7e5e95d6f6a2366c8e0676f7195"
+}
