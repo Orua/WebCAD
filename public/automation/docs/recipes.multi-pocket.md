@@ -1,0 +1,3 @@
+# recipes.multi-pocket
+
+批量矩形凹槽：先用 getState() 取得当前上下文和实际 bodyId，再用 getTool({id:"multiPocket"}) 读取版本、schemaHash 和严格参数。UI 路径为“加工 → 孔与槽 → 批量矩形凹槽”。在一个已有 40×20×3 mm 板件上执行 feature.add，refs:[实际 bodyId]，params:{depth:0.5,axis:"Z",direction:-1,pockets:[{x:10,y:10,z:3,width:6,height:4},{x:25,y:10,z:3,width:6,height:4,cornerRadius:0.5}]}。每组 XYZ 是世界坐标的刀具入口中心；切入轴 Z 时宽/高沿 X/Y，X 时沿 Y/Z，Y 时沿 Z/X。例中从 Z=3 向下切至 2.5。cornerRadius 可省略或为 0，若提供则必须小于宽高短边一半。1–64 个凹槽，每个都须去除剩余材料；任一失败，整步不提交。用 getState() 读回新 feature/body/revision，再 measure 精确体积。可通过 feature.edit 修改历史步骤的 depth、axis、direction 或完整 pockets 数组，从原始几何重建。圆孔用 multiHole；任意曲面区域另用相应面工具。

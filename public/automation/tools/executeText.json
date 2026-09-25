@@ -1,0 +1,29 @@
+{
+  "id": "executeText",
+  "title": "executeText",
+  "category": "page-method",
+  "version": "1.3.1",
+  "description": "executeText({context,idempotencyKey,text,dryRun?}); 每行 add <op> key=value 或 measure <bodyId|$last>。",
+  "synonyms": [
+    "executeText",
+    "纯文本命令",
+    "输入",
+    "端口",
+    "建模"
+  ],
+  "inputContract": "executeText({context,idempotencyKey,text,dryRun?}); 每行 add <op> key=value 或 measure <bodyId|$last>。",
+  "outputContract": "dryRun 返回编译步骤；执行返回 api.run 的逐步回执、当前工程状态与显示状态。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "RESOURCE_LIMIT",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE",
+    "IDEMPOTENCY_KEY_REUSED"
+  ],
+  "docs": "api.text-command",
+  "docsHash": "sha256:08d617be58bfbeede521c3652071193c8b0286b50112ca322eacea15fa93ea9d"
+}

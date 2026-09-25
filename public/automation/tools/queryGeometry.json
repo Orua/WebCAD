@@ -1,0 +1,28 @@
+{
+  "id": "queryGeometry",
+  "title": "queryGeometry",
+  "category": "page-method",
+  "version": "1.3.1",
+  "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,limit?,cursor?})。",
+  "synonyms": [
+    "queryGeometry",
+    "几何查询",
+    "面",
+    "边",
+    "选择令牌"
+  ],
+  "inputContract": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,limit?,cursor?})。",
+  "outputContract": "精确 B-Rep 候选项、歧义信息、快照绑定的 selectionToken 与当前 context。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "CommandService structured result; inspect status and commitState.",
+  "errorCodes": [
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "STALE_REFERENCE",
+    "NO_MATCH",
+    "AMBIGUOUS_SELECTION"
+  ],
+  "docsHash": "sha256:f22a89b556eeaffe6e43b5ab7c515418edbb9e813a53ccdc528cd056b618a714"
+}

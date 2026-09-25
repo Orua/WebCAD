@@ -1,0 +1,40 @@
+{
+  "id": "files.write",
+  "title": "files.write",
+  "category": "file",
+  "version": "1.3.1",
+  "label": "写入文件",
+  "synonyms": [
+    "写入文件",
+    "write"
+  ],
+  "description": "write({resourceId,handle}); previously authorized FileSystemFileHandle.",
+  "inputContract": "write({resourceId,handle}); previously authorized FileSystemFileHandle.",
+  "outputContract": "status=write_verified after close and size/SHA-256 readback; snapshot confirmation is separate.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees"
+  },
+  "implementationStatus": "page-adapter",
+  "contractStatus": "browser-file-adapter",
+  "runtimeAvailability": "requires_ready_page",
+  "limits": {
+    "maxBytes": 20971520,
+    "maxResources": 32,
+    "maxTotalBytes": 67108864,
+    "ttlSeconds": 1800
+  },
+  "caveats": [],
+  "errorCodes": [
+    "CAPABILITY_UNAVAILABLE",
+    "REVISION_CONFLICT",
+    "INSTANCE_MISMATCH",
+    "UNSAVED_REPLACEMENT",
+    "HASH_MISMATCH",
+    "SIZE_LIMIT",
+    "RESOURCE_LIMIT",
+    "RESOURCE_EXPIRED",
+    "PERMISSION_REQUIRED"
+  ],
+  "docsHash": "sha256:e19a426277c20d095fa33c6bf8e1aa30bf6518d4e1025a662f3c9c52b2f8e4b0"
+}

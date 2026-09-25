@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 // Finish values and reference atlas are carried over from the original CadViewer.
 export const METAL_FINISHES = Object.freeze({
@@ -75,6 +76,8 @@ export class MetalMaterials {
     this.renderer=renderer; this.scene=scene; this.onError=onError;
     this.environment=null; this.environmentTarget=null; this.atlas=null; this.disposed=false;
     this.materials=new Map();
+    const studio=new RoomEnvironment(),generator=new THREE.PMREMGenerator(renderer);
+    try{this.studioTarget=generator.fromScene(studio,0.04);}finally{studio.dispose();generator.dispose();}
     this.fallback=new THREE.DataTexture(new Uint8Array([128,128,128,255]),1,1);
     this.fallback.needsUpdate=true;
     this.ready=this.load();
@@ -106,7 +109,7 @@ export class MetalMaterials {
     if(!this.disposed) for(const [material,state] of this.materials)this.apply(material,state.key,state.options);
     return {environment:!!this.environment,antique:!!this.atlas};
   }
-  apply(material,finishKey,{bounds,baseColor=0xaac4d9}={}) {
+  apply(material,finishKey,{bounds,baseColor=0xaac4d9,displayPreferences={}}={}) {
     if(this.disposed)return material;
     if(!material?.isMeshStandardMaterial)throw new Error('金属渲染需要 MeshStandardMaterial');
     const key=Object.hasOwn(METAL_FINISHES,finishKey)?finishKey:'design', finish=METAL_FINISHES[key];
@@ -127,7 +130,7 @@ export class MetalMaterials {
       material.customProgramCacheKey=()=> 'webcad-metal-atlas-v1';
       material.needsUpdate=true;
     }
-    state.key=key;state.options={bounds,baseColor};
+    state.key=key;state.options={bounds,baseColor,displayPreferences};
     const u=state.uniforms;
     u.webcadAntiqueAtlas.value=this.atlas||this.fallback;
     u.webcadAntiqueStrength.value=this.atlas?(finish.antiqueStrength||0):0;
@@ -141,9 +144,10 @@ export class MetalMaterials {
       u.webcadRadius.value=Math.max(0.001,new THREE.Vector3().fromArray(bounds.max).distanceTo(new THREE.Vector3().fromArray(bounds.min))*0.5);
     }
     if(key==='design')material.color.set(baseColor); else material.color.setRGB(...finish.color);
-    material.metalness=finish.metalness??1;material.roughness=finish.roughness;
-    material.envMapIntensity=finish.reflectionStrength;
-    const map=key==='design'?null:this.environment;
+    material.metalness=finish.metalness??1;material.roughness=Math.min(1,finish.roughness+(key==='design'?0:(displayPreferences.roughnessOffset??0)));
+    material.envMapIntensity=finish.reflectionStrength*(displayPreferences.environmentIntensity??1);
+    material.envMapRotation.set(Math.PI/2,0,(displayPreferences.environmentRotation??0)*Math.PI/180);
+    const map=key==='design'?null:(displayPreferences.environmentMode==='hdr'?(this.environment||this.studioTarget.texture):this.studioTarget.texture);
     if(material.envMap!==map){material.envMap=map;material.needsUpdate=true;}
     material.userData.metalFinish=key;
     return material;
@@ -151,7 +155,7 @@ export class MetalMaterials {
   dispose() {
     this.disposed=true;
     for(const [material,state] of this.materials)material.removeEventListener('dispose',state.onDispose);
-    this.materials.clear();this.environmentTarget?.dispose();this.atlas?.dispose();this.fallback.dispose();this.environment=null;
+    this.materials.clear();this.environmentTarget?.dispose();this.studioTarget?.dispose();this.atlas?.dispose();this.fallback.dispose();this.environment=null;
   }
 }
 

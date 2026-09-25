@@ -1,67 +1,170 @@
-# WebCAD project architecture
+# WebCAD 项目目的与规范
 
-## Default product path (2026-09-23 correction)
+> 当前规范：2026-09-23。本文是产品目的、架构边界与验收口径的唯一主说明。
+> 原有 M0/M1/M2A、MCP、CLI 记录是实现历史，出现冲突时以本文和实际运行契约为准。
 
-The product is a static browser application. A normal user opens `dist/` through HTTPS or a localhost static host; the browser Worker runs Replicad/OpenCascade against the current document. The public integration target is `window.webcad.api`, with read-only `info/getState/searchTools/getTool/readDocs` and structured modeling, geometry, view, capture and browser-file methods. `src/page-api-docs.js` derives operation cards from the real registry and provides page-specific discovery without requiring a network service. Client access from an existing ChatGPT sidebar remains unverified until that actual client executes an authorized page call and returns its result.
+## 1. 项目要解决什么问题
 
-An explicit local Agent mode is available for shell-capable AI clients that cannot execute page JavaScript. `scripts/serve.mjs` serves `/agent` as `/?agent=1`; only that query enables the same-origin WebSocket adapter. `/api/agent`, `/api/agent/docs`, `/api/agent/tools` and `/api/agent/tool` expose read-only discovery from the same registries. `scripts/webcad-agent.mjs` is the JSON CLI over the existing MCP/browser bridge and controlled file-transfer adapter. The bridge maps its public tab session ID to the private page session ID before page validation, then maps returned contexts back. This does not change the default static path or add a second CAD kernel.
+为金大福的小型五金产品提供浏览器内的精确三维建模工作台。用户通过中文界面编辑，AI 在同一页面、同一工程上按真实参数调用工具。目标是减少重复建模与反复点选，让常见产品能够通过参数模板和组合工具快速完成，并输出可继续编辑的工程及精确 CAD 交换文件。
 
-Named parameters are stored in the native document. `document.parameters` through the page CommandService merges `{value,unit}` definitions and feature-path expression bindings, evaluates them through `src/named-parameters.js`, then rebuilds atomically as one undo step. `getState()` exposes definitions and evaluated values. The UI parameter table edits values through the same action. Old numeric features remain valid; unsafe downstream topology references are rejected. `docs/examples/page-api-plate.js` demonstrates dynamic feature/body IDs and a length-driven four-hole plate; source and example are not browser acceptance evidence.
+主要对象包括框扣、圆环、挂钩、牌件、板件、柱脚、轴套、壳件与这些结构的组合。学习 IGS 的目的，是识别反复出现的结构、提炼快捷模型、发现实际缺少的操作，并用源件逐件验证覆盖能力。扫描文件、猜测可用路线或增加工具数量不构成产品覆盖证明。
 
-Node/npm, Vite, test runners and the old server remain development/history tooling. They are not runtime requirements for the static product. Normal startup must not depend on `/mcp`, `/ai-bridge`, asset transfer endpoints, a local converter, or a server welcome message. Static IGES import and server-backed vector conversion are unavailable until a real browser implementation exists. A generated Blob, initiated download and verified file-handle write are distinct outcomes.
+当前优先顺序：
+1. AI 能速读能力文档、直接调用页面工具、获得清楚回执。
+2. 用真实浏览器验证关键工作流，解决慢与不可用的具体原因。
+3. 再根据至少 50 个去重 IGS 样本完善模板、图标和工具。
+4. 达到经逐件验证的至少 80% 产品覆盖目标；未完成前不得报告已达标。
 
-## M2A document and file boundary (2026-09-23)
+## 2. 产品形态与运行边界
 
-Historical MCP implementation and its test evidence follow. This section records prior behavior, not the default static architecture or a page API acceptance result.
+- 交付物是静态网页 dist/。通过 HTTPS 或 localhost 静态托管打开。
+- Replicad / OpenCascade WASM 在浏览器 Worker 内执行精确几何计算。
+- Three.js 负责显示，显示网格与精确 B-Rep 分离；STEP/BREP 导出来自精确内核。
+- 页面工程是唯一权威状态。界面、脚本、JSON 面板共享 CommandService、历史、撤销与 Worker。
+- Node/npm、Vite、测试脚本是开发工具。旧 MCP/本机服务/终端 CLI 保留作兼容开发工具，不能作为用户或 AI 的默认入口，也不能被列为解决侧栏问题的验收证据。
+- 网页公开函数不能自动替客户端增加脚本、磁盘或浏览器权限。实际可用通道必须现场检查。
+- WebCAD 是独立仓库。相邻的 CadViewer 与 text-to-cad 项目不是运行依赖，修改 WebCAD 不得顺带修改它们。
+- 不承诺 file:// 双击运行。子路径发布必须正确设置资源 base 并验证 Worker/WASM。
 
-`scripts/document-assets.mjs` adds nine public MCP file tools and local capability-protected raw-byte PUT/GET endpoints. `scripts/artifact-store.mjs` keeps bounded temporary resources (20 MiB each, 128 uploads/resources and 256 MiB total, 30 minute TTL). Only opaque IDs form storage paths. `scripts/file-transfer-client.mjs` is the real client adapter: an explicitly authorized existing directory, same-origin loopback transfers, SHA-256/size verification, file sync/readback and atomic no-overwrite hard-link commit. Generated, transferred, and client-confirmed written are separate states; the server cannot independently prove a remote client's disk durability.
+## 3. AI 使用规范
 
-New/open/import/save/export go through `CommandService.fileCommand` with the complete document/instance/revision context and the existing main rebuild/import/export functions. Open/new refuse dirty documents. Import only appends STEP/BREP/IGES source-backed features; it cannot replace a project. Successful reopen retains documentId, creates documentInstanceId and starts fresh undo history. Failed parsing/conversion/rebuild does not commit a replacement. A save acknowledgement clears dirty only for the identical current instance and revision. UI browser downloads keep dirty because starting a download cannot prove disk write. PNG export captures only the current viewport.
+**用户最初指定的入口是 Chrome 右侧 ChatGPT 聊天侧栏；随后明确允许尝试 Codex 右侧内置浏览器（IAB）与子代理。** 两种宿主分别验收：Chrome 侧栏须从该聊天框发出自然语言请求；IAB 则由获得自然语言任务的代理连接目标页面，自行发现文档、执行公开接口、确认模型与回执。IAB 成功不能替代 Chrome 侧栏验收。网页自身 JSON 面板仅供用户明确要求的手工调试，不作为 AI 自动回退入口；单纯由开发者手动调用 API 的结果要与独立子代理完成任务分开记录。
 
-Native projects embed imported geometry bytes; they need no original path or temporary asset cache. IGES uses the existing local OCP converter with an early environment probe. Restart destroys the in-memory resource registry; no cross-restart exactly-once guarantee is offered. Discovery and recipes are available through bootstrap/search/get_tool/read_docs; see `recipe.file-workflow`. Run `npm run test:e2e:m2a` for the public-MCP product chain and `npm run test:ui:m2a` separately for UI regression.
+浏览器控制按需连接。每段测试结束立即释放控制，不因查文档、写代码或等待用户而保持调试连接。重置工具会话与实际调试横幅消失必须区分，不能把未确认的释放写成成功。
 
-## M1 command boundary (2026-09-23)
+2026-09-23 当前验收状态：页面 API / JSON 面板已验证；Chrome 右侧聊天框实测未完成。Windows Computer Use 因无法可靠识别当前浏览器 URL 自动停止，未通过其他通道绕过该保护；控制工具会话已重置，横幅是否消失未能再核实。
 
-`src/command-service.js` validates v2 context/actions and calls the existing main transaction; it owns bounded in-memory receipts and snapshot-bound geometry selection tokens, without a second document or CAD kernel. `src/ui-selection-adapter.js` supplies missing UI topology only at the UI boundary. Explicit API topology is never replaced with UI selection.
+同日新增 IAB 验收已通过：子代理独立连接自己的后台 IAB 页面，从文档发现 API，经公开 api.run 完成圆环创建、精确测量、视图和 STEP/工程生成；批次299 ms、CDP往返317 ms。主代理再把子代理的相同 steps 送入用户可见的主任务 IAB 页，批次245 ms，画面与当前模型版本一致。原生 WebMCP 暂无页面工具登记，实际调用通道是 IAB 提供的开发 CDP → 公开页面 API。结果页保留，双方控制会话重置。详见 agent/output/IAB-SUBAGENT-20260923.md 与 IAB-MAIN-20260923.md。
 
-`src/operation-registry.js` derives all cards from the existing catalog and migrates seven verified operations to strict finite JSON validation through `src/contracts/operation-schema.js` (a documented fail-closed subset, not a general-purpose JSON Schema implementation). `src/ai-docs.js` exposes versioned help and hashes to Node and browser. `src/geometry-query.js` executes exact BRep queries in the existing Worker. `scripts/mcp-bridge.mjs` keeps the 14 legacy tools and adds seven v2 controls with structured output.
+### 3.1 发现与速读
 
-Version-1 files retain a persistent `documentId`; opening a document creates a new `documentInstanceId`. Recovery writes use per-instance keys, retain legacy recovery reads and capture snapshots before asynchronous storage. Memory commit and display warnings are distinct. Persistence remains best-effort IndexedDB checkpointing, not durable atomic document/receipt commit. See `agent/output/M1_ACCEPTANCE.md` for local evidence and `docs/M1-TOOL-CONTRACTS.md` for public limits.
+入口文档为 llms.txt → automation/quickstart.md。运行时优先 `window.webcad.api.connect({queries:[能力关键词]})`，一次返回精简实时上下文与相关工具，再用 `getTools({ids})` 批量读取完整契约；`info/getState/searchTools/getTool/readDocs` 保持兼容。
+通用搜索覆盖注册工具与共享 UI 名称，无特定零件流程。完整卡和文档按哈希复用；可选离线库为 `automation/index.json` + `automation/tool-library.mjs`，持久存储由宿主负责，完整知识库不进入模型上下文。细则见 [AI 工具发现](docs/AI-DISCOVERY.zh-CN.md)。
+文档、参数、单位、默认值、版本与 schemaHash 从真实注册表生成，不另写一套与实现脱节的工具清单。
+先读相关工具卡；不把整份目录、全部工程源字节反复塞入上下文。
+就绪字段是 getState().summary.kernelReady / summary.busy，预览状态在 preview。不能读取不存在的根级 kernelReady 后误判失败。
 
-WebCAD is an independent local project copied from CadViewer. The source CadViewer project is not a runtime dependency and must not be edited by WebCAD tasks.
+### 3.2 执行通道
 
-## Runtime
+优先使用宿主实际提供、已获授权的页面脚本通道，调用 window.webcad.api。
+本次开发环境发现了 Chrome CDP Runtime.evaluate 通道，可 awaitPromise 调用公开 API；这只证明本次实际通道，不能外推所有 ChatGPT/浏览器版本均支持。
+AI 通过宿主已授权的页面脚本通道后台调用公开 API；JSON 面板仅供用户明确要求时手工调试，不能作为 AI 自动回退入口。无脚本通道时报告实际限制。
+当前 Codex 开发宿主先检查标签页 capabilities；有获授权的 cdp 能力时读其文档并调用 Runtime.evaluate。只读 DOM evaluate 不等于宿主所有脚本通道均不可用。详见 readDocs({docId:"api.connection"})。
+AI 使用相同的 api.run(request) 批次协议；开发者不应继续为普通建模增加 CLI 包装层。
 
-- `src/main.js`: document/history, transactions, local file open/save/export, autosave and UI coordination.
-- `src/viewport.js`: Three.js display, camera, selection, topology highlighting and sketch interaction.
-- `src/ui.js`, `src/style.css`: Chinese CAD workspace, command dialogs, trees and properties.
-- `src/cad-worker.js`: persistent Replicad/OpenCascade WASM exact geometry worker, feature replay, tessellation and export.
-- `dist/`: Vite static production output including Worker/WASM/assets; serve by HTTPS or localhost static hosting with correct base URLs and MIME types. Node server dependencies do not belong in the browser runtime.
-- `scripts/serve.mjs`: legacy/development Node HTTP service, including the old MCP and transfer endpoints. It is not the normal user launch path.
-- `start-server.cmd`: legacy local launcher; do not present it as the static product entrypoint.
-- `cad-viewer/` and `cad-data/`: retained read-only viewer/resources; their old URL mapping does not establish static-subpath support.
+已验证子代理能够通过获授权的页面通道控制 WebCAD。今后用户让 AI 建模或测试时，默认由当前主模型直接连接目标 WebCAD 页面、读取当前状态并执行公开页面 API，以减少代理交接和等待；只有用户明确要求子代理，或主模型当前无法访问目标页面且委派确有帮助时，才另行使用子代理。既有子代理验证不需要在每次普通任务中重跑。完成后立即释放浏览器控制。
 
-The app receives bytes selected by the user in the browser; geometry and files do not need a backend processing service. `.webcad` stores the feature sequence and imported source bytes. Imported STEP contains geometry, not recoverable upstream design history. Mesh display is derived from exact worker shapes; STEP/BREP export comes from those shapes, not reconstruction from triangles.
+Codex IAB 的代理会话可能隔离。本轮实际发现子代理看不到主任务已打开的标签页；不得据此假称多个代理直连同一个工程。可采用两种明确方式：子代理在自己的 IAB 页面独立验收；或子代理返回不含会话 ID 的结构化 steps，由持有用户当前页面的主代理读取新鲜 context 后执行。后者的页面写入者是主代理，子代理负责计划。未经验证不要同时给多个写入者操作一个工程。
 
-## Verification and delivery
+### 3.3 请求和回执
 
-Run the Vite build after changes. User-facing page acceptance must exercise the public API against a static deployment, reopen a native project and inspect exported STEP independently where geometric correctness matters. The existing temporary native checker at `agent/temp/verify-step.py` uses a development machine's native CAD runtime and is not an application dependency. Keep actual results under `agent/output/`; do not claim tests from this architecture document.
+- 修改必须携带当前 sessionId、documentId、documentInstanceId、expectedRevision。禁止猜测 ID、revision 或沿用其他标签页的状态。
+- batch 最多 20 步 / 3 MiB / 深度 32；idempotencyKey 最多 80 字符；当前文档实例最多 100 份批次回执。
+- add 是 feature.add 的简写，读取当前工具版本/hash；params、refs、name 必须明确。
+- 后续步骤用 {$ref:"stepId.createdBodyIds.0"} 引用实际结果，不假定实体编号或隐式 UI 选择。
+- 批次逐步串行，失败即停，atomic=false：前面已成功步骤保留，支持通过 history.undo 逐步撤销。
+- completed、partial、failed、unknown 分开报告；unknown 先读状态，不盲目重放。
+- 相同实例内重发完全相同请求及 key 返回原回执；不同请求不得复用 key。重载/重开后的幂等不作保证。
+- 每步只按本步回执推进 revision；其他 UI/客户端插入修改会导致冲突并停止。
+- 不接受任意 JS、eval、本地路径或任意 URL。JSON 面板不提供终端或脚本解释器。
+- run 合同与完整示例见 docs/PAGE-API.zh-CN.md、readDocs({docId:"api.run"})。
 
-Node syntax checks do not prove browser CAD behavior or graphical quality. Verify static assets at root and subpath, Worker/WASM loading and the page workflow directly. No external deployment is part of this project setup.
+### 3.4 性能
 
-## Storage and licenses
+一次调用可批量完成建模、查询、测量和导出；避免每个输入框一次往返。
+记录内核/页面批次耗时与完整宿主往返耗时，不能将页面 elapsedMs 当作包含推理、通信和文件传输的总耗时。
+复杂曲面计算不承诺毫秒级。错误最多尝试三次（超时按网页全局偏好：一次重试后改轻量方案），记录输入、错误和已完成状态，继续其他可用路线。
 
-Agent records belong under `agent/`, backups under timestamped `agent/backups/`, scratch under `agent/temp/`, and acceptance/delivery reports under `agent/output/`. Preserve copied third-party licenses and corresponding-source information. Generated `dist/`, dependencies, test output and backups are not committed by default; a distributable folder can still include the built `dist/` outside Git.
+### 3.5 UI 与 AI 功能同步交付
 
-## Additional modeling commands
+任何新增或修改的用户操作，同一变更必须提供公开 AI 等价接口、显式参数、错误回执、状态读回和用法。登记 src/ui-api-coverage.js，构建生成文档时检查 UI 动作和目标工具卡；不能以“界面能点”作为交付结束。鼠标拖动用 transform/camera 数值接口，轮廓点击用显式点集，文件选择器用 files.register/open/import，展示帮助用 readDocs。历史步骤也需独立改名入口，不能要求导入件拥有原始参数历史。
 
-Reference reconstruction uses `referenceExtrude` and `referenceLoft` in separate kernel modules. They preserve exact planar source curves and their input bodies. Extrusion accepts one closed outline or a single planar face including holes; loft accepts 2–12 ordered single closed outlines without holes. Invalid, open, branched or nonplanar profiles fail without repairing gaps. `faceBoundary` defaults to all boundaries; `boundary: 'outer'` explicitly excludes holes for a single-outline loft. See public page documentation `recipes.reference-reconstruction`. These tools do not infer the original design or solve guided variable-section surfaces. The browser test category is `node scripts/test.mjs reference-browser`; local original geometry is injected only into the development harness, never shipped in static assets.
+目前编辑接口包括 document.rename、feature.rename、body.visibility、body.appearance、document.appearance、body.explode、preview.start/commit/cancel；使用 execute 的版本上下文和幂等键。setView 提供显示方式、网格、吸附、选择模式、手柄、相机、剖切和语言；getState 暴露对应状态。显示原色与金属材质分离保存。改原色不改变精确几何；元数据修改不触发内核重建。其他几何能力的 strict/advisory 区分仍有效。
 
-The current command set includes cylindrical hole cutting from a global X/Y/Z origin along a selected signed principal axis; linear patterns with per-copy XYZ translation; and circular patterns around an explicit principal axis and center. Pattern counts include the original and results are compound shapes. Full-circle placement omits a duplicate endpoint; partial-angle patterns include both endpoints. The viewport can switch orthographic/perspective projection without changing model geometry. These descriptions match the source command contract; operation acceptance remains in the recorded test results.
+文档发现：llms.txt → automation/quickstart.md → automation/manifest.json → tools/<id>.json 或 docs/<id>.md。运行时优先 searchTools/getTool/readDocs。完整快照 automation/knowledge.md 与 index.json 可下载并导入知识库，包含全部分页内容；快照不是永久契约，调用前比较页面 info().catalogHash。AI 面板提供下载入口。UI 对应表也可用 readDocs({docId:"api.ui-coverage"}) 按页读取。
 
-## Local MCP integration
+### 3.6 UI 布局规则
 
-Legacy development history only; this is not the product integration path.
+顶部为创建、编辑、加工和视图工具；左侧为实体与历史；中间为建模与选择；右侧属性按「外观 → 实测尺寸 → 可编辑参数」安排。全局默认颜色、材质、背景和灯光放在顶部「全局设置」，以版本化 Cookie 保存一年；启动加载，支持预设和恢复默认。单个实体的颜色与材质覆盖放在属性区。当前工程材质覆盖移到全局设置窗口的独立区域，null 表示跟随全局。全局偏好不修改几何、工程修订或撤销历史；显式工程/实体覆盖保持优先。设计原色可改为 #RRGGBB，实体材质可跟随工程或单独设置；金属效果不覆盖保存的原色。外观、显隐、改名须进入撤销历史和工程文件。选中高亮以边线与轻微发光提示，不直接用绿色替换设计原色。
 
-Official MCP SDK Streamable HTTP runs at /mcp. scripts/mcp-bridge.mjs registers explicit-session tools and forwards allowed commands via /ai-bridge WebSocket to src/ai-bridge.js. The browser adapter calls the same main API as UI operations; no second kernel or arbitrary code evaluation exists. Every mutating request carries expectedRevision and is serialized per tab. The frontend checks cancellation/version again before commit. MCP export returns base64 data for the client to save. Connected pages update through the same rebuild/render path. SDK, ws and zod are runtime dependencies; launcher installs missing dependencies even if dist already exists. Configuration examples and tests are in agent/output/MCP.md; no user Codex configuration was changed.
+原生浏览器下载/选择文件权限、宿主脚本能力、静态版 IGES/服务端矢量转换仍按真实环境处理；UI/API 对应关系不代表这些外部能力已经可用。本机自动保存仅用于内部检查点，不在启动时弹出恢复设计提示，也不自动加载到 AI 当前工程。
 
+## 4. 几何和参数规范
+
+整件圆边 autoRound 按明确半径一次处理整个实体的尖锐边，包括孔和文字；相切/解析周期接缝跳过，任意目标失败则整步回滚，不自动缩小半径、不默默跳过失败边。平滑过渡 smoothTransition 可选择两个、三个或更多相邻面；与未选面相交的终止边界可仍锐利，必须报告。两工具均保留源引用和参数，通过原特征的 feature.edit 修改半径并重建后续步骤，而不是在结果上重复加工。
+
+多面交汇的外缘使用“平滑过渡”：按实际相邻面组联动处理公共尖缝，生成真实 BRep 过渡面。UI/API 同步提供源面组、明确半径和结果接缝报告。禁止把显示法线光滑或“内核未抛错”当成无利角；需要有效实体、目标接缝检查和实件画面。未处理的文字槽/其他边必须显式报告。项目要求消除产品利角，但局部工具通过不能宣称整件无利角或所有产品已覆盖。
+
+长度 mm，角度 degrees，体积 mm³。必须区分半径/直径、内径/外径、总体尺寸/中心线尺寸。
+例：线径 5、内径 25 的实心圆环，minorRadius=2.5，majorRadius=15，外径=35，厚度=5。
+精确体积为 2π²Rr² ≈ 1850.550825 mm³。
+
+box、hole、multiHole、faceHole、fillet、chamfer、shell、smoothTransition、autoRound 当前有严格 v2 契约。
+其余操作由页面 advisory 适配器和内核实际验证，不能把“有卡片”写成“严格契约已覆盖”。
+面/边编号仅在当前几何快照有效；可查询时先用 queryGeometry，歧义必须处理。
+圆角/倒角全边处理必须明确 allEdges；不得默默代入 UI 选中对象。
+模型修改提交与画面呈现是两个阶段；检查 display.rendered 的 documentId / instance / revision，显示失败不能掩盖已提交状态。
+
+LOGO 使用可追溯的闭合轮廓和孔环。禁止把客户名称、字体替代或估描当作真实 LOGO。
+可通过 params.regions 传标准轮廓，无需点文件选择器。曲面加工需明确目标面、位置、深度、比例与方向。
+不能把平面投影贯穿切割冒充曲面等深刻字。依曲面/厚度/边界限制失败时应保留原模型并说明。
+
+## 5. 文件和数据边界
+
+- .webcad 是自包含的参数历史及导入源字节；导入 STEP 不恢复上游 CAD 特征树。
+- 静态浏览器当前支持 STEP/BREP 导入和 STEP/STL/BREP/PNG 导出。
+- 静态版尚无直接 IGES 转换器；本机 OCP 转换是开发检查能力，不代表静态产品具备。
+- SVG 可由浏览器直接解析。外部 PDF 转换 URL 和 Key 可保存在当前浏览器 localStorage；浏览器直连是否可用取决于外部服务的 CORS 许可，保存配置不代表转换成功。DXF/DWG/AI 与外部服务能力仍按实际运行环境验证。
+- files.register 接收已授权的真实字节；批次 register 使用 base64。文件名只允许 basename。
+- 页面资源每项 20 MiB，最多 32 项，合计 64 MiB，30 分钟有效。JSON 批次另受 3 MiB 限制。
+- registered、generated、download_initiated、write_verified 分别表示登记、生成、发起下载、授权句柄写入并回读验证。不得混称“已保存到磁盘”。
+- 打开/新建遇未保存工程应拒绝替换；不得擅自丢弃用户工程。
+- 源 IGS/DWG/PDF 只读，使用 SHA-256 保留对应关系。不得上传客户图纸或修改 Goldenluck 生产记录。
+
+## 6. 快捷模型规范
+
+正式界面只保留可参数化的快捷模型，不显示示例或试用样件入口。开发验收用工程不能作为产品模板直接呈现；结构已由现有模板覆盖时复用，新增模板须有通用参数、图标和真实几何校验。
+
+每个模板必须有：稳定 kind、中文名、英文名、名称旁的简易 SVG 图标、用途说明、参数单位/默认值/范围、关键几何关系、已知限制与生成实体检查。
+图标表达结构家族，不能充当源产品预览或尺寸依据。模板参数仍可编辑、撤销、保存及导出。
+已有模板先复用，再增加真正反复出现的结构；避免为单个产品硬编码一个名称。
+通用模板成功只证明该参数实例，不证明同类全部源产品可重建。
+
+## 7. IGS 学习与 80% 验收
+
+本轮先用 666 Viewer 理解源件，暂不扩充 WebCAD 的 IGS 导入支持。离线参考转换须尊重 IGS 的可见性：先区分可见产品根与隐藏构造几何，保留读取模式、源哈希和转换记录。不能把包含隐藏曲面的最大包围盒或最大面积面当作产品尺寸/产品底面。全根读取与可见读取有差异时分别记录；参考转换不是模型重建。
+
+精确面提取 `extractFaces` 保留源面及孔环，供后续加工。几何平面查询可识别控制点共面的 BSpline；返回原编码、planar、wireCount、面积、中心和法向。BRep 有效/闭合并不等于源件公差合格：参考轮廓成体保留 1e-7 mm 端点门禁，遇较大原始容差先诊断，不能自动放宽以凑成功率。工具试用尺寸（如 1 mm）须注明实验参数，不能冒充源产品厚度。
+
+多壳对象提供 `extractShell({shellIndex})`，序号从零开始，保留源对象；`getState().bodies[]` 和 `measure` 提供 `shellCount`。原始散面先 `sewFaces(makeSolid:false)`，再按当前壳序号提取、核对部件。独立闭壳可以单独要求缝成实体，内外嵌套壳须先确认空腔语义，不能自动逐壳填实。新功能同步提供 UI、严格 AI 契约和 `recipes.source-faces` 速读说明。
+
+至少 50 个去重产品样本；产品号与源文件哈希两层去重，说明抽样家族/范围。
+每份记录源文件、产品号、哈希、原始尺寸/单位、可辨识视图、结构分类、候选路线、缺失工具、实际重建结果。
+存在远离主体的源组件、缩略图太小或结构不明时标记待确认，不能凭文件名算成功。
+路线假设、毛坯示例、完整产品重建必须分开计数。
+
+覆盖率分母固定为抽样产品数；只有达到预先定义的该产品必需几何要求，并通过尺寸/结构、有效实体、必要细节和页面内精确几何回读，才能计入分子。用户另行要求导出时，再追加交换文件回读对照。
+50 个样本至少 40 个逐件合格才达 80%；不得删去困难样本抬高比例。公差依据源图或事先说明，不能为了通过擅自扩大。
+此前 41/50（82%）只是未逐件验证的路线判断，已撤回为产品覆盖结果。目前完整产品覆盖率未证实。
+
+## 8. 验证和交付
+
+适度、针对性验证：修改 → 对应单元/内核检查 → 一轮真实页面工作流 → 简短交付。
+日常建模和工具体验测试在 WebCAD 页面生成模型，读取提交状态及必要的精确尺寸/体积，确认画面显示的是当前修订，然后截取一张完成画面给用户看。测试时不调用文件保存、导出或下载，也不额外生成 STEP、`.webcad` 或模型视图 PNG 等导出文件；仅保留浏览器截图。只有用户明确要求导出时才另行执行并核实实际落盘。浏览器截图用于查看外观，不能代替精确几何回执。
+AI 接口验收至少包含：动态读取状态/契约；真实几何生成；精确测量；失败不误提交；重复请求不重复建模；当前页面可见结果与截图。文件接口专项仅在用户要求时验收。
+侧栏/CDP/API/UI/内核/磁盘/部署的证据分别标明。测试通过的数量不能替代用户实际入口验收。
+本轮不授权外网部署、上传、Git 推送或主分支覆盖。保留用户未提交内容，修改前做备份。
+结果报告列明修改、执行通道、实际耗时、通过项、未验证/失败项、交付文件与下一步；不靠措辞扩大完成范围。
+
+## 9. 代码和记录位置
+
+- src/main.js：工程状态、历史、事务和入口绑定。
+- src/command-service.js：上下文、契约、幂等、串行命令与文件动作。
+- src/page-api.js / page-api-docs.js：公开页面 API 和发现文档。
+- src/page-batch.js / ai-panel.js：结构化批次和手工 JSON 调试面板。
+- src/cad-worker.js 与 kernel 模块：精确几何。
+- src/viewport.js：显示与交互，不持有第二套模型事实。
+- src/quick-models/：每模型独立定义、图标和建模入口；catalog.js 维护有序加载列表。src/quick-models.js / quick-model-icons.js 是兼容导入入口。
+- agent/notes：工作知识；agent/temp：临时脚本；agent/output：验收报告；
+  agent/backups/<时间戳>：编辑前原文件备份，保持相对路径。
+- 原始 CAD、临时 CAD 和用户可见 3D 输出遵循 text-to-cad 的存储路由，不散落项目根目录。

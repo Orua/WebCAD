@@ -37,6 +37,17 @@
 .panel-heading{height:32px;min-height:32px;padding:0 12px}.tree-title{padding:8px 7px 5px}
 .tree-pick{padding:6px 7px}.feature-row{padding:6px 7px}.history-title{margin-top:10px;padding-top:10px}
 .workspace .properties{padding:11px}.workspace .property-form{gap:8px}.form-field{gap:5px}
+.appearance-panel{border-bottom:1px solid #dce4e9;padding:0 0 12px;margin:0 0 12px;display:flex;flex-direction:column;gap:9px}
+.appearance-panel .section-label{margin:0;font-size:12px;color:#264e58}
+.appearance-panel .form-field{margin:0}.appearance-panel select{width:100%;min-width:0}
+.appearance-scope{font-size:11px;color:#647985;border-top:1px dashed #dce4e9;padding-top:9px}
+.color-controls{display:flex;align-items:center;gap:8px;min-width:0}
+.color-controls input[type=color]{width:40px;height:30px;flex:0 0 40px;padding:2px;cursor:pointer}
+.color-value{font:11px ui-monospace,monospace;flex:1}.color-controls button{padding:4px 7px;font-size:11px}
+.appearance-panel .property-footnote{margin:0;line-height:1.6}.ai-doc-links{display:flex;gap:10px 16px;flex-wrap:wrap;font-size:12px}
+.right-panel{min-width:0}.property-details .geometry-stats{margin-top:8px}
+@media(min-width:1101px){.workspace{grid-template-columns:200px minmax(250px,1fr) 260px}}
+@media(max-width:900px){.ribbon{overflow-x:auto}.color-controls{gap:4px}.color-value{font-size:10px}.viewport-topbar{flex-wrap:wrap}.appearance-panel .property-footnote{font-size:10px}}
 .form-field input,.form-field select,.form-field textarea,.rename-input{padding:6px 8px}
 .property-details{margin-top:13px;padding-top:8px}.section-label{margin:12px 0 8px}
 .cad-dialog{padding:16px;width:440px;border-radius:9px}.dialog-header{margin-bottom:9px}
@@ -46,10 +57,33 @@
 .viewport-topbar{top:9px;left:10px;right:10px}.selection-modes,.view-actions{padding:2px}
 .selection-modes button,.view-actions button{padding:4px 8px}.finish-control{padding:3px 7px;margin-right:8px;gap:6px}
 .statusbar{height:24px;min-height:24px}
-@media(min-width:1101px){.workspace{grid-template-columns:210px minmax(250px,1fr) 238px}}
+@media(min-width:1101px){.workspace{grid-template-columns:200px minmax(250px,1fr) 260px}}
 @media(max-width:680px){.app-header{gap:6px}.brand{min-width:auto}.header-actions button{padding:4px}.preview-dialog{width:calc(100vw - 32px)}.viewport-topbar{left:8px;right:8px}.selection-modes button,.view-actions button{padding:4px 5px}}
 
 /* Arrow selection remains available across modeling modes. */
 .selection-arrow{width:22px;height:22px;fill:currentColor;color:#39747e;flex-shrink:0}.selection-modes [data-action="selectTool"]{display:flex;align-items:center;gap:4px}.selection-modes .selection-arrow{width:15px;height:15px}.tool-button.active{background:#e0f1ef;color:#08766e}.tool-button.active .selection-arrow{color:#08766e}.empty-state h1{font-size:20px;color:#81929e}.empty-state p{margin-bottom:0}
 
 .dialog-select{margin-left:auto;display:flex;align-items:center;gap:3px;font-size:11px;padding:4px 7px}.dialog-select .selection-arrow{width:14px;height:14px}
+
+.ai-command-dialog{width:min(920px,94vw)}.ai-command-dialog textarea{box-sizing:border-box;width:100%;font-family:monospace;margin:12px 0;padding:10px}.ai-command-dialog pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:36vh;overflow:auto;background:#f3f6f9;padding:12px;font-size:12px;user-select:text}.ai-command-controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.ai-command-controls button{padding:7px 10px}
+
+/* Shared dialog surface, with a distinct focused treatment for messages. */
+.cad-dialog{border:1px solid #dce5e9;border-radius:18px;padding:24px;background:#fff;box-shadow:0 24px 80px #102d3d35,0 3px 12px #102d3d12}
+.cad-dialog::backdrop{background:rgba(15,32,45,.34);backdrop-filter:blur(4px)}
+.dialog-header{gap:12px;margin-bottom:16px}.dialog-header h2{font-size:19px;font-weight:650;letter-spacing:.2px;color:#203e4d}
+.dialog-header .close-button{width:32px;height:32px;padding:0;border-radius:50%;font-size:23px;color:#78909d}
+.dialog-description{font-size:12px;line-height:1.8;color:#6d808c;margin:0 0 20px}
+.cad-dialog .dialog-footer{padding-top:16px;margin-top:20px;border-top:1px solid #edf1f3;gap:10px}
+.cad-dialog .dialog-footer button{min-height:36px;padding:8px 16px;border-radius:8px}
+.message-dialog{position:fixed;width:340px;max-width:calc(100vw - 32px);padding:20px 22px 18px;overflow:auto;text-align:left;border-radius:12px}
+.message-dialog::backdrop{background:rgba(15,32,45,.18);backdrop-filter:none}
+.message-close{position:absolute;right:10px;top:8px;width:28px;height:28px;padding:0;border-radius:50%;font-size:21px;line-height:1;color:#91a0aa}
+.message-title{margin:0 24px 8px 0;font-size:15px;font-weight:650;color:#233c49;line-height:1.4}
+.message-body{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;line-height:1.6;color:#526875;max-height:35dvh;overflow:auto;user-select:text}
+.message-repeat{color:#94a2ab;font-size:11px;margin:12px 0 0}.message-repeat:empty{display:none}
+.message-footer{display:flex;justify-content:flex-end;margin-top:14px}
+.message-footer button{min-width:68px;min-height:30px;border-radius:6px;font-size:12px;padding:5px 12px}
+@media(prefers-reduced-motion:no-preference){.message-dialog[open]{animation:message-appear .16s ease-out}@keyframes message-appear{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}}
+@media(max-width:600px){.cad-dialog{padding:20px;border-radius:14px}.message-dialog{padding:18px 20px}}
+.logo-converter-settings{display:grid;gap:10px;margin-top:20px;padding:16px;border:1px solid #dce7e9;border-radius:8px;background:#f5fafb}.logo-converter-settings h3{margin:0;font-size:13px}.logo-converter-settings .property-footnote{margin:0}.logo-placement-controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px;border:1px solid #dce7e9;border-radius:8px;background:#f5fafb}.logo-placement-controls label{font-size:11px}.logo-placement-controls select,.logo-placement-controls input{max-width:105px;margin-left:5px;padding:5px;border:1px solid #c7d9df;border-radius:5px}.logo-placement-controls button{padding:5px 10px}.logo-placement-controls .property-footnote{width:100%;margin:0}
+.logo-target-step{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;margin:0 0 14px;border:1px solid #a9d4d0;border-radius:9px;background:#effaf8}.logo-target-step p{margin:0;color:#245b57;font-size:12px;line-height:1.6}.logo-target-step button{flex:0 0 auto;white-space:normal;text-align:center}@media(max-width:600px){.logo-target-step{flex-direction:column;align-items:stretch}}

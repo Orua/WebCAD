@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createPageAPI } from '../src/page-api.js';
+import { getTool, infoMetadata, readDocs } from '../src/page-api-docs.js';
+import { UI_API_ROUTES } from '../src/ui-api-coverage.js';
 
 const context = () => ({ sessionId: 'page-1', documentId: 'doc-1', documentInstanceId: 'instance-1', expectedRevision: 7 });
 
@@ -33,6 +35,39 @@ function fixture() {
     set displayStatus(value) { displayStatus = value; },
     set frameError(value) { frameError = value; } };
 }
+
+test('editor discovery covers every registered UI route and supports paginated inventory',()=>{
+  for(const route of Object.values(UI_API_ROUTES))for(const id of route.tools)assert.equal(getTool({id}).id,id);
+  assert(infoMetadata().docs.includes('api.editor'));
+  assert.equal(getTool({id:'body.appearance'}).minimalExample.args.color,'#e87939');
+  const page=readDocs({docId:'api.ui-coverage',limitChars:1000});assert(page.nextCursor);
+});
+test('explicit view controls validate before host mutation and point measurement states its source',async()=>{
+  const f=fixture();
+  for(const args of [{display:'bad'},{snap:1},{grid:'yes'},{camera:{position:[0,0,0],target:[0,0,0]}},{gizmo:'scale'},{selectionMode:'vertex'},{language:'de'}]){
+    assert.equal((await f.api.setView({context:context(),...args})).status,'failed');
+  }
+  assert.equal(f.calls.view,0);
+  assert.equal((await f.api.setView({context:context(),display:'wire',grid:false,snap:true,gizmo:'off',selectionMode:'face',language:'zh',camera:{position:[30,40,50],target:[0,0,0]}})).status,'read');
+  assert.equal(f.calls.view,1);
+  const d=await f.api.measure({context:context(),points:[[1,2,3],[4,6,3]]});
+  assert.equal(d.distance,5);assert.equal(d.source,'provided-coordinates');assert.equal(f.calls.measure,0);
+  assert.equal((await f.api.measure({context:context(),points:[[0,0,0],[1,2,3]],bodyId:'body-1'})).status,'failed');
+});
+
+test('sampled twin-window page method strips context, returns closed profiles and preserves revision',async()=>{
+  const f=fixture();
+  const outerLeft=[[0,21],[-3,10.5],[0,0]],outerRight=[[18,21],[21,10.5],[18,0]];
+  const innerLeft=[[3,17.5],[1,10.5],[3,3.5]],innerRight=[[15,17.5],[17,10.5],[15,3.5]];
+  const args={context:context(),outerLeft,outerRight,innerLeft,innerRight,barTopY:12,barBottomY:9,simplifyToleranceMm:0.02};
+  const result=await f.api.traceTwinWindow(args);
+  assert.equal(result.status,'read');
+  assert.equal(result.regions[0].holes.length,2);
+  assert.deepEqual(result.size,[24,21]);
+  assert.equal(result.simplifyToleranceMm,0.02);
+  assert.equal(f.api.getState().context.revision,7);
+  assert.equal((await f.api.traceTwinWindow({...args,context:{...context(),expectedRevision:6}})).error.code,'REVISION_CONFLICT');
+});
 
 test('public API exposes no mutable host internals; read-only methods leave document revision alone', async () => {
   const oldLocation = globalThis.location, oldWindow = globalThis.window;

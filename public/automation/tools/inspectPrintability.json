@@ -1,0 +1,29 @@
+{
+  "id": "inspectPrintability",
+  "title": "inspectPrintability",
+  "category": "page-method",
+  "version": "1.3.1",
+  "description": "inspectPrintability({context,bodyId,angleLimitDeg?:45}); angleLimitDeg 在 0 与 90 度之间。",
+  "synonyms": [
+    "inspectPrintability",
+    "成型检查",
+    "DfAM",
+    "悬垂方向",
+    "支撑面积"
+  ],
+  "inputContract": "inspectPrintability({context,bodyId,angleLimitDeg?:45}); angleLimitDeg 在 0 与 90 度之间。",
+  "outputContract": "status=read、当前 context、精确 B-Rep 元数据及显示网格的六方向悬垂面积和支撑柱体粗估；不判定工艺合格。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "STALE_REFERENCE",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docs": "api.printability",
+  "docsHash": "sha256:944b6bfe3496b109df1a7f43c472b1b6de7eef81dbb597db1c4135a3ae5fbf07"
+}

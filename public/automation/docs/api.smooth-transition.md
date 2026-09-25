@@ -1,0 +1,3 @@
+# api.smooth-transition
+
+autoRound 是严格 v2 整件圆边：params:{radius:0.1}，refs:[bodyId]，所有尖锐边统一处理，失败不部分提交。smoothTransition 是严格 v2 面组过渡：params:{radius:0.1,faceIds:[当前相邻面序号,...]}，refs:[bodyId]。选至少两个相邻面，仅对其公共尖缝联动倒圆。queryGeometry 边含 startPoint/endPoint/midpoint/bounds/adjacentFaceIds/normalAngleDeg/sharp/degenerate，面含 edgeIds；按位置和邻接找交线。getState().bodies[].transitionReport 含 processedEdgeIds/processedSeams/remainingSharpEdges/remainingSharpEdgeCount。过大半径、自交、未消除目标尖缝或抽样发现非边界新尖缝时拒绝，原模型保留。局部过渡与未选面的结束边界可能锐利，boundarySharpEdges 单独报告。检查法向为边上20/50/80%三点与1度阈值，不是曲率连续证明或全部顶点认证。未选原有锐边（如文字边）保留，不能宣称整件无利角。UI 加工→曲面处理→整件圆边/平滑过渡，选实体或 Ctrl 多选面，预览再确认。完成后用 feature.edit 修改原特征 params.radius，会从源几何重建并重算后续步骤；不是在结果上再倒一次圆角。

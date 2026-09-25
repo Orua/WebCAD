@@ -1,0 +1,40 @@
+{
+  "id": "files.release",
+  "title": "files.release",
+  "category": "file",
+  "version": "1.3.1",
+  "label": "释放文件资源",
+  "synonyms": [
+    "释放文件资源",
+    "release"
+  ],
+  "description": "release({resourceId}); current page resource ID.",
+  "inputContract": "release({resourceId}); current page resource ID.",
+  "outputContract": "Page resource released; an already started download URL is revoked by its timer.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees"
+  },
+  "implementationStatus": "page-adapter",
+  "contractStatus": "browser-file-adapter",
+  "runtimeAvailability": "requires_ready_page",
+  "limits": {
+    "maxBytes": 20971520,
+    "maxResources": 32,
+    "maxTotalBytes": 67108864,
+    "ttlSeconds": 1800
+  },
+  "caveats": [],
+  "errorCodes": [
+    "CAPABILITY_UNAVAILABLE",
+    "REVISION_CONFLICT",
+    "INSTANCE_MISMATCH",
+    "UNSAVED_REPLACEMENT",
+    "HASH_MISMATCH",
+    "SIZE_LIMIT",
+    "RESOURCE_LIMIT",
+    "RESOURCE_EXPIRED",
+    "PERMISSION_REQUIRED"
+  ],
+  "docsHash": "sha256:dd937493d7a41b265dd6efb25c1aa2d60182335e3e61171278f055e6c8719c4f"
+}

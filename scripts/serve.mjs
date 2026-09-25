@@ -18,6 +18,7 @@ if(process.argv.includes('--probe')){process.exit(await probe());}
 const { createMCPBridge, localRequestAllowed } = await import('./mcp-bridge.mjs');
 const { bootstrap, searchTools, getTool, readDocs } = await import('../src/ai-docs.js');
 const { handleLogoImport } = await import('./logo-import.mjs');
+const { handleLogoConverter } = await import('./logo-converter-proxy.mjs');
 const { handleIgesImport } = await import('./iges-route.mjs');
 const within=(base,target)=>target===base||target.startsWith(base+path.sep);
 const server=http.createServer(async(req,res)=>{
@@ -27,6 +28,7 @@ const server=http.createServer(async(req,res)=>{
  if(req.url?.split('?')[0]==='/mcp')return bridge.handle(req,res);
  if(req.url?.split('?')[0]==='/api/assets'||req.url?.split('?')[0]?.startsWith('/api/artifacts/')){try{return await bridge.handleFileRequest(req,res);}catch(error){return fail(500,error.message||'File transfer failed');}}
  if(req.url?.split('?')[0]==='/api/logo-import')return handleLogoImport(req,res);
+ if(req.url?.split('?')[0]==='/api/logo-converter'||req.url?.split('?')[0]==='/api/logo-convert')return handleLogoConverter(req,res);
  if(req.url?.split('?')[0]==='/api/iges-import')return handleIgesImport(req,res);
  let requestUrl;try{requestUrl=new URL(req.url||'/',`http://${req.headers.host}`);}catch{return fail(400,'Invalid URL');}
  const sendJson=(status,value)=>{const body=JSON.stringify(value);res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Content-Length':Buffer.byteLength(body)});return res.end(req.method==='HEAD'?undefined:body);};

@@ -1,0 +1,288 @@
+{
+  "id": "multiHole",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "radius": {
+        "type": "number",
+        "description": "Shared hole radius (mm)",
+        "exclusiveMinimum": 0
+      },
+      "depth": {
+        "type": "number",
+        "description": "Shared hole depth (mm)",
+        "exclusiveMinimum": 0
+      },
+      "axis": {
+        "type": "string",
+        "description": "Global axis",
+        "enum": [
+          "X",
+          "Y",
+          "Z"
+        ],
+        "default": "Z"
+      },
+      "direction": {
+        "type": "number",
+        "enum": [
+          1,
+          -1
+        ],
+        "default": 1
+      },
+      "points": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 100,
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 3,
+          "maxItems": 3,
+          "description": "World coordinate [x,y,z] in mm"
+        }
+      }
+    },
+    "required": [
+      "radius",
+      "depth",
+      "points"
+    ],
+    "additionalProperties": false,
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "defaults": {
+    "axis": "Z",
+    "direction": 1
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "World XYZ cutter start, signed principal axis, radius in mm (not diameter), fixed positive depth. No through parameter.",
+  "title": "Cut cylindrical holes sequentially at multiple global start points",
+  "category": "modification",
+  "synonyms": [
+    "多孔",
+    "孔位",
+    "mounting plate",
+    "多位置打孔"
+  ],
+  "description": "Cut cylindrical holes sequentially at multiple global start points",
+  "schemaHash": "sha256:721711340db5482a051682fd5bc282175b8fc64d7fa56f88600beed3c61fe1eb",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+  ],
+  "knownUnsupportedCases": [
+    "One referenced body. Each point is a cutter START [x,y,z], not a face identifier or 2D sketch point. All holes share radius/depth/axis/direction. Defaults axis=Z,direction=1. Every hole must remove material from the sequential result; an off-body or already-empty hole fails the whole feature. Does not create threads."
+  ],
+  "minimalExample": {
+    "op": "multiHole",
+    "params": {
+      "radius": 2,
+      "depth": 5,
+      "axis": "Z",
+      "direction": -1,
+      "points": [
+        [
+          5,
+          5,
+          4
+        ],
+        [
+          45,
+          5,
+          4
+        ],
+        [
+          5,
+          25,
+          4
+        ],
+        [
+          45,
+          25,
+          4
+        ]
+      ]
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "multiHole",
+    "params": {
+      "radius": 2,
+      "depth": 5,
+      "axis": "Z",
+      "direction": -1,
+      "points": [
+        [
+          5,
+          5,
+          4
+        ],
+        [
+          45,
+          5,
+          4
+        ],
+        [
+          5,
+          25,
+          4
+        ],
+        [
+          45,
+          25,
+          4
+        ]
+      ]
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "radius": 2,
+        "depth": 5,
+        "axis": "Z",
+        "direction": -1,
+        "points": [
+          [
+            5,
+            5,
+            4
+          ],
+          [
+            45,
+            5,
+            4
+          ],
+          [
+            5,
+            25,
+            4
+          ],
+          [
+            45,
+            25,
+            4
+          ]
+        ],
+        "diameter": 4
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "NO_MATERIAL_REMOVED"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [
+    "recipes.mounting-plate"
+  ],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "多位置打孔",
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
+  "docsHash": "sha256:a9f08906383a84cb29157613b73a81652bd6d6c560954853d52cbbc4ee3bd4ae"
+}

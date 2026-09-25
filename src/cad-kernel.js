@@ -3,18 +3,33 @@ import { buildQuickModel } from './quick-models.js';
 import { buildLogoOnPlane, buildVectorProfile } from './logo-model.js';
 import { buildAdvancedLoft } from './advanced-loft.js';
 import { buildCurveSweep } from './curve-sweep.js';
+import { buildArcProfile } from './arc-profile.js';
 import { buildCurvedLogo } from './curved-logo.js';
 import { buildFittedSurface } from './fitted-surface.js';
 import { buildFaceThickness } from './surface-thickness.js';
 import { extractPlaneSection, extractFaceBoundary } from './reference-curves.js';
 import { sewFaces, surfaceTrim, diagnoseSurface } from './surface-repair.js';
 import { queryShapeGeometry } from './geometry-query.js';
+import { logoFaceSignature } from './logo-face-signature.js';
 import { buildReferenceExtrude } from './reference-profile-extrude.js';
 import { buildReferenceLoft } from './reference-profile-loft.js';
+import { buildSmoothTransition } from './smooth-transition.js';
 
 // This adapter owns every BRep handle; displayed topology IDs are array indices,
 // not OpenCascade's transient hash codes. It is also executable in Node tests.
 const dispose = value => { try { value?.delete(); } catch {} };
+// Replicad's non-adaptive BRepGProp.VolumeProperties can misread swept
+// B-spline solids by more than 0.1%. Use OCCT's adaptive Gauss-Kronrod
+// integration for the body metadata and explicit measurements alike.
+const preciseVolume = (shape, oc) => {
+  const properties = new oc.GProp_GProps();
+  try {
+    const error = oc.BRepGProp.VolumePropertiesGK(shape.wrapped, properties, 1e-9, true, true, false, false, false);
+    const volume = Math.abs(properties.Mass());
+    if (!Number.isFinite(error) || error < 0 || !Number.isFinite(volume)) throw new Error('实体体积自适应积分失败');
+    return volume;
+  } finally { dispose(properties); }
+};
 const positive = (p, key, fallback) => {
   const n = Number(p[key] ?? fallback);
   if (!Number.isFinite(n) || n <= 0) throw new Error(`${key} 必须大于 0`);
@@ -91,6 +106,21 @@ function chosenTopology(shape, type, ids) {
   all.forEach((part, i) => selected.has(i) ? keep.push(part) : dispose(part));
   return keep;
 }
+function faceBoundaryEdges(shape, faceIds) {
+  const faces=chosenTopology(shape,'faces',faceIds);
+  let boundaries=[],edges=[],selected=[],success=false;
+  try {
+    boundaries=faces.flatMap(face=>face.edges);
+    edges=shape.edges;
+    selected=edges.filter(edge=>boundaries.some(boundary=>boundary.isSame(edge)));
+    if(!selected.length)throw new Error('所选面没有可加工的边界边');
+    success=true;
+    return selected;
+  }finally{
+    faces.forEach(dispose);boundaries.forEach(dispose);
+    edges.forEach(edge=>{if(!success||!selected.includes(edge))dispose(edge);});
+  }
+}
 export class CadKernel {
   constructor(oc) { cad.setOC(oc); this.oc = oc; this.shapes = new Map(); this.active = new Map(); this.renderCache = new Map(); this.historySignature = []; this.importsSignature = ''; this.renderVersion = 0; }
   async operation(feature, shapes, imports) {
@@ -98,14 +128,37 @@ export class CadKernel {
     const sources = refs.map(id => { if (!shapes.has(id)) throw new Error(`找不到引用实体 ${id}`); return shapes.get(id); });
     const source = () => { if (sources.length !== 1) throw new Error('此操作需要选择一个实体'); return sources[0]; };
     switch (feature.op) {
-      case 'quickModel': return buildQuickModel(p, cad);
+      case 'quickModel': return buildQuickModel(p, cad, {roundAll:(shape,radius)=>buildSmoothTransition(shape,{radius,allEdges:true})});
       case 'advancedLoft': return buildAdvancedLoft(p,cad);
       case 'curveSweep': return buildCurveSweep(p,cad);
+      case 'arcProfile': return buildArcProfile(p,cad);
       case 'curvedLogo': return buildCurvedLogo(source(),p,cad);
       case 'fittedSurface': return buildFittedSurface(p,cad);
       case 'thickenFace': return buildFaceThickness(source(),p,cad);
       case 'planeSection': return extractPlaneSection(source(),{plane:p.plane||'XY',offset:p.offset??0},cad);
       case 'faceBoundary': return extractFaceBoundary(source(),p.faceId,cad,{boundary:p.boundary??'all'});
+      case 'extractFaces': {
+        const shape=source(),all=shape.faces,ids=p.faceIds;
+        if(!Array.isArray(ids)||!ids.length||ids.some(id=>!Number.isInteger(id)||id<0||id>=all.length)){
+          all.forEach(dispose);throw new Error('faceIds 必须是当前源对象范围内的非空面编号数组');
+        }
+        if(new Set(ids).size!==ids.length){all.forEach(dispose);throw new Error('faceIds 不能包含重复编号');}
+        let copies=[],result;
+        try{
+          copies=ids.map(id=>all[id].clone());
+          if(copies.length===1){result=copies[0];copies=[];return result;}
+          result=cad.makeCompound(copies);
+          if(!result)throw new Error('指定面提取结果为空');
+          return result;
+        }finally{all.forEach(dispose);copies.forEach(dispose);}
+      }
+      case 'extractShell': {
+        const shape=source(),shells=Array.from(cad.iterTopo(shape.wrapped,'shell'),item=>cad.cast(item)),index=p.shellIndex;
+        try{
+          if(!Number.isInteger(index)||index<0||index>=shells.length)throw new Error(`壳序号须为 0–${shells.length-1}`);
+          return shells[index].clone();
+        }finally{shells.forEach(dispose);}
+      }
       case 'referenceExtrude': return buildReferenceExtrude(source(),p,cad);
       case 'referenceLoft': return buildReferenceLoft(sources,p,cad);
       case 'sewFaces': return sewFaces({refs:sources,tolerance:p.tolerance??0.01,makeSolid:p.makeSolid??false},cad);
@@ -174,18 +227,42 @@ export class CadKernel {
         } catch(error){dispose(result);throw error;}finally{[info.face,tool,vertex,bbox].forEach(dispose);}
       }
       case 'logo': {
-        const shape=source(),info=this.planarFace(shape,p.faceId);let prism,vector;
+        const shape=source();
+        if(p.placementVersion===2){
+          const faces=shape.faces;
+          let type,area,center,signature;
+          try{
+            if(!Number.isInteger(p.faceId)||!faces[p.faceId])throw new Error('目标面已失效，请重新选面');
+            type=faces[p.faceId].geomType;
+            area=cad.measureArea(faces[p.faceId]);
+            const c=faces[p.faceId].center;try{center=c.toTuple();}finally{dispose(c);}
+            signature=logoFaceSignature(faces[p.faceId],cad);
+          }finally{faces.forEach(dispose);}
+          if(p.targetSurfaceType&&p.targetSurfaceType!==type)throw new Error('目标面类型已改变，请重新选面');
+          if(p.targetFaceArea!==undefined&&Math.abs(area-p.targetFaceArea)>Math.max(1e-5,area*1e-7))throw new Error('目标面面积已改变，请重新选面');
+          if(p.targetFaceCenter&&Math.hypot(...center.map((v,i)=>v-p.targetFaceCenter[i]))>1e-5)throw new Error('目标面位置已改变，请重新选面');
+          if(p.targetFaceSignature&&signature!==p.targetFaceSignature)throw new Error('目标面几何已改变，请重新选面');
+          if(type!=='PLANE')return buildCurvedLogo(shape,p,cad);
+        }
+        const info=this.planarFace(shape,p.faceId);let prism,vector,anchor,query;
         try {
           const n=info.normal,seed=Math.abs(n[0])<.9?[1,0,0]:[0,1,0];
           const dot=seed.reduce((s,v,i)=>s+v*n[i],0),projected=seed.map((v,i)=>v-dot*n[i]);
           const length=Math.hypot(...projected),x=projected.map(v=>v/length);
           const y=[n[1]*x[2]-n[2]*x[1],n[2]*x[0]-n[0]*x[2],n[0]*x[1]-n[1]*x[0]];
-          const origin=info.origin.map((v,i)=>v+finite(p,'offsetX')*x[i]+finite(p,'offsetY')*y[i]);
+          let center=info.origin;
+          if(p.placementVersion===2){
+            if(!Array.isArray(p.point)||p.point.length!==3||p.point.some(v=>!Number.isFinite(v)))throw new Error('请选择有效的 LOGO 放置点');
+            anchor=cad.makeVertex(p.point);query=new cad.DistanceQuery(info.face);
+            if(query.distanceTo(anchor)>.1)throw new Error('LOGO 中心不在所选平面内（允许 0.1 mm 显示网格吸附）');
+            const projected=query.wrapped.PointOnShape1(1);center=[projected.X(),projected.Y(),projected.Z()];dispose(projected);
+          }
+          const origin=center.map((v,i)=>v+finite(p,'offsetX')*x[i]+finite(p,'offsetY')*y[i]);
           const depth=positive(p,'depth');
           vector=new cad.Vector(n.map(v=>v*depth*(p.mode==='engrave'?-1:1)));
           prism=cad.basicFaceExtrusion(info.face,vector);
           return buildLogoOnPlane(shape,{...p,depth,scale:positive(p,'scale',1),angle:finite(p,'angle'),x:origin[0],y:origin[1],z:origin[2],faceX:x,faceNormal:n},cad,prism);
-        } finally {[info.face,prism,vector].forEach(dispose);}
+        } finally {[info.face,prism,vector,anchor,query].forEach(dispose);}
       }
       case 'faceExtrude': {
         const shape=source(),info=this.planarFace(shape,p.faceId);let tool,vector;
@@ -272,6 +349,57 @@ export class CadKernel {
           const result=current;current=null;return result;
         } finally {dispose(current);}
       }
+      case 'multiPocket': {
+        const shape=source(),depth=positive(p,'depth'),direction=finite(p,'direction',-1),pockets=p.pockets;
+        if(![1,-1].includes(direction))throw new Error('凹槽方向必须为 +1 或 -1');
+        if(!Array.isArray(pockets)||pockets.length<1||pockets.length>64)throw new Error('请提供 1–64 个矩形凹槽');
+        const normal=axisVector(p),xDirection={X:[0,1,0],Y:[0,0,1],Z:[1,0,0]}[p.axis||'Z'];
+        let current=shape.clone();
+        try {
+          for(let index=0;index<pockets.length;index++){
+            const pocket=pockets[index];
+            if(!pocket||typeof pocket!=='object'||Array.isArray(pocket))throw new Error(`第 ${index+1} 个凹槽参数无效`);
+            const center=[finite(pocket,'x'),finite(pocket,'y'),finite(pocket,'z')];
+            const width=positive(pocket,'width'),height=positive(pocket,'height'),cornerRadius=finite(pocket,'cornerRadius',0);
+            if(cornerRadius<0||cornerRadius>=Math.min(width,height)/2)throw new Error(`第 ${index+1} 个凹槽圆角半径须小于短边一半`);
+            let drawing,plane,sketch,tool,next;
+            try {
+              drawing=cornerRadius?cad.drawRoundedRectangle(width,height,cornerRadius):cad.drawRectangle(width,height);
+              plane=new cad.Plane(center,xDirection,normal);sketch=drawing.sketchOnPlane(plane);
+              tool=sketch.extrude(depth*direction);
+              const before=Math.abs(cad.measureVolume(current));next=current.cut(tool);
+              const after=next.isNull?0:Math.abs(cad.measureVolume(next));
+              if(before-after<=Math.max(1e-8,before*1e-12))throw Object.assign(new Error(`第 ${index+1} 个凹槽未切入剩余材料，请检查位置、方向、深度或重复区域`),{code:'NO_MATERIAL_REMOVED'});
+              dispose(current);current=next;next=null;
+            } finally {[next,tool,sketch,plane,drawing].forEach(dispose);}
+          }
+          const result=current;current=null;return result;
+        } finally {dispose(current);}
+      }
+      case 'multiBoss': {
+        const shape=source(),radius=positive(p,'radius'),height=positive(p,'height'),direction=finite(p,'direction',1),points=p.points;
+        if(![1,-1].includes(direction))throw new Error('凸台方向必须为 +1 或 -1');
+        if(!Array.isArray(points)||points.length<1||points.length>64||points.some(point=>!Array.isArray(point)||point.length!==3||point.some(v=>!Number.isFinite(v))))throw new Error('请提供 1–64 个有效的凸台底面中心 XYZ');
+        const normal=axisVector(p).map(v=>v*direction);
+        let current=shape.clone();
+        try {
+          for(let index=0;index<points.length;index++){
+            const tool=cad.makeCylinder(radius,height,points[index],normal);let builder,next;
+            try {
+              builder=new (cad.getOC().BRepAlgoAPI_Fuse)(current.wrapped,tool.wrapped);
+              builder.Build();next=cad.cast(builder.Shape());
+              const before=Math.abs(cad.measureVolume(current)),after=next.isNull?0:Math.abs(cad.measureVolume(next));
+              const solids=next.solids;
+              try {
+                if(solids.length!==1)throw new Error(`第 ${index+1} 个凸台未与主体连成单一实体，请检查起点和方向`);
+              } finally {solids.forEach(dispose);}
+              if(after-before<=Math.max(1e-8,before*1e-12))throw Object.assign(new Error(`第 ${index+1} 个凸台未增加材料，请检查位置或重复凸台`),{code:'NO_MATERIAL_ADDED'});
+              dispose(current);current=next;next=null;
+            } finally {[next,builder,tool].forEach(dispose);}
+          }
+          const result=current;current=null;return result;
+        } finally {dispose(current);}
+      }
       case 'hole': {
         const shape = source(), radius = positive(p, 'radius'), depth = positive(p, 'depth');
         const direction = finite(p, 'direction', 1);
@@ -312,12 +440,21 @@ export class CadKernel {
         try { for (const tool of sources.slice(1)) { const next = out[method](tool); dispose(out); out = next; } return out; }
         catch (error) { dispose(out); throw error; }
       }
+      case 'autoRound': return buildSmoothTransition(source(),{...p,allEdges:true});
+      case 'smoothTransition': return buildSmoothTransition(source(),p);
       case 'fillet': case 'chamfer': {
         const shape = source(), amount = positive(p, feature.op === 'fillet' ? 'radius' : 'distance');
-        if (!p.edgeIds?.length) return shape[feature.op](amount);
-        const edges = chosenTopology(shape, 'edges', p.edgeIds);
-        const finder = new cad.EdgeFinder().inList(edges);
-        try { return shape[feature.op]({ radius: amount, filter: finder }); } finally { dispose(finder); edges.forEach(dispose); }
+        const scopes=Number(!!p.edgeIds?.length)+Number(!!p.faceIds?.length)+Number(p.allEdges===true);
+        if(scopes!==1)throw new Error('圆角/倒角必须明确选择边、面边界或整个实体的全部边');
+        const edges=p.allEdges===true?null:p.faceIds?.length?faceBoundaryEdges(shape,p.faceIds):chosenTopology(shape,'edges',p.edgeIds);
+        if(!edges){
+          try{return shape[feature.op](amount);}
+          catch(error){throw Object.assign(new Error(`${feature.op==='fillet'?'圆角半径':'倒角距离'} ${amount} mm 无法用于整个实体的全部边；请减小数值或改选面/边。`,{cause:error}),{code:'GEOMETRY_INVALID',recoveryAction:'CORRECT_PARAMETERS'});}
+        }
+        let finder;
+        try { finder = new cad.EdgeFinder().inList(edges);return shape[feature.op]({ radius: amount, filter: finder }); }
+        catch(error){throw Object.assign(new Error(`${feature.op==='fillet'?'圆角半径':'倒角距离'} ${amount} mm 无法用于所选${p.faceIds?.length?'面边界':'边'}；请减小数值或缩小选择范围。`,{cause:error}),{code:'GEOMETRY_INVALID',recoveryAction:'CORRECT_PARAMETERS'});}
+        finally { dispose(finder); edges.forEach(dispose); }
       }
       case 'shell': {
         const shape = source(), thickness = finite(p, 'thickness'); if (!thickness) throw new Error('抽壳厚度不能为 0');
@@ -333,7 +470,7 @@ export class CadKernel {
   describe(shape, feature) {
     const mesh = shape.mesh({ tolerance: 0.08, angularTolerance: 0.15 });
     const wire = shape.meshEdges({ tolerance: 0.06, angularTolerance: 0.12 });
-    const faces = shape.faces, edges = shape.edges, solids = shape.solids, bbox = shape.boundingBox;
+    const faces = shape.faces, edges = shape.edges, solids = shape.solids, shells=Array.from(cad.iterTopo(shape.wrapped,'shell'),item=>cad.cast(item)), bbox = shape.boundingBox;
     try {
       const faceMap = new Map(faces.map((v, i) => [v.hashCode, i])), edgeMap = new Map(edges.map((v, i) => [v.hashCode, i]));
       const [min, max] = bbox.bounds;
@@ -350,8 +487,8 @@ export class CadKernel {
         }
       });
       if (mappedFaces.some(g => g.faceId === undefined) || mappedEdges.some(g => g.edgeId === undefined)) throw new Error('拓扑索引映射失败');
-      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges, snapPoints, bounds: { min, max }, volume: solids.length ? Math.abs(cad.measureVolume(shape)) : null, solidCount: solids.length, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
-    } finally { [...faces, ...edges, ...solids, bbox].forEach(dispose); }
+      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges, snapPoints, bounds: { min, max }, volume: solids.length ? preciseVolume(shape,this.oc) : null, solidCount: solids.length, shellCount:shells.length, transitionReport:shape.transitionReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
+    } finally { [...faces, ...edges, ...solids, ...shells, bbox].forEach(dispose); }
   }
   async rebuild(document) {
     if (!document || document.version !== 1 || !Array.isArray(document.features)) throw new Error('无效的 WebCAD 工程');
@@ -398,7 +535,7 @@ export class CadKernel {
           }
           active.set(current, feature);
         }
-        const keepOriginal = ['copy','planeSection','faceBoundary','surfaceTrim','referenceExtrude','referenceLoft'].includes(feature.op) || (['mirror','extractSolid'].includes(feature.op) && feature.params?.keepOriginal !== false);
+      const keepOriginal = ['copy','planeSection','faceBoundary','extractFaces','extractShell','surfaceTrim','referenceExtrude','referenceLoft'].includes(feature.op) || (['mirror','extractSolid'].includes(feature.op) && feature.params?.keepOriginal !== false);
         if (!keepOriginal) for (const id of feature.refs || []) active.delete(id);
       }
       const bodies = [...active].map(([id, feature]) => {
@@ -413,7 +550,13 @@ export class CadKernel {
       this.shapes.forEach((shape, id) => { if (next.has(id) && next.get(id) !== shape && !reused.has(id)) dispose(shape); });
       this.shapes = next; this.active = active; this.historySignature = signatures; this.importsSignature = importsSignature; this.renderCache = nextRenderCache;
       return { bodies, renderVersion: String(this.renderVersion), stats: { bodies: bodies.length, solids: bodies.reduce((n, b) => n + b.solidCount, 0), volume: bodies.reduce((n, b) => n + (b.volume || 0), 0) } };
-    } catch (error) { next.forEach((shape, id) => { if (!reused.has(id)) dispose(shape); }); throw Object.assign(new Error(error?.message || `几何内核运算失败 (${String(error)})`), { featureId: current }); }
+    } catch (error) {
+      next.forEach((shape, id) => { if (!reused.has(id)) dispose(shape); });
+      const raw=String(error?.message||error||'');
+      const descriptive=raw.replace(/\s*\[object WebAssembly\.Exception\]\s*$/,'').trim();
+      const message=descriptive||'几何内核未能生成有效实体；请减小加工尺寸或缩小目标范围。原模型保持。';
+      throw Object.assign(new Error(message,{cause:error}), { featureId: current, code:error?.code||'GEOMETRY_INVALID', path:error?.path, recoveryAction:error?.recoveryAction||'CORRECT_PARAMETERS' });
+    }
   }
   activeShape(bodyId) {
     if(!this.active.has(bodyId))throw new Error('找不到当前实体');
@@ -434,6 +577,16 @@ export class CadKernel {
   faceInfo(bodyId,faceId) {
     const {face,...info}=this.planarFace(this.activeShape(bodyId),faceId);dispose(face);return info;
   }
+  async logoTarget(bodyId,faceId){
+    const shape=this.activeShape(bodyId),faces=shape.faces;
+    try{
+      if(!Number.isInteger(faceId)||faceId<0||!faces[faceId])throw new Error('目标面已失效，请重新选面');
+      const face=faces[faceId],center=face.center;
+      let point;try{point=center.toTuple();}finally{dispose(center);}
+      const bytes=new TextEncoder().encode(shape.serialize()),digest=await crypto.subtle.digest('SHA-256',bytes);
+      return {bodyId,faceId,geomType:face.geomType,areaMm2:cad.measureArea(face),center:point,stableFaceSignature:logoFaceSignature(face,cad),geometryFingerprint:'brep-sha256:'+Array.from(new Uint8Array(digest),value=>value.toString(16).padStart(2,'0')).join('')};
+    }finally{faces.forEach(dispose);}
+  }
   async queryGeometry(bodyId, kind, filter = {}) {
     const shape = this.activeShape(bodyId);
     const result = queryShapeGeometry(shape, this.oc, kind, filter);
@@ -445,9 +598,9 @@ export class CadKernel {
   measure(bodyId,topologyType,topologyId) {
     const shape=this.activeShape(bodyId);
     if(topologyType===undefined||topologyType==='body'){
-      const box=shape.boundingBox,solids=shape.solids;
-      try{const [min,max]=box.bounds;return {bodyId,bounds:{min,max},volume:solids.length?Math.abs(cad.measureVolume(shape)):null,solidCount:solids.length};}
-      finally{dispose(box);solids.forEach(dispose);}
+      const box=shape.boundingBox,solids=shape.solids,shells=Array.from(cad.iterTopo(shape.wrapped,'shell'),item=>cad.cast(item));
+      try{const [min,max]=box.bounds;return {bodyId,bounds:{min,max},volume:solids.length?preciseVolume(shape,this.oc):null,solidCount:solids.length,shellCount:shells.length};}
+      finally{dispose(box);solids.forEach(dispose);shells.forEach(dispose);}
     }
     if(!['edge','face'].includes(topologyType))throw new Error('请选择边或面');
     const all=shape[topologyType==='edge'?'edges':'faces'];

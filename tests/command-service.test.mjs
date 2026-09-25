@@ -2,6 +2,30 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createCommandService } from '../src/command-service.js';
 import { getOperation } from '../src/operation-registry.js';
+import { EDITOR_ACTIONS, validateEditorAction } from '../src/editor-actions.js';
+
+test('editor contracts reject invalid colors/materials/references and preserve exact intent',()=>{
+ const state={bodies:[{id:'b',solidCount:2}],features:[{id:'f'}]};
+ const valid={ 'document.rename':{name:'设计'},'feature.rename':{featureId:'f',name:'导入体'},'body.visibility':{bodyIds:['b'],visible:false},'body.appearance':{bodyIds:['b'],color:'#123abc',finish:'design'},'document.appearance':{finish:'nickel'},'body.explode':{bodyId:'b'}};
+ for(const id of Object.keys(EDITOR_ACTIONS))assert.deepEqual(validateEditorAction(id,valid[id],state).args.values,valid[id]);
+ for(const a of [{bodyIds:['b'],color:'red'},{bodyIds:['b'],color:'#123456',extra:1},{bodyIds:['wrong'],color:'#123456'},{bodyIds:['b','b'],finish:'design'},{bodyIds:['b'],finish:'fake'},{bodyIds:[]}])assert.throws(()=>validateEditorAction('body.appearance',a,state));
+ assert.deepEqual(validateEditorAction('body.appearance',{bodyIds:['b'],color:null,finish:null},state).args.values,{bodyIds:['b'],color:null,finish:null});
+});
+
+test('editor changes share revision guards, queue and duplicate receipts',async()=>{
+ let calls=0;const s={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:1,features:[],bodies:[{id:'b'}],selectedIds:[],kernelReady:true,busy:false};
+ const service=createCommandService({snapshot:()=>structuredClone(s),execute:async(command,args)=>{assert.equal(command,'editor_action');calls++;s.colors={b:args.values.color};s.revision++;}});
+ const input={context:{sessionId:'s',documentId:'d',documentInstanceId:'i',expectedRevision:1},idempotencyKey:'color',action:'body.appearance',args:{bodyIds:['b'],color:'#123456'}};
+ const [a,b]=await Promise.all([service.execute(input),service.execute(input)]);assert.deepEqual(a,b);assert.equal(calls,1);assert.equal(a.validation.geometry,'unchanged');
+ const stale=await service.execute({...input,idempotencyKey:'stale'});assert.equal(stale.error.code,'REVISION_CONFLICT');assert.equal(calls,1);
+});
+
+test('active previews can be committed or cancelled through the same command queue',async()=>{
+ const s={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:1,features:[],bodies:[],kernelReady:true,busy:false,preview:true};
+ const service=createCommandService({snapshot:()=>structuredClone(s),execute:async command=>{assert.equal(command,'preview.cancel');s.preview=false;}});
+ const r=await service.execute({context:{sessionId:'s',documentId:'d',documentInstanceId:'i',expectedRevision:1},idempotencyKey:'cancel',action:'preview.cancel',args:{}});
+ assert.equal(r.status,'no_change');assert.equal(r.preview.active,false);
+});
 function setup(){
   let state={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:1,features:[],bodies:[],selectedIds:[],selectedTopology:null,kernelReady:true,busy:false,preview:false,persistence:{level:'memory',checkpoint:'pending'}};
   let calls=0,lateAbort;

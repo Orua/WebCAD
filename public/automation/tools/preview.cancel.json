@@ -1,0 +1,14 @@
+{
+  "id": "preview.cancel",
+  "title": "取消预览",
+  "description": "args:{}；恢复已提交模型。开始/取消不增加 revision，回执 preview.active 表示实际预览状态。",
+  "category": "command",
+  "version": "1.3.1",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"preview.cancel\",args}); args:{}；恢复已提交模型。开始/取消不增加 revision，回执 preview.active 表示实际预览状态。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "docs": "api.editor",
+  "docsHash": "sha256:b80c7f8b8e51cf7f36c2e34ac65ff07cd6a2e611df4e5199b1ee506d3d408b23"
+}

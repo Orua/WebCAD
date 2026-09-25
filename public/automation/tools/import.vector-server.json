@@ -1,0 +1,14 @@
+{
+  "id": "import.vector-server",
+  "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
+  "description": "当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。",
+  "category": "unavailable",
+  "version": "1.3.1",
+  "implementationStatus": "unavailable",
+  "contractStatus": "unavailable",
+  "runtimeAvailability": "unavailable",
+  "errorCodes": [
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docsHash": "sha256:61b0e6da0d559c662ddd6c0a9bfd4a42af1adc0e813713e261534eb7749b8438"
+}

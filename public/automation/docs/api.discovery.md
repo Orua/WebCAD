@@ -1,0 +1,6 @@
+# api.discovery
+
+首次通过获授权页面脚本通道调用 api.connect({queries:[简短能力关键词]})。无需先遍历源文件或下载全库。connect 同时给出精简的实时 requestContext、ready/busy/preview、最多20个当前实体引用、目录/文档哈希和搜索结果；内核未就绪仍可查契约。queries 最多4项，每项最多500字符，limit 为每项1..10，默认5。结果是相关候选，不自动解释自然语言、不生成操作计划。category 可用于单独 searchTools 过滤；query 为空时分页列出全部工具。
+接着 getTools({ids:[选中的工具ID],expectedCatalogHash:connect返回的catalogHash}) 一次读完整契约，最多20项。includeContracts:true 可在 connect 中直接取得前20个去重命中的契约，contractIdsOmitted 明示未附带的其余ID。已完整缓存的卡可传 knownHashes:{工具ID:docsHash}；匹配只返回 not_modified，新增或变化返回 read.card，未知ID逐项返回 error，不丢失其他卡。不可仅见过摘要哈希就声称持有完整卡。getTools 不省略约束、不截断 schema；getTool 保持兼容。
+connect 可传 knownCatalogHash/knownDocsHash 检查整体漂移；changed 只表示静态说明变化，实时状态始终重新读取。manifest.json 为每张卡/每篇文档提供 docsHash，可比较增删变化；已删除ID必须从宿主缓存移除。readDocs({docId,knownHash}) 可复用完整文档缓存；knownHash 与 cursor 不可同时使用，分页文档须取完才能缓存为完整文档。缓存版本不能代替当前页面状态。
+可选离线库：一次下载同版本 automation/index.json 与 automation/tool-library.mjs；在具备持久存储能力的宿主保存。import {createToolLibrary} from './tool-library.mjs'; const lib=createToolLibrary(snapshot); lib.search(query) 返回摘要，lib.get(id) 取完整卡，lib.readDoc(id) 取一篇说明；lib.isCurrent(api.connect()) 对比 catalogHash/docsHash，漂移时刷新快照。离线库与页面使用相同搜索实现，所有运行可用性为 unknown；始终从目标页面取得新鲜 requestContext/实体/拓扑。不要把完整快照打印进模型上下文。没有磁盘能力的侧栏直接调用页面搜索即可。

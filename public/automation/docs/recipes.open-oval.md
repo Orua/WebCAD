@@ -1,0 +1,3 @@
+# recipes.open-oval
+
+竖向底部开口四圆弧圈：先分别读 getTool({id:"quickModel"}) 中 kind=ovalBuckle 与 getTool({id:"transform"})。可在同一个 api.run 请求的 steps 依次使用 {id:"oval",method:"add",args:{op:"quickModel",refs:[],params:{kind:"ovalBuckle",section:"round",innerWidth:20,innerHeight:15,innerRadius:7,sectionSize:3.5,gapWidth:0.2}}} 和 {id:"upright",method:"add",args:{op:"transform",refs:[{$ref:"oval.createdBodyIds.0"}],params:{rz:-90}}}。请求使用 const {revision,...identity}=getState().context，context:{...identity,expectedRevision:revision}，idempotencyKey 每个新请求唯一。横向模板右端开口经绕 Z -90° 后移到竖向底部；旋转后的外包围约 22×27×3.5 mm。用 upright 步实际回执里的新 bodyId 测量及读 rendered revision。四圆弧不等于真椭圆；innerRadius 必须由源图或拟合证据决定，例中 7 mm 仅为操作演示。没有源证据时不能把这个示例宣称为实际产品复刻。

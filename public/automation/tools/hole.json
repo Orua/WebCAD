@@ -1,0 +1,234 @@
+{
+  "id": "hole",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "radius": {
+        "type": "number",
+        "description": "Hole radius (mm)",
+        "exclusiveMinimum": 0
+      },
+      "depth": {
+        "type": "number",
+        "description": "Hole depth (mm)",
+        "exclusiveMinimum": 0
+      },
+      "x": {
+        "type": "number",
+        "description": "Start X (mm)",
+        "default": 0
+      },
+      "y": {
+        "type": "number",
+        "description": "Start Y (mm)",
+        "default": 0
+      },
+      "z": {
+        "type": "number",
+        "description": "Start Z (mm)",
+        "default": 0
+      },
+      "axis": {
+        "type": "string",
+        "description": "Global axis",
+        "enum": [
+          "X",
+          "Y",
+          "Z"
+        ],
+        "default": "Z"
+      },
+      "direction": {
+        "type": "number",
+        "enum": [
+          1,
+          -1
+        ],
+        "default": 1
+      }
+    },
+    "required": [
+      "radius",
+      "depth"
+    ],
+    "additionalProperties": false,
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "defaults": {
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "axis": "Z",
+    "direction": 1
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "World XYZ cutter start, signed principal axis, radius in mm (not diameter), fixed positive depth. No through parameter.",
+  "title": "Cylindrical cut starting at global coordinates",
+  "category": "modification",
+  "synonyms": [
+    "孔",
+    "钻孔",
+    "radius",
+    "打孔"
+  ],
+  "description": "Cylindrical cut starting at global coordinates",
+  "schemaHash": "sha256:01c467262a03594b5d9ce4dabfca229cf3fbb9909fd3a43434a6a3c6019853f7",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+  ],
+  "knownUnsupportedCases": [
+    "Start defaults origin,axis=Z,direction=1. Must remove material."
+  ],
+  "minimalExample": {
+    "op": "hole",
+    "params": {
+      "radius": 2,
+      "depth": 5,
+      "x": 5,
+      "y": 5,
+      "z": 4,
+      "axis": "Z",
+      "direction": -1
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "hole",
+    "params": {
+      "radius": 2,
+      "depth": 5,
+      "x": 5,
+      "y": 5,
+      "z": 4,
+      "axis": "Z",
+      "direction": -1
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "radius": 2,
+        "depth": 5,
+        "x": 5,
+        "y": 5,
+        "z": 4,
+        "axis": "Z",
+        "direction": -1,
+        "diameter": 4
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "NO_MATERIAL_REMOVED"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [
+    "recipes.mounting-plate"
+  ],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "打孔",
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?}; run fills version/schemaHash from this catalog. Strict v2 validation applies.",
+  "docsHash": "sha256:06d6da10a76e82a54dbf8a52c74ca6eec7ffbb909b4a5a99cb78d54d0757a871"
+}

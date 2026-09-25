@@ -1,0 +1,40 @@
+{
+  "id": "files.read",
+  "title": "files.read",
+  "category": "file",
+  "version": "1.3.1",
+  "label": "读取文件字节",
+  "synonyms": [
+    "读取文件字节",
+    "read"
+  ],
+  "description": "read({resourceId,as?}); as is blob (default) or bytes.",
+  "inputContract": "read({resourceId,as?}); as is blob (default) or bytes.",
+  "outputContract": "Actual Blob or Uint8Array; host JSON boundaries may need bounded transfer.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees"
+  },
+  "implementationStatus": "page-adapter",
+  "contractStatus": "browser-file-adapter",
+  "runtimeAvailability": "requires_ready_page",
+  "limits": {
+    "maxBytes": 20971520,
+    "maxResources": 32,
+    "maxTotalBytes": 67108864,
+    "ttlSeconds": 1800
+  },
+  "caveats": [],
+  "errorCodes": [
+    "CAPABILITY_UNAVAILABLE",
+    "REVISION_CONFLICT",
+    "INSTANCE_MISMATCH",
+    "UNSAVED_REPLACEMENT",
+    "HASH_MISMATCH",
+    "SIZE_LIMIT",
+    "RESOURCE_LIMIT",
+    "RESOURCE_EXPIRED",
+    "PERMISSION_REQUIRED"
+  ],
+  "docsHash": "sha256:bdedb54e641f49d214d21344947b89031ce117f33b82d6d6999de79ef002e961"
+}

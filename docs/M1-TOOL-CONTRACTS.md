@@ -40,19 +40,19 @@ Cards and lists are copied on read so caller mutation cannot change the registry
 | hole | Radius, positive depth, world start XYZ; omitted XYZ=0, axis=Z, direction=1. |
 | multiHole | 1–100 world XYZ cutter starts; shared radius/depth; axis=Z, direction=1. No `through` or diameter field. |
 | faceHole | Explicit world point, radius and planar face; through=false by default, requiring depth. through=true computes sufficient depth. |
-| fillet/chamfer | Positive radius/distance and explicit nonempty edgeIds or allEdges=true. |
+| fillet/chamfer | Positive radius/distance and exactly one scope: nonempty edgeIds, nonempty faceIds (all boundary edges, including holes), or allEdges=true. |
 | shell | Nonzero signed thickness and nonempty faceIds; positive means inward. |
 
 New commands reject unknown fields, numeric strings, nonfinite values, invalid
 enums, duplicate topology IDs, empty selections, malformed 2D hole points, and
-`allEdges=true` combined with `edgeIds`. These inputs could previously be ignored
+multiple edge scopes in one request. These inputs could previously be ignored
 or coerced by permissive code. They are intentionally invalid now; radius is never
 silently reinterpreted as diameter. Existing stored history is replayed by the
 legacy kernel path; this registry is not a destructive history migration.
 
-For fillet/chamfer editing, a patch containing nonempty `edgeIds` replaces the old
-all-edge mode. A patch containing `allEdges:true` replaces prior edgeIds. A patch
-containing both is rejected. Other parameters are merged, then the full result is
+For fillet/chamfer editing, a patch containing nonempty `edgeIds` or `faceIds`
+replaces the old scope. A patch containing `allEdges:true` replaces prior indices.
+A patch containing multiple scopes is rejected. Other parameters are merged, then the full result is
 validated. Generic parameter deletion is unsupported.
 
 Token-based feature creation uses two validation phases. The input phase allows

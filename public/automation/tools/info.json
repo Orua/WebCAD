@@ -1,0 +1,21 @@
+{
+  "id": "info",
+  "title": "info",
+  "category": "page-method",
+  "version": "1.3.1",
+  "description": "info() 无参数。",
+  "synonyms": [
+    "info",
+    "页面信息",
+    "构建",
+    "就绪"
+  ],
+  "inputContract": "info() 无参数。",
+  "outputContract": "构建/API 版本、in-page transport、当前 context、URL、display、就绪状态和能力。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Read methods may return a structured state error or throw a coded contract error.",
+  "errorCodes": [],
+  "docsHash": "sha256:22efe105959348511643e34bb3adb08d82832b7c2a1b8737ebf512569ff32902"
+}

@@ -1,0 +1,38 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import init from 'replicad-opencascadejs';
+import {CadKernel} from '../src/cad-kernel.js';
+import {getOperation, normalizeOperationParams} from '../src/operation-registry.js';
+import {referenceFields, referenceNames, referenceNotes} from '../src/reference-tool-fields.js';
+import {TOOL_CATEGORIES} from '../src/ui-toolbars.js';
+import {toolDisabledReason} from '../src/tool-state.js';
+import {UI_API_ROUTES} from '../src/ui-api-coverage.js';
+
+test('extractShell clones one shell, retains its compound source, then permits individual shell sewing', async()=>{
+  const oc=await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))});
+  const kernel=new CadKernel(oc),f=(id,op,params={},refs=[])=>({id,op,params,refs,name:id});
+  const base=[f('boxA','box',{width:10,depth:10,height:10}),f('boxB','copy',{x:30},['boxA']),f('compound','group',{},['boxA','boxB'])];
+  const partial=await kernel.rebuild({version:1,features:[...base,f('shell','extractShell',{shellIndex:0},['compound'])],imports:{},hidden:[]});
+  assert.equal(partial.bodies.find(body=>body.id==='compound').shellCount,2);
+  assert.equal(partial.bodies.find(body=>body.id==='compound').solidCount,2);
+  assert.equal(partial.bodies.find(body=>body.id==='shell').shellCount,1);
+  assert.equal(partial.bodies.find(body=>body.id==='shell').solidCount,0);
+  const complete=await kernel.rebuild({version:1,features:[...base,f('shell','extractShell',{shellIndex:0},['compound']),f('solid','sewFaces',{tolerance:0.01,makeSolid:true},['shell'])],imports:{},hidden:[]});
+  assert.equal(complete.bodies.find(body=>body.id==='compound').shellCount,2,'extraction keeps the source compound');
+  assert.equal(complete.bodies.find(body=>body.id==='solid').solidCount,1);
+  assert.ok(Math.abs(complete.bodies.find(body=>body.id==='solid').volume-1000)<1e-6);
+  await assert.rejects(()=>kernel.rebuild({version:1,features:[...base,f('bad','extractShell',{shellIndex:2},['compound'])],imports:{},hidden:[]}),/壳序号/);
+  assert.equal(kernel.active.has('solid'),true,'invalid index does not commit or discard the prior document');
+  assert.equal(kernel.measure('compound').shellCount,2);
+  assert.deepEqual(normalizeOperationParams('extractShell',{shellIndex:0}),{shellIndex:0});
+  assert.equal(getOperation('extractShell').strictContract,true);
+  assert.equal(getOperation('extractShell').preservesInputs,true);
+  assert.ok(referenceFields.extractShell.some(field=>field[0]==='shellIndex'));
+  assert.equal(referenceNames.extractShell,'提取壳');
+  assert.match(referenceNotes.extractShell,/不自动填成实体/);
+  assert.ok(TOOL_CATEGORIES.创建.some(([,actions])=>actions.includes('extractShell')));
+  assert.deepEqual(UI_API_ROUTES.extractShell.tools,['extractShell']);
+  assert.equal(toolDisabledReason('extractShell',{kernelReady:true,busy:false,selectedIds:['compound'],selectedTopology:null,bodies:[{id:'compound',shellCount:2}]}),'');
+  assert.match(toolDisabledReason('extractShell',{kernelReady:true,busy:false,selectedIds:['single'],selectedTopology:null,bodies:[{id:'single',shellCount:1}]}),/多个壳/);
+});

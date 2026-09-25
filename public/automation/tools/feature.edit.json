@@ -1,0 +1,14 @@
+{
+  "id": "feature.edit",
+  "title": "修改参数",
+  "description": "args:{featureId,opVersion,schemaHash,params,name?}；params 为补丁。",
+  "category": "command",
+  "version": "1.3.1",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"feature.edit\",args}); args:{featureId,opVersion,schemaHash,params,name?}；params 为补丁。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "docs": "api.editor",
+  "docsHash": "sha256:a6d32b08a93f438f45a1560b63da03ec5a3f1678eb5c5e155804982d587facda"
+}

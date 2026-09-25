@@ -1,0 +1,14 @@
+{
+  "id": "preview.start",
+  "title": "预览模型",
+  "description": "args 同 feature.add；显式 refs，不使用 UI 选择。已存在预览先取消。",
+  "category": "command",
+  "version": "1.3.1",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"preview.start\",args}); args 同 feature.add；显式 refs，不使用 UI 选择。已存在预览先取消。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "docs": "api.editor",
+  "docsHash": "sha256:468151f2576fa126a5aa48c3d19c822c13b2e0974cc518f7fbbad6b225122312"
+}

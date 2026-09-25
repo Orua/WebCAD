@@ -1,0 +1,25 @@
+{
+  "id": "feature.rename",
+  "title": "特征改名 实体名称",
+  "description": "修改历史步骤及同 ID 实体名称，导入件也可使用。",
+  "category": "command",
+  "version": "1.3.1",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"feature.rename\",args}); 修改历史步骤及同 ID 实体名称，导入件也可使用。",
+  "fields": [
+    "featureId",
+    "name"
+  ],
+  "minimalExample": {
+    "action": "feature.rename",
+    "args": {
+      "featureId": "<featureId>",
+      "name": "主体"
+    }
+  },
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。外观/显隐/名称支持撤销和工程保存。",
+  "docs": "api.editor",
+  "docsHash": "sha256:b32d254c86425dc91e10259daac804e01cd6f700d225d0b502b47a3f4b99788c"
+}

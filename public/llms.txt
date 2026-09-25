@@ -1,0 +1,7 @@
+# WebCAD
+
+AI 应通过宿主已授权的页面脚本通道在后台调用 window.webcad.api。不要为查工具或执行建模打开 JSON 调试面板、填输入框或点击执行按钮。没有可用脚本通道时，明确报告通道不可用；不要自动退回界面操作。
+
+先读 [后台连接速读](automation/quickstart.md)。当前 Codex 开发宿主检查标签页 capabilities 的 cdp 并读取其文档；支持且获授权时用 Runtime.evaluate。一次 connect({queries:[能力关键词],limit:2,includeContracts:true}) 返回精简实时状态和相关完整卡，不重复读卡。按需 readDocs。
+
+[宿主通道](automation/docs/api.connection.md) · [缓存说明](automation/docs/api.discovery.md)。可选离线工具库为 automation/index.json + automation/tool-library.mjs；缓存供程序检索，不应整库进入模型上下文。

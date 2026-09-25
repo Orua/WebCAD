@@ -1,4 +1,6 @@
 import * as cad from 'replicad';
+import { topologyDetails } from './smooth-transition.js';
+import { planarFace } from './reference-profile-wires.js';
 
 const dispose = value => { try { value?.delete(); } catch {} };
 function invalid(path, message) {
@@ -57,7 +59,12 @@ function vectorTuple(value) {
 }
 function faceSummary(face, id) {
   const item = { kind: 'face', topologyId: id, faceId: id, geomType: face.geomType, surfaceType: face.geomType.toLowerCase(), areaMm2: cad.measureArea(face), center: vectorTuple(face.center) };
-  if (item.geomType === 'PLANE') {
+  const wires=face.wires;
+  try { item.wireCount=wires.length; } finally { wires.forEach(dispose); }
+  // IGES commonly stores exact planes as BSpline patches. Keep the encoding
+  // visible while making geometric plane filters useful for those references.
+  item.planar = planarFace(face, cad);
+  if (item.planar) {
     const normal = vectorTuple(face.normalAt());
     const magnitude = Math.hypot(...normal);
     item.normal = normal.map(v => v / magnitude);
@@ -85,7 +92,7 @@ function inRange(value, constraint) {
   return !constraint || (value !== undefined && (constraint.min === undefined || value >= constraint.min) && (constraint.max === undefined || value <= constraint.max));
 }
 function matchesFace(item, filter, bounds) {
-  if (filter.surfaceType && item.surfaceType !== filter.surfaceType) return false;
+  if (filter.surfaceType === 'plane' && !item.planar) return false;
   if (filter.normal) {
     if (!item.normal) return false;
     let dot = item.normal.reduce((sum, v, i) => sum + v * filter.normal.direction[i], 0);
@@ -107,6 +114,7 @@ function matchesFace(item, filter, bounds) {
 /** Query B-Rep topology once; pagination and snapshot identity belong to main. */
 export function queryShapeGeometry(shape, oc, kind, filter = {}) {
   const normalized = normalizeGeometryFilter(kind, filter);
+  const topology=topologyDetails(shape,{connectivityOnly:kind==='face'});
   const parts = shape[kind === 'face' ? 'faces' : 'edges'];
   let box, faces, boundary;
   try {
@@ -121,6 +129,8 @@ export function queryShapeGeometry(shape, oc, kind, filter = {}) {
     parts.forEach((part, id) => {
       if (boundary && !boundary.some(edge => edge.isSame(part))) return;
       const item = kind === 'face' ? faceSummary(part, id) : edgeSummary(part, id, oc);
+      if(kind==='edge')Object.assign(item,topology[id]);
+      else item.edgeIds=topology.filter(edge=>edge.adjacentFaceIds.includes(id)).map(edge=>edge.edgeId);
       if (kind === 'face') {
         if (!matchesFace(item, normalized, bounds)) return;
       } else {

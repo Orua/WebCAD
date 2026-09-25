@@ -1,0 +1,28 @@
+{
+  "id": "traceTwinWindow",
+  "title": "traceTwinWindow",
+  "category": "page-method",
+  "version": "1.3.1",
+  "description": "traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBottomY,simplifyToleranceMm?:0..0.2}); 四条上到下 XY 采样曲线，每条3–2000点。",
+  "synonyms": [
+    "traceTwinWindow",
+    "DWG",
+    "样条",
+    "双窗扣",
+    "闭合轮廓",
+    "横条"
+  ],
+  "inputContract": "traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBottomY,simplifyToleranceMm?:0..0.2}); 四条上到下 XY 采样曲线，每条3–2000点。",
+  "outputContract": "status=read、居中的 vectorProfile regions、源包围盒/尺寸、简化前后点数和采样点最大偏差；不建模。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docs": "api.dwg-spline-twin-window",
+  "docsHash": "sha256:464b9611b56bd32cdf72f1d7f8182705a89ee7ab87950cd54c16ee88cefbc34d"
+}
