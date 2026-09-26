@@ -1,0 +1,20 @@
+{
+  "id": "copySelection",
+  "title": "copySelection",
+  "category": "page-method",
+  "version": "1.9.0",
+  "description": "copySelection({context,bodyIds}); 1–200个当前实体。",
+  "synonyms": [
+    "copySelection",
+    "复制",
+    "实体",
+    "剪贴板"
+  ],
+  "inputContract": "copySelection({context,bodyIds}); 1–200个当前实体。",
+  "outputContract": "status=read；仅页面内存，跨工程失效；getState().view.clipboard 读状态。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:ec82827475b984527c73ff8ee25dd799e6b9d57564b4c9f46b149bef931caa83"
+}

@@ -1,9 +1,9 @@
 {
   "version": "1.9.0",
-  "buildId": "3f0bb838e9d432d6d223cc6816463bc87d48c62e-working",
+  "buildId": "4aa0d3295e7ede852d565192293d5e2daa965e44-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:25cad9995c7913b7a9878c84605241a9652e352e92015f39e31e1d6dc0a1cafd",
-  "docsHash": "sha256:e355b93938cd5c7786d98b6a9972d239f0c647748d81b3b536c027864ceb6419",
+  "catalogHash": "sha256:e033daafaf1c8267f59b10968b392dd8f40033000db965ec9ea273882ede1bad",
+  "docsHash": "sha256:1d7b3f378bede82fdc9ca9c2086835734a0e2804b4988aa7dd7dfca71d0005ef",
   "tools": [
     {
       "id": "advancedLoft",
@@ -798,6 +798,22 @@
       "url": "tools/template.washer.json"
     },
     {
+      "id": "copySelection",
+      "title": "copySelection",
+      "category": "page-method",
+      "version": "1.9.0",
+      "docsHash": "sha256:ec82827475b984527c73ff8ee25dd799e6b9d57564b4c9f46b149bef931caa83",
+      "url": "tools/copySelection.json"
+    },
+    {
+      "id": "pasteSelection",
+      "title": "pasteSelection",
+      "category": "page-method",
+      "version": "1.9.0",
+      "docsHash": "sha256:582553d283995b47363aa3e0d7f3db1ff9beaa8a87bd4be8ed47ae689147bc37",
+      "url": "tools/pasteSelection.json"
+    },
+    {
       "id": "createRequestContext",
       "title": "createRequestContext",
       "category": "page-method",
@@ -1074,7 +1090,7 @@
       "title": "setView",
       "category": "page-method",
       "version": "1.9.0",
-      "docsHash": "sha256:70140384b1efceb2b3e59d4241dacae01249daa92fbca0b606c7a810af3a7f9c",
+      "docsHash": "sha256:be161123814ecdc4567bea9788fbb313e89e862747803ac4c4e3d27818ca17c2",
       "url": "tools/setView.json"
     },
     {
@@ -1513,12 +1529,12 @@
     },
     {
       "id": "api.ui-coverage",
-      "docsHash": "sha256:f67c4c05ffd5d848483b08050fa982259d7090f9b66b63bc40a39f7fcee5b338",
+      "docsHash": "sha256:626513c2d344f6ecf9f1f5347279923cbabea9658009ca8371605c6aa355b7b9",
       "url": "docs/api.ui-coverage.md"
     },
     {
       "id": "api.views",
-      "docsHash": "sha256:546c08d277677a2d5826e20c6a99cbf5f926d46bff375f489d3c58cd925a3734",
+      "docsHash": "sha256:cc9b578c1f4c324aadf594b800f10e63ac2ac5293568d72ef16714ec6557c2a7",
       "url": "docs/api.views.md"
     },
     {

@@ -33,7 +33,8 @@ export function createPageAPI(host){
   const guarded=fn=>async(input={})=>{try{return await fn(normalizeRequest(input));}catch(e){return failure(e);}};
   const rawFiles=createBrowserFiles({command:input=>host.files(input),confirmSaved:host.confirmSaved});
   const files=Object.fromEntries(Object.entries(rawFiles).filter(([key])=>key!=='previewInput').map(([key,fn])=>[key,input=>fn(normalizeRequest(input))]));
-  const viewKeys=['context','direction','projection','fit','selectedIds','section','display','grid','snap','gizmo','selectionMode','camera','language','temporaryDisplay'];
+  const viewKeys=['context','direction','projection','fit','selectedIds','section','display','grid','snap','gizmo','selectionMode','camera','language','temporaryDisplay','anchorVisible','panels'];
+  const pasteReceipts=new Map();
   const api={
     connect:(input={})=>{
       if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!['queries','toolIds','limit','includeContracts','knownCatalogHash','knownDocsHash','knownHashes'].includes(k)))fail('PARAM_SCHEMA_INVALID','Unexpected connect fields');
@@ -176,10 +177,21 @@ export function createPageAPI(host){
       if(typeof input.idempotencyKey!=='string'||!input.idempotencyKey)fail('PARAM_SCHEMA_INVALID','idempotencyKey is required for execution');
       return api.run({context:input.context,idempotencyKey:input.idempotencyKey,steps});
     }),
+    copySelection:guarded(async input=>{check(input,['context','bodyIds']);const ids=input.bodyIds;if(!Array.isArray(ids)||!ids.length||ids.length>200||new Set(ids).size!==ids.length||ids.some(id=>!current().bodies.some(b=>b.id===id)))fail('STALE_REFERENCE','Provide current unique bodyIds');await host.clipboard('copy',ids);return {status:'read',bodyIds:[...ids],context:current().context};}),
+    pasteSelection:guarded(async input=>{
+      const key=input.idempotencyKey,c=input.context;
+      if(typeof key!=='string'||!key||key.length>200)fail('PARAM_SCHEMA_INVALID','idempotencyKey is required');
+      const cacheKey=`${c?.documentInstanceId}:${key}`,fingerprint=JSON.stringify(input),cached=pasteReceipts.get(cacheKey);
+      if(cached){if(cached.fingerprint!==fingerprint)fail('IDEMPOTENCY_KEY_REUSED','Paste key reused with different input');if(c?.documentInstanceId!==current().context.documentInstanceId||c?.sessionId!==current().context.sessionId||c?.documentId!==current().context.documentId)fail('INSTANCE_MISMATCH','Stale paste context');return cached.result;}
+      check(input,['context','idempotencyKey']);if(pasteReceipts.size>=128)fail('RESOURCE_LIMIT','Reload after saving to clear paste receipt cache');
+      const result=Promise.resolve().then(async()=>({status:'committed',createdBodyIds:await host.clipboard('paste'),context:current().context}));pasteReceipts.set(cacheKey,{fingerprint,result});
+      try{return await result;}catch(error){pasteReceipts.delete(cacheKey);throw error;}
+    }),
     setView:guarded(async input=>{
       check(input,viewKeys);
       for(const [key,values] of Object.entries({display:['solid','edges','wire','transparentEdges'],gizmo:['off','translate','rotate'],selectionMode:['body','face','edge'],language:['zh','en'],temporaryDisplay:['normal','selectedOnly','transparentOthers']}))if(input[key]!==undefined&&!values.includes(input[key]))fail('PARAM_SCHEMA_INVALID',`Unknown ${key}`);
-      for(const key of ['grid','snap'])if(input[key]!==undefined&&typeof input[key]!=='boolean')fail('PARAM_SCHEMA_INVALID',`${key} must be boolean`);
+      for(const key of ['grid','snap','anchorVisible'])if(input[key]!==undefined&&typeof input[key]!=='boolean')fail('PARAM_SCHEMA_INVALID',`${key} must be boolean`);
+      if(input.panels!==undefined&&(!input.panels||typeof input.panels!=='object'||Array.isArray(input.panels)||Object.entries(input.panels).some(([key,value])=>!['left','right'].includes(key)||typeof value!=='boolean')))fail('PARAM_SCHEMA_INVALID','panels requires left/right booleans');
       if(input.camera!==undefined){const c=input.camera;if(!c||typeof c!=='object'||Object.keys(c).some(k=>!['position','target'].includes(k))||[c.position,c.target].some(p=>!Array.isArray(p)||p.length!==3||p.some(v=>!Number.isFinite(v)))||c.position.every((v,i)=>v===c.target[i]))fail('PARAM_SCHEMA_INVALID','camera requires distinct finite XYZ position and target');}
       if(input.direction&&!['top','bottom','front','back','left','right','side','iso'].includes(input.direction))fail('PARAM_SCHEMA_INVALID','Unknown view');
       if(input.projection&&!['orthographic','perspective'].includes(input.projection))fail('PARAM_SCHEMA_INVALID','Unknown projection');
