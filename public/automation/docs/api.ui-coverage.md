@@ -489,6 +489,13 @@
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "precisionSettings": {
+    "tools": [
+      "setDisplayPreferences"
+    ],
+    "method": "setDisplayPreferences",
+    "usage": "全局 themeColor 与 snapThresholdMm 在当前浏览器持久化。"
+  },
   "themeSettings": {
     "tools": [
       "setDisplayPreferences"

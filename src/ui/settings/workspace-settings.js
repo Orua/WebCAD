@@ -4,9 +4,14 @@ export function applyWorkspaceTheme(app,color='#2563eb'){
   app.style.setProperty('--accent-soft',`color-mix(in srgb, ${color} 10%, white)`);
 }
 export function showWorkspaceSettings(action,{openDialog,element,button,state,emit,closeDialog,getLanguage,setLanguage,translator,api}){
-  const titles={themeSettings:'主题',snapSettings:'拖动与吸附',languageSettings:'语言',agentGuide:'AGENT 快速连接'};
+  const titles={precisionSettings:'尺寸与角度精度',themeSettings:'主题',snapSettings:'拖动与吸附',languageSettings:'语言',agentGuide:'AGENT 快速连接'};
   const d=openDialog(titles[action]),form=element('form',{class:'parameter-form'});
   const note=text=>form.append(element('p',{class:'property-footnote wide'},text));
+  if(action==='precisionSettings'){
+    const inputs={};for(const [key,label,def,max]of [['dimensionPrecisionMm','尺寸精度 mm',0.01,10],['anglePrecisionDeg','角度精度 °',0.1,90]]){const row=element('label',{class:'form-field'}),input=element('input',{type:'number',name:key,min:'0.000001',max:String(max),step:'any',required:'','aria-label':label});input.value=String(state.displayPreferences?.[key]??def);inputs[key]=input;row.append(element('span',{},label),input);form.append(row);}
+    note('按步长四舍五入：默认尺寸 0.01 mm、角度 0.1°。影响新输入、移动和旋转；不重算已有模型或导入几何。');
+    const apply=element('button',{type:'submit',class:'primary'},'应用并记住');form.append(button('关闭',closeDialog,'secondary'),apply);form.addEventListener('submit',async e=>{e.preventDefault();if(!form.reportValidity())return;apply.disabled=true;try{await emit('displayPreferences',Object.fromEntries(Object.entries(inputs).map(([k,v])=>[k,Number(v.value)])));closeDialog();}finally{apply.disabled=false;}});d.append(form);return;
+  }
   if(action==='agentGuide'){
     note('前端入口：window.webcad.api。先连接，再按任务加载工具卡；不需要新增后台服务。');
     form.append(element('pre',{class:'info-content'},'const api = window.webcad.api;\nconst session = api.connect({\n  toolIds: ["sketchProfile", "profileExtrude"]\n});\n// 已知工具：按 ID 精确载入，无需搜索完整目录\n// 未知工具：queries:["任务关键词"], limit:1, includeContracts:true\n// 检查 canExecute / blockers，使用新的 requestContext\n// 工具卡可按 docsHash 缓存；实体 ID 与 revision 必须重新读取。'));

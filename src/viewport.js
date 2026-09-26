@@ -57,7 +57,7 @@ export class CADViewport {
   clearGuides(){for(const child of [...this.guideRoot.children]){this.disposeObject(child);this.guideRoot.remove(child);}}
   setWorkFrame(frame){if(!frame)return;this.anchorProxy.position.fromArray(frame.origin);this.anchorProxy.quaternion.fromArray(frame.quaternion);this.anchorVisual.position.copy(this.anchorProxy.position);this.anchorVisual.quaternion.copy(this.anchorProxy.quaternion);if(frame.locked)this.setAnchorDrag(false);}
   setAnchorVisible(visible){this.anchorVisible=!!visible;this.anchorMarker.hidden=!this.anchorVisible;localStorage.setItem('webcad.anchorVisible',String(this.anchorVisible));}
-  setAnchorDrag(enabled){this.anchorDragEnabled=!!enabled;this.anchorGizmoHelper.visible=this.anchorDragEnabled;if(this.anchorDragEnabled){this.setGizmo('off');this.anchorGizmo.attach(this.anchorProxy);}else{this.anchorGizmo.detach();this.controls.enabled=true;}}
+  setAnchorDrag(enabled){this.setModelingPrecision();this.anchorDragEnabled=!!enabled;this.anchorGizmoHelper.visible=this.anchorDragEnabled;if(this.anchorDragEnabled){this.setGizmo('off');this.anchorGizmo.attach(this.anchorProxy);}else{this.anchorGizmo.detach();this.controls.enabled=true;}}
   cancelAnchorDrag(){if(this.anchorStart){this.anchorProxy.position.copy(this.anchorStart);this.anchorVisual.position.copy(this.anchorStart);this.anchorStart=null;}this.snapCandidates=[];this.setAnchorDrag(false);}
   setBodies(bodies,hidden=[]){
     // Keep unchanged GPU objects alive. Kernel render versions survive a rebuild
@@ -119,7 +119,8 @@ export class CADViewport {
   }
   setPartMetal(ids,key){if(!METAL_FINISHES[key])throw new Error('Unknown material');for(const id of ids)this.partFinishes={...this.partFinishes,[id]:key};this.setMetalFinish(this.finishKey);}
   setBusy(value){this.busy=value;this.gizmo.enabled=!value&&!this.transformPending;}
-  setGizmo(mode){if(!['off','translate','rotate'].includes(mode))throw new Error('Invalid transform mode');this.cancelTask();this.gizmoMode=mode;this.syncGizmo();}
+  setModelingPrecision(){const mm=this.displayPreferences?.dimensionPrecisionMm??0.01,deg=this.displayPreferences?.anglePrecisionDeg??0.1;this.gizmo.setTranslationSnap(mm);this.gizmo.setRotationSnap(THREE.MathUtils.degToRad(deg));this.anchorGizmo.setTranslationSnap(mm);}
+  setGizmo(mode){this.setModelingPrecision();if(!['off','translate','rotate'].includes(mode))throw new Error('Invalid transform mode');this.cancelTask();this.gizmoMode=mode;this.syncGizmo();}
   syncGizmo(){
     if(this.draggingGizmo||this.transformPending)return;this.gizmo.detach();
     const entry=this.selected.length===1?this.objects.get(this.selected[0]):null;
