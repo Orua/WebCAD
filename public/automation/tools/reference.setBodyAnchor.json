@@ -3,12 +3,12 @@
   "title": "对象锚点",
   "description": "args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "category": "command",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.setBodyAnchor\",args}); args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:b10367ec2796db679f7f1b44dcf00b5b1cdb5391f361a2653ab967637d0b8c6e"
+  "docsHash": "sha256:05368338ee1e937e0a1c0ab360ea9897ddf00f57bcb373a24e3a7d50baa4e2a6"
 }

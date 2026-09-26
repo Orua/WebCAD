@@ -1,5 +1,11 @@
 # WebCAD 页面 API
 
+### 解析轮廓编辑方案
+
+`prepareProfileEdit({context,bodyId,mode,entityId,targetId,...})` 从已提交的 `sketchProfile` 读取稳定图元 ID，与人工编辑器共用解析算法，不接收屏幕坐标。`mode` 为 `intersections`、`trim`、`extend`、`trimCircle` 或 `fillet`。缺少指定交点时返回候选和 `selectionRequired:true`，不自动取第一个交点。端点用 `endpoint:'start'|'end'`；修剪/延伸用明确的 `candidateId`；整圆转弧用 `startCandidateId/endCandidateId/keepSide`；两线圆角用 `radiusMm` 和唯一 `arcId`。开放结果须明确 `output:'wire'`。
+
+方案中的 `profile` 是通过校验的完整轮廓参数。确认后，用当前 `sketchProfile` 工具卡的版本和哈希，通过 `feature.edit` 提交这些参数，形成一次撤销事务。方案读取不改模型、revision 或用户草稿；提交仍会拒绝过期上下文和人工未提交草稿。此方法也可经 `invoke`、`run` 和页面任务队列调用。
+
 ## 工作基准与来源基点（v1.8）
 
 当前用户界面将 `referenceSystem.workFrame` 呈现为唯一“参考锚点”：可见小号呼吸球可隐藏，编辑时先预览草稿，再点击“应用锚点”提交一次正式 `reference.setWorkFrame`。原始世界坐标系不提供可见编辑入口，现有 API 坐标语义保持兼容。新增模型仅在占用当前锚点位置时使其沿 Z 向上自动避让；单纯在旁边增加高度不会挪动锚点。显隐属于本地 UI 偏好，不改变工程 revision。
@@ -776,7 +782,19 @@ const coordinates = api.readDocs({ docId: 'coordinates' });
 }
 ```
 
-示例中的上下文字段须取自当前 `getState()`，不得照抄或自行增加 revision。下一次修改读取本次真实提交结果或新状态。`box` 从世界坐标原点沿 +X/+Y/+Z 延伸，尺寸是宽、深、高，单位 mm。`hole` 和 `multiHole` 使用**半径**与世界 XYZ 刀具起点，不接受 `diameter` 或直接把二维 XY 点代入。工具卡的 `schemaHash` 必须与执行请求一致。当前严格 v2 参数契约覆盖 `box`、`hole`、`multiHole`、`faceHole`、`fillet`、`chamfer`、`shell`；其他操作通过页面 CommandService 的 advisory 适配器可执行，但 Schema 不保证内核结果。可复现的四孔板脚本见 [页面 API 示例](examples/page-api-plate.js)，按实际提交结果取特征与实体 ID。
+示例中的上下文字段须取自当前 `getState()`，不得照抄或自行增加 revision。下一次修改读取本次真实提交结果或新状态。`box` 从世界坐标原点沿 +X/+Y/+Z 延伸，尺寸是宽、深、高，单位 mm。`hole` 和 `multiHole` 使用**半径**与世界 XYZ 刀具起点，不接受 `diameter` 或直接把二维 XY 点代入。工具卡的 `schemaHash` 必须与执行请求一致。严格 v2 参数契约还包括 `sketchProfile`、`profileOffset`、`profileExtrude`；具体清单以当前工具目录为准。可复现的四孔板脚本见 [页面 API 示例](examples/page-api-plate.js)，按实际提交结果取特征与实体 ID。
+
+## 可编辑轮廓操作
+
+`sketchProfile` 用解析 `line`、`arc3`、`circle` 实体和稳定 ID 定义轮廓。`line` 有 `startMm/endMm`，`arc3` 另有 `midMm`，`circle` 用 `centerMm/diameterMm`。`loops` 按顺序引用实体并注明 `reversed`；`regions` 说明每个外环及其孔环，最多 16 个分离区域；`output` 为 `face` 或 `wire`。闭合面可作为轮廓加工来源，开放线框可以保存但不能直接拉伸。通过 `feature.add` 的顶层 `placement` 冻结当前参考锚点；旧无 placement 调用保持世界坐标语义。历史编辑修改解析实体参数后，依赖的后续步骤按同一快照重建。
+
+`profileOffset` 的 `refs` 为一个已放置的闭合面 ID，参数为 `distanceMm` 正数、`side:inside|outside`、`join:intersection|round`、`output:wire|face|band`。来源仍保留；崩塌或多结果会报错。`profileExtrude` 的 `refs[0]` 为已放置轮廓 ID；`operation:newBody` 只用一个引用，`join|cut|intersect` 还需明确 `refs[1]` 的实体目标。`extent:distance` 指定 `distanceMm`，`extent:throughSelected` 只以所选目标的实际边界决定贯穿距离。`direction:1|-1` 相对于轮廓保存的法向；不同外环方向可能改变法向，执行前应预览并核对目标。多区域轮廓可用于一步切多个孔，但分离区域不能作为单一新实体生成。每次使用当前 `getTool({id})` 的 `version/schemaHash`、当前 requestContext、全新幂等键和当前 body ID；提交后核对回执、体积与历史。
+
+`inspectProfile({context,bodyId})` 对当前 `sketchProfile` 解析来源只读返回 `issues`、稳定 `issueId`、相关实体 ID、间隙距离与问题位置；不修复，也不增加历史。`inspectFit({context,bodyAId,bodyBId,toleranceMm?,volumeThresholdMm3?})` 接受两个当前单一封闭实体，按精确 B-Rep 公共材料体积及最短距离分类为 `overlap`、`contactWithinTolerance`、`separated`。返回公共体积 mm³、距离 mm、容差、体积阈值、可用的见证点与来源 context；结果仅对该修订有效。计算失败返回失败，不能当作“无干涉”。
+
+`profileRepair` 严格操作的 `refs` 为一个保存的 `sketchProfile` 来源 ID。先用 `inspectProfile` 取得 `closure:<chainId>` 等实际 `issueId`，再以 `{issueId,maxEndpointMoveMm}` 执行 `feature.add`；只对指定端点做不超过该毫米上限的移动，闭合开放链时生成一个可加工的派生面。原来源保留，超限或其它问题仍阻碍成面时整步失败。其几何重建使用来源已保存的定位快照，不重新取当前锚点。
+
+布尔 `union`、`cut`、`intersect` 的 `refs[0]` 始终为明确的保留主体，`refs[1..]` 为工具。可选 `params.keepTools:true` 保留工具原件；默认消耗。页面任务面板提供同一角色选择，API 仍需显式传当前 body ID。不要根据选择高亮颜色猜测目标与刀具。
 
 圆角 `fillet` 与倒角 `chamfer` 都要求恰好一种明确范围：`allEdges:true` 表示当前实体全部边；`faceIds:[...]` 表示当前所选面的全部边界（包括孔边）；`edgeIds:[...]` 表示指定边。先对当前实体 `queryGeometry`，不能跨修订复用面/边序号。页面 UI 选体、选面、选边时分别显示并传入相应范围；AI 调用应直接传这三个字段之一。R 值或倒角距离过大、边界过密时内核会拒绝，保持原模型并返回可读错误，不会自动缩小尺寸。2 mm 厚板可先试 R0.3 mm；这只是操作示例，不是产品尺寸建议。
 
@@ -847,3 +865,17 @@ if (picture.status !== 'read') throw new Error(picture.error?.code || 'capture f
 `src/page-api-docs.js` 从真实 `operation-registry.js` 生成操作目录。执行 `node scripts/generate-page-docs.mjs` 会更新 `public/automation/index.md` 和 `index.json`，构建时一并复制到静态包。模型可按版本和目录哈希缓存说明，不应把旧 session、revision、body ID 或拓扑编号当作永久事实。旧协议文档保留为开发历史，不用于正常页面调用。
 
 静态包可部署在 HTTPS 或本机 localhost 的普通静态托管位置。打开页面后等待 `api.info().ready === true`，并核对 `info().page.url` 和 `getState().context` 指向目标标签页；然后调用白名单方法。静态索引位于部署目录的 `automation/index.md` 与 `automation/index.json`，可先阅读接口再操作模型。Node/Vite 是构建及测试工具，不是页面建模服务。代码示例仅展示调用方式，实际浏览器运行和 ChatGPT 侧边栏访问须分别验证。
+
+## 轮廓、孔、拔模的新入口
+
+新操作均走现有 `feature.add`、`preview.start`、`run` 与 Worker 队列，使用新鲜完整 context、幂等键及真实 `refs`；通过 `getTool({id})` 读取严格参数卡。`sketchProfile` 的线、圆和三点圆弧为解析几何；`profileOffset` 可以得到线框、面或等宽边框；`profileRepair` 从开放轮廓派生修复副本；`profileExtrude` 的 `refs[0]` 是已放置平面轮廓，非新建模式的 `refs[1]` 是明确的实体目标。`extent:'toPlane'` 还需 `planePoint:[x,y,z]`、`planeNormal:[nx,ny,nz]`、可选 `allowanceMm`，按固定世界无限平面求交。旧 `extent:'distance'`、`throughSelected` 语义不变。
+
+参数基础轮廓在 `entities` 中可写 `{id,type:'rectangle'|'roundedRectangle'|'capsule',originMm:[x,y],widthMm,heightMm,cornerRadiusMm?}`，闭环引用这个稳定实体 ID。仅保存该参数定义，内核派生稳定线/弧，不额外保存一套可独立修改的边坐标。圆角矩形需 `0<R<短边/2`，长圆的 widthMm 为总长并须大于 heightMm 宽度；逐段编辑应显式展开为独立 line/arc3。解析展开后总实体上限仍为 500。`toPlane` 首版要求目标平面与来源轮廓平面平行，斜终止面拒绝。
+
+`holeWizard` 的目标为 `refs:[bodyId]`。`params.kind` 为 `plain`、`counterbore` 或 `countersink`，小孔使用 `diameterMm`，入口点使用 `x/y/z`，轴与方向使用 `axis`、`direction`。盲孔用 `through:false,depthMm`，贯穿用 `through:true`；大孔使用 `recessDiameterMm`，圆柱沉孔另用 `recessDepthMm`，锥形沉头用 `includedAngleDeg`（锥体**包含角**）。入口必须在材料边界上，盲孔须停在沿中心线的首段材料内。一次操作返回一个新实体 ID；STEP 几何不含真实螺纹。
+
+`draftFaces` 只支持六解析平面、十二直边的单一棱柱：`refs:[bodyId]`，`params:{faceIds:[四个当前侧面序号],neutralFaceId:固定底面序号,pullDirection:[0,0,1],angleDeg:2}`。侧面须与拉出方向平行，固定底面外法向须与其反向。该操作不会偷偷扩大面范围，不支持圆柱、曲面或圆角拓扑。先调用预览确认结果再提交；失败不改变来源实体。
+
+只读 `inspectDraft({context,bodyId,pullDirection:[0,0,1],thresholdDeg:2})` 返回每个解析平面的 `signedAngleDeg`、`classification` 与来源 revision；非平面逐面标记 `unsupported`。这是法向倾角，不是倒扣或脱模可达性证明。`inspectFit`、`inspectThickness`、`measureRelation`、`inspectProfile`、`projectProfile` 的参数和返回范围见自动工具卡；所有检查结果在工程变更后过期。`projectProfile` 把精确线/圆/圆弧边投到给定任务平面并冻结来源快照，不自动修改文档。
+
+新增只读检查也可经 `invoke`、`run` 和页面 `submit/getJob` 调用；这些入口返回原检查事实与 revision。`getState().bodies[].repairReport` 包含修复源 ID、指定端点、允许位移和实际位移。`setView({context,temporaryDisplay:'selectedOnly'|'transparentOthers'|'normal'})` 控制临时隔离/透明，持久隐藏列表不变。

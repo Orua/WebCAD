@@ -2,7 +2,7 @@
   "id": "measure",
   "title": "measure",
   "category": "page-method",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需非负整数 topologyId。",
   "synonyms": [
     "measure",
@@ -24,5 +24,5 @@
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:99db6e4860d0425fe649fd89e8ca37fcc34a4dd6d634b040f818be371f4cbc84"
+  "docsHash": "sha256:1ca0af0ae5ade92b77606e6b9f1226f858ea2a5efc77745bef121ecff6781616"
 }

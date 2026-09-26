@@ -3,12 +3,12 @@
   "title": "撤销",
   "description": "args:{}；撤销一个已提交步骤。",
   "category": "command",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"history.undo\",args}); args:{}；撤销一个已提交步骤。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:81eb1ab5dc997c460d4e59558012f1f0998008ccc75738451bd642a21c50e1ec"
+  "docsHash": "sha256:fc4a5427ac0b2202ab2514ce615cffb88b8b31636b1f2e679020f4600919666f"
 }

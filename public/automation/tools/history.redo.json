@@ -3,12 +3,12 @@
   "title": "重做",
   "description": "args:{}；重做一个步骤。",
   "category": "command",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"history.redo\",args}); args:{}；重做一个步骤。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:67a12983bbbb04a05371eed79bf0db72486dac5a28aa8004b484755b77719ea5"
+  "docsHash": "sha256:9112f5691f39a21e19c0ab3e9635cf7cc863288b30ff6160ad1b0c6a1eff734a"
 }

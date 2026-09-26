@@ -1,4 +1,4 @@
-const single=new Set(['autoRound','transform','copy','mirror','fillet','chamfer','shell','hole','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','faceHole','faceExtrude','logo','curvedLogo','thickenFace','split','extractSolid','explode','gizmoTranslate','gizmoRotate']);
+const single=new Set(['autoRound','transform','copy','mirror','fillet','chamfer','shell','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','faceHole','faceExtrude','logo','curvedLogo','thickenFace','split','extractSolid','explode','gizmoTranslate','gizmoRotate']);
 const boolean=new Set(['union','cut','intersect']);
 export function toolDisabledReason(action,state){
  if(action==='selectTool')return '';
@@ -6,6 +6,8 @@ export function toolDisabledReason(action,state){
  if(!state.kernelReady)return '建模内核尚未就绪';
  const count=state.selectedIds.length,topology=state.selectedTopology;
  if(action==='inspectPrintability'&&count!==1)return '请选择一个待检查实体';
+ if(action==='inspectFit'&&(count!==2||state.selectedIds.some(id=>state.bodies.find(body=>body.id===id)?.solidCount!==1)))return '请按 Ctrl 选择两个封闭实体';
+ if(action==='profileRepair'&&(count!==1||state.document?.features?.find(feature=>feature.id===state.selectedIds[0])?.op!=='sketchProfile'))return '请选择一个可编辑解析轮廓来源';
  if(['planeSection','faceBoundary'].includes(action)&&count!==1)return '请选择一个源对象';
  if(action==='extractFaces'&&count!==1)return '请选择一个源对象';
  if(action==='extractShell'&&count!==1)return '请选择一个源对象';

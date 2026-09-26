@@ -62,4 +62,8 @@ const current = library.isCurrent(connected);
 
 `current=false` 时刷新快照；离线搜索不声明实时可用性。让程序下载、保存和索引全库，只向模型返回查询结果及需要的完整卡。侧栏没有磁盘能力时直接使用 `connect/searchTools/getTools`；静态网页不要求用户安装 CLI 或本地服务。
 
+可编辑轮廓路线依次检索 `sketchProfile`、`profileOffset`、`profileExtrude`。先按工具卡建立解析线/圆弧/圆与有序环，再从当前状态取真实轮廓 body ID；偏移后重新取派生面 ID；加料/切除/相交还须取明确的实体目标 ID。新建轮廓可冻结当前参考锚点，后续加工不得再次套用活动锚点。人工任务面板锁定的目标不会被普通浏览选择替换；AI 写入若遇 `UI_TASK_ACTIVE`，应等待人工应用或取消，不能自动丢弃草稿。网页键盘的 Ctrl+A/C/V 使用工程内实体选择与剪贴板，文本输入框保持原生编辑行为。
+
 生成命令为 `npm run build`，会从真实注册表生成上述所有文件。`getTool/info/readDocs` 的原调用方式继续兼容。首次发现入口还在页面 HTML 元数据、`llms.txt` 和 `automation/quickstart.md` 中提供。
+
+加工与检查时优先检索精确 ID：`profileRepair` / `inspectProfile`，`projectProfile`，`profileExtrude`，`inspectFit`，`inspectThickness`，`measureRelation`，`holeWizard`，`draftFaces` / `inspectDraft`。读取工具卡后取得当前 body 与面/边序号，再固定本次任务的目标；不要根据上一次工程修订的拓扑 ID 猜目标。`draftFaces` 只接受完整四个平面侧壁加固定底面，`inspectDraft` 对曲面标未支持；未获得成功预览和精确几何读回时不要宣称压铸适用。`profileExtrude.extent='toPlane'` 是固定世界无限平面，不是裁剪面的有限边界。孔向导的 `includedAngleDeg` 是沉头锥体包含角，不是单侧斜角。

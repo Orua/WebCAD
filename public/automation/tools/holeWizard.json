@@ -1,0 +1,284 @@
+{
+  "id": "holeWizard",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "description": "Hole type",
+        "enum": [
+          "plain",
+          "counterbore",
+          "countersink"
+        ],
+        "default": "plain"
+      },
+      "diameterMm": {
+        "type": "number",
+        "description": "Small hole diameter (mm)",
+        "exclusiveMinimum": 0
+      },
+      "depthMm": {
+        "type": "number",
+        "description": "Blind hole depth (mm)",
+        "exclusiveMinimum": 0
+      },
+      "through": {
+        "type": "boolean",
+        "description": "Through first body along drilling axis",
+        "default": false
+      },
+      "recessDiameterMm": {
+        "type": "number",
+        "description": "Counterbore/countersink opening diameter (mm)",
+        "exclusiveMinimum": 0
+      },
+      "recessDepthMm": {
+        "type": "number",
+        "description": "Counterbore depth (mm)",
+        "exclusiveMinimum": 0
+      },
+      "includedAngleDeg": {
+        "type": "number",
+        "description": "Countersink included angle in degrees",
+        "exclusiveMinimum": 0,
+        "exclusiveMaximum": 179
+      },
+      "x": {
+        "type": "number",
+        "description": "Cutter entrance X (mm)"
+      },
+      "y": {
+        "type": "number",
+        "description": "Cutter entrance Y (mm)"
+      },
+      "z": {
+        "type": "number",
+        "description": "Cutter entrance Z (mm)"
+      },
+      "axis": {
+        "type": "string",
+        "description": "Global axis",
+        "enum": [
+          "X",
+          "Y",
+          "Z"
+        ],
+        "default": "Z"
+      },
+      "direction": {
+        "type": "number",
+        "enum": [
+          1,
+          -1
+        ],
+        "default": 1
+      }
+    },
+    "required": [
+      "kind",
+      "diameterMm",
+      "through",
+      "x",
+      "y",
+      "z"
+    ],
+    "additionalProperties": false,
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "defaults": {
+    "kind": "plain",
+    "axis": "Z",
+    "direction": 1,
+    "through": false
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. One current solid target. Start point must lie on the boundary and direction enter continuous material. Blind depth must stop before its first exit. Counterbore uses recessDepthMm; countersink derives depth (D-d)/(2*tan(includedAngle/2)). No modeled thread geometry.",
+  "title": "Exact plain, counterbore, or included-angle countersink hole in one feature",
+  "category": "modification",
+  "synonyms": [
+    "holeWizard",
+    "孔向导"
+  ],
+  "description": "Exact plain, counterbore, or included-angle countersink hole in one feature",
+  "schemaHash": "sha256:2cc8457e64372f9f6edc394e8289acaefc6cee0c70f349d612354a64c787c84d",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+  ],
+  "knownUnsupportedCases": [
+    "One current solid target. Start point must lie on the boundary and direction enter continuous material. Blind depth must stop before its first exit. Counterbore uses recessDepthMm; countersink derives depth (D-d)/(2*tan(includedAngle/2)). No modeled thread geometry."
+  ],
+  "minimalExample": {
+    "op": "holeWizard",
+    "params": {
+      "kind": "counterbore",
+      "diameterMm": 4,
+      "depthMm": 6,
+      "through": false,
+      "recessDiameterMm": 7,
+      "recessDepthMm": 2,
+      "x": 10,
+      "y": 10,
+      "z": 10,
+      "axis": "Z",
+      "direction": -1
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "holeWizard",
+    "params": {
+      "kind": "counterbore",
+      "diameterMm": 4,
+      "depthMm": 6,
+      "through": false,
+      "recessDiameterMm": 7,
+      "recessDepthMm": 2,
+      "x": 10,
+      "y": 10,
+      "z": 10,
+      "axis": "Z",
+      "direction": -1
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "counterbore",
+        "diameterMm": 4,
+        "depthMm": 6,
+        "through": false,
+        "recessDiameterMm": 7,
+        "recessDepthMm": 2,
+        "x": 10,
+        "y": 10,
+        "z": 10,
+        "axis": "Z",
+        "direction": -1,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "孔向导",
+  "placementPolicy": {
+    "mode": "tool-frame",
+    "placementSupported": true,
+    "originUsage": "cutter-start-reference",
+    "orientationUsage": "cutter-direction-and-cross-section",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:184e69a68e83483b2d875ad4eadaee4c432062cb8251c494aca5b5df9d7d6cfb"
+}

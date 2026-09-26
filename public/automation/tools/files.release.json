@@ -2,7 +2,7 @@
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "label": "释放文件资源",
   "synonyms": [
     "释放文件资源",
@@ -36,5 +36,5 @@
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:2b4297e732e79b7b3606d492cbd49876f15f4219e4ffdf7fb137904dfcc5131b"
+  "docsHash": "sha256:f50ab03a059d1136ac61abaa5643b1c82350a5de8d970409c06e6040eb0cf3d2"
 }

@@ -1,0 +1,240 @@
+{
+  "id": "profileExtrude",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "operation": {
+        "type": "string",
+        "description": "Result mode",
+        "enum": [
+          "newBody",
+          "join",
+          "cut",
+          "intersect"
+        ]
+      },
+      "extent": {
+        "type": "string",
+        "description": "Depth mode",
+        "enum": [
+          "distance",
+          "throughSelected",
+          "toPlane"
+        ]
+      },
+      "distanceMm": {
+        "type": "number",
+        "description": "Explicit positive depth (mm)",
+        "exclusiveMinimum": 0
+      },
+      "direction": {
+        "type": "integer",
+        "enum": [
+          1,
+          -1
+        ],
+        "description": "Positive or negative saved profile normal"
+      },
+      "planePoint": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        },
+        "description": "Fixed world point on infinite target plane"
+      },
+      "planeNormal": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        },
+        "description": "Fixed world plane normal"
+      },
+      "allowanceMm": {
+        "type": "number",
+        "description": "Signed distance added along extrusion direction"
+      }
+    },
+    "required": [
+      "operation",
+      "extent",
+      "direction"
+    ],
+    "additionalProperties": false,
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 2
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the placed planar profile. newBody requires only that ref; join/cut/intersect require refs[1] as one explicit solid target. The profile remains in history and the target is replaced. throughSelected computes depth from that target only and refuses a cutter starting inside it. toPlane supports only a fixed world plane parallel to the source profile plus signed allowance; oblique end planes are explicitly rejected. It uses an infinite world plane; it does not claim the cutter stops at a finite face boundary. No active anchor transform is applied again.",
+  "title": "Extrude a placed exact profile into a new solid, join, cut or intersection",
+  "category": "reference",
+  "synonyms": [
+    "profileExtrude",
+    "轮廓拉伸",
+    "加工"
+  ],
+  "description": "Extrude a placed exact profile into a new solid, join, cut or intersection",
+  "schemaHash": "sha256:f3eecce4f6a6bdf443657839fb6bfac65c15d13a8d0051889f5d75ac67d0064a",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+  ],
+  "knownUnsupportedCases": [
+    "refs[0] is the placed planar profile. newBody requires only that ref; join/cut/intersect require refs[1] as one explicit solid target. The profile remains in history and the target is replaced. throughSelected computes depth from that target only and refuses a cutter starting inside it. toPlane supports only a fixed world plane parallel to the source profile plus signed allowance; oblique end planes are explicitly rejected. It uses an infinite world plane; it does not claim the cutter stops at a finite face boundary. No active anchor transform is applied again."
+  ],
+  "minimalExample": {
+    "op": "profileExtrude",
+    "params": {
+      "operation": "newBody",
+      "extent": "distance",
+      "distanceMm": 3,
+      "direction": 1
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "profileExtrude",
+    "params": {
+      "operation": "newBody",
+      "extent": "distance",
+      "distanceMm": 3,
+      "direction": 1
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "operation": "newBody",
+        "extent": "distance",
+        "distanceMm": 3,
+        "direction": 1,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "轮廓拉伸 / 加工",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:18ac3e4c6fa4363341e85b528c8eb7c736765fcc933ba267fdd454e08845ec70"
+}

@@ -3,7 +3,12 @@
   "version": "legacy-1",
   "inputSchema": {
     "type": "object",
-    "properties": {},
+    "properties": {
+      "keepTools": {
+        "type": "boolean",
+        "description": "Keep original tools"
+      }
+    },
     "required": [],
     "additionalProperties": false,
     "$schema": "https://json-schema.org/draft/2020-12/schema"
@@ -29,7 +34,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Refs processed in order.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies.",
   "title": "Fuse bodies",
   "category": "modification",
   "synonyms": [
@@ -37,7 +42,7 @@
     "合并"
   ],
   "description": "Fuse bodies",
-  "schemaHash": "sha256:aeaf1daf6b453b72e87fd32920ea63f1130a1fe727aa48e58f695f000439ff34",
+  "schemaHash": "sha256:2cce87066fa44a2be8c54844a040c7a0b343ec8ec387996660764b9c86cc9ca0",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -87,7 +92,7 @@
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Refs processed in order."
+    "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies."
   ],
   "minimalExample": {
     "op": "union",
@@ -153,5 +158,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:83228d1444d5c5351ef7845664df64b0ada211e5b8d57d207c19c14beac7f31c"
+  "docsHash": "sha256:62c6f346c09eb30e2abce4bc01230f3499317bc505614aefe1fd344ec85feb9b"
 }

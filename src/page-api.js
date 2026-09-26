@@ -33,7 +33,7 @@ export function createPageAPI(host){
   const guarded=fn=>async(input={})=>{try{return await fn(normalizeRequest(input));}catch(e){return failure(e);}};
   const rawFiles=createBrowserFiles({command:input=>host.files(input),confirmSaved:host.confirmSaved});
   const files=Object.fromEntries(Object.entries(rawFiles).filter(([key])=>key!=='previewInput').map(([key,fn])=>[key,input=>fn(normalizeRequest(input))]));
-  const viewKeys=['context','direction','projection','fit','selectedIds','section','display','grid','snap','gizmo','selectionMode','camera','language'];
+  const viewKeys=['context','direction','projection','fit','selectedIds','section','display','grid','snap','gizmo','selectionMode','camera','language','temporaryDisplay'];
   const api={
     connect:(input={})=>{
       if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!['queries','toolIds','limit','includeContracts','knownCatalogHash','knownDocsHash','knownHashes'].includes(k)))fail('PARAM_SCHEMA_INVALID','Unexpected connect fields');
@@ -90,6 +90,71 @@ export function createPageAPI(host){
       check(input,['context','bodyId','angleLimitDeg']);
       return {status:'read',source:'viewer-tessellation-with-exact-brep-metadata',context:current().context,...result};
     }),
+    inspectProfile:guarded(async input=>{
+      check(input,['context','bodyId']);
+      if(typeof input.bodyId!=='string'||!current().bodies.some(body=>body.id===input.bodyId))fail('STALE_REFERENCE','Unknown current profile body');
+      const result=host.inspectProfile(input.bodyId);
+      check(input,['context','bodyId']);
+      return {status:'read',source:'saved-analytic-profile',units:{length:'mm'},context:current().context,bodyId:input.bodyId,...result};
+    }),
+    prepareProfileEdit:guarded(async input=>{
+      const allowed=['context','bodyId','mode','entityId','targetId','endpoint','candidateId','startCandidateId','endCandidateId','keepSide','radiusMm','arcId','output'];check(input,allowed);
+      if(typeof input.bodyId!=='string'||!current().bodies.some(body=>body.id===input.bodyId))fail('STALE_REFERENCE','Unknown current profile body');
+      if(!['intersections','trim','extend','trimCircle','fillet'].includes(input.mode))fail('PARAM_SCHEMA_INVALID','Choose an analytic profile edit mode');
+      for(const key of ['entityId','targetId'])if(typeof input[key]!=='string'||!input[key].length||input[key].length>64)fail('PARAM_SCHEMA_INVALID','Stable entity IDs are required',key);
+      for(const key of ['candidateId','startCandidateId','endCandidateId','arcId'])if(input[key]!==undefined&&(typeof input[key]!=='string'||!input[key].length||input[key].length>64))fail('PARAM_SCHEMA_INVALID','Invalid bounded ID',key);
+      if(input.endpoint!==undefined&&!['start','end'].includes(input.endpoint)||input.keepSide!==undefined&&!['cw','ccw'].includes(input.keepSide)||input.output!==undefined&&!['wire','face'].includes(input.output))fail('PARAM_SCHEMA_INVALID','Invalid edit option');
+      if(input.mode==='fillet'&&(!Number.isFinite(input.radiusMm)||input.radiusMm<=0||input.radiusMm>1e5||!input.arcId))fail('PARAM_RANGE_INVALID','Fillet requires an explicit positive radius and new arc ID');
+      const result=host.prepareProfileEdit(input);check(input,allowed);
+      return {status:'read',source:'saved-analytic-profile',units:{length:'mm'},context:current().context,bodyId:input.bodyId,...result};
+    }),
+    projectProfile:guarded(async input=>{
+      check(input,['context','bodyId','edgeIds','pointWorld','frame']);
+      const edges=Array.isArray(input.edgeIds)&&input.edgeIds.length>0&&input.edgeIds.length<=100&&new Set(input.edgeIds).size===input.edgeIds.length&&input.edgeIds.every(id=>Number.isSafeInteger(id)&&id>=0);
+      const point=Array.isArray(input.pointWorld)&&input.pointWorld.length===3&&input.pointWorld.every(Number.isFinite);
+      if(edges===point)fail('PARAM_SCHEMA_INVALID','请选择一组精确边，或一个显式世界坐标点');
+      if(edges&&(typeof input.bodyId!=='string'||!current().bodies.some(body=>body.id===input.bodyId)))fail('STALE_REFERENCE','来源实体不在当前工程');
+      if(input.frame!==undefined){const f=input.frame;if(!f||!Array.isArray(f.origin)||f.origin.length!==3||f.origin.some(v=>!Number.isFinite(v))||!Array.isArray(f.quaternion)||f.quaternion.length!==4||f.quaternion.some(v=>!Number.isFinite(v))||Math.abs(Math.hypot(...f.quaternion)-1)>1e-6)fail('PARAM_SCHEMA_INVALID','目标平面快照无效');}
+      const result=await host.projectProfile(input);check(input,['context','bodyId','edgeIds','pointWorld','frame']);
+      return {status:'read',source:edges?'exact-brep-snapshot':'provided-coordinate',units:{length:'mm'},context:current().context,...result};
+    }),
+    inspectFit:guarded(async input=>{
+      check(input,['context','bodyAId','bodyBId','toleranceMm','volumeThresholdMm3']);
+      if(typeof input.bodyAId!=='string'||typeof input.bodyBId!=='string'||input.bodyAId===input.bodyBId||![input.bodyAId,input.bodyBId].every(id=>current().bodies.some(body=>body.id===id&&body.solidCount===1)))fail('STALE_REFERENCE','Select two distinct current single solid bodies');
+      const toleranceMm=input.toleranceMm??1e-5,volumeThresholdMm3=input.volumeThresholdMm3??1e-6;
+      if(!Number.isFinite(toleranceMm)||toleranceMm<0||toleranceMm>1||!Number.isFinite(volumeThresholdMm3)||volumeThresholdMm3<=0)fail('PARAM_RANGE_INVALID','Inspection tolerances must be finite positive values in mm and mm^3');
+      const result=await host.inspectFit(input.bodyAId,input.bodyBId,toleranceMm,volumeThresholdMm3);
+      check(input,['context','bodyAId','bodyBId','toleranceMm','volumeThresholdMm3']);
+      return {status:'read',source:'exact-brep',units:{length:'mm',volume:'mm^3'},context:current().context,bodyAId:input.bodyAId,bodyBId:input.bodyBId,...result};
+    }),
+    inspectThickness:guarded(async input=>{
+      check(input,['context','bodyId','mode','point','direction','faceAId','faceBId','toleranceMm']);
+      if(typeof input.bodyId!=='string'||!current().bodies.some(body=>body.id===input.bodyId&&body.solidCount===1))fail('STALE_REFERENCE','选择一个当前单一封闭实体');
+      if(!Array.isArray(input.point)||input.point.length!==3||input.point.some(v=>!Number.isFinite(v)))fail('PARAM_SCHEMA_INVALID','指定真实表面世界坐标点');
+      const mode=input.mode??'ray';if(!['ray','faces'].includes(mode))fail('PARAM_SCHEMA_INVALID','厚度模式须为 ray 或 faces');
+      if(mode==='ray'&&(!Array.isArray(input.direction)||input.direction.length!==3||input.direction.some(v=>!Number.isFinite(v))||Math.hypot(...input.direction)<1e-9))fail('PARAM_SCHEMA_INVALID','方向须指向材料内部');
+      if(mode==='faces'&&(!Number.isSafeInteger(input.faceAId)||!Number.isSafeInteger(input.faceBId)||input.faceAId<0||input.faceBId<0||input.faceAId===input.faceBId))fail('PARAM_SCHEMA_INVALID','须选择两个不同的当前平面面片');
+      const toleranceMm=input.toleranceMm??1e-5;if(!Number.isFinite(toleranceMm)||toleranceMm<=0||toleranceMm>0.1)fail('PARAM_RANGE_INVALID','容差须大于零且不超过 0.1 mm');
+      const result=await host.inspectThickness({...input,mode,toleranceMm});check(input,['context','bodyId','mode','point','direction','faceAId','faceBId','toleranceMm']);
+      return {status:'read',source:'exact-brep-intersection',units:{length:'mm'},context:current().context,...result};
+    }),
+    inspectDraft:guarded(async input=>{
+      check(input,['context','bodyId','pullDirection','thresholdDeg']);
+      if(typeof input.bodyId!=='string'||!current().bodies.some(body=>body.id===input.bodyId&&body.solidCount===1))fail('STALE_REFERENCE','选择一个当前单一封闭实体');
+      if(!Array.isArray(input.pullDirection)||input.pullDirection.length!==3||input.pullDirection.some(v=>!Number.isFinite(v))||Math.hypot(...input.pullDirection)<1e-9)fail('PARAM_SCHEMA_INVALID','须提供非零拉出方向');
+      if(!Number.isFinite(input.thresholdDeg)||input.thresholdDeg<0||input.thresholdDeg>=90)fail('PARAM_RANGE_INVALID','拔模检查阈值须在 0–90° 之间');
+      const result=await host.inspectDraft(input);check(input,['context','bodyId','pullDirection','thresholdDeg']);
+      return {status:'read',source:'exact-planar-normal',units:{angle:'degrees'},context:current().context,bodyId:input.bodyId,...result};
+    }),
+    measureRelation:guarded(async input=>{
+      check(input,['context','mode','first','second','face','pointWorld']);
+      if(!['shortest','centerDistance','axisAlignment','pointFace','parallelFaces'].includes(input.mode))fail('PARAM_SCHEMA_INVALID','未知关系测量模式');
+      const validRef=ref=>{if(!ref||typeof ref!=='object'||Object.keys(ref).some(key=>!['bodyId','kind','topologyId'].includes(key))||!['body','edge','face'].includes(ref.kind))return false;const body=current().bodies.find(item=>item.id===ref.bodyId);if(!body)return false;return ref.kind==='body'?ref.topologyId===undefined:Number.isSafeInteger(ref.topologyId)&&ref.topologyId>=0&&ref.topologyId<(ref.kind==='edge'?body.edgeCount:body.faceCount);};
+      if(input.mode==='pointFace'){if(!validRef(input.face)||input.face.kind!=='face'||!Array.isArray(input.pointWorld)||input.pointWorld.length!==3||input.pointWorld.some(v=>!Number.isFinite(v)))fail('STALE_REFERENCE','需要当前有限面和明确的世界坐标点');}
+      else if(!validRef(input.first)||!validRef(input.second))fail('STALE_REFERENCE','需要两个当前有效的实体或拓扑引用');
+      const result=await host.measureRelation(input);check(input,['context','mode','first','second','face','pointWorld']);
+      return {status:'read',source:'exact-brep',units:{length:'mm',angle:'degrees'},context:current().context,...result};
+    }),
     fitProfile:guarded(async input=>{
       check(input,['context','kind','plane','points','maxResidualMm']);
       const result=fitProfilePoints(input);
@@ -113,7 +178,7 @@ export function createPageAPI(host){
     }),
     setView:guarded(async input=>{
       check(input,viewKeys);
-      for(const [key,values] of Object.entries({display:['solid','edges','wire'],gizmo:['off','translate','rotate'],selectionMode:['body','face','edge'],language:['zh','en']}))if(input[key]!==undefined&&!values.includes(input[key]))fail('PARAM_SCHEMA_INVALID',`Unknown ${key}`);
+      for(const [key,values] of Object.entries({display:['solid','edges','wire'],gizmo:['off','translate','rotate'],selectionMode:['body','face','edge'],language:['zh','en'],temporaryDisplay:['normal','selectedOnly','transparentOthers']}))if(input[key]!==undefined&&!values.includes(input[key]))fail('PARAM_SCHEMA_INVALID',`Unknown ${key}`);
       for(const key of ['grid','snap'])if(input[key]!==undefined&&typeof input[key]!=='boolean')fail('PARAM_SCHEMA_INVALID',`${key} must be boolean`);
       if(input.camera!==undefined){const c=input.camera;if(!c||typeof c!=='object'||Object.keys(c).some(k=>!['position','target'].includes(k))||[c.position,c.target].some(p=>!Array.isArray(p)||p.length!==3||p.some(v=>!Number.isFinite(v)))||c.position.every((v,i)=>v===c.target[i]))fail('PARAM_SCHEMA_INVALID','camera requires distinct finite XYZ position and target');}
       if(input.direction&&!['top','bottom','front','back','left','right','side','iso'].includes(input.direction))fail('PARAM_SCHEMA_INVALID','Unknown view');

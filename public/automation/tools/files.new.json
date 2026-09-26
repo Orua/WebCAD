@@ -2,7 +2,7 @@
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "label": "新建工程",
   "synonyms": [
     "新建工程",
@@ -36,5 +36,5 @@
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:78f454dc68e3bfc68164707ee3f9e5630ea2f0fbe16af61ca2d55d4c270c5b63"
+  "docsHash": "sha256:edd76b99433fbe570adcda219f04c20137321cf5bdddabb6bae81b1d4a580b41"
 }

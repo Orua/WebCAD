@@ -38,6 +38,21 @@
     "method": "getUILayout",
     "usage": "参考锚点呼吸球显隐为本地 UI 偏好，不改变工程、固定原始坐标或几何 revision。"
   },
+  "temporaryDisplay": {
+    "tools": [
+      "setView"
+    ],
+    "method": "setView",
+    "usage": "temporaryDisplay 为 selectedOnly/transparentOthers/normal；只改临时显隐，不改变工程持久隐藏列表。"
+  },
+  "occlusionCandidates": {
+    "tools": [
+      "queryGeometry",
+      "setView"
+    ],
+    "method": "queryGeometry",
+    "usage": "人工 Alt+单击读取当前视线候选；AI 按精确几何 queryGeometry 取得明确 body/face/edge 引用，不依赖最前方网格。"
+  },
   "commandSearch": {
     "tools": [
       "searchTools"
@@ -159,6 +174,13 @@
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "draftFaces": {
+    "tools": [
+      "draftFaces"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
   "extractFaces": {
     "tools": [
       "extractFaces"
@@ -236,6 +258,13 @@
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "holeWizard": {
+    "tools": [
+      "holeWizard"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
   "import": {
     "tools": [
       "files.import"
@@ -306,6 +335,27 @@
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "profileExtrude": {
+    "tools": [
+      "profileExtrude"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
+  "profileOffset": {
+    "tools": [
+      "profileOffset"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
+  "profileRepair": {
+    "tools": [
+      "profileRepair"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
   "quickModel": {
     "tools": [
       "quickModel"
@@ -351,6 +401,13 @@
   "shell": {
     "tools": [
       "shell"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
+  "sketchProfile": {
+    "tools": [
+      "sketchProfile"
     ],
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
@@ -578,6 +635,41 @@
     ],
     "method": "inspectPrintability",
     "usage": "选定当前 bodyId 与 angleLimitDeg；返回网格悬垂事实和六个摆放方向，不判定工艺合格。"
+  },
+  "inspectProfile": {
+    "tools": [
+      "inspectProfile"
+    ],
+    "method": "inspectProfile",
+    "usage": "选定当前可编辑解析轮廓 bodyId；返回端点、零长、重线和直线相交问题，不修改工程。"
+  },
+  "inspectFit": {
+    "tools": [
+      "inspectFit"
+    ],
+    "method": "inspectFit",
+    "usage": "显式给两个当前单实体 bodyId、mm 接触容差；精确 B-Rep 求交与最短距离，不修改工程。"
+  },
+  "inspectThickness": {
+    "tools": [
+      "inspectThickness"
+    ],
+    "method": "inspectThickness",
+    "usage": "选择单一封闭实体、表面点与向内方向，或两个平行面；只读精确连续材料厚度。"
+  },
+  "inspectDraft": {
+    "tools": [
+      "inspectDraft"
+    ],
+    "method": "inspectDraft",
+    "usage": "显式实体、拉出方向、用户阈值；解析平面精确法向倾角，曲面明确未支持，不判定完整脱模。"
+  },
+  "measureRelation": {
+    "tools": [
+      "measureRelation"
+    ],
+    "method": "measureRelation",
+    "usage": "显式选择两个实体/边/面，或点与有限面，读取精确几何关系与见证点。"
   },
   "textCommand": {
     "tools": [

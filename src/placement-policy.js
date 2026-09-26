@@ -4,11 +4,11 @@ import {listOperations} from './operation-registry.js';
 // C: independent creation; T: tool/additive material; S: target face;
 // X: axis/plane/vector; N: existing topology/location; L: legacy only.
 const category={
-  C:['box','cylinder','sphere','cone','torus','extrude','revolve','sweep','loft','quickModel','vectorProfile','arcProfile','curveSweep','advancedLoft','fittedSurface','import'],
-  T:['hole','multiHole','slot','multiPocket','multiBoss'],
+  C:['box','cylinder','sphere','cone','torus','extrude','revolve','sweep','loft','quickModel','vectorProfile','arcProfile','sketchProfile','curveSweep','advancedLoft','fittedSurface','import'],
+  T:['hole','holeWizard','multiHole','slot','multiPocket','multiBoss'],
   S:['faceHole','logo'],
   X:['transform','copy','mirror','linearPattern','circularPattern','split','planeSection','referenceExtrude'],
-  N:['referenceLoft','faceExtrude','thickenFace','fillet','chamfer','shell','autoRound','smoothTransition','union','cut','intersect','group','extractSolid','extractShell','extractFaces','faceBoundary','sewFaces','surfaceTrim','remove'],
+  N:['referenceLoft','faceExtrude','thickenFace','fillet','chamfer','shell','draftFaces','autoRound','smoothTransition','union','cut','intersect','group','extractSolid','extractShell','extractFaces','faceBoundary','sewFaces','surfaceTrim','profileOffset','profileRepair','profileExtrude','remove'],
   L:['curvedLogo'],
 };
 export const PLACEMENT_POLICIES=Object.freeze(Object.fromEntries(Object.entries(category).flatMap(([policy,ids])=>ids.map(id=>[id,policy]))));

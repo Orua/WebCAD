@@ -3,12 +3,12 @@
   "title": "锁定参考锚点（工作基准）",
   "description": "args:{locked:boolean}；可撤销的元数据操作。",
   "category": "command",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.setLocked\",args}); args:{locked:boolean}；可撤销的元数据操作。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:b5490b8c4af06fa6596ddad5c90c924dee2cf963ac82136d4b9fbbee728491bc"
+  "docsHash": "sha256:f589b321565bd0b2dbd7ea02913bb6c9c96f9e68118589e384022f60f7f54a10"
 }

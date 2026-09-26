@@ -1,11 +1,11 @@
 // Declarative workspace configuration: tab order, groups, actions and panel sizes.
 // Actions route through UI_API_ROUTES; no eval or geometry logic belongs here.
 const tabs = [
-  {id:'create',label:'创建',groups:[['快速开始',['quickModel']],['基本实体',['box','cylinder','sphere','cone','torus']],['轮廓',['sketch','vectorProfile','arcProfile']],['轮廓成型',['extrude','revolve','sweep','loft']],['插入',['importAtFrame']]]},
-  {id:'edit',label:'编辑',groups:[['选择',['selectTool']],['变换与复制',['transform','copy','mirror']],['组合',['group','explode']],['阵列',['linearPattern','circularPattern']],['管理',['remove']]]},
-  {id:'machine',label:'加工',groups:[['布尔运算',['union','cut','intersect']],['孔与槽',['hole','multiHole','slot','multiPocket','multiBoss']],['面加工',['faceHole','faceExtrude','logo']],['边与过渡',['fillet','chamfer','autoRound','smoothTransition']],['壳与拆分',['shell','split','extractSolid']]]},
+  {id:'create',label:'创建',groups:[['快速开始',['quickModel']],['基本实体',['box','cylinder','sphere','cone','torus']],['轮廓',['sketchProfile','sketch','vectorProfile','arcProfile']],['轮廓成型',['profileExtrude','extrude','revolve','sweep','loft']],['插入',['importAtFrame']]]},
+  {id:'edit',label:'编辑',groups:[['选择',['selectTool']],['轮廓编辑',['profileOffset','profileRepair']],['变换与复制',['transform','copy','mirror']],['组合',['group','explode']],['阵列',['linearPattern','circularPattern']],['管理',['remove']]]},
+  {id:'machine',label:'加工',groups:[['布尔运算',['union','cut','intersect']],['孔与槽',['holeWizard','hole','multiHole','slot','multiPocket','multiBoss']],['面加工',['faceHole','faceExtrude','logo','draftFaces']],['边与过渡',['fillet','chamfer','autoRound','smoothTransition']],['壳与拆分',['shell','split','extractSolid']]]},
   {id:'surface',label:'曲面',groups:[['曲面成型',['curveSweep','advancedLoft','fittedSurface']],['参考提取',['planeSection','faceBoundary','extractFaces','extractShell']],['参考成体',['referenceExtrude','referenceLoft','thickenFace']],['曲面处理',['sewFaces','surfaceTrim']]]},
-  {id:'inspect',label:'检查',groups:[['几何检查',['measure','section','inspectPrintability']],['结果记录',['screenshot']]],controls:['quality']},
+  {id:'inspect',label:'检查',groups:[['几何检查',['measure','measureRelation','inspectFit','inspectThickness','inspectDraft','section','inspectPrintability']],['结果记录',['screenshot']]],controls:['quality']},
   {id:'view',label:'视图',groups:[],controls:['directions','display','projection','assists','quality']},
 ];
 const controls={

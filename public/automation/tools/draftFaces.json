@@ -1,0 +1,241 @@
+{
+  "id": "draftFaces",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "faceIds": {
+        "type": "array",
+        "minItems": 4,
+        "maxItems": 4,
+        "uniqueItems": true,
+        "items": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "neutralFaceId": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "pullDirection": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        }
+      },
+      "angleDeg": {
+        "type": "number",
+        "description": "Draft angle degrees",
+        "exclusiveMinimum": 0,
+        "exclusiveMaximum": 45
+      }
+    },
+    "required": [
+      "faceIds",
+      "neutralFaceId",
+      "pullDirection",
+      "angleDeg"
+    ],
+    "additionalProperties": false,
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. One explicit six-plane twelve-edge single-solid prism target. Exactly all four side faces and fixed bottom must be listed. Source is not mutated; topology outside this verified subset is rejected. Preview before commit. Not a castability certification.",
+  "title": "Exact restricted four-side planar prism draft around one fixed bottom plane",
+  "category": "modification",
+  "synonyms": [
+    "draftFaces",
+    "受限拔模"
+  ],
+  "description": "Exact restricted four-side planar prism draft around one fixed bottom plane",
+  "schemaHash": "sha256:189437fbcdd292f9ab7ead4deb4e4a4def1634ff4250babcbc905f02439a94de",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+  ],
+  "knownUnsupportedCases": [
+    "One explicit six-plane twelve-edge single-solid prism target. Exactly all four side faces and fixed bottom must be listed. Source is not mutated; topology outside this verified subset is rejected. Preview before commit. Not a castability certification."
+  ],
+  "minimalExample": {
+    "op": "draftFaces",
+    "params": {
+      "faceIds": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "neutralFaceId": 4,
+      "pullDirection": [
+        0,
+        0,
+        1
+      ],
+      "angleDeg": 2
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "draftFaces",
+    "params": {
+      "faceIds": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "neutralFaceId": 4,
+      "pullDirection": [
+        0,
+        0,
+        1
+      ],
+      "angleDeg": 2
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "faceIds": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "neutralFaceId": 4,
+        "pullDirection": [
+          0,
+          0,
+          1
+        ],
+        "angleDeg": 2,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "受限拔模",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:94b652a44a31efec476cc9bcc1c30f7149c998f555e83c9cf48c5624a6015050"
+}

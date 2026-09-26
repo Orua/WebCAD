@@ -3,8 +3,21 @@ import assert from 'node:assert/strict';
 import { createPageAPI } from '../src/page-api.js';
 import { getTool, infoMetadata, readDocs } from '../src/page-api-docs.js';
 import { UI_API_ROUTES } from '../src/ui-api-coverage.js';
+import {prepareAnalyticProfileEdit} from '../src/profile-editing.js';
 
 const context = () => ({ sessionId: 'page-1', documentId: 'doc-1', documentInstanceId: 'instance-1', expectedRevision: 7 });
+
+test('analytic edit proposals share UI geometry and remain read-only through batch and invoke',async()=>{
+  const {api,host}=fixture(),profile={profileVersion:1,output:'wire',entities:[{id:'a',type:'line',startMm:[0,0],endMm:[10,0]},{id:'b',type:'line',startMm:[20,-10],endMm:[20,10],construction:true}],chains:[{id:'path',edges:[{entityId:'a',reversed:false}]}],loops:[],regions:[]};
+  host.prepareProfileEdit=input=>prepareAnalyticProfileEdit(profile,input);
+  const input={context:context(),bodyId:'body-1',mode:'extend',entityId:'a',targetId:'b',endpoint:'end'};
+  const candidates=await api.prepareProfileEdit(input);assert.equal(candidates.selectionRequired,true);assert.equal(candidates.profile,null);assert.deepEqual(candidates.candidates[0].point,[20,0]);
+  const proposed=await api.prepareProfileEdit({...input,candidateId:'intersection-1'});assert.deepEqual(proposed.profile.entities[0].endMm,[20,0]);assert.deepEqual(profile.entities[0].endMm,[10,0]);assert.equal(api.getState().context.revision,7);
+  const invoked=await api.invoke({method:'prepareProfileEdit',args:{...input,candidateId:'intersection-1'}});assert.equal(invoked.status,'read');
+  const batch=await api.run({context:context(),idempotencyKey:'proposal-read',steps:[{id:'proposal',method:'prepareProfileEdit',args:{bodyId:'body-1',mode:'extend',entityId:'a',targetId:'b',candidateId:'intersection-1'}}]});assert.equal(batch.status,'completed');assert.deepEqual(batch.results[0].result.profile.entities[0].endMm,[20,0]);
+  const stale=await api.prepareProfileEdit({...input,context:{...context(),expectedRevision:6}});assert.equal(stale.error.code,'REVISION_CONFLICT');
+  const invalid=await api.prepareProfileEdit({...input,endpoint:'middle'});assert.equal(invalid.status,'failed');
+});
 
 function fixture() {
   let revision = 7;
@@ -41,6 +54,17 @@ test('editor discovery covers every registered UI route and supports paginated i
   assert(infoMetadata().docs.includes('api.editor'));
   assert.equal(getTool({id:'body.appearance'}).minimalExample.args.color,'#e87939');
   const page=readDocs({docId:'api.ui-coverage',limitChars:1000});assert(page.nextCursor);
+});
+test('draft inspection shares guarded direct, invoke, batch and job entry points',async()=>{
+  const f=fixture(),originalState=f.host.state;f.host.state=()=>({...originalState(),bodies:[{id:'body-1',solidCount:1}]});let calls=0;
+  f.host.inspectDraft=async()=>{calls++;return {method:'exactPlanarNormal',faces:[{faceId:0,signedAngleDeg:2}]};};
+  const args={context:context(),bodyId:'body-1',pullDirection:[0,0,1],thresholdDeg:2};
+  assert.equal((await f.api.inspectDraft(args)).status,'read');
+  assert.equal((await f.api.invoke({method:'inspectDraft',args})).status,'read');
+  assert.equal((await f.api.run({context:context(),idempotencyKey:'draft-read',steps:[{id:'read',method:'inspectDraft',args:{bodyId:'body-1',pullDirection:[0,0,1],thresholdDeg:2}}]})).status,'completed');
+  f.api.submit({jobId:'draft-job',method:'inspectDraft',args});await new Promise(resolve=>setTimeout(resolve,20));assert.equal(f.api.getJob({jobId:'draft-job'}).result.status,'read');
+  assert.equal(calls,4);assert.equal(f.api.getState().context.revision,7);
+  assert.equal((await f.api.inspectDraft({...args,pullDirection:[0,0,0]})).status,'failed');assert.equal(calls,4);
 });
 test('file preview resolves only a registered STEP resource before entering the command queue',async()=>{
  const f=fixture();let request;f.host.execute=async input=>{request=input;return {status:'previewing'};};
