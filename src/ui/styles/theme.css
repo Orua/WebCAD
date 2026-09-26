@@ -43,3 +43,5 @@
 .webcad-app .workspace .right-panel{grid-column:3!important;grid-row:1!important;min-width:0}
 .webcad-app .workspace .left-panel{grid-column:1!important;grid-row:1!important}
 .webcad-app .workspace .canvas-panel{grid-column:2!important;grid-row:1!important;min-width:0}
+.webcad-app .workspace .panel-heading:has(.panel-toggle[data-expanded="true"]){padding:0 44px 0 12px!important;min-width:0;gap:8px}
+.webcad-app .workspace .panel-heading .body-count{white-space:nowrap;flex-shrink:0}
