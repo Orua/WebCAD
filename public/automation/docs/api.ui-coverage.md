@@ -525,14 +525,20 @@
     "method": "connect",
     "usage": "connect({queries,includeContracts:true}) 按任务快速加载；knownHashes 缓存工具卡，不缓存实体身份。"
   },
-  "displayPreferences": {
+  "logoConverterSettings": {
     "tools": [
-      "setDisplayPreferences",
       "getLogoConverter",
       "setLogoConverter"
     ],
+    "method": "setLogoConverter",
+    "usage": "context、url、key；getLogoConverter 读回配置状态。"
+  },
+  "displayPreferences": {
+    "tools": [
+      "setDisplayPreferences"
+    ],
     "method": "setDisplayPreferences",
-    "usage": "显示设置用 setDisplayPreferences；LOGO 转换配置用 getLogoConverter/setLogoConverter，URL/Key 保存在当前浏览器。"
+    "usage": "渲染设置使用 setDisplayPreferences；LOGO 转化为独立入口。"
   },
   "panels": {
     "tools": [
