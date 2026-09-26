@@ -191,3 +191,10 @@
 .profile-entity-row strong { grid-column: 1 / -1; }
 .profile-entity-row label { display: grid; gap: 3px; font-size: 11px; }
 .profile-entity-row input, .profile-entity-row select { width: 100%; min-width: 0; }
+
+/* Keep the quick-model list usable while the remaining form scrolls below it. */
+.cad-dialog[data-command-id="quickModel"] .quick-model-picker{height:240px;min-height:240px;max-height:240px;flex:0 0 240px;overflow:auto;grid-auto-rows:minmax(42px,auto);align-content:start}
+.cad-dialog[data-command-id="quickModel"] > *{flex-shrink:0}
+
+/* Quick models follow the same theme accent as the other tool icons. */
+.quick-model-icon{display:inline-block;color:var(--accent);background-color:currentColor;mask-size:contain;mask-repeat:no-repeat;mask-position:center}

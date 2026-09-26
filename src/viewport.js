@@ -24,7 +24,7 @@ export class CADViewport {
     this.gizmoProxy=new THREE.Object3D();this.scene.add(this.gizmoProxy);
     this.gizmo=new TransformControls(this.camera,this.renderer.domElement);this.gizmo.setSize(.8);this.gizmo.setSpace('world');this.gizmoMode='off';this.scene.add(this.gizmo.getHelper());
     this.gizmo.addEventListener('dragging-changed',event=>{this.controls.enabled=!event.value;});
-    this.gizmo.addEventListener('mouseDown',()=>{this.draggingGizmo=true;this.gizmoOrigin=this.gizmoProxy.position.clone();this.dragSkipSnap=this.skipSnapBodyId===this.selected[0];this.skipSnapBodyId=null;this.dragAxis=this.gizmo.axis;});
+    this.gizmo.addEventListener('mouseDown',()=>this.beginTransform());
     this.gizmo.addEventListener('objectChange',()=>this.previewTransform());
     this.gizmo.addEventListener('mouseUp',()=>this.finishTransform());
     const hemisphere=new THREE.HemisphereLight(0xffffff,0x7a879e,2.4);this.scene.add(hemisphere);
@@ -43,7 +43,7 @@ export class CADViewport {
     this.anchorGizmo.addEventListener('mouseUp',()=>this.finishAnchorDrag());
     this.grid=new THREE.GridHelper(200,40,0x99acb8,0xd5dce3);this.grid.rotation.x=Math.PI/2;this.grid.position.z=-.01;this.scene.add(this.grid);
     this.axes=new THREE.AxesHelper(20);this.axes.visible=false;this.scene.add(this.axes);this.raycaster=new THREE.Raycaster();this.pointer=new THREE.Vector2();this.span=50;
-    this.hud=document.createElement('div');this.hud.style.cssText='position:absolute;left:18px;bottom:38px;pointer-events:none;color:#64748b;font:11px monospace;z-index:2';host.append(this.hud);
+    this.hud=document.createElement('div');this.hud.className='viewport-entity-status';this.hud.style.cssText='position:absolute;left:18px;bottom:38px;pointer-events:none;color:#64748b;font:11px monospace;z-index:2';host.append(this.hud);
     this.overlay=document.createElement('div');this.overlay.className='viewport-task';this.overlay.style.cssText='display:none;position:absolute;left:50%;top:20px;transform:translateX(-50%);background:#fff;padding:14px 18px;border:1px solid #cbd5e1;border-radius:10px;box-shadow:0 8px 30px #14213320;z-index:12;min-width:320px;color:#243446;font-size:12px';host.append(this.overlay);
     this.renderer.domElement.addEventListener('pointerdown',e=>{this.down=[e.clientX,e.clientY,e.button];});
     this.renderer.domElement.addEventListener('pointerup',e=>{if(this.gizmo.axis||Date.now()<(this.suppressPickUntil||0)||!this.down||this.down[2]!==0||Math.hypot(e.clientX-this.down[0],e.clientY-this.down[1])>5)return;this.pick(e);});
@@ -120,7 +120,24 @@ export class CADViewport {
   setPartMetal(ids,key){if(!METAL_FINISHES[key])throw new Error('Unknown material');for(const id of ids)this.partFinishes={...this.partFinishes,[id]:key};this.setMetalFinish(this.finishKey);}
   setBusy(value){this.busy=value;this.gizmo.enabled=!value&&!this.transformPending;}
   setModelingPrecision(){const mm=this.displayPreferences?.dimensionPrecisionMm??0.01,deg=this.displayPreferences?.anglePrecisionDeg??0.1;this.gizmo.setTranslationSnap(mm);this.gizmo.setRotationSnap(THREE.MathUtils.degToRad(deg));this.anchorGizmo.setTranslationSnap(mm);}
-  setGizmo(mode){this.setModelingPrecision();if(!['off','translate','rotate'].includes(mode))throw new Error('Invalid transform mode');this.cancelTask();this.gizmoMode=mode;this.syncGizmo();}
+  setGizmo(mode){this.setModelingPrecision();if(!['off','translate','rotate'].includes(mode))throw new Error('Invalid transform mode');if(mode==='off')this.cancelTransform();this.cancelTask();this.gizmoMode=mode;this.syncGizmo();this.updateHud();}
+  beginTransform(){
+    if(!this.getTransformState().canDrag)return;
+    const bodyId=this.selected[0];this.transformGesture={bodyId,context:this.callbacks.onTransformStart?.(bodyId)};
+    this.draggingGizmo=true;this.gizmoOrigin=this.gizmoProxy.position.clone();this.dragSkipSnap=this.skipSnapBodyId===bodyId;this.skipSnapBodyId=null;this.dragAxis=this.gizmo.axis;
+  }
+  cancelTransform(){
+    if(!this.draggingGizmo||this.transformPending)return;
+    this.draggingGizmo=false;this.gizmo.dragging=false;this.controls.enabled=true;
+    const entry=this.objects.get(this.transformGesture?.bodyId||this.selected[0]);if(entry){entry.root.matrixAutoUpdate=true;entry.root.matrix.identity();entry.root.updateMatrix();}
+    if(this.gizmoOrigin)this.gizmoProxy.position.copy(this.gizmoOrigin);this.gizmoProxy.quaternion.identity();
+    this.transformGesture=null;
+  }
+  getTransformState(){
+    const bodyIds=[...this.selected],entry=bodyIds.length===1?this.objects.get(bodyIds[0]):null;
+    const blocker=this.gizmoMode==='off'?'MODE_OFF':this.busy||this.transformPending?'BUSY':!bodyIds.length?'NO_SELECTION':bodyIds.length!==1?'MULTIPLE_SELECTION':!entry?'STALE_SELECTION':!entry.root.visible?'HIDDEN_SELECTION':null;
+    return {mode:this.gizmoMode,bodyIds,attached:!!this.gizmo.object,canDrag:!blocker,blocker};
+  }
   syncGizmo(){
     if(this.draggingGizmo||this.transformPending)return;this.gizmo.detach();
     const entry=this.selected.length===1?this.objects.get(this.selected[0]):null;
@@ -129,7 +146,7 @@ export class CADViewport {
     this.gizmo.setMode(this.gizmoMode);this.gizmo.attach(this.gizmoProxy);
   }
   previewTransform(){
-    if(!this.draggingGizmo)return;const entry=this.objects.get(this.selected[0]);if(!entry)return;
+    if(!this.draggingGizmo)return;const entry=this.objects.get(this.transformGesture?.bodyId||this.selected[0]);if(!entry)return;
     this.gizmoProxy.updateMatrix();entry.root.matrixAutoUpdate=false;
     entry.root.matrix.copy(this.gizmoProxy.matrix).multiply(new THREE.Matrix4().makeTranslation(...this.gizmoOrigin.clone().negate().toArray()));entry.root.matrixWorldNeedsUpdate=true;
   }
@@ -139,22 +156,22 @@ export class CADViewport {
   }
   async finishTransform(){
     if(!this.draggingGizmo)return;this.draggingGizmo=false;this.suppressPickUntil=Date.now()+150;
-    const sourceId=this.selected[0];this.transformPending=true;this.gizmo.enabled=false;let snapped=false;
-    try{if(this.gizmoMode==='translate'){const delta=this.gizmoProxy.position.clone().sub(this.gizmoOrigin);if(delta.length()>1e-8){const snap=await snapReleasedDrag(this,{bodyId:sourceId,translation:delta.toArray(),axis:this.dragAxis,skip:this.dragSkipSnap});if(snap){this.gizmoProxy.position.add(new THREE.Vector3(...snap.delta));snapped=true;}}}}catch(error){this.callbacks.onTransformError?.(error);this.transformPending=false;this.gizmo.enabled=!this.busy;this.syncGizmo();const failed=this.objects.get(sourceId);if(failed){failed.root.matrixAutoUpdate=true;failed.root.matrix.identity();failed.root.updateMatrix();}return;}
-    const center=this.gizmoOrigin,euler=new THREE.Euler().setFromQuaternion(this.gizmoProxy.quaternion,'ZYX');
-    const shift=this.gizmoProxy.position.clone().sub(center.clone().applyQuaternion(this.gizmoProxy.quaternion));
+    const gesture=this.transformGesture||{bodyId:this.selected[0]},sourceId=gesture.bodyId,center=this.gizmoOrigin.clone(),position=this.gizmoProxy.position.clone(),quaternion=this.gizmoProxy.quaternion.clone();this.transformPending=true;this.gizmo.enabled=false;let snapped=false;
+    try{if(this.gizmoMode==='translate'){const delta=position.clone().sub(center);if(delta.length()>1e-8){const snap=await snapReleasedDrag(this,{bodyId:sourceId,translation:delta.toArray(),axis:this.dragAxis,skip:this.dragSkipSnap});if(snap){position.add(new THREE.Vector3(...snap.delta));this.gizmoProxy.position.copy(position);snapped=true;}}}}catch(error){this.callbacks.onTransformError?.(error);this.transformPending=false;this.transformGesture=null;this.gizmo.enabled=!this.busy;const failed=this.objects.get(sourceId);if(failed){failed.root.matrixAutoUpdate=true;failed.root.matrix.identity();failed.root.updateMatrix();}this.syncGizmo();return;}
+    const euler=new THREE.Euler().setFromQuaternion(quaternion,'ZYX');
+    const shift=position.sub(center.clone().applyQuaternion(quaternion));
     const params={x:shift.x,y:shift.y,z:shift.z,rx:THREE.MathUtils.radToDeg(euler.x),ry:THREE.MathUtils.radToDeg(euler.y),rz:THREE.MathUtils.radToDeg(euler.z)};
-    const entry=this.objects.get(this.selected[0]);
+    const entry=this.objects.get(sourceId);
     const changed=Object.values(params).some(v=>Math.abs(v)>1e-7);
     // Leave the dragged geometry in place while the worker commits. A successful
     // commit replaces this entry; failure restores it without changing history.
     this.transformPending=true;this.gizmo.enabled=false;
     try{
-      if(changed){await this.callbacks.onTransform?.(params);if(snapped)this.skipSnapBodyId=this.selected[0];}
+      if(changed){const result=await this.callbacks.onTransform?.(params,gesture);if(snapped&&result?.bodyId)this.skipSnapBodyId=result.bodyId;}
     }catch(error){this.callbacks.onTransformError?.(error);}
     finally{
       if(entry&&this.objects.get(entry.body.id)===entry){entry.root.matrixAutoUpdate=true;entry.root.matrix.identity();entry.root.updateMatrix();}
-      this.transformPending=false;this.gizmo.enabled=!this.busy;this.syncGizmo();
+      this.transformPending=false;this.transformGesture=null;this.gizmo.enabled=!this.busy;this.syncGizmo();
     }
   }
   applyClipping(){this.modelRoot.traverse(object=>{if(object.material){for(const material of [object.material].flat()){material.clippingPlanes=this.clipPlanes;material.needsUpdate=true;}}});}

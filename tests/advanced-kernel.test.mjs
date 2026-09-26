@@ -1,3 +1,4 @@
+import * as cad from 'replicad';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import init from 'replicad-opencascadejs';
@@ -60,8 +61,14 @@ await test('invalid template ranges are rejected, do not silently adjust dimensi
 });
 await test('all template STEP roundtrips retain volume and exact editable solids',async()=>{
   for(const kind of Object.keys(QUICK_MODELS)){
-    const original=await run([f('q','quickModel',{kind})]);const out=await kernel.export('step');
-    const roundtrip=await kernel.rebuild({version:1,features:[f('i','import',{key:'f'})],imports:{f:{format:'step',data:Buffer.from(out.data).toString('base64')}}});near(original.stats.volume,roundtrip.stats.volume);assert.equal(roundtrip.stats.solids,1);
+    const original=await run([f('q','quickModel',{kind})]),threaded=['screw','threadedSleeve'].includes(kind),surfaceArea=threaded?cad.measureArea(kernel.shapes.get('q')):0;const out=await kernel.export('step'),bytes=Buffer.from(out.data);
+    const roundtrip=await kernel.rebuild({version:1,features:[f('i','import',{key:'f'})],imports:{f:{format:'step',data:bytes.toString('base64')}}});
+    // Helical surfaces carry a declared STEP linear uncertainty. Check that
+    // uncertainty and dimensions, while capping mass error at one ppm; retain
+    // the original tighter analytical checks for every unthreaded template.
+    const declared=threaded?Number(bytes.toString('utf8').match(/UNCERTAINTY_MEASURE_WITH_UNIT\(LENGTH_MEASURE\(([^)]+)\)/)?.[1]):0;
+    if(threaded){assert.ok(declared>0&&declared<=1e-5);for(const side of ['min','max'])original.bodies[0].bounds[side].forEach((v,i)=>near(v,roundtrip.bodies[0].bounds[side][i],declared));}
+    near(original.stats.volume,roundtrip.stats.volume,threaded?Math.max(1e-5,Math.min(surfaceArea*declared,original.stats.volume*1e-6)):1e-5);assert.equal(roundtrip.stats.solids,1);
   }
 });
 await test('sweep is exact along straight and three-dimensional mitered paths',async()=>{

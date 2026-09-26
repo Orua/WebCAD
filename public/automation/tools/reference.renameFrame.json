@@ -3,12 +3,12 @@
   "title": "重命名具名基准",
   "description": "args:{frameId,expectedFrameVersion,name}。",
   "category": "command",
-  "version": "1.9.0",
+  "version": "1.13.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.renameFrame\",args}); args:{frameId,expectedFrameVersion,name}。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:334449217ab81f83eb4dea6e6d4f025dfa4ac57481ca9b8d56802da6161575ff"
+  "docsHash": "sha256:4ded812e06cc21d747293cac633ead3dfebfe6d13650508ac139f71dfc3efeae"
 }

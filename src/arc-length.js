@@ -5,6 +5,9 @@ const nodes=[0.1834346424956498,0.525532409916329,0.7966664774136267,0.960289856
 const weights=[0.362683783378362,0.3137066458778873,0.2223810344533745,0.1012285362903763];
 
 export function halfLengthPoint(edge,oc,lengthMm){
+  // Revolved surfaces can have an exact degenerate pole edge. Its vertex is
+  // the only geometric point; there is no nonzero arc to integrate.
+  if(oc.BRep_Tool.Degenerated(edge.wrapped)){const p=edge.startPoint;try{return p.toTuple();}finally{dispose(p);}}
   if(['LINE','CIRCLE'].includes(edge.geomType)){
     const p=edge.pointAt(.5);try{return p.toTuple();}finally{dispose(p);}
   }

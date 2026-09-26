@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>WebCAD 操作 API 目录</title>
+  <style>
+    :root { font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif; color: #202832; background: #f5f7fa; font-synthesis: none; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    a { color: #1769aa; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header.top { background: #fff; border-bottom: 1px solid #dce2e9; }
+    .top-inner, main { width: min(1180px, calc(100% - 36px)); margin: 0 auto; }
+    .top-inner { min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .brand { font-weight: 700; color: #273444; }
+    .nav-links { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; }
+    main { padding: 30px 0 54px; }
+    .eyebrow { color: #58718b; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { margin: 6px 0 8px; font-size: clamp(27px, 4vw, 38px); line-height: 1.2; }
+    .lead { color: #536171; margin: 0; max-width: 760px; line-height: 1.6; }
+    .toolbar { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(180px, 260px) auto; gap: 10px; margin: 24px 0 14px; }
+    input, select, button { border: 1px solid #cbd4de; border-radius: 8px; min-height: 42px; background: #fff; color: inherit; font: inherit; padding: 9px 12px; }
+    input:focus, select:focus, button:focus-visible, a:focus-visible { outline: 3px solid #9bc8f3; outline-offset: 2px; }
+    button { cursor: pointer; font-weight: 600; }
+    button:hover { background: #f1f7fc; }
+    .count-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; color: #5b6876; font-size: 13px; margin-bottom: 14px; }
+    .api-note { padding: 14px 16px; background: #eaf3fb; border: 1px solid #cfe2f2; border-radius: 10px; color: #334d65; line-height: 1.55; margin: 18px 0 28px; }
+    code, .mono { font-family: Consolas, "Cascadia Code", monospace; }
+    code { background: rgba(24, 69, 107, .08); padding: 2px 5px; border-radius: 4px; }
+    .section-title { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 28px 0 12px; }
+    h2 { margin: 0; font-size: 19px; }
+    .section-title span { color: #697786; font-size: 13px; }
+    .method-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .method { display: inline-flex; align-items: center; gap: 8px; padding: 8px 10px; background: #fff; border: 1px solid #d8e0e8; border-radius: 8px; font-size: 13px; }
+    .method a { font-size: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px; }
+    .card { background: #fff; border: 1px solid #dce2e9; border-radius: 10px; padding: 15px; min-width: 0; box-shadow: 0 1px 2px rgba(26, 39, 53, .04); }
+    .card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .id { font-size: 12px; color: #59697a; overflow-wrap: anywhere; }
+    .badge { flex: none; font-size: 11px; padding: 3px 8px; border-radius: 999px; background: #eef2f6; color: #4b5b6b; }
+    .card h3 { margin: 0 0 6px; font-size: 16px; }
+    .card p { color: #5d6976; font-size: 13px; line-height: 1.5; margin: 0 0 13px; }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; gap: 10px; border-top: 1px solid #edf0f3; padding-top: 10px; font-size: 12px; }
+    .empty, .error { padding: 22px; text-align: center; color: #647181; background: #fff; border: 1px dashed #cbd4de; border-radius: 10px; }
+    .error { color: #8a3030; }
+    details { margin-top: 30px; background: #fff; border: 1px solid #dce2e9; border-radius: 10px; padding: 13px 16px; }
+    details summary { cursor: pointer; font-weight: 650; }
+    .docs-list { display: flex; flex-wrap: wrap; gap: 9px 16px; padding: 14px 0 2px; font-size: 13px; }
+    .foot { color: #73808d; font-size: 12px; margin-top: 30px; line-height: 1.6; }
+    @media (max-width: 700px) { .toolbar { grid-template-columns: 1fr; } .count-row { align-items: flex-start; flex-direction: column; } .top-inner { align-items: flex-start; flex-direction: column; padding: 12px 0; gap: 8px; } }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <a class="brand" href="../">WebCAD</a>
+      <nav class="nav-links" aria-label="快速链接">
+        <a href="agent-start.html">AGENT 从这里开始</a>
+        <a href="quickstart.md">接入速读</a>
+        <a href="manifest.json">工具清单 JSON</a>
+        <a href="index.json">完整索引 JSON</a>
+        <a href="knowledge.md">完整知识库</a>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <div class="eyebrow">LOCAL · PAGE API</div>
+    <h1>操作 API 目录</h1>
+    <p class="lead">按中文名称、工具 ID、英文说明或分类搜索页面方法和操作契约。选中“查看参数契约”可直达本机托管的 JSON 文件。</p>
+
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="搜索，例如：圆角、box、拉伸、measure" aria-label="搜索 API 方法和操作">
+      <select id="category" aria-label="按分类筛选"><option value="">全部分类</option></select>
+      <button id="clear" type="button">清除筛选</button>
+    </div>
+    <div class="count-row"><span id="status" role="status">正在读取本地工具清单…</span><span>支持链接搜索：<code>?q=关键词</code></span></div>
+
+    <aside class="api-note">
+      这里是本机的可搜索目录和静态契约。执行前仍要在目标设计页读取新鲜状态，并通过 <code>window.webcad.api.connect()</code> 获取当前工具契约；目录快照不会执行建模。
+    </aside>
+
+    <section aria-labelledby="methods-title">
+      <div class="section-title"><h2 id="methods-title">页面 API 方法</h2><span id="method-count"></span></div>
+      <div class="method-list" id="methods"></div>
+    </section>
+
+    <section aria-labelledby="tools-title">
+      <div class="section-title"><h2 id="tools-title">操作工具</h2><span id="tool-count"></span></div>
+      <div class="grid" id="tools"></div>
+      <div class="empty" id="empty" hidden>没有匹配项。试试更短的关键词，或切换分类。</div>
+    </section>
+
+    <details>
+      <summary>API 文档路由</summary>
+      <div class="docs-list" id="docs"></div>
+    </details>
+    <p class="foot">页面数据由当前页面 API 目录生成，版本与哈希见 <a href="manifest.json">manifest.json</a>。如果目录版本落后于目标设计页的 <code>info().catalogHash</code>，请从设计页重新读取相关契约。</p>
+  </main>
+  <script>
+    const categoryNames = {
+      surface: '曲面', creation: '创建', modification: '修改', organization: '组织',
+      reference: '参考', template: '模板', 'page-method': '页面方法', command: '命令',
+      document: '工程', file: '文件', unavailable: '不可用'
+    };
+    const methodDoc = {
+      connect: 'api.connection', info: 'api.discovery', getState: 'api.discovery',
+      getUILayout: 'api.ui-coverage', createRequestContext: 'api.connection',
+      searchTools: 'api.discovery', getTools: 'api.discovery', getTool: 'api.discovery', readDocs: 'api.discovery',
+      run: 'api.run', execute: 'api.execute', executeText: 'api.text-command',
+      queryGeometry: 'api.query-geometry', queryReferences: 'api.references', resolvePlacement: 'api.references',
+      setView: 'api.views', setDisplayPreferences: 'api.display-preferences',
+      files: 'recipe.file-workflow', invoke: 'api.run', submit: 'api.run', getJob: 'api.run', cancelJob: 'api.run'
+    };
+    const search = document.querySelector('#search');
+    const category = document.querySelector('#category');
+    const status = document.querySelector('#status');
+    const methodsEl = document.querySelector('#methods');
+    const toolsEl = document.querySelector('#tools');
+    const docsEl = document.querySelector('#docs');
+    const emptyEl = document.querySelector('#empty');
+    let tools = [];
+    let methods = [];
+    let docs = [];
+    const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const norm = value => String(value ?? '').toLocaleLowerCase();
+    const searchText = () => norm(search.value.trim());
+
+    function updateRoute() {
+      const url = new URL(location.href);
+      const q = search.value.trim();
+      const cat = category.value;
+      q ? url.searchParams.set('q', q) : url.searchParams.delete('q');
+      cat ? url.searchParams.set('category', cat) : url.searchParams.delete('category');
+      history.replaceState(null, '', url);
+    }
+
+    function renderMethods() {
+      const q = searchText();
+      const visible = methods.filter(name => !q || norm(name).includes(q));
+      document.querySelector('#method-count').textContent = `${visible.length} / ${methods.length}`;
+      methodsEl.replaceChildren(...visible.map(name => {
+        const item = document.createElement('span');
+        item.className = 'method';
+        const code = document.createElement('code');
+        code.textContent = `api.${name}`;
+        item.append(code);
+        const doc = methodDoc[name] || (name.startsWith('files.') ? 'recipe.file-workflow' : 'api.discovery');
+        if (docs.some(entry => entry.id === doc)) {
+          const link = document.createElement('a');
+          link.href = `docs/${encodeURIComponent(doc)}.md`;
+          link.textContent = '文档';
+          item.append(link);
+        }
+        return item;
+      }));
+    }
+
+    function renderTools() {
+      const q = searchText();
+      const cat = category.value;
+      const visible = tools.filter(tool => {
+        if (cat && tool.category !== cat) return false;
+        const haystack = norm([tool.id, tool.title, tool.label, tool.category, categoryNames[tool.category], tool.version].join(' '));
+        return !q || haystack.includes(q);
+      });
+      document.querySelector('#tool-count').textContent = `${visible.length} / ${tools.length}`;
+      emptyEl.hidden = visible.length !== 0;
+      toolsEl.replaceChildren(...visible.map(tool => {
+        const article = document.createElement('article');
+        article.className = 'card';
+        article.innerHTML = `<div class="card-top"><span class="id mono"></span><span class="badge"></span></div><h3></h3><p></p><div class="card-footer"><span></span><a>查看参数契约 →</a></div>`;
+        article.querySelector('.id').textContent = tool.id;
+        article.querySelector('.badge').textContent = categoryNames[tool.category] || tool.category || '未分类';
+        article.querySelector('h3').textContent = tool.label || tool.id;
+        article.querySelector('p').textContent = tool.title || '无说明';
+        article.querySelector('.card-footer span').textContent = `版本 ${tool.version || '—'}`;
+        const link = article.querySelector('.card-footer a');
+        link.href = tool.url;
+        link.target = '_blank';
+        link.rel = 'noopener';
+        return article;
+      }));
+    }
+
+    function renderDocs() {
+      docsEl.replaceChildren(...docs.filter(doc => doc.id.startsWith('api.')).map(doc => {
+        const link = document.createElement('a');
+        link.href = doc.url;
+        link.textContent = doc.id;
+        return link;
+      }));
+    }
+
+    function render() { renderMethods(); renderTools(); updateRoute(); }
+
+    async function start() {
+      try {
+        const response = await fetch('./manifest.json', {cache: 'no-cache'});
+        if (!response.ok) throw new Error(`manifest.json 返回 HTTP ${response.status}`);
+        const manifest = await response.json();
+        tools = Array.isArray(manifest.tools) ? manifest.tools : [];
+        methods = Array.isArray(manifest.apiMethods) ? manifest.apiMethods : [];
+        docs = Array.isArray(manifest.docs) ? manifest.docs : [];
+        const categories = [...new Set(tools.map(tool => tool.category).filter(Boolean))].sort();
+        for (const key of categories) {
+          const option = document.createElement('option');
+          option.value = key;
+          option.textContent = categoryNames[key] || key;
+          category.append(option);
+        }
+        const params = new URLSearchParams(location.search);
+        search.value = params.get('q') || '';
+        category.value = params.get('category') || '';
+        if (!categories.includes(category.value)) category.value = '';
+        status.textContent = `API v${manifest.version} · ${tools.length} 个操作工具 · ${methods.length} 个页面方法 · 本机静态目录`;
+        renderDocs();
+        render();
+      } catch (error) {
+        status.textContent = '本地目录加载失败';
+        toolsEl.innerHTML = `<div class="error">${esc(error.message || error)}</div>`;
+      }
+    }
+
+    search.addEventListener('input', render);
+    category.addEventListener('change', render);
+    document.querySelector('#clear').addEventListener('click', () => { search.value = ''; category.value = ''; render(); search.focus(); });
+    start();
+  </script>
+</body>
+</html>

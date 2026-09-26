@@ -1,7 +1,9 @@
-# WebCAD
+# WebCAD AGENT 从这里开始
 
-AI 应通过宿主已授权的页面脚本通道在后台调用 window.webcad.api。不要为查工具或执行建模打开 JSON 调试面板、填输入框或点击执行按钮。没有可用脚本通道时，明确报告通道不可用；不要自动退回界面操作。
+先读 [Agent 起步页](automation/agent-start.html) 或 [机器入口](automation/agent-start.json)。在宿主绑定目标标签页后检查其 capabilities，若提供授权 CDP，读当前文档并通过 Runtime.evaluate 调用 window.webcad.api.connect；不要把只读 DOM evaluate 或标签页会话占用误判为没有 API。不要刷新未保存工程；无脚本通道时报告实际限制。
 
-先读 [后台连接速读](automation/quickstart.md)。当前 Codex 开发宿主检查标签页 capabilities 的 cdp 并读取其文档；支持且获授权时用 Runtime.evaluate。一次 connect({queries:[能力关键词],limit:2,includeContracts:true}) 返回精简实时状态和相关完整卡，不重复读卡。按需 readDocs。
+首次调用：window.webcad.api.connect({queries:["本次任务能力"],limit:2,includeContracts:true})。返回 canExecute/blockers、新鲜 requestContext、相关完整契约以及 onboarding.localKit。已知工具使用 toolIds；只读发现不需要 run。
 
-[宿主通道](automation/docs/api.connection.md) · [缓存说明](automation/docs/api.discovery.md)。可选离线工具库为 automation/index.json + automation/tool-library.mjs；缓存供程序检索，不应整库进入模型上下文。
+[安装包清单](automation/agent-kit.json) · [Windows 安装脚本](automation/install-agent.ps1) · [操作技能](automation/webcad-page-api/SKILL.md) · [连接助手](automation/webcad-page-api/scripts/page-client.mjs) · [真实操作路由](automation/routes.json)。有文件权限的宿主查看脚本后安装本地技能，以便后续任务发现；页面不会自动安装或启动后台服务。
+
+按需读 [连接说明](automation/docs/api.connection.md)、[操作流程](automation/docs/api.workflow.md)、[工具目录](automation/index.html)。工具缓存可选，不能代替实时状态。

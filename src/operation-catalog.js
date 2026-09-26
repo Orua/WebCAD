@@ -2,6 +2,7 @@
 import { advancedOperations } from './advanced-operation-catalog.js';
 import { referenceOperations } from './reference-tool-fields.js';
 import { referenceProfileOperations } from './reference-profile-tools.js';
+import { mechanicalOperations } from './mechanical-tool-contracts.js';
 const num=(description,extra={})=>({type:'number',description,...extra});
 const length=(description,extra={})=>num(description+' (mm)',extra);
 const positive=description=>length(description,{exclusiveMinimum:0});
@@ -80,3 +81,4 @@ operationCatalog.operations.draftFaces=op('Exact restricted four-side planar pri
 Object.assign(operationCatalog.operations,advancedOperations(operationCatalog.operations.logo.paramsSchema.properties.regions));
 Object.assign(operationCatalog.operations,referenceOperations);
 Object.assign(operationCatalog.operations,referenceProfileOperations);
+Object.assign(operationCatalog.operations,mechanicalOperations);

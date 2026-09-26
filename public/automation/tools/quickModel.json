@@ -11,6 +11,1200 @@
           "kind"
         ],
         "additionalProperties": false,
+        "description": "同心圆恒截面单圈；开缝为底部正中平行平切。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "ring"
+          },
+          "section": {
+            "type": "string",
+            "default": "round",
+            "description": "Section",
+            "enum": [
+              "round",
+              "square",
+              "chamferedSquare"
+            ]
+          },
+          "sectionSize": {
+            "type": "number",
+            "default": 3,
+            "description": "Wire diameter / square size"
+          },
+          "sectionRadius": {
+            "type": "number",
+            "default": 0.3,
+            "description": "Square section corner R"
+          },
+          "sectionChamfer": {
+            "type": "number",
+            "default": 0.6,
+            "description": "Square section chamfer C"
+          },
+          "gapWidth": {
+            "type": "number",
+            "default": 0,
+            "description": "Bottom gap (0 = closed)"
+          },
+          "innerDiameter": {
+            "type": "number",
+            "default": 24,
+            "description": "Inner diameter"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "washer"
+          },
+          "innerDiameter": {
+            "type": "number",
+            "default": 10,
+            "description": "Inner diameter"
+          },
+          "sectionSize": {
+            "type": "number",
+            "default": 3,
+            "description": "Radial width"
+          },
+          "innerHeight": {
+            "type": "number",
+            "default": 1.5,
+            "description": "Thickness"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "Coaxial tube; defaults 13.4 outer diameter, 12.4 inner diameter and 3 height for the user C-part.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "tube"
+          },
+          "outerDiameter": {
+            "type": "number",
+            "default": 13.4,
+            "description": "Outer diameter"
+          },
+          "innerDiameter": {
+            "type": "number",
+            "default": 12.4,
+            "description": "Inner diameter"
+          },
+          "height": {
+            "type": "number",
+            "default": 3,
+            "description": "Height"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "平底、光滑凸面；直径和高度独立设置，可以调整拱高，不限于半球。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "domedPin"
+          },
+          "diameterMm": {
+            "type": "number",
+            "default": 6,
+            "description": "直径"
+          },
+          "heightMm": {
+            "type": "number",
+            "default": 2,
+            "description": "高度"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "圆线沿精确螺旋路径扫掠。螺距大于线径；半径是中心线半径。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "spring"
+          },
+          "radiusMm": {
+            "type": "number",
+            "default": 6,
+            "description": "中心线半径"
+          },
+          "wireDiameterMm": {
+            "type": "number",
+            "default": 1.2,
+            "description": "线径"
+          },
+          "pitchMm": {
+            "type": "number",
+            "default": 3,
+            "description": "螺距"
+          },
+          "turns": {
+            "type": "number",
+            "default": 4,
+            "description": "圈数"
+          },
+          "leftHanded": {
+            "type": "boolean",
+            "default": false,
+            "description": "左旋"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "头在参考位置下端，牙杆朝本地 +Z。沉头外缘固定直升位 0.20 mm。M 使用常用粗牙螺距，真实 V 型牙槽；不含配合公差。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "screw"
+          },
+          "headType": {
+            "type": "string",
+            "default": "flat",
+            "description": "头型",
+            "enum": [
+              "flat",
+              "countersunk"
+            ]
+          },
+          "headWidthMm": {
+            "type": "number",
+            "default": 6,
+            "description": "头宽（直径）"
+          },
+          "headThicknessMm": {
+            "type": "number",
+            "default": 2,
+            "description": "头厚"
+          },
+          "threadSize": {
+            "type": "string",
+            "default": "M3",
+            "description": "螺牙 M 规格",
+            "enum": [
+              "M1",
+              "M1.2",
+              "M1.6",
+              "M2",
+              "M2.5",
+              "M3",
+              "M4",
+              "M5",
+              "M6",
+              "M8",
+              "M10",
+              "M12"
+            ]
+          },
+          "threadLengthMm": {
+            "type": "number",
+            "default": 8,
+            "description": "螺牙长度"
+          },
+          "drive": {
+            "type": "string",
+            "default": "cross",
+            "description": "螺丝槽型",
+            "enum": [
+              "cross",
+              "slotted",
+              "star",
+              "hex"
+            ]
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "底面在参考位置，面端朝本地 -Z；从下方面端向上攻牙。牙径采用支持的名义 M 粗牙直径，不含配合公差。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "threadedSleeve"
+          },
+          "bottomDiameterMm": {
+            "type": "number",
+            "default": 8,
+            "description": "底直径（上端）"
+          },
+          "faceDiameterMm": {
+            "type": "number",
+            "default": 6,
+            "description": "面直径（下端）"
+          },
+          "threadDiameterMm": {
+            "type": "number",
+            "default": 3,
+            "description": "螺牙直径"
+          },
+          "totalHeightMm": {
+            "type": "number",
+            "default": 8,
+            "description": "总高"
+          },
+          "threadDepthMm": {
+            "type": "number",
+            "default": 6,
+            "description": "螺牙深度"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "One solid combining a round badge plate, raised front rim and two rear mounting posts. Posts may be hollow. Brand artwork, knurling, doming and production dimensions are excluded.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "roundBadge"
+          },
+          "diameter": {
+            "type": "number",
+            "default": 40,
+            "description": "Badge diameter"
+          },
+          "thickness": {
+            "type": "number",
+            "default": 2,
+            "description": "Plate thickness"
+          },
+          "rimWidth": {
+            "type": "number",
+            "default": 2,
+            "description": "Front rim width"
+          },
+          "rimHeight": {
+            "type": "number",
+            "default": 0.8,
+            "description": "Front rim height"
+          },
+          "postSpacing": {
+            "type": "number",
+            "default": 18,
+            "description": "Rear post spacing X"
+          },
+          "postDiameter": {
+            "type": "number",
+            "default": 4,
+            "description": "Rear post diameter"
+          },
+          "postHeight": {
+            "type": "number",
+            "default": 4,
+            "description": "Rear post height"
+          },
+          "postBoreDiameter": {
+            "type": "number",
+            "default": 0,
+            "description": "Post bore diameter (0 = solid)"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "Two symmetric X-axis holes with independent center spacing. Plain through holes only; no threads, countersinks or counterbores.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "mountingPlate"
+          },
+          "width": {
+            "type": "number",
+            "default": 40,
+            "description": "Plate width X"
+          },
+          "depth": {
+            "type": "number",
+            "default": 16,
+            "description": "Plate depth Y"
+          },
+          "thickness": {
+            "type": "number",
+            "default": 3,
+            "description": "Thickness"
+          },
+          "cornerRadius": {
+            "type": "number",
+            "default": 3,
+            "description": "Outer corner radius"
+          },
+          "holeDiameter": {
+            "type": "number",
+            "default": 4,
+            "description": "Hole diameter"
+          },
+          "holeSpacing": {
+            "type": "number",
+            "default": 24,
+            "description": "Hole center spacing"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "Rectangular plate with four through holes. Set X/Y edge insets and optional outer corner radius; no threads or counterbores.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "fourHolePlate"
+          },
+          "width": {
+            "type": "number",
+            "default": 50,
+            "description": "Plate width X"
+          },
+          "depth": {
+            "type": "number",
+            "default": 30,
+            "description": "Plate depth Y"
+          },
+          "thickness": {
+            "type": "number",
+            "default": 3,
+            "description": "Thickness"
+          },
+          "cornerRadius": {
+            "type": "number",
+            "default": 0,
+            "description": "Outer corner radius"
+          },
+          "holeDiameter": {
+            "type": "number",
+            "default": 4,
+            "description": "Hole diameter"
+          },
+          "insetX": {
+            "type": "number",
+            "default": 5,
+            "description": "Hole inset X"
+          },
+          "insetY": {
+            "type": "number",
+            "default": 5,
+            "description": "Hole inset Y"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "Independent inner/outer outlines and thickness. Half-short-side radii allow capsule frames. A parametric tool, not a complete reconstruction of an IGS part.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "flatFrame"
+          },
+          "outerWidth": {
+            "type": "number",
+            "default": 40,
+            "description": "Outer width"
+          },
+          "outerHeight": {
+            "type": "number",
+            "default": 28,
+            "description": "Outer height"
+          },
+          "innerWidth": {
+            "type": "number",
+            "default": 28,
+            "description": "Inner width"
+          },
+          "innerHeight": {
+            "type": "number",
+            "default": 16,
+            "description": "Inner height"
+          },
+          "outerRadius": {
+            "type": "number",
+            "default": 5,
+            "description": "Outer corner radius"
+          },
+          "innerRadius": {
+            "type": "number",
+            "default": 3,
+            "description": "Inner corner radius"
+          },
+          "thickness": {
+            "type": "number",
+            "default": 3,
+            "description": "Thickness"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "A flat frame with independent inner and outer corner radii, then one exact fillet of every sharp edge. The specified edge radius fails atomically if unsolvable. Near half-thickness can approximate a round section but is not certified as a semicircle.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "roundedFlatFrame"
+          },
+          "outerWidth": {
+            "type": "number",
+            "default": 40,
+            "description": "Outer width"
+          },
+          "outerHeight": {
+            "type": "number",
+            "default": 28,
+            "description": "Outer height"
+          },
+          "innerWidth": {
+            "type": "number",
+            "default": 30,
+            "description": "Inner width"
+          },
+          "innerHeight": {
+            "type": "number",
+            "default": 18,
+            "description": "Inner height"
+          },
+          "outerRadius": {
+            "type": "number",
+            "default": 5,
+            "description": "Outer corner radius"
+          },
+          "innerRadius": {
+            "type": "number",
+            "default": 2,
+            "description": "Inner corner radius"
+          },
+          "thickness": {
+            "type": "number",
+            "default": 4,
+            "description": "Thickness"
+          },
+          "edgeRadius": {
+            "type": "number",
+            "default": 1.5,
+            "description": "All-edge fillet radius"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "dBuckle"
+          },
+          "section": {
+            "type": "string",
+            "default": "round",
+            "description": "Section",
+            "enum": [
+              "round",
+              "square",
+              "chamferedSquare"
+            ]
+          },
+          "sectionSize": {
+            "type": "number",
+            "default": 3,
+            "description": "Wire diameter / square size"
+          },
+          "sectionRadius": {
+            "type": "number",
+            "default": 0.3,
+            "description": "Square section corner R"
+          },
+          "sectionChamfer": {
+            "type": "number",
+            "default": 0.6,
+            "description": "Square section chamfer C"
+          },
+          "gapWidth": {
+            "type": "number",
+            "default": 0,
+            "description": "Bottom gap (0 = closed)"
+          },
+          "innerWidth": {
+            "type": "number",
+            "default": 24,
+            "description": "Inner width"
+          },
+          "innerHeight": {
+            "type": "number",
+            "default": 19,
+            "description": "Inner height"
+          },
+          "innerRadius": {
+            "type": "number",
+            "default": 2,
+            "description": "Bottom inner radius"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "Constant-section rounded rectangular frame. A closed round-wire frame supports an inner short side at least 2.5 times the wire diameter; other variants require four times the section size.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "rectBuckle"
+          },
+          "section": {
+            "type": "string",
+            "default": "round",
+            "description": "Section",
+            "enum": [
+              "round",
+              "square",
+              "chamferedSquare"
+            ]
+          },
+          "sectionSize": {
+            "type": "number",
+            "default": 3,
+            "description": "Wire diameter / square size"
+          },
+          "sectionRadius": {
+            "type": "number",
+            "default": 0.3,
+            "description": "Square section corner R"
+          },
+          "sectionChamfer": {
+            "type": "number",
+            "default": 0.6,
+            "description": "Square section chamfer C"
+          },
+          "gapWidth": {
+            "type": "number",
+            "default": 0,
+            "description": "Bottom gap (0 = closed)"
+          },
+          "innerWidth": {
+            "type": "number",
+            "default": 28,
+            "description": "Inner width"
+          },
+          "innerHeight": {
+            "type": "number",
+            "default": 20,
+            "description": "Inner height"
+          },
+          "innerRadius": {
+            "type": "number",
+            "default": 3,
+            "description": "Frame inner radius"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "ovalBuckle"
+          },
+          "section": {
+            "type": "string",
+            "default": "round",
+            "description": "Section",
+            "enum": [
+              "round",
+              "square",
+              "chamferedSquare"
+            ]
+          },
+          "sectionSize": {
+            "type": "number",
+            "default": 3,
+            "description": "Wire diameter / square size"
+          },
+          "sectionRadius": {
+            "type": "number",
+            "default": 0.3,
+            "description": "Square section corner R"
+          },
+          "sectionChamfer": {
+            "type": "number",
+            "default": 0.6,
+            "description": "Square section chamfer C"
+          },
+          "gapWidth": {
+            "type": "number",
+            "default": 0,
+            "description": "Right gap (0 = closed)"
+          },
+          "innerWidth": {
+            "type": "number",
+            "default": 28,
+            "description": "Inner width"
+          },
+          "innerHeight": {
+            "type": "number",
+            "default": 16,
+            "description": "Inner height"
+          },
+          "innerRadius": {
+            "type": "number",
+            "default": 5.6,
+            "description": "End inner radius"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "The inner height spans the full frame; the fused round bar has an editable vertical offset and no opening. Compact round-wire frames require an inner short side at least 2.5 wire diameters and each window at least one wire diameter high.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "sliderBuckle"
+          },
+          "section": {
+            "type": "string",
+            "default": "round",
+            "description": "Section",
+            "enum": [
+              "round",
+              "square",
+              "chamferedSquare"
+            ]
+          },
+          "sectionSize": {
+            "type": "number",
+            "default": 3,
+            "description": "Wire diameter / square size"
+          },
+          "sectionRadius": {
+            "type": "number",
+            "default": 0.3,
+            "description": "Square section corner R"
+          },
+          "sectionChamfer": {
+            "type": "number",
+            "default": 0.6,
+            "description": "Square section chamfer C"
+          },
+          "gapWidth": {
+            "type": "number",
+            "default": 0,
+            "description": "gapWidth"
+          },
+          "innerWidth": {
+            "type": "number",
+            "default": 30,
+            "description": "Inner width"
+          },
+          "innerHeight": {
+            "type": "number",
+            "default": 24,
+            "description": "Inner height"
+          },
+          "innerRadius": {
+            "type": "number",
+            "default": 3,
+            "description": "Frame inner radius"
+          },
+          "barDiameter": {
+            "type": "number",
+            "default": 2.5,
+            "description": "Bar diameter"
+          },
+          "barOffset": {
+            "type": "number",
+            "default": 0,
+            "description": "Bar offset (+up)"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "圆角方线 U 主体与固定圆杆融合；杆底与脚底齐平。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "dBarBuckle"
+          },
+          "section": {
+            "type": "string",
+            "default": "square",
+            "description": "section"
+          },
+          "sectionSize": {
+            "type": "number",
+            "default": 6,
+            "description": "Wire diameter / square size"
+          },
+          "sectionRadius": {
+            "type": "number",
+            "default": 0.6,
+            "description": "Square section corner R"
+          },
+          "sectionChamfer": {
+            "type": "number",
+            "default": 0.6,
+            "description": "sectionChamfer"
+          },
+          "gapWidth": {
+            "type": "number",
+            "default": 0,
+            "description": "gapWidth"
+          },
+          "innerWidth": {
+            "type": "number",
+            "default": 32,
+            "description": "Inner width"
+          },
+          "innerHeight": {
+            "type": "number",
+            "default": 24,
+            "description": "Inner height"
+          },
+          "barDiameter": {
+            "type": "number",
+            "default": 4.5,
+            "description": "Bar diameter"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "A coaxial flange and cylindrical bushing with a straight bore through the full length. Generic parametric geometry, with no threads or source-product feature reconstruction.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "flangedBushing"
+          },
+          "bodyDiameter": {
+            "type": "number",
+            "default": 12,
+            "description": "Bushing body diameter"
+          },
+          "flangeDiameter": {
+            "type": "number",
+            "default": 20,
+            "description": "Flange diameter"
+          },
+          "boreDiameter": {
+            "type": "number",
+            "default": 6,
+            "description": "Through-bore diameter"
+          },
+          "bodyHeight": {
+            "type": "number",
+            "default": 10,
+            "description": "Body height"
+          },
+          "flangeThickness": {
+            "type": "number",
+            "default": 3,
+            "description": "Flange thickness"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "A rounded plate with two symmetric hollow cylindrical bosses; each bore passes through both boss and plate. Generic parametric geometry, not a threaded, counterbored, or source-product reconstruction.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "bossPlate"
+          },
+          "width": {
+            "type": "number",
+            "default": 40,
+            "description": "Plate width X"
+          },
+          "depth": {
+            "type": "number",
+            "default": 16,
+            "description": "Plate depth Y"
+          },
+          "thickness": {
+            "type": "number",
+            "default": 3,
+            "description": "Plate thickness"
+          },
+          "cornerRadius": {
+            "type": "number",
+            "default": 3,
+            "description": "Plate corner radius"
+          },
+          "bossSpacing": {
+            "type": "number",
+            "default": 24,
+            "description": "Boss center spacing"
+          },
+          "bossOuterDiameter": {
+            "type": "number",
+            "default": 8,
+            "description": "Boss outer diameter"
+          },
+          "boreDiameter": {
+            "type": "number",
+            "default": 4,
+            "description": "Through-bore diameter"
+          },
+          "bossHeight": {
+            "type": "number",
+            "default": 6,
+            "description": "Boss height (below plate)"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "One fused solid, centered in XY, bottom at Z=0, open top. Clear cavity width/depth = outer width/depth minus twice wall thickness; clear height = height minus floor thickness. Two X-symmetric bosses rise from the inner floor; bores pass through bosses and floor. Straight walls/corners only; no draft, fillets, threads or assembly relationships.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "thinWallTray"
+          },
+          "outerWidth": {
+            "type": "number",
+            "default": 60,
+            "description": "Outer width X"
+          },
+          "outerDepth": {
+            "type": "number",
+            "default": 36,
+            "description": "Outer depth Y"
+          },
+          "height": {
+            "type": "number",
+            "default": 14,
+            "description": "Total height"
+          },
+          "wallThickness": {
+            "type": "number",
+            "default": 2,
+            "description": "Wall thickness"
+          },
+          "floorThickness": {
+            "type": "number",
+            "default": 2,
+            "description": "Floor thickness"
+          },
+          "bossSpacing": {
+            "type": "number",
+            "default": 30,
+            "description": "Boss center spacing X"
+          },
+          "bossOuterDiameter": {
+            "type": "number",
+            "default": 8,
+            "description": "Boss outer diameter"
+          },
+          "boreDiameter": {
+            "type": "number",
+            "default": 3,
+            "description": "Through-bore diameter"
+          },
+          "bossHeight": {
+            "type": "number",
+            "default": 8,
+            "description": "Boss height above inner floor"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "Open rounded-rectangle tray with two hollow bosses on the inner floor. Outer corner radius, wall/floor thickness and boss dimensions are editable. Straight walls only; no draft, clips, lettering or texture.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "roundedBossTray"
+          },
+          "outerWidth": {
+            "type": "number",
+            "default": 60,
+            "description": "Outer width X"
+          },
+          "outerDepth": {
+            "type": "number",
+            "default": 38,
+            "description": "Outer depth Y"
+          },
+          "height": {
+            "type": "number",
+            "default": 12,
+            "description": "Total height"
+          },
+          "cornerRadius": {
+            "type": "number",
+            "default": 6,
+            "description": "Outer corner radius"
+          },
+          "wallThickness": {
+            "type": "number",
+            "default": 2,
+            "description": "Wall thickness"
+          },
+          "floorThickness": {
+            "type": "number",
+            "default": 2,
+            "description": "Floor thickness"
+          },
+          "bossSpacing": {
+            "type": "number",
+            "default": 30,
+            "description": "Boss center spacing X"
+          },
+          "bossOuterDiameter": {
+            "type": "number",
+            "default": 7,
+            "description": "Boss outer diameter"
+          },
+          "boreDiameter": {
+            "type": "number",
+            "default": 3,
+            "description": "Through-bore diameter"
+          },
+          "bossHeight": {
+            "type": "number",
+            "default": 7,
+            "description": "Boss height above inner floor"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "Constant-section circular arc with an adjustable opening angle for C rings, hook rings and open circular frames. End balls, hinges and variable sections are excluded.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "openArcRing"
+          },
+          "section": {
+            "type": "string",
+            "default": "round",
+            "description": "Section",
+            "enum": [
+              "round",
+              "square",
+              "chamferedSquare"
+            ]
+          },
+          "innerDiameter": {
+            "type": "number",
+            "default": 30,
+            "description": "Inner diameter"
+          },
+          "sectionSize": {
+            "type": "number",
+            "default": 4,
+            "description": "Wire diameter / square size"
+          },
+          "sectionRadius": {
+            "type": "number",
+            "default": 0.4,
+            "description": "Square section corner R"
+          },
+          "sectionChamfer": {
+            "type": "number",
+            "default": 0.6,
+            "description": "Square section chamfer C"
+          },
+          "openingAngle": {
+            "type": "number",
+            "default": 70,
+            "description": "Opening angle (degrees)"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "Tool solid: entry at Z=0, extending along +Z. Position at the workpiece surface, rotate 180 degrees if needed, then select the body first and subtract the tool.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "counterboreTool"
+          },
+          "holeDiameter": {
+            "type": "number",
+            "default": 4,
+            "description": "Hole diameter"
+          },
+          "depth": {
+            "type": "number",
+            "default": 8,
+            "description": "Total depth"
+          },
+          "headDiameter": {
+            "type": "number",
+            "default": 8,
+            "description": "Head diameter"
+          },
+          "headDepth": {
+            "type": "number",
+            "default": 2,
+            "description": "Head depth"
+          },
+          "style": {
+            "type": "string",
+            "default": "bore",
+            "description": "Style",
+            "enum": [
+              "bore",
+              "sink"
+            ]
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "A flat plate with two equal symmetric rounded windows and an integral center bridge. Independent outline, window and front/back edge radii. No round bar, offset windows or side arch.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "twinWindowPlate"
+          },
+          "outerWidth": {
+            "type": "number",
+            "default": 44.8,
+            "description": "Outer width"
+          },
+          "outerHeight": {
+            "type": "number",
+            "default": 26.6,
+            "description": "Outer height"
+          },
+          "outerRadius": {
+            "type": "number",
+            "default": 3.5,
+            "description": "Outer planar radius"
+          },
+          "windowWidth": {
+            "type": "number",
+            "default": 37.8,
+            "description": "Window clear width"
+          },
+          "totalInnerHeight": {
+            "type": "number",
+            "default": 19.6,
+            "description": "Total inner height"
+          },
+          "windowRadius": {
+            "type": "number",
+            "default": 2,
+            "description": "Window planar radius"
+          },
+          "barWidth": {
+            "type": "number",
+            "default": 3.5,
+            "description": "Center bridge width"
+          },
+          "thickness": {
+            "type": "number",
+            "default": 3.5,
+            "description": "Plate thickness"
+          },
+          "edgeRadius": {
+            "type": "number",
+            "default": 0.5,
+            "description": "Front/back edge radius"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
         "description": "One flat U plate with concentric semicircular crowns, equal-width straight legs and one through-hole at each end. No second assembly component, thread or round-wire section.",
         "properties": {
           "kind": {
@@ -408,701 +1602,6 @@
           "kind"
         ],
         "additionalProperties": false,
-        "description": "Independent inner/outer outlines and thickness. Half-short-side radii allow capsule frames. A parametric tool, not a complete reconstruction of an IGS part.",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "flatFrame"
-          },
-          "outerWidth": {
-            "type": "number",
-            "default": 40,
-            "description": "Outer width"
-          },
-          "outerHeight": {
-            "type": "number",
-            "default": 28,
-            "description": "Outer height"
-          },
-          "innerWidth": {
-            "type": "number",
-            "default": 28,
-            "description": "Inner width"
-          },
-          "innerHeight": {
-            "type": "number",
-            "default": 16,
-            "description": "Inner height"
-          },
-          "outerRadius": {
-            "type": "number",
-            "default": 5,
-            "description": "Outer corner radius"
-          },
-          "innerRadius": {
-            "type": "number",
-            "default": 3,
-            "description": "Inner corner radius"
-          },
-          "thickness": {
-            "type": "number",
-            "default": 3,
-            "description": "Thickness"
-          }
-        }
-      },
-      {
-        "type": "object",
-        "required": [
-          "kind"
-        ],
-        "additionalProperties": false,
-        "description": "A flat frame with independent inner and outer corner radii, then one exact fillet of every sharp edge. The specified edge radius fails atomically if unsolvable. Near half-thickness can approximate a round section but is not certified as a semicircle.",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "roundedFlatFrame"
-          },
-          "outerWidth": {
-            "type": "number",
-            "default": 40,
-            "description": "Outer width"
-          },
-          "outerHeight": {
-            "type": "number",
-            "default": 28,
-            "description": "Outer height"
-          },
-          "innerWidth": {
-            "type": "number",
-            "default": 30,
-            "description": "Inner width"
-          },
-          "innerHeight": {
-            "type": "number",
-            "default": 18,
-            "description": "Inner height"
-          },
-          "outerRadius": {
-            "type": "number",
-            "default": 5,
-            "description": "Outer corner radius"
-          },
-          "innerRadius": {
-            "type": "number",
-            "default": 2,
-            "description": "Inner corner radius"
-          },
-          "thickness": {
-            "type": "number",
-            "default": 4,
-            "description": "Thickness"
-          },
-          "edgeRadius": {
-            "type": "number",
-            "default": 1.5,
-            "description": "All-edge fillet radius"
-          }
-        }
-      },
-      {
-        "type": "object",
-        "required": [
-          "kind"
-        ],
-        "additionalProperties": false,
-        "description": "A flat plate with two equal symmetric rounded windows and an integral center bridge. Independent outline, window and front/back edge radii. No round bar, offset windows or side arch.",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "twinWindowPlate"
-          },
-          "outerWidth": {
-            "type": "number",
-            "default": 44.8,
-            "description": "Outer width"
-          },
-          "outerHeight": {
-            "type": "number",
-            "default": 26.6,
-            "description": "Outer height"
-          },
-          "outerRadius": {
-            "type": "number",
-            "default": 3.5,
-            "description": "Outer planar radius"
-          },
-          "windowWidth": {
-            "type": "number",
-            "default": 37.8,
-            "description": "Window clear width"
-          },
-          "totalInnerHeight": {
-            "type": "number",
-            "default": 19.6,
-            "description": "Total inner height"
-          },
-          "windowRadius": {
-            "type": "number",
-            "default": 2,
-            "description": "Window planar radius"
-          },
-          "barWidth": {
-            "type": "number",
-            "default": 3.5,
-            "description": "Center bridge width"
-          },
-          "thickness": {
-            "type": "number",
-            "default": 3.5,
-            "description": "Plate thickness"
-          },
-          "edgeRadius": {
-            "type": "number",
-            "default": 0.5,
-            "description": "Front/back edge radius"
-          }
-        }
-      },
-      {
-        "type": "object",
-        "required": [
-          "kind"
-        ],
-        "additionalProperties": false,
-        "description": "Two symmetric X-axis holes with independent center spacing. Plain through holes only; no threads, countersinks or counterbores.",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "mountingPlate"
-          },
-          "width": {
-            "type": "number",
-            "default": 40,
-            "description": "Plate width X"
-          },
-          "depth": {
-            "type": "number",
-            "default": 16,
-            "description": "Plate depth Y"
-          },
-          "thickness": {
-            "type": "number",
-            "default": 3,
-            "description": "Thickness"
-          },
-          "cornerRadius": {
-            "type": "number",
-            "default": 3,
-            "description": "Outer corner radius"
-          },
-          "holeDiameter": {
-            "type": "number",
-            "default": 4,
-            "description": "Hole diameter"
-          },
-          "holeSpacing": {
-            "type": "number",
-            "default": 24,
-            "description": "Hole center spacing"
-          }
-        }
-      },
-      {
-        "type": "object",
-        "required": [
-          "kind"
-        ],
-        "additionalProperties": false,
-        "description": "Rectangular plate with four through holes. Set X/Y edge insets and optional outer corner radius; no threads or counterbores.",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "fourHolePlate"
-          },
-          "width": {
-            "type": "number",
-            "default": 50,
-            "description": "Plate width X"
-          },
-          "depth": {
-            "type": "number",
-            "default": 30,
-            "description": "Plate depth Y"
-          },
-          "thickness": {
-            "type": "number",
-            "default": 3,
-            "description": "Thickness"
-          },
-          "cornerRadius": {
-            "type": "number",
-            "default": 0,
-            "description": "Outer corner radius"
-          },
-          "holeDiameter": {
-            "type": "number",
-            "default": 4,
-            "description": "Hole diameter"
-          },
-          "insetX": {
-            "type": "number",
-            "default": 5,
-            "description": "Hole inset X"
-          },
-          "insetY": {
-            "type": "number",
-            "default": 5,
-            "description": "Hole inset Y"
-          }
-        }
-      },
-      {
-        "type": "object",
-        "required": [
-          "kind"
-        ],
-        "additionalProperties": false,
-        "description": "A rounded plate with two symmetric hollow cylindrical bosses; each bore passes through both boss and plate. Generic parametric geometry, not a threaded, counterbored, or source-product reconstruction.",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "bossPlate"
-          },
-          "width": {
-            "type": "number",
-            "default": 40,
-            "description": "Plate width X"
-          },
-          "depth": {
-            "type": "number",
-            "default": 16,
-            "description": "Plate depth Y"
-          },
-          "thickness": {
-            "type": "number",
-            "default": 3,
-            "description": "Plate thickness"
-          },
-          "cornerRadius": {
-            "type": "number",
-            "default": 3,
-            "description": "Plate corner radius"
-          },
-          "bossSpacing": {
-            "type": "number",
-            "default": 24,
-            "description": "Boss center spacing"
-          },
-          "bossOuterDiameter": {
-            "type": "number",
-            "default": 8,
-            "description": "Boss outer diameter"
-          },
-          "boreDiameter": {
-            "type": "number",
-            "default": 4,
-            "description": "Through-bore diameter"
-          },
-          "bossHeight": {
-            "type": "number",
-            "default": 6,
-            "description": "Boss height (below plate)"
-          }
-        }
-      },
-      {
-        "type": "object",
-        "required": [
-          "kind"
-        ],
-        "additionalProperties": false,
-        "description": "A coaxial flange and cylindrical bushing with a straight bore through the full length. Generic parametric geometry, with no threads or source-product feature reconstruction.",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "flangedBushing"
-          },
-          "bodyDiameter": {
-            "type": "number",
-            "default": 12,
-            "description": "Bushing body diameter"
-          },
-          "flangeDiameter": {
-            "type": "number",
-            "default": 20,
-            "description": "Flange diameter"
-          },
-          "boreDiameter": {
-            "type": "number",
-            "default": 6,
-            "description": "Through-bore diameter"
-          },
-          "bodyHeight": {
-            "type": "number",
-            "default": 10,
-            "description": "Body height"
-          },
-          "flangeThickness": {
-            "type": "number",
-            "default": 3,
-            "description": "Flange thickness"
-          }
-        }
-      },
-      {
-        "type": "object",
-        "required": [
-          "kind"
-        ],
-        "additionalProperties": false,
-        "description": "Constant-section circular arc with an adjustable opening angle for C rings, hook rings and open circular frames. End balls, hinges and variable sections are excluded.",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "openArcRing"
-          },
-          "section": {
-            "type": "string",
-            "default": "round",
-            "description": "Section",
-            "enum": [
-              "round",
-              "square",
-              "chamferedSquare"
-            ]
-          },
-          "innerDiameter": {
-            "type": "number",
-            "default": 30,
-            "description": "Inner diameter"
-          },
-          "sectionSize": {
-            "type": "number",
-            "default": 4,
-            "description": "Wire diameter / square size"
-          },
-          "sectionRadius": {
-            "type": "number",
-            "default": 0.4,
-            "description": "Square section corner R"
-          },
-          "sectionChamfer": {
-            "type": "number",
-            "default": 0.6,
-            "description": "Square section chamfer C"
-          },
-          "openingAngle": {
-            "type": "number",
-            "default": 70,
-            "description": "Opening angle (degrees)"
-          }
-        }
-      },
-      {
-        "type": "object",
-        "required": [
-          "kind"
-        ],
-        "additionalProperties": false,
-        "description": "Open rounded-rectangle tray with two hollow bosses on the inner floor. Outer corner radius, wall/floor thickness and boss dimensions are editable. Straight walls only; no draft, clips, lettering or texture.",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "roundedBossTray"
-          },
-          "outerWidth": {
-            "type": "number",
-            "default": 60,
-            "description": "Outer width X"
-          },
-          "outerDepth": {
-            "type": "number",
-            "default": 38,
-            "description": "Outer depth Y"
-          },
-          "height": {
-            "type": "number",
-            "default": 12,
-            "description": "Total height"
-          },
-          "cornerRadius": {
-            "type": "number",
-            "default": 6,
-            "description": "Outer corner radius"
-          },
-          "wallThickness": {
-            "type": "number",
-            "default": 2,
-            "description": "Wall thickness"
-          },
-          "floorThickness": {
-            "type": "number",
-            "default": 2,
-            "description": "Floor thickness"
-          },
-          "bossSpacing": {
-            "type": "number",
-            "default": 30,
-            "description": "Boss center spacing X"
-          },
-          "bossOuterDiameter": {
-            "type": "number",
-            "default": 7,
-            "description": "Boss outer diameter"
-          },
-          "boreDiameter": {
-            "type": "number",
-            "default": 3,
-            "description": "Through-bore diameter"
-          },
-          "bossHeight": {
-            "type": "number",
-            "default": 7,
-            "description": "Boss height above inner floor"
-          }
-        }
-      },
-      {
-        "type": "object",
-        "required": [
-          "kind"
-        ],
-        "additionalProperties": false,
-        "description": "One solid combining a round badge plate, raised front rim and two rear mounting posts. Posts may be hollow. Brand artwork, knurling, doming and production dimensions are excluded.",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "roundBadge"
-          },
-          "diameter": {
-            "type": "number",
-            "default": 40,
-            "description": "Badge diameter"
-          },
-          "thickness": {
-            "type": "number",
-            "default": 2,
-            "description": "Plate thickness"
-          },
-          "rimWidth": {
-            "type": "number",
-            "default": 2,
-            "description": "Front rim width"
-          },
-          "rimHeight": {
-            "type": "number",
-            "default": 0.8,
-            "description": "Front rim height"
-          },
-          "postSpacing": {
-            "type": "number",
-            "default": 18,
-            "description": "Rear post spacing X"
-          },
-          "postDiameter": {
-            "type": "number",
-            "default": 4,
-            "description": "Rear post diameter"
-          },
-          "postHeight": {
-            "type": "number",
-            "default": 4,
-            "description": "Rear post height"
-          },
-          "postBoreDiameter": {
-            "type": "number",
-            "default": 0,
-            "description": "Post bore diameter (0 = solid)"
-          }
-        }
-      },
-      {
-        "type": "object",
-        "required": [
-          "kind"
-        ],
-        "additionalProperties": false,
-        "description": "One fused solid, centered in XY, bottom at Z=0, open top. Clear cavity width/depth = outer width/depth minus twice wall thickness; clear height = height minus floor thickness. Two X-symmetric bosses rise from the inner floor; bores pass through bosses and floor. Straight walls/corners only; no draft, fillets, threads or assembly relationships.",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "thinWallTray"
-          },
-          "outerWidth": {
-            "type": "number",
-            "default": 60,
-            "description": "Outer width X"
-          },
-          "outerDepth": {
-            "type": "number",
-            "default": 36,
-            "description": "Outer depth Y"
-          },
-          "height": {
-            "type": "number",
-            "default": 14,
-            "description": "Total height"
-          },
-          "wallThickness": {
-            "type": "number",
-            "default": 2,
-            "description": "Wall thickness"
-          },
-          "floorThickness": {
-            "type": "number",
-            "default": 2,
-            "description": "Floor thickness"
-          },
-          "bossSpacing": {
-            "type": "number",
-            "default": 30,
-            "description": "Boss center spacing X"
-          },
-          "bossOuterDiameter": {
-            "type": "number",
-            "default": 8,
-            "description": "Boss outer diameter"
-          },
-          "boreDiameter": {
-            "type": "number",
-            "default": 3,
-            "description": "Through-bore diameter"
-          },
-          "bossHeight": {
-            "type": "number",
-            "default": 8,
-            "description": "Boss height above inner floor"
-          }
-        }
-      },
-      {
-        "type": "object",
-        "required": [
-          "kind"
-        ],
-        "additionalProperties": false,
-        "description": "Coaxial tube; defaults 13.4 outer diameter, 12.4 inner diameter and 3 height for the user C-part.",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "tube"
-          },
-          "outerDiameter": {
-            "type": "number",
-            "default": 13.4,
-            "description": "Outer diameter"
-          },
-          "innerDiameter": {
-            "type": "number",
-            "default": 12.4,
-            "description": "Inner diameter"
-          },
-          "height": {
-            "type": "number",
-            "default": 3,
-            "description": "Height"
-          }
-        }
-      },
-      {
-        "type": "object",
-        "required": [
-          "kind"
-        ],
-        "additionalProperties": false,
-        "description": "Tool solid: entry at Z=0, extending along +Z. Position at the workpiece surface, rotate 180 degrees if needed, then select the body first and subtract the tool.",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "counterboreTool"
-          },
-          "holeDiameter": {
-            "type": "number",
-            "default": 4,
-            "description": "Hole diameter"
-          },
-          "depth": {
-            "type": "number",
-            "default": 8,
-            "description": "Total depth"
-          },
-          "headDiameter": {
-            "type": "number",
-            "default": 8,
-            "description": "Head diameter"
-          },
-          "headDepth": {
-            "type": "number",
-            "default": 2,
-            "description": "Head depth"
-          },
-          "style": {
-            "type": "string",
-            "default": "bore",
-            "description": "Style",
-            "enum": [
-              "bore",
-              "sink"
-            ]
-          }
-        }
-      },
-      {
-        "type": "object",
-        "required": [
-          "kind"
-        ],
-        "additionalProperties": false,
-        "description": "同心圆恒截面单圈；开缝为底部正中平行平切。",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "ring"
-          },
-          "section": {
-            "type": "string",
-            "default": "round",
-            "description": "Section",
-            "enum": [
-              "round",
-              "square",
-              "chamferedSquare"
-            ]
-          },
-          "sectionSize": {
-            "type": "number",
-            "default": 3,
-            "description": "Wire diameter / square size"
-          },
-          "sectionRadius": {
-            "type": "number",
-            "default": 0.3,
-            "description": "Square section corner R"
-          },
-          "sectionChamfer": {
-            "type": "number",
-            "default": 0.6,
-            "description": "Square section chamfer C"
-          },
-          "gapWidth": {
-            "type": "number",
-            "default": 0,
-            "description": "Bottom gap (0 = closed)"
-          },
-          "innerDiameter": {
-            "type": "number",
-            "default": 24,
-            "description": "Inner diameter"
-          }
-        }
-      },
-      {
-        "type": "object",
-        "required": [
-          "kind"
-        ],
-        "additionalProperties": false,
         "description": "A constant-section circular frame fused to one round X-axis crossbar. The bar has editable Y and depth Z offsets. Moving bars, hinges and exact joint transitions are excluded.",
         "properties": {
           "kind": {
@@ -1296,335 +1795,6 @@
             "description": "Wire diameter / square size"
           }
         }
-      },
-      {
-        "type": "object",
-        "required": [
-          "kind"
-        ],
-        "additionalProperties": false,
-        "description": "半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "dBuckle"
-          },
-          "section": {
-            "type": "string",
-            "default": "round",
-            "description": "Section",
-            "enum": [
-              "round",
-              "square",
-              "chamferedSquare"
-            ]
-          },
-          "sectionSize": {
-            "type": "number",
-            "default": 3,
-            "description": "Wire diameter / square size"
-          },
-          "sectionRadius": {
-            "type": "number",
-            "default": 0.3,
-            "description": "Square section corner R"
-          },
-          "sectionChamfer": {
-            "type": "number",
-            "default": 0.6,
-            "description": "Square section chamfer C"
-          },
-          "gapWidth": {
-            "type": "number",
-            "default": 0,
-            "description": "Bottom gap (0 = closed)"
-          },
-          "innerWidth": {
-            "type": "number",
-            "default": 24,
-            "description": "Inner width"
-          },
-          "innerHeight": {
-            "type": "number",
-            "default": 19,
-            "description": "Inner height"
-          },
-          "innerRadius": {
-            "type": "number",
-            "default": 2,
-            "description": "Bottom inner radius"
-          }
-        }
-      },
-      {
-        "type": "object",
-        "required": [
-          "kind"
-        ],
-        "additionalProperties": false,
-        "description": "圆角方线 U 主体与固定圆杆融合；杆底与脚底齐平。",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "dBarBuckle"
-          },
-          "section": {
-            "type": "string",
-            "default": "square",
-            "description": "section"
-          },
-          "sectionSize": {
-            "type": "number",
-            "default": 6,
-            "description": "Wire diameter / square size"
-          },
-          "sectionRadius": {
-            "type": "number",
-            "default": 0.6,
-            "description": "Square section corner R"
-          },
-          "sectionChamfer": {
-            "type": "number",
-            "default": 0.6,
-            "description": "sectionChamfer"
-          },
-          "gapWidth": {
-            "type": "number",
-            "default": 0,
-            "description": "gapWidth"
-          },
-          "innerWidth": {
-            "type": "number",
-            "default": 32,
-            "description": "Inner width"
-          },
-          "innerHeight": {
-            "type": "number",
-            "default": 24,
-            "description": "Inner height"
-          },
-          "barDiameter": {
-            "type": "number",
-            "default": 4.5,
-            "description": "Bar diameter"
-          }
-        }
-      },
-      {
-        "type": "object",
-        "required": [
-          "kind"
-        ],
-        "additionalProperties": false,
-        "description": "Constant-section rounded rectangular frame. A closed round-wire frame supports an inner short side at least 2.5 times the wire diameter; other variants require four times the section size.",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "rectBuckle"
-          },
-          "section": {
-            "type": "string",
-            "default": "round",
-            "description": "Section",
-            "enum": [
-              "round",
-              "square",
-              "chamferedSquare"
-            ]
-          },
-          "sectionSize": {
-            "type": "number",
-            "default": 3,
-            "description": "Wire diameter / square size"
-          },
-          "sectionRadius": {
-            "type": "number",
-            "default": 0.3,
-            "description": "Square section corner R"
-          },
-          "sectionChamfer": {
-            "type": "number",
-            "default": 0.6,
-            "description": "Square section chamfer C"
-          },
-          "gapWidth": {
-            "type": "number",
-            "default": 0,
-            "description": "Bottom gap (0 = closed)"
-          },
-          "innerWidth": {
-            "type": "number",
-            "default": 28,
-            "description": "Inner width"
-          },
-          "innerHeight": {
-            "type": "number",
-            "default": 20,
-            "description": "Inner height"
-          },
-          "innerRadius": {
-            "type": "number",
-            "default": 3,
-            "description": "Frame inner radius"
-          }
-        }
-      },
-      {
-        "type": "object",
-        "required": [
-          "kind"
-        ],
-        "additionalProperties": false,
-        "description": "The inner height spans the full frame; the fused round bar has an editable vertical offset and no opening. Compact round-wire frames require an inner short side at least 2.5 wire diameters and each window at least one wire diameter high.",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "sliderBuckle"
-          },
-          "section": {
-            "type": "string",
-            "default": "round",
-            "description": "Section",
-            "enum": [
-              "round",
-              "square",
-              "chamferedSquare"
-            ]
-          },
-          "sectionSize": {
-            "type": "number",
-            "default": 3,
-            "description": "Wire diameter / square size"
-          },
-          "sectionRadius": {
-            "type": "number",
-            "default": 0.3,
-            "description": "Square section corner R"
-          },
-          "sectionChamfer": {
-            "type": "number",
-            "default": 0.6,
-            "description": "Square section chamfer C"
-          },
-          "gapWidth": {
-            "type": "number",
-            "default": 0,
-            "description": "gapWidth"
-          },
-          "innerWidth": {
-            "type": "number",
-            "default": 30,
-            "description": "Inner width"
-          },
-          "innerHeight": {
-            "type": "number",
-            "default": 24,
-            "description": "Inner height"
-          },
-          "innerRadius": {
-            "type": "number",
-            "default": 3,
-            "description": "Frame inner radius"
-          },
-          "barDiameter": {
-            "type": "number",
-            "default": 2.5,
-            "description": "Bar diameter"
-          },
-          "barOffset": {
-            "type": "number",
-            "default": 0,
-            "description": "Bar offset (+up)"
-          }
-        }
-      },
-      {
-        "type": "object",
-        "required": [
-          "kind"
-        ],
-        "additionalProperties": false,
-        "description": "四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "ovalBuckle"
-          },
-          "section": {
-            "type": "string",
-            "default": "round",
-            "description": "Section",
-            "enum": [
-              "round",
-              "square",
-              "chamferedSquare"
-            ]
-          },
-          "sectionSize": {
-            "type": "number",
-            "default": 3,
-            "description": "Wire diameter / square size"
-          },
-          "sectionRadius": {
-            "type": "number",
-            "default": 0.3,
-            "description": "Square section corner R"
-          },
-          "sectionChamfer": {
-            "type": "number",
-            "default": 0.6,
-            "description": "Square section chamfer C"
-          },
-          "gapWidth": {
-            "type": "number",
-            "default": 0,
-            "description": "Right gap (0 = closed)"
-          },
-          "innerWidth": {
-            "type": "number",
-            "default": 28,
-            "description": "Inner width"
-          },
-          "innerHeight": {
-            "type": "number",
-            "default": 16,
-            "description": "Inner height"
-          },
-          "innerRadius": {
-            "type": "number",
-            "default": 5.6,
-            "description": "End inner radius"
-          }
-        }
-      },
-      {
-        "type": "object",
-        "required": [
-          "kind"
-        ],
-        "additionalProperties": false,
-        "description": "平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "const": "washer"
-          },
-          "innerDiameter": {
-            "type": "number",
-            "default": 10,
-            "description": "Inner diameter"
-          },
-          "sectionSize": {
-            "type": "number",
-            "default": 3,
-            "description": "Radial width"
-          },
-          "innerHeight": {
-            "type": "number",
-            "default": 1.5,
-            "description": "Thickness"
-          }
-        }
       }
     ]
   },
@@ -1640,6 +1810,214 @@
     "maxItems": 0
   },
   "defaults": {
+    "ring": {
+      "section": "round",
+      "sectionSize": 3,
+      "sectionRadius": 0.3,
+      "sectionChamfer": 0.6,
+      "gapWidth": 0,
+      "innerDiameter": 24
+    },
+    "washer": {
+      "innerDiameter": 10,
+      "sectionSize": 3,
+      "innerHeight": 1.5
+    },
+    "tube": {
+      "outerDiameter": 13.4,
+      "innerDiameter": 12.4,
+      "height": 3
+    },
+    "domedPin": {
+      "diameterMm": 6,
+      "heightMm": 2
+    },
+    "spring": {
+      "radiusMm": 6,
+      "wireDiameterMm": 1.2,
+      "pitchMm": 3,
+      "turns": 4,
+      "leftHanded": false
+    },
+    "screw": {
+      "headType": "flat",
+      "headWidthMm": 6,
+      "headThicknessMm": 2,
+      "threadSize": "M3",
+      "threadLengthMm": 8,
+      "drive": "cross"
+    },
+    "threadedSleeve": {
+      "bottomDiameterMm": 8,
+      "faceDiameterMm": 6,
+      "threadDiameterMm": 3,
+      "totalHeightMm": 8,
+      "threadDepthMm": 6
+    },
+    "roundBadge": {
+      "diameter": 40,
+      "thickness": 2,
+      "rimWidth": 2,
+      "rimHeight": 0.8,
+      "postSpacing": 18,
+      "postDiameter": 4,
+      "postHeight": 4,
+      "postBoreDiameter": 0
+    },
+    "mountingPlate": {
+      "width": 40,
+      "depth": 16,
+      "thickness": 3,
+      "cornerRadius": 3,
+      "holeDiameter": 4,
+      "holeSpacing": 24
+    },
+    "fourHolePlate": {
+      "width": 50,
+      "depth": 30,
+      "thickness": 3,
+      "cornerRadius": 0,
+      "holeDiameter": 4,
+      "insetX": 5,
+      "insetY": 5
+    },
+    "flatFrame": {
+      "outerWidth": 40,
+      "outerHeight": 28,
+      "innerWidth": 28,
+      "innerHeight": 16,
+      "outerRadius": 5,
+      "innerRadius": 3,
+      "thickness": 3
+    },
+    "roundedFlatFrame": {
+      "outerWidth": 40,
+      "outerHeight": 28,
+      "innerWidth": 30,
+      "innerHeight": 18,
+      "outerRadius": 5,
+      "innerRadius": 2,
+      "thickness": 4,
+      "edgeRadius": 1.5
+    },
+    "dBuckle": {
+      "section": "round",
+      "sectionSize": 3,
+      "sectionRadius": 0.3,
+      "sectionChamfer": 0.6,
+      "gapWidth": 0,
+      "innerWidth": 24,
+      "innerHeight": 19,
+      "innerRadius": 2
+    },
+    "rectBuckle": {
+      "section": "round",
+      "sectionSize": 3,
+      "sectionRadius": 0.3,
+      "sectionChamfer": 0.6,
+      "gapWidth": 0,
+      "innerWidth": 28,
+      "innerHeight": 20,
+      "innerRadius": 3
+    },
+    "ovalBuckle": {
+      "section": "round",
+      "sectionSize": 3,
+      "sectionRadius": 0.3,
+      "sectionChamfer": 0.6,
+      "gapWidth": 0,
+      "innerWidth": 28,
+      "innerHeight": 16,
+      "innerRadius": 5.6
+    },
+    "sliderBuckle": {
+      "section": "round",
+      "sectionSize": 3,
+      "sectionRadius": 0.3,
+      "sectionChamfer": 0.6,
+      "gapWidth": 0,
+      "innerWidth": 30,
+      "innerHeight": 24,
+      "innerRadius": 3,
+      "barDiameter": 2.5,
+      "barOffset": 0
+    },
+    "dBarBuckle": {
+      "section": "square",
+      "sectionSize": 6,
+      "sectionRadius": 0.6,
+      "sectionChamfer": 0.6,
+      "gapWidth": 0,
+      "innerWidth": 32,
+      "innerHeight": 24,
+      "barDiameter": 4.5
+    },
+    "flangedBushing": {
+      "bodyDiameter": 12,
+      "flangeDiameter": 20,
+      "boreDiameter": 6,
+      "bodyHeight": 10,
+      "flangeThickness": 3
+    },
+    "bossPlate": {
+      "width": 40,
+      "depth": 16,
+      "thickness": 3,
+      "cornerRadius": 3,
+      "bossSpacing": 24,
+      "bossOuterDiameter": 8,
+      "boreDiameter": 4,
+      "bossHeight": 6
+    },
+    "thinWallTray": {
+      "outerWidth": 60,
+      "outerDepth": 36,
+      "height": 14,
+      "wallThickness": 2,
+      "floorThickness": 2,
+      "bossSpacing": 30,
+      "bossOuterDiameter": 8,
+      "boreDiameter": 3,
+      "bossHeight": 8
+    },
+    "roundedBossTray": {
+      "outerWidth": 60,
+      "outerDepth": 38,
+      "height": 12,
+      "cornerRadius": 6,
+      "wallThickness": 2,
+      "floorThickness": 2,
+      "bossSpacing": 30,
+      "bossOuterDiameter": 7,
+      "boreDiameter": 3,
+      "bossHeight": 7
+    },
+    "openArcRing": {
+      "section": "round",
+      "innerDiameter": 30,
+      "sectionSize": 4,
+      "sectionRadius": 0.4,
+      "sectionChamfer": 0.6,
+      "openingAngle": 70
+    },
+    "counterboreTool": {
+      "holeDiameter": 4,
+      "depth": 8,
+      "headDiameter": 8,
+      "headDepth": 2,
+      "style": "bore"
+    },
+    "twinWindowPlate": {
+      "outerWidth": 44.8,
+      "outerHeight": 26.6,
+      "outerRadius": 3.5,
+      "windowWidth": 37.8,
+      "totalInnerHeight": 19.6,
+      "windowRadius": 2,
+      "barWidth": 3.5,
+      "thickness": 3.5,
+      "edgeRadius": 0.5
+    },
     "uEndHolePlate": {
       "outerWidth": 22,
       "innerWidth": 10,
@@ -1713,131 +2091,6 @@
       "thickness": 3.7,
       "edgeRadius": 0.8
     },
-    "flatFrame": {
-      "outerWidth": 40,
-      "outerHeight": 28,
-      "innerWidth": 28,
-      "innerHeight": 16,
-      "outerRadius": 5,
-      "innerRadius": 3,
-      "thickness": 3
-    },
-    "roundedFlatFrame": {
-      "outerWidth": 40,
-      "outerHeight": 28,
-      "innerWidth": 30,
-      "innerHeight": 18,
-      "outerRadius": 5,
-      "innerRadius": 2,
-      "thickness": 4,
-      "edgeRadius": 1.5
-    },
-    "twinWindowPlate": {
-      "outerWidth": 44.8,
-      "outerHeight": 26.6,
-      "outerRadius": 3.5,
-      "windowWidth": 37.8,
-      "totalInnerHeight": 19.6,
-      "windowRadius": 2,
-      "barWidth": 3.5,
-      "thickness": 3.5,
-      "edgeRadius": 0.5
-    },
-    "mountingPlate": {
-      "width": 40,
-      "depth": 16,
-      "thickness": 3,
-      "cornerRadius": 3,
-      "holeDiameter": 4,
-      "holeSpacing": 24
-    },
-    "fourHolePlate": {
-      "width": 50,
-      "depth": 30,
-      "thickness": 3,
-      "cornerRadius": 0,
-      "holeDiameter": 4,
-      "insetX": 5,
-      "insetY": 5
-    },
-    "bossPlate": {
-      "width": 40,
-      "depth": 16,
-      "thickness": 3,
-      "cornerRadius": 3,
-      "bossSpacing": 24,
-      "bossOuterDiameter": 8,
-      "boreDiameter": 4,
-      "bossHeight": 6
-    },
-    "flangedBushing": {
-      "bodyDiameter": 12,
-      "flangeDiameter": 20,
-      "boreDiameter": 6,
-      "bodyHeight": 10,
-      "flangeThickness": 3
-    },
-    "openArcRing": {
-      "section": "round",
-      "innerDiameter": 30,
-      "sectionSize": 4,
-      "sectionRadius": 0.4,
-      "sectionChamfer": 0.6,
-      "openingAngle": 70
-    },
-    "roundedBossTray": {
-      "outerWidth": 60,
-      "outerDepth": 38,
-      "height": 12,
-      "cornerRadius": 6,
-      "wallThickness": 2,
-      "floorThickness": 2,
-      "bossSpacing": 30,
-      "bossOuterDiameter": 7,
-      "boreDiameter": 3,
-      "bossHeight": 7
-    },
-    "roundBadge": {
-      "diameter": 40,
-      "thickness": 2,
-      "rimWidth": 2,
-      "rimHeight": 0.8,
-      "postSpacing": 18,
-      "postDiameter": 4,
-      "postHeight": 4,
-      "postBoreDiameter": 0
-    },
-    "thinWallTray": {
-      "outerWidth": 60,
-      "outerDepth": 36,
-      "height": 14,
-      "wallThickness": 2,
-      "floorThickness": 2,
-      "bossSpacing": 30,
-      "bossOuterDiameter": 8,
-      "boreDiameter": 3,
-      "bossHeight": 8
-    },
-    "tube": {
-      "outerDiameter": 13.4,
-      "innerDiameter": 12.4,
-      "height": 3
-    },
-    "counterboreTool": {
-      "holeDiameter": 4,
-      "depth": 8,
-      "headDiameter": 8,
-      "headDepth": 2,
-      "style": "bore"
-    },
-    "ring": {
-      "section": "round",
-      "sectionSize": 3,
-      "sectionRadius": 0.3,
-      "sectionChamfer": 0.6,
-      "gapWidth": 0,
-      "innerDiameter": 24
-    },
     "ringBar": {
       "section": "round",
       "innerDiameter": 20,
@@ -1872,63 +2125,6 @@
       "innerWidth": 34.9,
       "innerHeight": 13.9,
       "sectionSize": 6.1
-    },
-    "dBuckle": {
-      "section": "round",
-      "sectionSize": 3,
-      "sectionRadius": 0.3,
-      "sectionChamfer": 0.6,
-      "gapWidth": 0,
-      "innerWidth": 24,
-      "innerHeight": 19,
-      "innerRadius": 2
-    },
-    "dBarBuckle": {
-      "section": "square",
-      "sectionSize": 6,
-      "sectionRadius": 0.6,
-      "sectionChamfer": 0.6,
-      "gapWidth": 0,
-      "innerWidth": 32,
-      "innerHeight": 24,
-      "barDiameter": 4.5
-    },
-    "rectBuckle": {
-      "section": "round",
-      "sectionSize": 3,
-      "sectionRadius": 0.3,
-      "sectionChamfer": 0.6,
-      "gapWidth": 0,
-      "innerWidth": 28,
-      "innerHeight": 20,
-      "innerRadius": 3
-    },
-    "sliderBuckle": {
-      "section": "round",
-      "sectionSize": 3,
-      "sectionRadius": 0.3,
-      "sectionChamfer": 0.6,
-      "gapWidth": 0,
-      "innerWidth": 30,
-      "innerHeight": 24,
-      "innerRadius": 3,
-      "barDiameter": 2.5,
-      "barOffset": 0
-    },
-    "ovalBuckle": {
-      "section": "round",
-      "sectionSize": 3,
-      "sectionRadius": 0.3,
-      "sectionChamfer": 0.6,
-      "gapWidth": 0,
-      "innerWidth": 28,
-      "innerHeight": 16,
-      "innerRadius": 5.6
-    },
-    "washer": {
-      "innerDiameter": 10,
-      "sectionSize": 3,
-      "innerHeight": 1.5
     }
   },
   "selectionTokenSupport": {
@@ -1949,7 +2145,7 @@
     "快捷模型"
   ],
   "description": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-  "schemaHash": "sha256:9b68d004b2e25581aa2e42e5ce6add9c563e9c1791d565910dd4eeb796f1aa61",
+  "schemaHash": "sha256:1d172c8ec6fa246fbfec2f94e58e51f61543cedf75ec05639d84999103a64234",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -2044,6 +2240,2158 @@
   "recipes": [],
   "testIds": [],
   "templates": [
+    {
+      "kind": "ring",
+      "title": "Ring",
+      "description": "同心圆恒截面单圈；开缝为底部正中平行平切。",
+      "defaults": {
+        "section": "round",
+        "sectionSize": 3,
+        "sectionRadius": 0.3,
+        "sectionChamfer": 0.6,
+        "gapWidth": 0,
+        "innerDiameter": 24
+      },
+      "fields": [
+        {
+          "key": "innerDiameter",
+          "label": "内径",
+          "labelEn": "Inner diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "section",
+          "label": "截面",
+          "labelEn": "Section",
+          "type": "select",
+          "options": [
+            {
+              "value": "round",
+              "label": "圆线",
+              "labelEn": "Round wire"
+            },
+            {
+              "value": "square",
+              "label": "圆角方线",
+              "labelEn": "Rounded square"
+            },
+            {
+              "value": "chamferedSquare",
+              "label": "倒角方线",
+              "labelEn": "Chamfered square"
+            }
+          ]
+        },
+        {
+          "key": "sectionSize",
+          "label": "线径／方线边长",
+          "labelEn": "Wire diameter / square size",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "sectionRadius",
+          "label": "方线截面 R（圆线忽略）",
+          "labelEn": "Square section corner R",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "sectionChamfer",
+          "label": "方线截面倒角 C（仅倒角方线）",
+          "labelEn": "Square section chamfer C",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "gapWidth",
+          "label": "底部实际缝宽（0 闭合）",
+          "labelEn": "Bottom gap (0 = closed)",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "ring"
+      },
+      "normalExample": {
+        "kind": "ring",
+        "section": "round",
+        "sectionSize": 3,
+        "sectionRadius": 0.3,
+        "sectionChamfer": 0.6,
+        "gapWidth": 0,
+        "innerDiameter": 24
+      }
+    },
+    {
+      "kind": "washer",
+      "title": "Flat washer",
+      "description": "平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。",
+      "defaults": {
+        "innerDiameter": 10,
+        "sectionSize": 3,
+        "innerHeight": 1.5
+      },
+      "fields": [
+        {
+          "key": "innerDiameter",
+          "label": "内径",
+          "labelEn": "Inner diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "sectionSize",
+          "label": "径向宽度",
+          "labelEn": "Radial width",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "innerHeight",
+          "label": "厚度",
+          "labelEn": "Thickness",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "washer"
+      },
+      "normalExample": {
+        "kind": "washer",
+        "innerDiameter": 10,
+        "sectionSize": 3,
+        "innerHeight": 1.5
+      }
+    },
+    {
+      "kind": "tube",
+      "title": "Tube (C-part default)",
+      "description": "Coaxial tube; defaults 13.4 outer diameter, 12.4 inner diameter and 3 height for the user C-part.",
+      "defaults": {
+        "outerDiameter": 13.4,
+        "innerDiameter": 12.4,
+        "height": 3
+      },
+      "fields": [
+        {
+          "key": "outerDiameter",
+          "label": "外径",
+          "labelEn": "Outer diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "innerDiameter",
+          "label": "内径",
+          "labelEn": "Inner diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "height",
+          "label": "高度",
+          "labelEn": "Height",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "tube"
+      },
+      "normalExample": {
+        "kind": "tube",
+        "outerDiameter": 13.4,
+        "innerDiameter": 12.4,
+        "height": 3
+      }
+    },
+    {
+      "kind": "domedPin",
+      "title": "Domed pin",
+      "description": "平底、光滑凸面；直径和高度独立设置，可以调整拱高，不限于半球。",
+      "defaults": {
+        "diameterMm": 6,
+        "heightMm": 2
+      },
+      "fields": [
+        {
+          "key": "diameterMm",
+          "label": "直径",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01
+        },
+        {
+          "key": "heightMm",
+          "label": "高度",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "domedPin"
+      },
+      "normalExample": {
+        "kind": "domedPin",
+        "diameterMm": 6,
+        "heightMm": 2
+      }
+    },
+    {
+      "kind": "spring",
+      "title": "Spring",
+      "description": "圆线沿精确螺旋路径扫掠。螺距大于线径；半径是中心线半径。",
+      "defaults": {
+        "radiusMm": 6,
+        "wireDiameterMm": 1.2,
+        "pitchMm": 3,
+        "turns": 4,
+        "leftHanded": false
+      },
+      "fields": [
+        {
+          "key": "radiusMm",
+          "label": "中心线半径",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01
+        },
+        {
+          "key": "wireDiameterMm",
+          "label": "线径",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01
+        },
+        {
+          "key": "pitchMm",
+          "label": "螺距",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01
+        },
+        {
+          "key": "turns",
+          "label": "圈数",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01
+        },
+        {
+          "key": "leftHanded",
+          "label": "左旋",
+          "type": "boolean"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "spring"
+      },
+      "normalExample": {
+        "kind": "spring",
+        "radiusMm": 6,
+        "wireDiameterMm": 1.2,
+        "pitchMm": 3,
+        "turns": 4,
+        "leftHanded": false
+      }
+    },
+    {
+      "kind": "screw",
+      "title": "Screw",
+      "description": "头在参考位置下端，牙杆朝本地 +Z。沉头外缘固定直升位 0.20 mm。M 使用常用粗牙螺距，真实 V 型牙槽；不含配合公差。",
+      "defaults": {
+        "headType": "flat",
+        "headWidthMm": 6,
+        "headThicknessMm": 2,
+        "threadSize": "M3",
+        "threadLengthMm": 8,
+        "drive": "cross"
+      },
+      "fields": [
+        {
+          "key": "headType",
+          "label": "头型",
+          "type": "select",
+          "options": [
+            {
+              "value": "flat",
+              "label": "平头螺丝"
+            },
+            {
+              "value": "countersunk",
+              "label": "沉头螺丝"
+            }
+          ]
+        },
+        {
+          "key": "headWidthMm",
+          "label": "头宽（直径）",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01
+        },
+        {
+          "key": "headThicknessMm",
+          "label": "头厚",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01
+        },
+        {
+          "key": "threadSize",
+          "label": "螺牙 M 规格",
+          "type": "select",
+          "options": [
+            {
+              "value": "M1",
+              "label": "M1"
+            },
+            {
+              "value": "M1.2",
+              "label": "M1.2"
+            },
+            {
+              "value": "M1.6",
+              "label": "M1.6"
+            },
+            {
+              "value": "M2",
+              "label": "M2"
+            },
+            {
+              "value": "M2.5",
+              "label": "M2.5"
+            },
+            {
+              "value": "M3",
+              "label": "M3"
+            },
+            {
+              "value": "M4",
+              "label": "M4"
+            },
+            {
+              "value": "M5",
+              "label": "M5"
+            },
+            {
+              "value": "M6",
+              "label": "M6"
+            },
+            {
+              "value": "M8",
+              "label": "M8"
+            },
+            {
+              "value": "M10",
+              "label": "M10"
+            },
+            {
+              "value": "M12",
+              "label": "M12"
+            }
+          ]
+        },
+        {
+          "key": "threadLengthMm",
+          "label": "螺牙长度",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01
+        },
+        {
+          "key": "drive",
+          "label": "螺丝槽型",
+          "type": "select",
+          "options": [
+            {
+              "value": "cross",
+              "label": "十字"
+            },
+            {
+              "value": "slotted",
+              "label": "一字"
+            },
+            {
+              "value": "star",
+              "label": "梅花"
+            },
+            {
+              "value": "hex",
+              "label": "内六角"
+            }
+          ]
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "screw"
+      },
+      "normalExample": {
+        "kind": "screw",
+        "headType": "flat",
+        "headWidthMm": 6,
+        "headThicknessMm": 2,
+        "threadSize": "M3",
+        "threadLengthMm": 8,
+        "drive": "cross"
+      }
+    },
+    {
+      "kind": "threadedSleeve",
+      "title": "Threaded sleeve",
+      "description": "底面在参考位置，面端朝本地 -Z；从下方面端向上攻牙。牙径采用支持的名义 M 粗牙直径，不含配合公差。",
+      "defaults": {
+        "bottomDiameterMm": 8,
+        "faceDiameterMm": 6,
+        "threadDiameterMm": 3,
+        "totalHeightMm": 8,
+        "threadDepthMm": 6
+      },
+      "fields": [
+        {
+          "key": "bottomDiameterMm",
+          "label": "底直径（上端）",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01
+        },
+        {
+          "key": "faceDiameterMm",
+          "label": "面直径（下端）",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01
+        },
+        {
+          "key": "threadDiameterMm",
+          "label": "螺牙直径",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01
+        },
+        {
+          "key": "totalHeightMm",
+          "label": "总高",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01
+        },
+        {
+          "key": "threadDepthMm",
+          "label": "螺牙深度",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "threadedSleeve"
+      },
+      "normalExample": {
+        "kind": "threadedSleeve",
+        "bottomDiameterMm": 8,
+        "faceDiameterMm": 6,
+        "threadDiameterMm": 3,
+        "totalHeightMm": 8,
+        "threadDepthMm": 6
+      }
+    },
+    {
+      "kind": "roundBadge",
+      "title": "Round badge base with two posts",
+      "description": "One solid combining a round badge plate, raised front rim and two rear mounting posts. Posts may be hollow. Brand artwork, knurling, doming and production dimensions are excluded.",
+      "defaults": {
+        "diameter": 40,
+        "thickness": 2,
+        "rimWidth": 2,
+        "rimHeight": 0.8,
+        "postSpacing": 18,
+        "postDiameter": 4,
+        "postHeight": 4,
+        "postBoreDiameter": 0
+      },
+      "fields": [
+        {
+          "key": "diameter",
+          "label": "牌面直径",
+          "labelEn": "Badge diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "thickness",
+          "label": "牌面厚度",
+          "labelEn": "Plate thickness",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "rimWidth",
+          "label": "正面环边宽",
+          "labelEn": "Front rim width",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "rimHeight",
+          "label": "正面环边高度",
+          "labelEn": "Front rim height",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "postSpacing",
+          "label": "背柱中心距 X",
+          "labelEn": "Rear post spacing X",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "postDiameter",
+          "label": "背柱直径",
+          "labelEn": "Rear post diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "postHeight",
+          "label": "背柱高度",
+          "labelEn": "Rear post height",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "postBoreDiameter",
+          "label": "背柱孔径（0 为实心）",
+          "labelEn": "Post bore diameter (0 = solid)",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "roundBadge"
+      },
+      "normalExample": {
+        "kind": "roundBadge",
+        "diameter": 40,
+        "thickness": 2,
+        "rimWidth": 2,
+        "rimHeight": 0.8,
+        "postSpacing": 18,
+        "postDiameter": 4,
+        "postHeight": 4,
+        "postBoreDiameter": 0
+      }
+    },
+    {
+      "kind": "mountingPlate",
+      "title": "Two-hole rounded mounting plate",
+      "description": "Two symmetric X-axis holes with independent center spacing. Plain through holes only; no threads, countersinks or counterbores.",
+      "defaults": {
+        "width": 40,
+        "depth": 16,
+        "thickness": 3,
+        "cornerRadius": 3,
+        "holeDiameter": 4,
+        "holeSpacing": 24
+      },
+      "fields": [
+        {
+          "key": "width",
+          "label": "板宽 X",
+          "labelEn": "Plate width X",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "depth",
+          "label": "板深 Y",
+          "labelEn": "Plate depth Y",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "thickness",
+          "label": "厚度",
+          "labelEn": "Thickness",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "cornerRadius",
+          "label": "外角 R",
+          "labelEn": "Outer corner radius",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "holeDiameter",
+          "label": "孔径",
+          "labelEn": "Hole diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "holeSpacing",
+          "label": "两孔中心距",
+          "labelEn": "Hole center spacing",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "mountingPlate"
+      },
+      "normalExample": {
+        "kind": "mountingPlate",
+        "width": 40,
+        "depth": 16,
+        "thickness": 3,
+        "cornerRadius": 3,
+        "holeDiameter": 4,
+        "holeSpacing": 24
+      }
+    },
+    {
+      "kind": "fourHolePlate",
+      "title": "Four-hole mounting plate",
+      "description": "Rectangular plate with four through holes. Set X/Y edge insets and optional outer corner radius; no threads or counterbores.",
+      "defaults": {
+        "width": 50,
+        "depth": 30,
+        "thickness": 3,
+        "cornerRadius": 0,
+        "holeDiameter": 4,
+        "insetX": 5,
+        "insetY": 5
+      },
+      "fields": [
+        {
+          "key": "width",
+          "label": "板宽 X",
+          "labelEn": "Plate width X",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "depth",
+          "label": "板深 Y",
+          "labelEn": "Plate depth Y",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "thickness",
+          "label": "厚度",
+          "labelEn": "Thickness",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "cornerRadius",
+          "label": "外角 R",
+          "labelEn": "Outer corner radius",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "holeDiameter",
+          "label": "孔径",
+          "labelEn": "Hole diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "insetX",
+          "label": "左右孔心边距",
+          "labelEn": "Hole inset X",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "insetY",
+          "label": "前后孔心边距",
+          "labelEn": "Hole inset Y",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "fourHolePlate"
+      },
+      "normalExample": {
+        "kind": "fourHolePlate",
+        "width": 50,
+        "depth": 30,
+        "thickness": 3,
+        "cornerRadius": 0,
+        "holeDiameter": 4,
+        "insetX": 5,
+        "insetY": 5
+      }
+    },
+    {
+      "kind": "flatFrame",
+      "title": "Flat frame with independent corner radii",
+      "description": "Independent inner/outer outlines and thickness. Half-short-side radii allow capsule frames. A parametric tool, not a complete reconstruction of an IGS part.",
+      "defaults": {
+        "outerWidth": 40,
+        "outerHeight": 28,
+        "innerWidth": 28,
+        "innerHeight": 16,
+        "outerRadius": 5,
+        "innerRadius": 3,
+        "thickness": 3
+      },
+      "fields": [
+        {
+          "key": "outerWidth",
+          "label": "外宽",
+          "labelEn": "Outer width",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "outerHeight",
+          "label": "外高",
+          "labelEn": "Outer height",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "innerWidth",
+          "label": "内宽",
+          "labelEn": "Inner width",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "innerHeight",
+          "label": "内高",
+          "labelEn": "Inner height",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "outerRadius",
+          "label": "外轮廓 R",
+          "labelEn": "Outer corner radius",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "innerRadius",
+          "label": "内轮廓 R",
+          "labelEn": "Inner corner radius",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "thickness",
+          "label": "厚度",
+          "labelEn": "Thickness",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "flatFrame"
+      },
+      "normalExample": {
+        "kind": "flatFrame",
+        "outerWidth": 40,
+        "outerHeight": 28,
+        "innerWidth": 28,
+        "innerHeight": 16,
+        "outerRadius": 5,
+        "innerRadius": 3,
+        "thickness": 3
+      }
+    },
+    {
+      "kind": "roundedFlatFrame",
+      "title": "Rounded frame with independent radii",
+      "description": "A flat frame with independent inner and outer corner radii, then one exact fillet of every sharp edge. The specified edge radius fails atomically if unsolvable. Near half-thickness can approximate a round section but is not certified as a semicircle.",
+      "defaults": {
+        "outerWidth": 40,
+        "outerHeight": 28,
+        "innerWidth": 30,
+        "innerHeight": 18,
+        "outerRadius": 5,
+        "innerRadius": 2,
+        "thickness": 4,
+        "edgeRadius": 1.5
+      },
+      "fields": [
+        {
+          "key": "outerWidth",
+          "label": "外宽",
+          "labelEn": "Outer width",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "outerHeight",
+          "label": "外高",
+          "labelEn": "Outer height",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "innerWidth",
+          "label": "内宽",
+          "labelEn": "Inner width",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "innerHeight",
+          "label": "内高",
+          "labelEn": "Inner height",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "outerRadius",
+          "label": "外轮廓 R",
+          "labelEn": "Outer corner radius",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "innerRadius",
+          "label": "内轮廓 R",
+          "labelEn": "Inner corner radius",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "thickness",
+          "label": "厚度",
+          "labelEn": "Thickness",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "edgeRadius",
+          "label": "整件圆边 R",
+          "labelEn": "All-edge fillet radius",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "roundedFlatFrame"
+      },
+      "normalExample": {
+        "kind": "roundedFlatFrame",
+        "outerWidth": 40,
+        "outerHeight": 28,
+        "innerWidth": 30,
+        "innerHeight": 18,
+        "outerRadius": 5,
+        "innerRadius": 2,
+        "thickness": 4,
+        "edgeRadius": 1.5
+      }
+    },
+    {
+      "kind": "dBuckle",
+      "title": "D buckle",
+      "description": "半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。",
+      "defaults": {
+        "section": "round",
+        "sectionSize": 3,
+        "sectionRadius": 0.3,
+        "sectionChamfer": 0.6,
+        "gapWidth": 0,
+        "innerWidth": 24,
+        "innerHeight": 19,
+        "innerRadius": 2
+      },
+      "fields": [
+        {
+          "key": "innerWidth",
+          "label": "内宽",
+          "labelEn": "Inner width",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "innerHeight",
+          "label": "内高",
+          "labelEn": "Inner height",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "section",
+          "label": "截面",
+          "labelEn": "Section",
+          "type": "select",
+          "options": [
+            {
+              "value": "round",
+              "label": "圆线",
+              "labelEn": "Round wire"
+            },
+            {
+              "value": "square",
+              "label": "圆角方线",
+              "labelEn": "Rounded square"
+            },
+            {
+              "value": "chamferedSquare",
+              "label": "倒角方线",
+              "labelEn": "Chamfered square"
+            }
+          ]
+        },
+        {
+          "key": "sectionSize",
+          "label": "线径／方线边长",
+          "labelEn": "Wire diameter / square size",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "sectionRadius",
+          "label": "方线截面 R（圆线忽略）",
+          "labelEn": "Square section corner R",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "sectionChamfer",
+          "label": "方线截面倒角 C（仅倒角方线）",
+          "labelEn": "Square section chamfer C",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "innerRadius",
+          "label": "底内 R",
+          "labelEn": "Bottom inner radius",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "gapWidth",
+          "label": "底部实际缝宽（0 闭合）",
+          "labelEn": "Bottom gap (0 = closed)",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "dBuckle"
+      },
+      "normalExample": {
+        "kind": "dBuckle",
+        "section": "round",
+        "sectionSize": 3,
+        "sectionRadius": 0.3,
+        "sectionChamfer": 0.6,
+        "gapWidth": 0,
+        "innerWidth": 24,
+        "innerHeight": 19,
+        "innerRadius": 2
+      }
+    },
+    {
+      "kind": "rectBuckle",
+      "title": "Rectangular buckle",
+      "description": "Constant-section rounded rectangular frame. A closed round-wire frame supports an inner short side at least 2.5 times the wire diameter; other variants require four times the section size.",
+      "defaults": {
+        "section": "round",
+        "sectionSize": 3,
+        "sectionRadius": 0.3,
+        "sectionChamfer": 0.6,
+        "gapWidth": 0,
+        "innerWidth": 28,
+        "innerHeight": 20,
+        "innerRadius": 3
+      },
+      "fields": [
+        {
+          "key": "innerWidth",
+          "label": "内宽",
+          "labelEn": "Inner width",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "innerHeight",
+          "label": "内高",
+          "labelEn": "Inner height",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "section",
+          "label": "截面",
+          "labelEn": "Section",
+          "type": "select",
+          "options": [
+            {
+              "value": "round",
+              "label": "圆线",
+              "labelEn": "Round wire"
+            },
+            {
+              "value": "square",
+              "label": "圆角方线",
+              "labelEn": "Rounded square"
+            },
+            {
+              "value": "chamferedSquare",
+              "label": "倒角方线",
+              "labelEn": "Chamfered square"
+            }
+          ]
+        },
+        {
+          "key": "sectionSize",
+          "label": "线径／方线边长",
+          "labelEn": "Wire diameter / square size",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "sectionRadius",
+          "label": "方线截面 R（圆线忽略）",
+          "labelEn": "Square section corner R",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "sectionChamfer",
+          "label": "方线截面倒角 C（仅倒角方线）",
+          "labelEn": "Square section chamfer C",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "innerRadius",
+          "label": "框内 R",
+          "labelEn": "Frame inner radius",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "gapWidth",
+          "label": "底部实际缝宽（0 闭合）",
+          "labelEn": "Bottom gap (0 = closed)",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "rectBuckle"
+      },
+      "normalExample": {
+        "kind": "rectBuckle",
+        "section": "round",
+        "sectionSize": 3,
+        "sectionRadius": 0.3,
+        "sectionChamfer": 0.6,
+        "gapWidth": 0,
+        "innerWidth": 28,
+        "innerHeight": 20,
+        "innerRadius": 3
+      }
+    },
+    {
+      "kind": "ovalBuckle",
+      "title": "Four-arc oval buckle",
+      "description": "四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。",
+      "defaults": {
+        "section": "round",
+        "sectionSize": 3,
+        "sectionRadius": 0.3,
+        "sectionChamfer": 0.6,
+        "gapWidth": 0,
+        "innerWidth": 28,
+        "innerHeight": 16,
+        "innerRadius": 5.6
+      },
+      "fields": [
+        {
+          "key": "innerWidth",
+          "label": "内宽",
+          "labelEn": "Inner width",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "innerHeight",
+          "label": "内高",
+          "labelEn": "Inner height",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "section",
+          "label": "截面",
+          "labelEn": "Section",
+          "type": "select",
+          "options": [
+            {
+              "value": "round",
+              "label": "圆线",
+              "labelEn": "Round wire"
+            },
+            {
+              "value": "square",
+              "label": "圆角方线",
+              "labelEn": "Rounded square"
+            },
+            {
+              "value": "chamferedSquare",
+              "label": "倒角方线",
+              "labelEn": "Chamfered square"
+            }
+          ]
+        },
+        {
+          "key": "sectionSize",
+          "label": "线径／方线边长",
+          "labelEn": "Wire diameter / square size",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "sectionRadius",
+          "label": "方线截面 R（圆线忽略）",
+          "labelEn": "Square section corner R",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "sectionChamfer",
+          "label": "方线截面倒角 C（仅倒角方线）",
+          "labelEn": "Square section chamfer C",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "innerRadius",
+          "label": "端部内 R",
+          "labelEn": "End inner radius",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "gapWidth",
+          "label": "右端实际缝宽（0 闭合）",
+          "labelEn": "Right gap (0 = closed)",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "ovalBuckle"
+      },
+      "normalExample": {
+        "kind": "ovalBuckle",
+        "section": "round",
+        "sectionSize": 3,
+        "sectionRadius": 0.3,
+        "sectionChamfer": 0.6,
+        "gapWidth": 0,
+        "innerWidth": 28,
+        "innerHeight": 16,
+        "innerRadius": 5.6
+      }
+    },
+    {
+      "kind": "sliderBuckle",
+      "title": "Slider buckle",
+      "description": "The inner height spans the full frame; the fused round bar has an editable vertical offset and no opening. Compact round-wire frames require an inner short side at least 2.5 wire diameters and each window at least one wire diameter high.",
+      "defaults": {
+        "section": "round",
+        "sectionSize": 3,
+        "sectionRadius": 0.3,
+        "sectionChamfer": 0.6,
+        "gapWidth": 0,
+        "innerWidth": 30,
+        "innerHeight": 24,
+        "innerRadius": 3,
+        "barDiameter": 2.5,
+        "barOffset": 0
+      },
+      "fields": [
+        {
+          "key": "innerWidth",
+          "label": "内宽",
+          "labelEn": "Inner width",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "innerHeight",
+          "label": "内高",
+          "labelEn": "Inner height",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "section",
+          "label": "截面",
+          "labelEn": "Section",
+          "type": "select",
+          "options": [
+            {
+              "value": "round",
+              "label": "圆线",
+              "labelEn": "Round wire"
+            },
+            {
+              "value": "square",
+              "label": "圆角方线",
+              "labelEn": "Rounded square"
+            },
+            {
+              "value": "chamferedSquare",
+              "label": "倒角方线",
+              "labelEn": "Chamfered square"
+            }
+          ]
+        },
+        {
+          "key": "sectionSize",
+          "label": "线径／方线边长",
+          "labelEn": "Wire diameter / square size",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "sectionRadius",
+          "label": "方线截面 R（圆线忽略）",
+          "labelEn": "Square section corner R",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "sectionChamfer",
+          "label": "方线截面倒角 C（仅倒角方线）",
+          "labelEn": "Square section chamfer C",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "innerRadius",
+          "label": "框内 R",
+          "labelEn": "Frame inner radius",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "barDiameter",
+          "label": "横杆直径",
+          "labelEn": "Bar diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "barOffset",
+          "label": "横杆偏移（上正下负）",
+          "labelEn": "Bar offset (+up)",
+          "type": "number",
+          "min": -100,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "sliderBuckle"
+      },
+      "normalExample": {
+        "kind": "sliderBuckle",
+        "section": "round",
+        "sectionSize": 3,
+        "sectionRadius": 0.3,
+        "sectionChamfer": 0.6,
+        "gapWidth": 0,
+        "innerWidth": 30,
+        "innerHeight": 24,
+        "innerRadius": 3,
+        "barDiameter": 2.5,
+        "barOffset": 0
+      }
+    },
+    {
+      "kind": "dBarBuckle",
+      "title": "D buckle with round bar",
+      "description": "圆角方线 U 主体与固定圆杆融合；杆底与脚底齐平。",
+      "defaults": {
+        "section": "square",
+        "sectionSize": 6,
+        "sectionRadius": 0.6,
+        "sectionChamfer": 0.6,
+        "gapWidth": 0,
+        "innerWidth": 32,
+        "innerHeight": 24,
+        "barDiameter": 4.5
+      },
+      "fields": [
+        {
+          "key": "innerWidth",
+          "label": "内宽",
+          "labelEn": "Inner width",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "innerHeight",
+          "label": "内高",
+          "labelEn": "Inner height",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "sectionSize",
+          "label": "线径／方线边长",
+          "labelEn": "Wire diameter / square size",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "sectionRadius",
+          "label": "方线截面 R（圆线忽略）",
+          "labelEn": "Square section corner R",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "barDiameter",
+          "label": "固定横杆直径",
+          "labelEn": "Bar diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "dBarBuckle"
+      },
+      "normalExample": {
+        "kind": "dBarBuckle",
+        "section": "square",
+        "sectionSize": 6,
+        "sectionRadius": 0.6,
+        "sectionChamfer": 0.6,
+        "gapWidth": 0,
+        "innerWidth": 32,
+        "innerHeight": 24,
+        "barDiameter": 4.5
+      }
+    },
+    {
+      "kind": "flangedBushing",
+      "title": "Flanged bushing",
+      "description": "A coaxial flange and cylindrical bushing with a straight bore through the full length. Generic parametric geometry, with no threads or source-product feature reconstruction.",
+      "defaults": {
+        "bodyDiameter": 12,
+        "flangeDiameter": 20,
+        "boreDiameter": 6,
+        "bodyHeight": 10,
+        "flangeThickness": 3
+      },
+      "fields": [
+        {
+          "key": "bodyDiameter",
+          "label": "轴套外径",
+          "labelEn": "Bushing body diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "flangeDiameter",
+          "label": "法兰外径",
+          "labelEn": "Flange diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "boreDiameter",
+          "label": "通孔直径",
+          "labelEn": "Through-bore diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "bodyHeight",
+          "label": "筒体高度",
+          "labelEn": "Body height",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "flangeThickness",
+          "label": "法兰厚度",
+          "labelEn": "Flange thickness",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "flangedBushing"
+      },
+      "normalExample": {
+        "kind": "flangedBushing",
+        "bodyDiameter": 12,
+        "flangeDiameter": 20,
+        "boreDiameter": 6,
+        "bodyHeight": 10,
+        "flangeThickness": 3
+      }
+    },
+    {
+      "kind": "bossPlate",
+      "title": "Two hollow-boss mounting plate",
+      "description": "A rounded plate with two symmetric hollow cylindrical bosses; each bore passes through both boss and plate. Generic parametric geometry, not a threaded, counterbored, or source-product reconstruction.",
+      "defaults": {
+        "width": 40,
+        "depth": 16,
+        "thickness": 3,
+        "cornerRadius": 3,
+        "bossSpacing": 24,
+        "bossOuterDiameter": 8,
+        "boreDiameter": 4,
+        "bossHeight": 6
+      },
+      "fields": [
+        {
+          "key": "width",
+          "label": "板宽 X",
+          "labelEn": "Plate width X",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "depth",
+          "label": "板深 Y",
+          "labelEn": "Plate depth Y",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "thickness",
+          "label": "板厚",
+          "labelEn": "Plate thickness",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "cornerRadius",
+          "label": "板角 R",
+          "labelEn": "Plate corner radius",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "bossSpacing",
+          "label": "凸台中心距",
+          "labelEn": "Boss center spacing",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "bossOuterDiameter",
+          "label": "凸台外径",
+          "labelEn": "Boss outer diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "boreDiameter",
+          "label": "通孔直径",
+          "labelEn": "Through-bore diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "bossHeight",
+          "label": "凸台高度（板下）",
+          "labelEn": "Boss height (below plate)",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "bossPlate"
+      },
+      "normalExample": {
+        "kind": "bossPlate",
+        "width": 40,
+        "depth": 16,
+        "thickness": 3,
+        "cornerRadius": 3,
+        "bossSpacing": 24,
+        "bossOuterDiameter": 8,
+        "boreDiameter": 4,
+        "bossHeight": 6
+      }
+    },
+    {
+      "kind": "thinWallTray",
+      "title": "Open tray with two hollow bosses",
+      "description": "One fused solid, centered in XY, bottom at Z=0, open top. Clear cavity width/depth = outer width/depth minus twice wall thickness; clear height = height minus floor thickness. Two X-symmetric bosses rise from the inner floor; bores pass through bosses and floor. Straight walls/corners only; no draft, fillets, threads or assembly relationships.",
+      "defaults": {
+        "outerWidth": 60,
+        "outerDepth": 36,
+        "height": 14,
+        "wallThickness": 2,
+        "floorThickness": 2,
+        "bossSpacing": 30,
+        "bossOuterDiameter": 8,
+        "boreDiameter": 3,
+        "bossHeight": 8
+      },
+      "fields": [
+        {
+          "key": "outerWidth",
+          "label": "外宽 X",
+          "labelEn": "Outer width X",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "outerDepth",
+          "label": "外深 Y",
+          "labelEn": "Outer depth Y",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "height",
+          "label": "壳体总高",
+          "labelEn": "Total height",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "wallThickness",
+          "label": "侧壁厚",
+          "labelEn": "Wall thickness",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "floorThickness",
+          "label": "底板厚",
+          "labelEn": "Floor thickness",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "bossSpacing",
+          "label": "两柱中心距 X",
+          "labelEn": "Boss center spacing X",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "bossOuterDiameter",
+          "label": "柱外径",
+          "labelEn": "Boss outer diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "boreDiameter",
+          "label": "贯穿孔径",
+          "labelEn": "Through-bore diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "bossHeight",
+          "label": "内底面以上柱高",
+          "labelEn": "Boss height above inner floor",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "thinWallTray"
+      },
+      "normalExample": {
+        "kind": "thinWallTray",
+        "outerWidth": 60,
+        "outerDepth": 36,
+        "height": 14,
+        "wallThickness": 2,
+        "floorThickness": 2,
+        "bossSpacing": 30,
+        "bossOuterDiameter": 8,
+        "boreDiameter": 3,
+        "bossHeight": 8
+      }
+    },
+    {
+      "kind": "roundedBossTray",
+      "title": "Rounded tray with two hollow bosses",
+      "description": "Open rounded-rectangle tray with two hollow bosses on the inner floor. Outer corner radius, wall/floor thickness and boss dimensions are editable. Straight walls only; no draft, clips, lettering or texture.",
+      "defaults": {
+        "outerWidth": 60,
+        "outerDepth": 38,
+        "height": 12,
+        "cornerRadius": 6,
+        "wallThickness": 2,
+        "floorThickness": 2,
+        "bossSpacing": 30,
+        "bossOuterDiameter": 7,
+        "boreDiameter": 3,
+        "bossHeight": 7
+      },
+      "fields": [
+        {
+          "key": "outerWidth",
+          "label": "外宽 X",
+          "labelEn": "Outer width X",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "outerDepth",
+          "label": "外深 Y",
+          "labelEn": "Outer depth Y",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "height",
+          "label": "壳体总高",
+          "labelEn": "Total height",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "cornerRadius",
+          "label": "外轮廓圆角 R",
+          "labelEn": "Outer corner radius",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "wallThickness",
+          "label": "侧壁厚",
+          "labelEn": "Wall thickness",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "floorThickness",
+          "label": "底板厚",
+          "labelEn": "Floor thickness",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "bossSpacing",
+          "label": "两柱中心距 X",
+          "labelEn": "Boss center spacing X",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "bossOuterDiameter",
+          "label": "柱外径",
+          "labelEn": "Boss outer diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "boreDiameter",
+          "label": "贯穿孔径",
+          "labelEn": "Through-bore diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "bossHeight",
+          "label": "内底面以上柱高",
+          "labelEn": "Boss height above inner floor",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "roundedBossTray"
+      },
+      "normalExample": {
+        "kind": "roundedBossTray",
+        "outerWidth": 60,
+        "outerDepth": 38,
+        "height": 12,
+        "cornerRadius": 6,
+        "wallThickness": 2,
+        "floorThickness": 2,
+        "bossSpacing": 30,
+        "bossOuterDiameter": 7,
+        "boreDiameter": 3,
+        "bossHeight": 7
+      }
+    },
+    {
+      "kind": "openArcRing",
+      "title": "Wide-gap C ring",
+      "description": "Constant-section circular arc with an adjustable opening angle for C rings, hook rings and open circular frames. End balls, hinges and variable sections are excluded.",
+      "defaults": {
+        "section": "round",
+        "innerDiameter": 30,
+        "sectionSize": 4,
+        "sectionRadius": 0.4,
+        "sectionChamfer": 0.6,
+        "openingAngle": 70
+      },
+      "fields": [
+        {
+          "key": "innerDiameter",
+          "label": "内径",
+          "labelEn": "Inner diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "section",
+          "label": "截面",
+          "labelEn": "Section",
+          "type": "select",
+          "options": [
+            {
+              "value": "round",
+              "label": "圆线",
+              "labelEn": "Round wire"
+            },
+            {
+              "value": "square",
+              "label": "圆角方线",
+              "labelEn": "Rounded square"
+            },
+            {
+              "value": "chamferedSquare",
+              "label": "倒角方线",
+              "labelEn": "Chamfered square"
+            }
+          ]
+        },
+        {
+          "key": "sectionSize",
+          "label": "线径／方线边长",
+          "labelEn": "Wire diameter / square size",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "sectionRadius",
+          "label": "方线截面 R（圆线忽略）",
+          "labelEn": "Square section corner R",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "sectionChamfer",
+          "label": "方线截面倒角 C（仅倒角方线）",
+          "labelEn": "Square section chamfer C",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "openingAngle",
+          "label": "开口角度（°）",
+          "labelEn": "Opening angle (degrees)",
+          "type": "number",
+          "min": 5,
+          "step": 1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "openArcRing"
+      },
+      "normalExample": {
+        "kind": "openArcRing",
+        "section": "round",
+        "innerDiameter": 30,
+        "sectionSize": 4,
+        "sectionRadius": 0.4,
+        "sectionChamfer": 0.6,
+        "openingAngle": 70
+      }
+    },
+    {
+      "kind": "counterboreTool",
+      "title": "Counterbore / countersink tool",
+      "description": "Tool solid: entry at Z=0, extending along +Z. Position at the workpiece surface, rotate 180 degrees if needed, then select the body first and subtract the tool.",
+      "defaults": {
+        "holeDiameter": 4,
+        "depth": 8,
+        "headDiameter": 8,
+        "headDepth": 2,
+        "style": "bore"
+      },
+      "fields": [
+        {
+          "key": "holeDiameter",
+          "label": "孔直径",
+          "labelEn": "Hole diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "depth",
+          "label": "总深",
+          "labelEn": "Total depth",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "headDiameter",
+          "label": "头径",
+          "labelEn": "Head diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "headDepth",
+          "label": "头深",
+          "labelEn": "Head depth",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "style",
+          "label": "类型",
+          "labelEn": "Style",
+          "type": "select",
+          "options": [
+            {
+              "value": "bore",
+              "label": "沉孔",
+              "labelEn": "Counterbore"
+            },
+            {
+              "value": "sink",
+              "label": "沉头孔",
+              "labelEn": "Countersink"
+            }
+          ]
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "counterboreTool"
+      },
+      "normalExample": {
+        "kind": "counterboreTool",
+        "holeDiameter": 4,
+        "depth": 8,
+        "headDiameter": 8,
+        "headDepth": 2,
+        "style": "bore"
+      }
+    },
+    {
+      "kind": "twinWindowPlate",
+      "title": "Flat twin-window buckle",
+      "description": "A flat plate with two equal symmetric rounded windows and an integral center bridge. Independent outline, window and front/back edge radii. No round bar, offset windows or side arch.",
+      "defaults": {
+        "outerWidth": 44.8,
+        "outerHeight": 26.6,
+        "outerRadius": 3.5,
+        "windowWidth": 37.8,
+        "totalInnerHeight": 19.6,
+        "windowRadius": 2,
+        "barWidth": 3.5,
+        "thickness": 3.5,
+        "edgeRadius": 0.5
+      },
+      "fields": [
+        {
+          "key": "outerWidth",
+          "label": "外宽",
+          "labelEn": "Outer width",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "outerHeight",
+          "label": "外高",
+          "labelEn": "Outer height",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "outerRadius",
+          "label": "外平面 R",
+          "labelEn": "Outer planar radius",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "windowWidth",
+          "label": "每孔净宽",
+          "labelEn": "Window clear width",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "totalInnerHeight",
+          "label": "双孔与横条总内高",
+          "labelEn": "Total inner height",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "windowRadius",
+          "label": "孔内平面 R",
+          "labelEn": "Window planar radius",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        },
+        {
+          "key": "barWidth",
+          "label": "中横条正面宽",
+          "labelEn": "Center bridge width",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "thickness",
+          "label": "整板厚度",
+          "labelEn": "Plate thickness",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
+          "key": "edgeRadius",
+          "label": "前后边缘截面 R",
+          "labelEn": "Front/back edge radius",
+          "type": "number",
+          "min": 0,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "twinWindowPlate"
+      },
+      "normalExample": {
+        "kind": "twinWindowPlate",
+        "outerWidth": 44.8,
+        "outerHeight": 26.6,
+        "outerRadius": 3.5,
+        "windowWidth": 37.8,
+        "totalInnerHeight": 19.6,
+        "windowRadius": 2,
+        "barWidth": 3.5,
+        "thickness": 3.5,
+        "edgeRadius": 0.5
+      }
+    },
     {
       "kind": "uEndHolePlate",
       "title": "Arched U plate with two end holes",
@@ -2759,1268 +5107,6 @@
       }
     },
     {
-      "kind": "flatFrame",
-      "title": "Flat frame with independent corner radii",
-      "description": "Independent inner/outer outlines and thickness. Half-short-side radii allow capsule frames. A parametric tool, not a complete reconstruction of an IGS part.",
-      "defaults": {
-        "outerWidth": 40,
-        "outerHeight": 28,
-        "innerWidth": 28,
-        "innerHeight": 16,
-        "outerRadius": 5,
-        "innerRadius": 3,
-        "thickness": 3
-      },
-      "fields": [
-        {
-          "key": "outerWidth",
-          "label": "外宽",
-          "labelEn": "Outer width",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "outerHeight",
-          "label": "外高",
-          "labelEn": "Outer height",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "innerWidth",
-          "label": "内宽",
-          "labelEn": "Inner width",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "innerHeight",
-          "label": "内高",
-          "labelEn": "Inner height",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "outerRadius",
-          "label": "外轮廓 R",
-          "labelEn": "Outer corner radius",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "innerRadius",
-          "label": "内轮廓 R",
-          "labelEn": "Inner corner radius",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "thickness",
-          "label": "厚度",
-          "labelEn": "Thickness",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        }
-      ],
-      "knownUnsupportedCases": [
-        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
-      ],
-      "minimalExample": {
-        "kind": "flatFrame"
-      },
-      "normalExample": {
-        "kind": "flatFrame",
-        "outerWidth": 40,
-        "outerHeight": 28,
-        "innerWidth": 28,
-        "innerHeight": 16,
-        "outerRadius": 5,
-        "innerRadius": 3,
-        "thickness": 3
-      }
-    },
-    {
-      "kind": "roundedFlatFrame",
-      "title": "Rounded frame with independent radii",
-      "description": "A flat frame with independent inner and outer corner radii, then one exact fillet of every sharp edge. The specified edge radius fails atomically if unsolvable. Near half-thickness can approximate a round section but is not certified as a semicircle.",
-      "defaults": {
-        "outerWidth": 40,
-        "outerHeight": 28,
-        "innerWidth": 30,
-        "innerHeight": 18,
-        "outerRadius": 5,
-        "innerRadius": 2,
-        "thickness": 4,
-        "edgeRadius": 1.5
-      },
-      "fields": [
-        {
-          "key": "outerWidth",
-          "label": "外宽",
-          "labelEn": "Outer width",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "outerHeight",
-          "label": "外高",
-          "labelEn": "Outer height",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "innerWidth",
-          "label": "内宽",
-          "labelEn": "Inner width",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "innerHeight",
-          "label": "内高",
-          "labelEn": "Inner height",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "outerRadius",
-          "label": "外轮廓 R",
-          "labelEn": "Outer corner radius",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "innerRadius",
-          "label": "内轮廓 R",
-          "labelEn": "Inner corner radius",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "thickness",
-          "label": "厚度",
-          "labelEn": "Thickness",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "edgeRadius",
-          "label": "整件圆边 R",
-          "labelEn": "All-edge fillet radius",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        }
-      ],
-      "knownUnsupportedCases": [
-        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
-      ],
-      "minimalExample": {
-        "kind": "roundedFlatFrame"
-      },
-      "normalExample": {
-        "kind": "roundedFlatFrame",
-        "outerWidth": 40,
-        "outerHeight": 28,
-        "innerWidth": 30,
-        "innerHeight": 18,
-        "outerRadius": 5,
-        "innerRadius": 2,
-        "thickness": 4,
-        "edgeRadius": 1.5
-      }
-    },
-    {
-      "kind": "twinWindowPlate",
-      "title": "Flat twin-window buckle",
-      "description": "A flat plate with two equal symmetric rounded windows and an integral center bridge. Independent outline, window and front/back edge radii. No round bar, offset windows or side arch.",
-      "defaults": {
-        "outerWidth": 44.8,
-        "outerHeight": 26.6,
-        "outerRadius": 3.5,
-        "windowWidth": 37.8,
-        "totalInnerHeight": 19.6,
-        "windowRadius": 2,
-        "barWidth": 3.5,
-        "thickness": 3.5,
-        "edgeRadius": 0.5
-      },
-      "fields": [
-        {
-          "key": "outerWidth",
-          "label": "外宽",
-          "labelEn": "Outer width",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "outerHeight",
-          "label": "外高",
-          "labelEn": "Outer height",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "outerRadius",
-          "label": "外平面 R",
-          "labelEn": "Outer planar radius",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "windowWidth",
-          "label": "每孔净宽",
-          "labelEn": "Window clear width",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "totalInnerHeight",
-          "label": "双孔与横条总内高",
-          "labelEn": "Total inner height",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "windowRadius",
-          "label": "孔内平面 R",
-          "labelEn": "Window planar radius",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "barWidth",
-          "label": "中横条正面宽",
-          "labelEn": "Center bridge width",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "thickness",
-          "label": "整板厚度",
-          "labelEn": "Plate thickness",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "edgeRadius",
-          "label": "前后边缘截面 R",
-          "labelEn": "Front/back edge radius",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        }
-      ],
-      "knownUnsupportedCases": [
-        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
-      ],
-      "minimalExample": {
-        "kind": "twinWindowPlate"
-      },
-      "normalExample": {
-        "kind": "twinWindowPlate",
-        "outerWidth": 44.8,
-        "outerHeight": 26.6,
-        "outerRadius": 3.5,
-        "windowWidth": 37.8,
-        "totalInnerHeight": 19.6,
-        "windowRadius": 2,
-        "barWidth": 3.5,
-        "thickness": 3.5,
-        "edgeRadius": 0.5
-      }
-    },
-    {
-      "kind": "mountingPlate",
-      "title": "Two-hole rounded mounting plate",
-      "description": "Two symmetric X-axis holes with independent center spacing. Plain through holes only; no threads, countersinks or counterbores.",
-      "defaults": {
-        "width": 40,
-        "depth": 16,
-        "thickness": 3,
-        "cornerRadius": 3,
-        "holeDiameter": 4,
-        "holeSpacing": 24
-      },
-      "fields": [
-        {
-          "key": "width",
-          "label": "板宽 X",
-          "labelEn": "Plate width X",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "depth",
-          "label": "板深 Y",
-          "labelEn": "Plate depth Y",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "thickness",
-          "label": "厚度",
-          "labelEn": "Thickness",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "cornerRadius",
-          "label": "外角 R",
-          "labelEn": "Outer corner radius",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "holeDiameter",
-          "label": "孔径",
-          "labelEn": "Hole diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "holeSpacing",
-          "label": "两孔中心距",
-          "labelEn": "Hole center spacing",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        }
-      ],
-      "knownUnsupportedCases": [
-        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
-      ],
-      "minimalExample": {
-        "kind": "mountingPlate"
-      },
-      "normalExample": {
-        "kind": "mountingPlate",
-        "width": 40,
-        "depth": 16,
-        "thickness": 3,
-        "cornerRadius": 3,
-        "holeDiameter": 4,
-        "holeSpacing": 24
-      }
-    },
-    {
-      "kind": "fourHolePlate",
-      "title": "Four-hole mounting plate",
-      "description": "Rectangular plate with four through holes. Set X/Y edge insets and optional outer corner radius; no threads or counterbores.",
-      "defaults": {
-        "width": 50,
-        "depth": 30,
-        "thickness": 3,
-        "cornerRadius": 0,
-        "holeDiameter": 4,
-        "insetX": 5,
-        "insetY": 5
-      },
-      "fields": [
-        {
-          "key": "width",
-          "label": "板宽 X",
-          "labelEn": "Plate width X",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "depth",
-          "label": "板深 Y",
-          "labelEn": "Plate depth Y",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "thickness",
-          "label": "厚度",
-          "labelEn": "Thickness",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "cornerRadius",
-          "label": "外角 R",
-          "labelEn": "Outer corner radius",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "holeDiameter",
-          "label": "孔径",
-          "labelEn": "Hole diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "insetX",
-          "label": "左右孔心边距",
-          "labelEn": "Hole inset X",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "insetY",
-          "label": "前后孔心边距",
-          "labelEn": "Hole inset Y",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        }
-      ],
-      "knownUnsupportedCases": [
-        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
-      ],
-      "minimalExample": {
-        "kind": "fourHolePlate"
-      },
-      "normalExample": {
-        "kind": "fourHolePlate",
-        "width": 50,
-        "depth": 30,
-        "thickness": 3,
-        "cornerRadius": 0,
-        "holeDiameter": 4,
-        "insetX": 5,
-        "insetY": 5
-      }
-    },
-    {
-      "kind": "bossPlate",
-      "title": "Two hollow-boss mounting plate",
-      "description": "A rounded plate with two symmetric hollow cylindrical bosses; each bore passes through both boss and plate. Generic parametric geometry, not a threaded, counterbored, or source-product reconstruction.",
-      "defaults": {
-        "width": 40,
-        "depth": 16,
-        "thickness": 3,
-        "cornerRadius": 3,
-        "bossSpacing": 24,
-        "bossOuterDiameter": 8,
-        "boreDiameter": 4,
-        "bossHeight": 6
-      },
-      "fields": [
-        {
-          "key": "width",
-          "label": "板宽 X",
-          "labelEn": "Plate width X",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "depth",
-          "label": "板深 Y",
-          "labelEn": "Plate depth Y",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "thickness",
-          "label": "板厚",
-          "labelEn": "Plate thickness",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "cornerRadius",
-          "label": "板角 R",
-          "labelEn": "Plate corner radius",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "bossSpacing",
-          "label": "凸台中心距",
-          "labelEn": "Boss center spacing",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "bossOuterDiameter",
-          "label": "凸台外径",
-          "labelEn": "Boss outer diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "boreDiameter",
-          "label": "通孔直径",
-          "labelEn": "Through-bore diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "bossHeight",
-          "label": "凸台高度（板下）",
-          "labelEn": "Boss height (below plate)",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        }
-      ],
-      "knownUnsupportedCases": [
-        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
-      ],
-      "minimalExample": {
-        "kind": "bossPlate"
-      },
-      "normalExample": {
-        "kind": "bossPlate",
-        "width": 40,
-        "depth": 16,
-        "thickness": 3,
-        "cornerRadius": 3,
-        "bossSpacing": 24,
-        "bossOuterDiameter": 8,
-        "boreDiameter": 4,
-        "bossHeight": 6
-      }
-    },
-    {
-      "kind": "flangedBushing",
-      "title": "Flanged bushing",
-      "description": "A coaxial flange and cylindrical bushing with a straight bore through the full length. Generic parametric geometry, with no threads or source-product feature reconstruction.",
-      "defaults": {
-        "bodyDiameter": 12,
-        "flangeDiameter": 20,
-        "boreDiameter": 6,
-        "bodyHeight": 10,
-        "flangeThickness": 3
-      },
-      "fields": [
-        {
-          "key": "bodyDiameter",
-          "label": "轴套外径",
-          "labelEn": "Bushing body diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "flangeDiameter",
-          "label": "法兰外径",
-          "labelEn": "Flange diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "boreDiameter",
-          "label": "通孔直径",
-          "labelEn": "Through-bore diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "bodyHeight",
-          "label": "筒体高度",
-          "labelEn": "Body height",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "flangeThickness",
-          "label": "法兰厚度",
-          "labelEn": "Flange thickness",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        }
-      ],
-      "knownUnsupportedCases": [
-        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
-      ],
-      "minimalExample": {
-        "kind": "flangedBushing"
-      },
-      "normalExample": {
-        "kind": "flangedBushing",
-        "bodyDiameter": 12,
-        "flangeDiameter": 20,
-        "boreDiameter": 6,
-        "bodyHeight": 10,
-        "flangeThickness": 3
-      }
-    },
-    {
-      "kind": "openArcRing",
-      "title": "Wide-gap C ring",
-      "description": "Constant-section circular arc with an adjustable opening angle for C rings, hook rings and open circular frames. End balls, hinges and variable sections are excluded.",
-      "defaults": {
-        "section": "round",
-        "innerDiameter": 30,
-        "sectionSize": 4,
-        "sectionRadius": 0.4,
-        "sectionChamfer": 0.6,
-        "openingAngle": 70
-      },
-      "fields": [
-        {
-          "key": "innerDiameter",
-          "label": "内径",
-          "labelEn": "Inner diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "section",
-          "label": "截面",
-          "labelEn": "Section",
-          "type": "select",
-          "options": [
-            {
-              "value": "round",
-              "label": "圆线",
-              "labelEn": "Round wire"
-            },
-            {
-              "value": "square",
-              "label": "圆角方线",
-              "labelEn": "Rounded square"
-            },
-            {
-              "value": "chamferedSquare",
-              "label": "倒角方线",
-              "labelEn": "Chamfered square"
-            }
-          ]
-        },
-        {
-          "key": "sectionSize",
-          "label": "线径／方线边长",
-          "labelEn": "Wire diameter / square size",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "sectionRadius",
-          "label": "方线截面 R（圆线忽略）",
-          "labelEn": "Square section corner R",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "sectionChamfer",
-          "label": "方线截面倒角 C（仅倒角方线）",
-          "labelEn": "Square section chamfer C",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "openingAngle",
-          "label": "开口角度（°）",
-          "labelEn": "Opening angle (degrees)",
-          "type": "number",
-          "min": 5,
-          "step": 1
-        }
-      ],
-      "knownUnsupportedCases": [
-        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
-      ],
-      "minimalExample": {
-        "kind": "openArcRing"
-      },
-      "normalExample": {
-        "kind": "openArcRing",
-        "section": "round",
-        "innerDiameter": 30,
-        "sectionSize": 4,
-        "sectionRadius": 0.4,
-        "sectionChamfer": 0.6,
-        "openingAngle": 70
-      }
-    },
-    {
-      "kind": "roundedBossTray",
-      "title": "Rounded tray with two hollow bosses",
-      "description": "Open rounded-rectangle tray with two hollow bosses on the inner floor. Outer corner radius, wall/floor thickness and boss dimensions are editable. Straight walls only; no draft, clips, lettering or texture.",
-      "defaults": {
-        "outerWidth": 60,
-        "outerDepth": 38,
-        "height": 12,
-        "cornerRadius": 6,
-        "wallThickness": 2,
-        "floorThickness": 2,
-        "bossSpacing": 30,
-        "bossOuterDiameter": 7,
-        "boreDiameter": 3,
-        "bossHeight": 7
-      },
-      "fields": [
-        {
-          "key": "outerWidth",
-          "label": "外宽 X",
-          "labelEn": "Outer width X",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "outerDepth",
-          "label": "外深 Y",
-          "labelEn": "Outer depth Y",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "height",
-          "label": "壳体总高",
-          "labelEn": "Total height",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "cornerRadius",
-          "label": "外轮廓圆角 R",
-          "labelEn": "Outer corner radius",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "wallThickness",
-          "label": "侧壁厚",
-          "labelEn": "Wall thickness",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "floorThickness",
-          "label": "底板厚",
-          "labelEn": "Floor thickness",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "bossSpacing",
-          "label": "两柱中心距 X",
-          "labelEn": "Boss center spacing X",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "bossOuterDiameter",
-          "label": "柱外径",
-          "labelEn": "Boss outer diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "boreDiameter",
-          "label": "贯穿孔径",
-          "labelEn": "Through-bore diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "bossHeight",
-          "label": "内底面以上柱高",
-          "labelEn": "Boss height above inner floor",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        }
-      ],
-      "knownUnsupportedCases": [
-        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
-      ],
-      "minimalExample": {
-        "kind": "roundedBossTray"
-      },
-      "normalExample": {
-        "kind": "roundedBossTray",
-        "outerWidth": 60,
-        "outerDepth": 38,
-        "height": 12,
-        "cornerRadius": 6,
-        "wallThickness": 2,
-        "floorThickness": 2,
-        "bossSpacing": 30,
-        "bossOuterDiameter": 7,
-        "boreDiameter": 3,
-        "bossHeight": 7
-      }
-    },
-    {
-      "kind": "roundBadge",
-      "title": "Round badge base with two posts",
-      "description": "One solid combining a round badge plate, raised front rim and two rear mounting posts. Posts may be hollow. Brand artwork, knurling, doming and production dimensions are excluded.",
-      "defaults": {
-        "diameter": 40,
-        "thickness": 2,
-        "rimWidth": 2,
-        "rimHeight": 0.8,
-        "postSpacing": 18,
-        "postDiameter": 4,
-        "postHeight": 4,
-        "postBoreDiameter": 0
-      },
-      "fields": [
-        {
-          "key": "diameter",
-          "label": "牌面直径",
-          "labelEn": "Badge diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "thickness",
-          "label": "牌面厚度",
-          "labelEn": "Plate thickness",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "rimWidth",
-          "label": "正面环边宽",
-          "labelEn": "Front rim width",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "rimHeight",
-          "label": "正面环边高度",
-          "labelEn": "Front rim height",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "postSpacing",
-          "label": "背柱中心距 X",
-          "labelEn": "Rear post spacing X",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "postDiameter",
-          "label": "背柱直径",
-          "labelEn": "Rear post diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "postHeight",
-          "label": "背柱高度",
-          "labelEn": "Rear post height",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "postBoreDiameter",
-          "label": "背柱孔径（0 为实心）",
-          "labelEn": "Post bore diameter (0 = solid)",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        }
-      ],
-      "knownUnsupportedCases": [
-        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
-      ],
-      "minimalExample": {
-        "kind": "roundBadge"
-      },
-      "normalExample": {
-        "kind": "roundBadge",
-        "diameter": 40,
-        "thickness": 2,
-        "rimWidth": 2,
-        "rimHeight": 0.8,
-        "postSpacing": 18,
-        "postDiameter": 4,
-        "postHeight": 4,
-        "postBoreDiameter": 0
-      }
-    },
-    {
-      "kind": "thinWallTray",
-      "title": "Open tray with two hollow bosses",
-      "description": "One fused solid, centered in XY, bottom at Z=0, open top. Clear cavity width/depth = outer width/depth minus twice wall thickness; clear height = height minus floor thickness. Two X-symmetric bosses rise from the inner floor; bores pass through bosses and floor. Straight walls/corners only; no draft, fillets, threads or assembly relationships.",
-      "defaults": {
-        "outerWidth": 60,
-        "outerDepth": 36,
-        "height": 14,
-        "wallThickness": 2,
-        "floorThickness": 2,
-        "bossSpacing": 30,
-        "bossOuterDiameter": 8,
-        "boreDiameter": 3,
-        "bossHeight": 8
-      },
-      "fields": [
-        {
-          "key": "outerWidth",
-          "label": "外宽 X",
-          "labelEn": "Outer width X",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "outerDepth",
-          "label": "外深 Y",
-          "labelEn": "Outer depth Y",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "height",
-          "label": "壳体总高",
-          "labelEn": "Total height",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "wallThickness",
-          "label": "侧壁厚",
-          "labelEn": "Wall thickness",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "floorThickness",
-          "label": "底板厚",
-          "labelEn": "Floor thickness",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "bossSpacing",
-          "label": "两柱中心距 X",
-          "labelEn": "Boss center spacing X",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "bossOuterDiameter",
-          "label": "柱外径",
-          "labelEn": "Boss outer diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "boreDiameter",
-          "label": "贯穿孔径",
-          "labelEn": "Through-bore diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "bossHeight",
-          "label": "内底面以上柱高",
-          "labelEn": "Boss height above inner floor",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        }
-      ],
-      "knownUnsupportedCases": [
-        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
-      ],
-      "minimalExample": {
-        "kind": "thinWallTray"
-      },
-      "normalExample": {
-        "kind": "thinWallTray",
-        "outerWidth": 60,
-        "outerDepth": 36,
-        "height": 14,
-        "wallThickness": 2,
-        "floorThickness": 2,
-        "bossSpacing": 30,
-        "bossOuterDiameter": 8,
-        "boreDiameter": 3,
-        "bossHeight": 8
-      }
-    },
-    {
-      "kind": "tube",
-      "title": "Tube (C-part default)",
-      "description": "Coaxial tube; defaults 13.4 outer diameter, 12.4 inner diameter and 3 height for the user C-part.",
-      "defaults": {
-        "outerDiameter": 13.4,
-        "innerDiameter": 12.4,
-        "height": 3
-      },
-      "fields": [
-        {
-          "key": "outerDiameter",
-          "label": "外径",
-          "labelEn": "Outer diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "innerDiameter",
-          "label": "内径",
-          "labelEn": "Inner diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "height",
-          "label": "高度",
-          "labelEn": "Height",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        }
-      ],
-      "knownUnsupportedCases": [
-        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
-      ],
-      "minimalExample": {
-        "kind": "tube"
-      },
-      "normalExample": {
-        "kind": "tube",
-        "outerDiameter": 13.4,
-        "innerDiameter": 12.4,
-        "height": 3
-      }
-    },
-    {
-      "kind": "counterboreTool",
-      "title": "Counterbore / countersink tool",
-      "description": "Tool solid: entry at Z=0, extending along +Z. Position at the workpiece surface, rotate 180 degrees if needed, then select the body first and subtract the tool.",
-      "defaults": {
-        "holeDiameter": 4,
-        "depth": 8,
-        "headDiameter": 8,
-        "headDepth": 2,
-        "style": "bore"
-      },
-      "fields": [
-        {
-          "key": "holeDiameter",
-          "label": "孔直径",
-          "labelEn": "Hole diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "depth",
-          "label": "总深",
-          "labelEn": "Total depth",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "headDiameter",
-          "label": "头径",
-          "labelEn": "Head diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "headDepth",
-          "label": "头深",
-          "labelEn": "Head depth",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "style",
-          "label": "类型",
-          "labelEn": "Style",
-          "type": "select",
-          "options": [
-            {
-              "value": "bore",
-              "label": "沉孔",
-              "labelEn": "Counterbore"
-            },
-            {
-              "value": "sink",
-              "label": "沉头孔",
-              "labelEn": "Countersink"
-            }
-          ]
-        }
-      ],
-      "knownUnsupportedCases": [
-        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
-      ],
-      "minimalExample": {
-        "kind": "counterboreTool"
-      },
-      "normalExample": {
-        "kind": "counterboreTool",
-        "holeDiameter": 4,
-        "depth": 8,
-        "headDiameter": 8,
-        "headDepth": 2,
-        "style": "bore"
-      }
-    },
-    {
-      "kind": "ring",
-      "title": "Ring",
-      "description": "同心圆恒截面单圈；开缝为底部正中平行平切。",
-      "defaults": {
-        "section": "round",
-        "sectionSize": 3,
-        "sectionRadius": 0.3,
-        "sectionChamfer": 0.6,
-        "gapWidth": 0,
-        "innerDiameter": 24
-      },
-      "fields": [
-        {
-          "key": "innerDiameter",
-          "label": "内径",
-          "labelEn": "Inner diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "section",
-          "label": "截面",
-          "labelEn": "Section",
-          "type": "select",
-          "options": [
-            {
-              "value": "round",
-              "label": "圆线",
-              "labelEn": "Round wire"
-            },
-            {
-              "value": "square",
-              "label": "圆角方线",
-              "labelEn": "Rounded square"
-            },
-            {
-              "value": "chamferedSquare",
-              "label": "倒角方线",
-              "labelEn": "Chamfered square"
-            }
-          ]
-        },
-        {
-          "key": "sectionSize",
-          "label": "线径／方线边长",
-          "labelEn": "Wire diameter / square size",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "sectionRadius",
-          "label": "方线截面 R（圆线忽略）",
-          "labelEn": "Square section corner R",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "sectionChamfer",
-          "label": "方线截面倒角 C（仅倒角方线）",
-          "labelEn": "Square section chamfer C",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "gapWidth",
-          "label": "底部实际缝宽（0 闭合）",
-          "labelEn": "Bottom gap (0 = closed)",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        }
-      ],
-      "knownUnsupportedCases": [
-        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
-      ],
-      "minimalExample": {
-        "kind": "ring"
-      },
-      "normalExample": {
-        "kind": "ring",
-        "section": "round",
-        "sectionSize": 3,
-        "sectionRadius": 0.3,
-        "sectionChamfer": 0.6,
-        "gapWidth": 0,
-        "innerDiameter": 24
-      }
-    },
-    {
       "kind": "ringBar",
       "title": "Ring with fixed crossbar",
       "description": "A constant-section circular frame fused to one round X-axis crossbar. The bar has editable Y and depth Z offsets. Moving bars, hinges and exact joint transitions are excluded.",
@@ -4374,592 +5460,6 @@
         "innerHeight": 13.9,
         "sectionSize": 6.1
       }
-    },
-    {
-      "kind": "dBuckle",
-      "title": "D buckle",
-      "description": "半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。",
-      "defaults": {
-        "section": "round",
-        "sectionSize": 3,
-        "sectionRadius": 0.3,
-        "sectionChamfer": 0.6,
-        "gapWidth": 0,
-        "innerWidth": 24,
-        "innerHeight": 19,
-        "innerRadius": 2
-      },
-      "fields": [
-        {
-          "key": "innerWidth",
-          "label": "内宽",
-          "labelEn": "Inner width",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "innerHeight",
-          "label": "内高",
-          "labelEn": "Inner height",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "section",
-          "label": "截面",
-          "labelEn": "Section",
-          "type": "select",
-          "options": [
-            {
-              "value": "round",
-              "label": "圆线",
-              "labelEn": "Round wire"
-            },
-            {
-              "value": "square",
-              "label": "圆角方线",
-              "labelEn": "Rounded square"
-            },
-            {
-              "value": "chamferedSquare",
-              "label": "倒角方线",
-              "labelEn": "Chamfered square"
-            }
-          ]
-        },
-        {
-          "key": "sectionSize",
-          "label": "线径／方线边长",
-          "labelEn": "Wire diameter / square size",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "sectionRadius",
-          "label": "方线截面 R（圆线忽略）",
-          "labelEn": "Square section corner R",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "sectionChamfer",
-          "label": "方线截面倒角 C（仅倒角方线）",
-          "labelEn": "Square section chamfer C",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "innerRadius",
-          "label": "底内 R",
-          "labelEn": "Bottom inner radius",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "gapWidth",
-          "label": "底部实际缝宽（0 闭合）",
-          "labelEn": "Bottom gap (0 = closed)",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        }
-      ],
-      "knownUnsupportedCases": [
-        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
-      ],
-      "minimalExample": {
-        "kind": "dBuckle"
-      },
-      "normalExample": {
-        "kind": "dBuckle",
-        "section": "round",
-        "sectionSize": 3,
-        "sectionRadius": 0.3,
-        "sectionChamfer": 0.6,
-        "gapWidth": 0,
-        "innerWidth": 24,
-        "innerHeight": 19,
-        "innerRadius": 2
-      }
-    },
-    {
-      "kind": "dBarBuckle",
-      "title": "D buckle with round bar",
-      "description": "圆角方线 U 主体与固定圆杆融合；杆底与脚底齐平。",
-      "defaults": {
-        "section": "square",
-        "sectionSize": 6,
-        "sectionRadius": 0.6,
-        "sectionChamfer": 0.6,
-        "gapWidth": 0,
-        "innerWidth": 32,
-        "innerHeight": 24,
-        "barDiameter": 4.5
-      },
-      "fields": [
-        {
-          "key": "innerWidth",
-          "label": "内宽",
-          "labelEn": "Inner width",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "innerHeight",
-          "label": "内高",
-          "labelEn": "Inner height",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "sectionSize",
-          "label": "线径／方线边长",
-          "labelEn": "Wire diameter / square size",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "sectionRadius",
-          "label": "方线截面 R（圆线忽略）",
-          "labelEn": "Square section corner R",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "barDiameter",
-          "label": "固定横杆直径",
-          "labelEn": "Bar diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        }
-      ],
-      "knownUnsupportedCases": [
-        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
-      ],
-      "minimalExample": {
-        "kind": "dBarBuckle"
-      },
-      "normalExample": {
-        "kind": "dBarBuckle",
-        "section": "square",
-        "sectionSize": 6,
-        "sectionRadius": 0.6,
-        "sectionChamfer": 0.6,
-        "gapWidth": 0,
-        "innerWidth": 32,
-        "innerHeight": 24,
-        "barDiameter": 4.5
-      }
-    },
-    {
-      "kind": "rectBuckle",
-      "title": "Rectangular buckle",
-      "description": "Constant-section rounded rectangular frame. A closed round-wire frame supports an inner short side at least 2.5 times the wire diameter; other variants require four times the section size.",
-      "defaults": {
-        "section": "round",
-        "sectionSize": 3,
-        "sectionRadius": 0.3,
-        "sectionChamfer": 0.6,
-        "gapWidth": 0,
-        "innerWidth": 28,
-        "innerHeight": 20,
-        "innerRadius": 3
-      },
-      "fields": [
-        {
-          "key": "innerWidth",
-          "label": "内宽",
-          "labelEn": "Inner width",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "innerHeight",
-          "label": "内高",
-          "labelEn": "Inner height",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "section",
-          "label": "截面",
-          "labelEn": "Section",
-          "type": "select",
-          "options": [
-            {
-              "value": "round",
-              "label": "圆线",
-              "labelEn": "Round wire"
-            },
-            {
-              "value": "square",
-              "label": "圆角方线",
-              "labelEn": "Rounded square"
-            },
-            {
-              "value": "chamferedSquare",
-              "label": "倒角方线",
-              "labelEn": "Chamfered square"
-            }
-          ]
-        },
-        {
-          "key": "sectionSize",
-          "label": "线径／方线边长",
-          "labelEn": "Wire diameter / square size",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "sectionRadius",
-          "label": "方线截面 R（圆线忽略）",
-          "labelEn": "Square section corner R",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "sectionChamfer",
-          "label": "方线截面倒角 C（仅倒角方线）",
-          "labelEn": "Square section chamfer C",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "innerRadius",
-          "label": "框内 R",
-          "labelEn": "Frame inner radius",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "gapWidth",
-          "label": "底部实际缝宽（0 闭合）",
-          "labelEn": "Bottom gap (0 = closed)",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        }
-      ],
-      "knownUnsupportedCases": [
-        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
-      ],
-      "minimalExample": {
-        "kind": "rectBuckle"
-      },
-      "normalExample": {
-        "kind": "rectBuckle",
-        "section": "round",
-        "sectionSize": 3,
-        "sectionRadius": 0.3,
-        "sectionChamfer": 0.6,
-        "gapWidth": 0,
-        "innerWidth": 28,
-        "innerHeight": 20,
-        "innerRadius": 3
-      }
-    },
-    {
-      "kind": "sliderBuckle",
-      "title": "Slider buckle",
-      "description": "The inner height spans the full frame; the fused round bar has an editable vertical offset and no opening. Compact round-wire frames require an inner short side at least 2.5 wire diameters and each window at least one wire diameter high.",
-      "defaults": {
-        "section": "round",
-        "sectionSize": 3,
-        "sectionRadius": 0.3,
-        "sectionChamfer": 0.6,
-        "gapWidth": 0,
-        "innerWidth": 30,
-        "innerHeight": 24,
-        "innerRadius": 3,
-        "barDiameter": 2.5,
-        "barOffset": 0
-      },
-      "fields": [
-        {
-          "key": "innerWidth",
-          "label": "内宽",
-          "labelEn": "Inner width",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "innerHeight",
-          "label": "内高",
-          "labelEn": "Inner height",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "section",
-          "label": "截面",
-          "labelEn": "Section",
-          "type": "select",
-          "options": [
-            {
-              "value": "round",
-              "label": "圆线",
-              "labelEn": "Round wire"
-            },
-            {
-              "value": "square",
-              "label": "圆角方线",
-              "labelEn": "Rounded square"
-            },
-            {
-              "value": "chamferedSquare",
-              "label": "倒角方线",
-              "labelEn": "Chamfered square"
-            }
-          ]
-        },
-        {
-          "key": "sectionSize",
-          "label": "线径／方线边长",
-          "labelEn": "Wire diameter / square size",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "sectionRadius",
-          "label": "方线截面 R（圆线忽略）",
-          "labelEn": "Square section corner R",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "sectionChamfer",
-          "label": "方线截面倒角 C（仅倒角方线）",
-          "labelEn": "Square section chamfer C",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "innerRadius",
-          "label": "框内 R",
-          "labelEn": "Frame inner radius",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "barDiameter",
-          "label": "横杆直径",
-          "labelEn": "Bar diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "barOffset",
-          "label": "横杆偏移（上正下负）",
-          "labelEn": "Bar offset (+up)",
-          "type": "number",
-          "min": -100,
-          "step": 0.1
-        }
-      ],
-      "knownUnsupportedCases": [
-        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
-      ],
-      "minimalExample": {
-        "kind": "sliderBuckle"
-      },
-      "normalExample": {
-        "kind": "sliderBuckle",
-        "section": "round",
-        "sectionSize": 3,
-        "sectionRadius": 0.3,
-        "sectionChamfer": 0.6,
-        "gapWidth": 0,
-        "innerWidth": 30,
-        "innerHeight": 24,
-        "innerRadius": 3,
-        "barDiameter": 2.5,
-        "barOffset": 0
-      }
-    },
-    {
-      "kind": "ovalBuckle",
-      "title": "Four-arc oval buckle",
-      "description": "四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。",
-      "defaults": {
-        "section": "round",
-        "sectionSize": 3,
-        "sectionRadius": 0.3,
-        "sectionChamfer": 0.6,
-        "gapWidth": 0,
-        "innerWidth": 28,
-        "innerHeight": 16,
-        "innerRadius": 5.6
-      },
-      "fields": [
-        {
-          "key": "innerWidth",
-          "label": "内宽",
-          "labelEn": "Inner width",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "innerHeight",
-          "label": "内高",
-          "labelEn": "Inner height",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "section",
-          "label": "截面",
-          "labelEn": "Section",
-          "type": "select",
-          "options": [
-            {
-              "value": "round",
-              "label": "圆线",
-              "labelEn": "Round wire"
-            },
-            {
-              "value": "square",
-              "label": "圆角方线",
-              "labelEn": "Rounded square"
-            },
-            {
-              "value": "chamferedSquare",
-              "label": "倒角方线",
-              "labelEn": "Chamfered square"
-            }
-          ]
-        },
-        {
-          "key": "sectionSize",
-          "label": "线径／方线边长",
-          "labelEn": "Wire diameter / square size",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "sectionRadius",
-          "label": "方线截面 R（圆线忽略）",
-          "labelEn": "Square section corner R",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "sectionChamfer",
-          "label": "方线截面倒角 C（仅倒角方线）",
-          "labelEn": "Square section chamfer C",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        },
-        {
-          "key": "innerRadius",
-          "label": "端部内 R",
-          "labelEn": "End inner radius",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "gapWidth",
-          "label": "右端实际缝宽（0 闭合）",
-          "labelEn": "Right gap (0 = closed)",
-          "type": "number",
-          "min": 0,
-          "step": 0.1
-        }
-      ],
-      "knownUnsupportedCases": [
-        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
-      ],
-      "minimalExample": {
-        "kind": "ovalBuckle"
-      },
-      "normalExample": {
-        "kind": "ovalBuckle",
-        "section": "round",
-        "sectionSize": 3,
-        "sectionRadius": 0.3,
-        "sectionChamfer": 0.6,
-        "gapWidth": 0,
-        "innerWidth": 28,
-        "innerHeight": 16,
-        "innerRadius": 5.6
-      }
-    },
-    {
-      "kind": "washer",
-      "title": "Flat washer",
-      "description": "平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。",
-      "defaults": {
-        "innerDiameter": 10,
-        "sectionSize": 3,
-        "innerHeight": 1.5
-      },
-      "fields": [
-        {
-          "key": "innerDiameter",
-          "label": "内径",
-          "labelEn": "Inner diameter",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "sectionSize",
-          "label": "径向宽度",
-          "labelEn": "Radial width",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        },
-        {
-          "key": "innerHeight",
-          "label": "厚度",
-          "labelEn": "Thickness",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1
-        }
-      ],
-      "knownUnsupportedCases": [
-        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
-      ],
-      "minimalExample": {
-        "kind": "washer"
-      },
-      "normalExample": {
-        "kind": "washer",
-        "innerDiameter": 10,
-        "sectionSize": 3,
-        "innerHeight": 1.5
-      }
     }
   ],
   "verification": {
@@ -4981,5 +5481,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:ac292b8395f9ac25d195fb665836acf5fe65686a601b8b8e1cc3a3e32d1777f3"
+  "docsHash": "sha256:c1f42ce1899e5625bd468d548ca3ba67fc11cdcf8a224a5b394fa4b510237395"
 }

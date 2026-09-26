@@ -3,12 +3,12 @@
   "title": "设置参考锚点（工作基准）",
   "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "category": "command",
-  "version": "1.9.0",
+  "version": "1.13.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.setWorkFrame\",args}); args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:8f023801251193772cc3fd9bf02217fe65e6f0c9cac1a81ede3fab5b1ac4cfe3"
+  "docsHash": "sha256:6b627d46abff81ca9fd9c16ecc4c49664548161c64b55ca16bfe20787b663e8d"
 }

@@ -2,8 +2,8 @@
   "id": "inspectProfile",
   "title": "inspectProfile",
   "category": "page-method",
-  "version": "1.9.0",
-  "description": "inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。",
+  "version": "1.13.0",
+  "description": "inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。界面检查选项按需展开；API 不依赖界面展开状态。",
   "synonyms": [
     "inspectProfile",
     "轮廓检查",
@@ -12,7 +12,7 @@
     "重线",
     "自交"
   ],
-  "inputContract": "inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。",
+  "inputContract": "inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。界面检查选项按需展开；API 不依赖界面展开状态。",
   "outputContract": "status=read、当前 context、每项 issueId/实体引用/位置/间隙 mm 与可修复方式；不修改 revision。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -24,5 +24,6 @@
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:e15e53a73f71871156c1e159084a3932d5f1bf09ba35584356068f729409e1ac"
+  "docs": "api.interaction",
+  "docsHash": "sha256:4e2bbfd8485da8510c7ddc3416946b2935fff829cab152d641d36982ded476c2"
 }

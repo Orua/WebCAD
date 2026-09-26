@@ -373,17 +373,19 @@
   },
   "normalExample": {
     "op": "sketchProfile",
+    "refs": [],
     "params": {
       "profileVersion": 1,
       "entities": [
         {
-          "id": "circle-1",
-          "type": "circle",
-          "centerMm": [
+          "id": "rectangle-1",
+          "type": "rectangle",
+          "originMm": [
             0,
             0
           ],
-          "diameterMm": 20
+          "widthMm": 40,
+          "heightMm": 30
         }
       ],
       "loops": [
@@ -391,7 +393,7 @@
           "id": "outer",
           "edges": [
             {
-              "entityId": "circle-1",
+              "entityId": "rectangle-1",
               "reversed": false
             }
           ]
@@ -406,9 +408,7 @@
       ],
       "output": "face"
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "referenceInstructions": "For this parameterized rectangle, the loop references rectangle-1 once; its four edges are derived internally. Face output requires the explicit outer loop and region shown."
   },
   "invalidExamples": [
     {
@@ -467,11 +467,14 @@
   ],
   "relatedTools": [
     "getState",
-    "getTool",
-    "queryGeometry",
+    "inspectProfile",
+    "prepareProfileEdit",
+    "profileExtrude",
     "execute"
   ],
-  "recipes": [],
+  "recipes": [
+    "recipes.rectangle-profile"
+  ],
   "testIds": [
     "tests/operation-registry.test.mjs"
   ],
@@ -480,6 +483,20 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "绘制轮廓",
+  "closedPrimitiveRefs": {
+    "types": [
+      "rectangle",
+      "roundedRectangle",
+      "capsule"
+    ],
+    "loopEntry": {
+      "entityId": "<original-primitive-id>",
+      "reversed": false
+    },
+    "expansion": "The original primitive reference expands internally to its ordered exact edges; do not guess derived edge IDs.",
+    "explicitLoopsAndRegions": true,
+    "rectangleOrigin": "Local XY lower-left; widthMm along +X and heightMm along +Y. heightMm is not extrusion depth."
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -492,7 +509,8 @@
     "historyBinding": "snapshot",
     "previewSupported": true
   },
+  "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:5aba41da6dad2f8a8e2584fe400879181ca4101017b8d90c7ac5728b9a57acb9"
+  "docsHash": "sha256:f61cceb2879ed35a09f30477d515c3053cbd5a9866c22778c9dbdb13557b0b0f"
 }

@@ -1,0 +1,9 @@
+# api.mechanical
+
+机械 CAD 特征扩展，页面 API 1.12.0。所有新操作经 connect/getTools 发现，run 的 method:add 提供显式 params/refs；feature.edit 编辑已有步骤，完整 requestContext 和唯一 idempotencyKey 按现有规约处理。不要把数值示例当成实际拓扑位置。
+profileRevolve 用已保存闭合平面截面、固定世界轴点 axisPoint 和轴方向 axisDirection、angleDeg；profileSweep 用已保存截面与精确开放路径，截面必须已在路径起点平面且垂直起点切线；profileLoft 按次序使用2–12已保存截面，ruled 控制直纹。它们 operation=newBody 时保留全部来源，join/cut/intersect 时最后一个 refs 是明确目标，仅替换该目标。不得把当前锚点再次作用于保存来源；轴也是世界坐标。原旋转成型/扫掠/放样菜单默认进入保存来源模式，基本尺寸模式仍映射原操作。
+profileConstraints refs=[保存sketchProfile或其约束派生轮廓]，params.constraints 是明确关系/尺寸数组，读卡中 oneOf 定义。直线/圆支持固定、重合、水平/垂直、平行、垂直、等长、线长、点间距离、圆半径/直径、等半径、角度、线圆相切。矩形在派生结果转换为原图元ID_0..3的四边，保留矩形形状关系；原点不暗中固定。先调用 inspectConstraints({context,bodyId})，读取 profile.entities 中的真实派生ID、局部坐标、已有关系和自由度，再建立约束，不猜CAD面/边索引。后续约束继承之前约束，来源保留；几何沿原冻结平面，局部二维mm，source内任何弧或样条首版不参与求解。getState().bodies[].constraintReport 返回真实 maxResidualMm/maxAngularResidualDeg/rank/degreesOfFreedom/underconstrained/redundantEquationCount，rank为局部数值Jacobian，不是全局唯一性证明。feature.edit 原约束的 constraints 数组修改尺寸后会重建下游，冲突或非收敛不提交。
+offsetSolid refs=[单一实体]，distanceMm 有符号，join=intersection/round；它是真等距偏移而非缩放，替换来源，局部曲率塌陷与自交拒绝。offsetSurface refs=[来源]、当前 faceId、distanceMm，生成一张独立偏置面并保留整个来源，面没有实体体积。draftByPlane refs=[单一实体]，当前明确 faceIds、neutralPoint、neutralNormal、pullDirection 和 angleDeg（非零且绝对值小于45）。世界中性平面与拉出方向必须平行/反平行，联动面须全部明确选入；圆锥面的 angleDeg 是目标锥角，不能把它当原角增量或保证总减料。
+helix 的 radiusMm 是中心线半径，pitchMm 是每圈正轴向进给，turns最多100且可小数，leftHanded 控制旋向；生成精确路径。coil 另给 wireDiameterMm，螺距必须大于线径，生成真实圆线弹簧单实体。两项沿创建基准局部Z，原点是轴心起始高度，可显式 creation placement 冻结位置。
+thread refs=[单一实体]，当前圆柱 faceId、kind=external/internal、pitchMm、depthMm、lengthMm、startOffsetMm、includedAngleDeg、leftHanded。用所选解析圆柱面的实际轴/半径/轴向区间构造并裁切真实V槽，替换来源；区间必须在该面轴向范围内。getState().bodies[].threadReport 读实际轴、半径和尺寸。standard=none：不提供ISO/GB规格、配合公差、多头牙、端部退刀槽或力学认证。失败不得自动减小牙深、扩大公差或改用显示纹理。
+本扩展不把装配配合/工程图、通用草图样条约束、自由曲面G2、变半径圆角、钣金/凸轮/CAM视为已补齐。这些需要各自的数据模型、几何处理与验收；工具数量不表示主流机械CAD全功能覆盖。

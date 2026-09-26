@@ -153,8 +153,25 @@ test('documents are whitelist only, paginated and cache-identifiable', () => {
 });
 
 test('unsupported schema assertion and non-JSON values cannot be silently accepted', () => {
-  assert.throws(() => validateSchema({ pattern: '^a' }, 'abc'), /Unsupported schema keyword/);
+  assert.throws(() => validateSchema({ type: 'number', multipleOf: 2 }, 4), /Unsupported schema keyword: multipleOf/);
   fails(() => normalizeOperationParams('box', new Date()), 'PARAM_SCHEMA_INVALID');
   const cyclic = {}; cyclic.self = cyclic;
   fails(() => normalizeOperationParams('box', cyclic), 'PARAM_SCHEMA_INVALID');
+});
+
+test('supported string patterns validate stable IDs with useful error paths and Unicode semantics', () => {
+  const schema = { type: 'object', additionalProperties: false, required: ['entityId'], properties: {
+    entityId: { type: 'string', pattern: '^[A-Za-z][A-Za-z0-9_-]*$' },
+  } };
+  const input = { entityId: 'rectangle-1_0' };
+  assert.deepEqual(validateSchema(schema, input), input);
+  for (const entityId of ['1rectangle', 'rectangle 1', 'rectangle#1', '']) {
+    fails(() => validateSchema(schema, { entityId }), 'PARAM_SCHEMA_INVALID', 'params.entityId');
+  }
+  fails(() => validateSchema(schema, { entityId: 1 }), 'PARAM_SCHEMA_INVALID', 'params.entityId');
+  assert.equal(validateSchema({ type: 'string', pattern: '^[\\p{L}][\\p{L}\\p{N}_-]*$' }, '孔位_01'), '孔位_01');
+  // JSON Schema patterns match a substring unless anchors are explicitly used.
+  assert.equal(validateSchema({ pattern: 'base' }, 'prefix_base_0'), 'prefix_base_0');
+  fails(() => validateSchema({ pattern: '^base$' }, 'prefix_base_0'), 'PARAM_SCHEMA_INVALID');
+  assert.deepEqual(input, { entityId: 'rectangle-1_0' });
 });

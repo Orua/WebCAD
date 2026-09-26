@@ -2,8 +2,8 @@
   "id": "prepareProfileEdit",
   "title": "prepareProfileEdit",
   "category": "page-method",
-  "version": "1.9.0",
-  "description": "prepareProfileEdit({context,bodyId,mode:\"intersections\"|\"trim\"|\"extend\"|\"trimCircle\"|\"fillet\",entityId,targetId,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})",
+  "version": "1.13.0",
+  "description": "prepareProfileEdit({context,bodyId,mode:\"intersections\"|\"trim\"|\"extend\"|\"trimCircle\"|\"fillet\",entityId,targetId,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})；这是按需使用的高级编辑，普通绘制只需 sketchProfile 显式图元参数。",
   "synonyms": [
     "prepareProfileEdit",
     "解析轮廓修剪",
@@ -11,11 +11,12 @@
     "二维圆角",
     "交点候选"
   ],
-  "inputContract": "prepareProfileEdit({context,bodyId,mode:\"intersections\"|\"trim\"|\"extend\"|\"trimCircle\"|\"fillet\",entityId,targetId,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})",
+  "inputContract": "prepareProfileEdit({context,bodyId,mode:\"intersections\"|\"trim\"|\"extend\"|\"trimCircle\"|\"fillet\",entityId,targetId,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})；这是按需使用的高级编辑，普通绘制只需 sketchProfile 显式图元参数。",
   "outputContract": "只读返回候选及经过校验的完整 profile 参数。缺少交点选择时 selectionRequired=true；不自动选择。确认后经 feature.edit 提交 profile，一次历史事务；人工草稿锁继续适用。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:483a06b10169dcf7d79c2cf529f12c81164a255ec969cca9fe102b2cf3c3800d"
+  "docs": "api.interaction",
+  "docsHash": "sha256:326d0ab284cba48e7432b444fb5317a2122f42ab156d8e0e3f5ac1c595e57f8f"
 }

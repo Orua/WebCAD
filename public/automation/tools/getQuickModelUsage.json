@@ -1,0 +1,28 @@
+{
+  "id": "getQuickModelUsage",
+  "title": "getQuickModelUsage",
+  "category": "page-method",
+  "version": "1.13.0",
+  "description": "getQuickModelUsage({}={})；只读本浏览器累计成功创建次数，不要求几何上下文，预览期间也可读取。",
+  "synonyms": [
+    "getQuickModelUsage",
+    "快捷模型",
+    "使用频率",
+    "常用模型",
+    "五个",
+    "弹簧",
+    "螺丝",
+    "丝筒",
+    "半圆钉"
+  ],
+  "inputContract": "getQuickModelUsage({}={})；只读本浏览器累计成功创建次数，不要求几何上下文，预览期间也可读取。",
+  "outputContract": "status=read、version、counts、topKinds（最多5）、maxVisible=5、storage（localStorage或memory）、context。只统计新提交的快捷模型，预览/失败/取消/参数修改/撤销重做/打开工程均不增加。次数相同按简单模型优先的目录顺序。剩余模型通过快捷模型面板访问。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID"
+  ],
+  "docsHash": "sha256:cc7336cc6708b7b7599448a0883b54a84c7e205e1dd2693756536b86736926e8"
+}

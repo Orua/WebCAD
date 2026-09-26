@@ -6,6 +6,16 @@ import {UI_LAYOUT} from '../src/ui-layout.js';
 import {ribbonGroupPolicy} from '../src/ui/config/ribbon-policy.js';
 import {UI_API_ROUTES} from '../src/ui-api-coverage.js';
 
+test('basic face machining leads the ribbon and only batch hole tools overflow',()=>{
+ const tab=UI_LAYOUT.tabs.find(t=>t.id==='machine');
+ assert.deepEqual(tab.groups[0][1].slice(0,3),['faceGroove','innerTurn','outerTurn']);
+ assert.equal(ribbonGroupPolicy(UI_LAYOUT,tab,tab.groups[0][1],tab.groups[0][2]).folded,false);
+ const group=tab.groups.find(([name])=>name==='孔与槽'),policy=ribbonGroupPolicy(UI_LAYOUT,tab,group[1],group[2]);
+ assert.deepEqual(policy.overflowActions,['multiHole','multiPocket','multiBoss']);
+ assert.equal(policy.folded,true);
+ assert.deepEqual(group[1].filter(action=>!policy.overflowActions.includes(action)),['hole','slot','thread','holeWizard']);
+});
+
 test('single overflow tools stay visible and ribbon folding follows layout configuration',()=>{
  const finish=UI_LAYOUT.tabs.find(t=>t.id==='finish'),surface=UI_LAYOUT.tabs.find(t=>t.id==='surface');
  for(const [tab,action]of [[finish,'smoothTransition'],[surface,'extractShell']]){

@@ -2,7 +2,7 @@
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.9.0",
+  "version": "1.13.0",
   "label": "保存工程",
   "synonyms": [
     "保存工程",
@@ -36,5 +36,5 @@
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:9a301e2373ffcc2bebecc61434be2fb3285cb226034d5301b0578282cf8c178b"
+  "docsHash": "sha256:1ab60c285036ca2ae56c17c555d223817d9f9aeac2e4fab78ccd719e7a6fdb04"
 }

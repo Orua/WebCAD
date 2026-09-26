@@ -3,12 +3,12 @@
   "title": "保存具名基准",
   "description": "args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "category": "command",
-  "version": "1.9.0",
+  "version": "1.13.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.saveFrame\",args}); args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:902538fbe5cd860babb0476e5fbbad6a33f7dba028f14f23cdf499e97ecb8c1b"
+  "docsHash": "sha256:d7d61ba3cf24800e257902e68e84e5942eceeb724e41f7b26f4428277babd6f6"
 }

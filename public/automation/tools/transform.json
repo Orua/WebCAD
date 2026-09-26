@@ -289,9 +289,10 @@
   ],
   "relatedTools": [
     "getState",
+    "setView",
     "getTool",
-    "queryGeometry",
-    "execute"
+    "execute",
+    "run"
   ],
   "recipes": [],
   "testIds": [],
@@ -312,7 +313,8 @@
     "historyBinding": "snapshot",
     "previewSupported": true
   },
+  "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:8e65a666143eea5ea7271d5c662db9cf69df39623715ff6d7cfd9f3964bdd1ef"
+  "docsHash": "sha256:83775a8b19d19a875c50eb4408e8cf97b86806ad65bbc204be96b49bbb8a4c1d"
 }

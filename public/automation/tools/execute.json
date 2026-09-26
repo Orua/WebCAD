@@ -2,7 +2,7 @@
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.9.0",
+  "version": "1.13.0",
   "description": "execute({context,idempotencyKey,action,args}); action 来自当前命令合同。",
   "synonyms": [
     "execute",
@@ -24,5 +24,5 @@
     "PARAM_SCHEMA_INVALID",
     "GEOMETRY_INVALID"
   ],
-  "docsHash": "sha256:01548c717a93506848a14b0ec6eee2f8c5ddfd2265060c4aa3cb4642d6622471"
+  "docsHash": "sha256:196ae0b961a5127fef7ee32b21caf97a18521fb3057b1f2d0f466cefb3524cdd"
 }

@@ -69,4 +69,18 @@ const current = library.isCurrent(connected);
 加工与检查时优先检索精确 ID：`profileRepair` / `inspectProfile`，`projectProfile`，`profileExtrude`，`inspectFit`，`inspectThickness`，`measureRelation`，`holeWizard`，`draftFaces` / `inspectDraft`。读取工具卡后取得当前 body 与面/边序号，再固定本次任务的目标；不要根据上一次工程修订的拓扑 ID 猜目标。`draftFaces` 只接受完整四个平面侧壁加固定底面，`inspectDraft` 对曲面标未支持；未获得成功预览和精确几何读回时不要宣称压铸适用。`profileExtrude.extent='toPlane'` 是固定世界无限平面，不是裁剪面的有限边界。孔向导的 `includedAngleDeg` 是沉头锥体包含角，不是单侧斜角。
 
 
-2026-09-26 接口复核：菜单拆分不会改变操作ID或旧入口。推荐优先 connect({toolIds:['sketchProfile','profileExtrude']}) 精确载入已知工具，缓存后传knownHashes取得not_modified；未知工具使用queries与limit:1。setDisplayPreferences新增themeColor与snapThresholdMm；setView.display新增transparentEdges。设置菜单的AGENT接口提供同一说明。
+2026-09-26 接口复核：保留原有九页菜单与展开方式。推荐优先 connect({toolIds:['sketchProfile','profileExtrude']}) 精确载入已知工具，缓存后传knownHashes取得not_modified；未知工具使用queries与limit:1。setDisplayPreferences新增themeColor与snapThresholdMm；setView.display新增transparentEdges。
+
+首次使用从 `automation/agent-start.html` 或机器入口 `automation/agent-start.json` 开始；页面 HTML 元数据、`llms.txt`、既有「设置 → AGENT 接口」和 `connect().onboarding` 都指向同一入口。先绑定用户指定的标签页并检查宿主 capabilities，再读取 CDP 等脚本能力的当前文档；不能把 DOM 只读或标签页会话占用误判为 API 缺失。
+
+握手的 `onboarding.localKit` 提供 `agent-kit.json`、`install-agent.ps1`、技能、连接助手和真实操作路由 URL（相对 CAD 页面部署根地址）。有文件权限的 Windows 宿主查看下载的安装脚本后，可使用 `-BaseUrl` 和可选 `-Destination` 安装操作包；默认目录为 `~/.codex/skills/webcad-page-api`。安装器逐文件验证哈希、更新前备份；网页不自动安装或启动服务。包内 `scripts/page-client.mjs` 接收获授权的 CDP send adapter，只封装公开 API 调用，不增加宿主权限。
+
+## 快捷五金模型与面加工（页面 API 1.13.0）
+
+快捷模型新增弹簧 `spring`、螺丝 `screw`、丝筒 `threadedSleeve`、半圆钉 `domedPin`。模型菜单显示本浏览器累计成功创建次数最多的 5 个，剩余模型用“快捷模型”打开；同次数按简单模型优先的目录顺序。面板列表固定最小 240px，窗口高度不足时下方内容纵向滚动。历史工程的原 kind 均保持可用。
+
+螺丝四个几何参数为头宽、头厚、M 规格、牙长，另选平头/沉头、十字/一字/梅花/内六角。默认十字；沉头固定 0.20 mm 外缘直升位加圆锥过渡，头厚包含直升位。头的下端在参考位置，牙杆朝本地 +Z。丝筒底在上、面在下，从参考位置向本地 -Z 延伸、从下方面端向 +Z 攻牙；参数为底直径、面直径、名义牙径、总高、牙深。名义牙径须匹配支持的 M 粗牙直径。半圆钉用直径和高度控制光滑凸面，不限于球面。弹簧使用中心线半径、线径、螺距、圈数和左旋，螺距须大于线径。螺纹是实际 V 型切削几何，不声称标准公差等级。粗牙螺距参考 [ADS 制造商表](https://www.advancedynamicsolution.com/resources/metric-thread-data.html) 和 [Carmex 小规格刀具目录](https://carmexusa.com/contentonly.aspx?file=pdf/2019_Inch/261-276_mini_mill_thread.pdf)。
+
+先 `api.connect({toolIds:['template.screw','faceGroove','innerTurn','outerTurn','getQuickModelUsage'],includeContracts:true})`，按需 `api.readDocs({docId:'api.quick-hardware'})`；template 卡用于发现，执行仍是 `op:'quickModel',params:{kind:'screw',...}`。使用当前 context 和唯一幂等键通过 `api.run` 提交，显式 placement 可指定冻结参考位置；修改历史参数用 feature.edit。只读 `api.getQuickModelUsage()` 返回 counts、topKinds、maxVisible 和 storage，可经 invoke/run 调用，预览期间也能读。成功提交新快捷模型才计数；预览、失败、取消、修改、撤销重做、打开工程均不增加。默认 localStorage 持久化；受限时回退当前页内存。
+
+三个基本加工工具直接展开在“加工 → 面加工”，不折叠进“更多”，也不进入快捷模型列表。锣槽 `faceGroove`：refs=[当前单实体]，params={faceId,lengthMm,widthMm,depthMm}。内车 `innerTurn` / 外车 `outerTurn`：params={faceId,diameterMm,depthMm}。先 queryGeometry 查询真实平面 faceId，三个工具均以面面积中心为轴心、沿反向外法线进入材料，不再次应用当前参考锚点。锣槽长边方向为世界 X 在面上的投影（退化时用世界 Y）。内车移除指定直径内的圆柱材料；外车在指定深度内去除目标直径之外的材料，下方保持。非平面、未切到材料、空结果、剩余多实体会失败，原模型保留。参数严格校验，失败回执可见 NO_MATERIAL_REMOVED/GEOMETRY_INVALID；它们没有机床刀路或进给设置。检查回执、精确测量和 rendered revision 后再确认完成。

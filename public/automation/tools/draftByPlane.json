@@ -1,0 +1,278 @@
+{
+  "id": "draftByPlane",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "faceIds": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 200,
+        "uniqueItems": true,
+        "items": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "neutralPoint": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        },
+        "description": "World XYZ point on the fixed neutral plane (mm)"
+      },
+      "neutralNormal": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        },
+        "description": "Nonzero world plane normal, parallel to pullDirection"
+      },
+      "pullDirection": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        },
+        "description": "Nonzero explicit world pull direction"
+      },
+      "angleDeg": {
+        "type": "number",
+        "exclusiveMinimum": -45,
+        "exclusiveMaximum": 45,
+        "not": {
+          "const": 0
+        }
+      }
+    },
+    "required": [
+      "faceIds",
+      "neutralPoint",
+      "neutralNormal",
+      "pullDirection",
+      "angleDeg"
+    ],
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 选择一个封闭实体的当前平面、圆柱或圆锥面，指定固定中性平面、拉出方向和有符号角度。中性面法线须平行或反平行拉出方向。直壁正角在拉出方向一侧减料，负角加料；圆锥面指定目标锥角而非累加原角，材料变化须回读。保留中性平面交线。相切链中需要联动的面必须全部显式列入 faceIds，否则整步拒绝。替换来源；不受六面棱柱限制，但不支持改变拓扑的拔模、样条面或自动判断脱模方向。",
+  "title": "Draft explicitly selected analytic faces about an explicit neutral plane",
+  "category": "modification",
+  "synonyms": [
+    "平面拔模",
+    "draftByPlane"
+  ],
+  "description": "Draft explicitly selected analytic faces about an explicit neutral plane",
+  "schemaHash": "sha256:f494b81295aba89f0cbafac35d4faaa87afa69cf45fe74943114982607d26401",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+  ],
+  "knownUnsupportedCases": [
+    "选择一个封闭实体的当前平面、圆柱或圆锥面，指定固定中性平面、拉出方向和有符号角度。中性面法线须平行或反平行拉出方向。直壁正角在拉出方向一侧减料，负角加料；圆锥面指定目标锥角而非累加原角，材料变化须回读。保留中性平面交线。相切链中需要联动的面必须全部显式列入 faceIds，否则整步拒绝。替换来源；不受六面棱柱限制，但不支持改变拓扑的拔模、样条面或自动判断脱模方向。"
+  ],
+  "minimalExample": {
+    "op": "draftByPlane",
+    "params": {
+      "faceIds": [
+        0
+      ],
+      "neutralPoint": [
+        0,
+        0,
+        0
+      ],
+      "neutralNormal": [
+        0,
+        0,
+        1
+      ],
+      "pullDirection": [
+        0,
+        0,
+        1
+      ],
+      "angleDeg": 2
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "draftByPlane",
+    "params": {
+      "faceIds": [
+        0
+      ],
+      "neutralPoint": [
+        0,
+        0,
+        0
+      ],
+      "neutralNormal": [
+        0,
+        0,
+        1
+      ],
+      "pullDirection": [
+        0,
+        0,
+        1
+      ],
+      "angleDeg": 2
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "faceIds": [
+          0
+        ],
+        "neutralPoint": [
+          0,
+          0,
+          0
+        ],
+        "neutralNormal": [
+          0,
+          0,
+          1
+        ],
+        "pullDirection": [
+          0,
+          0,
+          1
+        ],
+        "angleDeg": 2,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTools",
+    "queryGeometry",
+    "run",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "平面拔模",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "docs": "api.mechanical",
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:272c486f022a167226d776705e42fedda917f217a39ce2d5381c39cf13d9f757"
+}

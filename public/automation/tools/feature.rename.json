@@ -3,7 +3,7 @@
   "title": "特征改名 实体名称",
   "description": "修改历史步骤及同 ID 实体名称，导入件也可使用。",
   "category": "command",
-  "version": "1.9.0",
+  "version": "1.13.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -21,5 +21,5 @@
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:2f67a45c4bae97015dbe86e0bf61aac24ed67a25de1eece5cc9d6d52b5cc066c"
+  "docsHash": "sha256:20e5619134cc18a7766ecd31f203808b7fc26f0d5f69f3493300b2174d82339d"
 }

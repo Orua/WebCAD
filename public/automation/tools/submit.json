@@ -2,8 +2,8 @@
   "id": "submit",
   "title": "submit",
   "category": "page-method",
-  "version": "1.9.0",
-  "description": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.",
+  "version": "1.13.0",
+  "description": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/inspectConstraints/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.",
   "synonyms": [
     "submit",
     "异步",
@@ -12,7 +12,7 @@
     "后台",
     "回执"
   ],
-  "inputContract": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.",
+  "inputContract": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/inspectConstraints/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.",
   "outputContract": "立即返回 jobId/status；参数中保留原 context 和幂等键；详见 api.reliability。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -24,5 +24,5 @@
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:fdc47f7244205ab56afb9a9422d1b6e2d08276e3cf4be37dd1847bb70672dba4"
+  "docsHash": "sha256:c4d48e9aa9c1957a21cd71e06444ab7d0e569da3d987ed5dd7f2a8d82bec92cc"
 }

@@ -3,12 +3,12 @@
   "title": "修改参数",
   "description": "args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。",
   "category": "command",
-  "version": "1.9.0",
+  "version": "1.13.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"feature.edit\",args}); args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:15b2991b5509ffcbf705a21ec3ddf34ddb65ddfb029d4de5cffcfd68de522f95"
+  "docsHash": "sha256:c6af0f4faead7c4fa18ae484c36e73d9225588a9de7f9a6f5c00efdd562e60c3"
 }

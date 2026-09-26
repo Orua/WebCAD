@@ -3,12 +3,12 @@
   "title": "应用预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
   "category": "command",
-  "version": "1.9.0",
+  "version": "1.13.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"preview.commit\",args}); 新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:2842fa7a0c744b76b582f6efceec0037d161061a879a49bee27451b3aaa128a1"
+  "docsHash": "sha256:6783013dcb3bd82f8ae074443c08ac30e860a1a1dc354b907cdb38237eb62cfc"
 }

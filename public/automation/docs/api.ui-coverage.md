@@ -2,6 +2,14 @@
 
 界面动作与 AI 等价接口（手势以坐标和显式参数代替）：
 {
+  "quickModelFavorites": {
+    "tools": [
+      "quickModel",
+      "getQuickModelUsage"
+    ],
+    "method": "execute",
+    "usage": "模型菜单显示累计成功创建次数最多的五个 kind；getQuickModelUsage() 只读本浏览器频率，完整列表仍用快捷模型入口。生成用 quickModel 显式 params.kind、参考 placement 与幂等键。"
+  },
   "reference.setWorkFrame": {
     "tools": [
       "reference.setWorkFrame"
@@ -131,6 +139,13 @@
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "coil": {
+    "tools": [
+      "coil"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
   "cone": {
     "tools": [
       "cone"
@@ -169,6 +184,13 @@
   "cylinder": {
     "tools": [
       "cylinder"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
+  "draftByPlane": {
+    "tools": [
+      "draftByPlane"
     ],
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
@@ -222,6 +244,13 @@
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "faceGroove": {
+    "tools": [
+      "faceGroove"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
   "faceHole": {
     "tools": [
       "faceHole"
@@ -250,6 +279,13 @@
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "helix": {
+    "tools": [
+      "helix"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
   "hole": {
     "tools": [
       "hole"
@@ -271,6 +307,13 @@
     "method": "files.import",
     "usage": "先 files.register 登记真实字节；不模拟文件选择器。"
   },
+  "innerTurn": {
+    "tools": [
+      "innerTurn"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
   "intersect": {
     "tools": [
       "intersect"
@@ -287,10 +330,11 @@
   },
   "loft": {
     "tools": [
-      "loft"
+      "loft",
+      "profileLoft"
     ],
     "method": "execute",
-    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    "usage": "已画截面使用 profileLoft，refs按截面顺序排列，加工时最后附目标；旧两个数值截面模式使用 loft。"
   },
   "logo": {
     "tools": [
@@ -327,6 +371,27 @@
     "method": "execute",
     "usage": "getTool({id:\"multiPocket\"}) 读取 strict v2 卡；feature.add 或 run add 传 depth/axis/direction/pockets、真实 refs；feature.edit 修改历史凹槽列表。"
   },
+  "offsetSolid": {
+    "tools": [
+      "offsetSolid"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
+  "offsetSurface": {
+    "tools": [
+      "offsetSurface"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
+  "outerTurn": {
+    "tools": [
+      "outerTurn"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
   "planeSection": {
     "tools": [
       "planeSection"
@@ -334,9 +399,24 @@
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "profileConstraints": {
+    "tools": [
+      "profileConstraints",
+      "inspectConstraints"
+    ],
+    "method": "execute",
+    "usage": "inspectConstraints({context,bodyId})读真实局部图元、约束图及自由度；profileConstraints新建派生轮廓，继承来源关系。feature.edit修改原constraints数组驱动下游。"
+  },
   "profileExtrude": {
     "tools": [
       "profileExtrude"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
+  "profileLoft": {
+    "tools": [
+      "profileLoft"
     ],
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
@@ -351,6 +431,20 @@
   "profileRepair": {
     "tools": [
       "profileRepair"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
+  "profileRevolve": {
+    "tools": [
+      "profileRevolve"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
+  "profileSweep": {
+    "tools": [
+      "profileSweep"
     ],
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
@@ -385,10 +479,11 @@
   },
   "revolve": {
     "tools": [
-      "revolve"
+      "revolve",
+      "profileRevolve"
     ],
     "method": "execute",
-    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    "usage": "已画轮廓使用 profileRevolve，refs为截面及可选加工目标；旧尺寸模式使用 revolve。显式世界轴与角度，读取当前卡。"
   },
   "sewFaces": {
     "tools": [
@@ -448,14 +543,22 @@
   },
   "sweep": {
     "tools": [
-      "sweep"
+      "sweep",
+      "profileSweep"
     ],
     "method": "execute",
-    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    "usage": "已画轮廓使用 profileSweep，refs=[截面,开放精确路径,可选加工目标]；截面须在路径起点平面。旧折线尺寸模式使用 sweep。"
   },
   "thickenFace": {
     "tools": [
       "thickenFace"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
+  "thread": {
+    "tools": [
+      "thread"
     ],
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
@@ -523,7 +626,7 @@
       "readDocs"
     ],
     "method": "connect",
-    "usage": "connect({queries,includeContracts:true}) 按任务快速加载；knownHashes 缓存工具卡，不缓存实体身份。"
+    "usage": "connect({queries,includeContracts:true}) 返回当前 canExecute/blockers、requestContext 与完整卡；onboarding 提供首次连接步骤、本地安装包和真实操作路由；readDocs({docId:\"api.connection\"}) 说明宿主能力检查。knownHashes 只缓存完整工具卡，不缓存实体身份。"
   },
   "logoConverterSettings": {
     "tools": [
@@ -549,15 +652,19 @@
   },
   "moveTool": {
     "tools": [
+      "setView",
       "transform"
     ],
-    "method": "execute"
+    "method": "setView",
+    "usage": "setView({context,gizmo:\"translate\",selectedIds?}) 开启鼠标移动；自动使用实体选择。getState().view.transform 读可拖状态与 blocker；精确移动用 transform 的显式 params/refs，经 execute 或 run 提交。"
   },
   "rotateTool": {
     "tools": [
+      "setView",
       "transform"
     ],
-    "method": "execute"
+    "method": "setView",
+    "usage": "setView({context,gizmo:\"rotate\",selectedIds?}) 开启单对象鼠标旋转。getState().view.transform 读可拖状态；精确旋转用 transform，显式指定角度、轴与中心，不依赖 UI 选择。多对象分别用 run 的 transform 步骤，atomic=false。"
   },
   "copySelection": {
     "tools": [
@@ -694,7 +801,7 @@
       "extrude"
     ],
     "method": "execute",
-    "usage": "传 profile/points/plane 等显式轮廓参数；不需要模拟逐点点击。"
+    "usage": "兼容的轮廓并拉伸入口对应 extrude，传 profile/points/plane 等显式参数。主绘制轮廓入口用 sketchProfile，再单独 profileExtrude；不需要模拟逐点点击。"
   },
   "measure": {
     "tools": [

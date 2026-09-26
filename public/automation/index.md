@@ -1,13 +1,14 @@
 # WebCAD 页面 API 索引
 
-API 1.9.0 · 操作目录 sha256:39d9335d778f9da3c1c95f19ed0b1baa1a88c8d8334819d816eabf7cf8772035
+API 1.13.0 · 操作目录 sha256:07c24fb283ff9594e698155047e313ef629cec6e5c99bde406dcd5f1b324abe5
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
-长度 mm、角度 degrees、体积 mm³。严格契约：box、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、faceHole、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude；其余操作为 advisory。
+长度 mm、角度 degrees、体积 mm³。严格契约：box、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、faceHole、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude、profileRevolve、profileSweep、profileLoft、offsetSolid、offsetSurface、draftByPlane、helix、coil、thread、profileConstraints、faceGroove、innerTurn、outerTurn；其余操作为 advisory。
 
 ## 页面方法
 
+- `getQuickModelUsage`
 - `copySelection`
 - `pasteSelection`
 - `createRequestContext`
@@ -33,6 +34,7 @@ API 1.9.0 · 操作目录 sha256:39d9335d778f9da3c1c95f19ed0b1baa1a88c8d8334819d
 - `inspectPrintability`
 - `inspectProfile`
 - `prepareProfileEdit`
+- `inspectConstraints`
 - `projectProfile`
 - `inspectFit`
 - `inspectThickness`
@@ -71,12 +73,14 @@ API 1.9.0 · 操作目录 sha256:39d9335d778f9da3c1c95f19ed0b1baa1a88c8d8334819d
 - `box` · migrated · Box from [0,0,0] to [width,depth,height]
 - `chamfer` · migrated · Chamfer selected edges, face boundaries, or all body edges
 - `circularPattern` · advisory · Rotated copies as one compound
+- `coil` · migrated · Sweep a circular wire section along an exact helix to create a single spring solid
 - `cone` · advisory · Cone/frustum along +Z
 - `copy` · advisory · Copy with scale, rotation and translation
 - `curveSweep` · advisory · Sweep a round, chamfered-square or elliptical section along an arc, approximated spline or connected line/arc segments
 - `curvedLogo` · advisory · Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work
 - `cut` · advisory · Subtract other bodies from first
 - `cylinder` · advisory · Cylinder on +Z from origin
+- `draftByPlane` · migrated · Draft explicitly selected analytic faces about an explicit neutral plane
 - `draftFaces` · migrated · Exact restricted four-side planar prism draft around one fixed bottom plane
 - `extractFaces` · migrated · 先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。
 - `extractShell` · migrated · 先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。
@@ -84,12 +88,15 @@ API 1.9.0 · 操作目录 sha256:39d9335d778f9da3c1c95f19ed0b1baa1a88c8d8334819d
 - `extrude` · advisory · Extrude a closed profile normal to the chosen plane
 - `faceBoundary` · advisory · 先选中一张面。all 提取包括内孔在内的全部边界；outer 明确只提取外环，不带孔。保留源模型，生成精确线框。单闭环可接参考轮廓拉伸/放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。
 - `faceExtrude` · advisory · Push/pull a planar face along its normal
+- `faceGroove` · migrated · Mill a rectangular recess from a selected planar face
 - `faceHole` · migrated · Drill inward from a planar face
 - `fillet` · migrated · Round selected edges, all boundary edges of selected faces, or all body edges
 - `fittedSurface` · advisory · Fit a single B-spline face to a structured point grid
 - `group` · advisory · Group bodies as a compound without fusing
+- `helix` · migrated · Create an exact helical wire in the creation frame
 - `hole` · migrated · Cylindrical cut starting at global coordinates
 - `holeWizard` · migrated · Exact plain, counterbore, or included-angle countersink hole in one feature
+- `innerTurn` · migrated · Bore inside a selected planar section
 - `intersect` · advisory · Common volume of bodies
 - `linearPattern` · advisory · Linear copies as one compound
 - `loft` · advisory · Ruled loft between parallel XY profiles
@@ -98,10 +105,17 @@ API 1.9.0 · 操作目录 sha256:39d9335d778f9da3c1c95f19ed0b1baa1a88c8d8334819d
 - `multiBoss` · migrated · Fuse multiple exact solid cylindrical bosses onto one body
 - `multiHole` · migrated · Cut cylindrical holes sequentially at multiple global start points
 - `multiPocket` · migrated · Cut multiple exact rectangular or rounded rectangular pockets
+- `offsetSolid` · migrated · Exact signed offset of all boundary faces of one solid
+- `offsetSurface` · migrated · Create one exact normal-offset face while preserving its source body
+- `outerTurn` · migrated · Turn the outside of a selected planar section to diameter
 - `planeSection` · advisory · 选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。
+- `profileConstraints` · migrated · Solve common saved line/circle profile constraints and derive a new profile while preserving the source, entity IDs and ordered paths
 - `profileExtrude` · migrated · Extrude a placed exact profile into a new solid, join, cut or intersection
+- `profileLoft` · migrated · Loft 2–12 saved exact sections in explicit order, with new-body or material-operation result
 - `profileOffset` · migrated · Create an exact planar equidistant offset or band from one closed face
 - `profileRepair` · migrated · Derive a repaired analytic profile by moving one explicitly identified endpoint within the stated maximum displacement
+- `profileRevolve` · migrated · Rotate a saved exact planar section around an explicit world axis, with new-body, additive, subtractive or intersection result
+- `profileSweep` · migrated · Sweep a saved exact section along a saved exact open path, with explicit material result
 - `quickModel` · advisory · Parameterized product model; prefer getTool({id:"quickModel"}) then execute(request)
 - `referenceExtrude` · advisory · 选择一个闭合平面线框或单张平面面。直接复用精确圆弧/样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。
 - `referenceLoft` · advisory · 按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。
@@ -116,10 +130,35 @@ API 1.9.0 · 操作目录 sha256:39d9335d778f9da3c1c95f19ed0b1baa1a88c8d8334819d
 - `surfaceTrim` · advisory · 按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。
 - `sweep` · advisory · Sweep profile along a 3D polyline
 - `thickenFace` · advisory · Normal offset of one face into a new solid
+- `thread` · migrated · Cut an explicit symmetric helical V groove on a selected cylindrical material face
 - `torus` · advisory · Torus around Z axis
 - `transform` · advisory · Scale, rotate X/Y/Z about origin, then translate
 - `union` · advisory · Fuse bodies
 - `vectorProfile` · advisory · Create independent planar faces or solids from closed vector regions
+- `template.ring` · advisory · 同心圆恒截面单圈；开缝为底部正中平行平切。
+- `template.washer` · advisory · 平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。
+- `template.tube` · advisory · 同轴圆筒，外径 13.4、内径 12.4、高度 3 为用户 C 件默认值。
+- `template.domedPin` · advisory · 平底、光滑凸面；直径和高度独立设置，可以调整拱高，不限于半球。
+- `template.spring` · advisory · 圆线沿精确螺旋路径扫掠。螺距大于线径；半径是中心线半径。
+- `template.screw` · advisory · 头在参考位置下端，牙杆朝本地 +Z。沉头外缘固定直升位 0.20 mm。M 使用常用粗牙螺距，真实 V 型牙槽；不含配合公差。
+- `template.threadedSleeve` · advisory · 底面在参考位置，面端朝本地 -Z；从下方面端向上攻牙。牙径采用支持的名义 M 粗牙直径，不含配合公差。
+- `template.roundBadge` · advisory · 圆形牌面、正面环形凸边和背面两根安装柱组成一个实体。可选空心柱；不包含品牌图案、齿纹、拱面或生产尺寸。
+- `template.mountingPlate` · advisory · 孔沿 X 对称，中心距单独定义；孔为贯穿光孔，不含螺纹、沉头或沉孔。
+- `template.fourHolePlate` · advisory · 矩形板四角各一个贯穿光孔，孔中心到左右及前后边的距离分别可调；可选外角 R。不含螺纹或沉孔。
+- `template.flatFrame` · advisory · 内外轮廓分别定义，框宽与厚度独立；圆角可等于短边一半形成跑道环。参数模板，不是原 IGS 完整复刻。
+- `template.roundedFlatFrame` · advisory · 独立内外圆角的闭合平面框，再以指定 R 一次倒圆所有尖边。圆边 R 必须显式给出；若内核无法完成则整步失败，不自动缩小。R 接近半厚可作外观候选，不保证精确半圆截面。
+- `template.dBuckle` · advisory · 半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。
+- `template.rectBuckle` · advisory · 恒截面圆角矩形框；闭合圆线可用内短边≥2.5 倍线径的紧凑框，其余至少 4 倍截面尺寸。
+- `template.ovalBuckle` · advisory · 四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。
+- `template.sliderBuckle` · advisory · 外框整体内高；固定圆杆偏移上正下负，不支持开缝。闭合圆线框可用内短边≥2.5倍线径的紧凑双窗，且每侧孔高至少为线径。
+- `template.dBarBuckle` · advisory · 圆角方线 U 主体与固定圆杆融合；杆底与脚底齐平。
+- `template.flangedBushing` · advisory · 同轴法兰与圆筒轴套，直孔贯穿全长。通用参数化实体，不含螺纹或原产品特征复刻。
+- `template.bossPlate` · advisory · 圆角板上两根对称空心圆柱凸台，孔贯穿凸台与板。参数化通用实体，不代表螺纹、沉孔或原产品复刻。
+- `template.thinWallTray` · advisory · 单一熔接实体，XY 居中、底面 Z=0、顶部敞口。内腔净宽=外宽−2×壁厚，净深=外深−2×壁厚，净高=总高−底厚。两柱沿 X 对称，柱高从内底面起算，孔贯穿柱和底板。仅直壁、直角、无拔模/圆角/螺纹；不是装配体。
+- `template.roundedBossTray` · advisory · 圆角矩形薄壁壳，顶部敞口，内底带两根空心柱。外圆角、壁厚、底厚和柱尺寸均可调；直壁无拔模，不包含卡扣、文字或表面花纹。
+- `template.openArcRing` · advisory · 恒截面圆弧环，开口角度可调，适合开口环、钩环和未闭合圆框的基础毛坯；不包含端头球、铰链或变截面。
+- `template.counterboreTool` · advisory · 这是刀具实体：入口在 Z=0，沿 +Z；移动定位到工件表面，必要时旋转 180°，先选主体再选刀具相减。
+- `template.twinWindowPlate` · advisory · 独立外 R 和孔 R 的平板双窗，中间是板体一部分；整件前后尖边按指定 R 倒圆。两个孔等宽等高且上下对称，不含圆杆、偏置孔或侧向拱弯。
 - `template.uEndHolePlate` · advisory · 半圆冠与两条等宽直腿连成一块平板，直腿末端各有一个贯穿孔；内外冠同心，孔沿厚度方向贯穿。适合源图确认的单片 U 件，不含另一装配件、螺纹或截面圆杆。
 - `template.ellipseSectionRing` · advisory · 正面环带宽和侧面深度独立输入，沿圆形中心线扫掠椭圆截面；截面形状是可编辑候选，须按源图验证。
 - `template.arcBandPlate` · advisory · 同心圆弧带板，角度、厚度、两端孔距与沉孔独立输入；用于分体环段，螺纹和装配件须另建。
@@ -128,38 +167,19 @@ API 1.9.0 · 操作目录 sha256:39d9335d778f9da3c1c95f19ed0b1baa1a88c8d8334819d
 - `template.dFlatFrame` · advisory · 半圆冠、直腿与独立内外底角 R 的平板 D 框；可按实际宽度切开底部中央。厚度为平板厚度，不代替圆线截面。
 - `template.archedTwinWindowPlate` · advisory · 圆角双窗平面轮廓沿 Y 方向投影裁切同轴圆筒薄壁，形成侧视圆弧拱弯。适用于薄条一体双窗；径向板厚、外弧半径独立输入。圆线框及独立圆杆须用其它工具。
 - `template.bowedTwinWindowPlate` · advisory · 上下直边、两侧大圆弧鼓边与四角小 R 相切；两个跑道形窗孔及中横条一体成板，可选前后边缘倒圆。左右、上下镜像参数模型，源图有微小非对称时只能近似。
-- `template.flatFrame` · advisory · 内外轮廓分别定义，框宽与厚度独立；圆角可等于短边一半形成跑道环。参数模板，不是原 IGS 完整复刻。
-- `template.roundedFlatFrame` · advisory · 独立内外圆角的闭合平面框，再以指定 R 一次倒圆所有尖边。圆边 R 必须显式给出；若内核无法完成则整步失败，不自动缩小。R 接近半厚可作外观候选，不保证精确半圆截面。
-- `template.twinWindowPlate` · advisory · 独立外 R 和孔 R 的平板双窗，中间是板体一部分；整件前后尖边按指定 R 倒圆。两个孔等宽等高且上下对称，不含圆杆、偏置孔或侧向拱弯。
-- `template.mountingPlate` · advisory · 孔沿 X 对称，中心距单独定义；孔为贯穿光孔，不含螺纹、沉头或沉孔。
-- `template.fourHolePlate` · advisory · 矩形板四角各一个贯穿光孔，孔中心到左右及前后边的距离分别可调；可选外角 R。不含螺纹或沉孔。
-- `template.bossPlate` · advisory · 圆角板上两根对称空心圆柱凸台，孔贯穿凸台与板。参数化通用实体，不代表螺纹、沉孔或原产品复刻。
-- `template.flangedBushing` · advisory · 同轴法兰与圆筒轴套，直孔贯穿全长。通用参数化实体，不含螺纹或原产品特征复刻。
-- `template.openArcRing` · advisory · 恒截面圆弧环，开口角度可调，适合开口环、钩环和未闭合圆框的基础毛坯；不包含端头球、铰链或变截面。
-- `template.roundedBossTray` · advisory · 圆角矩形薄壁壳，顶部敞口，内底带两根空心柱。外圆角、壁厚、底厚和柱尺寸均可调；直壁无拔模，不包含卡扣、文字或表面花纹。
-- `template.roundBadge` · advisory · 圆形牌面、正面环形凸边和背面两根安装柱组成一个实体。可选空心柱；不包含品牌图案、齿纹、拱面或生产尺寸。
-- `template.thinWallTray` · advisory · 单一熔接实体，XY 居中、底面 Z=0、顶部敞口。内腔净宽=外宽−2×壁厚，净深=外深−2×壁厚，净高=总高−底厚。两柱沿 X 对称，柱高从内底面起算，孔贯穿柱和底板。仅直壁、直角、无拔模/圆角/螺纹；不是装配体。
-- `template.tube` · advisory · 同轴圆筒，外径 13.4、内径 12.4、高度 3 为用户 C 件默认值。
-- `template.counterboreTool` · advisory · 这是刀具实体：入口在 Z=0，沿 +Z；移动定位到工件表面，必要时旋转 180°，先选主体再选刀具相减。
-- `template.ring` · advisory · 同心圆恒截面单圈；开缝为底部正中平行平切。
 - `template.ringBar` · advisory · 同心圆恒截面框与一根沿 X 的圆杆融合为单一实体。横杆可沿 Y 及厚度 Z 微调；不包含活动杆、铰链或精确接头过渡。
 - `template.ellipseBar` · advisory · 从内真椭圆外偏线扫掠圆线，再融合居中固定圆杆。圆线外包围须精确回读；接头过渡与源样条仍须对照。
 - `template.ellipseOpenWire` · advisory · 以内孔真椭圆外偏半线径扫掠圆线；底部正中用平行平面切出真实缝宽。外轮廓真椭圆的图纸不可使用本工具。
 - `template.profileLoop` · advisory · 两端半圆、上下直段的闭合长圈；正面料宽、侧面厚度和截面 R 独立。R 可等于截面短边一半，形成两圆端加直段的截面。
 - `template.capsuleWire` · advisory · 闭合圆线长圈：两端精确半圆、上下直段，内宽高与圆线直径独立输入。未标缝宽时不猜接缝。
-- `template.dBuckle` · advisory · 半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。
-- `template.dBarBuckle` · advisory · 圆角方线 U 主体与固定圆杆融合；杆底与脚底齐平。
-- `template.rectBuckle` · advisory · 恒截面圆角矩形框；闭合圆线可用内短边≥2.5 倍线径的紧凑框，其余至少 4 倍截面尺寸。
-- `template.sliderBuckle` · advisory · 外框整体内高；固定圆杆偏移上正下负，不支持开缝。闭合圆线框可用内短边≥2.5倍线径的紧凑双窗，且每侧孔高至少为线径。
-- `template.ovalBuckle` · advisory · 四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。
-- `template.washer` · advisory · 平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。
+- `getQuickModelUsage` · page-method · getQuickModelUsage({}={})；只读本浏览器累计成功创建次数，不要求几何上下文，预览期间也可读取。
 - `copySelection` · page-method · copySelection({context,bodyIds}); 1–200个当前实体。
 - `pasteSelection` · page-method · pasteSelection({context,idempotencyKey}); 先 copySelection。
 - `createRequestContext` · page-method · createRequestContext(context?); omit to read the current context.
 - `getUILayout` · page-method · getUILayout()
 - `setRenderQuality` · page-method · setRenderQuality({context,quality:"draft"|"standard"|"fine"|"ultra"})
 - `invoke` · page-method · invoke({method,args}); public method name or files.*.
-- `submit` · page-method · submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.
+- `submit` · page-method · submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/inspectConstraints/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.
 - `getJob` · page-method · getJob({jobId})
 - `cancelJob` · page-method · cancelJob({jobId})
 - `connect` · page-method · connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.
@@ -176,8 +196,9 @@ API 1.9.0 · 操作目录 sha256:39d9335d778f9da3c1c95f19ed0b1baa1a88c8d8334819d
 - `measure` · page-method · measure({context,bodyId,kind?:"body"|"face"|"edge",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需非负整数 topologyId。
 - `measureRelation` · page-method · measureRelation({context,mode:"shortest"|"centerDistance"|"axisAlignment"|"pointFace"|"parallelFaces",first?,second?,face?,pointWorld?})；引用形式 {bodyId,kind:"body"|"edge"|"face",topologyId?}。
 - `inspectPrintability` · page-method · inspectPrintability({context,bodyId,angleLimitDeg?:45}); angleLimitDeg 在 0 与 90 度之间。
-- `inspectProfile` · page-method · inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。
-- `prepareProfileEdit` · page-method · prepareProfileEdit({context,bodyId,mode:"intersections"|"trim"|"extend"|"trimCircle"|"fillet",entityId,targetId,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})
+- `inspectProfile` · page-method · inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。界面检查选项按需展开；API 不依赖界面展开状态。
+- `prepareProfileEdit` · page-method · prepareProfileEdit({context,bodyId,mode:"intersections"|"trim"|"extend"|"trimCircle"|"fillet",entityId,targetId,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})；这是按需使用的高级编辑，普通绘制只需 sketchProfile 显式图元参数。
+- `inspectConstraints` · page-method · inspectConstraints({context,bodyId})；当前保存的 sketchProfile 或 profileConstraints 派生轮廓。只读诊断已有关系；矩形转换为明确四条解析边并保留形状关系。
 - `projectProfile` · page-method · projectProfile({context,bodyId,edgeIds:[当前边索引],frame?:{origin,quaternion}})；或用 pointWorld:[x,y,z] 投影明确坐标点。
 - `inspectFit` · page-method · inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。
 - `inspectThickness` · page-method · inspectThickness({context,bodyId,mode:"ray",point:[x,y,z],direction:[dx,dy,dz]})；或 mode:"faces",faceAId,faceBId,point；两面须平行且射线穿过连续材料。
@@ -189,7 +210,7 @@ API 1.9.0 · 操作目录 sha256:39d9335d778f9da3c1c95f19ed0b1baa1a88c8d8334819d
 - `getLogoConverter` · page-method · getLogoConverter()；读取当前浏览器 localStorage 的配置。
 - `setLogoConverter` · page-method · setLogoConverter({context,url,key?})；URL 必须含 userid，空 key 保留原值。
 - `convertLogoPdf` · page-method · convertLogoPdf({context,name,data,targetWidthMm?})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。
-- `setView` · page-method · setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 详见 api.views；panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:"X"|"Y"|"Z",position:number,enabled:boolean}。
+- `setView` · page-method · setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:"X"|"Y"|"Z",position:number,enabled:boolean}。
 - `redraw` · page-method · redraw({context}); 不接受额外字段。
 - `capture` · page-method · capture({context}); 不接受额外字段。
 - `run` · page-method · run({context,idempotencyKey,steps}); see readDocs({docId:"api.run"}).
@@ -221,7 +242,7 @@ API 1.9.0 · 操作目录 sha256:39d9335d778f9da3c1c95f19ed0b1baa1a88c8d8334819d
 - `document.parameters` · page-command · 通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。
 - `files.capabilities` · browser-file-adapter · capabilities(); no arguments.
 - `files.register` · browser-file-adapter · register({name,data,mime?}); data is File, Blob, ArrayBuffer or Uint8Array; name is a safe basename.
-- `files.new` · browser-file-adapter · new({context}); complete current context; dirty replacement is always rejected by page API.
+- `files.new` · browser-file-adapter · new({context}); complete current context; dirty replacement is always rejected by page API. Default name: 新建工程YYYYMMDD-NNN using the current local date and a daily browser-persisted sequence (minimum three digits); no explicit name argument.
 - `files.open` · browser-file-adapter · open({context,resourceId}); registered .webcad/.json resource; dirty replacement is rejected.
 - `files.import` · browser-file-adapter · import({context,resourceId,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP resource. When placement is present, idempotencyKey is required; run batch injects its own step key.
 - `files.save` · browser-file-adapter · save({context,name?}); complete current context.

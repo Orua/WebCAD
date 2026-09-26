@@ -32,8 +32,17 @@ import rectBuckle from './rectBuckle/index.js';
 import sliderBuckle from './sliderBuckle/index.js';
 import ovalBuckle from './ovalBuckle/index.js';
 import washer from './washer/index.js';
+import spring from './spring/index.js';
+import screw from './screw/index.js';
+import threadedSleeve from './threadedSleeve/index.js';
+import domedPin from './domedPin/index.js';
 
 const entries = [
+  ring, washer, tube, domedPin, spring, screw, threadedSleeve,
+  roundBadge, mountingPlate, fourHolePlate, flatFrame, roundedFlatFrame,
+  dBuckle, rectBuckle, ovalBuckle, sliderBuckle, dBarBuckle,
+  flangedBushing, bossPlate, thinWallTray, roundedBossTray,
+  openArcRing, counterboreTool, twinWindowPlate,
   uEndHolePlate,
   ellipseSectionRing,
   arcBandPlate,
@@ -42,31 +51,11 @@ const entries = [
   dFlatFrame,
   archedTwinWindowPlate,
   bowedTwinWindowPlate,
-  flatFrame,
-  roundedFlatFrame,
-  twinWindowPlate,
-  mountingPlate,
-  fourHolePlate,
-  bossPlate,
-  flangedBushing,
-  openArcRing,
-  roundedBossTray,
-  roundBadge,
-  thinWallTray,
-  tube,
-  counterboreTool,
-  ring,
   ringBar,
   ellipseBar,
   ellipseOpenWire,
   profileLoop,
   capsuleWire,
-  dBuckle,
-  dBarBuckle,
-  rectBuckle,
-  sliderBuckle,
-  ovalBuckle,
-  washer,
 ];
 // Hide a model from the picker without breaking projects saved with its kind.
 const hiddenFromPicker = new Set([]);

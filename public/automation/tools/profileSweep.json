@@ -1,0 +1,223 @@
+{
+  "id": "profileSweep",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "operation": {
+        "type": "string",
+        "enum": [
+          "newBody",
+          "join",
+          "cut",
+          "intersect"
+        ],
+        "default": "newBody",
+        "description": "New body, or explicit material operation on the last target ref"
+      },
+      "transitionMode": {
+        "type": "string",
+        "enum": [
+          "transformed",
+          "right",
+          "round"
+        ],
+        "default": "transformed"
+      },
+      "frenet": {
+        "type": "boolean",
+        "default": false
+      }
+    },
+    "required": [],
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 2,
+    "maxItems": 3
+  },
+  "defaults": {
+    "operation": "newBody",
+    "transitionMode": "transformed",
+    "frenet": false
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] 截面，refs[1] 单一连续开放精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；截面必须已在路径起点平面并垂直其起点切线，不自动居中/定位。首版无内孔截面、无闭合路径、无分叉，不提供变截面、导轨、扭转或自动减小半径。曲线保留为精确圆弧/样条，非离散折线。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。只接受有效正体积单实体，无材料变化的加料/切除或分裂结果失败，失败不改来源。固定来源世界位置，不再次应用工作基准。",
+  "title": "Sweep a saved exact section along a saved exact open path, with explicit material result",
+  "category": "modification",
+  "synonyms": [
+    "轮廓扫掠",
+    "profileSweep"
+  ],
+  "description": "Sweep a saved exact section along a saved exact open path, with explicit material result",
+  "schemaHash": "sha256:f102652c40921a453134cb0e525940a9d538d2f760fd618462877540b5ecac0e",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid"
+  ],
+  "conditionalRefs": {
+    "min": 2,
+    "max": 3,
+    "newBody": {
+      "min": 2,
+      "max": 2
+    },
+    "modification": {
+      "min": 3,
+      "max": 3
+    },
+    "sourceCount": 2
+  },
+  "consumesInputs": true,
+  "preservesInputs": "Preserves section/path sources; replaces only the last target for join/cut/intersect.",
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+  ],
+  "knownUnsupportedCases": [
+    "refs[0] 截面，refs[1] 单一连续开放精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；截面必须已在路径起点平面并垂直其起点切线，不自动居中/定位。首版无内孔截面、无闭合路径、无分叉，不提供变截面、导轨、扭转或自动减小半径。曲线保留为精确圆弧/样条，非离散折线。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。只接受有效正体积单实体，无材料变化的加料/切除或分裂结果失败，失败不改来源。固定来源世界位置，不再次应用工作基准。"
+  ],
+  "minimalExample": {
+    "op": "profileSweep",
+    "params": {
+      "operation": "newBody",
+      "transitionMode": "transformed",
+      "frenet": false
+    },
+    "refs": [
+      "<current-bodyId-1>",
+      "<current-bodyId-2>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "profileSweep",
+    "params": {
+      "operation": "newBody",
+      "transitionMode": "transformed",
+      "frenet": false
+    },
+    "refs": [
+      "<current-bodyId-1>",
+      "<current-bodyId-2>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "operation": "newBody",
+        "transitionMode": "transformed",
+        "frenet": false,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "PROFILE_SWEEP_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTools",
+    "queryGeometry",
+    "run",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "轮廓扫掠",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "docs": "api.mechanical",
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:ad3ee271d90d1281d32cbb75dc5482ef7f7f66d0db2ef03446679202fc86214d"
+}

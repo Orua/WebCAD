@@ -2,15 +2,15 @@
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.9.0",
+  "version": "1.13.0",
   "label": "新建工程",
   "synonyms": [
     "新建工程",
     "new"
   ],
-  "description": "new({context}); complete current context; dirty replacement is always rejected by page API.",
-  "inputContract": "new({context}); complete current context; dirty replacement is always rejected by page API.",
-  "outputContract": "New document identity and instance on commit.",
+  "description": "new({context}); complete current context; dirty replacement is always rejected by page API. Default name: 新建工程YYYYMMDD-NNN using the current local date and a daily browser-persisted sequence (minimum three digits); no explicit name argument.",
+  "inputContract": "new({context}); complete current context; dirty replacement is always rejected by page API. Default name: 新建工程YYYYMMDD-NNN using the current local date and a daily browser-persisted sequence (minimum three digits); no explicit name argument.",
+  "outputContract": "New document identity and instance on commit; getState().summary.name reads the generated name. Existing opened projects and user renames retain their names.",
   "units": {
     "length": "mm",
     "angle": "degrees"
@@ -36,5 +36,5 @@
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:edd76b99433fbe570adcda219f04c20137321cf5bdddabb6bae81b1d4a580b41"
+  "docsHash": "sha256:42343e787479dd7982b361db882389853c6583932d97e7eb5b1608e6f9005b88"
 }

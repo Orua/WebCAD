@@ -5,6 +5,9 @@ import { infoMetadata } from '../src/page-api-docs.js';
 import { listOperations } from '../src/operation-registry.js';
 import { assertPlacementCoverage } from '../src/placement-policy.js';
 import { UI_API_ROUTES } from '../src/ui-api-coverage.js';
+import {createHash} from 'node:crypto';
+import {isDeepStrictEqual} from 'node:util';
+import {AGENT_ONBOARDING} from '../src/agent-onboarding.js';
 
 const root = resolve(import.meta.dirname, '..');
 const json = async path => JSON.parse(await readFile(resolve(root, path), 'utf8'));
@@ -44,4 +47,18 @@ if (actual.length !== expected.size || actual.some(name => !expected.has(name)))
 for (const path of ['dist/docs/USER-GUIDE.zh-CN.md', 'dist/automation/frame-placement.js',
   'dist/automation/quickstart.md', 'dist/automation/knowledge.md', 'dist/automation/tool-library.mjs',
   'dist/llms.txt']) await readFile(resolve(root, path));
-console.log(`Release gate passed: ${report.operations.length} operations, ${report.executeActions.length} actions, ${report.uiRoutes.length} UI routes`);
+const bootstrap=await json('dist/automation/agent-start.json');
+if(bootstrap.pageApiVersion!==metadata.pageApiVersion||bootstrap.catalogHash!==metadata.catalogHash||bootstrap.docsHash!==metadata.docsHash)
+  throw new Error('Agent entry differs from current page contracts');
+for(const [key,value] of Object.entries(AGENT_ONBOARDING))if(JSON.stringify(bootstrap[key])!==JSON.stringify(value))throw new Error(`Agent entry ${key} differs from handshake`);
+for(const path of [bootstrap.startUrl,bootstrap.bootstrapUrl,...Object.entries(bootstrap.localKit).filter(([key])=>key.endsWith('Url')).map(([,value])=>value)])
+  await readFile(resolve(root,'dist',path));
+const kit=await json('dist/automation/agent-kit.json');
+for(const file of [...kit.files,kit.installer]){
+  if(typeof file.url!=='string'||file.url.includes('..')||file.url.startsWith('/')||file.url.includes(':'))throw new Error('Invalid agent kit URL');
+  const bytes=await readFile(resolve(root,'dist/automation',file.url));
+  if(file.sha256!==`sha256:${createHash('sha256').update(bytes).digest('hex')}`||file.sizeBytes!==bytes.length)throw new Error(`Agent kit file verification failed: ${file.url}`);
+}
+const routes=await json('dist/automation/routes.json');
+if(!isDeepStrictEqual(routes.routes,UI_API_ROUTES))throw new Error('Agent operation routes differ from UI API routes');
+console.log(`Release gate passed: ${report.operations.length} operations, ${report.executeActions.length} actions, ${report.uiRoutes.length} UI routes; agent entry and kit verified`);

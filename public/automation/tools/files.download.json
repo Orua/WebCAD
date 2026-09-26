@@ -2,7 +2,7 @@
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.9.0",
+  "version": "1.13.0",
   "label": "下载文件",
   "synonyms": [
     "下载文件",
@@ -36,5 +36,5 @@
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:2625392fcaf6da199be1ae9a67e5b6546db8ccdb854cecc076d4f8bbe1d293df"
+  "docsHash": "sha256:4275a4ce42aadb88143e244082e97bf45c0bd5d3c937557141d043c2bc1f43ef"
 }

@@ -3,12 +3,12 @@
   "title": "激活具名基准",
   "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "category": "command",
-  "version": "1.9.0",
+  "version": "1.13.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.activateFrame\",args}); args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:2291542ce5fff38bd7f1a3793afb3b1ea40743ec437be5623192b04166fbd260"
+  "docsHash": "sha256:8c46432ee6c2adcd040df185675651d3aa1f27f5da4f3b4af6255bc71e3f7aaa"
 }

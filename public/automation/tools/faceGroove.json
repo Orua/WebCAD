@@ -1,0 +1,208 @@
+{
+  "id": "faceGroove",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "faceId": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Explicit current planar face index on refs[0]"
+      },
+      "lengthMm": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "description": "Long side in stable face X direction"
+      },
+      "widthMm": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "description": "Short side in stable face Y direction"
+      },
+      "depthMm": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "description": "Inward recess depth"
+      }
+    },
+    "required": [
+      "faceId",
+      "lengthMm",
+      "widthMm",
+      "depthMm"
+    ],
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is measured inward from that plane. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. Rectangle is centered at face area centroid; X is projected world X, falling back to world Y. Cutter may meet the outer boundary; this is an actual rectangular recess, not a capsule slot.",
+  "title": "Mill a rectangular recess from a selected planar face",
+  "category": "modification",
+  "synonyms": [
+    "锣槽",
+    "faceGroove"
+  ],
+  "description": "Mill a rectangular recess from a selected planar face",
+  "schemaHash": "sha256:63564fdae3d0c3646791e7d5394d5657fb3a650ffb4d152ae6f6faf70a3eea93",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+  ],
+  "knownUnsupportedCases": [
+    "Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is measured inward from that plane. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. Rectangle is centered at face area centroid; X is projected world X, falling back to world Y. Cutter may meet the outer boundary; this is an actual rectangular recess, not a capsule slot."
+  ],
+  "minimalExample": {
+    "op": "faceGroove",
+    "params": {
+      "faceId": 0,
+      "lengthMm": 8,
+      "widthMm": 4,
+      "depthMm": 2
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "faceGroove",
+    "params": {
+      "faceId": 0,
+      "lengthMm": 8,
+      "widthMm": 4,
+      "depthMm": 2
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "faceId": 0,
+        "lengthMm": 8,
+        "widthMm": 4,
+        "depthMm": 2,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "NO_MATERIAL_REMOVED"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTools",
+    "queryGeometry",
+    "run",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "锣槽",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "docs": "api.mechanical",
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:35efce4b914e31675c8d3ec9f158728f20ae4b24eaad9ddda9db8bd80f68a466"
+}
