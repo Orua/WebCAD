@@ -20,7 +20,7 @@ const controls={
   quality:{label:'显示精度 · 不改变精确几何',action:'renderQuality',key:'quality',setting:'quality',items:[['草稿','draft'],['标准','standard'],['精细','fine'],['高精','ultra']]},
 };
 function freeze(value){if(value&&typeof value==='object'){Object.values(value).forEach(freeze);Object.freeze(value);}return value;}
-export const UI_LAYOUT=freeze({version:3,defaultTab:'create',panels:{left:232,right:320},tabs,controls,
+export const UI_LAYOUT=freeze({version:3,defaultTab:'create',panels:{left:232,right:320},ribbon:{visibleActions:3,minOverflow:2,overflowLabel:'更多 ▾',overflowMenuWidth:210},tabs,controls,
   viewportActions:[{action:'gizmoRotate',label:'鼠标旋转'},{action:'gizmoTranslate',label:'鼠标移动'}],
   icons:{
     ...ACTION_ICONS,precisionSettings:ACTION_ICONS.measure,

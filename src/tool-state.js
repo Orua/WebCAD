@@ -25,7 +25,7 @@ export function toolDisabledReason(action,state){
  if(action==='extractFaces'&&!faces)return '切换到选面，然后选择一个或多个面';
  if(action==='shell'&&!faces)return '切换到选面，选择需要移除的开口面';
  if(action==='extractSolid'&&state.bodies.find(b=>b.id===state.selectedIds[0])?.solidCount<2)return '请选择包含多个实体的复合体';
- if(action==='extractShell'&&state.bodies.find(b=>b.id===state.selectedIds[0])?.shellCount<2)return '请选择包含多个壳的复合体';
+ if(action==='extractShell'&&!(state.bodies.find(b=>b.id===state.selectedIds[0])?.shellCount>=1))return '请选择包含壳的对象';
  if(action==='explode'&&!(state.bodies.find(b=>b.id===state.selectedIds[0])?.solidCount>1))return '当前对象只有一个实体，无法拆散；已融合的形状请先用分割工具';
  if(['measure','fit','section','export'].includes(action)&&!state.bodies.length)return '请先创建或打开模型';
  return '';
