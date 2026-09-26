@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.9.0 · sha256:25cad9995c7913b7a9878c84605241a9652e352e92015f39e31e1d6dc0a1cafd
+API 1.9.0 · sha256:e033daafaf1c8267f59b10968b392dd8f40033000db965ec9ea273882ede1bad
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -130,10 +130,9 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
   },
   "anchorVisibility": {
     "tools": [
-      "getUILayout",
-      "getState"
+      "setView"
     ],
-    "method": "getUILayout",
+    "method": "setView",
     "usage": "参考锚点呼吸球显隐为本地 UI 偏好，不改变工程、固定原始坐标或几何 revision。"
   },
   "temporaryDisplay": {
@@ -633,6 +632,13 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
     "method": "setDisplayPreferences",
     "usage": "显示设置用 setDisplayPreferences；LOGO 转换配置用 getLogoConverter/setLogoConverter，URL/Key 保存在当前浏览器。"
   },
+  "panels": {
+    "tools": [
+      "setView"
+    ],
+    "method": "setView",
+    "usage": "panels:{left:boolean,right:boolean}；getState().view.panels 读状态。"
+  },
   "moveTool": {
     "tools": [
       "transform"
@@ -647,17 +653,17 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
   },
   "copySelection": {
     "tools": [
-      "getState"
+      "copySelection"
     ],
-    "method": "getState",
-    "usage": "人工页面剪贴板复制；AI 使用明确 refs 的 copy。"
+    "method": "copySelection",
+    "usage": "context、bodyIds，读 getState().view.clipboard。"
   },
   "pasteSelection": {
     "tools": [
-      "copy"
+      "pasteSelection"
     ],
-    "method": "execute",
-    "usage": "人工剪贴板整体底面中心放在参考锚点；AI 使用 copy 和明确定位参数。"
+    "method": "pasteSelection",
+    "usage": "context、idempotencyKey；整体底面中心放在锚点。"
   },
   "importAtFrame": {
     "tools": [
@@ -982,7 +988,7 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
 
 ## api.views
 
-setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}) 控制当前视口。display 为 solid/edges/wire/transparentEdges（半透明实体、边线与显示曲面三角网格）；grid/snap 为布尔值；gizmo 为 off/translate/rotate；selectionMode 为 body/face/edge；language 为 zh/en；camera 为 {position:[x,y,z],target:[x,y,z]}，可替代旋转、平移、缩放手势。temporaryDisplay 为 normal/selectedOnly/transparentOthers，只改变临时显示并保留工程中原有隐藏状态；getState().view 读回设置。direction 可为 top/bottom/front/back/left/right/side/iso；projection 可为 orthographic/perspective；fit 是布尔值；selectedIds 是当前实体 ID 数组，最多 200 个且不得重复。section 为 {axis:"X"|"Y"|"Z",position:有限数字,enabled:布尔值}，仅做显示裁剪，不切割精确 B-Rep。相机与裁剪变化不增加建模 revision。redraw({context}) 重绘当前提交版本；capture({context}) 等待匹配当前模型的渲染帧，返回 image/png dataUrl、context 和 display，失败时可能为 DISPLAY_FAILED。调用前从 getState().context 取完整当前身份与 expectedRevision。
+setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?,anchorVisible?,panels?}) 控制当前视口。display 为 solid/edges/wire/transparentEdges（半透明实体、边线与显示曲面三角网格）；grid/snap 为布尔值；gizmo 为 off/translate/rotate；selectionMode 为 body/face/edge；language 为 zh/en；camera 为 {position:[x,y,z],target:[x,y,z]}，可替代旋转、平移、缩放手势。temporaryDisplay 为 normal/selectedOnly/transparentOthers，只改变临时显示并保留工程中原有隐藏状态；getState().view 读回设置。direction 可为 top/bottom/front/back/left/right/side/iso；projection 可为 orthographic/perspective；fit 是布尔值；selectedIds 是当前实体 ID 数组，最多 200 个且不得重复。section 为 {axis:"X"|"Y"|"Z",position:有限数字,enabled:布尔值}，仅做显示裁剪，不切割精确 B-Rep。相机与裁剪变化不增加建模 revision。redraw({context}) 重绘当前提交版本；capture({context}) 等待匹配当前模型的渲染帧，返回 image/png dataUrl、context 和 display，失败时可能为 DISPLAY_FAILED。调用前从 getState().context 取完整当前身份与 expectedRevision。
 
 ## api.workflow
 
@@ -28096,6 +28102,56 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 }
 ```
 
+## 工具 copySelection · copySelection
+
+```json
+{
+  "id": "copySelection",
+  "title": "copySelection",
+  "category": "page-method",
+  "version": "1.9.0",
+  "description": "copySelection({context,bodyIds}); 1–200个当前实体。",
+  "synonyms": [
+    "copySelection",
+    "复制",
+    "实体",
+    "剪贴板"
+  ],
+  "inputContract": "copySelection({context,bodyIds}); 1–200个当前实体。",
+  "outputContract": "status=read；仅页面内存，跨工程失效；getState().view.clipboard 读状态。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:ec82827475b984527c73ff8ee25dd799e6b9d57564b4c9f46b149bef931caa83"
+}
+```
+
+## 工具 pasteSelection · pasteSelection
+
+```json
+{
+  "id": "pasteSelection",
+  "title": "pasteSelection",
+  "category": "page-method",
+  "version": "1.9.0",
+  "description": "pasteSelection({context,idempotencyKey}); 先 copySelection。",
+  "synonyms": [
+    "pasteSelection",
+    "黏贴",
+    "粘贴",
+    "参考锚点"
+  ],
+  "inputContract": "pasteSelection({context,idempotencyKey}); 先 copySelection。",
+  "outputContract": "status=committed、createdBodyIds、当前 context；整体底面中心对齐锚点、保留相对位置；同一运行实例最多128回执，重复同请求不会重复黏贴。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:582553d283995b47363aa3e0d7f3db1ff9beaa8a87bd4be8ed47ae689147bc37"
+}
+```
+
 ## 工具 createRequestContext · createRequestContext
 
 ```json
@@ -29165,7 +29221,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "setView",
   "category": "page-method",
   "version": "1.9.0",
-  "description": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 详见 api.views；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
+  "description": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 详见 api.views；panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
   "synonyms": [
     "setView",
     "视图",
@@ -29176,7 +29232,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "剖切",
     "显隐"
   ],
-  "inputContract": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 详见 api.views；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
+  "inputContract": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 详见 api.views；panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
   "outputContract": "status=read、当前 context、display；section 仅为显示裁剪，不是精确切割。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -29189,7 +29245,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:70140384b1efceb2b3e59d4241dacae01249daa92fbca0b606c7a810af3a7f9c"
+  "docsHash": "sha256:be161123814ecdc4567bea9788fbb313e89e862747803ac4c4e3d27818ca17c2"
 }
 ```
 

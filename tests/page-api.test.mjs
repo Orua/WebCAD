@@ -7,6 +7,18 @@ import {prepareAnalyticProfileEdit} from '../src/profile-editing.js';
 
 const context = () => ({ sessionId: 'page-1', documentId: 'doc-1', documentInstanceId: 'instance-1', expectedRevision: 7 });
 
+test('clipboard calls enforce explicit references and retry-safe paste receipts',async()=>{
+ const f=fixture();let pasted=0;f.host.clipboard=async action=>{if(action==='paste'){pasted++;return ['new-body'];}};
+ assert.equal((await f.api.copySelection({context:context(),bodyIds:['missing']})).status,'failed');
+ assert.equal((await f.api.copySelection({context:context(),bodyIds:['body-1']})).status,'read');
+ const input={context:context(),idempotencyKey:'paste-one'};
+ const results=await Promise.all([f.api.pasteSelection(input),f.api.pasteSelection(input)]);
+ assert.equal(pasted,1);assert.deepEqual(results[0],results[1]);assert.equal(results[0].status,'committed');
+ assert.equal((await f.api.pasteSelection({...input,context:{...context(),expectedRevision:8}})).error.code,'IDEMPOTENCY_KEY_REUSED');
+ assert.equal((await f.api.setView({context:context(),anchorVisible:false,panels:{left:false,right:true}})).status,'read');
+ for(const panels of [{left:'false'},{bottom:true},[]])assert.equal((await f.api.setView({context:context(),panels})).status,'failed');
+});
+
 test('settings and translucent view share the discoverable public API without modeling changes',async()=>{
  const {api,host,calls}=fixture();host.preferences=values=>({values,persisted:true,storage:'cookie'});
  const preferences=await api.setDisplayPreferences({context:context(),values:{themeColor:'#2563eb',snapThresholdMm:.2}});

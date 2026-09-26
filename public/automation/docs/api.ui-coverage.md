@@ -32,10 +32,9 @@
   },
   "anchorVisibility": {
     "tools": [
-      "getUILayout",
-      "getState"
+      "setView"
     ],
-    "method": "getUILayout",
+    "method": "setView",
     "usage": "参考锚点呼吸球显隐为本地 UI 偏好，不改变工程、固定原始坐标或几何 revision。"
   },
   "temporaryDisplay": {
@@ -535,6 +534,13 @@
     "method": "setDisplayPreferences",
     "usage": "显示设置用 setDisplayPreferences；LOGO 转换配置用 getLogoConverter/setLogoConverter，URL/Key 保存在当前浏览器。"
   },
+  "panels": {
+    "tools": [
+      "setView"
+    ],
+    "method": "setView",
+    "usage": "panels:{left:boolean,right:boolean}；getState().view.panels 读状态。"
+  },
   "moveTool": {
     "tools": [
       "transform"
@@ -549,17 +555,17 @@
   },
   "copySelection": {
     "tools": [
-      "getState"
+      "copySelection"
     ],
-    "method": "getState",
-    "usage": "人工页面剪贴板复制；AI 使用明确 refs 的 copy。"
+    "method": "copySelection",
+    "usage": "context、bodyIds，读 getState().view.clipboard。"
   },
   "pasteSelection": {
     "tools": [
-      "copy"
+      "pasteSelection"
     ],
-    "method": "execute",
-    "usage": "人工剪贴板整体底面中心放在参考锚点；AI 使用 copy 和明确定位参数。"
+    "method": "pasteSelection",
+    "usage": "context、idempotencyKey；整体底面中心放在锚点。"
   },
   "importAtFrame": {
     "tools": [

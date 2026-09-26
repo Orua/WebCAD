@@ -1,0 +1,20 @@
+{
+  "id": "pasteSelection",
+  "title": "pasteSelection",
+  "category": "page-method",
+  "version": "1.9.0",
+  "description": "pasteSelection({context,idempotencyKey}); 先 copySelection。",
+  "synonyms": [
+    "pasteSelection",
+    "黏贴",
+    "粘贴",
+    "参考锚点"
+  ],
+  "inputContract": "pasteSelection({context,idempotencyKey}); 先 copySelection。",
+  "outputContract": "status=committed、createdBodyIds、当前 context；整体底面中心对齐锚点、保留相对位置；同一运行实例最多128回执，重复同请求不会重复黏贴。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:582553d283995b47363aa3e0d7f3db1ff9beaa8a87bd4be8ed47ae689147bc37"
+}

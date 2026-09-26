@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.9.0 · 操作目录 sha256:25cad9995c7913b7a9878c84605241a9652e352e92015f39e31e1d6dc0a1cafd
+API 1.9.0 · 操作目录 sha256:e033daafaf1c8267f59b10968b392dd8f40033000db965ec9ea273882ede1bad
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -8,6 +8,8 @@ API 1.9.0 · 操作目录 sha256:25cad9995c7913b7a9878c84605241a9652e352e92015f3
 
 ## 页面方法
 
+- `copySelection`
+- `pasteSelection`
 - `createRequestContext`
 - `getUILayout`
 - `setRenderQuality`
@@ -151,6 +153,8 @@ API 1.9.0 · 操作目录 sha256:25cad9995c7913b7a9878c84605241a9652e352e92015f3
 - `template.sliderBuckle` · advisory · 外框整体内高；固定圆杆偏移上正下负，不支持开缝。闭合圆线框可用内短边≥2.5倍线径的紧凑双窗，且每侧孔高至少为线径。
 - `template.ovalBuckle` · advisory · 四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。
 - `template.washer` · advisory · 平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。
+- `copySelection` · page-method · copySelection({context,bodyIds}); 1–200个当前实体。
+- `pasteSelection` · page-method · pasteSelection({context,idempotencyKey}); 先 copySelection。
 - `createRequestContext` · page-method · createRequestContext(context?); omit to read the current context.
 - `getUILayout` · page-method · getUILayout()
 - `setRenderQuality` · page-method · setRenderQuality({context,quality:"draft"|"standard"|"fine"|"ultra"})
@@ -185,7 +189,7 @@ API 1.9.0 · 操作目录 sha256:25cad9995c7913b7a9878c84605241a9652e352e92015f3
 - `getLogoConverter` · page-method · getLogoConverter()；读取当前浏览器 localStorage 的配置。
 - `setLogoConverter` · page-method · setLogoConverter({context,url,key?})；URL 必须含 userid，空 key 保留原值。
 - `convertLogoPdf` · page-method · convertLogoPdf({context,name,data,targetWidthMm?})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。
-- `setView` · page-method · setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 详见 api.views；section={axis:"X"|"Y"|"Z",position:number,enabled:boolean}。
+- `setView` · page-method · setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 详见 api.views；panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:"X"|"Y"|"Z",position:number,enabled:boolean}。
 - `redraw` · page-method · redraw({context}); 不接受额外字段。
 - `capture` · page-method · capture({context}); 不接受额外字段。
 - `run` · page-method · run({context,idempotencyKey,steps}); see readDocs({docId:"api.run"}).

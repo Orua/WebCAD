@@ -3,7 +3,7 @@
   "title": "setView",
   "category": "page-method",
   "version": "1.9.0",
-  "description": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 详见 api.views；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
+  "description": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 详见 api.views；panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
   "synonyms": [
     "setView",
     "视图",
@@ -14,7 +14,7 @@
     "剖切",
     "显隐"
   ],
-  "inputContract": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 详见 api.views；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
+  "inputContract": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 详见 api.views；panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
   "outputContract": "status=read、当前 context、display；section 仅为显示裁剪，不是精确切割。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -27,5 +27,5 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:70140384b1efceb2b3e59d4241dacae01249daa92fbca0b606c7a810af3a7f9c"
+  "docsHash": "sha256:be161123814ecdc4567bea9788fbb313e89e862747803ac4c4e3d27818ca17c2"
 }
