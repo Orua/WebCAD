@@ -2,7 +2,7 @@
 // Actions route through UI_API_ROUTES; no eval or geometry logic belongs here.
 import {ACTION_ICONS} from './action-icons.js';
 const tabs = [
-  {id:'edit',label:'编辑',groups:[['选择',['selectTool']],['变换',['moveTool','rotateTool']],['复制',['copySelection','pasteSelection','copy','mirror']],['组合',['group','explode']],['阵列',['linearPattern','circularPattern']],['轮廓编辑',['profileOffset','profileRepair']],['管理',['remove']]]},
+  {id:'edit',label:'编辑',unfolded:true,groups:[['选择',['selectTool']],['变换',['moveTool','rotateTool']],['复制',['copySelection','pasteSelection','copy','mirror']],['组合',['group','explode']],['轮廓编辑',['profileOffset','profileRepair']],['管理',['remove']]]},
   {id:'create',label:'创建',unfolded:true,groups:[['轮廓',['sketchProfile','sketch','vectorProfile','arcProfile']],['轮廓成型',['profileExtrude','extrude','revolve','sweep','loft']]]},
   {id:'model',label:'模型',unfolded:true,groups:[['基本实体',['box','cylinder','sphere','cone','torus']],['模型库',['quickModel','importAtFrame']]]},
   {id:'machine',label:'加工',groups:[['布尔运算',['union','cut','intersect']],['孔与槽',['holeWizard','hole','multiHole','slot','multiPocket','multiBoss']],['面加工',['faceHole','faceExtrude','logo']]]},
