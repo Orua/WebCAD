@@ -1,0 +1,247 @@
+{
+  "id": "thread",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "faceId": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "kind": {
+        "type": "string",
+        "enum": [
+          "external",
+          "internal"
+        ]
+      },
+      "pitchMm": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "description": "Axial pitch, mm"
+      },
+      "depthMm": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "description": "Radial groove depth, mm"
+      },
+      "lengthMm": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "description": "Axial machining interval, mm"
+      },
+      "startOffsetMm": {
+        "type": "number",
+        "minimum": 0,
+        "default": 0,
+        "description": "Offset along the selected cylinder axis from its minimum axial face parameter, mm"
+      },
+      "includedAngleDeg": {
+        "type": "number",
+        "minimum": 20,
+        "maximum": 120,
+        "default": 60
+      },
+      "leftHanded": {
+        "type": "boolean",
+        "default": false,
+        "description": "False is right-handed; true is left-handed"
+      }
+    },
+    "required": [
+      "faceId",
+      "kind",
+      "pitchMm",
+      "depthMm",
+      "lengthMm"
+    ],
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "defaults": {
+    "startOffsetMm": 0,
+    "includedAngleDeg": 60,
+    "leftHanded": false
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 先选真实圆柱面；工具从所选面的轴向下界开始，按明确螺距、径向牙深和V槽包含角实际切除材料。支持内／外、左／右旋，起止处按长度裁切。它不提供ISO/GB规格、配合公差、端部退刀槽或多头螺纹；不是标准螺纹认证。",
+  "title": "Cut an explicit symmetric helical V groove on a selected cylindrical material face",
+  "category": "modification",
+  "synonyms": [
+    "螺纹 V 槽",
+    "thread"
+  ],
+  "description": "Cut an explicit symmetric helical V groove on a selected cylindrical material face",
+  "schemaHash": "sha256:c9f8fd4ac5b890683625f9e8b2a6679678a2d799fffbcb03c68bdf3018be692c",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+  ],
+  "knownUnsupportedCases": [
+    "先选真实圆柱面；工具从所选面的轴向下界开始，按明确螺距、径向牙深和V槽包含角实际切除材料。支持内／外、左／右旋，起止处按长度裁切。它不提供ISO/GB规格、配合公差、端部退刀槽或多头螺纹；不是标准螺纹认证。"
+  ],
+  "minimalExample": {
+    "op": "thread",
+    "params": {
+      "faceId": 0,
+      "kind": "external",
+      "pitchMm": 2,
+      "depthMm": 0.6,
+      "lengthMm": 10,
+      "startOffsetMm": 0,
+      "includedAngleDeg": 60,
+      "leftHanded": false
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "thread",
+    "params": {
+      "faceId": 0,
+      "kind": "external",
+      "pitchMm": 2,
+      "depthMm": 0.6,
+      "lengthMm": 10,
+      "startOffsetMm": 0,
+      "includedAngleDeg": 60,
+      "leftHanded": false
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "faceId": 0,
+        "kind": "external",
+        "pitchMm": 2,
+        "depthMm": 0.6,
+        "lengthMm": 10,
+        "startOffsetMm": 0,
+        "includedAngleDeg": 60,
+        "leftHanded": false,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTools",
+    "queryGeometry",
+    "run",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "螺纹 V 槽",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "docs": "api.mechanical",
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:29d4f4f2247631d6161b962225ec8323a81b53d9eb8ee5a8e9f0c6477f7b987f"
+}

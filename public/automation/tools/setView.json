@@ -2,8 +2,8 @@
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.9.0",
-  "description": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 详见 api.views；panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
+  "version": "1.13.0",
+  "description": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
   "synonyms": [
     "setView",
     "视图",
@@ -12,10 +12,13 @@
     "轴测",
     "适配",
     "剖切",
-    "显隐"
+    "显隐",
+    "鼠标移动",
+    "鼠标旋转",
+    "手柄"
   ],
-  "inputContract": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 详见 api.views；panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
-  "outputContract": "status=read、当前 context、display；section 仅为显示裁剪，不是精确切割。",
+  "inputContract": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
+  "outputContract": "status=read、当前 context、display、view；view.transform 的 attached/canDrag/blocker 可读回单对象手柄状态。不修改工程 revision；拖动或数值变换通过 transform 提交。section 仅为显示裁剪，不是精确切割。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -24,8 +27,9 @@
     "PARAM_SCHEMA_INVALID",
     "STALE_REFERENCE",
     "REVISION_CONFLICT",
-    "CAPABILITY_UNAVAILABLE"
+    "CAPABILITY_UNAVAILABLE",
+    "SELECTION_CONFLICT"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:be161123814ecdc4567bea9788fbb313e89e862747803ac4c4e3d27818ca17c2"
+  "docsHash": "sha256:9acc43f50682c3e1fbbc432fe73013ccfd5f51f73733926192db5b234b20b8ff"
 }

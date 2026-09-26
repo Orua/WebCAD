@@ -2,7 +2,7 @@
   "id": "copySelection",
   "title": "copySelection",
   "category": "page-method",
-  "version": "1.9.0",
+  "version": "1.13.0",
   "description": "copySelection({context,bodyIds}); 1–200个当前实体。",
   "synonyms": [
     "copySelection",
@@ -16,5 +16,5 @@
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:ec82827475b984527c73ff8ee25dd799e6b9d57564b4c9f46b149bef931caa83"
+  "docsHash": "sha256:41458d8e71594fb042e441a07c6f614cb809a6d6fa99a9849f3480151860a054"
 }

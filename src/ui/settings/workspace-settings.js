@@ -13,10 +13,49 @@ export function showWorkspaceSettings(action,{openDialog,element,button,state,em
     const apply=element('button',{type:'submit',class:'primary'},'应用并记住');form.append(button('关闭',closeDialog,'secondary'),apply);form.addEventListener('submit',async e=>{e.preventDefault();if(!form.reportValidity())return;apply.disabled=true;try{await emit('displayPreferences',Object.fromEntries(Object.entries(inputs).map(([k,v])=>[k,Number(v.value)])));closeDialog();}finally{apply.disabled=false;}});d.append(form);return;
   }
   if(action==='agentGuide'){
-    note('前端入口：window.webcad.api。先连接，再按任务加载工具卡；不需要新增后台服务。');
-    form.append(element('pre',{class:'info-content'},'const api = window.webcad.api;\nconst session = api.connect({\n  toolIds: ["sketchProfile", "profileExtrude"]\n});\n// 已知工具：按 ID 精确载入，无需搜索完整目录\n// 未知工具：queries:["任务关键词"], limit:1, includeContracts:true\n// 检查 canExecute / blockers，使用新的 requestContext\n// 工具卡可按 docsHash 缓存；实体 ID 与 revision 必须重新读取。'));
-    note('快速说明：/automation/quickstart.md；可下载完整知识库：/automation/knowledge.md；工具目录：/automation/index.json。AI 按需加载，避免每次读取完整目录。');
-    form.append(button('关闭',closeDialog,'secondary'));d.append(form);return;
+    d.style.width='min(760px, calc(100vw - 32px))';d.style.maxWidth='760px';
+    const rootUrl=new URL('./',document.baseURI),assetUrl=path=>new URL(path,rootUrl).href;
+    const firstConnect='window.webcad.api.connect({\n  queries: ["本次任务能力"],\n  limit: 3, includeContracts: true\n})';
+    const quote=value=>"'"+value.replace(/'/g,"''")+"'";
+    const installCommand=[
+      '$webcadBase = '+quote(rootUrl.href),
+      "$installerPath = Join-Path $env:TEMP 'webcad-install-agent.ps1'",
+      'Invoke-WebRequest -Uri '+quote(assetUrl('automation/install-agent.ps1'))+' -OutFile $installerPath',
+      'Get-Content -LiteralPath $installerPath',
+      '# 查看并审核脚本后，再执行下一行：',
+      '& $installerPath -BaseUrl $webcadBase'
+    ].join('\n');
+    note('Agent 与你操作同一个页面工程。先确认宿主能执行页面脚本，再读取当前工具与状态；静态网页不需要后台服务。');
+    const links=element('div',{class:'profile-editor-toolbar wide','aria-label':'Agent 起步资料'});
+    for(const [path,label] of [['automation/agent-start.html','打开 Agent 起步页'],['automation/install-agent.ps1','查看 / 下载本地安装器'],['automation/index.html','搜索工具与参数'],['automation/docs/api.connection.md','宿主连接说明']])links.append(element('a',{href:assetUrl(path),target:'_blank',rel:'noopener noreferrer'},label));
+    form.append(links);
+    const steps=element('ol',{class:'wide'});
+    for(const text of [
+      '绑定当前 WebCAD 标签页，核对地址。先读取宿主的 capabilities；若提供 CDP，先读 CDP 文档，再按宿主授权使用 Runtime.evaluate。只有只读 DOM 能力时不能执行建模脚本。',
+      '通过已确认的页面脚本通道执行下方 connect 表达式。把「本次任务能力」替换为任务关键词；检查 canExecute 与 blockers，然后读取所需工具卡。',
+      '需要宿主长期复用时，可先下载并查看下方安装脚本。有磁盘和 PowerShell 能力的宿主可安装 webcad-page-api 技能；没有这些能力时仍可按起步页连接。',
+      '每次操作重新读取 requestContext、实体与拓扑引用。只缓存完整工具卡及其哈希；提交后分别核对几何回执、当前状态和渲染结果。'
+    ]){const item=element('li',{},text);item.style.lineHeight='1.5';item.style.marginBottom='8px';steps.append(item);}
+    form.append(steps);
+    const addCopyBlock=(label,text,rows)=>{
+      const heading=element('strong',{class:'wide'},label),input=element('textarea',{class:'wide',readonly:'',rows:String(rows),'aria-label':label,'data-no-translate':''});input.value=text;input.style.width='100%';input.style.boxSizing='border-box';input.style.fontFamily='monospace';input.style.resize='vertical';
+      const feedback=element('span',{'aria-live':'polite'}),copy=button('复制'+label,async()=>{try{await navigator.clipboard.writeText(text);feedback.textContent='已复制';}catch{input.focus();input.select();feedback.textContent='内容已选中，请按 Ctrl+C 复制';}},'secondary'),line=element('div',{class:'profile-editor-toolbar wide'});line.append(copy,feedback);form.append(heading,input,line);
+    };
+    addCopyBlock('首次连接表达式',firstConnect,4);
+    addCopyBlock('本地安装命令',installCommand,8);
+    note('上面的命令先下载、显示脚本，再由你或有权限的宿主审核执行。安装目标默认是宿主 ~/.codex/skills/webcad-page-api，可用 -Destination 指定；网页不会自动安装，也不执行 JSON 指令。');
+    const status=element('dl',{class:'wide','aria-label':'当前页面接口状态','aria-live':'polite'});status.style.display='grid';status.style.gridTemplateColumns='minmax(100px, auto) minmax(0, 1fr)';status.style.gap='4px 10px';status.style.margin='0';
+    const statusLabels={canExecute:'canExecute',blockers:'blockers',buildId:'构建 buildId',apiVersion:'API 版本',pageApiVersion:'页面 API 版本',catalogHash:'工具目录哈希',docsHash:'文档哈希'};
+    const renderStatus=()=>{
+      status.replaceChildren();try{
+        const pageAPI=window.webcad?.api;if(typeof pageAPI?.connect!=='function')throw new Error('页面 API 尚未公开，请等待初始化后刷新状态');
+        const connected=pageAPI.connect();
+        for(const [key,label] of Object.entries(statusLabels)){const value=connected[key],content=key==='blockers'?Array.isArray(value)?value.length?value.join(', '):'无': '未报告':typeof value==='boolean'?String(value):value??'未报告';const cell=element('dd',{'data-no-translate':'','data-agent-status':key},String(content));cell.style.margin='0';cell.style.overflowWrap='anywhere';status.append(element('dt',{},label),cell);}
+      }catch(error){status.append(element('dt',{},'页面状态'),element('dd',{},error.message));}
+    };
+    form.append(element('strong',{class:'wide'},'当前页面接口状态'),status,button('刷新页面状态',renderStatus,'secondary'));
+    note('此处是当前页面的只读状态，不能证明外部 Agent 已绑定或获得脚本权限。canExecute=false 时先处理 blockers，再重新连接。');
+    form.append(button('关闭',closeDialog,'secondary'));form.addEventListener('submit',event=>event.preventDefault());d.append(form);renderStatus();return;
   }
   const label=element('label',{class:'form-field'}),input=action==='languageSettings'?element('select',{'aria-label':'界面语言'}):element('input',{type:action==='themeSettings'?'color':'number','aria-label':action==='themeSettings'?'主要颜色':'吸附阈值 mm'});
   if(action==='languageSettings'){for(const [value,text]of [['zh','中文'],['en','English']])input.append(element('option',{value},text));input.value=getLanguage();label.append(element('span',{},'界面语言'));}

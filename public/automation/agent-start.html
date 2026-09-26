@@ -1,0 +1,33 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WebCAD · AGENT 从这里开始</title><style>
+  :root{font-family:system-ui,"Microsoft YaHei",sans-serif;color:#1f2a3d;background:#f4f6fa}body{margin:0}main{max-width:960px;margin:auto;padding:32px 24px 64px}header{margin-bottom:24px}h1{font-size:28px;margin:8px 0}h2{font-size:19px;margin:0 0 12px}p,li{line-height:1.7}section{padding:24px;background:white;border:1px solid #dbe2ed;border-radius:12px;margin:16px 0}nav{display:flex;gap:12px;flex-wrap:wrap}a{color:#2255b8}pre{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55;padding:16px;background:#edf2f9;border-radius:8px;font-size:13px}button{cursor:pointer;padding:7px 14px;border:1px solid #c7d3e7;background:#fff;border-radius:6px;color:#2255b8}.muted{color:#637189;font-size:13px}.links{display:flex;gap:16px;flex-wrap:wrap}.status{padding-left:12px;color:#637189}code{overflow-wrap:anywhere}@media(max-width:600px){main{padding:20px 12px}section{padding:16px}}
+  </style></head><body><main><header><p class="muted">WebCAD AGENT 入口 · API 1.13.0</p><h1>连接一次，就知道怎样操作</h1><p>先找到宿主允许的页面脚本通道，再连接当前工程。首次握手返回实时状态、工具契约以及本地操作包入口。</p><nav><a href="../">返回 CAD</a><a href="agent-start.json">机器可读入口</a><a href="index.html">搜索工具</a><a href="routes.json">操作路由</a></nav></header>
+  <section><h2>1 · 确认通道</h2><p>绑定用户指定的标签页，查看宿主当前提供的能力。Codex 的 Chrome / IAB 宿主应先检查 <code>tab.capabilities.list()</code>：有 <code>cdp</code> 就读其文档，再使用授权的 <code>Runtime.evaluate</code>。</p><p>DOM 读取能力、页面是否有 API、宿主能否执行脚本是三个不同检查。标签页被其他会话占用时，处理宿主绑定问题；不要据此判定 WebCAD 没有 API，也不要刷新未保存的工程。</p><pre id="channel">// 先按宿主当前文档绑定用户指定的标签页，得到 tab。
+const capabilities = await tab.capabilities.list();
+// 确认实际列出 cdp，再读取文档。
+const cdp = await tab.capabilities.get(&quot;cdp&quot;);
+const documentation = await cdp.documentation();
+// 仅在当前文档支持并授权时执行：
+const response = await cdp.send(&quot;Runtime.evaluate&quot;, {
+  expression: &quot;JSON.stringify(window.webcad.api.connect({queries:[\&quot;本次任务能力\&quot;],limit:2,includeContracts:true}))&quot;,
+  awaitPromise: true, returnByValue: true
+});
+// 核对 exceptionDetails；解析 response.result.value。</pre><button data-copy="channel">复制通道检查示例</button><span class="status" aria-live="polite"></span><p><a href="docs/api.connection.md">完整连接说明</a> · 方法名称和权限以宿主当前文档为准。</p></section>
+  <section><h2>2 · 读取首次握手</h2><p>通过确认过的脚本通道执行下面的表达式，替换本次能力词。检查异常后解析返回的 JSON。</p><pre id="handshake">JSON.stringify((()=&gt;{
+  const api = window.webcad?.api;
+  if (!api?.connect) return {error:&quot;PAGE_API_MISSING&quot;,action:&quot;核对目标页面与版本，保留未保存工程&quot;};
+  return {
+    connection: api.connect({queries:[&quot;本次任务能力&quot;],limit:2,includeContracts:true}),
+    workflow: api.readDocs({docId:&quot;api.workflow&quot;})
+  };
+})())</pre><button data-copy="handshake">复制首次连接表达式</button><span class="status" aria-live="polite"></span><ul><li><code>canExecute / blockers</code> 决定能否操作；内核 <code>ready</code> 不等于当前可执行。</li><li><code>contracts.items[].card</code> 已提供完整工具卡；已知 ID 可用 <code>toolIds</code> 直接载入。</li><li><code>onboarding.localKit</code> 给出安装器、技能、连接助手和操作路由。</li></ul></section>
+  <section><h2>3 · 安装到本地，后续任务直接发现</h2><p>有磁盘权限的 Windows 宿主可下载并查看安装脚本，再安装到 <code>~/.codex/skills/webcad-page-api</code>。页面本身不会自动写磁盘。安装包包含技能说明、连接参考、脚本助手和真实 UI/API 路由；更新前备份已有技能。</p><pre id="install">$base = &quot;当前 WebCAD 页面根地址&quot;
+$installer = Join-Path $env:TEMP &quot;webcad-install-agent.ps1&quot;
+Invoke-WebRequest -Uri ($base.TrimEnd(&quot;/&quot;)+&quot;/automation/install-agent.ps1&quot;) -OutFile $installer
+Get-Content -LiteralPath $installer
+# 查看脚本后，安装技能、连接助手及路由（不启动服务）
+&amp; $installer -BaseUrl $base</pre><button data-copy="install">复制本地安装命令</button><span class="status" aria-live="polite"></span><p class="links"><a href="install-agent.ps1">查看安装脚本</a><a href="agent-kit.json">包清单与文件哈希</a><a href="webcad-page-api/SKILL.md">技能说明</a><a href="webcad-page-api/scripts/page-client.mjs">连接与执行助手</a></p><p class="muted">连接助手接收宿主已授权的 CDP adapter，封装握手、按需读卡、批次与错误读取。无需启动 Node、MCP 或额外后台服务。没有磁盘能力也能直接使用页面 API。</p></section>
+  <section><h2>4 · 按真实契约执行并检查结果</h2><p>从工具卡确认参数和约束，用新鲜 <code>requestContext</code> 与唯一幂等键执行 <code>api.run</code>，每批最多 20 步。后续步骤用 <code>$ref</code> 引用实际创建的 ID。发生超时先检查状态，避免重复创建。</p><p>执行结束检查逐步回执、当前实体、关键尺寸与渲染版本，并查看画面。缓存只保存静态契约，工程状态和实体 ID 每次重新读取。</p><p class="links"><a href="docs/api.workflow.md">建模与恢复流程</a><a href="docs/api.run.md">批次协议</a><a href="quickstart.md">连接速读</a></p></section><p class="muted">构建 bad575aefc058c4aa1edaa81d4c920b037313e66-working · 契约目录 sha256:07c24fb283ff9594e698155047e313ef629cec6e5c99bde406dcd5f1b324abe5</p></main><script type="module">
+  const base = new URL('../', location.href).href;
+  const install = document.getElementById('install'); install.textContent = install.textContent.replace('当前 WebCAD 页面根地址', base);
+  for(const button of document.querySelectorAll('[data-copy]')) button.addEventListener('click', async()=>{const status=button.nextElementSibling;try{await navigator.clipboard.writeText(document.getElementById(button.dataset.copy).textContent);status.textContent='已复制';}catch{status.textContent='请选中上面的文本复制';}});
+  </script></body></html>

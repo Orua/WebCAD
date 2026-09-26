@@ -1,8 +1,12 @@
 # WebCAD AI 连接与工具发现
 
+首次使用：[AGENT 从这里开始](agent-start.html) · [机器可读入口](agent-start.json) · [本地安装包](agent-kit.json) · [真实操作路由](routes.json)。首次握手的 onboarding 返回相同入口。
+
 AI 应通过宿主已授权的页面脚本通道在后台调用 window.webcad.api。不要为查工具或执行建模打开 JSON 调试面板、填输入框或点击执行按钮。没有可用脚本通道时，明确报告通道不可用；不要自动退回界面操作。
 
 ## 先选后台通道
+
+本地可搜索目录：[操作 API 目录](index.html)，按关键词和分类查找页面方法与工具契约；原始索引：[manifest.json](manifest.json)。
 
 当前 Codex Chrome/IAB 开发宿主：绑定目标标签页后检查 tab.capabilities.list()；若提供 cdp，先读 (await tab.capabilities.get("cdp")).documentation()，确认允许当前任务后用 Runtime.evaluate（awaitPromise:true、returnByValue:true）调用公开 API。只读 DOM evaluate 与该能力不同；不要直接改用填表。其他宿主使用其实际支持的授权脚本通道。完整说明：[api.connection](docs/api.connection.md)。
 

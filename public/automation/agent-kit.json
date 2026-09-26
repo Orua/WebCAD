@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "id": "webcad-page-api",
+  "version": "1.13.0",
+  "buildId": "bad575aefc058c4aa1edaa81d4c920b037313e66-working",
+  "catalogHash": "sha256:07c24fb283ff9594e698155047e313ef629cec6e5c99bde406dcd5f1b324abe5",
+  "docsHash": "sha256:0fe9079c4a6804e21d396f9683307db0ff159487e4a6ac5e00c68ebec022aa8b",
+  "entrypoints": {
+    "browser": "agent-start.html",
+    "machine": "agent-start.json",
+    "routes": "routes.json",
+    "skill": "webcad-page-api/SKILL.md",
+    "client": "webcad-page-api/scripts/page-client.mjs",
+    "install": "install-agent.ps1"
+  },
+  "files": [
+    {
+      "relativePath": "SKILL.md",
+      "url": "webcad-page-api/SKILL.md",
+      "sizeBytes": 4444,
+      "sha256": "sha256:e0b56a151c7107dddefd582ebd00bdc9ed8072d7edb2445b6a3c8c2ef2507eae"
+    },
+    {
+      "relativePath": "references/connection.md",
+      "url": "webcad-page-api/references/connection.md",
+      "sizeBytes": 5051,
+      "sha256": "sha256:b2b0e4f96ffc11e264fa9765b9beda1d64a5a1d2f8d93051f6209f353d369bb6"
+    },
+    {
+      "relativePath": "scripts/page-client.mjs",
+      "url": "webcad-page-api/scripts/page-client.mjs",
+      "sizeBytes": 5955,
+      "sha256": "sha256:7824553936c514b1c935d0b79da4d4726fc027e213719b8152ee9c50804ff6f1"
+    },
+    {
+      "relativePath": "routes.json",
+      "url": "routes.json",
+      "sizeBytes": 35449,
+      "sha256": "sha256:f628733b43d0569922f59c74bf6d4250bd09967d9ae8a9989a7754109f6df929"
+    }
+  ],
+  "installer": {
+    "relativePath": "install-agent.ps1",
+    "url": "install-agent.ps1",
+    "sizeBytes": 7466,
+    "sha256": "sha256:396d3256f16a47aec2dca79343a2734ce2066c0f7869372b1e625767ad644e47"
+  },
+  "installation": {
+    "defaultDestination": "%USERPROFILE%/.codex/skills/webcad-page-api",
+    "explicitExecutionRequired": true,
+    "hashAlgorithm": "SHA-256",
+    "backupBeforeUpdate": true,
+    "backgroundService": false
+  },
+  "cache": {
+    "optional": true,
+    "index": "index.json",
+    "library": "tool-library.mjs",
+    "scope": "static contracts only; live context, body IDs and topology are never reusable cache"
+  }
+}

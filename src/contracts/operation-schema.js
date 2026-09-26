@@ -17,7 +17,7 @@ export function contractError(code, path, message, recoveryAction) {
 const annotations = new Set(['$schema', '$id', 'title', 'description', 'default', 'examples', '$comment']);
 const assertions = new Set(['type', 'properties', 'required', 'additionalProperties', 'items',
   'minItems', 'maxItems', 'uniqueItems', 'minimum', 'maximum', 'exclusiveMinimum',
-  'exclusiveMaximum', 'minLength', 'maxLength', 'enum', 'const', 'anyOf', 'allOf', 'oneOf', 'not']);
+  'exclusiveMaximum', 'minLength', 'maxLength', 'pattern', 'enum', 'const', 'anyOf', 'allOf', 'oneOf', 'not']);
 
 export function assertJsonValue(value, path = 'params', seen = new Set()) {
   if (value === null || typeof value === 'string' || typeof value === 'boolean') return;
@@ -68,6 +68,7 @@ export function validateSchema(schema, value, path = 'params') {
       const count = [...v].length;
       if (s.minLength !== undefined && count < s.minLength) range(`Minimum length is ${s.minLength}.`);
       if (s.maxLength !== undefined && count > s.maxLength) range(`Maximum length is ${s.maxLength}.`);
+      if (s.pattern !== undefined && !new RegExp(s.pattern,'u').test(v)) fail('String does not match the required pattern.');
     }
     if (Array.isArray(v)) {
       if (s.minItems !== undefined && v.length < s.minItems) range(`At least ${s.minItems} items are required.`);

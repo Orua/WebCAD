@@ -2,7 +2,7 @@
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.9.0",
+  "version": "1.13.0",
   "description": "getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities/references。",
   "synonyms": [
     "getState",
@@ -10,10 +10,11 @@
     "特征",
     "实体",
     "参数",
-    "基准"
+    "基准",
+    "鼠标手柄"
   ],
   "inputContract": "getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities/references。",
-  "outputContract": "当前 context、referenceSystem、parameters、parameterValues、view 和 display；不会默认返回导入源字节。",
+  "outputContract": "当前 context、referenceSystem、parameters、parameterValues、view 和 display；view.transform 为 {mode,bodyIds,attached,canDrag,blocker}，读回移动/旋转手柄与当前不可拖原因。不会默认返回导入源字节。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -22,5 +23,5 @@
     "PARAM_SCHEMA_INVALID",
     "INSTANCE_MISMATCH"
   ],
-  "docsHash": "sha256:c3e0bf0d13dae59e40e54545945d15efa0fab1ca2a311c69c28999d937b6bc3c"
+  "docsHash": "sha256:f3f3706776d5c77cd6775528a0c949c0ed4d1872f25cfb4fcdcf6deae32a40e3"
 }

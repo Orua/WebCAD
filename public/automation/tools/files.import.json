@@ -2,7 +2,7 @@
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.9.0",
+  "version": "1.13.0",
   "label": "导入",
   "synonyms": [
     "导入",
@@ -50,5 +50,5 @@
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:78f02eb5e82ce739ff4c61327130fae7f6ad4e1555d54d0ff8ff6483d222dd41"
+  "docsHash": "sha256:407f5237667241c41730b5a8a4135d23cc8a1d1f83381cad2335c31e78c87093"
 }

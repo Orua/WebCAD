@@ -1,0 +1,1151 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": "src/ui-api-coverage.js",
+  "pageApiVersion": "1.13.0",
+  "buildId": "bad575aefc058c4aa1edaa81d4c920b037313e66-working",
+  "catalogHash": "sha256:07c24fb283ff9594e698155047e313ef629cec6e5c99bde406dcd5f1b324abe5",
+  "docsHash": "sha256:0fe9079c4a6804e21d396f9683307db0ff159487e4a6ac5e00c68ebec022aa8b",
+  "routes": {
+    "advancedLoft": {
+      "tools": [
+        "advancedLoft"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "agentGuide": {
+      "tools": [
+        "connect",
+        "getTools",
+        "readDocs"
+      ],
+      "method": "connect",
+      "usage": "connect({queries,includeContracts:true}) 返回当前 canExecute/blockers、requestContext 与完整卡；onboarding 提供首次连接步骤、本地安装包和真实操作路由；readDocs({docId:\"api.connection\"}) 说明宿主能力检查。knownHashes 只缓存完整工具卡，不缓存实体身份。"
+    },
+    "anchorDrag": {
+      "tools": [
+        "reference.setWorkFrame"
+      ],
+      "method": "execute",
+      "usage": "UI 中约束拖动参考锚点，松手仅更新任务草稿；用户点击应用后提交一次 reference.setWorkFrame。"
+    },
+    "anchorVisibility": {
+      "tools": [
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "参考锚点呼吸球显隐为本地 UI 偏好，不改变工程、固定原始坐标或几何 revision。"
+    },
+    "arcProfile": {
+      "tools": [
+        "arcProfile"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "autoRound": {
+      "tools": [
+        "autoRound"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "bodyColor": {
+      "tools": [
+        "body.appearance"
+      ],
+      "method": "execute"
+    },
+    "box": {
+      "tools": [
+        "box"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "camera": {
+      "tools": [
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
+    },
+    "cancelPreview": {
+      "tools": [
+        "preview.cancel"
+      ],
+      "method": "execute"
+    },
+    "chamfer": {
+      "tools": [
+        "chamfer"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "circularPattern": {
+      "tools": [
+        "circularPattern"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "coil": {
+      "tools": [
+        "coil"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "commandSearch": {
+      "tools": [
+        "searchTools"
+      ],
+      "method": "searchTools",
+      "usage": "全局命令搜索使用现有工具名称与 ID；AI 可直接 searchTools，不需打开对话框。"
+    },
+    "commitPreview": {
+      "tools": [
+        "preview.commit"
+      ],
+      "method": "execute"
+    },
+    "cone": {
+      "tools": [
+        "cone"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "copy": {
+      "tools": [
+        "copy"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "copySelection": {
+      "tools": [
+        "copySelection"
+      ],
+      "method": "copySelection",
+      "usage": "context、bodyIds，读 getState().view.clipboard。"
+    },
+    "curvedLogo": {
+      "tools": [
+        "curvedLogo"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "curveSweep": {
+      "tools": [
+        "curveSweep"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "cut": {
+      "tools": [
+        "cut"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "cylinder": {
+      "tools": [
+        "cylinder"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "display": {
+      "tools": [
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
+    },
+    "displayPreferences": {
+      "tools": [
+        "setDisplayPreferences"
+      ],
+      "method": "setDisplayPreferences",
+      "usage": "渲染设置使用 setDisplayPreferences；LOGO 转化为独立入口。"
+    },
+    "downloadResource": {
+      "tools": [
+        "files.download"
+      ],
+      "method": "files.download",
+      "usage": "使用生成回执的 resourceId 重试下载；不重新生成或清除 dirty。"
+    },
+    "draftByPlane": {
+      "tools": [
+        "draftByPlane"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "draftFaces": {
+      "tools": [
+        "draftFaces"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "editFeature": {
+      "tools": [
+        "feature.edit",
+        "feature.rename"
+      ],
+      "method": "execute"
+    },
+    "explode": {
+      "tools": [
+        "body.explode"
+      ],
+      "method": "execute"
+    },
+    "export": {
+      "tools": [
+        "files.export"
+      ],
+      "method": "files.export"
+    },
+    "extractFaces": {
+      "tools": [
+        "extractFaces"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "extractShell": {
+      "tools": [
+        "extractShell"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "extractSolid": {
+      "tools": [
+        "extractSolid"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "extrude": {
+      "tools": [
+        "extrude"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "faceBoundary": {
+      "tools": [
+        "faceBoundary"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "faceExtrude": {
+      "tools": [
+        "faceExtrude"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "faceGroove": {
+      "tools": [
+        "faceGroove"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "faceHole": {
+      "tools": [
+        "faceHole"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "fillet": {
+      "tools": [
+        "fillet"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "fit": {
+      "tools": [
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
+    },
+    "fitProfile": {
+      "tools": [
+        "fitProfile"
+      ],
+      "method": "fitProfile",
+      "usage": "输入有序的二维截面点，返回圆或直线的数值拟合参数及残差；不修改工程。"
+    },
+    "fittedSurface": {
+      "tools": [
+        "fittedSurface"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "gizmo": {
+      "tools": [
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
+    },
+    "gizmoOff": {
+      "tools": [
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
+    },
+    "gizmoRotate": {
+      "tools": [
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
+    },
+    "gizmoTranslate": {
+      "tools": [
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
+    },
+    "grid": {
+      "tools": [
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
+    },
+    "group": {
+      "tools": [
+        "group"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "helix": {
+      "tools": [
+        "helix"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "help": {
+      "tools": [
+        "readDocs"
+      ],
+      "method": "readDocs"
+    },
+    "hole": {
+      "tools": [
+        "hole"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "holeWizard": {
+      "tools": [
+        "holeWizard"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "import": {
+      "tools": [
+        "files.import"
+      ],
+      "method": "files.import",
+      "usage": "先 files.register 登记真实字节；不模拟文件选择器。"
+    },
+    "importAtFrame": {
+      "tools": [
+        "files.register",
+        "files.import"
+      ],
+      "method": "files.import",
+      "usage": "用户选定真实 STEP/BREP 文件后登记字节；显式提交当前工作基准版本、来源包围盒中心和幂等键。"
+    },
+    "innerTurn": {
+      "tools": [
+        "innerTurn"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "inspectDraft": {
+      "tools": [
+        "inspectDraft"
+      ],
+      "method": "inspectDraft",
+      "usage": "显式实体、拉出方向、用户阈值；解析平面精确法向倾角，曲面明确未支持，不判定完整脱模。"
+    },
+    "inspectFit": {
+      "tools": [
+        "inspectFit"
+      ],
+      "method": "inspectFit",
+      "usage": "显式给两个当前单实体 bodyId、mm 接触容差；精确 B-Rep 求交与最短距离，不修改工程。"
+    },
+    "inspectPrintability": {
+      "tools": [
+        "inspectPrintability"
+      ],
+      "method": "inspectPrintability",
+      "usage": "选定当前 bodyId 与 angleLimitDeg；返回网格悬垂事实和六个摆放方向，不判定工艺合格。"
+    },
+    "inspectProfile": {
+      "tools": [
+        "inspectProfile"
+      ],
+      "method": "inspectProfile",
+      "usage": "选定当前可编辑解析轮廓 bodyId；返回端点、零长、重线和直线相交问题，不修改工程。"
+    },
+    "inspectThickness": {
+      "tools": [
+        "inspectThickness"
+      ],
+      "method": "inspectThickness",
+      "usage": "选择单一封闭实体、表面点与向内方向，或两个平行面；只读精确连续材料厚度。"
+    },
+    "intersect": {
+      "tools": [
+        "intersect"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "language": {
+      "tools": [
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
+    },
+    "languageSettings": {
+      "tools": [
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "language:zh/en。"
+    },
+    "linearPattern": {
+      "tools": [
+        "linearPattern"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "loft": {
+      "tools": [
+        "loft",
+        "profileLoft"
+      ],
+      "method": "execute",
+      "usage": "已画截面使用 profileLoft，refs按截面顺序排列，加工时最后附目标；旧两个数值截面模式使用 loft。"
+    },
+    "logo": {
+      "tools": [
+        "logo"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "logoConverterSettings": {
+      "tools": [
+        "getLogoConverter",
+        "setLogoConverter"
+      ],
+      "method": "setLogoConverter",
+      "usage": "context、url、key；getLogoConverter 读回配置状态。"
+    },
+    "mcp": {
+      "tools": [
+        "run"
+      ],
+      "method": "run",
+      "usage": "JSON 面板只是同一 api.run 的界面入口。"
+    },
+    "measure": {
+      "tools": [
+        "measure",
+        "queryGeometry"
+      ],
+      "method": "measure",
+      "usage": "实体/面/边精确测量；两点距离用 points:[XYZ,XYZ]，来源标为输入坐标。"
+    },
+    "measureRelation": {
+      "tools": [
+        "measureRelation"
+      ],
+      "method": "measureRelation",
+      "usage": "显式选择两个实体/边/面，或点与有限面，读取精确几何关系与见证点。"
+    },
+    "metalFinish": {
+      "tools": [
+        "document.appearance"
+      ],
+      "method": "execute"
+    },
+    "mirror": {
+      "tools": [
+        "mirror"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "moveTool": {
+      "tools": [
+        "setView",
+        "transform"
+      ],
+      "method": "setView",
+      "usage": "setView({context,gizmo:\"translate\",selectedIds?}) 开启鼠标移动；自动使用实体选择。getState().view.transform 读可拖状态与 blocker；精确移动用 transform 的显式 params/refs，经 execute 或 run 提交。"
+    },
+    "multiBoss": {
+      "tools": [
+        "multiBoss"
+      ],
+      "method": "execute",
+      "usage": "getTool({id:\"multiBoss\"}) 读取 strict v2 卡；feature.add 或 run add 传 radius/height/axis/direction/points 与真实 refs；feature.edit 修改历史凸台。"
+    },
+    "multiHole": {
+      "tools": [
+        "multiHole"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "multiPocket": {
+      "tools": [
+        "multiPocket"
+      ],
+      "method": "execute",
+      "usage": "getTool({id:\"multiPocket\"}) 读取 strict v2 卡；feature.add 或 run add 传 depth/axis/direction/pockets、真实 refs；feature.edit 修改历史凹槽列表。"
+    },
+    "new": {
+      "tools": [
+        "files.new"
+      ],
+      "method": "files.new"
+    },
+    "occlusionCandidates": {
+      "tools": [
+        "queryGeometry",
+        "setView"
+      ],
+      "method": "queryGeometry",
+      "usage": "人工 Alt+单击读取当前视线候选；AI 按精确几何 queryGeometry 取得明确 body/face/edge 引用，不依赖最前方网格。"
+    },
+    "offsetSolid": {
+      "tools": [
+        "offsetSolid"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "offsetSurface": {
+      "tools": [
+        "offsetSurface"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "open": {
+      "tools": [
+        "files.open",
+        "files.import"
+      ],
+      "method": "files.open"
+    },
+    "outerTurn": {
+      "tools": [
+        "outerTurn"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "panels": {
+      "tools": [
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "panels:{left:boolean,right:boolean}；getState().view.panels 读状态。"
+    },
+    "parameters": {
+      "tools": [
+        "document.parameters"
+      ],
+      "method": "execute"
+    },
+    "pasteSelection": {
+      "tools": [
+        "pasteSelection"
+      ],
+      "method": "pasteSelection",
+      "usage": "context、idempotencyKey；整体底面中心放在锚点。"
+    },
+    "perPartMetal": {
+      "tools": [
+        "body.appearance"
+      ],
+      "method": "execute"
+    },
+    "planeSection": {
+      "tools": [
+        "planeSection"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "precisionSettings": {
+      "tools": [
+        "setDisplayPreferences"
+      ],
+      "method": "setDisplayPreferences",
+      "usage": "全局 themeColor 与 snapThresholdMm 在当前浏览器持久化。"
+    },
+    "preview": {
+      "tools": [
+        "preview.start",
+        "convertLogoPdf"
+      ],
+      "method": "execute",
+      "usage": "PDF 字节可用 convertLogoPdf 取得待复核 regions，再用 preview.start 放置。"
+    },
+    "profileConstraints": {
+      "tools": [
+        "profileConstraints",
+        "inspectConstraints"
+      ],
+      "method": "execute",
+      "usage": "inspectConstraints({context,bodyId})读真实局部图元、约束图及自由度；profileConstraints新建派生轮廓，继承来源关系。feature.edit修改原constraints数组驱动下游。"
+    },
+    "profileExtrude": {
+      "tools": [
+        "profileExtrude"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "profileLoft": {
+      "tools": [
+        "profileLoft"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "profileOffset": {
+      "tools": [
+        "profileOffset"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "profileRepair": {
+      "tools": [
+        "profileRepair"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "profileRevolve": {
+      "tools": [
+        "profileRevolve"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "profileSweep": {
+      "tools": [
+        "profileSweep"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "projection": {
+      "tools": [
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
+    },
+    "quickModel": {
+      "tools": [
+        "quickModel"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "quickModelFavorites": {
+      "tools": [
+        "quickModel",
+        "getQuickModelUsage"
+      ],
+      "method": "execute",
+      "usage": "模型菜单显示累计成功创建次数最多的五个 kind；getQuickModelUsage() 只读本浏览器频率，完整列表仍用快捷模型入口。生成用 quickModel 显式 params.kind、参考 placement 与幂等键。"
+    },
+    "redo": {
+      "tools": [
+        "history.redo"
+      ],
+      "method": "execute"
+    },
+    "reference.alignSelectedFace": {
+      "tools": [
+        "queryGeometry",
+        "reference.setWorkFrame"
+      ],
+      "method": "execute",
+      "usage": "选定当前精确平面面片，读取法向；以当前工作 X 作为面内方向，确认后更新工作基准方向。"
+    },
+    "reference.resetWorkFrame": {
+      "tools": [
+        "reference.resetWorkFrame"
+      ],
+      "method": "execute",
+      "usage": "args.scope 为 position、orientation 或 all。"
+    },
+    "reference.setLocked": {
+      "tools": [
+        "reference.setLocked"
+      ],
+      "method": "execute",
+      "usage": "args.locked 为布尔值。"
+    },
+    "reference.setWorkFrame": {
+      "tools": [
+        "reference.setWorkFrame"
+      ],
+      "method": "execute",
+      "usage": "完整 context、idempotencyKey；args 指定 origin 和单位 quaternion。"
+    },
+    "reference.snapNearest": {
+      "tools": [
+        "queryGeometry",
+        "reference.setWorkFrame"
+      ],
+      "method": "execute",
+      "usage": "查询选定 CAD 边的精确端点、弧长中点与解析圆心，明确选中一个候选后提交工作基准。"
+    },
+    "referenceExtrude": {
+      "tools": [
+        "referenceExtrude"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "referenceLoft": {
+      "tools": [
+        "referenceLoft"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "remove": {
+      "tools": [
+        "feature.remove"
+      ],
+      "method": "execute",
+      "usage": "args:{bodyIds}；删除当前实体。"
+    },
+    "rename": {
+      "tools": [
+        "document.rename"
+      ],
+      "method": "execute"
+    },
+    "renderQuality": {
+      "tools": [
+        "setRenderQuality"
+      ],
+      "method": "setRenderQuality",
+      "usage": "显式 quality=draft/standard/fine/ultra；getState().renderQuality 读公差、三角面数，不修改 BRep。"
+    },
+    "revolve": {
+      "tools": [
+        "revolve",
+        "profileRevolve"
+      ],
+      "method": "execute",
+      "usage": "已画轮廓使用 profileRevolve，refs为截面及可选加工目标；旧尺寸模式使用 revolve。显式世界轴与角度，读取当前卡。"
+    },
+    "rotateTool": {
+      "tools": [
+        "setView",
+        "transform"
+      ],
+      "method": "setView",
+      "usage": "setView({context,gizmo:\"rotate\",selectedIds?}) 开启单对象鼠标旋转。getState().view.transform 读可拖状态；精确旋转用 transform，显式指定角度、轴与中心，不依赖 UI 选择。多对象分别用 run 的 transform 步骤，atomic=false。"
+    },
+    "save": {
+      "tools": [
+        "files.save",
+        "files.download",
+        "files.write"
+      ],
+      "method": "files.save"
+    },
+    "screenshot": {
+      "tools": [
+        "capture",
+        "files.export"
+      ],
+      "method": "capture"
+    },
+    "section": {
+      "tools": [
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
+    },
+    "selection": {
+      "tools": [
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
+    },
+    "selectMode": {
+      "tools": [
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
+    },
+    "selectTool": {
+      "tools": [
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
+    },
+    "sewFaces": {
+      "tools": [
+        "sewFaces"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "shell": {
+      "tools": [
+        "shell"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "sketch": {
+      "tools": [
+        "extrude"
+      ],
+      "method": "execute",
+      "usage": "兼容的轮廓并拉伸入口对应 extrude，传 profile/points/plane 等显式参数。主绘制轮廓入口用 sketchProfile，再单独 profileExtrude；不需要模拟逐点点击。"
+    },
+    "sketchProfile": {
+      "tools": [
+        "sketchProfile"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "slot": {
+      "tools": [
+        "slot"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "smoothTransition": {
+      "tools": [
+        "smoothTransition"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "snap": {
+      "tools": [
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
+    },
+    "snapSettings": {
+      "tools": [
+        "setDisplayPreferences"
+      ],
+      "method": "setDisplayPreferences",
+      "usage": "全局 themeColor 与 snapThresholdMm 在当前浏览器持久化。"
+    },
+    "sphere": {
+      "tools": [
+        "sphere"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "split": {
+      "tools": [
+        "split"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "surfaceTrim": {
+      "tools": [
+        "surfaceTrim"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "sweep": {
+      "tools": [
+        "sweep",
+        "profileSweep"
+      ],
+      "method": "execute",
+      "usage": "已画轮廓使用 profileSweep，refs=[截面,开放精确路径,可选加工目标]；截面须在路径起点平面。旧折线尺寸模式使用 sweep。"
+    },
+    "temporaryDisplay": {
+      "tools": [
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "temporaryDisplay 为 selectedOnly/transparentOthers/normal；只改临时显隐，不改变工程持久隐藏列表。"
+    },
+    "textCommand": {
+      "tools": [
+        "executeText"
+      ],
+      "method": "executeText",
+      "usage": "仅解析白名单文本命令，编译为当前页面 run 事务；dryRun 可先读回实际步骤。"
+    },
+    "themeSettings": {
+      "tools": [
+        "setDisplayPreferences"
+      ],
+      "method": "setDisplayPreferences",
+      "usage": "全局 themeColor 与 snapThresholdMm 在当前浏览器持久化。"
+    },
+    "thickenFace": {
+      "tools": [
+        "thickenFace"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "thread": {
+      "tools": [
+        "thread"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "torus": {
+      "tools": [
+        "torus"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "transform": {
+      "tools": [
+        "transform"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "undo": {
+      "tools": [
+        "history.undo"
+      ],
+      "method": "execute"
+    },
+    "union": {
+      "tools": [
+        "union"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "vectorProfile": {
+      "tools": [
+        "vectorProfile"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "view": {
+      "tools": [
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
+    },
+    "visibility": {
+      "tools": [
+        "body.visibility"
+      ],
+      "method": "execute"
+    }
+  },
+  "labels": {
+    "quickModelFavorites": "常用模型 / 快捷模型 / getQuickModelUsage",
+    "reference.setWorkFrame": "设置参考锚点（工作基准）",
+    "reference.resetWorkFrame": "重置参考锚点（工作基准）",
+    "reference.setLocked": "锁定参考锚点（工作基准）",
+    "anchorDrag": "设置参考锚点（工作基准）",
+    "anchorVisibility": "setView",
+    "temporaryDisplay": "setView",
+    "occlusionCandidates": "queryGeometry / setView",
+    "commandSearch": "searchTools",
+    "reference.snapNearest": "queryGeometry / 设置参考锚点（工作基准）",
+    "reference.alignSelectedFace": "queryGeometry / 设置参考锚点（工作基准）",
+    "renderQuality": "setRenderQuality",
+    "downloadResource": "下载文件",
+    "advancedLoft": "高级放样",
+    "arcProfile": "解析线弧轮廓 / 线弧轮廓",
+    "autoRound": "整件圆边",
+    "box": "长方体",
+    "chamfer": "倒角",
+    "circularPattern": "环形阵列",
+    "coil": "圆线弹簧",
+    "cone": "圆锥",
+    "copy": "复制",
+    "curveSweep": "曲线扫掠",
+    "curvedLogo": "曲面 LOGO",
+    "cut": "相减",
+    "cylinder": "圆柱",
+    "draftByPlane": "平面拔模",
+    "draftFaces": "受限拔模 / 拔模",
+    "extractFaces": "提取指定面 / 提取面",
+    "extractShell": "提取壳",
+    "extractSolid": "提取实体",
+    "extrude": "拉伸",
+    "faceBoundary": "提取面边界 / 提取边界",
+    "faceExtrude": "面上拉伸",
+    "faceGroove": "锣槽",
+    "faceHole": "面上打孔",
+    "fillet": "圆角",
+    "fittedSurface": "拟合曲面",
+    "group": "组合",
+    "helix": "螺旋线",
+    "hole": "打孔",
+    "holeWizard": "孔向导",
+    "import": "导入",
+    "innerTurn": "内车",
+    "intersect": "相交",
+    "linearPattern": "直线阵列",
+    "loft": "放样 / 轮廓放样",
+    "logo": "LOGO",
+    "mirror": "镜像",
+    "multiBoss": "批量圆柱凸台 / 批量凸台",
+    "multiHole": "多位置打孔 / 多点打孔",
+    "multiPocket": "批量矩形凹槽 / 批量凹槽",
+    "offsetSolid": "实体偏置",
+    "offsetSurface": "偏置面",
+    "outerTurn": "外车",
+    "planeSection": "提取真实截面 / 提取截面",
+    "profileConstraints": "约束尺寸 / inspectConstraints",
+    "profileExtrude": "轮廓拉伸 / 加工 / 轮廓加工",
+    "profileLoft": "轮廓放样",
+    "profileOffset": "等距偏移 / 边框 / 等距偏移",
+    "profileRepair": "修复轮廓 / 轮廓修复",
+    "profileRevolve": "轮廓旋转",
+    "profileSweep": "轮廓扫掠",
+    "quickModel": "快捷模型",
+    "referenceExtrude": "参考轮廓拉伸 / 轮廓拉伸",
+    "referenceLoft": "参考截面放样 / 截面放样",
+    "remove": "删除 / 删除实体",
+    "revolve": "旋转成型 / 轮廓旋转",
+    "sewFaces": "曲面缝合",
+    "shell": "抽壳",
+    "sketchProfile": "绘制轮廓 / 轮廓",
+    "slot": "长圆槽",
+    "smoothTransition": "平滑过渡",
+    "sphere": "球体",
+    "split": "分割",
+    "surfaceTrim": "实体修剪面 / 曲面修剪",
+    "sweep": "扫掠 / 轮廓扫掠",
+    "thickenFace": "选面增厚",
+    "thread": "螺纹 V 槽",
+    "torus": "圆环",
+    "transform": "移动 / 旋转",
+    "union": "合并",
+    "vectorProfile": "导入路径",
+    "precisionSettings": "精度 / setDisplayPreferences",
+    "themeSettings": "风格 / setDisplayPreferences",
+    "snapSettings": "吸附 / setDisplayPreferences",
+    "languageSettings": "语言 / setView",
+    "agentGuide": "AGENT / connect / getTools / readDocs",
+    "logoConverterSettings": "LOGO转化 / getLogoConverter / setLogoConverter",
+    "displayPreferences": "渲染设置 / setDisplayPreferences",
+    "panels": "setView",
+    "moveTool": "setView / 移动 / 旋转",
+    "rotateTool": "setView / 移动 / 旋转",
+    "copySelection": "copySelection",
+    "pasteSelection": "pasteSelection",
+    "importAtFrame": "登记文件资源 / 导入",
+    "new": "新建工程",
+    "open": "打开工程 / 导入",
+    "save": "保存工程 / 下载文件 / 写入文件",
+    "export": "导出文件",
+    "rename": "工程改名",
+    "editFeature": "修改参数 / 特征改名 实体名称",
+    "visibility": "显示 隐藏实体",
+    "explode": "拆散 / 组合拆散 多实体分解",
+    "perPartMetal": "实体原色 颜色 金属 材质",
+    "bodyColor": "实体原色 颜色 金属 材质",
+    "metalFinish": "工程渲染 金属色",
+    "parameters": "参数 / 命名参数与尺寸联动",
+    "undo": "撤销",
+    "redo": "重做",
+    "preview": "预览模型或文件插入 / convertLogoPdf",
+    "commitPreview": "应用预览",
+    "cancelPreview": "取消预览",
+    "sketch": "草图 / 拉伸",
+    "measure": "measure / queryGeometry",
+    "inspectPrintability": "成型检查 / inspectPrintability",
+    "inspectProfile": "inspectProfile",
+    "inspectFit": "干涉间隙 / inspectFit",
+    "inspectThickness": "壁厚 / inspectThickness",
+    "inspectDraft": "拔模检查 / inspectDraft",
+    "measureRelation": "关系测量 / measureRelation",
+    "textCommand": "executeText",
+    "fitProfile": "fitProfile",
+    "screenshot": "capture / 导出文件",
+    "fit": "setView",
+    "view": "setView",
+    "display": "setView",
+    "projection": "setView",
+    "grid": "setView",
+    "snap": "setView",
+    "section": "剖切 / setView",
+    "selectMode": "setView",
+    "selection": "setView",
+    "selectTool": "选择 / setView",
+    "gizmo": "setView",
+    "gizmoTranslate": "移动手柄 / setView",
+    "gizmoRotate": "旋转手柄 / setView",
+    "gizmoOff": "关闭手柄 / setView",
+    "camera": "setView",
+    "language": "setView",
+    "help": "readDocs",
+    "mcp": "run"
+  }
+}

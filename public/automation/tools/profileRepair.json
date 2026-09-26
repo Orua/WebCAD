@@ -183,7 +183,8 @@
     "historyBinding": "legacy",
     "previewSupported": true
   },
+  "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:7bbfd5479c5cef6165a4608e53bb88ab2b2fa8af54ca6479d3fbcb13fea41aa9"
+  "docsHash": "sha256:86bfedba86f6ed55723a7523896955bacbbbc79dbfcd8f831b64ff9f4c0e9c26"
 }

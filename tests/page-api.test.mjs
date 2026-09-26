@@ -75,6 +75,11 @@ test('editor discovery covers every registered UI route and supports paginated i
   assert(infoMetadata().docs.includes('api.editor'));
   assert.equal(getTool({id:'body.appearance'}).minimalExample.args.color,'#e87939');
   const page=readDocs({docId:'api.ui-coverage',limitChars:1000});assert(page.nextCursor);
+  assert.equal(getTool({id:'transform'}).docs,'api.interaction');
+  assert.ok(getTool({id:'transform'}).relatedTools.includes('setView'));
+  assert.equal(getTool({id:'sketchProfile'}).docs,'api.interaction');
+  assert.ok(getTool({id:'setView'}).errorCodes.includes('SELECTION_CONFLICT'));
+  assert.ok(readDocs({docId:'api.interaction',limitChars:5000}).text.includes('MULTIPLE_SELECTION'));
 });
 test('draft inspection shares guarded direct, invoke, batch and job entry points',async()=>{
   const f=fixture(),originalState=f.host.state;f.host.state=()=>({...originalState(),bodies:[{id:'body-1',solidCount:1}]});let calls=0;
@@ -106,6 +111,36 @@ test('explicit view controls validate before host mutation and point measurement
   const d=await f.api.measure({context:context(),points:[[1,2,3],[4,6,3]]});
   assert.equal(d.distance,5);assert.equal(d.source,'provided-coordinates');assert.equal(f.calls.measure,0);
   assert.equal((await f.api.measure({context:context(),points:[[0,0,0],[1,2,3]],bodyId:'body-1'})).status,'failed');
+});
+
+test('move and rotate API validates explicit body selection and returns handle readiness without a geometry commit',async()=>{
+  const f=fixture(),readState=f.host.state;
+  let selectedIds=[],mode='off',hidden=[];
+  f.host.state=()=>({...readState(),bodies:[{id:'body-1'},{id:'body-2'}],view:{gizmo:mode,selectionMode:'body',transform:{mode,bodyIds:[...selectedIds],attached:mode!=='off'&&selectedIds.length===1&&!hidden.length,canDrag:mode!=='off'&&selectedIds.length===1&&!hidden.length,blocker:mode==='off'?'MODE_OFF':!selectedIds.length?'NO_SELECTION':selectedIds.length>1?'MULTIPLE_SELECTION':hidden.length?'HIDDEN_SELECTION':null}}});
+  f.host.view=async input=>{f.calls.view++;if(input.gizmo!==undefined)mode=input.gizmo;if(input.selectedIds!==undefined)selectedIds=[...input.selectedIds];};
+  for(const selectedIds of [null,false,'body-1',{},[7],[''],Array(201).fill('body-1')]){
+    const result=await f.api.setView({context:context(),gizmo:'translate',selectedIds});
+    assert.equal(result.error.code,'PARAM_SCHEMA_INVALID');assert.equal(result.error.path,'selectedIds');
+  }
+  for(const selectedIds of [['missing'],['body-1','body-1']])assert.equal((await f.api.setView({context:context(),gizmo:'translate',selectedIds})).error.code,'STALE_REFERENCE');
+  for(const gizmo of ['translate','rotate'])for(const selectionMode of ['face','edge']){
+    const result=await f.api.setView({context:context(),gizmo,selectionMode});
+    assert.equal(result.error.code,'SELECTION_CONFLICT');assert.equal(result.error.path,'selectionMode');
+  }
+  assert.equal(f.calls.view,0);
+  const waiting=await f.api.setView({context:context(),gizmo:'translate',selectedIds:[]});
+  assert.equal(waiting.view.transform.blocker,'NO_SELECTION');assert.equal(waiting.view.transform.canDrag,false);
+  const multiple=await f.api.setView({context:context(),gizmo:'translate',selectedIds:['body-1','body-2']});
+  assert.equal(multiple.view.transform.blocker,'MULTIPLE_SELECTION');assert.deepEqual(multiple.view.transform.bodyIds,['body-1','body-2']);
+  const moving=await f.api.setView({context:context(),gizmo:'translate',selectedIds:['body-1']});
+  assert.equal(moving.view.transform.canDrag,true);assert.deepEqual(moving.view.transform.bodyIds,['body-1']);
+  const rotating=await f.api.setView({context:context(),gizmo:'rotate'});
+  assert.equal(rotating.view.transform.mode,'rotate');assert.equal(rotating.view.transform.attached,true);
+  hidden=['body-1'];assert.equal(f.api.getState().view.transform.blocker,'HIDDEN_SELECTION');
+  assert.equal((await f.api.setView({context:context(),gizmo:'off',selectionMode:'face'})).view.transform.blocker,'MODE_OFF');
+  assert.equal(f.api.getState().context.revision,7);assert.equal(f.calls.execute,0);
+  assert.deepEqual(UI_API_ROUTES.moveTool.tools,['setView','transform']);assert.deepEqual(UI_API_ROUTES.rotateTool.tools,['setView','transform']);
+  assert.deepEqual(UI_API_ROUTES.sketch.tools,['extrude']);
 });
 
 test('sampled twin-window page method strips context, returns closed profiles and preserves revision',async()=>{

@@ -8,6 +8,7 @@ export const ACTION_ICONS={
  sphere:['M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0 M12 2c-7 6-7 14 0 20 7-6 7-14 0-20 M2 12h20'],
  cone:['M12 2L3 19a9 3 0 0 0 18 0Z M3 19a9 3 0 0 1 18 0'],torus:['M22 12a10 7 0 1 1-20 0 10 7 0 0 1 20 0 M17 12a5 3 0 1 1-10 0 5 3 0 0 1 10 0'],
  sketchProfile:['M3 20l3-6L17 3l4 4-11 11Z M6 14l4 4 M3 20h18'],sketch:profile,vectorProfile:[...profile,'M3 5h.1 M10 5h.1 M13 11h.1 M21 19h.1'],arcProfile:['M3 19V9a9 7 0 0 1 18 0v10Z'],
+ faceGroove:[...cube,'M8 11h9v6H8Z'],innerTurn:[...cube,'M16 15a2 2 0 1 1-4 0 2 2 0 0 1 4 0'],outerTurn:[...cube,'M2 12h20 M5 9l-3 3 3 3 M19 9l3 3-3 3'],quickModelFavorites:[...cube,'M16 2v5 M14 4h5'],
  quickModel:[...cube,'M16 2v5 M14 4h5'],profileExtrude:[...profile,'M8 11V2 M5 5l3-3 3 3'],extrude:[...cube,'M12 8V1 M9 4l3-3 3 3'],revolve:[...profile,'M17 3a8 8 0 0 1 3 12 M18 11l2 4 3-3'],sweep:['M3 20c12 0 0-16 18-16 M2 17h4v6H2Z M18 2h5v5h-5Z'],loft:['M5 3h14v4H5Z M2 18h20v4H2Z M5 7L2 18 M19 7l3 11'],
  selectTool:['M5 3v17l5-6 5 8 3-2-5-7h8Z'],transform:move,gizmoTranslate:move,gizmoRotate:rotate,gizmoOff:['M5 3v17l5-6 5 8 3-2-5-7h8Z'],
  copy:['M8 8h13v13H8Z M3 16V3h13'],mirror:['M12 2v20 M9 6H3v12h6Z M15 6h6v12h-6Z'],group:['M2 2h20v20H2Z M5 5h5v5H5Z M14 14h5v5h-5Z'],explode:['M2 2h6v6H2Z M16 2h6v6h-6Z M2 16h6v6H2Z M16 16h6v6h-6Z M9 9l-2-2 M15 9l2-2 M9 15l-2 2 M15 15l2 2'],

@@ -1,0 +1,35 @@
+{
+  "id": "inspectConstraints",
+  "title": "inspectConstraints",
+  "category": "page-method",
+  "version": "1.13.0",
+  "description": "inspectConstraints({context,bodyId})；当前保存的 sketchProfile 或 profileConstraints 派生轮廓。只读诊断已有关系；矩形转换为明确四条解析边并保留形状关系。",
+  "synonyms": [
+    "inspectConstraints",
+    "草图",
+    "约束",
+    "尺寸",
+    "自由度",
+    "图元"
+  ],
+  "inputContract": "inspectConstraints({context,bodyId})；当前保存的 sketchProfile 或 profileConstraints 派生轮廓。只读诊断已有关系；矩形转换为明确四条解析边并保留形状关系。",
+  "outputContract": "status=read、profile.entities/loops/chains/regions（来源局部mm）真实稳定ID与坐标、继承constraints、primitiveConversion/intrinsicConstraints、diagnostics残差/rank/degreesOfFreedom、来源placement快照；不修改revision。圆弧/样条与非解析来源明确失败。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "STALE_REFERENCE",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE",
+    "PROFILE_CONSTRAINT_UNSUPPORTED",
+    "PROFILE_CONSTRAINT_INVALID",
+    "PROFILE_CONSTRAINT_LIMIT",
+    "PROFILE_CONSTRAINT_NUMERICAL",
+    "PROFILE_CONSTRAINT_UNSATISFIED",
+    "PROFILE_CONSTRAINT_GEOMETRY_INVALID"
+  ],
+  "docs": "api.mechanical",
+  "docsHash": "sha256:77216be30bc0546257b1fa9184159ba4b903e60ac0ff801490e2d12a43519087"
+}

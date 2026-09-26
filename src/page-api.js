@@ -17,7 +17,7 @@ import {validateReferenceQuery} from './reference-query.js';
 export function createPageAPI(host){
   const current=()=>host.state();
   const failure=e=>({status:'failed',commitState:'not_committed',error:{code:e.code||'PARAM_SCHEMA_INVALID',message:e.message,path:e.path??null,retryable:false,recoveryAction:e.recoveryAction||(e.code==='REVISION_CONFLICT'?'READ_STATE_AND_REPLAN':'READ_TOOL_AND_CORRECT_PARAMS')},context:current().context});
-  const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
+  const fail=(code,message,path)=>{throw Object.assign(new Error(message),{code,...(path?{path}:{})});};
   function check(input,keys,requiredContext=true){
     if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!keys.includes(k)))fail('PARAM_SCHEMA_INVALID','Unexpected request fields');
     const s=current();
@@ -62,6 +62,7 @@ export function createPageAPI(host){
     },
     info:()=>({...infoMetadata({buildId:host.buildId,browserReady:current().summary.kernelReady}),transport:'in-page',context:current().context,page:{url:location.href,topLevel:window===window.top},display:host.display()}),
     getState:(input={})=>{const state=host.state(input);return {...state,requestContext:requestContext(state.context),display:host.display()};},
+    getQuickModelUsage:guarded(input=>{if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).length)fail('PARAM_SCHEMA_INVALID','getQuickModelUsage takes no fields');return {status:'read',...structuredClone(host.quickModelUsage()),context:current().context};}),
     getUILayout:()=>structuredClone(UI_LAYOUT),
     createRequestContext:(context=current().context)=>requestContext(context),
     searchTools:input=>searchTools(input,{browserReady:current().summary.kernelReady}),getTools,getTool,readDocs,
@@ -108,6 +109,12 @@ export function createPageAPI(host){
       if(input.mode==='fillet'&&(!Number.isFinite(input.radiusMm)||input.radiusMm<=0||input.radiusMm>1e5||!input.arcId))fail('PARAM_RANGE_INVALID','Fillet requires an explicit positive radius and new arc ID');
       const result=host.prepareProfileEdit(input);check(input,allowed);
       return {status:'read',source:'saved-analytic-profile',units:{length:'mm'},context:current().context,bodyId:input.bodyId,...result};
+    }),
+    inspectConstraints:guarded(async input=>{
+      check(input,['context','bodyId']);
+      if(typeof input.bodyId!=='string'||!current().bodies.some(body=>body.id===input.bodyId))fail('STALE_REFERENCE','Unknown current profile body');
+      const result=await host.inspectConstraints(input.bodyId);check(input,['context','bodyId']);
+      return {status:'read',source:'saved-local-constraint-graph',units:{length:'mm',angle:'degree'},context:current().context,bodyId:input.bodyId,...result};
     }),
     projectProfile:guarded(async input=>{
       check(input,['context','bodyId','edgeIds','pointWorld','frame']);
@@ -190,6 +197,7 @@ export function createPageAPI(host){
     setView:guarded(async input=>{
       check(input,viewKeys);
       for(const [key,values] of Object.entries({display:['solid','edges','wire','transparentEdges'],gizmo:['off','translate','rotate'],selectionMode:['body','face','edge'],language:['zh','en'],temporaryDisplay:['normal','selectedOnly','transparentOthers']}))if(input[key]!==undefined&&!values.includes(input[key]))fail('PARAM_SCHEMA_INVALID',`Unknown ${key}`);
+      if(input.gizmo!==undefined&&input.gizmo!=='off'&&input.selectionMode!==undefined&&input.selectionMode!=='body')fail('SELECTION_CONFLICT','Move/rotate handles require body selection; omit selectionMode or use body','selectionMode');
       for(const key of ['grid','snap','anchorVisible'])if(input[key]!==undefined&&typeof input[key]!=='boolean')fail('PARAM_SCHEMA_INVALID',`${key} must be boolean`);
       if(input.panels!==undefined&&(!input.panels||typeof input.panels!=='object'||Array.isArray(input.panels)||Object.entries(input.panels).some(([key,value])=>!['left','right'].includes(key)||typeof value!=='boolean')))fail('PARAM_SCHEMA_INVALID','panels requires left/right booleans');
       if(input.camera!==undefined){const c=input.camera;if(!c||typeof c!=='object'||Object.keys(c).some(k=>!['position','target'].includes(k))||[c.position,c.target].some(p=>!Array.isArray(p)||p.length!==3||p.some(v=>!Number.isFinite(v)))||c.position.every((v,i)=>v===c.target[i]))fail('PARAM_SCHEMA_INVALID','camera requires distinct finite XYZ position and target');}
@@ -197,7 +205,10 @@ export function createPageAPI(host){
       if(input.projection&&!['orthographic','perspective'].includes(input.projection))fail('PARAM_SCHEMA_INVALID','Unknown projection');
       if(input.fit!==undefined&&typeof input.fit!=='boolean')fail('PARAM_SCHEMA_INVALID','fit must be boolean');
       if(input.section&&(!['X','Y','Z'].includes(input.section.axis)||!Number.isFinite(input.section.position)||typeof input.section.enabled!=='boolean'))fail('PARAM_SCHEMA_INVALID','Section requires axis, finite position and enabled boolean');
-      if(input.selectedIds&&(!Array.isArray(input.selectedIds)||input.selectedIds.length>200||new Set(input.selectedIds).size!==input.selectedIds.length||input.selectedIds.some(id=>!current().bodies.some(b=>b.id===id))))fail('STALE_REFERENCE','Unknown or duplicate selected body');
+      if(input.selectedIds!==undefined){
+        if(!Array.isArray(input.selectedIds)||input.selectedIds.length>200||input.selectedIds.some(id=>typeof id!=='string'||!id.length))fail('PARAM_SCHEMA_INVALID','selectedIds requires up to 200 current body IDs','selectedIds');
+        if(new Set(input.selectedIds).size!==input.selectedIds.length||input.selectedIds.some(id=>!current().bodies.some(b=>b.id===id)))fail('STALE_REFERENCE','Unknown or duplicate selected body','selectedIds');
+      }
       await host.view(input);check(input,viewKeys);return {status:'read',context:current().context,display:host.display(),view:current().view};
     }),
     setDisplayPreferences:guarded(async input=>{check(input,['context','values']);const values=validateDisplayPreferences(input.values);const result=await host.preferences(values);return {status:'applied',context:current().context,...result};}),

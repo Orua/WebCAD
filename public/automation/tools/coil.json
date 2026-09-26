@@ -1,0 +1,210 @@
+{
+  "id": "coil",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "radiusMm": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "description": "Helix centerline radius, mm; not outer radius"
+      },
+      "pitchMm": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "description": "Positive axial advance per full turn, mm"
+      },
+      "turns": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "maximum": 100,
+        "description": "Positive number of turns, fractional turns permitted"
+      },
+      "leftHanded": {
+        "type": "boolean",
+        "default": false,
+        "description": "False is right-handed; true is left-handed"
+      },
+      "wireDiameterMm": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "description": "Round wire diameter, mm"
+      }
+    },
+    "required": [
+      "radiusMm",
+      "pitchMm",
+      "turns",
+      "wireDiameterMm"
+    ],
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "defaults": {
+    "leftHanded": false
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 按精确螺旋路径扫掠圆线实体；半径指中心线半径，外半径为它加线径的一半。螺距须大于线径，最多100圈，不含闭并端圈和力学计算。",
+  "title": "Sweep a circular wire section along an exact helix to create a single spring solid",
+  "category": "creation",
+  "synonyms": [
+    "圆线弹簧",
+    "coil"
+  ],
+  "description": "Sweep a circular wire section along an exact helix to create a single spring solid",
+  "schemaHash": "sha256:e1f4009962a1a26de8ca1e3d15d3aa1e70e19bfeae08955c84dc1e3fc7b943dd",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+  ],
+  "knownUnsupportedCases": [
+    "按精确螺旋路径扫掠圆线实体；半径指中心线半径，外半径为它加线径的一半。螺距须大于线径，最多100圈，不含闭并端圈和力学计算。"
+  ],
+  "minimalExample": {
+    "op": "coil",
+    "params": {
+      "radiusMm": 10,
+      "pitchMm": 3,
+      "turns": 4,
+      "wireDiameterMm": 1.4
+    },
+    "refs": [],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "coil",
+    "params": {
+      "radiusMm": 10,
+      "pitchMm": 3,
+      "turns": 4,
+      "wireDiameterMm": 1.4
+    },
+    "refs": [],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "radiusMm": 10,
+        "pitchMm": 3,
+        "turns": 4,
+        "wireDiameterMm": 1.4,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTools",
+    "queryGeometry",
+    "run",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "圆线弹簧",
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "docs": "api.mechanical",
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:a7835e7f5be820b0d545a9ec102b576537af376a8dc8a57eedb3846e23086071"
+}

@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import fs from 'node:fs';
+import init from 'replicad-opencascadejs';
+import {CadKernel} from '../src/cad-kernel.js';
+import {createReferenceSystem,resolvePlacement} from '../src/work-frame.js';
+import {QUICK_MODELS} from '../src/quick-models.js';
+const oc=await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))});
+const rs=createReferenceSystem(),doc=features=>({version:2,features,imports:{},hidden:[],referenceSystem:rs}),feature=(id,op,params,refs=[])=>({id,name:id,op,params,refs});
+const placement=(op,p,origin,q=[0,0,0,1])=>resolvePlacement({version:1,frame:{kind:'snapshot',origin,quaternion:q},sourceAnchor:{kind:'model-origin'}},rs,op,p);
+const near=(x,y)=>assert.ok(Math.abs(x-y)<1e-5,`${x} != ${y}`);
+test('quick-model histories retain all four templates, exact placements, world thread report and unchanged saved anchor',async()=>{
+ const k=new CadKernel(oc);k.quality='draft';try{const features=[];for(const [i,kind]of ['spring','screw','threadedSleeve','domedPin'].entries()){const p={kind,...QUICK_MODELS[kind].defaults},f=feature(kind,'quickModel',p);f.placement=placement('quickModel',p,[i*30,0,20]);features.push(f);}const r=await k.rebuild(doc(features));assert.equal(r.bodies.length,4);assert.ok(r.bodies.every(b=>b.solidCount===1));const screw=r.bodies.find(b=>b.id==='screw'),sleeve=r.bodies.find(b=>b.id==='threadedSleeve');near(screw.bounds.min.z??screw.bounds.min[2],20);near(screw.bounds.max.z??screw.bounds.max[2],30);near(sleeve.bounds.min[2],12);near(sleeve.bounds.max[2],20);assert.deepEqual(sleeve.threadReport.axisOrigin,[60,0,12]);assert.deepEqual(screw.threadReport.axisOrigin,[30,0,22]);rs.workFrame.origin=[900,800,700];const r2=await k.rebuild(doc(features));assert.deepEqual(r2.bodies.map(b=>b.bounds),r.bodies.map(b=>b.bounds));const rotated=structuredClone(features[1]);rotated.placement=placement('quickModel',rotated.params,[10,20,30],[Math.SQRT1_2,0,0,Math.SQRT1_2]);const r3=await k.rebuild(doc([rotated]));near(r3.bodies[0].bounds.min[1],10);assert.ok(Math.abs(r3.bodies[0].threadReport.axisDirection[1]+1)<1e-7);near(r3.bodies[0].threadReport.axisOrigin[1],18);}finally{k.dispose();}
+});
+test('three face-machining histories consume explicit source, update on edits and reject atomically',async()=>{
+ for(const op of ['faceGroove','innerTurn','outerTurn']){const k=new CadKernel(oc);k.quality='draft';try{const source=feature('source','box',{width:10,depth:10,height:10}),r=await k.rebuild(doc([source]));const faces=k.shapes.get('source').faces;let faceId;try{faceId=faces.findIndex(f=>f.geomType==='PLANE'&&f.normalAt().toTuple()[2]>.99);}finally{faces.forEach(f=>f.delete());}const p=op==='faceGroove'?{faceId,lengthMm:8,widthMm:4,depthMm:2}:{faceId,diameterMm:6,depthMm:3},f=feature('machined',op,p,['source']);const a=await k.rebuild(doc([source,f]));assert.deepEqual(a.bodies.map(b=>b.id),['machined']);assert.ok(a.bodies[0].volume<r.bodies[0].volume);const deeper=structuredClone(f);deeper.params.depthMm+=1;const b=await k.rebuild(doc([source,deeper]));assert.ok(b.bodies[0].volume<a.bodies[0].volume);const snapshot=k.shapes.get('machined').serialize(),bad=feature('bad',op,{...p,faceId:999},['machined']);await assert.rejects(k.rebuild(doc([source,deeper,bad])));assert.equal(k.shapes.get('machined').serialize(),snapshot);}finally{k.dispose();}}
+});

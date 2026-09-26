@@ -45,3 +45,28 @@
 .webcad-app .workspace .canvas-panel{grid-column:2!important;grid-row:1!important;min-width:0}
 .webcad-app .workspace .panel-heading:has(.panel-toggle[data-expanded="true"]){padding:0 44px 0 12px!important;min-width:0;gap:8px}
 .webcad-app .workspace .panel-heading .body-count{white-space:nowrap;flex-shrink:0}
+
+/* Hidden sidebars leave translucent restore buttons beside selection controls. */
+.webcad-app.left-panel-hidden .workspace .left-panel,
+.webcad-app.right-panel-hidden .workspace .right-panel{display:none!important}
+.viewport-topbar .panel-toggle[data-expanded="false"]{pointer-events:auto;flex:0 0 30px;width:30px;height:30px;min-height:30px;padding:0;writing-mode:horizontal-tb;font-size:20px;line-height:28px;color:#475569;background:#ffffff80;border:1px solid #dbe3ef99;border-radius:7px;backdrop-filter:blur(5px);box-shadow:0 2px 8px #0f172a0d}
+.viewport-topbar .panel-toggle[data-expanded="false"]:hover{background:#ffffffd9;color:var(--accent)}
+.workspace .viewport-topbar{align-items:center}
+.viewport-topbar .selection-modes{margin-right:auto}
+.viewport-topbar .view-actions{min-width:0}
+.viewport-bottom .viewport-hint{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.transform-help{position:absolute;top:57px;left:12px;z-index:4;display:flex;align-items:center;gap:7px;max-width:calc(100% - 140px);padding:5px 8px;border:1px solid #dbe3ef;border-radius:7px;background:#ffffffd9;color:#475569;box-shadow:0 2px 8px #0f172a0d;font-size:12px;pointer-events:auto;flex-wrap:wrap}
+.transform-help .transform-hint{overflow-wrap:anywhere}
+.transform-help button{padding:4px 7px;background:#eff6ff;color:var(--accent)}
+.profile-editor{grid-column:1/-1;min-width:0;display:grid;gap:10px}
+.profile-canvas .profile-editor-toolbar button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.right-panel .profile-editor{gap:6px}
+.right-panel .profile-editor>.profile-editor-toolbar{gap:4px}
+.right-panel .profile-editor-toolbar button{min-height:28px;padding:4px 6px;font-size:12px;border-color:#dbe3ef;background:#fff}
+.right-panel .profile-editor>p{margin:3px 0;font-size:12px}
+.right-panel .profile-canvas .profile-editor-toolbar{align-items:center;gap:3px}
+.right-panel .profile-canvas .profile-editor-toolbar label{display:inline-flex;align-items:center;gap:4px;font-size:12px}
+.right-panel .cad-dialog .profile-canvas input[type="number"]{width:52px;min-height:26px;font-size:12px;padding:3px}
+.right-panel .profile-canvas svg{height:180px}
+.right-panel .profile-canvas .property-footnote{margin:5px 0;font-size:11px;line-height:1.4}

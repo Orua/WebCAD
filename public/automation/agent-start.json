@@ -1,0 +1,87 @@
+{
+  "product": "WebCAD",
+  "pageApiVersion": "1.13.0",
+  "buildId": "bad575aefc058c4aa1edaa81d4c920b037313e66-working",
+  "catalogHash": "sha256:07c24fb283ff9594e698155047e313ef629cec6e5c99bde406dcd5f1b324abe5",
+  "docsHash": "sha256:0fe9079c4a6804e21d396f9683307db0ff159487e4a6ac5e00c68ebec022aa8b",
+  "version": 1,
+  "entrypoint": "window.webcad.api.connect",
+  "startUrl": "automation/agent-start.html",
+  "bootstrapUrl": "automation/agent-start.json",
+  "connectionDoc": "api.connection",
+  "workflowDoc": "api.workflow",
+  "localKit": {
+    "manifestUrl": "automation/agent-kit.json",
+    "installerUrl": "automation/install-agent.ps1",
+    "skillUrl": "automation/webcad-page-api/SKILL.md",
+    "clientUrl": "automation/webcad-page-api/scripts/page-client.mjs",
+    "routesUrl": "automation/routes.json",
+    "installation": "host-opt-in"
+  },
+  "host": {
+    "documentation": "current-host-first",
+    "transport": "authorized-page-script",
+    "fallback": "report-missing-capability"
+  },
+  "steps": [
+    {
+      "id": "bind-tab",
+      "action": "Bind the user-selected WebCAD tab using the current host documentation.",
+      "check": "Verify the actual tab identity; preserve its current document and do not reload it."
+    },
+    {
+      "id": "list-capabilities",
+      "action": "Read tab.capabilities.list() when the current host provides it.",
+      "check": "DOM read access alone neither proves nor rules out an authorized page-script channel."
+    },
+    {
+      "id": "read-cdp-docs",
+      "action": "If cdp is listed and authorized, read (await tab.capabilities.get(\"cdp\")).documentation().",
+      "check": "Follow the current host API and permission limits; other hosts use their documented equivalent."
+    },
+    {
+      "id": "runtime-evaluate",
+      "action": "Use documented Runtime.evaluate to call window.webcad.api.connect({queries:[\"task capability\"],limit:2,includeContracts:true}) with awaitPromise:true and returnByValue:true where supported.",
+      "check": "Inspect exceptionDetails/result, then canExecute/blockers/requestContext. ready alone is insufficient; wait or request the required preview decision without changing the document."
+    },
+    {
+      "id": "contracts",
+      "action": "Read returned contracts; use getTools({ids,expectedCatalogHash}) only for missing relevant cards.",
+      "check": "Use the live page version and hashes. Cache complete static cards only, never state or topology IDs."
+    },
+    {
+      "id": "run",
+      "action": "Submit the authorized task with api.run({context:requestContext,idempotencyKey,steps}).",
+      "check": "Use explicit params/refs and prior-result $ref links; retain the existing bounded, non-atomic batch protocol."
+    },
+    {
+      "id": "readback",
+      "action": "Read per-step receipts, current getState(), exact measurements and the matching rendered frame.",
+      "check": "Distinguish committed geometry from rendered display; unknown results require inspection before any retry."
+    }
+  ],
+  "constraints": [
+    "Current host documentation takes priority over examples in this metadata.",
+    "A host transport failure does not prove that the WebCAD page API is unavailable.",
+    "Do not reload or replace an existing document to establish a connection.",
+    "Do not install a service, bridge or alternate transport to bypass host restrictions.",
+    "The local kit is optional and installs only after host/user opt-in; it does not grant browser access.",
+    "Do not use the manual JSON debug panel as an automatic connection fallback."
+  ],
+  "linkBase": "page deployment root; resolve paths against the CAD page URL",
+  "firstCall": "window.webcad.api.connect({queries:[\"本次任务能力\"],limit:2,includeContracts:true})",
+  "documentation": {
+    "quickstart": "automation/quickstart.md",
+    "routes": "automation/routes.json",
+    "catalog": "automation/index.html"
+  },
+  "installation": {
+    "automatic": false,
+    "steps": [
+      "Download and inspect installer from the trusted current page origin.",
+      "Run in a host with filesystem permission; installer verifies each file and backs up an existing skill.",
+      "Read the installed SKILL.md, use scripts/page-client.mjs only with an authorized transport adapter."
+    ],
+    "defaultDestination": "~/.codex/skills/webcad-page-api"
+  }
+}

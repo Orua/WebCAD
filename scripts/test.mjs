@@ -7,12 +7,17 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
   contracts: [
+    'project-name','quick-model-usage','quick-hardware-api',
+    'mechanical-tools-contracts','mechanical-page-api','profile-constraints','profile-constraint-history',
     'modeling-precision', 'workspace-upgrade', 'anchor-clearance', 'anchor-lineage', 'align-mode', 'frame-orientation', 'webcad-shortcuts', 'dimension-adapter',
-    'tool-discovery', 'browser-logo-input', 'page-batch', 'page-api', 'browser-files', 'artifact-store', 'command-service', 'document-identity', 'logo-import-request', 'operation-registry', 'position-table', 'profile-projection',
+    'tool-discovery', 'agent-onboarding', 'agent-kit', 'browser-logo-input', 'page-batch', 'page-api', 'browser-files', 'artifact-store', 'command-service', 'document-identity', 'logo-import-request', 'operation-registry', 'position-table', 'profile-projection',
     'parameter-calculator', 'named-parameters', 'recovery-isolation', 'selection-contract', 'selection-assists',
     'tool-state', 'viewport-transform', 'dfam-inspection', 'profile-fitting', 'text-commands',
   ],
   kernel: [
+    'quick-hardware','face-machining','quick-hardware-integration',
+    'mechanical-tools-integration','profile-solid-features','direct-modeling-tools','helical-tools',
+    'agent-profile-contract',
     'drag-snap', 'render-quality', 'profile-edit', 'profile-editing', 'profile-primitives', 'profile-inspection', 'fit-inspection', 'thickness-inspection', 'relation-measure', 'boolean-roles', 'hole-wizard', 'draft-tools',
     'advanced-integration', 'advanced-kernel', 'advanced-loft', 'align-kernel', 'curve-sweep',
     'curved-logo', 'fitted-surface', 'geometry-query', 'nearest-brep', 'group-explode',
@@ -24,6 +29,7 @@ const groups = {
   ],
   mcp: ['bridge-cancellation', 'mcp-bridge', 'mcp-v2', 'document-assets', 'agent-cli'],
   'local-fixtures': ['iges-import', 'iges-roundtrip'],
+  'browser-dom-modules':['profile-solid-dialogs','direct-modeling-dialogs','profile-constraints-dialog'],
 };
 const fixturePaths = [
   ['WEBCAD_IGES_IMPORT_FIXTURE', process.env.WEBCAD_IGES_IMPORT_FIXTURE || 'G:/TEXT-TO-CAD/工程图3D_20260914/0/gc15372.igs'],
@@ -47,6 +53,7 @@ const missing = expected.filter(name => !found.includes(name));
 if (new Set(expected).size !== expected.length || unclassified.length || missing.length) {
   stop('FAIL', `Test manifest mismatch; unclassified=${unclassified.join(',') || 'none'}; missing=${missing.join(',') || 'none'}. Update scripts/test.mjs explicitly.`, 1);
 }
+if(group==='browser-dom-modules')stop('BLOCKED','These DOM modules must run inside an isolated browser against the source server. Import each suite and call its exported run*DomTests() function; Node import is not a DOM test.',2);
 if (group === 'local-fixtures') {
   const absent = fixturePaths.filter(([, source]) => {
     try { return !fs.statSync(path.resolve(root, source)).isFile(); } catch { return true; }

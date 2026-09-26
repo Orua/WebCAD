@@ -5,6 +5,7 @@ export function toolDisabledReason(action,state){
  if(state.busy)return '正在计算，请稍候';
  if(!state.kernelReady)return '建模内核尚未就绪';
  const count=state.selectedIds.length,topology=state.selectedTopology;
+ if(['offsetSolid','offsetSurface','draftByPlane','thread','faceGroove','innerTurn','outerTurn'].includes(action)&&count!==1)return '请选择一个当前来源对象';
  if(action==='inspectPrintability'&&count!==1)return '请选择一个待检查实体';
  if(action==='inspectFit'&&(count!==2||state.selectedIds.some(id=>state.bodies.find(body=>body.id===id)?.solidCount!==1)))return '请按 Ctrl 选择两个封闭实体';
  if(action==='profileRepair'&&(count!==1||state.document?.features?.find(feature=>feature.id===state.selectedIds[0])?.op!=='sketchProfile'))return '请选择一个可编辑解析轮廓来源';
@@ -20,6 +21,8 @@ export function toolDisabledReason(action,state){
  if(action==='copySelection'&&!count)return '请先选择要复制的实体';
  if(action==='remove'&&!count)return '请先选择要删除的实体';
  const faces=topology?.type==='face'&&topology.bodyId===state.selectedIds[0]?topology.ids.length:0;
+ if(['offsetSurface','thread','faceGroove','innerTurn','outerTurn'].includes(action)&&faces!==1)return '切换到选面，选择一张当前面';
+ if(action==='draftByPlane'&&!faces)return '切换到选面，选择要拔模的面';
  if(action==='smoothTransition'&&(count!==1||faces<2))return '切换到选面，按 Ctrl 选择至少两个相邻面';
  if(['faceHole','faceExtrude','curvedLogo','thickenFace','faceBoundary'].includes(action)&&faces!==1)return '切换到选面，然后选择一个面';
  if(action==='extractFaces'&&!faces)return '切换到选面，然后选择一个或多个面';

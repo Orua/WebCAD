@@ -34,5 +34,7 @@ test('extractShell clones one shell, retains its compound source, then permits i
   assert.ok(TOOL_CATEGORIES.曲面.some(([,actions])=>actions.includes('extractShell')));
   assert.deepEqual(UI_API_ROUTES.extractShell.tools,['extractShell']);
   assert.equal(toolDisabledReason('extractShell',{kernelReady:true,busy:false,selectedIds:['compound'],selectedTopology:null,bodies:[{id:'compound',shellCount:2}]}),'');
-  assert.match(toolDisabledReason('extractShell',{kernelReady:true,busy:false,selectedIds:['single'],selectedTopology:null,bodies:[{id:'single',shellCount:1}]}),/多个壳/);
+  assert.equal(toolDisabledReason('extractShell',{kernelReady:true,busy:false,selectedIds:['single'],selectedTopology:null,bodies:[{id:'single',shellCount:1}]}),'','a single shell is useful for surface processing and may be extracted');
+  assert.match(toolDisabledReason('extractShell',{kernelReady:true,busy:false,selectedIds:['empty'],selectedTopology:null,bodies:[{id:'empty',shellCount:0}]}),/包含壳/);
+  assert.match(toolDisabledReason('extractShell',{kernelReady:true,busy:false,selectedIds:['no-shell'],selectedTopology:null,bodies:[{id:'no-shell'}]}),/包含壳/);
 });

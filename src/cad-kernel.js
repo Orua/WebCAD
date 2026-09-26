@@ -28,6 +28,12 @@ import {buildProfileExtrude} from './profile-extrude.js';
 import {measureRelationExact} from './relation-measure.js';
 import {buildHoleWizard} from './hole-wizard.js';
 import {buildDraftFaces,inspectDraftExact} from './draft-tools.js';
+import {buildProfileRevolve,buildProfileSweep,buildProfileLoft} from './modeling/profiles/profile-solid-features.js';
+import {buildOffsetSolid,buildOffsetSurface,buildDraftByPlane} from './modeling/manufacturing/direct-modeling-tools.js';
+import {buildHelix,buildCoil,buildThread} from './modeling/manufacturing/helical-tools.js';
+import {buildFaceMachining} from './modeling/manufacturing/face-machining.js';
+import {profileSolidIds,mechanicalPreservedIds} from './mechanical-tool-contracts.js';
+import {resolveProfileRecipe,constrainProfileRecipe} from './modeling/profiles/profile-constraint-history.js';
 
 // This adapter owns every BRep handle; displayed topology IDs are array indices,
 // not OpenCascade's transient hash codes. It is also executable in Node tests.
@@ -38,7 +44,9 @@ function placeCreation(shape,placement){
   let out=shape.translate(sourcePoint.map(v=>-v));
   const [x,y,z,w]=frame.quaternion,axisLength=Math.hypot(x,y,z);
   if(axisLength>1e-12){const rotated=out.rotate(2*Math.atan2(axisLength,w)*180/Math.PI,[0,0,0],[x/axisLength,y/axisLength,z/axisLength]);dispose(out);out=rotated;}
-  const translated=out.translate(...frame.origin);dispose(out);return translated;
+  const translated=out.translate(...frame.origin);dispose(out);
+  if(shape.threadReport){const r=shape.threadReport;translated.threadReport={...r,axisOrigin:worldPoint(frame,r.axisOrigin.map((v,i)=>v-sourcePoint[i])),axisDirection:rotateVector(frame.quaternion,r.axisDirection),coordinateSystem:'world'};}
+  return translated;
 }
 // Replicad's non-adaptive BRepGProp.VolumeProperties can misread swept
 // B-spline solids by more than 0.1%. Use OCCT's adaptive Gauss-Kronrod
@@ -177,7 +185,7 @@ export class CadKernel {
     const sources = refs.map(id => { if (!shapes.has(id)) throw new Error(`找不到引用实体 ${id}`); return shapes.get(id); });
     const source = () => { if (sources.length !== 1) throw new Error('此操作需要选择一个实体'); return sources[0]; };
     switch (feature.op) {
-      case 'quickModel': return buildQuickModel(p, cad, {roundAll:(shape,radius)=>buildSmoothTransition(shape,{radius,allEdges:true})});
+      case 'quickModel': return buildQuickModel(p, cad, {oc:this.oc,roundAll:(shape,radius)=>buildSmoothTransition(shape,{radius,allEdges:true})});
       case 'advancedLoft': return buildAdvancedLoft(p,cad);
       case 'curveSweep': return buildCurveSweep(p,cad);
       case 'arcProfile': return buildArcProfile(p,cad);
@@ -191,11 +199,26 @@ export class CadKernel {
         result.repairReport={sourceId:refs[0],...repaired.receipt};return result;
       }
       case 'profileOffset': return buildProfileOffset(source(),p,cad);
+      case 'profileConstraints': {
+        source();const solved=constrainProfileRecipe(resolveProfileRecipe(historyFeatures,refs[0]),p.constraints),local=buildSketchProfile(solved.profile,cad);
+        let result=local;if(solved.placement){try{result=placeCreation(local,solved.placement);}finally{dispose(local);}}
+        result.constraintReport={sourceId:refs[0],coordinateSystem:'frozen-source-local-2D',constraintCount:solved.constraints.length,...solved.diagnostics,primitiveConversion:solved.primitiveConversion,intrinsicConstraints:solved.intrinsicConstraints};return result;
+      }
       case 'profileExtrude': {
-        const planeNormal=id=>{const parent=historyFeatures.find(item=>item.id===id);if(parent?.op==='sketchProfile')return rotateVector(parent.placement?.frameSnapshot?.quaternion||[0,0,0,1],[0,0,1]);if(['profileOffset','profileRepair'].includes(parent?.op))return planeNormal(parent.refs?.[0]);return null;};
+        const planeNormal=id=>{const parent=historyFeatures.find(item=>item.id===id);if(parent?.op==='sketchProfile')return rotateVector(parent.placement?.frameSnapshot?.quaternion||[0,0,0,1],[0,0,1]);if(['profileOffset','profileRepair','profileConstraints'].includes(parent?.op))return planeNormal(parent.refs?.[0]);return null;};
         return buildProfileExtrude(sources,p,cad,planeNormal(refs[0]));
       }
       case 'draftFaces': return buildDraftFaces(source(),p,this.oc,cad);
+      case 'profileRevolve': return buildProfileRevolve(sources,p,cad);
+      case 'profileSweep': return buildProfileSweep(sources,p,cad);
+      case 'profileLoft': return buildProfileLoft(sources,p,cad);
+      case 'offsetSolid': return buildOffsetSolid(source(),p,this.oc,cad);
+      case 'offsetSurface': return buildOffsetSurface(source(),p,this.oc,cad);
+      case 'draftByPlane': return buildDraftByPlane(source(),p,this.oc,cad);
+      case 'helix': return buildHelix(p,cad);
+      case 'coil': return buildCoil(p,this.oc,cad);
+      case 'thread': return buildThread(source(),p,this.oc,cad);
+      case 'faceGroove': case 'innerTurn': case 'outerTurn': return buildFaceMachining(source(),p,feature.op,this.oc,cad);
       case 'curvedLogo': return buildCurvedLogo(source(),p,cad);
       case 'fittedSurface': return buildFittedSurface(p,cad);
       case 'thickenFace': return buildFaceThickness(source(),p,cad);
@@ -577,7 +600,7 @@ export class CadKernel {
         }
       });
       if (mappedFaces.some(g => g.faceId === undefined) || mappedEdges.some(g => g.edgeId === undefined)) throw new Error('拓扑索引映射失败');
-      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges, snapPoints, bounds: { min, max }, volume: solids.length ? preciseVolume(shape,this.oc) : null, solidCount: solids.length, shellCount:shells.length, transitionReport:shape.transitionReport, repairReport:shape.repairReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
+      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges, faceCount:faces.length,edgeCount:edges.length,snapPoints, bounds: { min, max }, volume: solids.length ? preciseVolume(shape,this.oc) : null, solidCount: solids.length, shellCount:shells.length, transitionReport:shape.transitionReport, repairReport:shape.repairReport, threadReport:shape.threadReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
     } finally { [...faces, ...edges, ...solids, ...shells, bbox].forEach(dispose); }
   }
   async rebuild(document) {
@@ -626,8 +649,9 @@ export class CadKernel {
           }
           active.set(current, feature);
         }
-       const keepOriginal = ['copy','planeSection','faceBoundary','extractFaces','extractShell','surfaceTrim','referenceExtrude','referenceLoft','profileOffset','profileRepair'].includes(feature.op) || (['mirror','extractSolid'].includes(feature.op) && feature.params?.keepOriginal !== false);
+       const keepOriginal = ['copy','planeSection','faceBoundary','extractFaces','extractShell','surfaceTrim','referenceExtrude','referenceLoft','profileOffset','profileRepair',...mechanicalPreservedIds].includes(feature.op) || (['mirror','extractSolid'].includes(feature.op) && feature.params?.keepOriginal !== false);
         if (feature.op==='profileExtrude') { if(feature.refs?.[1])active.delete(feature.refs[1]); }
+        else if(profileSolidIds.includes(feature.op)){if((feature.params?.operation??'newBody')!=='newBody')active.delete(feature.refs.at(-1));}
         else if(['union','cut','intersect'].includes(feature.op)&&feature.params?.keepTools===true){active.delete(feature.refs?.[0]);}
         else if (!keepOriginal) for (const id of feature.refs || []) active.delete(id);
       }

@@ -7,6 +7,8 @@ import { UI_API_ROUTES, requireUIRoute } from '../src/ui-api-coverage.js';
 import { TOOL_CATEGORIES } from '../src/ui-toolbars.js';
 import { UI_LAYOUT } from '../src/ui-layout.js';
 import { CONNECTION_POLICY } from '../src/automation-guidance.js';
+import { generateAgentEntry } from './generate-agent-entry.mjs';
+import { generateAgentKit } from './generate-agent-kit.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const target = resolve(root, 'public', 'automation');
@@ -47,6 +49,7 @@ for(const [folder,expected] of [['tools',new Set(cards.map(card=>card.id+'.json'
 for(const card of cards)await writeFile(resolve(target,'tools',card.id+'.json'),JSON.stringify(card,null,2)+'\n');
 for(const [id,text] of Object.entries(docs))await writeFile(resolve(target,'docs',id+'.md'),'# '+id+'\n\n'+text+'\n');
 const manifest={version:metadata.pageApiVersion,buildId:metadata.buildId,searchVersion:metadata.discovery.searchVersion,catalogHash:metadata.catalogHash,docsHash:metadata.docsHash,
+  apiMethods:[...(metadata.methods||[])],
   tools:cards.map(c=>({id:c.id,title:c.title,label:c.label,category:c.category,version:c.version,docsHash:c.docsHash,url:'tools/'+c.id+'.json'})),
   docs:Object.keys(docs).map(id=>({id,docsHash:docHashes[id],url:'docs/'+id+'.md'})),
   cache:{scope:'static contracts and docs only',removeMissingIds:true,validateWith:'window.webcad.api.connect'},
@@ -59,8 +62,10 @@ const knowledge=['# WebCAD AI 完整知识库',`API ${metadata.pageApiVersion} �
 await writeFile(resolve(target,'knowledge.md'),knowledge);
 const quickstart = [
   '# WebCAD AI 连接与工具发现', '',
+  '首次使用：[AGENT 从这里开始](agent-start.html) · [机器可读入口](agent-start.json) · [本地安装包](agent-kit.json) · [真实操作路由](routes.json)。首次握手的 onboarding 返回相同入口。', '',
   CONNECTION_POLICY, '',
   '## 先选后台通道', '',
+  '本地可搜索目录：[操作 API 目录](index.html)，按关键词和分类查找页面方法与工具契约；原始索引：[manifest.json](manifest.json)。', '',
   '当前 Codex Chrome/IAB 开发宿主：绑定目标标签页后检查 tab.capabilities.list()；若提供 cdp，先读 (await tab.capabilities.get("cdp")).documentation()，确认允许当前任务后用 Runtime.evaluate（awaitPromise:true、returnByValue:true）调用公开 API。只读 DOM evaluate 与该能力不同；不要直接改用填表。其他宿主使用其实际支持的授权脚本通道。完整说明：[api.connection](docs/api.connection.md)。', '',
   '## 一次读取状态、相关完整卡与批次说明', '',
   '将下面表达式交给已确认的页面脚本通道；按任务替换能力词。无需点击页面、读取全目录或构造查询用的 run 批次。', '',
@@ -92,10 +97,11 @@ await writeFile(resolve(target, 'quickstart.md'), quickstart, 'utf8');
 await copyFile(resolve(root,'src/tool-discovery.js'),resolve(target,'tool-library.mjs'));
 await mkdir(resolve(target,'webcad-page-api'),{recursive:true});
 await copyFile(resolve(root,'skills/webcad-page-api/SKILL.md'),resolve(target,'webcad-page-api/SKILL.md'));
-await writeFile(resolve(root,'public','llms.txt'), '# WebCAD\n\n'+CONNECTION_POLICY+'\n\n先读 [后台连接速读](automation/quickstart.md)。当前 Codex 开发宿主检查标签页 capabilities 的 cdp 并读取其文档；支持且获授权时用 Runtime.evaluate。一次 connect({queries:[能力关键词],limit:2,includeContracts:true}) 返回精简实时状态和相关完整卡，不重复读卡。按需 readDocs。\n\n[宿主通道](automation/docs/api.connection.md) · [缓存说明](automation/docs/api.discovery.md)。可选离线工具库为 automation/index.json + automation/tool-library.mjs；缓存供程序检索，不应整库进入模型上下文。\n', 'utf8');
 console.log(`Generated ${cards.length} page cards in ${target}`);
 
 await copyFile(resolve(root,'docs/examples/page-api-plate.js'),resolve(target,'page-api-plate.js'));
 await copyFile(resolve(root,'docs/examples/frame-placement.js'),resolve(target,'frame-placement.js'));
 await mkdir(resolve(root,'public','docs'),{recursive:true});
 await copyFile(resolve(root,'docs/USER-GUIDE.zh-CN.md'),resolve(root,'public','docs','USER-GUIDE.zh-CN.md'));
+await generateAgentKit({root,target,metadata,routes:UI_API_ROUTES});
+await generateAgentEntry({root,target,metadata});

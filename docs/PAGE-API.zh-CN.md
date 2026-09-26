@@ -14,7 +14,7 @@
 
 普通预览 `preview.start` 后按 `previewId` 和 `generation` 调用 `preview.update`、`preview.commit` 或 `preview.cancel`。文件预览使用 `fileImport:{resourceId,placement}`，只能更新 placement；旧代次不能提交。批次 `run` 的 `execute` 步骤透传动作和参数，但不是全有全无事务。`files.save` 只生成资源，必须经下载或校验写入后才算落盘。未知 placement 字段、非有限坐标及混用旧新定位都应拒绝。
 
-首次调用优先使用 `window.webcad.api.connect({queries:[能力关键词]})`，再用 `getTools({ids})` 批量读卡。按需说明、离线工具库和缓存失效规则见 [AI 工具发现](AI-DISCOVERY.zh-CN.md)。本页后续为详细配方和接口参考，不需要首次连接全文读取。
+首次入口是页面 `automation/agent-start.html` / `agent-start.json`。先绑定目标标签页、检查宿主实际能力并读通道文档，再调用 `window.webcad.api.connect({queries:[能力关键词],limit:2,includeContracts:true})`。API v1.11.0 的握手返回 `onboarding`：步骤、本地技能安装器、连接助手及真实操作路由 URL，均相对页面部署根地址。已有完整卡无需重复读取；缺卡使用 `getTools({ids})`。安装包由有磁盘权限的宿主查看脚本后安装，页面不自动写盘或增加服务。按需说明、离线工具库和缓存失效规则见 [AI 工具发现](AI-DISCOVERY.zh-CN.md)。本页后续为详细配方和接口参考，不需要首次连接全文读取。
 
 ## 从 DXF 正视与侧视校验圆线圈
 
@@ -879,3 +879,16 @@ if (picture.status !== 'read') throw new Error(picture.error?.code || 'capture f
 只读 `inspectDraft({context,bodyId,pullDirection:[0,0,1],thresholdDeg:2})` 返回每个解析平面的 `signedAngleDeg`、`classification` 与来源 revision；非平面逐面标记 `unsupported`。这是法向倾角，不是倒扣或脱模可达性证明。`inspectFit`、`inspectThickness`、`measureRelation`、`inspectProfile`、`projectProfile` 的参数和返回范围见自动工具卡；所有检查结果在工程变更后过期。`projectProfile` 把精确线/圆/圆弧边投到给定任务平面并冻结来源快照，不自动修改文档。
 
 新增只读检查也可经 `invoke`、`run` 和页面 `submit/getJob` 调用；这些入口返回原检查事实与 revision。`getState().bodies[].repairReport` 包含修复源 ID、指定端点、允许位移和实际位移。`setView({context,temporaryDisplay:'selectedOnly'|'transparentOthers'|'normal'})` 控制临时隔离/透明，持久隐藏列表不变。
+
+## 快捷五金模型与面加工（页面 API 1.13.0）
+
+快捷模型新增弹簧 `spring`、螺丝 `screw`、丝筒 `threadedSleeve`、半圆钉 `domedPin`。模型菜单显示本浏览器累计成功创建次数最多的 5 个，剩余模型用“快捷模型”打开；同次数按简单模型优先的目录顺序。面板列表固定最小 240px，窗口高度不足时下方内容纵向滚动。历史工程的原 kind 均保持可用。
+
+螺丝四个几何参数为头宽、头厚、M 规格、牙长，另选平头/沉头、十字/一字/梅花/内六角。默认十字；沉头固定 0.20 mm 外缘直升位加圆锥过渡，头厚包含直升位。头的下端在参考位置，牙杆朝本地 +Z。丝筒底在上、面在下，从参考位置向本地 -Z 延伸、从下方面端向 +Z 攻牙；参数为底直径、面直径、名义牙径、总高、牙深。名义牙径须匹配支持的 M 粗牙直径。半圆钉用直径和高度控制光滑凸面，不限于球面。弹簧使用中心线半径、线径、螺距、圈数和左旋，螺距须大于线径。螺纹是实际 V 型切削几何，不声称标准公差等级。粗牙螺距参考 [ADS 制造商表](https://www.advancedynamicsolution.com/resources/metric-thread-data.html) 和 [Carmex 小规格刀具目录](https://carmexusa.com/contentonly.aspx?file=pdf/2019_Inch/261-276_mini_mill_thread.pdf)。
+
+先 `api.connect({toolIds:['template.screw','faceGroove','innerTurn','outerTurn','getQuickModelUsage'],includeContracts:true})`，按需 `api.readDocs({docId:'api.quick-hardware'})`；template 卡用于发现，执行仍是 `op:'quickModel',params:{kind:'screw',...}`。使用当前 context 和唯一幂等键通过 `api.run` 提交，显式 placement 可指定冻结参考位置；修改历史参数用 feature.edit。只读 `api.getQuickModelUsage()` 返回 counts、topKinds、maxVisible 和 storage，可经 invoke/run 调用，预览期间也能读。成功提交新快捷模型才计数；预览、失败、取消、修改、撤销重做、打开工程均不增加。默认 localStorage 持久化；受限时回退当前页内存。
+
+三个基本加工工具直接展开在“加工 → 面加工”，不折叠进“更多”，也不进入快捷模型列表。锣槽 `faceGroove`：refs=[当前单实体]，params={faceId,lengthMm,widthMm,depthMm}。内车 `innerTurn` / 外车 `outerTurn`：params={faceId,diameterMm,depthMm}。先 queryGeometry 查询真实平面 faceId，三个工具均以面面积中心为轴心、沿反向外法线进入材料，不再次应用当前参考锚点。锣槽长边方向为世界 X 在面上的投影（退化时用世界 Y）。内车移除指定直径内的圆柱材料；外车在指定深度内去除目标直径之外的材料，下方保持。非平面、未切到材料、空结果、剩余多实体会失败，原模型保留。参数严格校验，失败回执可见 NO_MATERIAL_REMOVED/GEOMETRY_INVALID；它们没有机床刀路或进给设置。检查回执、精确测量和 rendered revision 后再确认完成。
+
+
+新建工程默认命名为 `新建工程YYYYMMDD-001`，使用本机日期与当天递增序号（至少三位）。UI 新建与 `files.new` 使用同一规则；序号保存在本浏览器的 localStorage，存储不可用时退回当前页面内计数。初始化只分配一次序号；打开已有工程与保存不重新命名，用户手动命名保留。
