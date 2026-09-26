@@ -17,7 +17,7 @@ export const UI_API_ROUTES = Object.freeze({
   ...Object.fromEntries(listOperations().map(c=>[c.id,{tools:[c.id],method:'execute',usage:'feature.add；按工具卡传显式 params/refs，或 run 的 add。'}])),
   multiPocket:{tools:['multiPocket'],method:'execute',usage:'getTool({id:"multiPocket"}) 读取 strict v2 卡；feature.add 或 run add 传 depth/axis/direction/pockets、真实 refs；feature.edit 修改历史凹槽列表。'},
   multiBoss:{tools:['multiBoss'],method:'execute',usage:'getTool({id:"multiBoss"}) 读取 strict v2 卡；feature.add 或 run add 传 radius/height/axis/direction/points 与真实 refs；feature.edit 修改历史凸台。'},
-    ...Object.fromEntries(['themeSettings','snapSettings'].map(id=>[id,{tools:['setDisplayPreferences'],method:'setDisplayPreferences',usage:'全局 themeColor 与 snapThresholdMm 在当前浏览器持久化。'}])),
+    ...Object.fromEntries(['precisionSettings','themeSettings','snapSettings'].map(id=>[id,{tools:['setDisplayPreferences'],method:'setDisplayPreferences',usage:'全局 themeColor 与 snapThresholdMm 在当前浏览器持久化。'}])),
   languageSettings:{tools:['setView'],method:'setView',usage:'language:zh/en。'},
   agentGuide:{tools:['connect','getTools','readDocs'],method:'connect',usage:'connect({queries,includeContracts:true}) 按任务快速加载；knownHashes 缓存工具卡，不缓存实体身份。'},
   displayPreferences:{tools:['setDisplayPreferences','getLogoConverter','setLogoConverter'],method:'setDisplayPreferences',usage:'显示设置用 setDisplayPreferences；LOGO 转换配置用 getLogoConverter/setLogoConverter，URL/Key 保存在当前浏览器。'},

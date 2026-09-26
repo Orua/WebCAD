@@ -7,7 +7,7 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
   contracts: [
-    'workspace-upgrade', 'anchor-clearance', 'anchor-lineage', 'align-mode', 'frame-orientation', 'webcad-shortcuts', 'dimension-adapter',
+    'modeling-precision', 'workspace-upgrade', 'anchor-clearance', 'anchor-lineage', 'align-mode', 'frame-orientation', 'webcad-shortcuts', 'dimension-adapter',
     'tool-discovery', 'browser-logo-input', 'page-batch', 'page-api', 'browser-files', 'artifact-store', 'command-service', 'document-identity', 'logo-import-request', 'operation-registry', 'position-table', 'profile-projection',
     'parameter-calculator', 'named-parameters', 'recovery-isolation', 'selection-contract', 'selection-assists',
     'tool-state', 'viewport-transform', 'dfam-inspection', 'profile-fitting', 'text-commands',

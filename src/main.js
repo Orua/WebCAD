@@ -1,3 +1,4 @@
+import {quantizeModelParams} from './modeling/interaction/modeling-precision.js';
 import './style.css';
 import './workspace-layout.css';
 import './ui/styles/theme.css';
@@ -79,7 +80,7 @@ const viewport=new CADViewport(document.getElementById('viewport'),{
   onTransform:params=>performAction('transform',params),
   onTransformError:reportError,
   onDragSnap:async input=>{const atRevision=revision,atInstance=documentInstanceId;const result=await request('dragSnap',{input});if(revision!==atRevision||documentInstanceId!==atInstance)throw new Error('模型在拖动吸附计算期间已变化，请重新拖动');return result;},
-  onWorkFrameMove:origin=>ui.updateFrameDraft(origin)?undefined:runEditorAction('reference.setWorkFrame',{origin,quaternion:[...documentModel.referenceSystem.workFrame.quaternion]}),
+  onWorkFrameMove:rawOrigin=>{const origin=quantizeModelParams({origin:rawOrigin},viewport.displayPreferences).origin;return ui.updateFrameDraft(origin)?undefined:runEditorAction('reference.setWorkFrame',{origin,quaternion:[...documentModel.referenceSystem.workFrame.quaternion]});},
 });
 
 function refresh(){document.title=(dirty?'● ':'')+documentModel.name+' — WebCAD';const url=new URL(location.href);if(url.searchParams.get('document')!==documentModel.documentId){url.searchParams.set('document',documentModel.documentId);history.replaceState(null,'',url);}ui.update({renderQuality:qualityState(),document:documentModel,bodies,selectedIds,selectedTopology,undoAvailable:undoStack.length>0,redoAvailable:redoStack.length>0,busy,status,kernelReady,dirty,displayPreferences:viewport.displayPreferences,metalFinish:viewport.finishKey,aiStatus,revision,viewState:{quality:qualityKey,display:viewport.mode,projection:viewport.camera.isOrthographicCamera?'orthographic':'perspective',grid:viewport.grid.visible,snap:viewport.snapEnabled,gizmo:viewport.gizmoMode,selection:viewport.selectionMode,anchorDrag:viewport.anchorDragEnabled,anchorVisible:viewport.anchorVisible,temporaryDisplay:viewport.temporaryDisplay}});}
@@ -198,6 +199,7 @@ function featureDocument(op,params={},explicitRefs=[],name,placement){
   return {next,id};
 }
 async function addFeature(op,params={},options={}){
+  params=quantizeModelParams(params,viewport.displayPreferences);
   const refs=options.refs??[];
   if(migratedOperationIds.includes(op))params=normalizeOperationParams(op,params);
   params=await resolveLogoParams(op,params,refs,options);
@@ -222,6 +224,7 @@ async function resolveLogoParams(op,params,refs,options={}){
   return {...params,targetSurfaceType:face.geomType,targetFaceArea:face.areaMm2,targetFaceCenter:face.center,targetFaceSignature:face.stableFaceSignature,targetGeometryFingerprint:face.geometryFingerprint};
 }
 async function editFeature(id,params,name,options={}){
+  params=quantizeModelParams(params,viewport.displayPreferences);
   if(busy)return;
   const next=clone(documentModel),feature=next.features.find(f=>f.id===id);
   if(!feature)throw new Error('未找到可编辑的操作。');
@@ -338,7 +341,7 @@ async function performAction(action,params={}){
   if(['copySelection','pasteSelection'].includes(action))return performShortcut(action);
   if(action==='downloadResource'){const result=await pageAPI.files.download({resourceId:params.resourceId});setStatus('下载已发起；请在浏览器下载记录中确认。');return result;}
   if(action==='renderQuality'){const result=await pageAPI.setRenderQuality({context:pageAPI.getState().context,quality:params.quality});if(result.status==='failed')throw new Error(result.error.message);return result;}
-  params=params||{};
+  params=quantizeModelParams(params||{},viewport.displayPreferences);
   if(action==='parameters'){
     const {revision:r,...c}=pageAPI.getState().context;
     const result=await pageAPI.execute({context:{...c,expectedRevision:r},idempotencyKey:crypto.randomUUID(),action:'document.parameters',args:{parameters:params.parameters}});
@@ -367,7 +370,7 @@ async function performAction(action,params={}){
   if(action==='cancelPreview'){await cancelPreview();return;}
   if(action==='commitPreview'){if(!previewNext)throw new Error('No preview to apply');await rebuild(clone(previewNext),{select:previewNext.features.at(-1)?.id});return;}
   if(action==='preview'){
-    const input={...params.params},useFrame=input.useWorkFrame===true,sourceAnchor=input.placementSourceAnchor,taskRefs=input._targetRefs,taskTopology=input._targetTopology,frameSnapshot=input._placementFrameSnapshot;delete input.useWorkFrame;delete input.placementSourceAnchor;delete input._targetRefs;delete input._targetTopology;delete input._placementFrameSnapshot;
+    const input=quantizeModelParams(params.params,viewport.displayPreferences),useFrame=input.useWorkFrame===true,sourceAnchor=input.placementSourceAnchor,taskRefs=input._targetRefs,taskTopology=input._targetTopology,frameSnapshot=input._placementFrameSnapshot;delete input.useWorkFrame;delete input.placementSourceAnchor;delete input._targetRefs;delete input._targetTopology;delete input._placementFrameSnapshot;
     const placement=useFrame?resolvePlacement({version:1,frame:frameSnapshot?{kind:'snapshot',origin:[...frameSnapshot.origin],quaternion:[...frameSnapshot.quaternion]}:{kind:'work',expectedFrameVersion:documentModel.referenceSystem.workFrame.frameVersion},sourceAnchor:sourceAnchor||{kind:params.op==='box'?'bottom-center':'model-origin'}},documentModel.referenceSystem,params.op,input):undefined;
     return previewFeature(params.op,taskRefs?adaptUISelection(params.op,input,taskRefs,taskTopology):input,taskRefs,undefined,placement);
   }
@@ -634,7 +637,7 @@ const pageAPI=createPageAPI({
   buildId:__WEBCAD_BUILD__,
   state:(input={})=>({...commandService.getState({sessionId:pageSessionId,include:['summary','features','bodies','selection','capabilities','references'],...input}),referenceSystem:clone(documentModel.referenceSystem),previewInfo:previewIdentity?clone(previewIdentity):null,renderQuality:qualityState(),parameters:clone(documentModel.parameters||{}),parameterValues:evaluateNamedParameters(documentModel.parameters||{}),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),colors:clone(documentModel.colors||{}),renderFinish:documentModel.renderFinish??null,displayPreferences:clone(viewport.displayPreferences),view:{display:viewport.mode,projection:viewport.camera.isOrthographicCamera?'orthographic':'perspective',grid:viewport.grid.visible,snap:viewport.snapEnabled,gizmo:viewport.gizmoMode,selectionMode:viewport.selectionMode,language:getLanguage(),camera:{position:viewport.camera.position.toArray(),target:viewport.controls.target.toArray()},section:clone(viewport.sectionState||{axis:'Z',position:0,enabled:false}),temporaryDisplay:viewport.temporaryDisplay}}),
   quality:async quality=>{setBusy(true,'更新显示网格…');try{const result=await request('remesh',{quality});bodies=result.bodies;qualityKey=quality;viewport.setBodies(bodies,documentModel.hidden);applyAppearance();viewport.setSelection(selectedIds,selectedTopology);viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});await viewport.frame();setStatus('显示网格已更新 · '+RENDER_QUALITIES[quality].label+' · '+qualityState().triangleCount.toLocaleString()+' 三角面');}finally{setBusy(false);}},
-  preferences:values=>{viewport.displayPreferences={...viewport.displayPreferences,...validateDisplayPreferences(values)};applyAppearance();const persisted=saveDisplayPreferences(viewport.displayPreferences);refresh();return {persisted,storage:'cookie',values:clone(viewport.displayPreferences)};},
+  preferences:values=>{viewport.displayPreferences={...viewport.displayPreferences,...validateDisplayPreferences(values)};viewport.setModelingPrecision();applyAppearance();const persisted=saveDisplayPreferences(viewport.displayPreferences);refresh();return {persisted,storage:'cookie',values:clone(viewport.displayPreferences)};},
   execute:input=>commandService.execute(input),query:input=>commandService.queryGeometry(input),files:input=>commandService.fileCommand(input),
   references:async input=>{const context=pageAPI.getState().context,referenceSystem=clone(documentModel.referenceSystem),currentBodies=bodies.filter(body=>!documentModel.hidden.includes(body.id));const assertFresh=()=>{if(documentInstanceId!==context.documentInstanceId||revision!==context.revision)throw Object.assign(new Error('参考查询期间工程已变化，请重新查询'),{code:'STALE_REFERENCE'});};const result=await collectReferences(input,{context,referenceSystem,bodies:currentBodies,queryGeometry:(bodyId,kind)=>request('queryGeometry',{bodyId,kind,filter:{}}),queryNearest:(bodyId,kind,near)=>request('nearestGeometry',{bodyId,kind,point:near.point,options:{radiusMm:near.radiusMm}}),assertFresh});commandService.registerReferenceCandidates(pageAPI.createRequestContext(context),result.items);return result;},
   resolvePlacement:async input=>{if(input.refs.some(id=>!bodies.some(b=>b.id===id)))throw Object.assign(new Error('Unknown current body'),{code:'STALE_REFERENCE'});const context=pageAPI.getState().context,anchorId=input.placement?.sourceAnchor?.kind==='named'?input.placement.sourceAnchor.anchorId:null;if(anchorId){const anchor=documentModel.referenceSystem.bodyAnchors.find(item=>item.anchorId===anchorId&&item.status==='valid');if(!anchor||!input.refs.includes(anchor.bodyId))throw Object.assign(new Error('Named anchor is not on the source body'),{code:'STALE_REFERENCE'});const exact=await request('queryGeometry',{bodyId:anchor.bodyId,kind:'edge',filter:{}});if(exact.geometryFingerprint!==anchor.geometryFingerprint)throw Object.assign(new Error('Named anchor geometry changed'),{code:'STALE_REFERENCE'});if(documentInstanceId!==context.documentInstanceId||revision!==context.revision)throw Object.assign(new Error('Document changed during placement resolution'),{code:'STALE_REFERENCE'});}const params=migratedOperationIds.includes(input.op)?normalizeOperationParams(input.op,input.params):input.params;const resolved=resolvePlacement(input.placement,documentModel.referenceSystem,input.op,params);if(!resolved)throw Object.assign(new Error('Explicit placement required'),{code:'FRAME_INVALID'});return {status:'read',context,...describeResolvedPlacement(input.op,params,resolved)};},
