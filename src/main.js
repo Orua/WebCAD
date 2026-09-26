@@ -89,7 +89,7 @@ function pushUndo(){undoStack.push(clone(documentModel));if(undoStack.length>40)
 function setBusy(value,message){busy=value;viewport.setBusy?.(value);ui.setBusy(value,message);if(message)setStatus(message);refresh();}
 function selectBody(id,additive=false){
   if(busy)return;
-  if(ui.hasDirtyPropertyDraft()){setStatus('历史参数有未提交修改：请先应用或取消修改。','error');return;}
+  if(id!==selectedIds[0]||additive)ui.discardForSelection();
   selectedTopology=null;
   if(!id)selectedIds=[];
   else if(additive)selectedIds=selectedIds.includes(id)?selectedIds.filter(x=>x!==id):[...selectedIds,id];
@@ -98,7 +98,7 @@ function selectBody(id,additive=false){
 }
 function pick(hit,additive){
   if(busy)return;
-  if(ui.hasDirtyPropertyDraft()){setStatus('历史参数有未提交修改：请先应用或取消修改。','error');return;}
+  if(hit?.id!==selectedIds[0])ui.discardForSelection();
   if(!hit){if(!additive)selectBody(null);return;}
   if(hit.type==='body'||hit.topologyId===undefined){selectBody(hit.id,additive);return;}
   selectedIds=[hit.id];
@@ -335,6 +335,7 @@ async function openFiles(files,{confirmReplace=true,signal,expectedRevision,mcp=
   }
 }
 async function performAction(action,params={}){
+  if(['copySelection','pasteSelection'].includes(action))return performShortcut(action);
   if(action==='downloadResource'){const result=await pageAPI.files.download({resourceId:params.resourceId});setStatus('下载已发起；请在浏览器下载记录中确认。');return result;}
   if(action==='renderQuality'){const result=await pageAPI.setRenderQuality({context:pageAPI.getState().context,quality:params.quality});if(result.status==='failed')throw new Error(result.error.message);return result;}
   params=params||{};
@@ -463,10 +464,13 @@ async function pasteModelClipboard(){
   if(busy||previewNext||previewComputing||ui.hasActiveTask())throw new Error('请先完成当前任务或预览，再粘贴实体。');
   const sourceIds=modelClipboard.ids;
   if(sourceIds.some(id=>!bodies.some(body=>body.id===id)))throw new Error('复制的来源实体已变化，请重新选择并复制。');
-  const next=clone(documentModel),created=[],offset=10*(modelClipboard.pasteCount+1);
+  const selected=sourceIds.map(id=>bodies.find(b=>b.id===id));
+  const min=[0,1,2].map(i=>Math.min(...selected.map(b=>b.bounds.min[i]))),max=[0,1,2].map(i=>Math.max(...selected.map(b=>b.bounds.max[i])));
+  const sourcePoint=[(min[0]+max[0])/2,(min[1]+max[1])/2,min[2]],delta=documentModel.referenceSystem.workFrame.origin.map((v,i)=>v-sourcePoint[i]);
+  const next=clone(documentModel),created=[];
   for(const sourceId of sourceIds){
     const id=crypto.randomUUID(),source=bodies.find(body=>body.id===sourceId);
-    next.features.push({id,op:'copy',name:`${source.name||'实体'} 副本`,params:{positionMode:'relative',x:offset,y:offset,z:0,rx:0,ry:0,rz:0,scale:1},refs:[sourceId]});
+    next.features.push({id,op:'copy',name:`${source.name||'实体'} 副本`,params:{positionMode:'relative',x:delta[0],y:delta[1],z:delta[2],rx:0,ry:0,rz:0,scale:1},refs:[sourceId]});
     if(next.appearance?.[sourceId])next.appearance[id]=next.appearance[sourceId];
     if(next.colors?.[sourceId])next.colors[id]=next.colors[sourceId];
     created.push(id);

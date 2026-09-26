@@ -1,4 +1,4 @@
-const single=new Set(['autoRound','transform','copy','mirror','fillet','chamfer','shell','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','faceHole','faceExtrude','logo','curvedLogo','thickenFace','split','extractSolid','explode','gizmoTranslate','gizmoRotate']);
+const single=new Set(['moveTool','rotateTool','autoRound','transform','copy','mirror','fillet','chamfer','shell','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','faceHole','faceExtrude','logo','curvedLogo','thickenFace','split','extractSolid','explode','gizmoTranslate','gizmoRotate']);
 const boolean=new Set(['union','cut','intersect']);
 export function toolDisabledReason(action,state){
  if(action==='selectTool')return '';
@@ -17,6 +17,7 @@ export function toolDisabledReason(action,state){
  if(action==='surfaceTrim'&&count!==2)return '依次选择源对象、实体刀具';
  if((boolean.has(action)||action==='group')&&count<2)return '按 Ctrl 或 Shift 依次选择至少两个实体';
  if(single.has(action)&&count!==1)return '此工具需要恰好选择一个实体';
+ if(action==='copySelection'&&!count)return '请先选择要复制的实体';
  if(action==='remove'&&!count)return '请先选择要删除的实体';
  const faces=topology?.type==='face'&&topology.bodyId===state.selectedIds[0]?topology.ids.length:0;
  if(action==='smoothTransition'&&(count!==1||faces<2))return '切换到选面，按 Ctrl 选择至少两个相邻面';
