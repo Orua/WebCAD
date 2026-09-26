@@ -18,6 +18,7 @@ self.onmessage = ({ data }) => {
       else if(type==='faceInfo')result=engine.faceInfo(data.bodyId,data.faceId);
       else if(type==='logoTarget')result=await engine.logoTarget(data.bodyId,data.faceId);
       else if(type==='queryGeometry')result=await engine.queryGeometry(data.bodyId,data.kind,data.filter);
+      else if(type==='dragSnap')result=engine.dragSnap(data.input);
       else if(type==='nearestGeometry')result=await engine.nearestGeometry(data.bodyId,data.kind,data.point,data.options);
       else if(type==='inspectFit')result=engine.inspectFit(data.bodyAId,data.bodyBId,data.toleranceMm,data.volumeThresholdMm3);
       else if(type==='inspectThickness')result=engine.inspectThickness(data.input);

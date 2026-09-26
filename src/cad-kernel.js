@@ -1,3 +1,4 @@
+import {findExactDragSnap} from './modeling/interaction/drag-snap.js';
 import * as cad from 'replicad';
 import {renderQuality} from './render-quality.js';
 import { buildQuickModel } from './quick-models.js';
@@ -734,6 +735,7 @@ export class CadKernel {
       return {classification:distanceMm<=toleranceMm?'contactWithinTolerance':'separated',commonVolumeMm3,distanceMm,witnessPoints:[[p1.X(),p1.Y(),p1.Z()],[p2.X(),p2.Y(),p2.Z()]],toleranceMm,volumeThresholdMm3,method:'exact-brep-distance-and-intersection'};
     }finally{[...solidsA,...solidsB,common,extrema,p1,p2].forEach(dispose);}
   }
+  dragSnap(input){return findExactDragSnap(input,id=>this.activeShape(id),this.oc,cad);}
   inspectThickness(input){
     const {bodyId,mode='ray',point,toleranceMm=1e-5}=input,shape=this.activeShape(bodyId);
     if(!Array.isArray(point)||point.length!==3||point.some(v=>!Number.isFinite(v))||!Number.isFinite(toleranceMm)||toleranceMm<=0||toleranceMm>0.1)throw new Error('厚度检查需要表面世界坐标点和有效容差');

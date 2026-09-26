@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import {applyViewportDisplay} from './viewport/display-modes.js';
+import {snapReleasedDrag} from './viewport/drag-snap-controller.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import { MetalMaterials, METAL_FINISHES } from './metal-materials.js';
@@ -22,7 +24,7 @@ export class CADViewport {
     this.gizmoProxy=new THREE.Object3D();this.scene.add(this.gizmoProxy);
     this.gizmo=new TransformControls(this.camera,this.renderer.domElement);this.gizmo.setSize(.8);this.gizmo.setSpace('world');this.gizmoMode='off';this.scene.add(this.gizmo.getHelper());
     this.gizmo.addEventListener('dragging-changed',event=>{this.controls.enabled=!event.value;});
-    this.gizmo.addEventListener('mouseDown',()=>{this.draggingGizmo=true;this.gizmoOrigin=this.gizmoProxy.position.clone();});
+    this.gizmo.addEventListener('mouseDown',()=>{this.draggingGizmo=true;this.gizmoOrigin=this.gizmoProxy.position.clone();this.dragSkipSnap=this.skipSnapBodyId===this.selected[0];this.skipSnapBodyId=null;this.dragAxis=this.gizmo.axis;});
     this.gizmo.addEventListener('objectChange',()=>this.previewTransform());
     this.gizmo.addEventListener('mouseUp',()=>this.finishTransform());
     const hemisphere=new THREE.HemisphereLight(0xffffff,0x7a879e,2.4);this.scene.add(hemisphere);
@@ -36,9 +38,9 @@ export class CADViewport {
     this.anchorMarker=document.createElement('span');this.anchorMarker.className='cad-anchor-orb';this.anchorMarker.setAttribute('aria-label','参考锚点');host.append(this.anchorMarker);
     this.anchorGizmo=new TransformControls(this.camera,this.renderer.domElement);this.anchorGizmo.setMode('translate');this.anchorGizmo.setSpace('world');this.anchorGizmo.setSize(.72);this.anchorGizmoHelper=this.anchorGizmo.getHelper();this.anchorGizmoHelper.visible=false;this.scene.add(this.anchorGizmoHelper);this.anchorDragEnabled=false;
     this.anchorGizmo.addEventListener('dragging-changed',event=>{this.controls.enabled=!event.value;});
-    this.anchorGizmo.addEventListener('mouseDown',()=>{this.anchorStart=this.anchorProxy.position.clone();this.anchorAxis=this.anchorGizmo.axis;});
+    this.anchorGizmo.addEventListener('mouseDown',()=>{this.anchorStart=this.anchorProxy.position.clone();this.anchorAxis=this.anchorGizmo.axis;this.anchorSkipSnap=!!this.skipAnchorSnap;this.skipAnchorSnap=false;});
     this.anchorGizmo.addEventListener('objectChange',()=>this.anchorVisual.position.copy(this.anchorProxy.position));
-    this.anchorGizmo.addEventListener('mouseUp',()=>{if(this.anchorStart&&this.lastPointerEvent){const candidates=this.findSnapCandidates(this.lastPointerEvent,{constraint:this.anchorAxis,start:this.anchorStart}),candidate=candidates.length?candidates[(this.snapCandidateIndex||0)%candidates.length]:null;if(candidate){this.anchorProxy.position.copy(candidate.point);this.anchorVisual.position.copy(candidate.point);}}const origin=this.anchorProxy.position.toArray(),start=this.anchorStart;this.anchorStart=null;this.anchorAxis=null;if(start&&start.distanceTo(this.anchorProxy.position)>1e-8){Promise.resolve(this.callbacks.onWorkFrameMove?.(origin)).catch(error=>{this.anchorProxy.position.copy(start);this.anchorVisual.position.copy(start);this.callbacks.onTransformError?.(error);});}});
+    this.anchorGizmo.addEventListener('mouseUp',()=>this.finishAnchorDrag());
     this.grid=new THREE.GridHelper(200,40,0x99acb8,0xd5dce3);this.grid.rotation.x=Math.PI/2;this.grid.position.z=-.01;this.scene.add(this.grid);
     this.axes=new THREE.AxesHelper(20);this.axes.visible=false;this.scene.add(this.axes);this.raycaster=new THREE.Raycaster();this.pointer=new THREE.Vector2();this.span=50;
     this.hud=document.createElement('div');this.hud.style.cssText='position:absolute;left:18px;bottom:38px;pointer-events:none;color:#64748b;font:11px monospace;z-index:2';host.append(this.hud);
@@ -87,10 +89,10 @@ export class CADViewport {
   }
   setHidden(ids){this.hidden=ids;this.applyTemporaryDisplay();}
   setTemporaryDisplay(mode){if(!['normal','selectedOnly','transparentOthers'].includes(mode))throw new Error('未知临时显示方式');this.temporaryDisplay=mode;this.applyTemporaryDisplay();}
-  applyTemporaryDisplay(){for(const [id,entry] of this.objects){const selected=this.selected.includes(id),persistentlyHidden=this.hidden.includes(id),solo=this.temporaryDisplay==='selectedOnly';entry.root.visible=!persistentlyHidden&&(!solo||selected);const translucent=this.temporaryDisplay==='transparentOthers'&&!selected&&!persistentlyHidden;entry.mesh.material.transparent=translucent;entry.mesh.material.opacity=translucent?.2:1;entry.mesh.material.depthWrite=!translucent;for(const edge of entry.edges.children){edge.material.opacity=translucent?.25:.72;edge.material.transparent=true;}}this.updateHud();}
+  applyTemporaryDisplay(){for(const [id,entry] of this.objects){const selected=this.selected.includes(id),persistentlyHidden=this.hidden.includes(id),solo=this.temporaryDisplay==='selectedOnly';entry.root.visible=!persistentlyHidden&&(!solo||selected);const translucent=this.temporaryDisplay==='transparentOthers'&&!selected&&!persistentlyHidden,technical=this.mode==='transparentEdges';entry.mesh.material.transparent=translucent||technical;entry.mesh.material.opacity=translucent?.2:technical?.35:1;entry.mesh.material.depthWrite=!(translucent||technical);for(const edge of entry.edges.children){edge.material.opacity=translucent?.25:.72;edge.material.transparent=true;}}this.updateHud();}
   setSelection(ids=[],topology=null){
     this.selected=ids;this.topology=topology;
-    for(const [id,entry] of this.objects){const active=ids.includes(id),design=(this.partFinishes[id]||this.finishKey)==='design';if(design)entry.mesh.material.color.set(entry.mesh.userData.baseColor);entry.mesh.material.emissive.set(active?0x080b0b:0x000000);entry.edges.children.forEach(line=>{const edge=topology?.bodyId===id&&topology?.type==='edge'&&topology.ids.includes(line.userData.edgeId);line.material.color.set(edge?0xf08e2b:active?0x127566:0x465b6e);line.material.opacity=edge?1:.72;});}
+    for(const [id,entry] of this.objects){const active=ids.includes(id),design=(this.partFinishes[id]||this.finishKey)==='design';if(design)entry.mesh.material.color.set(entry.mesh.userData.baseColor);entry.mesh.material.emissive.set(active?0x080b0b:0x000000);entry.edges.children.forEach(line=>{const edge=topology?.bodyId===id&&topology?.type==='edge'&&topology.ids.includes(line.userData.edgeId);line.material.color.set(edge?0xf08e2b:active?new THREE.Color(this.displayPreferences.themeColor):0x465b6e);line.material.opacity=edge?1:.72;});}
     if(this.faceOverlay){this.modelRoot.remove(this.faceOverlay);this.disposeObject(this.faceOverlay);this.faceOverlay=null;}
     if(topology?.type==='face'){const entry=this.objects.get(topology.bodyId);if(entry&&!this.hidden.includes(topology.bodyId)){const indices=[];for(const g of entry.body.faceGroups||[])if(topology.ids.includes(g.faceId))for(let i=g.start;i<g.start+g.count;i++)indices.push(entry.body.indices[i]);if(indices.length){const geo=new THREE.BufferGeometry();geo.setAttribute('position',entry.mesh.geometry.getAttribute('position').clone());geo.setIndex(indices);this.faceOverlay=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xf7ac50,transparent:true,opacity:.48,side:THREE.DoubleSide,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}));this.modelRoot.add(this.faceOverlay);}}}
     this.applyTemporaryDisplay();this.applyClipping();this.syncGizmo();
@@ -130,8 +132,14 @@ export class CADViewport {
     this.gizmoProxy.updateMatrix();entry.root.matrixAutoUpdate=false;
     entry.root.matrix.copy(this.gizmoProxy.matrix).multiply(new THREE.Matrix4().makeTranslation(...this.gizmoOrigin.clone().negate().toArray()));entry.root.matrixWorldNeedsUpdate=true;
   }
+  async finishAnchorDrag(){
+    const start=this.anchorStart,axis=this.anchorAxis;if(!start)return;this.anchorStart=null;this.anchorAxis=null;this.controls.enabled=false;this.anchorGizmo.enabled=false;
+    try{const snap=await snapReleasedDrag(this,{pointWorld:this.anchorProxy.position.toArray(),axis,skip:this.anchorSkipSnap});if(snap){this.anchorProxy.position.add(new THREE.Vector3(...snap.delta));this.anchorVisual.position.copy(this.anchorProxy.position);}if(start.distanceTo(this.anchorProxy.position)>1e-8){await this.callbacks.onWorkFrameMove?.(this.anchorProxy.position.toArray());if(snap)this.skipAnchorSnap=true;}}catch(error){this.anchorProxy.position.copy(start);this.anchorVisual.position.copy(start);this.callbacks.onTransformError?.(error);}finally{this.controls.enabled=true;this.anchorGizmo.enabled=true;}
+  }
   async finishTransform(){
     if(!this.draggingGizmo)return;this.draggingGizmo=false;this.suppressPickUntil=Date.now()+150;
+    const sourceId=this.selected[0];this.transformPending=true;this.gizmo.enabled=false;let snapped=false;
+    try{if(this.gizmoMode==='translate'){const delta=this.gizmoProxy.position.clone().sub(this.gizmoOrigin);if(delta.length()>1e-8){const snap=await snapReleasedDrag(this,{bodyId:sourceId,translation:delta.toArray(),axis:this.dragAxis,skip:this.dragSkipSnap});if(snap){this.gizmoProxy.position.add(new THREE.Vector3(...snap.delta));snapped=true;}}}}catch(error){this.callbacks.onTransformError?.(error);this.transformPending=false;this.gizmo.enabled=!this.busy;this.syncGizmo();const failed=this.objects.get(sourceId);if(failed){failed.root.matrixAutoUpdate=true;failed.root.matrix.identity();failed.root.updateMatrix();}return;}
     const center=this.gizmoOrigin,euler=new THREE.Euler().setFromQuaternion(this.gizmoProxy.quaternion,'ZYX');
     const shift=this.gizmoProxy.position.clone().sub(center.clone().applyQuaternion(this.gizmoProxy.quaternion));
     const params={x:shift.x,y:shift.y,z:shift.z,rx:THREE.MathUtils.radToDeg(euler.x),ry:THREE.MathUtils.radToDeg(euler.y),rz:THREE.MathUtils.radToDeg(euler.z)};
@@ -141,7 +149,7 @@ export class CADViewport {
     // commit replaces this entry; failure restores it without changing history.
     this.transformPending=true;this.gizmo.enabled=false;
     try{
-      if(changed)await this.callbacks.onTransform?.(params);
+      if(changed){await this.callbacks.onTransform?.(params);if(snapped)this.skipSnapBodyId=this.selected[0];}
     }catch(error){this.callbacks.onTransformError?.(error);}
     finally{
       if(entry&&this.objects.get(entry.body.id)===entry){entry.root.matrixAutoUpdate=true;entry.root.matrix.identity();entry.root.updateMatrix();}
@@ -209,11 +217,11 @@ export class CADViewport {
     this.callbacks.onPick?.(hit?{id:hit.object.userData.bodyId,type,topologyId,point:(type==='face'?hit.point:this.snapPoint(e,hit.point)).toArray()}:null,e.shiftKey||e.ctrlKey||e.metaKey);
   }
   onMove(e){this.lastPointerEvent=e;if(this.sketch){const p=this.sketchCoordinates(this.ray(e));if(p)this.hud.textContent=`当前轮廓平面 · X ${p[0].toFixed(1)}  Y ${p[1].toFixed(1)} mm · ${this.sketch.points.length} ${say('点','points')}`;return;}if(this.measuring||this.anchorDragEnabled){const moved=!this.lastSnapPosition||Math.hypot(e.clientX-this.lastSnapPosition[0],e.clientY-this.lastSnapPosition[1])>3;if(moved){this.snapCandidateIndex=0;this.lastSnapPosition=[e.clientX,e.clientY];}this.snapCandidates=this.findSnapCandidates(e,{constraint:this.anchorStart?this.anchorAxis:null,start:this.anchorStart});if(this.snapCandidates.length)this.showSnapCandidate();else this.updateHud();}}
-  setDisplay(mode){this.mode=mode;for(const entry of this.objects.values()){entry.mesh.visible=mode!=='wire';entry.edges.visible=!entry.body.indices.length||mode!=='solid'||this.selectionMode==='edge';}}
+  setDisplay(mode){if(!['solid','edges','wire','transparentEdges'].includes(mode))throw new Error('未知显示模式');applyViewportDisplay(this,mode);}
   toggleGrid(){this.grid.visible=!this.grid.visible;return this.grid.visible;}
   bounds(){const box=new THREE.Box3();for(const entry of this.objects.values())if(entry.root.visible){box.expandByPoint(new THREE.Vector3(...entry.body.bounds.min));box.expandByPoint(new THREE.Vector3(...entry.body.bounds.max));}if(box.isEmpty())box.set(new THREE.Vector3(-15,-15,-5),new THREE.Vector3(15,15,20));return box;}
   fit(){const box=this.bounds(),center=box.getCenter(new THREE.Vector3()),size=box.getSize(new THREE.Vector3());this.span=Math.max(size.x,size.y,size.z,5);const dir=this.camera.position.clone().sub(this.controls.target).normalize();const aspect=this.camera.aspect||1;const extent=this.span*Math.max(1,1/aspect)*1.55;const distance=extent/(2*Math.tan(THREE.MathUtils.degToRad(35/2)));if(this.camera.isOrthographicCamera){this.camera.top=extent/2;this.camera.bottom=-extent/2;this.camera.left=-extent*aspect/2;this.camera.right=extent*aspect/2;this.camera.zoom=1;}this.controls.target.copy(center);this.camera.position.copy(center).addScaledVector(dir,distance);this.camera.near=Math.max(.001,this.span/10000);this.camera.far=Math.max(10000,this.span*500);this.camera.updateProjectionMatrix();this.controls.update();this.updateHud();}
-  setProjection(mode){const old=this.camera,aspect=old.aspect||1;if((mode==='orthographic')===!!old.isOrthographicCamera)return;const cam=mode==='orthographic'?new THREE.OrthographicCamera(-50,50,50,-50,.01,100000):new THREE.PerspectiveCamera(35,aspect,.01,100000);cam.aspect=aspect;cam.position.copy(old.position);cam.up.copy(old.up);cam.quaternion.copy(old.quaternion);this.camera=cam;this.gizmo.camera=cam;this.controls.object=cam;this.controls.update();this.fit();}
+  setProjection(mode){const old=this.camera,aspect=old.aspect||1;if((mode==='orthographic')===!!old.isOrthographicCamera)return;const cam=mode==='orthographic'?new THREE.OrthographicCamera(-50,50,50,-50,.01,100000):new THREE.PerspectiveCamera(35,aspect,.01,100000);cam.aspect=aspect;cam.position.copy(old.position);cam.up.copy(old.up);cam.quaternion.copy(old.quaternion);this.camera=cam;this.gizmo.camera=cam;this.anchorGizmo.camera=cam;this.controls.object=cam;this.controls.update();this.fit();}
   view(direction='iso'){const vectors={iso:[1,-1,.85],front:[0,-1,0],back:[0,1,0],top:[0,0,1],bottom:[0,0,-1],left:[-1,0,0],right:[1,0,0]};const distance=this.camera.position.distanceTo(this.controls.target);this.camera.up.set(0,0,1);if(direction==='top'||direction==='bottom')this.camera.up.set(0,1,0);this.camera.position.copy(this.controls.target).addScaledVector(new THREE.Vector3(...(vectors[direction]||vectors.iso)).normalize(),distance);this.controls.update();this.fit();}
   updateLanguage(){this.updateHud();this.renderer.domElement.setAttribute('aria-label',say('三维建模视口','3D modeling viewport'));if(this.measuring)this.startMeasure();if(this.sketch)this.startSketch({...this.sketch});}
   updateHud(){if(!this.sketch)this.hud.textContent=`${[...this.objects.values()].filter(v=>v.root.visible).length} ${say('个可见实体','visible bodies')} · ${this.selectionMode==='edge'?say('选边','Edge'):this.selectionMode==='face'?say('选面','Face'):say('选实体','Body')}`;}

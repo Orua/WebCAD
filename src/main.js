@@ -1,5 +1,6 @@
 import './style.css';
 import './workspace-layout.css';
+import './ui/styles/theme.css';
 import {RENDER_QUALITIES} from './render-quality.js';
 import { validateDisplayPreferences, saveDisplayPreferences } from './display-preferences.js';
 import { createUI } from './ui.js';
@@ -77,6 +78,7 @@ const viewport=new CADViewport(document.getElementById('viewport'),{
   onRenderError:error=>ui.showError(error.message||String(error)),
   onTransform:params=>performAction('transform',params),
   onTransformError:reportError,
+  onDragSnap:async input=>{const atRevision=revision,atInstance=documentInstanceId;const result=await request('dragSnap',{input});if(revision!==atRevision||documentInstanceId!==atInstance)throw new Error('模型在拖动吸附计算期间已变化，请重新拖动');return result;},
   onWorkFrameMove:origin=>ui.updateFrameDraft(origin)?undefined:runEditorAction('reference.setWorkFrame',{origin,quaternion:[...documentModel.referenceSystem.workFrame.quaternion]}),
 });
 

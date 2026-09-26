@@ -489,6 +489,36 @@
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "themeSettings": {
+    "tools": [
+      "setDisplayPreferences"
+    ],
+    "method": "setDisplayPreferences",
+    "usage": "全局 themeColor 与 snapThresholdMm 在当前浏览器持久化。"
+  },
+  "snapSettings": {
+    "tools": [
+      "setDisplayPreferences"
+    ],
+    "method": "setDisplayPreferences",
+    "usage": "全局 themeColor 与 snapThresholdMm 在当前浏览器持久化。"
+  },
+  "languageSettings": {
+    "tools": [
+      "setView"
+    ],
+    "method": "setView",
+    "usage": "language:zh/en。"
+  },
+  "agentGuide": {
+    "tools": [
+      "connect",
+      "getTools",
+      "readDocs"
+    ],
+    "method": "connect",
+    "usage": "connect({queries,includeContracts:true}) 按任务快速加载；knownHashes 缓存工具卡，不缓存实体身份。"
+  },
   "displayPreferences": {
     "tools": [
       "setDisplayPreferences",

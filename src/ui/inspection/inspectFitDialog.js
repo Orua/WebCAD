@@ -1,0 +1,8 @@
+export function inspectFitDialog({state,openDialog,element,emit}){
+  const [bodyAId,bodyBId]=state.selectedIds,openedRevision=state.revision;
+  const name=id=>state.bodies.find(body=>body.id===id)?.name||id;
+  const d=openDialog('干涉 / 间隙检查','按当前选中的两个精确实体，只读计算公共材料体积或最短距离；不替代加工公差、运动与强度判断。');
+  const form=element('form',{class:'parameter-form'}),label=element('label',{class:'form-field wide'}),input=element('input',{type:'number',min:'0',max:'1',step:'any',value:'0.00001','aria-label':'接触容差 mm'}),result=element('pre',{class:'info-content fit-result','aria-live':'polite'}),submit=element('button',{type:'submit',class:'primary'},'检查');
+  label.append(element('span',{},'接触容差 mm'),input);form.append(element('p',{class:'wide'},`${name(bodyAId)} ↔ ${name(bodyBId)} · 目标已锁定`),label,submit);d.append(form,result);
+  form.addEventListener('submit',async event=>{event.preventDefault();submit.disabled=true;try{if(state.revision!==openedRevision)throw new Error('模型已变化，请重新选择两个实体再检查。');const report=await emit('inspectFit',{bodyAId,bodyBId,toleranceMm:Number(input.value)});if(!report||report.status!=='read')return;result.dataset.revision=String(report.context.revision);result.textContent=`${name(bodyAId)} ↔ ${name(bodyBId)}\n结果：${{overlap:'有正体积干涉',contactWithinTolerance:'在接触容差内',separated:'存在正间隙'}[report.classification]||report.classification}\n公共体积：${report.commonVolumeMm3.toFixed(6)} mm³\n最短距离：${report.distanceMm.toFixed(6)} mm\n接触容差：${report.toleranceMm} mm；体积判定阈值：${report.volumeThresholdMm3} mm³\n来源修订：r${report.context.revision}${report.witnessPoints?`\n见证点：${report.witnessPoints.map(point=>point.map(n=>n.toFixed(4)).join(', ')).join(' ↔ ')}`:''}\n结果仅是当前几何事实。`; }catch(error){result.textContent=error.message;}finally{submit.disabled=false;}});
+ }

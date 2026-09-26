@@ -13,7 +13,7 @@ const groups = {
     'tool-state', 'viewport-transform', 'dfam-inspection', 'profile-fitting', 'text-commands',
   ],
   kernel: [
-    'render-quality', 'profile-edit', 'profile-editing', 'profile-primitives', 'profile-inspection', 'fit-inspection', 'thickness-inspection', 'relation-measure', 'boolean-roles', 'hole-wizard', 'draft-tools',
+    'drag-snap', 'render-quality', 'profile-edit', 'profile-editing', 'profile-primitives', 'profile-inspection', 'fit-inspection', 'thickness-inspection', 'relation-measure', 'boolean-roles', 'hole-wizard', 'draft-tools',
     'advanced-integration', 'advanced-kernel', 'advanced-loft', 'align-kernel', 'curve-sweep',
     'curved-logo', 'fitted-surface', 'geometry-query', 'nearest-brep', 'group-explode',
     'hardware-templates', 'igs-tools', 'igs30-slot', 'igs30-templates', 'multi-pocket', 'multi-boss', 'dwg-ring-bar', 'dwg-rounded-frame', 'dwg-compact-rect', 'dwg-chamfered-section', 'dwg-compact-slider', 'dwg-figure-eight-capsule', 'dwg-u-end-hole-plate', 'dwg-twin-window-plate', 'dwg-small-twin-window', 'dwg-spline-twin-window', 'dwg-ellipse-bar', 'dwg-ellipse-open-wire', 'dwg-ellipse-u-wire', 'dwg-analytic-arc-profile', 'dwg-profile-loop', 'dwg-capsule-wire', 'dwg-arc-band-plate', 'dwg-ellipse-section-ring', 'dwg-flat-washer', 'dwg-polar-hole-ring', 'dwg-bowed-twin-window', 'dwg-arched-twin-window', 'dwg-d-flat-frame', 'dwg-gable-open-frame', 'dwg-ellipse-section-rect',

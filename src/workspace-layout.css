@@ -1,11 +1,11 @@
 /* Workspace shell. Sizing tokens come from UI_LAYOUT.panels. */
-.webcad-app{--accent:#176a63;--accent-soft:#e8f3f0;background:#f5f7f7}
-.webcad-app .app-header{height:52px;min-height:52px;gap:16px;padding:0 16px;border-bottom:1px solid #dce3e2;background:#fff;color:#304a44;flex-wrap:nowrap}
-.app-header .brand-mark{color:#fff}.app-header .document-title{color:#304a44}.app-header button:hover:not(:disabled){background:#e8f3f0}
-.app-header .header-actions .primary{color:#fff}.app-header .language-select{background:#f4f8f6;color:#304a44;border-color:#dce4e0}
+.webcad-app{--accent:#17386a;--accent-soft:#e8ecf3;background:#f5f7f7}
+.webcad-app .app-header{height:52px;min-height:52px;gap:16px;padding:0 16px;border-bottom:1px solid #dcdfe3;background:#fff;color:#303a4a;flex-wrap:nowrap}
+.app-header .brand-mark{color:#fff}.app-header .document-title{color:#303a4a}.app-header button:hover:not(:disabled){background:#e8ecf3}
+.app-header .header-actions .primary{color:#fff}.app-header .language-select{background:#f4f6f8;color:#303a4a;border-color:#dcdfe4}
 .app-header .brand{gap:8px;flex-shrink:0}.app-header .brand small{display:none}
 .app-header .brand-mark{background:var(--accent);border-radius:9px;width:29px;height:29px}
-.app-header .document-title{flex:0 1 165px;min-width:80px;max-width:180px;font-size:12px;padding:6px 8px;border:1px solid #e4e9e8;border-radius:6px}
+.app-header .document-title{flex:0 1 165px;min-width:80px;max-width:180px;font-size:12px;padding:6px 8px;border:1px solid #e4e6e9;border-radius:6px}
 .app-header #document-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .app-header .ribbon-tabs{flex:1 1 auto;min-width:0;height:100%;padding:0;border:0;background:transparent;display:flex;gap:8px;overflow:hidden}
 .app-header .tab-list{height:100%;display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:thin;min-width:0}
@@ -15,53 +15,53 @@
 .app-header .header-actions{margin-left:auto;gap:6px;flex-shrink:0}.header-actions button{font-size:12px;padding:6px 10px;border-radius:6px}
 .header-actions .primary{background:var(--accent);border-color:var(--accent)}
 .app-header .local-badge{display:none}.app-header .language-select{width:52px;font-size:11px}
-.webcad-app .ribbon{height:84px;min-height:84px;overflow-x:auto;overflow-y:hidden;display:flex;align-items:stretch;gap:0;background:#fafcfc;padding:5px 10px 3px;border-bottom:1px solid #dce3e2;scrollbar-width:thin}
-.ribbon .ribbon-group{flex-shrink:0;border-right:1px solid #e0e7e5;padding:0 12px;margin:0;position:relative}
+.webcad-app .ribbon{height:84px;min-height:84px;overflow-x:auto;overflow-y:hidden;display:flex;align-items:stretch;gap:0;background:#fafcfc;padding:5px 10px 3px;border-bottom:1px solid #dcdfe3;scrollbar-width:thin}
+.ribbon .ribbon-group{flex-shrink:0;border-right:1px solid #e0e3e7;padding:0 12px;margin:0;position:relative}
 .ribbon .tool-button{min-width:52px;height:57px;border-radius:7px}.ribbon .tool-button:hover:not(:disabled){background:var(--accent-soft)}
-.ribbon .tool-icon{color:#356c66}.ribbon .view-grid{max-width:310px}
-.webcad-app .selection-context{min-height:27px;background:#fff;border-bottom:1px solid #e1e7e5;font-size:11px;color:#61716d}
+.ribbon .tool-icon{color:#354b6c}.ribbon .view-grid{max-width:310px}
+.webcad-app .selection-context{min-height:27px;background:#fff;border-bottom:1px solid #e1e3e7;font-size:11px;color:#616771}
 .webcad-app .workspace{grid-template-columns:var(--panel-left,210px) minmax(280px,1fr) var(--panel-right,270px)}
-.workspace .panel-heading{height:39px;background:#f9fbfa;color:#354d47;font-size:12px}
-.workspace .left-panel,.workspace .right-panel{background:#fff}.workspace .tree-title{letter-spacing:.04em;color:#7b8b86;font-size:10px;margin-top:14px}
-.workspace .tree-row.selected{background:var(--accent-soft);border-color:#a4c9bd}
-.workspace .viewport-topbar{height:38px;background:#ffffffed;border-bottom:1px solid #e3e8e6}
+.workspace .panel-heading{height:39px;background:#f9fbfa;color:#353f4d;font-size:12px}
+.workspace .left-panel,.workspace .right-panel{background:#fff}.workspace .tree-title{letter-spacing:.04em;color:#7b818b;font-size:10px;margin-top:14px}
+.workspace .tree-row.selected{background:var(--accent-soft);border-color:#a4b3c9}
+.workspace .viewport-topbar{height:38px;background:#ffffffed;border-bottom:1px solid #e3e5e8}
 .workspace .viewport-topbar{height:auto;min-height:42px;align-items:center;gap:8px;padding:4px 8px;flex-wrap:wrap}
-.work-frame-bar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;color:#35564b;font-size:11px;pointer-events:auto}
+.work-frame-bar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;color:#354256;font-size:11px;pointer-events:auto}
 .work-frame-bar strong{font-size:11px;margin-right:3px;white-space:nowrap}
 .work-frame-bar label{display:inline-flex;align-items:center;gap:2px}
-.work-frame-bar input{width:62px;height:25px;border:1px solid #cddbd3;border-radius:4px;padding:1px 4px;background:#fff;font-size:11px}
+.work-frame-bar input{width:62px;height:25px;border:1px solid #cdd3db;border-radius:4px;padding:1px 4px;background:#fff;font-size:11px}
 .work-frame-bar button{padding:3px 6px;font-size:11px}
 .work-frame-choice{display:flex;align-items:center;gap:8px}
 .work-frame-choice input{width:auto}
 .reference-candidate-list{display:grid;gap:7px;margin:12px 0;max-height:42vh;overflow:auto}.reference-candidate-list button{text-align:left;white-space:normal}
 .frame-orientation-form{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin:12px 0}.frame-orientation-form strong,.frame-orientation-form textarea{grid-column:1/-1}.frame-orientation-form textarea{width:100%;min-height:75px}.frame-orientation-form button:last-child{grid-column:1/-1}
-.workspace .sidebar-note{font-size:10px;line-height:1.7;background:#f5f9f7;color:#71847b;padding:12px}
-.webcad-app .statusbar{height:27px;min-height:27px;background:#f7faf8;border-top:1px solid #dce4e0;font-size:11px}
+.workspace .sidebar-note{font-size:10px;line-height:1.7;background:#f5f7f9;color:#717984;padding:12px}
+.webcad-app .statusbar{height:27px;min-height:27px;background:#f7faf8;border-top:1px solid #dcdfe4;font-size:11px}
 .ribbon-tab:focus-visible,.tool-button:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
 .tool-icon svg{display:block;width:22px;height:22px}
-.project-card{padding:14px 12px 12px;background:#f0f6f3;border-bottom:1px solid #dce4e0}
-.project-caption{display:block;color:#7c8d85;font-size:10px;letter-spacing:.06em;margin-bottom:6px}
-.project-card .document-title{display:flex;max-width:100%;width:100%;padding:0;gap:6px;text-align:left;font-size:12px;color:#234f42;line-height:1.6}
+.project-card{padding:14px 12px 12px;background:#f0f2f6;border-bottom:1px solid #dcdfe4}
+.project-caption{display:block;color:#7c838d;font-size:10px;letter-spacing:.06em;margin-bottom:6px}
+.project-card .document-title{display:flex;max-width:100%;width:100%;padding:0;gap:6px;text-align:left;font-size:12px;color:#23354f;line-height:1.6}
 .project-card #document-name{white-space:normal;overflow-wrap:anywhere}.project-card .title-edit{flex-shrink:0;opacity:.5}
-.project-card .document-title:hover{background:#e2ede6}
+.project-card .document-title:hover{background:#e2e6ed}
 @media(max-width:1200px){.webcad-app .app-header{gap:8px;padding:0 8px}.app-header .brand>div{display:none}.app-header .ribbon-tab{padding:0 8px;min-width:43px}.app-header .quick-history{display:none}.app-header .document-title{max-width:135px}.webcad-app .workspace{grid-template-columns:180px minmax(240px,1fr) 240px}}
 @media(max-width:850px){.app-header .document-title{max-width:105px;min-width:55px}.app-header .header-actions button{padding:6px}.app-header .language-select{display:none}.webcad-app .workspace{grid-template-columns:150px minmax(200px,1fr) 210px}.app-header .header-actions [data-action="open"]{display:none}.app-header .ribbon-tab{min-width:40px;padding:0 7px}}
 
 /* 2026 workspace: a compact global bar, stable six-tab ribbon, and one task dock. */
-.webcad-app{container-type:inline-size;font-size:14px;color:#29433d}
+.webcad-app{container-type:inline-size;font-size:14px;color:#293343}
 .webcad-app .app-header{height:48px;min-height:48px;gap:8px;padding:0 12px}
 .app-header .brand{min-width:auto;font-size:15px;margin-right:3px}
 .app-header .file-menu{position:relative;z-index:25;flex:none}
 .file-menu summary{list-style:none;cursor:pointer;border-radius:6px;padding:7px 10px;min-width:48px;text-align:center}
 .file-menu summary::-webkit-details-marker{display:none}
-.file-menu summary:hover,.file-menu[open] summary{background:#e8f3f0}
-.file-menu-items{position:absolute;top:100%;left:0;width:210px;padding:6px;display:grid;background:white;border:1px solid #ccd9d4;border-radius:8px;box-shadow:0 10px 30px #173e3326}
+.file-menu summary:hover,.file-menu[open] summary{background:#e8ecf3}
+.file-menu-items{position:absolute;top:100%;left:0;width:210px;padding:6px;display:grid;background:white;border:1px solid #ccd1d9;border-radius:8px;box-shadow:0 10px 30px #17273e26}
 .file-menu-items button{text-align:left;min-height:34px;font-size:13px;white-space:normal}
 .ribbon-more{align-self:center;flex:none}
-.ribbon-more summary{list-style:none;cursor:pointer;min-height:32px;display:grid;place-items:center;padding:4px 8px;border-radius:5px;color:#3b6258;font-size:12px}
+.ribbon-more summary{list-style:none;cursor:pointer;min-height:32px;display:grid;place-items:center;padding:4px 8px;border-radius:5px;color:#3b4b62;font-size:12px}
 .ribbon-more summary::-webkit-details-marker{display:none}
-.ribbon-more summary:hover,.ribbon-more[open] summary{background:#e8f3f0}
-.ribbon-more-items{position:fixed;z-index:24;display:grid;grid-template-columns:repeat(2,minmax(72px,1fr));gap:4px;width:min(210px,calc(100vw - 24px));padding:7px;background:#fff;border:1px solid #cbdad3;border-radius:7px;box-shadow:0 9px 26px #173e3326}
+.ribbon-more summary:hover,.ribbon-more[open] summary{background:#e8ecf3}
+.ribbon-more-items{position:fixed;z-index:24;display:grid;grid-template-columns:repeat(2,minmax(72px,1fr));gap:4px;width:min(210px,calc(100vw - 24px));padding:7px;background:#fff;border:1px solid #cbd1da;border-radius:7px;box-shadow:0 9px 26px #17273e26}
 .ribbon-more-items .tool-button{width:100%;min-width:0;height:58px}
 .app-header .quick-history{display:flex;flex:none}
 .app-header .quick-history button{min-width:32px;min-height:32px;font-size:13px}
@@ -78,18 +78,18 @@
 .ribbon .tool-icon{font-size:19px;line-height:22px}
 .ribbon .ribbon-group-label{font-size:11px;line-height:12px;letter-spacing:0}
 .webcad-app .selection-context{display:none}
-.occlusion-candidates{position:absolute;z-index:45;right:12px;top:78px;display:flex;flex-direction:column;gap:6px;max-height:55%;max-width:280px;overflow:auto;padding:12px;background:#fff;border:1px solid #cbd9d5;border-radius:9px;box-shadow:0 6px 24px #203a3326}
+.occlusion-candidates{position:absolute;z-index:45;right:12px;top:78px;display:flex;flex-direction:column;gap:6px;max-height:55%;max-width:280px;overflow:auto;padding:12px;background:#fff;border:1px solid #cbd1d9;border-radius:9px;box-shadow:0 6px 24px #202a3a26}
 .view-actions .selection-only,.view-actions .selection-transparent,.view-actions .selection-restore{font-size:11px;padding:3px 6px;min-height:25px}
 .topology-detail button{margin:2px;font-size:12px;padding:3px 7px}
-.profile-canvas{width:100%;grid-column:1/-1;border:1px solid #d7e2dd;border-radius:7px;padding:5px;background:#f8fbfa}
-.profile-canvas svg{width:100%;height:220px;background:#fff;border:1px solid #dfe8e3;touch-action:none}
+.profile-canvas{width:100%;grid-column:1/-1;border:1px solid #d7dbe2;border-radius:7px;padding:5px;background:#f8fbfa}
+.profile-canvas svg{width:100%;height:220px;background:#fff;border:1px solid #dfe3e8;touch-action:none}
 .profile-canvas .profile-editor-toolbar{display:flex;gap:4px;flex-wrap:wrap}.profile-canvas input{width:56px}
-.profile-entity-row.selected{outline:2px solid #58a98c;background:#edf8f3}
+.profile-entity-row.selected{outline:2px solid #5878a9;background:#edf1f8}
 .webcad-app .workspace{grid-template-columns:var(--panel-left,232px) minmax(250px,1fr) var(--panel-right,320px)}
 .workspace .panel-heading{height:36px;min-height:36px;font-size:14px;padding:0 10px;gap:6px}
 .workspace .project-card{padding:4px 10px;background:#fff}
-.workspace .project-caption{margin:0;font-size:12px;color:#43675d;letter-spacing:0}
-.browser-tabs{display:flex;position:sticky;top:0;z-index:1;background:#fff;border-bottom:1px solid #dce4e0}
+.workspace .project-caption{margin:0;font-size:12px;color:#435167;letter-spacing:0}
+.browser-tabs{display:flex;position:sticky;top:0;z-index:1;background:#fff;border-bottom:1px solid #dcdfe4}
 .browser-tab{flex:1;min-height:34px;font-size:13px;border-radius:0}
 .browser-tab.active{color:var(--accent);border-bottom:2px solid var(--accent);font-weight:650}
 .left-panel[data-browser-tab="objects"] .history-title,.left-panel[data-browser-tab="objects"] .feature-tree{display:none}
@@ -105,43 +105,43 @@
 .left-collapsed .left-panel .panel-heading,.right-collapsed .right-panel .panel-heading{padding:2px;writing-mode:vertical-rl;justify-content:flex-start}
 .left-collapsed .left-panel .panel-heading>*:not(.panel-toggle),.right-collapsed .right-panel .panel-heading>*:not(.panel-toggle){display:none}
 .left-collapsed .left-toggle,.right-collapsed .right-toggle{writing-mode:vertical-rl;width:32px;height:auto}
-.workspace .viewport-topbar{min-height:40px;top:8px;left:8px;right:8px;padding:3px 5px;gap:5px;background:#ffffffec;border:1px solid #dae5df;border-radius:7px;flex-wrap:nowrap}
+.workspace .viewport-topbar{min-height:40px;top:8px;left:8px;right:8px;padding:3px 5px;gap:5px;background:#ffffffec;border:1px solid #dadee5;border-radius:7px;flex-wrap:nowrap}
 .workspace .selection-modes,.workspace .view-actions{border:0;box-shadow:none;padding:0}
 .workspace .selection-modes button,.workspace .view-actions button{font-size:12px;min-height:32px;padding:4px 7px}
 .webcad-app .statusbar{height:28px;min-height:28px;font-size:12px}
 .statusbar .ai-status,.statusbar [data-build-id],.statusbar .kernel-state,.statusbar a.ai-status,.statusbar button{display:none}
-.cad-anchor-orb{position:absolute;left:0;top:0;width:9px;height:9px;border:1px solid #edf8f2;border-radius:50%;background:radial-gradient(circle at 35% 30%,#d9fff0 0,#79bf9d 42%,#367d68 100%);box-shadow:0 0 0 2px #f5fff6a6,0 0 8px 3px #5bb88d7c;pointer-events:none;z-index:2;translate:-50% -50%;animation:anchor-breathe 2.8s ease-in-out infinite}
+.cad-anchor-orb{position:absolute;left:0;top:0;width:9px;height:9px;border:1px solid #edf1f8;border-radius:50%;background:radial-gradient(circle at 35% 30%,#d9e8ff 0,#7995bf 42%,#36527d 100%);box-shadow:0 0 0 2px #f5f9ffa6,0 0 8px 3px #5b80b87c;pointer-events:none;z-index:2;translate:-50% -50%;animation:anchor-breathe 2.8s ease-in-out infinite}
 .cad-anchor-orb[hidden]{display:none}
-@keyframes anchor-breathe{0%,100%{opacity:.62;box-shadow:0 0 0 1px #f5fff6a6,0 0 4px 1px #5bb88d66}50%{opacity:1;box-shadow:0 0 0 3px #f5fff6a6,0 0 9px 3px #5bb88d85}}
+@keyframes anchor-breathe{0%,100%{opacity:.62;box-shadow:0 0 0 1px #f5f9ffa6,0 0 4px 1px #5b80b866}50%{opacity:1;box-shadow:0 0 0 3px #f5f9ffa6,0 0 9px 3px #5b80b885}}
 @media(prefers-reduced-motion:reduce){.cad-anchor-orb{animation:none}}
 .canvas-panel .empty-state{top:34%;width:min(90%,480px)}
-.canvas-panel .empty-state h1{margin-bottom:7px;color:#334f48}
-.canvas-panel .empty-state p{margin-bottom:13px;font-size:13px;color:#4d635d}
-.canvas-panel .empty-state small{margin-top:10px;font-size:12px;color:#576c66}
+.canvas-panel .empty-state h1{margin-bottom:7px;color:#333e4f}
+.canvas-panel .empty-state p{margin-bottom:13px;font-size:13px;color:#4d5663}
+.canvas-panel .empty-state small{margin-top:10px;font-size:12px;color:#575f6c}
 .canvas-panel .empty-actions{display:flex;gap:8px;justify-content:center}
 .canvas-panel .empty-actions button{min-height:36px;padding:7px 12px;font-size:13px}
-.viewport-nav{position:absolute;top:56px;right:12px;z-index:3;display:flex;gap:3px;padding:3px;background:#ffffffea;border:1px solid #cfddd5;border-radius:7px;box-shadow:0 2px 8px #173e331c}
+.viewport-nav{position:absolute;top:56px;right:12px;z-index:3;display:flex;gap:3px;padding:3px;background:#ffffffea;border:1px solid #cfd5dd;border-radius:7px;box-shadow:0 2px 8px #17273e1c}
 .viewport-nav button{min-width:32px;min-height:32px;padding:3px 6px;font-size:13px;font-weight:650}
-.workspace .tree-title{font-size:12px;color:#53675f}
+.workspace .tree-title{font-size:12px;color:#535b67}
 .workspace .tree-pick{min-height:32px;font-size:13px}
-.workspace .tree-empty{font-size:12px;color:#657a72}
-.ribbon .ribbon-group-label{font-size:11px;color:#586b65;letter-spacing:0}
-.tree-search,.quick-model-search{width:100%;min-height:34px;border:1px solid #bdcfc6;border-radius:6px;background:#fff;color:#29433d;padding:6px 9px;font-size:13px}
+.workspace .tree-empty{font-size:12px;color:#656d7a}
+.ribbon .ribbon-group-label{font-size:11px;color:#58606b;letter-spacing:0}
+.tree-search,.quick-model-search{width:100%;min-height:34px;border:1px solid #bdc4cf;border-radius:6px;background:#fff;color:#293343;padding:6px 9px;font-size:13px}
 .tree-search{margin:8px 0 3px}
 .quick-model-search{margin:0 0 8px}
 @container(max-width:1279px){.webcad-app .workspace{grid-template-columns:38px minmax(220px,1fr) 300px}.left-panel>*:not(.panel-heading){display:none}.left-panel .panel-heading{padding:2px;writing-mode:vertical-rl;justify-content:flex-start}.left-panel .panel-heading>*:not(.panel-toggle){display:none}.left-toggle{writing-mode:vertical-rl;width:32px;height:auto}}
-@container(max-width:1279px){.webcad-app .workspace{position:relative}.workspace .canvas-panel{grid-column:2}.workspace .right-panel{grid-column:3}.webcad-app.left-open .left-panel{position:absolute;left:0;top:0;bottom:0;width:min(280px,calc(100cqw - 76px));z-index:13;display:flex;box-shadow:10px 0 28px #173e3326}.webcad-app.left-open .left-panel>*:not(.panel-heading){display:block}.webcad-app.left-open .left-panel .panel-heading{writing-mode:horizontal-tb;padding:0 12px;justify-content:space-between}.webcad-app.left-open .left-panel .panel-heading>*:not(.panel-toggle){display:initial}.webcad-app.left-open .left-toggle{writing-mode:horizontal-tb;width:32px;height:32px}}
+@container(max-width:1279px){.webcad-app .workspace{position:relative}.workspace .canvas-panel{grid-column:2}.workspace .right-panel{grid-column:3}.webcad-app.left-open .left-panel{position:absolute;left:0;top:0;bottom:0;width:min(280px,calc(100cqw - 76px));z-index:13;display:flex;box-shadow:10px 0 28px #17273e26}.webcad-app.left-open .left-panel>*:not(.panel-heading){display:block}.webcad-app.left-open .left-panel .panel-heading{writing-mode:horizontal-tb;padding:0 12px;justify-content:space-between}.webcad-app.left-open .left-panel .panel-heading>*:not(.panel-toggle){display:initial}.webcad-app.left-open .left-toggle{writing-mode:horizontal-tb;width:32px;height:32px}}
 @container(max-width:959px){.webcad-app .workspace{grid-template-columns:38px minmax(220px,1fr) 38px}.right-panel>*:not(.panel-heading){display:none}.right-panel .panel-heading{padding:2px;writing-mode:vertical-rl;justify-content:flex-start}.right-panel .panel-heading>*:not(.panel-toggle){display:none}.right-toggle{writing-mode:vertical-rl;width:32px;height:auto}}
-@container(max-width:959px){.webcad-app .workspace{position:relative}.webcad-app.right-open .right-panel,.right-panel:has(.frame-task),.right-panel:has(.cad-dialog[data-task-panel="true"]){position:absolute;right:0;top:0;bottom:0;width:min(330px,calc(100cqw - 76px));z-index:12;box-shadow:-10px 0 28px #173e3326}.webcad-app.right-open .right-panel>.properties,.right-panel:has(.frame-task)>.frame-task,.right-panel:has(.cad-dialog[data-task-panel="true"])>.cad-dialog{display:flex!important}.webcad-app.right-open .right-panel>.properties{display:block!important}.webcad-app.right-open .right-panel>.panel-heading,.right-panel:has(.frame-task)>.panel-heading,.right-panel:has(.cad-dialog[data-task-panel="true"])>.panel-heading{writing-mode:horizontal-tb;padding:0 12px;justify-content:space-between}.webcad-app.right-open .right-panel>.panel-heading>*:not(.panel-toggle),.right-panel:has(.frame-task)>.panel-heading>*:not(.panel-toggle),.right-panel:has(.cad-dialog[data-task-panel="true"])>.panel-heading>*:not(.panel-toggle){display:initial}.webcad-app.right-open .right-toggle,.right-panel:has(.frame-task) .right-toggle,.right-panel:has(.cad-dialog[data-task-panel="true"]) .right-toggle{writing-mode:horizontal-tb;width:32px;height:32px}}
+@container(max-width:959px){.webcad-app .workspace{position:relative}.webcad-app.right-open .right-panel,.right-panel:has(.frame-task),.right-panel:has(.cad-dialog[data-task-panel="true"]){position:absolute;right:0;top:0;bottom:0;width:min(330px,calc(100cqw - 76px));z-index:12;box-shadow:-10px 0 28px #17273e26}.webcad-app.right-open .right-panel>.properties,.right-panel:has(.frame-task)>.frame-task,.right-panel:has(.cad-dialog[data-task-panel="true"])>.cad-dialog{display:flex!important}.webcad-app.right-open .right-panel>.properties{display:block!important}.webcad-app.right-open .right-panel>.panel-heading,.right-panel:has(.frame-task)>.panel-heading,.right-panel:has(.cad-dialog[data-task-panel="true"])>.panel-heading{writing-mode:horizontal-tb;padding:0 12px;justify-content:space-between}.webcad-app.right-open .right-panel>.panel-heading>*:not(.panel-toggle),.right-panel:has(.frame-task)>.panel-heading>*:not(.panel-toggle),.right-panel:has(.cad-dialog[data-task-panel="true"])>.panel-heading>*:not(.panel-toggle){display:initial}.webcad-app.right-open .right-toggle,.right-panel:has(.frame-task) .right-toggle,.right-panel:has(.cad-dialog[data-task-panel="true"]) .right-toggle{writing-mode:horizontal-tb;width:32px;height:32px}}
 @container(max-width:767px){.webcad-app .workspace{grid-template-columns:minmax(220px,1fr) 38px}.workspace .left-panel{display:none}.workspace .canvas-panel{grid-column:1}.workspace .right-panel{grid-column:2}}
 .workspace .work-frame-bar{flex-wrap:nowrap;gap:7px;font-size:13px;min-width:0}
 .work-frame-bar .frame-summary{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:650}
 .work-frame-bar button{min-height:30px;padding:4px 7px;font-size:12px}
 .right-panel .properties{flex:1;overflow:auto;padding:14px}
 .right-panel .property-title{font-size:16px;overflow-wrap:anywhere}
-.right-panel .property-footnote{font-size:13px;line-height:1.5;color:#5b706a}
+.right-panel .property-footnote{font-size:13px;line-height:1.5;color:#5b6370}
 .right-panel .property-form input,.right-panel .property-form select,.right-panel .frame-task input,.right-panel .frame-task select{min-height:34px;font-size:14px}
-.right-panel .appearance-panel{margin-top:16px;border-top:1px solid #dce4e0;padding-top:12px}
+.right-panel .appearance-panel{margin-top:16px;border-top:1px solid #dcdfe4;padding-top:12px}
 .appearance-panel h3{font-size:13px}
 .frame-task{display:flex;flex-direction:column;flex:1;min-height:0;gap:12px;padding:12px;overflow:auto}
 .frame-task .task-heading{display:flex;align-items:center;justify-content:space-between;font-size:15px}
@@ -153,9 +153,9 @@
 .frame-task-actions select{grid-column:1/-1}
 .frame-task-actions button{white-space:normal;min-height:34px}
 .frame-task select[hidden]{display:none}
-.task-footer{position:sticky;bottom:-12px;display:flex;gap:8px;padding:10px 0 12px;background:white;margin-top:auto;border-top:1px solid #dce4e0}
+.task-footer{position:sticky;bottom:-12px;display:flex;gap:8px;padding:10px 0 12px;background:white;margin-top:auto;border-top:1px solid #dcdfe4}
 .task-footer button{flex:1;min-height:36px}
-.right-panel .cad-dialog[open][data-task-panel="true"]{position:static;display:flex;flex-direction:column;flex:1;min-height:0;max-height:none;width:100%;max-width:none;margin:0;padding:12px;border:0;border-radius:0;box-shadow:none;overflow:auto;color:#29433d}
+.right-panel .cad-dialog[open][data-task-panel="true"]{position:static;display:flex;flex-direction:column;flex:1;min-height:0;max-height:none;width:100%;max-width:none;margin:0;padding:12px;border:0;border-radius:0;box-shadow:none;overflow:auto;color:#293343}
 .right-panel .cad-dialog .dialog-header{position:sticky;top:-12px;z-index:2;background:#fff;padding:3px 0 10px;margin:0}
 .right-panel .cad-dialog .dialog-header h2{font-size:16px;line-height:1.4}
 .right-panel .cad-dialog .dialog-description{font-size:12px;line-height:1.45;max-height:72px;overflow:auto;margin:7px 0}
@@ -164,9 +164,9 @@
 .right-panel .cad-dialog input:not([type="checkbox"]),.right-panel .cad-dialog select{width:100%;min-width:0;min-height:34px;font-size:14px}
 .right-panel .cad-dialog .dialog-footer{position:sticky;bottom:-12px;z-index:3;margin-top:auto;padding:10px 0 12px;background:#fff;display:flex;flex-wrap:wrap}
 .right-panel .cad-dialog .dialog-footer button{min-height:36px;flex:1}
-.task-target{padding:8px 10px;border:1px solid #c8dcd5;background:#f4faf7;border-radius:6px;font-size:13px;line-height:1.4}
+.task-target{padding:8px 10px;border:1px solid #c8d0dc;background:#f4f6fa;border-radius:6px;font-size:13px;line-height:1.4}
 .task-target[data-ready="false"]{border-color:#e0d3b0;background:#fffaf0;color:#785c28}
-.frame-orientation-draft{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding-top:10px;border-top:1px solid #dce4e0}
+.frame-orientation-draft{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding-top:10px;border-top:1px solid #dcdfe4}
 .frame-orientation-draft strong,.frame-orientation-draft p,.frame-orientation-draft button:last-child{grid-column:1/-1}
 .frame-orientation-draft button{white-space:normal;min-height:34px}
 .command-results{display:grid;gap:3px;max-height:50vh;overflow:auto;margin-top:10px}
@@ -175,16 +175,16 @@
 .profile-editor { grid-column: 1 / -1; display: grid; gap: 10px; min-width: 0; }
 .profile-editor-toolbar { display: flex; flex-wrap: wrap; gap: 6px; }
 .profile-editor-toolbar button, .profile-entity-row button { min-height: 32px; }
-.profile-edit-panel,.position-table{display:grid;gap:8px;min-width:0;padding:10px;border:1px solid #d7e1de;border-radius:8px;background:#f8faf9;grid-column:1/-1}
+.profile-edit-panel,.position-table{display:grid;gap:8px;min-width:0;padding:10px;border:1px solid #d7dbe1;border-radius:8px;background:#f8faf9;grid-column:1/-1}
 .profile-edit-panel select,.profile-edit-panel input{min-width:0;width:100%;box-sizing:border-box}
 .position-table{overflow-x:auto}
 .position-table table{border-collapse:collapse;width:100%;font-size:12px}
-.position-table th,.position-table td{padding:4px;border-bottom:1px solid #dbe4e0;text-align:left}
+.position-table th,.position-table td{padding:4px;border-bottom:1px solid #dbdfe4;text-align:left}
 .position-table td input{width:68px;min-width:52px;box-sizing:border-box}
-.position-table tr.active{background:#e3f4ee}
+.position-table tr.active{background:#e3eaf4}
 .position-table-controls{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .position-table-controls input{width:72px}
-.relation-ref{display:grid;gap:6px;min-width:0;border:1px solid #d7e1de;border-radius:7px;padding:8px}
+.relation-ref{display:grid;gap:6px;min-width:0;border:1px solid #d7dbe1;border-radius:7px;padding:8px}
 .relation-ref select{width:100%;min-width:0}
 .profile-entity-rows { display: grid; gap: 8px; max-height: min(48vh, 520px); overflow: auto; }
 .profile-entity-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 6px; padding: 8px; border: 1px solid var(--border, #d5dce0); border-radius: 8px; background: var(--surface, #fff); }
