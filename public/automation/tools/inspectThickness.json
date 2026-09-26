@@ -1,0 +1,27 @@
+{
+  "id": "inspectThickness",
+  "title": "inspectThickness",
+  "category": "page-method",
+  "version": "1.9.0",
+  "description": "inspectThickness({context,bodyId,mode:\"ray\",point:[x,y,z],direction:[dx,dy,dz]})；或 mode:\"faces\",faceAId,faceBId,point；两面须平行且射线穿过连续材料。",
+  "synonyms": [
+    "inspectThickness",
+    "指定位置壁厚",
+    "连续材料",
+    "平行壁面"
+  ],
+  "inputContract": "inspectThickness({context,bodyId,mode:\"ray\",point:[x,y,z],direction:[dx,dy,dz]})；或 mode:\"faces\",faceAId,faceBId,point；两面须平行且射线穿过连续材料。",
+  "outputContract": "返回第一段连续材料的进入、离开点与精确厚度 mm；不是全件最小壁厚证明。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "STALE_REFERENCE",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docsHash": "sha256:3cf06544aed0ef20a30badf5eada8c6881010101de0a96891f67aee6a54e4889"
+}

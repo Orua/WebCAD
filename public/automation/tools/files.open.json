@@ -2,7 +2,7 @@
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "label": "打开工程",
   "synonyms": [
     "打开工程",
@@ -36,5 +36,5 @@
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:2d17a53611782328a0db10b56d3a5739014b942ecb5ab51f9b31a2f1fb4aa913"
+  "docsHash": "sha256:69ec3b2f2f99b8606661dbf37bb4274f5b2fbc49dce1aa57a376bfce466fe627"
 }

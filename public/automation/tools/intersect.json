@@ -3,7 +3,12 @@
   "version": "legacy-1",
   "inputSchema": {
     "type": "object",
-    "properties": {},
+    "properties": {
+      "keepTools": {
+        "type": "boolean",
+        "description": "Keep original tools"
+      }
+    },
     "required": [],
     "additionalProperties": false,
     "$schema": "https://json-schema.org/draft/2020-12/schema"
@@ -29,7 +34,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Common volume of bodies",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the explicit target. Optional keepTools preserves refs[1..] as separate original bodies.",
   "title": "Common volume of bodies",
   "category": "modification",
   "synonyms": [
@@ -37,7 +42,7 @@
     "相交"
   ],
   "description": "Common volume of bodies",
-  "schemaHash": "sha256:3cc511f38d80c958d2cf827e3dff4e54c8ac2eb6f8627e8785f3ca0ebbdefbc0",
+  "schemaHash": "sha256:a213fbac77fc226cd766431756dd5828591558a98742efad910e56a97cb3d29d",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -87,7 +92,7 @@
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Common volume of bodies"
+    "refs[0] is the explicit target. Optional keepTools preserves refs[1..] as separate original bodies."
   ],
   "minimalExample": {
     "op": "intersect",
@@ -153,5 +158,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:2397f81b2bf674befd24bbfcc32f8fb38c48bc140309c45f611ec03881f77e38"
+  "docsHash": "sha256:0eb61d15b7479fa2142379db51095dcf0db91e758e6e08e83d40dec56238afed"
 }

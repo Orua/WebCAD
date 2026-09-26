@@ -2,7 +2,7 @@
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "label": "登记文件资源",
   "synonyms": [
     "登记文件资源",
@@ -36,5 +36,5 @@
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:85dd9b4af43bdcc393bd0eda94b36099560e1159c430fbc8838f5486298474fa"
+  "docsHash": "sha256:d39f4264d7977e7623c35dc211d98bb3042c08d5c3374a8657c2be92ac71f194"
 }

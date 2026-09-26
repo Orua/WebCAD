@@ -3,7 +3,7 @@
   "title": "工程改名",
   "description": "修改工程名称，保留几何。",
   "category": "command",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -19,5 +19,5 @@
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:a0a38ebbff7c489c901977d3b6c1d77bdf17c30addb2908b87ce6acc103f69ae"
+  "docsHash": "sha256:b8c86527c8d84ae6e5f0168f6379eb092c62fb76c92a2f3465037f04f33cf366"
 }

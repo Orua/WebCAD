@@ -2,7 +2,7 @@
   "id": "queryReferences",
   "title": "queryReferences",
   "category": "page-method",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "queryReferences({context,bodyIds:[],kind:\"point\"|\"axis\"|\"frame\",filter?:{types?:[\"cad-vertex\",\"edge-midpoint\",\"circle-center\",\"edge-nearest\",\"trimmed-face-point\",...],near?:{point:[x,y,z],radiusMm}},limit?,offset?,requireUnique?})。",
   "synonyms": [
     "queryReferences",
@@ -21,5 +21,5 @@
     "STALE_REFERENCE",
     "AMBIGUOUS_REFERENCE"
   ],
-  "docsHash": "sha256:99af1593695ebbf3cdf3c0f2a631ae12af259955bd884a68663674f0c8b6a07c"
+  "docsHash": "sha256:25c8f2045d3f4fbb9292781a8045d47b9ed930b4e8d46b71f468c2bd23c9d34e"
 }

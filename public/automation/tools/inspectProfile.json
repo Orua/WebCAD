@@ -1,0 +1,28 @@
+{
+  "id": "inspectProfile",
+  "title": "inspectProfile",
+  "category": "page-method",
+  "version": "1.9.0",
+  "description": "inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。",
+  "synonyms": [
+    "inspectProfile",
+    "轮廓检查",
+    "断线",
+    "间隙",
+    "重线",
+    "自交"
+  ],
+  "inputContract": "inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。",
+  "outputContract": "status=read、当前 context、每项 issueId/实体引用/位置/间隙 mm 与可修复方式；不修改 revision。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "STALE_REFERENCE",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docsHash": "sha256:e15e53a73f71871156c1e159084a3932d5f1bf09ba35584356068f729409e1ac"
+}

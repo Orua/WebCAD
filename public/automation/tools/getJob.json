@@ -2,7 +2,7 @@
   "id": "getJob",
   "title": "getJob",
   "category": "page-method",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "getJob({jobId})",
   "synonyms": [
     "getJob",
@@ -21,5 +21,5 @@
     "JOB_NOT_FOUND"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:1218254436aa96a5aac811a9aae92d21ae04d731834d45b353d5bd41fa791662"
+  "docsHash": "sha256:bc70e63c5fa09c6c9476cd882d1c88c870d4f4e1163d015dcd9459e7c1aeae78"
 }

@@ -78,6 +78,13 @@
 .ribbon .tool-icon{font-size:19px;line-height:22px}
 .ribbon .ribbon-group-label{font-size:11px;line-height:12px;letter-spacing:0}
 .webcad-app .selection-context{display:none}
+.occlusion-candidates{position:absolute;z-index:45;right:12px;top:78px;display:flex;flex-direction:column;gap:6px;max-height:55%;max-width:280px;overflow:auto;padding:12px;background:#fff;border:1px solid #cbd9d5;border-radius:9px;box-shadow:0 6px 24px #203a3326}
+.view-actions .selection-only,.view-actions .selection-transparent,.view-actions .selection-restore{font-size:11px;padding:3px 6px;min-height:25px}
+.topology-detail button{margin:2px;font-size:12px;padding:3px 7px}
+.profile-canvas{width:100%;grid-column:1/-1;border:1px solid #d7e2dd;border-radius:7px;padding:5px;background:#f8fbfa}
+.profile-canvas svg{width:100%;height:220px;background:#fff;border:1px solid #dfe8e3;touch-action:none}
+.profile-canvas .profile-editor-toolbar{display:flex;gap:4px;flex-wrap:wrap}.profile-canvas input{width:56px}
+.profile-entity-row.selected{outline:2px solid #58a98c;background:#edf8f3}
 .webcad-app .workspace{grid-template-columns:var(--panel-left,232px) minmax(250px,1fr) var(--panel-right,320px)}
 .workspace .panel-heading{height:36px;min-height:36px;font-size:14px;padding:0 10px;gap:6px}
 .workspace .project-card{padding:4px 10px;background:#fff}
@@ -164,3 +171,23 @@
 .frame-orientation-draft button{white-space:normal;min-height:34px}
 .command-results{display:grid;gap:3px;max-height:50vh;overflow:auto;margin-top:10px}
 .command-result{text-align:left;white-space:normal;min-height:34px;padding:7px 10px;font-size:13px}
+
+.profile-editor { grid-column: 1 / -1; display: grid; gap: 10px; min-width: 0; }
+.profile-editor-toolbar { display: flex; flex-wrap: wrap; gap: 6px; }
+.profile-editor-toolbar button, .profile-entity-row button { min-height: 32px; }
+.profile-edit-panel,.position-table{display:grid;gap:8px;min-width:0;padding:10px;border:1px solid #d7e1de;border-radius:8px;background:#f8faf9;grid-column:1/-1}
+.profile-edit-panel select,.profile-edit-panel input{min-width:0;width:100%;box-sizing:border-box}
+.position-table{overflow-x:auto}
+.position-table table{border-collapse:collapse;width:100%;font-size:12px}
+.position-table th,.position-table td{padding:4px;border-bottom:1px solid #dbe4e0;text-align:left}
+.position-table td input{width:68px;min-width:52px;box-sizing:border-box}
+.position-table tr.active{background:#e3f4ee}
+.position-table-controls{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.position-table-controls input{width:72px}
+.relation-ref{display:grid;gap:6px;min-width:0;border:1px solid #d7e1de;border-radius:7px;padding:8px}
+.relation-ref select{width:100%;min-width:0}
+.profile-entity-rows { display: grid; gap: 8px; max-height: min(48vh, 520px); overflow: auto; }
+.profile-entity-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 6px; padding: 8px; border: 1px solid var(--border, #d5dce0); border-radius: 8px; background: var(--surface, #fff); }
+.profile-entity-row strong { grid-column: 1 / -1; }
+.profile-entity-row label { display: grid; gap: 3px; font-size: 11px; }
+.profile-entity-row input, .profile-entity-row select { width: 100%; min-width: 0; }

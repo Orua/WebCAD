@@ -2,7 +2,7 @@
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "label": "写入文件",
   "synonyms": [
     "写入文件",
@@ -36,5 +36,5 @@
     "RESOURCE_EXPIRED",
     "PERMISSION_REQUIRED"
   ],
-  "docsHash": "sha256:dc7b8a0c8a9752e42168d92010025f9050b9b6f784152e2251c0e7dbce5c5929"
+  "docsHash": "sha256:19b7485076382f4c7ba91db756f379fa144cf47401f647f3085b44364f8c3d60"
 }

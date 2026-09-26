@@ -3,12 +3,12 @@
   "title": "删除实体",
   "description": "args:{bodyIds}，不可使用历史已替换 ID。",
   "category": "command",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"feature.remove\",args}); args:{bodyIds}，不可使用历史已替换 ID。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:4de2a194da823c7492e36f5001398f867d5e441bf8b1d25673a59fa3afee4b8c"
+  "docsHash": "sha256:54d3b5f55b75d19ee7a66cb29969efc618230adcfd48158a5a0b629e3185393b"
 }

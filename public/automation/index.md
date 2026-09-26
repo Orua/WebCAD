@@ -1,10 +1,10 @@
 # WebCAD 页面 API 索引
 
-API 1.8.0 · 操作目录 sha256:2ef50b44c1d6f0c7dc944f1972d7eee49537bbb87461ff35c2607192ae338f35
+API 1.9.0 · 操作目录 sha256:291d5bb6f41b8a3117c0f362d00fc4d470f66268bb908024412ab429e339129d
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
-长度 mm、角度 degrees、体积 mm³。严格契约：box、hole、multiHole、multiPocket、multiBoss、faceHole、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell；其余操作为 advisory。
+长度 mm、角度 degrees、体积 mm³。严格契约：box、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、faceHole、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude；其余操作为 advisory。
 
 ## 页面方法
 
@@ -27,7 +27,14 @@ API 1.8.0 · 操作目录 sha256:2ef50b44c1d6f0c7dc944f1972d7eee49537bbb87461ff3
 - `resolvePlacement`
 - `execute`
 - `measure`
+- `measureRelation`
 - `inspectPrintability`
+- `inspectProfile`
+- `prepareProfileEdit`
+- `projectProfile`
+- `inspectFit`
+- `inspectThickness`
+- `inspectDraft`
 - `fitProfile`
 - `traceTwinWindow`
 - `executeText`
@@ -68,6 +75,7 @@ API 1.8.0 · 操作目录 sha256:2ef50b44c1d6f0c7dc944f1972d7eee49537bbb87461ff3
 - `curvedLogo` · advisory · Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work
 - `cut` · advisory · Subtract other bodies from first
 - `cylinder` · advisory · Cylinder on +Z from origin
+- `draftFaces` · migrated · Exact restricted four-side planar prism draft around one fixed bottom plane
 - `extractFaces` · migrated · 先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。
 - `extractShell` · migrated · 先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。
 - `extractSolid` · advisory · Extract one solid from a compound
@@ -79,6 +87,7 @@ API 1.8.0 · 操作目录 sha256:2ef50b44c1d6f0c7dc944f1972d7eee49537bbb87461ff3
 - `fittedSurface` · advisory · Fit a single B-spline face to a structured point grid
 - `group` · advisory · Group bodies as a compound without fusing
 - `hole` · migrated · Cylindrical cut starting at global coordinates
+- `holeWizard` · migrated · Exact plain, counterbore, or included-angle countersink hole in one feature
 - `intersect` · advisory · Common volume of bodies
 - `linearPattern` · advisory · Linear copies as one compound
 - `loft` · advisory · Ruled loft between parallel XY profiles
@@ -88,12 +97,16 @@ API 1.8.0 · 操作目录 sha256:2ef50b44c1d6f0c7dc944f1972d7eee49537bbb87461ff3
 - `multiHole` · migrated · Cut cylindrical holes sequentially at multiple global start points
 - `multiPocket` · migrated · Cut multiple exact rectangular or rounded rectangular pockets
 - `planeSection` · advisory · 选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。
+- `profileExtrude` · migrated · Extrude a placed exact profile into a new solid, join, cut or intersection
+- `profileOffset` · migrated · Create an exact planar equidistant offset or band from one closed face
+- `profileRepair` · migrated · Derive a repaired analytic profile by moving one explicitly identified endpoint within the stated maximum displacement
 - `quickModel` · advisory · Parameterized product model; prefer getTool({id:"quickModel"}) then execute(request)
 - `referenceExtrude` · advisory · 选择一个闭合平面线框或单张平面面。直接复用精确圆弧/样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。
 - `referenceLoft` · advisory · 按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。
 - `revolve` · advisory · Revolve a closed profile
 - `sewFaces` · advisory · 选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。
 - `shell` · migrated · Hollow body removing selected faces
+- `sketchProfile` · migrated · Create an editable exact 2D wire or planar face from stable analytic entities
 - `slot` · advisory · Cut an exact capsule slot (two semicircles and two straight sides)
 - `smoothTransition` · migrated · 平滑过渡 / Smooth shared seams of adjacent faces together
 - `sphere` · advisory · Sphere centered at origin
@@ -142,7 +155,7 @@ API 1.8.0 · 操作目录 sha256:2ef50b44c1d6f0c7dc944f1972d7eee49537bbb87461ff3
 - `getUILayout` · page-method · getUILayout()
 - `setRenderQuality` · page-method · setRenderQuality({context,quality:"draft"|"standard"|"fine"|"ultra"})
 - `invoke` · page-method · invoke({method,args}); public method name or files.*.
-- `submit` · page-method · submit({jobId,method,args}); method=run/execute/queryGeometry/measure/setView/setRenderQuality/files.save/files.export/files.import.
+- `submit` · page-method · submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.
 - `getJob` · page-method · getJob({jobId})
 - `cancelJob` · page-method · cancelJob({jobId})
 - `connect` · page-method · connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.
@@ -157,7 +170,14 @@ API 1.8.0 · 操作目录 sha256:2ef50b44c1d6f0c7dc944f1972d7eee49537bbb87461ff3
 - `resolvePlacement` · page-method · resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。
 - `execute` · page-method · execute({context,idempotencyKey,action,args}); action 来自当前命令合同。
 - `measure` · page-method · measure({context,bodyId,kind?:"body"|"face"|"edge",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需非负整数 topologyId。
+- `measureRelation` · page-method · measureRelation({context,mode:"shortest"|"centerDistance"|"axisAlignment"|"pointFace"|"parallelFaces",first?,second?,face?,pointWorld?})；引用形式 {bodyId,kind:"body"|"edge"|"face",topologyId?}。
 - `inspectPrintability` · page-method · inspectPrintability({context,bodyId,angleLimitDeg?:45}); angleLimitDeg 在 0 与 90 度之间。
+- `inspectProfile` · page-method · inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。
+- `prepareProfileEdit` · page-method · prepareProfileEdit({context,bodyId,mode:"intersections"|"trim"|"extend"|"trimCircle"|"fillet",entityId,targetId,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})
+- `projectProfile` · page-method · projectProfile({context,bodyId,edgeIds:[当前边索引],frame?:{origin,quaternion}})；或用 pointWorld:[x,y,z] 投影明确坐标点。
+- `inspectFit` · page-method · inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。
+- `inspectThickness` · page-method · inspectThickness({context,bodyId,mode:"ray",point:[x,y,z],direction:[dx,dy,dz]})；或 mode:"faces",faceAId,faceBId,point；两面须平行且射线穿过连续材料。
+- `inspectDraft` · page-method · inspectDraft({context,bodyId,pullDirection:[0,0,1],thresholdDeg:2})；用户决定阈值。
 - `fitProfile` · page-method · fitProfile({context,kind:"circle"|"line",plane?:"XY"|"XZ"|"YZ",points:[[u,v],...],maxResidualMm?}); 3–1000 点。
 - `traceTwinWindow` · page-method · traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBottomY,simplifyToleranceMm?:0..0.2}); 四条上到下 XY 采样曲线，每条3–2000点。
 - `executeText` · page-method · executeText({context,idempotencyKey,text,dryRun?}); 每行 add <op> key=value 或 measure <bodyId|$last>。
@@ -165,7 +185,7 @@ API 1.8.0 · 操作目录 sha256:2ef50b44c1d6f0c7dc944f1972d7eee49537bbb87461ff3
 - `getLogoConverter` · page-method · getLogoConverter()；读取当前浏览器 localStorage 的配置。
 - `setLogoConverter` · page-method · setLogoConverter({context,url,key?})；URL 必须含 userid，空 key 保留原值。
 - `convertLogoPdf` · page-method · convertLogoPdf({context,name,data,targetWidthMm?})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。
-- `setView` · page-method · setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?}); 详见 api.views；section={axis:"X"|"Y"|"Z",position:number,enabled:boolean}。
+- `setView` · page-method · setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 详见 api.views；section={axis:"X"|"Y"|"Z",position:number,enabled:boolean}。
 - `redraw` · page-method · redraw({context}); 不接受额外字段。
 - `capture` · page-method · capture({context}); 不接受额外字段。
 - `run` · page-method · run({context,idempotencyKey,steps}); see readDocs({docId:"api.run"}).

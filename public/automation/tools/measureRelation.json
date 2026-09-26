@@ -1,0 +1,29 @@
+{
+  "id": "measureRelation",
+  "title": "measureRelation",
+  "category": "page-method",
+  "version": "1.9.0",
+  "description": "measureRelation({context,mode:\"shortest\"|\"centerDistance\"|\"axisAlignment\"|\"pointFace\"|\"parallelFaces\",first?,second?,face?,pointWorld?})；引用形式 {bodyId,kind:\"body\"|\"edge\"|\"face\",topologyId?}。",
+  "synonyms": [
+    "measureRelation",
+    "几何关系测量",
+    "圆心距",
+    "轴夹角",
+    "点到面",
+    "有限对象最短距离",
+    "平行面"
+  ],
+  "inputContract": "measureRelation({context,mode:\"shortest\"|\"centerDistance\"|\"axisAlignment\"|\"pointFace\"|\"parallelFaces\",first?,second?,face?,pointWorld?})；引用形式 {bodyId,kind:\"body\"|\"edge\"|\"face\",topologyId?}。",
+  "outputContract": "分别返回有限 B-Rep 最短距离和见证点、两圆心距/轴夹角/同轴偏差、点到裁剪面的距离或平行面法向距离；只读。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "STALE_REFERENCE",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docsHash": "sha256:eb8c77646cb9cedbfaba2c2e10b66332b2b7eddea7965b2d17bfc3dc96ca172d"
+}

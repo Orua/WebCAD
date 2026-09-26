@@ -3,7 +3,12 @@
   "version": "legacy-1",
   "inputSchema": {
     "type": "object",
-    "properties": {},
+    "properties": {
+      "keepTools": {
+        "type": "boolean",
+        "description": "Keep original tools"
+      }
+    },
     "required": [],
     "additionalProperties": false,
     "$schema": "https://json-schema.org/draft/2020-12/schema"
@@ -29,7 +34,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is target; all subsequent refs are cutting tools.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies.",
   "title": "Subtract other bodies from first",
   "category": "modification",
   "synonyms": [
@@ -37,7 +42,7 @@
     "相减"
   ],
   "description": "Subtract other bodies from first",
-  "schemaHash": "sha256:604083b136efd282fe972a6edc7e217cf6a793d2123cfad13b69a6ae96ebcf5f",
+  "schemaHash": "sha256:04e2451c1117c0a2e470c79585b4ecc4a3615f8fd14e432df683e989c1cc049e",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -87,7 +92,7 @@
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "refs[0] is target; all subsequent refs are cutting tools."
+    "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies."
   ],
   "minimalExample": {
     "op": "cut",
@@ -153,5 +158,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:d8d2cacce694de1f32a5a197bf3e36e0b9da40830fc3a0a252c02c60d37c299b"
+  "docsHash": "sha256:75b99b24f9047ff35243995ff428d9f27ffba1e491e0c3a62040e80bb4f8b172"
 }

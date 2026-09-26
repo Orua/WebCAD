@@ -3,12 +3,12 @@
   "title": "重建工程",
   "description": "args:{}；重建当前历史。",
   "category": "command",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"document.refresh\",args}); args:{}；重建当前历史。",
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.editor",
-  "docsHash": "sha256:6107e53f2e70431e28a3449970b1dc4dfbf480acd514bce922fdce0cdc8379f7"
+  "docsHash": "sha256:f5769baec23523effc981cc70511c594818b06d98e0ddf9d5488b9390205215a"
 }

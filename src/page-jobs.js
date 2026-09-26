@@ -1,7 +1,7 @@
 // Page-local receipts survive a host call timeout, not a page reload. No server.
 export function createPageJobs(api) {
   const jobs = new Map();
-  const methods = new Set(['run','execute','queryGeometry','measure','setView','setRenderQuality','files.save','files.export','files.import']);
+  const methods = new Set(['run','execute','queryGeometry','measure','measureRelation','inspectProfile','prepareProfileEdit','projectProfile','inspectFit','inspectThickness','inspectDraft','setView','setRenderQuality','files.save','files.export','files.import']);
   const fail = (code,message) => {throw Object.assign(new Error(message),{code});};
   const snapshot = job => structuredClone(Object.fromEntries(Object.entries(job).filter(([k])=>!['fingerprint','args'].includes(k))));
   function getJob({jobId}={}) {

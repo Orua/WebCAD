@@ -1,0 +1,28 @@
+{
+  "id": "projectProfile",
+  "title": "projectProfile",
+  "category": "page-method",
+  "version": "1.9.0",
+  "description": "projectProfile({context,bodyId,edgeIds:[当前边索引],frame?:{origin,quaternion}})；或用 pointWorld:[x,y,z] 投影明确坐标点。",
+  "synonyms": [
+    "projectProfile",
+    "投影几何",
+    "到轮廓平面",
+    "引用源边",
+    "圆心"
+  ],
+  "inputContract": "projectProfile({context,bodyId,edgeIds:[当前边索引],frame?:{origin,quaternion}})；或用 pointWorld:[x,y,z] 投影明确坐标点。",
+  "outputContract": "返回局部解析直线/平行平面圆及圆弧和来源几何快照；不自动关联源体。斜投圆退回 UNSUPPORTED_CURVE_PROJECTION，不制造椭圆替身；只读。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "STALE_REFERENCE",
+    "REVISION_CONFLICT",
+    "UNSUPPORTED_CURVE_PROJECTION",
+    "DEGENERATE_PROJECTION"
+  ],
+  "docsHash": "sha256:bf69f16a9a6f7388eb2dd2fa25d058f1615a79c1e992fde818b68902dca730f4"
+}

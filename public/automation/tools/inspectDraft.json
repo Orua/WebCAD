@@ -1,0 +1,27 @@
+{
+  "id": "inspectDraft",
+  "title": "inspectDraft",
+  "category": "page-method",
+  "version": "1.9.0",
+  "description": "inspectDraft({context,bodyId,pullDirection:[0,0,1],thresholdDeg:2})；用户决定阈值。",
+  "synonyms": [
+    "inspectDraft",
+    "拔模检查",
+    "拉出方向",
+    "平面倾角"
+  ],
+  "inputContract": "inspectDraft({context,bodyId,pullDirection:[0,0,1],thresholdDeg:2})；用户决定阈值。",
+  "outputContract": "返回每个解析平面的精确有符号倾角与封口面分类；非平面返回 unsupported。负倾角不等于已证明倒扣。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "STALE_REFERENCE",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docsHash": "sha256:a6e2435dd5706900410e70e4ea98abc04b663124afdc8e03ce3b3b724167a857"
+}

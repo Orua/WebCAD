@@ -1,9 +1,9 @@
 // Structured batches over an authorized page script channel (or explicit manual debugging).
 // Every mutation still goes through the existing page API / CommandService.
 const methods = new Set(['add','execute','connect','info','getState','searchTools','getTools','getTool','readDocs',
-  'queryGeometry','queryReferences','resolvePlacement','measure','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.capabilities','files.register',
+  'queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','projectProfile','inspectFit','inspectThickness','inspectDraft','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.capabilities','files.register',
   'files.import','files.save','files.export','files.release']);
-const contextual = new Set(['execute','queryGeometry','queryReferences','resolvePlacement','measure','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.import','files.save','files.export']);
+const contextual = new Set(['execute','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','projectProfile','inspectFit','inspectThickness','inspectDraft','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.import','files.save','files.export']);
 const bad = (code,message) => { throw Object.assign(new Error(message),{code}); };
 const plain = x => x && typeof x==='object' && !Array.isArray(x);
 const keys = (x,allowed) => { if(!plain(x)||Object.keys(x).some(k=>!allowed.includes(k)))bad('PARAM_SCHEMA_INVALID','Unexpected object fields'); };

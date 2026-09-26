@@ -1,0 +1,29 @@
+{
+  "id": "inspectFit",
+  "title": "inspectFit",
+  "category": "page-method",
+  "version": "1.9.0",
+  "description": "inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。",
+  "synonyms": [
+    "inspectFit",
+    "干涉",
+    "间隙",
+    "接触",
+    "配合检查",
+    "两实体"
+  ],
+  "inputContract": "inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。",
+  "outputContract": "status=read、overlap/contactWithinTolerance/separated、公共体积或精确最短距离与见证点、当前 context；只读，不自动判断工艺合格。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "STALE_REFERENCE",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docsHash": "sha256:457c5ab6285c047fb09cdb7d7f1b7a8f03f964606463ef21121b0a6aed7dc69c"
+}
