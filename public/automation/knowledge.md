@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.9.0 · sha256:31be20744604e002d80da3e5788bb02652b19d8d2a062f7b512f1a48be444d68
+API 1.9.0 · sha256:c80dbee36bdaabf3e2e94243dd82927a92355b9cfa0e756613a2223778073ea3
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -625,6 +625,32 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
     ],
     "method": "setDisplayPreferences",
     "usage": "显示设置用 setDisplayPreferences；LOGO 转换配置用 getLogoConverter/setLogoConverter，URL/Key 保存在当前浏览器。"
+  },
+  "moveTool": {
+    "tools": [
+      "transform"
+    ],
+    "method": "execute"
+  },
+  "rotateTool": {
+    "tools": [
+      "transform"
+    ],
+    "method": "execute"
+  },
+  "copySelection": {
+    "tools": [
+      "getState"
+    ],
+    "method": "getState",
+    "usage": "人工页面剪贴板复制；AI 使用明确 refs 的 copy。"
+  },
+  "pasteSelection": {
+    "tools": [
+      "copy"
+    ],
+    "method": "execute",
+    "usage": "人工剪贴板整体底面中心放在参考锚点；AI 使用 copy 和明确定位参数。"
   },
   "importAtFrame": {
     "tools": [

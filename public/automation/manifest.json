@@ -1,9 +1,9 @@
 {
   "version": "1.9.0",
-  "buildId": "c2dc9c28a2420a87bc83484d0bf478ee13e0913f-working",
+  "buildId": "77e30109e3cf924fa5704f5a77bc4be699ec888c-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:31be20744604e002d80da3e5788bb02652b19d8d2a062f7b512f1a48be444d68",
-  "docsHash": "sha256:ba7dcde8b5fdeb25fc9379740bab50dea638888be06369d3cea00a16b009785b",
+  "catalogHash": "sha256:c80dbee36bdaabf3e2e94243dd82927a92355b9cfa0e756613a2223778073ea3",
+  "docsHash": "sha256:17571973cca149955e21078848c45fbffcaeaec1c24a569d0e7db2fbc72b72cd",
   "tools": [
     {
       "id": "advancedLoft",
@@ -1513,7 +1513,7 @@
     },
     {
       "id": "api.ui-coverage",
-      "docsHash": "sha256:7d2d16cd0131e787ce5700ddf8c04d64634388027a9c6d94f0b205cf50949b72",
+      "docsHash": "sha256:3466ca9938edf8b0d7baa7a5da139e5edf9ca1f012992713d0c4d65a0a16d6fa",
       "url": "docs/api.ui-coverage.md"
     },
     {

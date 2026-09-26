@@ -528,6 +528,32 @@
     "method": "setDisplayPreferences",
     "usage": "显示设置用 setDisplayPreferences；LOGO 转换配置用 getLogoConverter/setLogoConverter，URL/Key 保存在当前浏览器。"
   },
+  "moveTool": {
+    "tools": [
+      "transform"
+    ],
+    "method": "execute"
+  },
+  "rotateTool": {
+    "tools": [
+      "transform"
+    ],
+    "method": "execute"
+  },
+  "copySelection": {
+    "tools": [
+      "getState"
+    ],
+    "method": "getState",
+    "usage": "人工页面剪贴板复制；AI 使用明确 refs 的 copy。"
+  },
+  "pasteSelection": {
+    "tools": [
+      "copy"
+    ],
+    "method": "execute",
+    "usage": "人工剪贴板整体底面中心放在参考锚点；AI 使用 copy 和明确定位参数。"
+  },
   "importAtFrame": {
     "tools": [
       "files.register",

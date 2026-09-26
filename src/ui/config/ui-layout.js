@@ -2,9 +2,9 @@
 // Actions route through UI_API_ROUTES; no eval or geometry logic belongs here.
 import {ACTION_ICONS} from './action-icons.js';
 const tabs = [
-  {id:'create',label:'创建',groups:[['基本实体',['box','cylinder','sphere','cone','torus']],['轮廓',['sketchProfile','sketch','vectorProfile','arcProfile']]]},
-  {id:'model',label:'模型',groups:[['模型库',['quickModel','importAtFrame']],['轮廓成型',['profileExtrude','extrude','revolve','sweep','loft']]]},
-  {id:'edit',label:'编辑',groups:[['选择',['selectTool']],['轮廓编辑',['profileOffset','profileRepair']],['变换与复制',['transform','copy','mirror']],['组合',['group','explode']],['阵列',['linearPattern','circularPattern']],['管理',['remove']]]},
+  {id:'edit',label:'编辑',groups:[['选择',['selectTool']],['变换',['moveTool','rotateTool']],['复制',['copySelection','pasteSelection','copy','mirror']],['组合',['group','explode']],['阵列',['linearPattern','circularPattern']],['轮廓编辑',['profileOffset','profileRepair']],['管理',['remove']]]},
+  {id:'create',label:'创建',unfolded:true,groups:[['轮廓',['sketchProfile','sketch','vectorProfile','arcProfile']],['轮廓成型',['profileExtrude','extrude','revolve','sweep','loft']]]},
+  {id:'model',label:'模型',unfolded:true,groups:[['基本实体',['box','cylinder','sphere','cone','torus']],['模型库',['quickModel','importAtFrame']]]},
   {id:'machine',label:'加工',groups:[['布尔运算',['union','cut','intersect']],['孔与槽',['holeWizard','hole','multiHole','slot','multiPocket','multiBoss']],['面加工',['faceHole','faceExtrude','logo']]]},
   {id:'finish',label:'修饰',groups:[['边与过渡',['fillet','chamfer','autoRound','smoothTransition']],['壳与拆分',['shell','split','extractSolid']],['拔模',['draftFaces']]]},
   {id:'surface',label:'曲面',groups:[['曲面成型',['curveSweep','advancedLoft','fittedSurface']],['参考提取',['planeSection','faceBoundary','extractFaces','extractShell']],['参考成体',['referenceExtrude','referenceLoft','thickenFace']],['曲面处理',['sewFaces','surfaceTrim']]]},
@@ -24,6 +24,8 @@ export const UI_LAYOUT=freeze({version:3,defaultTab:'create',panels:{left:232,ri
   viewportActions:[{action:'gizmoRotate',label:'鼠标旋转'},{action:'gizmoTranslate',label:'鼠标移动'}],
   icons:{
     ...ACTION_ICONS,
+    moveTool:ACTION_ICONS.gizmoTranslate,rotateTool:ACTION_ICONS.gizmoRotate,
+    copySelection:ACTION_ICONS.copy,pasteSelection:['M9 4H5v18h14V4h-4 M9 2h6v5H9Z M8 11h8 M8 15h8'],
     themeSettings:['M12 3a9 9 0 1 0 0 18h2a2 2 0 0 0 0-4h-1a2 2 0 0 1 0-4h4a4 4 0 0 0 4-4c-1-4-5-6-9-6 M7 8h.1 M12 6h.1 M17 8h.1 M6 13h.1'],
     snapSettings:['M5 3v10a7 7 0 0 0 14 0V3h-4v10a3 3 0 0 1-6 0V3Z M5 7h4 M15 7h4'],
     languageSettings:['M3 5h12 M9 2v3 M5 5c0 6 7 10 7 10 M13 5c0 6-7 10-10 10 M13 21l4-10 4 10 M15 17h4'],
