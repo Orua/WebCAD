@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.9.0 · sha256:e033daafaf1c8267f59b10968b392dd8f40033000db965ec9ea273882ede1bad
+API 1.9.0 · sha256:39d9335d778f9da3c1c95f19ed0b1baa1a88c8d8334819d816eabf7cf8772035
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -31,7 +31,7 @@ connect 可传 knownCatalogHash/knownDocsHash 检查整体漂移；changed 只�
 
 ## api.display-preferences
 
-全局设置在设置主菜单；主题、吸附、语言和命名参数分入口。dimensionPrecisionMm 默认0.01 mm、范围0.000001–10；anglePrecisionDeg 默认0.1°、范围0.000001–90。新输入和移动旋转按步长四舍五入，既有与导入几何不重算。themeColor 为 #RRGGBB，默认 #2563eb；snapThresholdMm 为 0–10 mm，默认0.2（20丝），0关闭拖动吸附。吸附后下一次拖动跳过吸附。透视+边线显示曲面三角网格，只是显示网格，不是精确等参线。setDisplayPreferences({context,values})：defaultColor/background 为 #RRGGBB，defaultFinish 为材质键；environmentMode 为 studio（均匀工作室，默认）或 hdr（原 HDR）。exposure 0.1–3；environmentIntensity 0–3；environmentRotation/lightAzimuth -180–180 度（绕世界Z）；lightElevation -89–89 度；roughnessOffset 0–0.6（只影响金属）；keyIntensity/fillIntensity/ambientIntensity 0–6。字段均可部分更新。getState().displayPreferences 读当前值。cookie 保存一年，同源浏览器自动读取，persisted=false 表示未持久化。全局设置不属于工程撤销历史；单体显式颜色和材质优先，工程 document.appearance finish:null 跟随全局，否则保持工程覆盖。UI 可选标准、柔和、明暗对比预设或恢复默认。环境反射方向与直接光源方向是不同设置；金属凹凸不等于实体几何缺陷。
+设置主菜单分风格、渲染设置、LOGO转化、精度、吸附、语言和参数。风格预设支持原绿色 #0c827d 和灰度 #666666；LOGO配置经 getLogoConverter/setLogoConverter。dimensionPrecisionMm 默认0.01 mm、范围0.000001–10；anglePrecisionDeg 默认0.1°、范围0.000001–90。新输入和移动旋转按步长四舍五入，既有与导入几何不重算。themeColor 为 #RRGGBB，默认 #2563eb；snapThresholdMm 为 0–10 mm，默认0.2（20丝），0关闭拖动吸附。吸附后下一次拖动跳过吸附。透视+边线显示曲面三角网格，只是显示网格，不是精确等参线。setDisplayPreferences({context,values})：defaultColor/background 为 #RRGGBB，defaultFinish 为材质键；environmentMode 为 studio（均匀工作室，默认）或 hdr（原 HDR）。exposure 0.1–3；environmentIntensity 0–3；environmentRotation/lightAzimuth -180–180 度（绕世界Z）；lightElevation -89–89 度；roughnessOffset 0–0.6（只影响金属）；keyIntensity/fillIntensity/ambientIntensity 0–6。字段均可部分更新。getState().displayPreferences 读当前值。cookie 保存一年，同源浏览器自动读取，persisted=false 表示未持久化。全局设置不属于工程撤销历史；单体显式颜色和材质优先，工程 document.appearance finish:null 跟随全局，否则保持工程覆盖。UI 可选标准、柔和、明暗对比预设或恢复默认。环境反射方向与直接光源方向是不同设置；金属凹凸不等于实体几何缺陷。
 
 ## api.dwg-spline-twin-window
 
@@ -623,14 +623,20 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
     "method": "connect",
     "usage": "connect({queries,includeContracts:true}) 按任务快速加载；knownHashes 缓存工具卡，不缓存实体身份。"
   },
-  "displayPreferences": {
+  "logoConverterSettings": {
     "tools": [
-      "setDisplayPreferences",
       "getLogoConverter",
       "setLogoConverter"
     ],
+    "method": "setLogoConverter",
+    "usage": "context、url、key；getLogoConverter 读回配置状态。"
+  },
+  "displayPreferences": {
+    "tools": [
+      "setDisplayPreferences"
+    ],
     "method": "setDisplayPreferences",
-    "usage": "显示设置用 setDisplayPreferences；LOGO 转换配置用 getLogoConverter/setLogoConverter，URL/Key 保存在当前浏览器。"
+    "usage": "渲染设置使用 setDisplayPreferences；LOGO 转化为独立入口。"
   },
   "panels": {
     "tools": [

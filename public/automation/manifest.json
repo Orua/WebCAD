@@ -1,9 +1,9 @@
 {
   "version": "1.9.0",
-  "buildId": "c3a7b273b9cd6091ad92e87304aaa722657643da-working",
+  "buildId": "085f4c1e07c944a3556b18473aa7b8b2f19ec669-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:e033daafaf1c8267f59b10968b392dd8f40033000db965ec9ea273882ede1bad",
-  "docsHash": "sha256:1d7b3f378bede82fdc9ca9c2086835734a0e2804b4988aa7dd7dfca71d0005ef",
+  "catalogHash": "sha256:39d9335d778f9da3c1c95f19ed0b1baa1a88c8d8334819d816eabf7cf8772035",
+  "docsHash": "sha256:9e03faf9a25f16bf7679a06f0af386cead61d407ca186c83f8db45822a2f2fcf",
   "tools": [
     {
       "id": "advancedLoft",
@@ -1454,7 +1454,7 @@
     },
     {
       "id": "api.display-preferences",
-      "docsHash": "sha256:dc3ac862a4375e908670551a6ddfe04832f224f1e6396890da41136f6c7526de",
+      "docsHash": "sha256:02de4b596fcbb1ad72fbebdfd8fc3fb90230268097f1ce116d1d3ee2aadb1dc9",
       "url": "docs/api.display-preferences.md"
     },
     {
@@ -1529,7 +1529,7 @@
     },
     {
       "id": "api.ui-coverage",
-      "docsHash": "sha256:626513c2d344f6ecf9f1f5347279923cbabea9658009ca8371605c6aa355b7b9",
+      "docsHash": "sha256:47a3c5358f13df299024f3d3763068cab2a71f750c0d48f86308b84e8b5e37fa",
       "url": "docs/api.ui-coverage.md"
     },
     {

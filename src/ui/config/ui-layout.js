@@ -10,7 +10,7 @@ const tabs = [
   {id:'surface',label:'曲面',groups:[['曲面成型',['curveSweep','advancedLoft','fittedSurface']],['参考提取',['planeSection','faceBoundary','extractFaces','extractShell']],['参考成体',['referenceExtrude','referenceLoft','thickenFace']],['曲面处理',['sewFaces','surfaceTrim']]]},
   {id:'inspect',label:'检查',groups:[['几何检查',['measure','measureRelation','inspectFit','inspectThickness','inspectDraft','section','inspectPrintability']],['结果记录',['screenshot']]],controls:['quality']},
   {id:'view',label:'视图',groups:[],controls:['directions','display','projection','assists','quality']},
-  {id:'settings',label:'设置',groups:[['外观',['themeSettings','displayPreferences']],['交互',['precisionSettings','snapSettings','languageSettings']],['工程',['parameters']],['AGENT',['agentGuide']]]},
+  {id:'settings',label:'设置',groups:[['外观',['themeSettings','displayPreferences','logoConverterSettings']],['交互',['precisionSettings','snapSettings','languageSettings']],['工程',['parameters']],['AGENT',['agentGuide']]]},
 ];
 const controls={
   directions:{label:'标准视角',action:'view',key:'direction',items:[['等轴','iso'],['前视','front'],['后视','back'],['俯视','top'],['仰视','bottom'],['左视','left'],['右视','right']]},
@@ -20,10 +20,10 @@ const controls={
   quality:{label:'显示精度 · 不改变精确几何',action:'renderQuality',key:'quality',setting:'quality',items:[['草稿','draft'],['标准','standard'],['精细','fine'],['高精','ultra']]},
 };
 function freeze(value){if(value&&typeof value==='object'){Object.values(value).forEach(freeze);Object.freeze(value);}return value;}
-export const UI_LAYOUT=freeze({version:3,defaultTab:'create',panels:{left:232,right:320},ribbon:{visibleActions:3,minOverflow:2,overflowLabel:'更多 ▾',overflowMenuWidth:210},tabs,controls,
+export const UI_LAYOUT=freeze({version:3,defaultTab:'create',panels:{left:232,right:320},shortLabels:{themeSettings:'风格',precisionSettings:'精度',snapSettings:'吸附',displayPreferences:'渲染设置',logoConverterSettings:'LOGO转化',languageSettings:'语言',parameters:'参数',agentGuide:'AGENT',revolve:'旋转成型',sketchProfile:'轮廓',sketch:'草图',arcProfile:'线弧轮廓',profileOffset:'等距偏移',profileRepair:'轮廓修复',profileExtrude:'轮廓加工',multiHole:'多点打孔',multiPocket:'批量凹槽',multiBoss:'批量凸台',smoothTransition:'平滑过渡',autoRound:'整件圆边',draftFaces:'拔模',measureRelation:'关系测量',inspectFit:'干涉间隙',inspectThickness:'壁厚',inspectDraft:'拔模检查',inspectPrintability:'成型检查',planeSection:'提取截面',faceBoundary:'提取边界',referenceExtrude:'轮廓拉伸',referenceLoft:'截面放样',advancedLoft:'高级放样',fittedSurface:'拟合曲面',extractFaces:'提取面',surfaceTrim:'曲面修剪',transparentEdges:'透视边线',edges:'实体边线'},ribbon:{visibleActions:3,minOverflow:2,overflowLabel:'更多 ▾',overflowMenuWidth:210},tabs,controls,
   viewportActions:[{action:'gizmoRotate',label:'鼠标旋转'},{action:'gizmoTranslate',label:'鼠标移动'}],
   icons:{
-    ...ACTION_ICONS,precisionSettings:ACTION_ICONS.measure,
+    ...ACTION_ICONS,logoConverterSettings:ACTION_ICONS.logo,precisionSettings:ACTION_ICONS.measure,
     moveTool:ACTION_ICONS.gizmoTranslate,rotateTool:ACTION_ICONS.gizmoRotate,
     copySelection:ACTION_ICONS.copy,pasteSelection:['M9 4H5v18h14V4h-4 M9 2h6v5H9Z M8 11h8 M8 15h8'],
     themeSettings:['M12 3a9 9 0 1 0 0 18h2a2 2 0 0 0 0-4h-1a2 2 0 0 1 0-4h4a4 4 0 0 0 4-4c-1-4-5-6-9-6 M7 8h.1 M12 6h.1 M17 8h.1 M6 13h.1'],
