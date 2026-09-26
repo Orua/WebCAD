@@ -7,6 +7,15 @@ import {prepareAnalyticProfileEdit} from '../src/profile-editing.js';
 
 const context = () => ({ sessionId: 'page-1', documentId: 'doc-1', documentInstanceId: 'instance-1', expectedRevision: 7 });
 
+test('settings and translucent view share the discoverable public API without modeling changes',async()=>{
+ const {api,host,calls}=fixture();host.preferences=values=>({values,persisted:true,storage:'cookie'});
+ const preferences=await api.setDisplayPreferences({context:context(),values:{themeColor:'#2563eb',snapThresholdMm:.2}});
+ assert.equal(preferences.status,'applied');assert.equal(preferences.values.snapThresholdMm,.2);
+ assert.equal((await api.setDisplayPreferences({context:context(),values:{snapThresholdMm:-1}})).status,'failed');
+ assert.equal((await api.setView({context:context(),display:'transparentEdges'})).status,'read');assert.equal(calls.view,1);assert.equal(calls.execute,0);
+ const connected=api.connect({queries:['绘制轮廓','拉伸'],includeContracts:true});assert.ok(connected.requestContext);assert.equal(api.getState().context.revision,7);
+});
+
 test('analytic edit proposals share UI geometry and remain read-only through batch and invoke',async()=>{
   const {api,host}=fixture(),profile={profileVersion:1,output:'wire',entities:[{id:'a',type:'line',startMm:[0,0],endMm:[10,0]},{id:'b',type:'line',startMm:[20,-10],endMm:[20,10],construction:true}],chains:[{id:'path',edges:[{entityId:'a',reversed:false}]}],loops:[],regions:[]};
   host.prepareProfileEdit=input=>prepareAnalyticProfileEdit(profile,input);

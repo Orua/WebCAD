@@ -41,3 +41,14 @@ const receipt = api.getJob({jobId: job.jobId});
 尚未实现：屏幕自适应细分、斑马纹、曲率梳、精确 G0/G1/G2 检查、完整控制网编辑、跨标签页工程列表、从 STEP 恢复原 CAD 特征树、完整强类型 SDK。样条查询目前提供真实编码、次数、控制点/节点数量；不将可显示或法线平滑宣称为曲率连续。
 
 轮廓编辑器的平面绘图区与数值表格共用同一参数来源；基础矩形、圆角矩形和长圆保存宽高/R，明确转换后才成为独立段。视口“仅看选中 / 其余透明 / 恢复显示”通过 `setView.temporaryDisplay` 变更临时显示，恢复不清除工程持久隐藏列表；Alt+单击给出当前视线的遮挡候选。拓扑范围可逐项移除和清空，不默默扩展相切链。新版严格工具与检查入口由布局/API 覆盖表统一登记。
+
+
+## 模块目录与兼容入口
+
+- src/ui/config/ui-layout.js：菜单、分组、图标和操作ID配置。src/ui-layout.js 仅保留兼容导出。
+- src/ui/ribbon/：菜单渲染。src/ui/settings/：主题、阈值、全局显示设置及其持久化校验。src/ui/styles/：主题与图标栏样式。
+- src/ui/profiles/：绘图与轮廓编辑器；src/ui/forms/：尺寸适配、多位置表格；src/ui/input/：快捷键；src/ui/inspection/：各类检查对话框。
+- src/modeling/profiles/：解析轮廓、编辑、检查、偏移、修复、投影、拉伸；src/modeling/manufacturing/：孔型和受限拔模；src/modeling/inspection/：精确关系；src/modeling/interaction/：精确拖动吸附。
+- src/viewport/：显示模式与拖动吸附调用。main.js 保留工程和Worker协调，ui.js 保留任务与操作路由，viewport.js 保留视口生命周期。旧根目录模块导出保持可用，调用方可逐步迁移，不复制算法。
+
+菜单只显示功能按钮，分组名通过title读取。新菜单操作必须注册 UI_API_ROUTES，构建门禁检查映射。主题/吸附通过 setDisplayPreferences({context,values:{themeColor,snapThresholdMm}})；语言与透视边线通过 setView({context,language,display:'transparentEdges'})。

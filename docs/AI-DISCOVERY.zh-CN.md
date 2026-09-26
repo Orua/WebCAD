@@ -67,3 +67,6 @@ const current = library.isCurrent(connected);
 生成命令为 `npm run build`，会从真实注册表生成上述所有文件。`getTool/info/readDocs` 的原调用方式继续兼容。首次发现入口还在页面 HTML 元数据、`llms.txt` 和 `automation/quickstart.md` 中提供。
 
 加工与检查时优先检索精确 ID：`profileRepair` / `inspectProfile`，`projectProfile`，`profileExtrude`，`inspectFit`，`inspectThickness`，`measureRelation`，`holeWizard`，`draftFaces` / `inspectDraft`。读取工具卡后取得当前 body 与面/边序号，再固定本次任务的目标；不要根据上一次工程修订的拓扑 ID 猜目标。`draftFaces` 只接受完整四个平面侧壁加固定底面，`inspectDraft` 对曲面标未支持；未获得成功预览和精确几何读回时不要宣称压铸适用。`profileExtrude.extent='toPlane'` 是固定世界无限平面，不是裁剪面的有限边界。孔向导的 `includedAngleDeg` 是沉头锥体包含角，不是单侧斜角。
+
+
+2026-09-26 接口复核：菜单拆分不会改变操作ID或旧入口。推荐优先 connect({toolIds:['sketchProfile','profileExtrude']}) 精确载入已知工具，缓存后传knownHashes取得not_modified；未知工具使用queries与limit:1。setDisplayPreferences新增themeColor与snapThresholdMm；setView.display新增transparentEdges。设置菜单的AGENT接口提供同一说明。
