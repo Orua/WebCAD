@@ -3,7 +3,19 @@ import assert from 'node:assert/strict';
 import {createPageAPI} from '../src/page-api.js';
 import {createBrowserFiles} from '../src/browser-files.js';
 import {UI_LAYOUT} from '../src/ui-layout.js';
+import {ribbonGroupPolicy} from '../src/ui/config/ribbon-policy.js';
 import {UI_API_ROUTES} from '../src/ui-api-coverage.js';
+
+test('single overflow tools stay visible and ribbon folding follows layout configuration',()=>{
+ const finish=UI_LAYOUT.tabs.find(t=>t.id==='finish'),surface=UI_LAYOUT.tabs.find(t=>t.id==='surface');
+ for(const [tab,action]of [[finish,'smoothTransition'],[surface,'extractShell']]){
+  const group=tab.groups.find(([,actions])=>actions.includes(action));assert.equal(ribbonGroupPolicy(UI_LAYOUT,tab,group[1],group[2]).folded,false);
+ }
+ assert.equal(ribbonGroupPolicy(UI_LAYOUT,{},['a','b','c','d','e']).folded,true);
+ assert.equal(ribbonGroupPolicy(UI_LAYOUT,{unfolded:true},['a','b','c','d','e']).folded,false);
+ assert.equal(ribbonGroupPolicy(UI_LAYOUT,{},['a','b','c','d'],{visibleActions:2}).folded,true);
+ assert.equal(ribbonGroupPolicy(UI_LAYOUT,{},['a','b','c','d'],{visibleActions:3,minOverflow:1}).folded,false);
+});
 import {requestContext} from '../src/page-context.js';
 const context={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:7};
 function fixture(){

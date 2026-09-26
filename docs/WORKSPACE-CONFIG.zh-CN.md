@@ -52,3 +52,5 @@ const receipt = api.getJob({jobId: job.jobId});
 - src/viewport/：显示模式与拖动吸附调用。main.js 保留工程和Worker协调，ui.js 保留任务与操作路由，viewport.js 保留视口生命周期。旧根目录模块导出保持可用，调用方可逐步迁移，不复制算法。
 
 菜单只显示功能按钮，分组名通过title读取。新菜单操作必须注册 UI_API_ROUTES，构建门禁检查映射。主题/吸附通过 setDisplayPreferences({context,values:{themeColor,snapThresholdMm}})；语言与透视边线通过 setView({context,language,display:'transparentEdges'})。
+
+菜单折叠也由 `UI_LAYOUT.ribbon` 配置：`visibleActions` 默认3、`minOverflow` 默认2；剩余只有一个按钮时总是展开，因此平滑过渡、提取壳直接显示。`overflowLabel` 配置入口文字，`overflowMenuWidth` 配置定位宽度。菜单可用 `unfolded:true` 全部展开，或用 `ribbon:{visibleActions:4}` 覆盖默认；分组第三项可单独配置，例如 `['参考提取',['planeSection','faceBoundary','extractFaces','extractShell'],{unfolded:true}]`。增减、重排现有工具只改布局配置；渲染器统一读取规则，不按工具名称写特例。新几何能力仍需实现工具、参数契约和 API 路由。

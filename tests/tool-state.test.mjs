@@ -11,6 +11,9 @@ const faces=n=>({...state,selectedIds:['a'],selectedTopology:{bodyId:'a',type:'f
 assert(reason('shell',faces(0)));assert.equal(reason('shell',faces(2)),'');
 for(const op of ['faceHole','faceExtrude']){assert(reason(op,faces(0)));assert.equal(reason(op,faces(1)),'');assert(reason(op,faces(2)));assert(reason(op,{...faces(1),selectedIds:['b']}));}
 assert.equal(reason('remove',{...state,selectedIds:['a','b']}),'');
+assert.equal(reason('extractShell',{...state,selectedIds:['a'],bodies:[{id:'a',shellCount:1}]}),'');
+assert(reason('extractShell',{...state,selectedIds:['a'],bodies:[{id:'a',shellCount:0}]}));
+assert(reason('smoothTransition',faces(1)));assert.equal(reason('smoothTransition',faces(2)),'');
 assert(reason('extractSolid',{...state,selectedIds:['a']}));assert.equal(reason('extractSolid',{...state,selectedIds:['b']}),'');
 assert(reason('box',{...state,busy:true}));assert(reason('quickModel',{...state,kernelReady:false}));
 assert.equal(reason('box',state),'');assert(reason('measure',{...state,bodies:[]}));
