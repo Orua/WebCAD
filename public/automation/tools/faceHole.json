@@ -7,26 +7,41 @@
       "faceId": {
         "type": "integer",
         "description": "Planar face index",
-        "minimum": 0
+        "minimum": 0,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
       },
       "point": {
         "type": "array",
         "items": {
-          "type": "number"
+          "type": "number",
+          "unit": "mm",
+          "quantityKind": "length",
+          "quantizationPolicy": "none"
         },
         "minItems": 3,
         "maxItems": 3,
-        "description": "World coordinate [x,y,z] in mm"
+        "description": "World coordinate [x,y,z] in mm",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "radius": {
         "type": "number",
         "description": "Hole radius (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "depth": {
         "type": "number",
         "description": "Hole depth unless through (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "through": {
         "type": "boolean",
@@ -70,6 +85,13 @@
     "minItems": 1,
     "maxItems": 1
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {
     "through": false
   },
@@ -102,7 +124,7 @@
     "面上打孔"
   ],
   "description": "Drill inward from a planar face",
-  "schemaHash": "sha256:a2a2aa4113daa67cdbb938cc92a2561bddd132b510477adbf24340e5b91ad96e",
+  "schemaHash": "sha256:aa975e9221b391957785a7ea13adf280c034ab9a2c06d405340435601ac34fd8",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -256,5 +278,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:3a786504736b0901c22a36c24ea7439bd70d3dacfd641fa48eeaa25c8d3b74be"
+  "docsHash": "sha256:9f349e1b4d662ec45cfb732d8024204832524c13ac61e75030b655edc126b268"
 }

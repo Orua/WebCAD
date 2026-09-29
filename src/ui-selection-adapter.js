@@ -6,7 +6,7 @@ export function adaptUISelection(op, input, refs, topology) {
   if(op==='extractFaces'&&(!Array.isArray(params.faceIds)||!params.faceIds.length)&&topology.type==='face')params.faceIds=[...topology.ids];
   if(['fillet','chamfer'].includes(op)&&params.edgeIds===undefined&&params.faceIds===undefined&&params.allEdges!==true){
     if(topology.type==='edge')params.edgeIds=[...topology.ids];
-    if(topology.type==='face')params.faceIds=[...topology.ids];
+    if(topology.type==='face'){params.faceIds=[...topology.ids];if(topology.ids.length>=2&&params.sharedFaces===undefined)params.sharedFaces=true;}
   }
   if(op==='shell'&&params.faceIds===undefined&&topology.type==='face')params.faceIds=[...topology.ids];
   if(['faceHole','faceExtrude','logo','curvedLogo','thickenFace','faceBoundary','offsetSurface','thread','faceGroove','innerTurn','outerTurn'].includes(op)&&params.faceId===undefined&&topology.type==='face'&&topology.ids.length===1){

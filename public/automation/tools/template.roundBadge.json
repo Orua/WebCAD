@@ -12,6 +12,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -135,12 +142,18 @@
       "diameter": {
         "type": "number",
         "default": 40,
-        "description": "Badge diameter"
+        "description": "Badge diameter",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "thickness": {
         "type": "number",
         "default": 2,
-        "description": "Plate thickness"
+        "description": "Plate thickness",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "rimWidth": {
         "type": "number",
@@ -174,7 +187,7 @@
       }
     }
   },
-  "schemaHash": "sha256:5dc09d8ceef886d0a0609f63127835d3751f0d85faeb9416af088e06bde93925",
+  "schemaHash": "sha256:a4fd4fb02ab51a17e548784f36576296d4cb52193dfed660a1e1d47ae59d81d9",
   "defaults": {
     "diameter": 40,
     "thickness": 2,
@@ -288,5 +301,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:b3e5c33963b3565f178c45b76a4177ef87ccb2b7ad4031975d58706733f14ac6"
+  "docsHash": "sha256:a24dbcdd84802e98abbf9f961734194cb8439ae8d81879696911e9585885e84c"
 }

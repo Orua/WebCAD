@@ -32,14 +32,23 @@
               "items": {
                 "type": "array",
                 "items": {
-                  "type": "number"
+                  "type": "number",
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
                 },
                 "minItems": 2,
                 "maxItems": 2,
-                "description": "XY coordinate in mm"
+                "description": "XY coordinate in mm",
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
               },
               "minItems": 2,
-              "maxItems": 3
+              "maxItems": 3,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
             }
           }
         },
@@ -71,14 +80,23 @@
                 "items": {
                   "type": "array",
                   "items": {
-                    "type": "number"
+                    "type": "number",
+                    "unit": "mm",
+                    "quantityKind": "length",
+                    "quantizationPolicy": "none"
                   },
                   "minItems": 2,
                   "maxItems": 2,
-                  "description": "XY coordinate in mm"
+                  "description": "XY coordinate in mm",
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
                 },
                 "minItems": 2,
-                "maxItems": 3
+                "maxItems": 3,
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
               }
             }
           },
@@ -89,7 +107,10 @@
       },
       "height": {
         "type": "number",
-        "description": "Signed nonzero Z extrusion (mm)"
+        "description": "Signed nonzero Z extrusion (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "source": {
         "type": "object"
@@ -107,6 +128,13 @@
     "uniqueItems": true,
     "minItems": 0,
     "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {},
   "selectionTokenSupport": {
@@ -127,7 +155,7 @@
     "解析线弧轮廓"
   ],
   "description": "Extrude exact closed XY LINE/ARC boundaries with optional holes",
-  "schemaHash": "sha256:0444170c6454f0deb8129a2a979c255e394578513f067cfbf6c70a1c801ea754",
+  "schemaHash": "sha256:ae720d288338ed859ee8e2ec0abd429e54388b02e2ff0330bbc48905a08acff1",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -348,5 +376,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:ca79a9ddeef0a619fa6b28cb59030226dde1aed51df1fd59d14cc59c70c47b93"
+  "docsHash": "sha256:cbf18ef2759f2566586235d145280e0d90111d25b0cd1d14d21ba80fcf09f63f"
 }

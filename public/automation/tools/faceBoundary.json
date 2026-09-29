@@ -10,7 +10,10 @@
     "properties": {
       "faceId": {
         "type": "integer",
-        "minimum": 0
+        "minimum": 0,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
       },
       "boundary": {
         "type": "string",
@@ -33,6 +36,13 @@
     "minItems": 1,
     "maxItems": 1
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -52,7 +62,7 @@
     "提取面边界"
   ],
   "description": "先选中一张面。all 提取包括内孔在内的全部边界；outer 明确只提取外环，不带孔。保留源模型，生成精确线框。单闭环可接参考轮廓拉伸/放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。",
-  "schemaHash": "sha256:679809ed847814e39c84c6adb857b773d42d04a6a8cac2546340281ed50cd14e",
+  "schemaHash": "sha256:ebd862870fc3e2d7a2095a989fde20566256d983c5b2de6054f6097ce9f5ea8e",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -169,5 +179,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:e49ceb3e4ff2ff26ec4390e88dfc26c32bb6ceef5479c9fb4260001dd9c39380"
+  "docsHash": "sha256:38ad5cba64945e94bf2c57f080202222da29849bc6cf9838b6e7223204d32334"
 }

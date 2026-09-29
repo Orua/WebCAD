@@ -77,6 +77,25 @@ test('upstream edit rejects unproven downstream index references',async()=>{
  const t=setup();await t.service.execute(t.add());t.state.features.push({id:'downstream',op:'fillet',params:{edgeIds:[1]},refs:['f1']});
  const card=getOperation('box');const r=await t.service.execute({context:t.context(),idempotencyKey:'edit',action:'feature.edit',args:{featureId:'f1',opVersion:card.version,schemaHash:card.schemaHash,params:{width:60}}});
  assert.equal(r.error.code,'UNSAFE_LEGACY_REFERENCE');assert.equal(t.calls,1);
+ assert.equal(r.error.featureId,'f1');assert.deepEqual(r.error.affectedFeatureIds,['downstream']);
+});
+
+test('explicit small dimensions are preserved and returned with the effective exact parameters',async()=>{
+ const t=setup(),r=await t.service.execute(t.add({width:20.005,depth:2.345,height:0.004}));
+ assert.equal(r.status,'committed');assert.equal(t.state.features[0].params.height,0.004);
+ assert.equal(r.numericInput.policy,'exact');assert.deepEqual(r.numericInput.requestedParams,r.numericInput.effectiveParams);
+ assert.deepEqual(r.numericInput.quantizationWarnings,[]);
+});
+
+test('unrelated later selectors permit edits while no-op edits remain allowed',async()=>{
+ const t=setup();await t.service.execute(t.add());t.state.features.push({id:'other',op:'box',params:{width:5,depth:5,height:2},refs:[]},{id:'rounded',op:'fillet',params:{edgeIds:[1]},refs:['other']});
+ const card=getOperation('box'),args={featureId:'f1',opVersion:card.version,schemaHash:card.schemaHash,params:{width:60}};
+ const result=await t.service.execute({context:t.context(),idempotencyKey:'independent',action:'feature.edit',args});assert.notEqual(result.status,'failed');assert.equal(t.calls,2);
+});
+
+test('kernel failure identifies the failed feature in the final public receipt',async()=>{
+ const t=setup(),s=t.state;const service=createCommandService({snapshot:()=>structuredClone(s),execute:async()=>{throw Object.assign(new Error('Bad cutter'),{code:'GEOMETRY_INVALID',featureId:'failed-hole'});}});
+ const result=await service.execute(t.add());assert.equal(result.error.featureId,'failed-hole');assert.equal(result.commitState,'not_committed');
 });
 test('versioned preview updates reject stale generations and keep draft edits out of model revision',async()=>{
  const s={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:4,features:[],bodies:[],kernelReady:true,busy:false,preview:true,referenceSystem:createReferenceSystem(),previewInfo:{previewId:'preview-1',generation:1,baseRevision:4,owner:'api'},previewDraft:{op:'box',params:{width:20,depth:10,height:3},refs:[],name:'板件'}};

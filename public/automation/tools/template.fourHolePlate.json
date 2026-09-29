@@ -12,6 +12,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -135,27 +142,42 @@
       "width": {
         "type": "number",
         "default": 50,
-        "description": "Plate width X"
+        "description": "Plate width X",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "depth": {
         "type": "number",
         "default": 30,
-        "description": "Plate depth Y"
+        "description": "Plate depth Y",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "thickness": {
         "type": "number",
         "default": 3,
-        "description": "Thickness"
+        "description": "Thickness",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "cornerRadius": {
         "type": "number",
         "default": 0,
-        "description": "Outer corner radius"
+        "description": "Outer corner radius",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "holeDiameter": {
         "type": "number",
         "default": 4,
-        "description": "Hole diameter"
+        "description": "Hole diameter",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "insetX": {
         "type": "number",
@@ -169,7 +191,7 @@
       }
     }
   },
-  "schemaHash": "sha256:77d89a0632a9d40127fd9fc9a3f65e3cab353ae346939405b077f3ba99712ed5",
+  "schemaHash": "sha256:dda93b3640da974120c63cf9b212b90d7934a3b5e936438475588d6819c746b9",
   "defaults": {
     "width": 50,
     "depth": 30,
@@ -273,5 +295,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:af584c0444c02b8e727762da101caf564c7abca2274ff48423a78e89cd380bf2"
+  "docsHash": "sha256:a033a158bfdb7c983528947796eadca54e4b24150ba21f2db2c7195e7dc0ab10"
 }

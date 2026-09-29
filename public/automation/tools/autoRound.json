@@ -7,7 +7,10 @@
       "radius": {
         "type": "number",
         "description": "Uniform exact radius in mm (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -26,6 +29,13 @@
     "uniqueItems": true,
     "minItems": 1,
     "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {},
   "selectionTokenSupport": {
@@ -46,7 +56,7 @@
     "整件圆边"
   ],
   "description": "整件圆边 / Round every sharp edge of one solid",
-  "schemaHash": "sha256:ff0d4d81af0d18ade309f8da29ad806e75747493087eb505a5d9d36893bd47bb",
+  "schemaHash": "sha256:87faa92279ffe94694ca7d5a2f99d89c16f11fa6bf1f69619d5d36fc1e409b0c",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -175,5 +185,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:1118af9792eea3f68d1c3c735164ff34ea707041ffbfade0f0b7b3e21d939407"
+  "docsHash": "sha256:2785d37cb7ac3bdf8f80b5af940e77d7807a5f3d63d617a9f779b1640ba16b26"
 }

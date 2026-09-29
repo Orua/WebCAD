@@ -1,7 +1,7 @@
 const operation = { type: 'string', enum: ['newBody', 'join', 'cut', 'intersect'], default: 'newBody', description: 'New body, or explicit material operation on the last target ref' };
 const point = description => ({ type: 'array', minItems: 3, maxItems: 3, items: { type: 'number' }, description });
 const schema = (properties, required = []) => ({ type: 'object', additionalProperties: false, properties: { operation, ...properties }, required });
-const materialNotes = '精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。只接受有效正体积单实体，无材料变化的加料/切除或分裂结果失败，失败不改来源。固定来源世界位置，不再次应用工作基准。';
+const materialNotes = '精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。';
 
 export const profileSolidLabels = { profileRevolve: '轮廓旋转', profileSweep: '轮廓扫掠', profileLoft: '轮廓放样' };
 export const profileSolidExamples = {

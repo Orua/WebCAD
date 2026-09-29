@@ -18,6 +18,13 @@
     "uniqueItems": true,
     "minItems": 2
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -37,7 +44,7 @@
     "组合"
   ],
   "description": "Group bodies as a compound without fusing",
-  "schemaHash": "sha256:2e464d8fd896124c014d22862b864ced9023a675a71145ca402bb47c2eb0fac0",
+  "schemaHash": "sha256:3c3704869c61e3dee136f143a418314dd579c20fe3ae6dd132b1bf7aed50b27c",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -153,5 +160,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:58b8486a88121524fac2477296507064c999e0bbf27b7c5e3a2f272d32a0370e"
+  "docsHash": "sha256:4d27db16905c0312f798ac230724b9363d79e87c65b644de82aaccec43a6d13c"
 }

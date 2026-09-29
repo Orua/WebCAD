@@ -7,7 +7,10 @@
       "solidIndex": {
         "type": "integer",
         "description": "Zero-based solid index",
-        "minimum": 0
+        "minimum": 0,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
       },
       "keepOriginal": {
         "type": "boolean",
@@ -29,6 +32,13 @@
     "minItems": 1,
     "maxItems": 1
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -48,7 +58,7 @@
     "提取实体"
   ],
   "description": "Extract one solid from a compound",
-  "schemaHash": "sha256:ec060d7e732ae81d12aab4e030163b5ee0c5bd71ac95bf252affd0d0b6c55b92",
+  "schemaHash": "sha256:0f98fe4f94f70c5a844225fdb7b35d2da3be969e586226a9c2940c467d6b68bd",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -166,5 +176,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:7a50cd47f282e560f1728f1563a4616cf7844721c76a4ae671a5a3f17dc8b3e8"
+  "docsHash": "sha256:87af7b6d97e0bf677e5dcbdda7ed89ab1362e84980b0fd31692f56227f5aae87"
 }

@@ -7,11 +7,17 @@
       "faceId": {
         "type": "integer",
         "description": "Planar face index",
-        "minimum": 0
+        "minimum": 0,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
       },
       "height": {
         "type": "number",
-        "description": "Signed nonzero height (mm)"
+        "description": "Signed nonzero height (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -32,6 +38,13 @@
     "minItems": 1,
     "maxItems": 1
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -51,7 +64,7 @@
     "面上拉伸"
   ],
   "description": "Push/pull a planar face along its normal",
-  "schemaHash": "sha256:c199ff938acacd0c0abc0173c02892a41bd4d541c6105dbfc6be021125e70785",
+  "schemaHash": "sha256:53a600947d43350e186e0f34d900568991de9837d1fa00e6016da0743c0380ac",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -171,5 +184,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:db523a5e530cb9bea564b40e1151783fc398f4564d1eba2acb0c7f03c3e971b9"
+  "docsHash": "sha256:5d9cadd88660fa90cb7f8b75891680446a3af6da3c7021435b9e065073c7341c"
 }

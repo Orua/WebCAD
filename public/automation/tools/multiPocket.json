@@ -7,7 +7,10 @@
       "depth": {
         "type": "number",
         "description": "Shared cut depth (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "axis": {
         "type": "string",
@@ -25,7 +28,10 @@
           1,
           -1
         ],
-        "default": -1
+        "default": -1,
+        "unit": "1",
+        "quantityKind": "direction",
+        "quantizationPolicy": "none"
       },
       "pockets": {
         "type": "array",
@@ -44,30 +50,48 @@
           "properties": {
             "x": {
               "type": "number",
-              "description": "World cutter start center X (mm)"
+              "description": "World cutter start center X (mm)",
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
             },
             "y": {
               "type": "number",
-              "description": "World cutter start center Y (mm)"
+              "description": "World cutter start center Y (mm)",
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
             },
             "z": {
               "type": "number",
-              "description": "World cutter start center Z (mm)"
+              "description": "World cutter start center Z (mm)",
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
             },
             "width": {
               "type": "number",
               "description": "Pocket width in the first in-plane axis (mm)",
-              "exclusiveMinimum": 0
+              "exclusiveMinimum": 0,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
             },
             "height": {
               "type": "number",
               "description": "Pocket height in the second in-plane axis (mm)",
-              "exclusiveMinimum": 0
+              "exclusiveMinimum": 0,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
             },
             "cornerRadius": {
               "type": "number",
               "description": "Optional corner radius; 0 means square corners (mm)",
-              "minimum": 0
+              "minimum": 0,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
             }
           }
         }
@@ -90,6 +114,13 @@
     "uniqueItems": true,
     "minItems": 1,
     "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {
     "axis": "Z",
@@ -116,7 +147,7 @@
     "批量矩形凹槽"
   ],
   "description": "Cut multiple exact rectangular or rounded rectangular pockets",
-  "schemaHash": "sha256:8dbfe98f1890b42bda2613e2b2808587c30ccda15c8ed9d72fdcc6905fa39bc9",
+  "schemaHash": "sha256:84242359bb2b48709ee7db08e65ecc69f4a042e08a2d96d7ddf69c055ebfc4b3",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -302,5 +333,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:ca87e5baecdc5d57e144c5a27ed01fb203ea61bf740b3d9155d38b88a3f0d3c3"
+  "docsHash": "sha256:7f80a6e67b90360ccbb4db7f23b8f76528205aa3dacbbc2be155a81efd73b337"
 }

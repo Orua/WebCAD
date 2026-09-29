@@ -88,17 +88,20 @@ export function filletProfileLines(profile,{firstId,secondId,radiusMm,arcId}){
   validateProfile(profile);
   if(!(radiusMm>0&&Number.isFinite(radiusMm)))fail('二维圆角半径须大于零');
   if(!arcId||profile.entities.some(e=>e.id===arcId))fail('新圆弧需要唯一 ID');
-  const next=clone(profile),a=next.entities.find(e=>e.id===firstId),b=next.entities.find(e=>e.id===secondId);
+  const next=clone(profile);let a=next.entities.find(e=>e.id===firstId),b=next.entities.find(e=>e.id===secondId);
   if(a?.type!=='line'||b?.type!=='line')fail('首版二维圆角只支持相邻两条直线');
   const loop=next.loops.find(item=>item.edges.some(e=>e.entityId===firstId)&&item.edges.some(e=>e.entityId===secondId));
   if(!loop)fail('两条直线须位于同一闭合环');
-  const ia=loop.edges.findIndex(e=>e.entityId===firstId),ib=loop.edges.findIndex(e=>e.entityId===secondId);
-  if((ia+1)%loop.edges.length!==ib||loop.edges[ia].reversed||loop.edges[ib].reversed||!near(a.endMm,b.startMm))fail('请按轮廓顺序选择相邻两条直线');
-  const corner=a.endMm,u=unit(sub(a.startMm,corner)),v=unit(sub(b.endMm,corner)),cos=Math.max(-1,Math.min(1,dot(u,v))),theta=Math.acos(cos);
+  let ia=loop.edges.findIndex(e=>e.entityId===firstId),ib=loop.edges.findIndex(e=>e.entityId===secondId);
+  if((ib+1)%loop.edges.length===ia){[ia,ib]=[ib,ia];[a,b]=[b,a];}
+  if(a.id===b.id||(ia+1)%loop.edges.length!==ib)fail('请选择同一闭合轮廓中相邻的两条直线');
+  const ae=loop.edges[ia].reversed?'startMm':'endMm',as=loop.edges[ia].reversed?'endMm':'startMm',bs=loop.edges[ib].reversed?'endMm':'startMm',be=loop.edges[ib].reversed?'startMm':'endMm';
+  if(!near(a[ae],b[bs]))fail('两条直线没有公共端点');
+  const corner=a[ae],u=unit(sub(a[as],corner)),v=unit(sub(b[be],corner)),cos=Math.max(-1,Math.min(1,dot(u,v))),theta=Math.acos(cos);
   if(theta<EPS||Math.PI-theta<EPS)fail('零角或共线段不能生成圆角');
   const tangent=radiusMm/Math.tan(theta/2);
-  if(tangent>=norm(sub(a.startMm,corner))-EPS||tangent>=norm(sub(b.endMm,corner))-EPS)fail('圆角半径超过相邻线段可用长度');
+  if(tangent>=norm(sub(a[as],corner))-EPS||tangent>=norm(sub(b[be],corner))-EPS)fail('圆角半径超过相邻线段可用长度');
   const start=add(corner,mul(u,tangent)),end=add(corner,mul(v,tangent)),bisector=unit(add(u,v)),center=add(corner,mul(bisector,radiusMm/Math.sin(theta/2))),mid=add(center,mul(unit(sub(corner,center)),radiusMm));
-  a.endMm=start;b.startMm=end;next.entities.push({id:arcId,type:'arc3',startMm:start,midMm:mid,endMm:end});loop.edges.splice(ia+1,0,{entityId:arcId,reversed:false});
+  a[ae]=start;b[bs]=end;next.entities.push({id:arcId,type:'arc3',startMm:start,midMm:mid,endMm:end});loop.edges.splice(ia+1,0,{entityId:arcId,reversed:false});
   validateProfile(next);return next;
 }

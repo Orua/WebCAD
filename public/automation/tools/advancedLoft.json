@@ -18,7 +18,10 @@
           ],
           "properties": {
             "z": {
-              "type": "number"
+              "type": "number",
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
             },
             "points": {
               "type": "array",
@@ -27,11 +30,20 @@
               "items": {
                 "type": "array",
                 "items": {
-                  "type": "number"
+                  "type": "number",
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
                 },
                 "minItems": 2,
-                "maxItems": 2
-              }
+                "maxItems": 2,
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
             }
           }
         }
@@ -63,6 +75,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -82,7 +101,7 @@
     "高级放样"
   ],
   "description": "Solid or open shell through hand-defined XY sections",
-  "schemaHash": "sha256:eaa15b48474e993f48c4cefaba0125b4a49db7db4ae483899b2766b3e6a50cc1",
+  "schemaHash": "sha256:d0c499d51061cfedd201524135ea4f8b3c728793efbd92be1c38c5b8150fae56",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -266,5 +285,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:2283b9246731bf3472c6b04a326ad214bb982e4ea227c9a041826cb97cd29d6e"
+  "docsHash": "sha256:44903922d4f02f8ac4045142bf552cf96138214997a6120c9d177a692e26f8ad"
 }

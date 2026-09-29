@@ -3,7 +3,7 @@
   "title": "prepareProfileEdit",
   "category": "page-method",
   "version": "1.13.0",
-  "description": "prepareProfileEdit({context,bodyId,mode:\"intersections\"|\"trim\"|\"extend\"|\"trimCircle\"|\"fillet\",entityId,targetId,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})；这是按需使用的高级编辑，普通绘制只需 sketchProfile 显式图元参数。",
+  "description": "prepareProfileEdit({context,bodyId,mode:\"intersections\"|\"trim\"|\"extend\"|\"trimCircle\"|\"fillet\",entityId?,targetId?,edgeIds?,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})。二维圆角可用 edgeIds:[两条当前边索引] 替代 entityId/targetId，支持解析轮廓及其未缩放的移动/旋转副本，选择先后不限；须显式 radiusMm 与新 arcId。",
   "synonyms": [
     "prepareProfileEdit",
     "解析轮廓修剪",
@@ -11,12 +11,12 @@
     "二维圆角",
     "交点候选"
   ],
-  "inputContract": "prepareProfileEdit({context,bodyId,mode:\"intersections\"|\"trim\"|\"extend\"|\"trimCircle\"|\"fillet\",entityId,targetId,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})；这是按需使用的高级编辑，普通绘制只需 sketchProfile 显式图元参数。",
-  "outputContract": "只读返回候选及经过校验的完整 profile 参数。缺少交点选择时 selectionRequired=true；不自动选择。确认后经 feature.edit 提交 profile，一次历史事务；人工草稿锁继续适用。",
+  "inputContract": "prepareProfileEdit({context,bodyId,mode:\"intersections\"|\"trim\"|\"extend\"|\"trimCircle\"|\"fillet\",entityId?,targetId?,edgeIds?,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})。二维圆角可用 edgeIds:[两条当前边索引] 替代 entityId/targetId，支持解析轮廓及其未缩放的移动/旋转副本，选择先后不限；须显式 radiusMm 与新 arcId。",
+  "outputContract": "只读返回完整 profile 和 sourceFeatureId。edgeIds 按当前精确几何端点唯一匹配原始直线，不依赖边数组顺序；非相邻直线、缩放来源或歧义会拒绝。经 feature.edit 编辑 sourceFeatureId 并提交 profile，一次历史事务，所有依赖此来源的副本/后续特征一起重建。其它模式缺少交点选择时 selectionRequired=true；人工草稿锁继续适用。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "docs": "api.interaction",
-  "docsHash": "sha256:326d0ab284cba48e7432b444fb5317a2122f42ab156d8e0e3f5ac1c595e57f8f"
+  "docsHash": "sha256:724357b5a59392e8589c192ccf4023b6a1f25e744ff6a0fd5c007f073020f0ab"
 }

@@ -12,6 +12,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -135,22 +142,34 @@
       "width": {
         "type": "number",
         "default": 40,
-        "description": "Plate width X"
+        "description": "Plate width X",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "depth": {
         "type": "number",
         "default": 16,
-        "description": "Plate depth Y"
+        "description": "Plate depth Y",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "thickness": {
         "type": "number",
         "default": 3,
-        "description": "Plate thickness"
+        "description": "Plate thickness",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "cornerRadius": {
         "type": "number",
         "default": 3,
-        "description": "Plate corner radius"
+        "description": "Plate corner radius",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "bossSpacing": {
         "type": "number",
@@ -174,7 +193,7 @@
       }
     }
   },
-  "schemaHash": "sha256:ba6dfc00399719920fd18433ac7fc9ea5e76adecfe6df9c4f05e8ba6ee1dedc5",
+  "schemaHash": "sha256:fdb59a0a07257dedac73b271917d07f9a884925149e1a2a2b58fb2a2a8a1167c",
   "defaults": {
     "width": 40,
     "depth": 16,
@@ -288,5 +307,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:490f2e9cf741dcab91db60ac0c5072626a3df8aea828fec9468fd33fd7a87f92"
+  "docsHash": "sha256:8f638e930d6743c59de807e2e5e1974451199e77170221b6db343a1a2a06e378"
 }

@@ -7,29 +7,47 @@
       "length": {
         "type": "number",
         "description": "Overall slot length, including round ends (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "width": {
         "type": "number",
         "description": "Slot width (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "depth": {
         "type": "number",
         "description": "Cut depth (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "x": {
         "type": "number",
-        "description": "Cutter start center X (mm)"
+        "description": "Cutter start center X (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "y": {
         "type": "number",
-        "description": "Cutter start center Y (mm)"
+        "description": "Cutter start center Y (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "z": {
         "type": "number",
-        "description": "Cutter start center Z (mm)"
+        "description": "Cutter start center Z (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "axis": {
         "type": "string",
@@ -45,11 +63,17 @@
         "enum": [
           1,
           -1
-        ]
+        ],
+        "unit": "1",
+        "quantityKind": "direction",
+        "quantizationPolicy": "none"
       },
       "angle": {
         "type": "number",
-        "description": "Rotation in degrees about positive cut axis"
+        "description": "Rotation in degrees about positive cut axis",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -71,6 +95,13 @@
     "minItems": 1,
     "maxItems": 1
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -90,7 +121,7 @@
     "长圆槽"
   ],
   "description": "Cut an exact capsule slot (two semicircles and two straight sides)",
-  "schemaHash": "sha256:401a4760f1ce6c397d18cf3b5eb684c49116d8ad0c692a941980675af4eec9c4",
+  "schemaHash": "sha256:7327fd193031df0266b731c4ffe2d0a6fe6f3fcd8646c8e796ba391844ae963d",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -219,5 +250,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:e64f4b42735713779cf6a2dcafb8fce3695e62cb81d761d825b6c9ba9f821c87"
+  "docsHash": "sha256:fae13d540e027ed1d3f5131bd2ded7b4fb4241a66df01a47a8b4bce883f490e8"
 }

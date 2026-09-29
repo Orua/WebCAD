@@ -9,7 +9,7 @@ export function showWorkspaceSettings(action,{openDialog,element,button,state,em
   const note=text=>form.append(element('p',{class:'property-footnote wide'},text));
   if(action==='precisionSettings'){
     const inputs={};for(const [key,label,def,max]of [['dimensionPrecisionMm','尺寸精度 mm',0.01,10],['anglePrecisionDeg','角度精度 °',0.1,90]]){const row=element('label',{class:'form-field'}),input=element('input',{type:'number',name:key,min:'0.000001',max:String(max),step:'any',required:'','aria-label':label});input.value=String(state.displayPreferences?.[key]??def);inputs[key]=input;row.append(element('span',{},label),input);form.append(row);}
-    note('按步长四舍五入：默认尺寸 0.01 mm、角度 0.1°。影响新输入、移动和旋转；不重算已有模型或导入几何。');
+    note('鼠标移动与旋转的交互步长：默认 0.01 mm、0.1°。手工输入、表达式和 AI/API 显式数值按原值建模；显示、步长设置不改写已有模型，内核容差另行管理。');
     const apply=element('button',{type:'submit',class:'primary'},'应用并记住');form.append(button('关闭',closeDialog,'secondary'),apply);form.addEventListener('submit',async e=>{e.preventDefault();if(!form.reportValidity())return;apply.disabled=true;try{await emit('displayPreferences',Object.fromEntries(Object.entries(inputs).map(([k,v])=>[k,Number(v.value)])));closeDialog();}finally{apply.disabled=false;}});d.append(form);return;
   }
   if(action==='agentGuide'){

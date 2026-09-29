@@ -23,6 +23,13 @@
     "uniqueItems": true,
     "minItems": 2
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -34,7 +41,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the explicit target. Optional keepTools preserves refs[1..] as separate original bodies.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the explicit target. Optional keepTools preserves refs[1..] as separate original bodies. Each common is checked with adaptive exact-BRep volume integration: result volume must not exceed either input (tolerance 1e-7 mm³ + 1e-8 times the smaller input volume). A violation returns GEOMETRY_INVALID and preserves the prior model, even if BRepCheck reports valid. No automatic alternative Boolean is applied.",
   "title": "Common volume of bodies",
   "category": "modification",
   "synonyms": [
@@ -42,7 +49,7 @@
     "相交"
   ],
   "description": "Common volume of bodies",
-  "schemaHash": "sha256:a213fbac77fc226cd766431756dd5828591558a98742efad910e56a97cb3d29d",
+  "schemaHash": "sha256:0e01f8f8e8cff7f9f0fb823d62704b8d48db5e97a5fed4b07e26b3b2c36a1a26",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -92,7 +99,7 @@
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "refs[0] is the explicit target. Optional keepTools preserves refs[1..] as separate original bodies."
+    "refs[0] is the explicit target. Optional keepTools preserves refs[1..] as separate original bodies. Each common is checked with adaptive exact-BRep volume integration: result volume must not exceed either input (tolerance 1e-7 mm³ + 1e-8 times the smaller input volume). A violation returns GEOMETRY_INVALID and preserves the prior model, even if BRepCheck reports valid. No automatic alternative Boolean is applied."
   ],
   "minimalExample": {
     "op": "intersect",
@@ -158,5 +165,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:0eb61d15b7479fa2142379db51095dcf0db91e758e6e08e83d40dec56238afed"
+  "docsHash": "sha256:9b98427b976c58ced4ab7146aa362b74456479e3d9c3709ceec7748de539b07a"
 }

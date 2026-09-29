@@ -11,26 +11,44 @@
         "uniqueItems": true,
         "items": {
           "type": "integer",
-          "minimum": 0
-        }
+          "minimum": 0,
+          "unit": "1",
+          "quantityKind": "index",
+          "quantizationPolicy": "none"
+        },
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
       },
       "neutralFaceId": {
         "type": "integer",
-        "minimum": 0
+        "minimum": 0,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
       },
       "pullDirection": {
         "type": "array",
         "minItems": 3,
         "maxItems": 3,
         "items": {
-          "type": "number"
-        }
+          "type": "number",
+          "unit": "1",
+          "quantityKind": "direction",
+          "quantizationPolicy": "none"
+        },
+        "unit": "1",
+        "quantityKind": "direction",
+        "quantizationPolicy": "none"
       },
       "angleDeg": {
         "type": "number",
         "description": "Draft angle degrees",
         "exclusiveMinimum": 0,
-        "exclusiveMaximum": 45
+        "exclusiveMaximum": 45,
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -53,6 +71,13 @@
     "minItems": 1,
     "maxItems": 1
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -72,7 +97,7 @@
     "受限拔模"
   ],
   "description": "Exact restricted four-side planar prism draft around one fixed bottom plane",
-  "schemaHash": "sha256:189437fbcdd292f9ab7ead4deb4e4a4def1634ff4250babcbc905f02439a94de",
+  "schemaHash": "sha256:bb224f28837e4f4ad1afddb07c062339d3d0cf968e8ce393a3d2957060d89ae0",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -237,5 +262,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:94b652a44a31efec476cc9bcc1c30f7149c998f555e83c9cf48c5624a6015050"
+  "docsHash": "sha256:b58cf72903b82cbeb70d92e53d7248de1f6676675fef4c6d52843a3d8aec5779"
 }

@@ -40,21 +40,33 @@
             "originMm": {
               "type": "array",
               "items": {
-                "type": "number"
+                "type": "number",
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
               },
               "minItems": 2,
               "maxItems": 2,
-              "description": "XY coordinate in mm"
+              "description": "XY coordinate in mm",
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
             },
             "widthMm": {
               "type": "number",
               "description": "Primitive width or capsule overall length (mm)",
-              "exclusiveMinimum": 0
+              "exclusiveMinimum": 0,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
             },
             "heightMm": {
               "type": "number",
               "description": "Primitive height or capsule width (mm)",
-              "exclusiveMinimum": 0
+              "exclusiveMinimum": 0,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
             },
             "cornerRadiusMm": {
               "type": "number",
@@ -64,20 +76,32 @@
             "startMm": {
               "type": "array",
               "items": {
-                "type": "number"
+                "type": "number",
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
               },
               "minItems": 2,
               "maxItems": 2,
-              "description": "XY coordinate in mm"
+              "description": "XY coordinate in mm",
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
             },
             "endMm": {
               "type": "array",
               "items": {
-                "type": "number"
+                "type": "number",
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
               },
               "minItems": 2,
               "maxItems": 2,
-              "description": "XY coordinate in mm"
+              "description": "XY coordinate in mm",
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
             },
             "midMm": {
               "type": "array",
@@ -91,16 +115,25 @@
             "centerMm": {
               "type": "array",
               "items": {
-                "type": "number"
+                "type": "number",
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
               },
               "minItems": 2,
               "maxItems": 2,
-              "description": "XY coordinate in mm"
+              "description": "XY coordinate in mm",
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
             },
             "diameterMm": {
               "type": "number",
               "description": "Circle diameter (mm)",
-              "exclusiveMinimum": 0
+              "exclusiveMinimum": 0,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
             },
             "construction": {
               "type": "boolean",
@@ -261,6 +294,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -280,7 +320,7 @@
     "绘制轮廓"
   ],
   "description": "Create an editable exact 2D wire or planar face from stable analytic entities",
-  "schemaHash": "sha256:d7c57ca2b1183d63cf45a7c0d967011b5e4fe15796883a9ee78e3957212c61be",
+  "schemaHash": "sha256:ff427964bf4d4bab73f0c55b1389e09ded059ef4544b9f834cab3bb19aa26d63",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -512,5 +552,5 @@
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:f61cceb2879ed35a09f30477d515c3053cbd5a9866c22778c9dbdb13557b0b0f"
+  "docsHash": "sha256:f0fc75376ac0b0b108788767ac981b18c38a6524901526b60953598b0f087d60"
 }

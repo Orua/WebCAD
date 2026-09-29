@@ -7,12 +7,18 @@
       "radius": {
         "type": "number",
         "description": "Shared boss radius (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "height": {
         "type": "number",
         "description": "Shared boss height (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "axis": {
         "type": "string",
@@ -30,7 +36,10 @@
           1,
           -1
         ],
-        "default": 1
+        "default": 1,
+        "unit": "1",
+        "quantityKind": "direction",
+        "quantizationPolicy": "none"
       },
       "points": {
         "type": "array",
@@ -39,12 +48,21 @@
         "items": {
           "type": "array",
           "items": {
-            "type": "number"
+            "type": "number",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "minItems": 3,
           "maxItems": 3,
-          "description": "World coordinate [x,y,z] in mm"
-        }
+          "description": "World coordinate [x,y,z] in mm",
+          "unit": "mm",
+          "quantityKind": "length",
+          "quantizationPolicy": "none"
+        },
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -65,6 +83,13 @@
     "uniqueItems": true,
     "minItems": 1,
     "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {
     "axis": "Z",
@@ -89,7 +114,7 @@
     "cylindrical boss"
   ],
   "description": "Fuse multiple exact solid cylindrical bosses onto one body",
-  "schemaHash": "sha256:24e43b060bae1bb817b54b0acbaab4044705b032ccd45be79ff14e7773f5acf4",
+  "schemaHash": "sha256:13b41b58a0303f82923535d4a8f55b97b6ebf2bdb35f64fb60a6c71607147321",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -263,5 +288,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:35ea8309e4a9aae4a84b6e2b63ee22cba93e5324c975ebe8c98c002bd390035a"
+  "docsHash": "sha256:c98287cf7a39680c9bf2afdf5487a688102a0b248d33d8a197e3454b38949085"
 }

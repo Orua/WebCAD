@@ -23,6 +23,13 @@
     "uniqueItems": true,
     "minItems": 2
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -42,7 +49,7 @@
     "相减"
   ],
   "description": "Subtract other bodies from first",
-  "schemaHash": "sha256:04e2451c1117c0a2e470c79585b4ecc4a3615f8fd14e432df683e989c1cc049e",
+  "schemaHash": "sha256:a6edba2c9cb90c24d73f925a1a16e0dbfa37297a6962db09da203364ce53700e",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -158,5 +165,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:75b99b24f9047ff35243995ff428d9f27ffba1e491e0c3a62040e80bb4f8b172"
+  "docsHash": "sha256:6ff0db2975a2e70e5edb2aed97027585d5299844a6ef55bb080b9743b9784ea1"
 }

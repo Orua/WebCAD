@@ -1,0 +1,32 @@
+{
+  "id": "readVector",
+  "title": "readVector",
+  "category": "page-method",
+  "version": "1.13.0",
+  "description": "readVector({context,name,resourceId|text,scaleMm?:1,targetWidthMm?,entityIds?,bounds?:[minX,minY,maxX,maxY],layers?,offset?:0,limit?:500}); limit<=10000。文件先 files.register。",
+  "synonyms": [
+    "readVector",
+    "DWG",
+    "DXF",
+    "SVG",
+    "矢量",
+    "文件",
+    "导入",
+    "粘贴",
+    "原始圆弧"
+  ],
+  "inputContract": "readVector({context,name,resourceId|text,scaleMm?:1,targetWidthMm?,entityIds?,bounds?:[minX,minY,maxX,maxY],layers?,offset?:0,limit?:500}); limit<=10000。文件先 files.register。",
+  "outputContract": "status=read；entities 为解析线/圆弧/圆，源 handle 和 layer，unsupportedCount、bounds、total、truncated、source.sha256；只读不改工程。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "VECTOR_INVALID",
+    "RESOURCE_EXPIRED",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docs": "api.vector-import",
+  "docsHash": "sha256:44223991eaa713fd56bf71f93c3bee65972d5950c45db7deb3557a911a34c88b"
+}

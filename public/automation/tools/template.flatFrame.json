@@ -12,6 +12,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -165,11 +172,14 @@
       "thickness": {
         "type": "number",
         "default": 3,
-        "description": "Thickness"
+        "description": "Thickness",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     }
   },
-  "schemaHash": "sha256:a6c589be1f3b119f3e8a9eb98362b5f040128ca8ce4394651ba83bdbc645c1b9",
+  "schemaHash": "sha256:4087509fb52425adca08cec55939c102976411c561f7202d4e44c21979333b7e",
   "defaults": {
     "outerWidth": 40,
     "outerHeight": 28,
@@ -273,5 +283,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:c864e29bef696ba0ed8b8ebfd44674e3e23f6c73a88debdcc279e189d98470be"
+  "docsHash": "sha256:318e0d7ec5d247f5d2b5856834601590d9fcb1697deedf2d42f41f89ff0f0eaa"
 }

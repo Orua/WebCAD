@@ -14,7 +14,9 @@ AI 先读发布页的 `llms.txt` / `automation/quickstart.md`，再通过宿主�
 
 按需文档从 `automation/manifest.json` 找到单个 `tools/<id>.json` 与 `docs/<id>.md`；完整知识库为 `automation/knowledge.md` / `index.json`，AI 面板可直接下载。新增工具必须同时提供 AI 接口与文档，构建检查工具栏动作的对应关系。外观、显隐、改名、拆散、预览及视图设置也有公开接口，详见 `readDocs({docId:'api.ui-coverage'})`。
 
-M0/M1 已建立完整工程上下文、revision、选择令牌与命令事务。box、hole、multiHole、faceHole、fillet、chamfer、shell 有严格 v2 参数契约，其余操作的目录 Schema 属于 advisory。旧 MCP 文档和 M2A 报告保留为开发历史，不是正常运行入口或新页面 API 的验收证明。
+M0/M1 已建立完整工程上下文、revision、选择令牌与命令事务。严格契约范围以当前 `getTool()` 的 `strictContract/contractStatus` 和 `src/operation-registry.js` 为准；未迁移工具仍是 advisory，工具存在不代表任意目标均可加工。旧 MCP 文档和 M2A 报告保留为开发历史，不是正常运行入口或新页面 API 的验收证明。
+
+显式手工/API/表达式尺寸按原值建模，鼠标交互步长与内核容差分别管理。工具卡公开 `numericInputPolicy` 和已标注参数的 `unit/quantityKind/quantizationPolicy`；执行回执 `numericInput` 可核对请求和实际参数。保存来源的轮廓加料支持共享面融合，仍拒绝分离或仅边/点接触。改参按实际引用依赖检查，人工与 API 共用保护；不安全面/边引用返回具体 `affectedFeatureIds`。
 
 页面接口已接出命名参数与尺寸绑定：`getState()` 返回参数定义及计算值，`execute` 的 `document.parameters` 动作可一次更新参数并重建关联特征，形成一个撤销步骤。页面“参数表”允许用户只改数值；四孔板示例和具体限制见 [页面 API](docs/PAGE-API.zh-CN.md#命名参数与尺寸联动)。浏览器和侧边栏的现场验收仍以单独测试记录为准。
 

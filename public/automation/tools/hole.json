@@ -7,27 +7,42 @@
       "radius": {
         "type": "number",
         "description": "Hole radius (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "depth": {
         "type": "number",
         "description": "Hole depth (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "x": {
         "type": "number",
         "description": "Start X (mm)",
-        "default": 0
+        "default": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "y": {
         "type": "number",
         "description": "Start Y (mm)",
-        "default": 0
+        "default": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "z": {
         "type": "number",
         "description": "Start Z (mm)",
-        "default": 0
+        "default": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "axis": {
         "type": "string",
@@ -45,7 +60,10 @@
           1,
           -1
         ],
-        "default": 1
+        "default": 1,
+        "unit": "1",
+        "quantityKind": "direction",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -65,6 +83,13 @@
     "uniqueItems": true,
     "minItems": 1,
     "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {
     "x": 0,
@@ -93,7 +118,7 @@
     "打孔"
   ],
   "description": "Cylindrical cut starting at global coordinates",
-  "schemaHash": "sha256:01c467262a03594b5d9ce4dabfca229cf3fbb9909fd3a43434a6a3c6019853f7",
+  "schemaHash": "sha256:42c43c2ab8df379086862a5a77b153781cb94310caa6a4b2a0947d4f3c509624",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -242,5 +267,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:2cfb75a81e4f89a2246aa4b54940668fc7b72f2a7dbb65236f9c4779efdd5048"
+  "docsHash": "sha256:18354e0e2da6fc0e33b673cd75391a06672529757e4af574e5564e8c7c391474"
 }

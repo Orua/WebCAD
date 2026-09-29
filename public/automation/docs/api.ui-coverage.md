@@ -2,6 +2,55 @@
 
 界面动作与 AI 等价接口（手势以坐标和显式参数代替）：
 {
+  "pathEdit": {
+    "tools": [
+      "inspectProfile",
+      "feature.edit"
+    ],
+    "method": "execute",
+    "usage": "选择明确的 sketchProfile 原始路径，修改完整 params 后 feature.edit 提交；保留原 placement，重建后续特征。编辑器支持端点、长度/角度、删除段、闭合和线框输出。"
+  },
+  "pathTrim": {
+    "tools": [
+      "prepareProfileEdit",
+      "feature.edit"
+    ],
+    "method": "prepareProfileEdit",
+    "usage": "选择 sketchProfile 来源；prepareProfileEdit mode=trim 明确 entityId、targetId、endpoint、candidateId，再 feature.edit 提交完整 profile。"
+  },
+  "pathExtend": {
+    "tools": [
+      "prepareProfileEdit",
+      "feature.edit"
+    ],
+    "method": "prepareProfileEdit",
+    "usage": "选择 sketchProfile 来源；prepareProfileEdit mode=extend 沿原解析曲线延伸至明确交点，feature.edit 提交。"
+  },
+  "pathFillet": {
+    "tools": [
+      "prepareProfileEdit",
+      "feature.edit"
+    ],
+    "method": "prepareProfileEdit",
+    "usage": "主视图选同一轮廓两条相邻直边；prepareProfileEdit mode=fillet、bodyId、edgeIds、radiusMm、arcId；feature.edit 编辑返回的 sourceFeatureId，提交 profile。选边先后不限。"
+  },
+  "pathTrimCircle": {
+    "tools": [
+      "prepareProfileEdit",
+      "feature.edit"
+    ],
+    "method": "prepareProfileEdit",
+    "usage": "选择 sketchProfile 来源；prepareProfileEdit mode=trimCircle，明确两个交点与 keepSide，再 feature.edit 提交。"
+  },
+  "vectorImport": {
+    "tools": [
+      "readVector",
+      "connectVector",
+      "sketchProfile"
+    ],
+    "method": "readVector",
+    "usage": "选择文件或粘贴矢量文本，框选完整轮廓；connectVector 诊断和组环，sketchProfile 经同一命令服务成面。"
+  },
   "quickModelFavorites": {
     "tools": [
       "quickModel",

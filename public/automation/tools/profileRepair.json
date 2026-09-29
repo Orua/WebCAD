@@ -13,7 +13,10 @@
         "type": "number",
         "exclusiveMinimum": 0,
         "maximum": 1,
-        "description": "Maximum permitted movement of one endpoint in mm"
+        "description": "Maximum permitted movement of one endpoint in mm",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -34,6 +37,13 @@
     "minItems": 1,
     "maxItems": 1
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -53,7 +63,7 @@
     "修复轮廓"
   ],
   "description": "Derive a repaired analytic profile by moving one explicitly identified endpoint within the stated maximum displacement",
-  "schemaHash": "sha256:b8521660d1a2f2cbd2093c07568a49057e56fa05fc141353e0614b259df9f364",
+  "schemaHash": "sha256:8e5efceb4f0ef0a5be78a701c0adeba00dbcc62fed69df30bdfc70da0615374a",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -186,5 +196,5 @@
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:86bfedba86f6ed55723a7523896955bacbbbc79dbfcd8f831b64ff9f4c0e9c26"
+  "docsHash": "sha256:c05d23386530307eae9d33a71c395a4e3bc39b0860a98d486360cb19999a67a9"
 }

@@ -18,22 +18,34 @@
       "width": {
         "type": "number",
         "description": "Width (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "depth": {
         "type": "number",
         "description": "Depth (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "radius": {
         "type": "number",
         "description": "Circle/arc radius (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "cornerRadius": {
         "type": "number",
         "description": "Rounded rectangle corner radius; less than half shorter side (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "points": {
         "type": "array",
@@ -42,19 +54,34 @@
         "items": {
           "type": "array",
           "items": {
-            "type": "number"
+            "type": "number",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "minItems": 2,
-          "maxItems": 2
-        }
+          "maxItems": 2,
+          "unit": "mm",
+          "quantityKind": "length",
+          "quantizationPolicy": "none"
+        },
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "startAngle": {
         "type": "number",
-        "description": "Arc start (degrees)"
+        "description": "Arc start (degrees)",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "endAngle": {
         "type": "number",
-        "description": "Arc end (degrees); absolute span > 0 and < 360"
+        "description": "Arc end (degrees); absolute span > 0 and < 360",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "closure": {
         "type": "string",
@@ -75,13 +102,19 @@
       },
       "offset": {
         "type": "number",
-        "description": "Horizontal in-plane offset from rotation axis (mm)"
+        "description": "Horizontal in-plane offset from rotation axis (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "angle": {
         "type": "number",
         "description": "Degrees",
         "exclusiveMinimum": 0,
-        "maximum": 360
+        "maximum": 360,
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       }
     },
     "required": [],
@@ -98,6 +131,13 @@
     "uniqueItems": true,
     "minItems": 0,
     "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {},
   "selectionTokenSupport": {
@@ -118,7 +158,7 @@
     "旋转成型"
   ],
   "description": "Revolve a closed profile",
-  "schemaHash": "sha256:7f54589ff318b3af5cf56fafb396a52ca6bcf2cb9954d0b3d35ba68c1bceb259",
+  "schemaHash": "sha256:d509e5b503652a41ac5580a5d6d519191a4f2c23866756e39127c5223cfe4f6c",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -239,5 +279,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:b36cde98a8ed74d144f5bd4a991d3a71a66de8e09b1fcfc13b934022eeb53124"
+  "docsHash": "sha256:8870c8ae81b150063586148810912a2510365e5d85fc9c0c0cd90904bdee39eb"
 }

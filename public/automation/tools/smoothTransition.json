@@ -7,18 +7,27 @@
       "radius": {
         "type": "number",
         "description": "Exact transition radius; no automatic reduction (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "faceIds": {
         "type": "array",
         "items": {
           "type": "integer",
           "description": "Zero-based topology index",
-          "minimum": 0
+          "minimum": 0,
+          "unit": "1",
+          "quantityKind": "index",
+          "quantizationPolicy": "none"
         },
         "minItems": 2,
         "maxItems": 128,
-        "uniqueItems": true
+        "uniqueItems": true,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -38,6 +47,13 @@
     "uniqueItems": true,
     "minItems": 1,
     "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {},
   "selectionTokenSupport": {
@@ -70,7 +86,7 @@
     "blend"
   ],
   "description": "平滑过渡 / Smooth shared seams of adjacent faces together",
-  "schemaHash": "sha256:45533fac3558a77e6e7245421d563769e34b7003333e15b3d7c8cac8655863e2",
+  "schemaHash": "sha256:77bedf1c5f47ad01ecca444ca42c116ffdad959e18c64e185f6acd1f7c4ec1aa",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -215,5 +231,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:5a5c7ed827e87008fe81661a2abf80fb277eb557b12bd1deee08f844ebee844b"
+  "docsHash": "sha256:a65999951ec00db90bbec9b418312972113485fbda0347efff4a8ed2695cdbc9"
 }

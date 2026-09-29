@@ -18,22 +18,34 @@
       "width": {
         "type": "number",
         "description": "Width (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "depth": {
         "type": "number",
         "description": "Depth (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "radius": {
         "type": "number",
         "description": "Circle/arc radius (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "cornerRadius": {
         "type": "number",
         "description": "Rounded rectangle corner radius; less than half shorter side (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "points": {
         "type": "array",
@@ -42,19 +54,34 @@
         "items": {
           "type": "array",
           "items": {
-            "type": "number"
+            "type": "number",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "minItems": 2,
-          "maxItems": 2
-        }
+          "maxItems": 2,
+          "unit": "mm",
+          "quantityKind": "length",
+          "quantizationPolicy": "none"
+        },
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "startAngle": {
         "type": "number",
-        "description": "Arc start (degrees)"
+        "description": "Arc start (degrees)",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "endAngle": {
         "type": "number",
-        "description": "Arc end (degrees); absolute span > 0 and < 360"
+        "description": "Arc end (degrees); absolute span > 0 and < 360",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "closure": {
         "type": "string",
@@ -75,7 +102,10 @@
       },
       "height": {
         "type": "number",
-        "description": "Signed nonzero extrusion (mm)"
+        "description": "Signed nonzero extrusion (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -94,6 +124,13 @@
     "uniqueItems": true,
     "minItems": 0,
     "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {},
   "selectionTokenSupport": {
@@ -114,7 +151,7 @@
     "拉伸"
   ],
   "description": "Extrude a closed profile normal to the chosen plane",
-  "schemaHash": "sha256:b346d48ed8dff9b71f11df69c278e10cca3d88eb1bd18ff6f24082bbbabbfc1c",
+  "schemaHash": "sha256:8e32466fd218c3f030bd0a7010ef157016cbbdf92883e711f4a5ef3221d1e832",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -233,5 +270,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:3160f3595ee6a26a940bd13d1ced3c6f8486305d47c2e3deac6bf06972e742cc"
+  "docsHash": "sha256:aabcf101c7280e9a49d47f69fb43454ace6b78ea98fcab37daa6ebe9c192e5d1"
 }

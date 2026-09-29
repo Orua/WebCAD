@@ -8,13 +8,15 @@ const define=(description,refs,properties,required,notes)=>({description,refs,pa
 
 export function advancedOperations(regions) {
   return {
-    curveSweep:define('Sweep a round, chamfered-square or elliptical section along an arc, approximated spline or connected line/arc segments',0,{
-      pathType:{type:'string',enum:['arc','spline','segments']},points:{type:'array',items:point3,minItems:3,maxItems:30},
+    curveSweep:define('Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections',0,{
+      pathType:{type:'string',enum:['arc','spline','segments','sections']},points:{type:'array',items:point3,minItems:3,maxItems:30},
+      stations:{type:'array',minItems:2,maxItems:24,items:{type:'object',additionalProperties:false,required:['centerMm','normal','widthDirection','widthMm','depthMm'],properties:{centerMm:point3,normal:point3,widthDirection:point3,widthMm:positive,depthMm:positive}}},
+      loftDegree:{type:'integer',minimum:2,maximum:8,default:8},
       segments:{type:'array',minItems:2,maxItems:64,items:{type:'object',additionalProperties:false,required:['type','points'],properties:{type:{type:'string',enum:['line','arc']},points:{type:'array',items:point3,minItems:2,maxItems:3}}}},
-      radius:positive,section:{type:'string',enum:['round','chamferedSquare','ellipse']},sectionSize:positive,sectionChamfer:positive,
-      sectionWidth:positive,sectionDepth:positive,
+      radius:positive,section:{type:'string',enum:['round','chamferedSquare','ellipse','roundedRectangle']},sectionSize:positive,sectionChamfer:positive,
+      sectionWidth:positive,sectionDepth:positive,sectionCornerRadius:positive,
       closed:{type:'boolean'},tolerance,
-    },['pathType'],'Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Set closed:true only for a closed segment chain. Round requires radius; chamferedSquare needs sectionSize and sectionChamfer; ellipse needs unequal sectionWidth and sectionDepth. Non-round sections need an XY-planar path. Topology must be valid.'),
+    },['pathType'],'Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Set closed:true only for a closed segment chain. Round requires radius; chamferedSquare needs sectionSize and sectionChamfer; ellipse needs unequal sectionWidth and sectionDepth. roundedRectangle sweeps a flat strip: sectionWidth across the strip, sectionDepth along the in-plane bend normal, and 0<sectionCornerRadius<min(width,depth)/2. Non-round sweep sections need an XY-planar path. Sections mode requires 2–24 ordered stations with explicit centerMm, normal, perpendicular widthDirection, widthMm and depthMm; each station is an elliptical plane section. It allows varying width/depth and plane orientation, but no closed loop or automatic shape inference. Crossing station planes or sharp turns can fail. loftDegree (integer 2–8, default 8) bounds surface degree; 2 can reduce interpolation overshoot. Always measure the resulting envelope because a valid solid can exceed the station bounds. Result must be one valid positive-volume solid.'),
     advancedLoft:define('Solid or open shell through hand-defined XY sections',0,{
       sections:{type:'array',minItems:2,maxItems:12,items:{type:'object',additionalProperties:false,required:['z','points'],properties:{z:number,points:{type:'array',minItems:3,maxItems:64,items:point2}}}},
       ruled:{type:'boolean'},output:{type:'string',enum:['solid','shell']},
@@ -29,3 +31,4 @@ export function advancedOperations(regions) {
     },['faceId','point','depth','regions'],'Single closed solid. Pick a point on the face; tangent frame uses projected world X or Y. Orthographic projection of reviewed polygonal contours, then actual normal offset. Reject boundaries, holes, seams, grazing, invalid offsets and breakthrough. No emboss/draft/multi-face wrap. Imported contour approximation is retained.'),
   };
 }
+

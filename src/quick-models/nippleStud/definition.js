@@ -1,0 +1,38 @@
+const numberField=(key,label,labelEn,min=.01)=>({key,label,labelEn,type:'number',min,step:.1,unit:'mm'});
+
+export default Object.freeze({
+  label:'奶嘴钉',labelEn:'Nipple stud',defaultInsertionAnchor:'model-origin',
+  description:'两件式奶嘴钉：A件含圆弧头、平顶、圆颈、带R角底座及M2名义光盲孔；Z件含圆拱螺钉头、杆和参数化六瓣槽。螺纹牙及标准槽规格不建模。旧 undersideCollar 参数仅为兼容，必须为0。',
+  descriptionEn:'Two-piece nipple stud with an arc-profiled flat-top body, radiused base, blind M2 nominal clearance bore, crowned screw head, stem, and parameterized six-lobe drive. Threads and standardized drive dimensions are not modeled.',
+  defaults:{
+    headDiameterMm:5,overallHeightMm:9.1,neckDiameterMm:3,neckHeightMm:4,
+    flangeDiameterMm:7,flangeThicknessMm:1.3,undersideCollarDiameterMm:3,undersideCollarHeightMm:0,
+    boreDiameterMm:2,boreDepthMm:6,entryChamferMm:.3,baseEdgeRadiusMm:.3,
+    screwHeadDiameterMm:7,screwHeadThicknessMm:2,screwCrownRiseMm:1.375,screwEdgeRadiusMm:.5,screwDiameterMm:2,screwLengthMm:5,
+    driveDiameterMm:2.6,driveDepthMm:.5,assemblyGapMm:2,explodedOffsetMm:12,
+  },
+  fields:[
+    numberField('headDiameterMm','圆头名义直径','Head nominal diameter'),
+    numberField('overallHeightMm','A件总高','Part A overall height'),
+    numberField('neckDiameterMm','颈部直径','Neck diameter'),
+    numberField('neckHeightMm','颈部高度','Neck height'),
+    numberField('flangeDiameterMm','A件底座直径','Part A flange diameter'),
+    numberField('flangeThicknessMm','A件底座厚度','Part A flange thickness'),
+    numberField('undersideCollarDiameterMm','旧底部小台直径（兼容）','Deprecated underside collar diameter'),
+    numberField('undersideCollarHeightMm','旧底部小台高度（须为0）','Deprecated collar height (must be 0)',0),
+    numberField('boreDiameterMm','A件名义光孔直径','Part A nominal clearance bore diameter'),
+    numberField('boreDepthMm','A件盲孔深度','Part A blind bore depth'),
+    numberField('entryChamferMm','孔口倒角深度及径向宽度','Bore entry chamfer depth and radial width',0),
+    numberField('baseEdgeRadiusMm','底座外缘圆角','Base outer edge radius',0),
+    numberField('screwHeadDiameterMm','Z件螺钉头直径','Part Z screw head diameter'),
+    numberField('screwHeadThicknessMm','Z件头部厚度（不含外拱）','Part Z head thickness (excluding crown)'),
+    numberField('screwCrownRiseMm','Z件头部外拱高度','Part Z crown rise'),
+    numberField('screwEdgeRadiusMm','Z件头部边缘圆角','Part Z head edge radius'),
+    numberField('screwDiameterMm','Z件螺杆直径','Part Z stem diameter'),
+    numberField('screwLengthMm','Z件螺杆净长','Part Z stem net length'),
+    numberField('driveDiameterMm','示意六瓣槽直径','Illustrative six-lobe drive diameter'),
+    numberField('driveDepthMm','示意槽深','Illustrative drive depth'),
+    numberField('assemblyGapMm','装配留缝','Assembly gap',0),
+    numberField('explodedOffsetMm','分开展示中心距（0=装配）','Exploded center offset (0=assembled)',0),
+  ],
+});

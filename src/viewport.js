@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {applyViewportDisplay} from './viewport/display-modes.js';
 import {snapReleasedDrag} from './viewport/drag-snap-controller.js';
+import {rankEdgeHits,worldUnitsPerPixel} from './viewport/edge-picking.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import { MetalMaterials, METAL_FINISHES } from './metal-materials.js';
@@ -210,7 +211,10 @@ export class CADViewport {
     this.snapCandidates=candidates;if(!same)this.snapCandidateIndex=0;
     return candidates[this.snapCandidateIndex||0]?.point||fallback;
   }
-  ray(e){const r=this.renderer.domElement.getBoundingClientRect();this.pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);this.raycaster.setFromCamera(this.pointer,this.camera);this.raycaster.params.Line.threshold=this.span*.008;return this.raycaster;}
+  ray(e){const r=this.renderer.domElement.getBoundingClientRect();this.pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);this.raycaster.setFromCamera(this.pointer,this.camera);
+    const box=this.bounds(),center=box.getCenter(new THREE.Vector3()),away=this.camera.getWorldDirection(new THREE.Vector3());
+    center.addScaledVector(away,box.getSize(new THREE.Vector3()).length()/2);
+    this.raycaster.params.Line.threshold=8*worldUnitsPerPixel(this.camera,center,r.height);return this.raycaster;}
   sketchCoordinates(ray){const frame=this.sketch.frameSnapshot,q=new THREE.Quaternion(...frame.quaternion),origin=new THREE.Vector3(...frame.origin),normal=new THREE.Vector3(0,0,1).applyQuaternion(q),world=ray.ray.intersectPlane(new THREE.Plane().setFromNormalAndCoplanarPoint(normal,origin),new THREE.Vector3());if(!world)return null;const local=world.sub(origin).applyQuaternion(q.invert());return [local.x,local.y];}
   sketchWorldPoint(point){const frame=this.sketch.frameSnapshot;return new THREE.Vector3(point[0],point[1],0.04).applyQuaternion(new THREE.Quaternion(...frame.quaternion)).add(new THREE.Vector3(...frame.origin));}
   pick(e){
@@ -230,9 +234,20 @@ export class CADViewport {
       const lineHit=ray.intersectObjects(curves,false).find(h=>this.isVisiblePoint(h.point));
       if(lineHit&&(!hit||lineHit.distance<hit.distance))hit=lineHit;
     }
-    if(type==='edge'){const edges=[...this.objects.values()].filter(v=>v.root.visible).flatMap(v=>v.edges.children.filter(o=>o.userData.type==='edge'));const eh=ray.intersectObjects(edges,false).filter(h=>this.isVisiblePoint(h.point)&&(!hit||h.distance<=hit.distance+this.span*.015));if(eh[0]){hit=eh[0];topologyId=hit.object.userData.edgeId;}else hit=null;}
+    if(type==='edge'){
+      const visible=[...this.objects.values()].filter(v=>v.root.visible),edges=visible.flatMap(v=>v.edges.children.filter(o=>o.userData.type==='edge')),
+        rect=this.renderer.domElement.getBoundingClientRect(),occlusionRay=new THREE.Raycaster(),meshes=visible.map(v=>v.mesh);
+      const candidates=rankEdgeHits(ray.intersectObjects(edges,false).filter(h=>this.isVisiblePoint(h.point)),this.camera,this.pointer,rect.width,rect.height);
+      hit=candidates.find(candidate=>{
+        const p=candidate.point.clone().project(this.camera);occlusionRay.setFromCamera(new THREE.Vector2(p.x,p.y),this.camera);
+        const front=occlusionRay.intersectObjects(meshes,false).find(h=>this.isVisiblePoint(h.point));
+        const tolerance=Math.max(this.span*1e-5,.75*worldUnitsPerPixel(this.camera,candidate.point,rect.height));
+        return !front||occlusionRay.ray.origin.distanceTo(candidate.point)<=front.distance+tolerance;
+      });
+      if(hit)topologyId=hit.object.userData.edgeId;
+    }
     else if(type==='face'&&hit){const index=hit.faceIndex*3;topologyId=hit.object.userData.body.faceGroups?.find(g=>index>=g.start&&index<g.start+g.count)?.faceId;}
-    this.callbacks.onPick?.(hit?{id:hit.object.userData.bodyId,type,topologyId,point:(type==='face'?hit.point:this.snapPoint(e,hit.point)).toArray()}:null,e.shiftKey||e.ctrlKey||e.metaKey);
+    this.callbacks.onPick?.(hit?{id:hit.object.userData.bodyId,type,topologyId,point:(type==='body'?this.snapPoint(e,hit.point):hit.point).toArray()}:null,e.shiftKey||e.ctrlKey||e.metaKey);
   }
   onMove(e){this.lastPointerEvent=e;if(this.sketch){const p=this.sketchCoordinates(this.ray(e));if(p)this.hud.textContent=`当前轮廓平面 · X ${p[0].toFixed(1)}  Y ${p[1].toFixed(1)} mm · ${this.sketch.points.length} ${say('点','points')}`;return;}if(this.measuring||this.anchorDragEnabled){const moved=!this.lastSnapPosition||Math.hypot(e.clientX-this.lastSnapPosition[0],e.clientY-this.lastSnapPosition[1])>3;if(moved){this.snapCandidateIndex=0;this.lastSnapPosition=[e.clientX,e.clientY];}this.snapCandidates=this.findSnapCandidates(e,{constraint:this.anchorStart?this.anchorAxis:null,start:this.anchorStart});if(this.snapCandidates.length)this.showSnapCandidate();else this.updateHud();}}
   setDisplay(mode){if(!['solid','edges','wire','transparentEdges'].includes(mode))throw new Error('未知显示模式');applyViewportDisplay(this,mode);}

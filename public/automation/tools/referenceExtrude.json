@@ -14,11 +14,20 @@
         "minItems": 3,
         "maxItems": 3,
         "items": {
-          "type": "number"
-        }
+          "type": "number",
+          "unit": "1",
+          "quantityKind": "direction",
+          "quantizationPolicy": "none"
+        },
+        "unit": "1",
+        "quantityKind": "direction",
+        "quantizationPolicy": "none"
       },
       "distance": {
-        "type": "number"
+        "type": "number",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "$schema": "https://json-schema.org/draft/2020-12/schema"
@@ -33,6 +42,13 @@
     "uniqueItems": true,
     "minItems": 1,
     "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {},
   "selectionTokenSupport": {
@@ -55,7 +71,7 @@
     "参考轮廓拉伸"
   ],
   "description": "选择一个闭合平面线框或单张平面面。直接复用精确圆弧/样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。",
-  "schemaHash": "sha256:04a3ee560cf73a99ce47ba09bd51796494e4c784bb04a30992e96d0fc6470016",
+  "schemaHash": "sha256:224bcca7539b44b6b9f02ec2d96d9cb0aca2e84d36df11d1e484f3f4f2dcdd79",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -182,5 +198,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:a6479a38c16e33b736f49a73a776c4ba0c57ee7ce9e324f82ba151b6903984af"
+  "docsHash": "sha256:3b23a10280b3ca83ca8f12e02d47438419c16604304e928b9070747f76b658bd"
 }

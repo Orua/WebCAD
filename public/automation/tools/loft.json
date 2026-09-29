@@ -15,36 +15,57 @@
       "radius": {
         "type": "number",
         "description": "Start radius (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "width": {
         "type": "number",
         "description": "Start width (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "depth": {
         "type": "number",
         "description": "Start depth (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "endRadius": {
         "type": "number",
         "description": "End radius (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "endWidth": {
         "type": "number",
         "description": "End width (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "endDepth": {
         "type": "number",
         "description": "End depth (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "height": {
         "type": "number",
-        "description": "Signed nonzero Z spacing (mm)"
+        "description": "Signed nonzero Z spacing (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "offsetX": {
         "type": "number",
@@ -73,6 +94,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -92,7 +120,7 @@
     "放样"
   ],
   "description": "Ruled loft between parallel XY profiles",
-  "schemaHash": "sha256:622c460eda079d8fa33f077247d4699cae3b0c5241407d7f8cd80fcd937f416e",
+  "schemaHash": "sha256:506e02fc2393c066d02fc0d95c48381b732db057e7c314d28d9b428700efeb99",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -211,5 +239,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:d0d2ad7250b6886e273043ca7b9737a2962835eccaaf3290907a6796dd8a9aac"
+  "docsHash": "sha256:66c4f6d9f4fb01a403bd0257a04b5186e2b8430da1ffa92897fe2661e9e4d59d"
 }

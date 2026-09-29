@@ -7,7 +7,10 @@
       "radius": {
         "type": "number",
         "description": "Radius (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -26,6 +29,13 @@
     "uniqueItems": true,
     "minItems": 0,
     "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {},
   "selectionTokenSupport": {
@@ -46,7 +56,7 @@
     "球体"
   ],
   "description": "Sphere centered at origin",
-  "schemaHash": "sha256:e66e4658d381aedaa6d85d69774b71adf82d5be75b8793127eb7a851b6f38cdc",
+  "schemaHash": "sha256:c00ad31cda52834f3252e84860de90aa11433db9b5f8302d2063409fc07ad020",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -159,5 +169,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:815061e1d1d48a3e846bbe762484f722a0bf736eb17b4d3c101d3dc9f1377e0b"
+  "docsHash": "sha256:14f636f9bd9abceced1b9918085444944b8468355cf292c951bc3ba76fe56471"
 }

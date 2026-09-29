@@ -14,32 +14,53 @@
       },
       "x": {
         "type": "number",
-        "description": "X translation (mm)"
+        "description": "X translation (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "y": {
         "type": "number",
-        "description": "Y translation (mm)"
+        "description": "Y translation (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "z": {
         "type": "number",
-        "description": "Z translation (mm)"
+        "description": "Z translation (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "rx": {
         "type": "number",
-        "description": "X rotation (degrees)"
+        "description": "X rotation (degrees)",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "ry": {
         "type": "number",
-        "description": "Y rotation (degrees)"
+        "description": "Y rotation (degrees)",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "rz": {
         "type": "number",
-        "description": "Z rotation (degrees)"
+        "description": "Z rotation (degrees)",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "scale": {
         "type": "number",
         "description": "Uniform dimensionless scale",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "1",
+        "quantityKind": "scalar",
+        "quantizationPolicy": "none"
       },
       "mode": {
         "type": "string",
@@ -90,15 +111,24 @@
       "axisVector": {
         "type": "array",
         "items": {
-          "type": "number"
+          "type": "number",
+          "unit": "1",
+          "quantityKind": "direction",
+          "quantizationPolicy": "none"
         },
         "minItems": 3,
         "maxItems": 3,
-        "description": "World coordinate [x,y,z] in mm"
+        "description": "World coordinate [x,y,z] in mm",
+        "unit": "1",
+        "quantityKind": "direction",
+        "quantizationPolicy": "none"
       },
       "angleDeg": {
         "type": "number",
-        "description": "Signed rotation angle (degrees)"
+        "description": "Signed rotation angle (degrees)",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "sourcePoint": {
         "type": "array",
@@ -155,7 +185,10 @@
       },
       "gapMm": {
         "type": "number",
-        "description": "Signed gap along target axis (mm)"
+        "description": "Signed gap along target axis (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "twistAngleDeg": {
         "type": "number",
@@ -177,6 +210,13 @@
     "minItems": 1,
     "maxItems": 1
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -196,7 +236,7 @@
     "复制"
   ],
   "description": "Copy with scale, rotation and translation",
-  "schemaHash": "sha256:6ba9932df2b7e4298603b6a6ba5f03b2a8a3e1d7ee8b4eab9ce0bc0ca6af4e97",
+  "schemaHash": "sha256:807e6766b7c738ae816042790787022737eeeac8d48d2b6cd2728216e9c91ea8",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -313,5 +353,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:5022f8d3b28e28afb1d5dd66b7b2edcf1aceb84131d228ea649aa129bcd66326"
+  "docsHash": "sha256:90ebf03f8e1f6cf3e413150cc29f96a2e1200601b2772d0067c46a9e5f062a36"
 }

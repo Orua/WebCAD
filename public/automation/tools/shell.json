@@ -9,17 +9,26 @@
         "description": "Signed nonzero wall thickness (mm)",
         "not": {
           "const": 0
-        }
+        },
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "faceIds": {
         "type": "array",
         "items": {
           "type": "integer",
           "description": "Zero-based topology index",
-          "minimum": 0
+          "minimum": 0,
+          "unit": "1",
+          "quantityKind": "index",
+          "quantizationPolicy": "none"
         },
         "minItems": 1,
-        "uniqueItems": true
+        "uniqueItems": true,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -39,6 +48,13 @@
     "uniqueItems": true,
     "minItems": 1,
     "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {},
   "selectionTokenSupport": {
@@ -69,7 +85,7 @@
     "壁厚"
   ],
   "description": "Hollow body removing selected faces",
-  "schemaHash": "sha256:647500c8c1545e843f4904d7a7b84dd330a18b45b32101d1a53043eaa0e5ab66",
+  "schemaHash": "sha256:601eb52cdadbb692ba338260abd9e5f23eca2960f26807b0b1bbb95b809378a0",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -210,5 +226,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:8b2761a083986819b68dea4450d3eaad228aaf23c6034b4565f4caef43830ff8"
+  "docsHash": "sha256:d1b7c8c3b4668ee311dc6a0b8bfbaf107b530c43140f955a7720c81e41c81ea3"
 }

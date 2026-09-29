@@ -21,24 +21,39 @@
         "minItems": 3,
         "maxItems": 3,
         "items": {
-          "type": "number"
+          "type": "number",
+          "unit": "mm",
+          "quantityKind": "length",
+          "quantizationPolicy": "none"
         },
-        "description": "Fixed world point on the axis, mm"
+        "description": "Fixed world point on the axis, mm",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "axisDirection": {
         "type": "array",
         "minItems": 3,
         "maxItems": 3,
         "items": {
-          "type": "number"
+          "type": "number",
+          "unit": "1",
+          "quantityKind": "direction",
+          "quantizationPolicy": "none"
         },
-        "description": "Nonzero world axis direction; normalized by the kernel"
+        "description": "Nonzero world axis direction; normalized by the kernel",
+        "unit": "1",
+        "quantityKind": "direction",
+        "quantizationPolicy": "none"
       },
       "angleDeg": {
         "type": "number",
         "exclusiveMinimum": 0,
         "maximum": 360,
-        "description": "Positive sweep angle in degrees, following axis direction by the right-hand rule"
+        "description": "Positive sweep angle in degrees, following axis direction by the right-hand rule",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -59,6 +74,13 @@
     "minItems": 1,
     "maxItems": 2
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {
     "operation": "newBody"
   },
@@ -72,7 +94,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] 是一个闭合平面截面；加料/切除/交集另附 refs[1] 目标。轴须位于截面平面内；原生平面 Face 的内孔按原几何旋转。开轮廓、多区域、非平面或自交结果拒绝。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。只接受有效正体积单实体，无材料变化的加料/切除或分裂结果失败，失败不改来源。固定来源世界位置，不再次应用工作基准。",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] 是一个闭合平面截面；加料/切除/交集另附 refs[1] 目标。轴须位于截面平面内；原生平面 Face 的内孔按原几何旋转。开轮廓、多区域、非平面或自交结果拒绝。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。",
   "title": "Rotate a saved exact planar section around an explicit world axis, with new-body, additive, subtractive or intersection result",
   "category": "modification",
   "synonyms": [
@@ -80,7 +102,7 @@
     "profileRevolve"
   ],
   "description": "Rotate a saved exact planar section around an explicit world axis, with new-body, additive, subtractive or intersection result",
-  "schemaHash": "sha256:ced10d34dd368b14035886371fcfc2c84fbdc4faa0575678134870bac8db9680",
+  "schemaHash": "sha256:ebf3075e274c3c3b4f463425045f35e3391b31fe9b66baa4b0cd0e470dcb5931",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -142,7 +164,7 @@
     "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "refs[0] 是一个闭合平面截面；加料/切除/交集另附 refs[1] 目标。轴须位于截面平面内；原生平面 Face 的内孔按原几何旋转。开轮廓、多区域、非平面或自交结果拒绝。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。只接受有效正体积单实体，无材料变化的加料/切除或分裂结果失败，失败不改来源。固定来源世界位置，不再次应用工作基准。"
+    "refs[0] 是一个闭合平面截面；加料/切除/交集另附 refs[1] 目标。轴须位于截面平面内；原生平面 Face 的内孔按原几何旋转。开轮廓、多区域、非平面或自交结果拒绝。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。"
   ],
   "minimalExample": {
     "op": "profileRevolve",
@@ -257,5 +279,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:6b3405203410da2da5ccdd7f8802ea39e06ccd6e85c5390daff51c048b7a9a3e"
+  "docsHash": "sha256:b2b45dfe075e1bc7ec38d8c98e80bc6541595c2bc3e559afee01e74375f60799"
 }

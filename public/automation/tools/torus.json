@@ -7,12 +7,18 @@
       "majorRadius": {
         "type": "number",
         "description": "Major radius (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "minorRadius": {
         "type": "number",
         "description": "Tube radius (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -33,6 +39,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -52,7 +65,7 @@
     "圆环"
   ],
   "description": "Torus around Z axis",
-  "schemaHash": "sha256:00d8c6d92061ae6b7b8d8b597fada83b6c1451a9a52cd3f72758eb481f803c2b",
+  "schemaHash": "sha256:786fb647b8a3d95db93cf226ef50144c3c4775e5af22a2b47821b42b44b9009d",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -167,5 +180,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:c596ae84130f2b2fc8d25d78453509e2a94f9853f2500475a8fd9a154c265cdb"
+  "docsHash": "sha256:83a3c1a538d139e2b26d6167cca535efc9829c23b8a6838f972589c390cd66f5"
 }

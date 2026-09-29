@@ -86,27 +86,45 @@
       "scale": {
         "type": "number",
         "description": "Contour scale (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "1",
+        "quantityKind": "scalar",
+        "quantizationPolicy": "none"
       },
       "angle": {
         "type": "number",
-        "description": "In-plane angle"
+        "description": "In-plane angle",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "height": {
         "type": "number",
-        "description": "Nonzero signed extrusion height for solid (mm)"
+        "description": "Nonzero signed extrusion height for solid (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "x": {
         "type": "number",
-        "description": "Contour center world X (mm)"
+        "description": "Contour center world X (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "y": {
         "type": "number",
-        "description": "Contour center world Y (mm)"
+        "description": "Contour center world Y (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "z": {
         "type": "number",
-        "description": "Contour center world Z (mm)"
+        "description": "Contour center world Z (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "$schema": "https://json-schema.org/draft/2020-12/schema"
@@ -121,6 +139,13 @@
     "uniqueItems": true,
     "minItems": 0,
     "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {},
   "selectionTokenSupport": {
@@ -141,7 +166,7 @@
     "导入路径"
   ],
   "description": "Create independent planar faces or solids from closed vector regions",
-  "schemaHash": "sha256:9b5b3a71a4dd6a9f9b2eea49a8f67668ece3bf182177a103cfc32a746b8ab9b4",
+  "schemaHash": "sha256:50aca301a18089739b12f956f05f54cfda8e32844b9518bd30afbd3ec85b2bca",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -293,5 +318,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:1736a5f53f3d8e4f09f68eae184c46078ccba868a3597e49ec11c5224b3c20e6"
+  "docsHash": "sha256:9777aabfbd878ea7a791630b2e93f5fad3d765858af5af0d1e81784a3017f49f"
 }

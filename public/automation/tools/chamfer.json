@@ -7,31 +7,50 @@
       "distance": {
         "type": "number",
         "description": "Chamfer distance (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "edgeIds": {
         "type": "array",
         "items": {
           "type": "integer",
           "description": "Zero-based topology index",
-          "minimum": 0
+          "minimum": 0,
+          "unit": "1",
+          "quantityKind": "index",
+          "quantizationPolicy": "none"
         },
         "minItems": 1,
-        "uniqueItems": true
+        "uniqueItems": true,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
       },
       "faceIds": {
         "type": "array",
         "items": {
           "type": "integer",
           "description": "Zero-based topology index",
-          "minimum": 0
+          "minimum": 0,
+          "unit": "1",
+          "quantityKind": "index",
+          "quantizationPolicy": "none"
         },
         "minItems": 1,
-        "uniqueItems": true
+        "uniqueItems": true,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
+      },
+      "sharedFaces": {
+        "type": "boolean",
+        "description": "With at least two faceIds, process only their common sharp edges; omitted/false preserves historical face-boundary scope"
       },
       "allEdges": {
         "type": "boolean",
-        "description": "Explicitly process all body edges"
+        "description": "Explicitly process every sharp edge of the body"
       }
     },
     "required": [
@@ -73,6 +92,13 @@
     "minItems": 1,
     "maxItems": 1
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": true,
@@ -94,14 +120,14 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Choose exactly one scope: nonempty edgeIds, nonempty faceIds (all boundary edges of those exact current faces, including holes), or allEdges=true. No automatic distance reduction.",
-  "title": "Chamfer selected edges, face boundaries, or all body edges",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Choose exactly one scope: edgeIds, faceIds, or allEdges=true. sharedFaces:true with at least two faces selects their common sharp edges; UI multi-face selection uses this mode. Tangent seams, periodic seams and degenerate edges are excluded. Failure reports edge IDs, preserves the source and does not silently reduce distance. Convex corners cut inward; concave corners fill the recess. getState().bodies[].blendReport returns processed/skipped edges.",
+  "title": "Chamfer sharp edges, shared face edges, face boundaries or the whole solid",
   "category": "modification",
   "synonyms": [
     "倒角"
   ],
-  "description": "Chamfer selected edges, face boundaries, or all body edges",
-  "schemaHash": "sha256:ee7dd4d3e267c71eb45063c643efbb49fcfcbf58d1e4dc206bf329f6f252fd40",
+  "description": "Chamfer sharp edges, shared face edges, face boundaries or the whole solid",
+  "schemaHash": "sha256:89f0006297810fab8b47f98c27dc7686de34b8ad6471e50c11990c9481c9615b",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -152,7 +178,7 @@
     "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "Choose exactly one scope: nonempty edgeIds, nonempty faceIds (all boundary edges of those exact current faces, including holes), or allEdges=true. No automatic distance reduction."
+    "Choose exactly one scope: edgeIds, faceIds, or allEdges=true. sharedFaces:true with at least two faces selects their common sharp edges; UI multi-face selection uses this mode. Tangent seams, periodic seams and degenerate edges are excluded. Failure reports edge IDs, preserves the source and does not silently reduce distance. Convex corners cut inward; concave corners fill the recess. getState().bodies[].blendReport returns processed/skipped edges."
   ],
   "minimalExample": {
     "op": "chamfer",
@@ -243,5 +269,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:d626df45b49b0c2dbbda5f9b28ddf838d404b174484e50634c9009bc003aba38"
+  "docsHash": "sha256:72f3b4c5c79c1d075b2386c49c6364a55eadbd724f7a97fe54296b650b6d3f1c"
 }

@@ -14,32 +14,53 @@
       },
       "x": {
         "type": "number",
-        "description": "X translation (mm)"
+        "description": "X translation (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "y": {
         "type": "number",
-        "description": "Y translation (mm)"
+        "description": "Y translation (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "z": {
         "type": "number",
-        "description": "Z translation (mm)"
+        "description": "Z translation (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "rx": {
         "type": "number",
-        "description": "X rotation (degrees)"
+        "description": "X rotation (degrees)",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "ry": {
         "type": "number",
-        "description": "Y rotation (degrees)"
+        "description": "Y rotation (degrees)",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "rz": {
         "type": "number",
-        "description": "Z rotation (degrees)"
+        "description": "Z rotation (degrees)",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "scale": {
         "type": "number",
         "description": "Uniform dimensionless scale",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "1",
+        "quantityKind": "scalar",
+        "quantizationPolicy": "none"
       },
       "mode": {
         "type": "string",
@@ -90,15 +111,24 @@
       "axisVector": {
         "type": "array",
         "items": {
-          "type": "number"
+          "type": "number",
+          "unit": "1",
+          "quantityKind": "direction",
+          "quantizationPolicy": "none"
         },
         "minItems": 3,
         "maxItems": 3,
-        "description": "World coordinate [x,y,z] in mm"
+        "description": "World coordinate [x,y,z] in mm",
+        "unit": "1",
+        "quantityKind": "direction",
+        "quantizationPolicy": "none"
       },
       "angleDeg": {
         "type": "number",
-        "description": "Signed rotation angle (degrees)"
+        "description": "Signed rotation angle (degrees)",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "sourcePoint": {
         "type": "array",
@@ -155,7 +185,10 @@
       },
       "gapMm": {
         "type": "number",
-        "description": "Signed gap along target axis (mm)"
+        "description": "Signed gap along target axis (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "twistAngleDeg": {
         "type": "number",
@@ -177,6 +210,13 @@
     "minItems": 1,
     "maxItems": 1
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -197,7 +237,7 @@
     "旋转"
   ],
   "description": "Scale, rotate X/Y/Z about origin, then translate",
-  "schemaHash": "sha256:979f834ea28e4d8267138b449923bf1abc5bcebc12f60636ae0732590580bb29",
+  "schemaHash": "sha256:2839a269021b344ab8d7ab14c43f0b2ff40575cba29d41f9eec5756202336a05",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -316,5 +356,5 @@
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:83775a8b19d19a875c50eb4408e8cf97b86806ad65bbc204be96b49bbb8a4c1d"
+  "docsHash": "sha256:26b9240b4f9656447d42145ebbc0dff4fb8cf0edac2e7f83748bceb3f7e82dd0"
 }
