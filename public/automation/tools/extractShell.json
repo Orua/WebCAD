@@ -10,7 +10,10 @@
     "properties": {
       "shellIndex": {
         "type": "integer",
-        "minimum": 0
+        "minimum": 0,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
       }
     },
     "$schema": "https://json-schema.org/draft/2020-12/schema"
@@ -25,6 +28,13 @@
     "uniqueItems": true,
     "minItems": 1,
     "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {},
   "selectionTokenSupport": {
@@ -45,7 +55,7 @@
     "提取壳"
   ],
   "description": "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。",
-  "schemaHash": "sha256:7ceed85e8c45961c22ba1421a0b5c9bd76d065191a1f44dca17b9475ba4dc05a",
+  "schemaHash": "sha256:d6644c387471d9072fe3946ec4e828ef163400484407c0a1b0f63d7ff459892c",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -173,5 +183,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:2fdc906016795aacca4820c4f58c2d764ac0567312d775dd3c0d196553752658"
+  "docsHash": "sha256:6ef923d99c52b8399588289cde9aa9c9f5812293b600439a5f96ad83796e434f"
 }

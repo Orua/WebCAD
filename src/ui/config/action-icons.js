@@ -4,6 +4,14 @@ const profile=['M3 19V5h7l3 6h8v8Z'];
 const move=['M12 2v20 M2 12h20 M9 5l3-3 3 3 M9 19l3 3 3-3 M5 9l-3 3 3 3 M19 9l3 3-3 3'];
 const rotate=['M5 7a9 9 0 1 1-1 9 M5 2v5h5 M9 12h6'];
 export const ACTION_ICONS={
+ // Path commands have distinct silhouettes rather than the generic fallback diamond.
+ vectorImport:['M4 3h9l5 5v4 M13 3v5h5 M4 3v13','M2 17h4v4H2Z M18 17h4v4h-4Z M6 19h12','M12 10v6 M9 13l3 3 3-3'],
+ pathEdit:['M3 5h10 M3 5v14h7','M11 17l8-8 3 3-8 8-4 1Z M17 11l3 3'],
+ pathTrim:['M7 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0 M7 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0','M6 8l15 13 M6 16L21 3 M16 3v4 M16 10v4 M16 17v4'],
+ pathExtend:['M3 19V5 M3 16h7 M12 16h3 M17 16h4 M18 13l3 3-3 3 M21 3v18'],
+ pathFillet:['M3 21V11a8 8 0 0 1 8-8h10','M3 3v3 M6 3h2 M11 11l-5-5 M6 10V6h4'],
+ pathTrimCircle:['M18 5a9 9 0 1 0 1 13','M16 3l4 4 M17 16l4 4 M12 2v2 M20 10h2'],
+ commandSearch:['M16 10a6 6 0 1 1-12 0 6 6 0 0 1 12 0 M14 14l7 7'],
  box:cube,cylinder:['M4 6a8 3 0 0 1 16 0v12a8 3 0 0 1-16 0Z M4 6a8 3 0 0 0 16 0 M4 18a8 3 0 0 1 16 0'],
  sphere:['M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0 M12 2c-7 6-7 14 0 20 7-6 7-14 0-20 M2 12h20'],
  cone:['M12 2L3 19a9 3 0 0 0 18 0Z M3 19a9 3 0 0 1 18 0'],torus:['M22 12a10 7 0 1 1-20 0 10 7 0 0 1 20 0 M17 12a5 3 0 1 1-10 0 5 3 0 0 1 10 0'],

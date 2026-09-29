@@ -14,7 +14,10 @@
         ]
       },
       "offset": {
-        "type": "number"
+        "type": "number",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "$schema": "https://json-schema.org/draft/2020-12/schema"
@@ -29,6 +32,13 @@
     "uniqueItems": true,
     "minItems": 1,
     "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {},
   "selectionTokenSupport": {
@@ -49,7 +59,7 @@
     "提取真实截面"
   ],
   "description": "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
-  "schemaHash": "sha256:70c3c48e02229ffb45e5d17ea9c3b10faa4ad1c13d5f7f77a88dbee215179aba",
+  "schemaHash": "sha256:59f588c3f7b8a3cd6e9ccd3c2520d2b2a9f9ad7b402e358ca131ea164b9d89d9",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -167,5 +177,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:5cc84b772d534763c2383707e83f74bb3490f78d0d552819dc5294dabb6dc47f"
+  "docsHash": "sha256:b7be72460b20f39598393db1a9d89d0bece192898db6433444837016af362f23"
 }

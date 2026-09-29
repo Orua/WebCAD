@@ -1,6 +1,7 @@
 import { evaluateExpression } from './parameter-calculator.js';
 import { getOperation, migratedOperationIds, normalizeOperationParams } from './operation-registry.js';
-import { assertJsonValue, canonicalJson, validateSchema } from './contracts/operation-schema.js';
+import { assertJsonValue, validateSchema } from './contracts/operation-schema.js';
+import { assertHistoryEditSafe } from './history-edit-safety.js';
 
 export const NAMED_PARAMETER_LIMITS = Object.freeze({ parameters: 128, nameLength: 60,
   dependencyDepth: 64, featureExpressions: 256, documentExpressions: 2048, expressionLength: 256, pathLength: 150 });
@@ -127,10 +128,6 @@ function pathTarget(feature, expressionPath, path) {
   }
 }
 
-function hasIndexedTopology(feature) {
-  return feature.params && ['faceId', 'faceIds', 'edgeIds'].some(key => Object.hasOwn(feature.params, key));
-}
-
 /** Pure pre-rebuild transformation. The caller owns atomic rebuild/commit and undo. */
 export function evaluateDocumentParameters(document, { previousDocument } = {}) {
   object(document, 'document');
@@ -165,14 +162,6 @@ export function evaluateDocumentParameters(document, { previousDocument } = {}) 
   }
   const prior = previousDocument ?? document;
   if (!Array.isArray(prior.features)) fail('PARAM_SCHEMA_INVALID', 'previousDocument.features', 'Previous document features must be an array.');
-  const priorById = new Map(prior.features.map(feature => [feature.id, feature]));
-  for (let index = 0; index < output.features.length; index++) {
-    const feature = output.features[index], old = priorById.get(feature.id);
-    if (!old) continue;
-    const changed = canonicalJson({ op: old.op, params: old.params, refs: old.refs }) !== canonicalJson({ op: feature.op, params: feature.params, refs: feature.refs });
-    if (changed && output.features.slice(index + 1).some(hasIndexedTopology)) {
-      fail('UNSAFE_LEGACY_REFERENCE', `features.${index}.params`, 'An upstream change precedes face/edge index references that cannot be proven stable; no parameter results were committed.');
-    }
-  }
+  assertHistoryEditSafe(prior,output);
   return output;
 }

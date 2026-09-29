@@ -54,9 +54,15 @@
                         "start",
                         "end",
                         "center"
-                      ]
+                      ],
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
                     }
-                  }
+                  },
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
                 },
                 "positionMm": {
                   "type": "array",
@@ -137,7 +143,10 @@
                         "start",
                         "end",
                         "center"
-                      ]
+                      ],
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
                     }
                   }
                 },
@@ -161,7 +170,10 @@
                         "start",
                         "end",
                         "center"
-                      ]
+                      ],
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
                     }
                   }
                 }
@@ -352,7 +364,10 @@
                 "lengthMm": {
                   "type": "number",
                   "exclusiveMinimum": 0,
-                  "maximum": 2000000
+                  "maximum": 2000000,
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
                 }
               },
               "description": "Positive line length in mm."
@@ -397,7 +412,10 @@
                         "start",
                         "end",
                         "center"
-                      ]
+                      ],
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
                     }
                   }
                 },
@@ -421,14 +439,20 @@
                         "start",
                         "end",
                         "center"
-                      ]
+                      ],
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
                     }
                   }
                 },
                 "distanceMm": {
                   "type": "number",
                   "minimum": -2000000,
-                  "maximum": 2000000
+                  "maximum": 2000000,
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
                 },
                 "axis": {
                   "type": "string",
@@ -470,7 +494,10 @@
                 "radiusMm": {
                   "type": "number",
                   "exclusiveMinimum": 0,
-                  "maximum": 1000000
+                  "maximum": 1000000,
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
                 }
               },
               "description": "Positive circle radius."
@@ -503,7 +530,10 @@
                 "diameterMm": {
                   "type": "number",
                   "exclusiveMinimum": 0,
-                  "maximum": 2000000
+                  "maximum": 2000000,
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
                 }
               },
               "description": "Positive circle diameter."
@@ -577,7 +607,10 @@
                 "angleDeg": {
                   "type": "number",
                   "minimum": 0,
-                  "maximum": 180
+                  "maximum": 180,
+                  "unit": "deg",
+                  "quantityKind": "angle",
+                  "quantizationPolicy": "none"
                 },
                 "direction": {
                   "type": "string",
@@ -585,7 +618,10 @@
                     "ccw",
                     "cw"
                   ],
-                  "default": "ccw"
+                  "default": "ccw",
+                  "unit": "1",
+                  "quantityKind": "direction",
+                  "quantizationPolicy": "none"
                 }
               },
               "description": "Directed angle between line start-to-end vectors. ccw is positive, cw negative; 0–180 degrees. Endpoints define direction."
@@ -649,6 +685,13 @@
     "minItems": 1,
     "maxItems": 1
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -668,7 +711,7 @@
     "profileConstraints"
   ],
   "description": "Solve common saved line/circle profile constraints and derive a new profile while preserving the source, entity IDs and ordered paths",
-  "schemaHash": "sha256:f302f7c948941d7ffca7d8a9e5eaad7048922fe1fa07b4daa72e4a02dc5d2f74",
+  "schemaHash": "sha256:5fde80d902c88a8fcb5c28b781807e6872529df7f139f2b4b6449956be653a70",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -836,5 +879,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:78ecdf6be440540fbd325cb5ab6e3c804aec3c0a2b9708522bf7b99025666e45"
+  "docsHash": "sha256:03c09530f2eba32fc46c347b9935b4c9f3696a999d93d962d6abbc16e6fb891e"
 }

@@ -7,10 +7,16 @@
     "properties": {
       "faceId": {
         "type": "integer",
-        "minimum": 0
+        "minimum": 0,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
       },
       "thickness": {
-        "type": "number"
+        "type": "number",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -29,6 +35,13 @@
     "uniqueItems": true,
     "minItems": 1,
     "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {},
   "selectionTokenSupport": {
@@ -49,7 +62,7 @@
     "选面增厚"
   ],
   "description": "Normal offset of one face into a new solid",
-  "schemaHash": "sha256:99c1d00f522e833b1b950c89181d0d6b8c0707aeda78229635cb0d2c05279690",
+  "schemaHash": "sha256:d88da15ed231d7a2a370e08432b3f5ceada4f904b00448da595696911bb8f2a0",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -169,5 +182,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:48c6b6781121ac183ad90606ba8e6b8e5ce5c5f8a70e0ef3f59a03ee69a339e2"
+  "docsHash": "sha256:ff9ce7a90b185dac0087483bbd66e58df550a5fd9245f1cf1c663ef168b460fa"
 }

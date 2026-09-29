@@ -44,6 +44,13 @@
     "minItems": 2,
     "maxItems": 3
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {
     "operation": "newBody",
     "transitionMode": "transformed",
@@ -59,7 +66,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] 截面，refs[1] 单一连续开放精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；截面必须已在路径起点平面并垂直其起点切线，不自动居中/定位。首版无内孔截面、无闭合路径、无分叉，不提供变截面、导轨、扭转或自动减小半径。曲线保留为精确圆弧/样条，非离散折线。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。只接受有效正体积单实体，无材料变化的加料/切除或分裂结果失败，失败不改来源。固定来源世界位置，不再次应用工作基准。",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] 截面，refs[1] 单一连续开放精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；截面必须已在路径起点平面并垂直其起点切线，不自动居中/定位。首版无内孔截面、无闭合路径、无分叉，不提供变截面、导轨、扭转或自动减小半径。曲线保留为精确圆弧/样条，非离散折线。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。",
   "title": "Sweep a saved exact section along a saved exact open path, with explicit material result",
   "category": "modification",
   "synonyms": [
@@ -67,7 +74,7 @@
     "profileSweep"
   ],
   "description": "Sweep a saved exact section along a saved exact open path, with explicit material result",
-  "schemaHash": "sha256:f102652c40921a453134cb0e525940a9d538d2f760fd618462877540b5ecac0e",
+  "schemaHash": "sha256:4ae813af0a941553325ed3dfab5edce7ac62c56b4114637fc1ecc9f99b3f04c1",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -129,7 +136,7 @@
     "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "refs[0] 截面，refs[1] 单一连续开放精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；截面必须已在路径起点平面并垂直其起点切线，不自动居中/定位。首版无内孔截面、无闭合路径、无分叉，不提供变截面、导轨、扭转或自动减小半径。曲线保留为精确圆弧/样条，非离散折线。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。只接受有效正体积单实体，无材料变化的加料/切除或分裂结果失败，失败不改来源。固定来源世界位置，不再次应用工作基准。"
+    "refs[0] 截面，refs[1] 单一连续开放精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；截面必须已在路径起点平面并垂直其起点切线，不自动居中/定位。首版无内孔截面、无闭合路径、无分叉，不提供变截面、导轨、扭转或自动减小半径。曲线保留为精确圆弧/样条，非离散折线。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。"
   ],
   "minimalExample": {
     "op": "profileSweep",
@@ -219,5 +226,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:ad3ee271d90d1281d32cbb75dc5482ef7f7f66d0db2ef03446679202fc86214d"
+  "docsHash": "sha256:6f71050c74da81d48d594496b12b9d49067f2849e40f3b8c1004c74698e80c17"
 }

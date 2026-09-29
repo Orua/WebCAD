@@ -2,6 +2,7 @@ import { assertOperationContract, normalizeOperationParams, normalizeOperationPa
 import { EDITOR_ACTIONS, validateEditorAction } from './editor-actions.js';
 import {REFERENCE_ACTIONS,applyReferenceAction} from './reference-contracts.js';
 import {resolvePlacement,describeResolvedPlacement} from './work-frame.js';
+import { assertHistoryEditSafe } from './history-edit-safety.js';
 
 const clone=structuredClone;
 const uid=()=>crypto.randomUUID();
@@ -19,7 +20,7 @@ function finiteTree(v,path='args'){if(typeof v==='number'&&!Number.isFinite(v))f
 function integer(v,path,min=0,max=Number.MAX_SAFE_INTEGER){if(!Number.isSafeInteger(v)||v<min||v>max)fail('PARAM_RANGE_INVALID',path,`Expected integer ${min}..${max}`);}
 function ids(v,path,nonempty=false){if(!Array.isArray(v)||v.length>200||(nonempty&&!v.length))fail('PARAM_SCHEMA_INVALID',path,'Expected bounded ID array');v.forEach(x=>string(x,path));if(new Set(v).size!==v.length)fail('PARAM_SCHEMA_INVALID',path,'Duplicate references');}
 const contextOf=s=>({sessionId:s.sessionId,documentId:s.documentId,documentInstanceId:s.documentInstanceId,revision:s.revision});
-function errorResult(e,requestId,s){return {status:'failed',requestId,error:{code:e.code||(/no material|remove material|无.*材料|未.*材料/i.test(e.message)?'NO_MATERIAL_REMOVED':'GEOMETRY_INVALID'),path:e.path||'args',message:e.message||String(e),retryable:false,recoveryAction:e.recoveryAction||'NONE'},commitState:'not_committed',currentRevision:s?.revision};}
+function errorResult(e,requestId,s){return {status:'failed',requestId,error:{code:e.code||(/no material|remove material|无.*材料|未.*材料/i.test(e.message)?'NO_MATERIAL_REMOVED':'GEOMETRY_INVALID'),path:e.path||'args',message:e.message||String(e),retryable:false,recoveryAction:e.recoveryAction||'NONE',...(e.featureId?{featureId:e.featureId}:{}),...(e.affectedFeatureIds?{affectedFeatureIds:e.affectedFeatureIds,changedFeatureIds:e.changedFeatureIds}:{})},commitState:'not_committed',currentRevision:s?.revision};}
 
 // A single browser document remains authoritative. No DOM, UI selection or kernel copy.
 export function createCommandService(adapter) {
@@ -145,7 +146,6 @@ export function createCommandService(adapter) {
           object(a,['featureId','opVersion','schemaHash','params','name','placement'],'args');string(a.featureId,'args.featureId');
           const index=s.features.findIndex(f=>f.id===a.featureId);if(index<0)fail('STALE_REFERENCE','args.featureId','Unknown feature');
           const feature=s.features[index];op=feature.op;contract(op,a);
-          if(a.params&&Object.keys(a.params).length&&s.features.slice(index+1).some(f=>['edgeIds','faceIds','faceId'].some(k=>Object.hasOwn(f.params,k))))fail('UNSAFE_LEGACY_REFERENCE','args.featureId','Downstream index references cannot be proven stable; edit rejected','RESELECT_TOPOLOGY');
           const merged=['transform','copy'].includes(op)&&a.params?.mode&&!feature.params.mode?a.params:{...feature.params,...a.params};
           const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,feature.params,a.params):parameters(op,merged);if(['transform','copy'].includes(op)&&params.mode&&a.placement===undefined&&!feature.placement)fail('FRAME_INVALID','args.placement','Spatial transform mode requires explicit placement');if(a.name!==undefined)string(a.name,'args.name',120);await verifyNamedPlacement(a.placement,s,feature.refs||[]);
           command='edit_feature';args={featureId:a.featureId,params,name:a.name,...(Object.hasOwn(a,'placement')?{placement:resolvePlacement(a.placement,s.referenceSystem,op,params)}:{})};break;
@@ -162,6 +162,7 @@ export function createCommandService(adapter) {
         }
         default:if(REFERENCE_ACTIONS.includes(input.action)){let proof;if(input.action==='reference.setWorkFrame'&&a?.referenceId!==undefined){const item=await verifiedReference(a.referenceId,s);if(item.kind!=='point'||!item.worldPoint?.every((v,i)=>Math.abs(v-a.origin?.[i])<=1e-6))fail('SOURCE_ANCHOR_INVALID','args.referenceId','Reference point does not match requested origin');delete a.referenceId;}if(input.action==='reference.setBodyAnchor'){if(!s.bodies.some(body=>body.id===a?.bodyId))fail('STALE_REFERENCE','args.bodyId','Body is not current');const item=await verifiedReference(a.referenceId,s);if(item.kind!=='point'||item.source?.bodyId!==a.bodyId||!item.source.geometryFingerprint)fail('SOURCE_ANCHOR_INVALID','args.referenceId','Exact point on the specified body required');proof={bodyId:a.bodyId,worldPoint:item.worldPoint,geometryFingerprint:item.source.geometryFingerprint};}args={action:input.action,referenceSystem:applyReferenceAction(s.referenceSystem,input.action,a,proof)};command='reference_action';break;}if(Object.hasOwn(EDITOR_ACTIONS,input.action)){({command,args}=validateEditorAction(input.action,a,s));break;}fail('PARAM_SCHEMA_INVALID','action','Unsupported action');
       }
+      if(command==='edit_feature')assertHistoryEditSafe(s,{features:s.features.map(feature=>feature.id===args.featureId?{...feature,params:args.params,...(args.placement?{placement:args.placement}: {})}:feature)});
       context(input.context,snapshot());available(snapshot(),allowPreview);revisionBefore=s.revision;
       await adapter.execute(command,args,{signal:options.signal,expectedRevision:s.revision});
       const after=snapshot();let result;
@@ -176,6 +177,7 @@ export function createCommandService(adapter) {
       if(command==='editor_action')result.validation={geometry:input.action==='body.explode'?'passed':'unchanged',editor:'passed'};
       if(command==='reference_action'){result.validation={geometry:'unchanged',reference:'passed'};result.referenceSystem=clone(after.referenceSystem);}
       if(args?.placement)result.resolvedPlacement={...describeResolvedPlacement(op,args.params,args.placement),geometryValidated:result.status==='committed',referenceQuality:'provided-coordinates',binding:'snapshot'};
+      if(args?.params&&op){const effective=after.previewDraft?.params&&input.action.startsWith('preview.')?after.previewDraft.params:after.features.find(feature=>feature.id===(args.featureId||result.createdFeatureIds?.[0]))?.params;result.numericInput={policy:'exact',requestedParams:clone(input.args?.params||input.args?.patch?.params||{}),effectiveParams:clone(effective||args.params),quantizationWarnings:[]};}
       if(args?.fileImport?.placement)result.resolvedPlacement={...describeResolvedPlacement('import',{},args.fileImport.placement),geometryValidated:false,referenceQuality:'provided-coordinates',binding:'snapshot'};
       if(input.action.startsWith('preview.')){if(['preview.start','preview.update'].includes(input.action))result={...result,status:'previewing',commitState:'not_committed',validation:{geometry:'previewed',placement:args.placement||args.fileImport?.placement?'passed':'not_applicable'}};result.preview={active:!!after.preview,computing:!!after.previewComputing,...(after.previewInfo?{previewId:after.previewInfo.previewId,generation:after.previewInfo.generation,baseRevision:after.previewInfo.baseRevision}: {})};}
       receipts.set(key,{fingerprint,result:clone(result)});return result;

@@ -12,6 +12,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -155,7 +162,10 @@
       "thickness": {
         "type": "number",
         "default": 5,
-        "description": "Plate thickness"
+        "description": "Plate thickness",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "holeInsetAngle": {
         "type": "number",
@@ -165,7 +175,10 @@
       "holeDiameter": {
         "type": "number",
         "default": 2.3,
-        "description": "Through-hole diameter"
+        "description": "Through-hole diameter",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "recessDiameter": {
         "type": "number",
@@ -179,7 +192,7 @@
       }
     }
   },
-  "schemaHash": "sha256:e830ea706fffdb7ebc9a3a4e9cbe29a974db49c6eb5203d6516eacb5a25ba3b7",
+  "schemaHash": "sha256:3beed3735793ecc5760c158be69d24dbcc431dd973ce02c26dcb6bec91ad3866",
   "defaults": {
     "outerRadius": 20,
     "innerRadius": 15,
@@ -303,5 +316,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:2fdde197f9f1ac600b1bb4c8739bc7939899707a1d600ee7e3a558929fcd288a"
+  "docsHash": "sha256:e3ea33a51de9a953f4b7f51e8333c3d35f27ec6bc2bdbd7464abcfb62a769c63"
 }

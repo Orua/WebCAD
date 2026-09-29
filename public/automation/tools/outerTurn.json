@@ -8,17 +8,26 @@
       "faceId": {
         "type": "integer",
         "minimum": 0,
-        "description": "Explicit current planar face index on refs[0]"
+        "description": "Explicit current planar face index on refs[0]",
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
       },
       "diameterMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "description": "Finished outer diameter"
+        "description": "Finished outer diameter",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "depthMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "description": "Inward axial cutting depth"
+        "description": "Inward axial cutting depth",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -39,6 +48,13 @@
     "minItems": 1,
     "maxItems": 1
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -58,7 +74,7 @@
     "outerTurn"
   ],
   "description": "Turn the outside of a selected planar section to diameter",
-  "schemaHash": "sha256:117e7e7bfb2e94123f808195c17398c01e2c6284ca7bca3269bc289be95d6af4",
+  "schemaHash": "sha256:1a9869768a8775e25eb3e747eb9a60120867efd301bc52e1fef8e12b120270a1",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -195,5 +211,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:9b5a5984770f1d5ffe4f293d20c1f9a47812fde68a721a0f1728007648be5abb"
+  "docsHash": "sha256:ca2558ddf4a0f8b3c0235df6e077545e1697e796e2ff7d079051bbed65bf09e5"
 }

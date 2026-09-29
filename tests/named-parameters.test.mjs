@@ -120,3 +120,9 @@ test('legacy numeric documents and existing calculator behavior remain unchanged
   assert.equal(evaluateDimension('max(2,min(3,4))'), 3);
   assert.equal(evaluateDimension('-2^2'), -4);
 });
+
+test('named upstream dimensions ignore topology on an independent part',()=>{
+ const doc=plate();doc.features.push({id:'other',op:'box',params:{width:5,depth:5,height:2},refs:[]},{id:'other-round',op:'fillet',params:{radius:0.2,edgeIds:[0]},refs:['other']});
+ const next=structuredClone(doc);next.parameters.length.value=63;
+ const out=evaluateDocumentParameters(next,{previousDocument:doc});assert.equal(out.features[0].params.width,63);
+});

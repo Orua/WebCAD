@@ -12,6 +12,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -165,16 +172,22 @@
       "thickness": {
         "type": "number",
         "default": 4,
-        "description": "Plate depth"
+        "description": "Plate depth",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "endRadius": {
         "type": "number",
         "default": 1,
-        "description": "Leg end radius"
+        "description": "Leg end radius",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     }
   },
-  "schemaHash": "sha256:1565c4c48254166298ad3b200b2149c53efc3d159869acdfcd5e30b854dca721",
+  "schemaHash": "sha256:1238a80d5f98f2c2b4e76a9847de67e601215f81d887807ba95cc55f9e056a25",
   "defaults": {
     "outerWidth": 25,
     "innerWidth": 20,
@@ -288,5 +301,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:77b3edf88509125905c5e5d689cdcdb1549d042564290d589497726a464772db"
+  "docsHash": "sha256:1c9e514495366ffd97b9492d4610a917b6cbc9f8e83deaecc744e9bc2f5ac986"
 }

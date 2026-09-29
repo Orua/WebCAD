@@ -15,7 +15,10 @@
       },
       "offset": {
         "type": "number",
-        "description": "Plane offset (mm)"
+        "description": "Plane offset (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [],
@@ -32,6 +35,13 @@
     "uniqueItems": true,
     "minItems": 1,
     "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {},
   "selectionTokenSupport": {
@@ -52,7 +62,7 @@
     "分割"
   ],
   "description": "Split body by an offset global plane",
-  "schemaHash": "sha256:266f1c12fbe61af6ff49eb7e846c59e20380898f188addec2b66cc2d220028c4",
+  "schemaHash": "sha256:0b30e70627ecee4b7f53798a27ecceb2deaa8a2f0e8bc821093a8dcdd69ec7ab",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -171,5 +181,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:576687ea9810c779fa3d304bb7b4a602dd12e3641367b0f1437d376a7623d81b"
+  "docsHash": "sha256:3931a136750d316d3cf63a4643cfbe846fd307926729bfa91fa9db74af2335ae"
 }

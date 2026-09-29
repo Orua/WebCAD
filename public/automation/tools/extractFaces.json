@@ -14,8 +14,14 @@
         "uniqueItems": true,
         "items": {
           "type": "integer",
-          "minimum": 0
-        }
+          "minimum": 0,
+          "unit": "1",
+          "quantityKind": "index",
+          "quantizationPolicy": "none"
+        },
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
       }
     },
     "$schema": "https://json-schema.org/draft/2020-12/schema"
@@ -30,6 +36,13 @@
     "uniqueItems": true,
     "minItems": 1,
     "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {},
   "selectionTokenSupport": {
@@ -50,7 +63,7 @@
     "提取指定面"
   ],
   "description": "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。",
-  "schemaHash": "sha256:3ce05e65da1d2aed60d062933a42c9829a46c245a5b56658903a706dd31ed7a1",
+  "schemaHash": "sha256:732b8165f6ccbb5abe8bbc268bb789ab5cee6280c97a0d52b4c55d79e638afda",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -185,5 +198,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:bf59336d93e71c4ba2b9a6cb4d7cab618e35208f2b6b8ac101425bc1649ee31d"
+  "docsHash": "sha256:adfdd2e802fdbe7606047e34158b8ff0e5f18c1a100e0389b226f7349d0600fa"
 }

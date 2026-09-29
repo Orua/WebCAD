@@ -7,12 +7,18 @@
       "radius": {
         "type": "number",
         "description": "Shared hole radius (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "depth": {
         "type": "number",
         "description": "Shared hole depth (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "axis": {
         "type": "string",
@@ -30,7 +36,10 @@
           1,
           -1
         ],
-        "default": 1
+        "default": 1,
+        "unit": "1",
+        "quantityKind": "direction",
+        "quantizationPolicy": "none"
       },
       "points": {
         "type": "array",
@@ -39,12 +48,21 @@
         "items": {
           "type": "array",
           "items": {
-            "type": "number"
+            "type": "number",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "minItems": 3,
           "maxItems": 3,
-          "description": "World coordinate [x,y,z] in mm"
-        }
+          "description": "World coordinate [x,y,z] in mm",
+          "unit": "mm",
+          "quantityKind": "length",
+          "quantizationPolicy": "none"
+        },
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -65,6 +83,13 @@
     "uniqueItems": true,
     "minItems": 1,
     "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {
     "axis": "Z",
@@ -90,7 +115,7 @@
     "多位置打孔"
   ],
   "description": "Cut cylindrical holes sequentially at multiple global start points",
-  "schemaHash": "sha256:721711340db5482a051682fd5bc282175b8fc64d7fa56f88600beed3c61fe1eb",
+  "schemaHash": "sha256:f7293b65022d29119baf4c66d0faf4b1629a0c7cef7e337281a98ec54fc4641e",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -296,5 +321,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:e807b5b1dfe2061294c937cd40b69bde82ea82ad10745929eb13853ea1a4e87b"
+  "docsHash": "sha256:53697c4e382da867fa4c1594ddcad779f1f53ae262106644330799b109de489e"
 }

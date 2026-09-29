@@ -108,7 +108,10 @@
           "height": {
             "type": "number",
             "default": 3,
-            "description": "Height"
+            "description": "Height",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           }
         }
       },
@@ -127,12 +130,18 @@
           "diameterMm": {
             "type": "number",
             "default": 6,
-            "description": "直径"
+            "description": "直径",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "heightMm": {
             "type": "number",
             "default": 2,
-            "description": "高度"
+            "description": "高度",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           }
         }
       },
@@ -151,22 +160,34 @@
           "radiusMm": {
             "type": "number",
             "default": 6,
-            "description": "中心线半径"
+            "description": "中心线半径",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "wireDiameterMm": {
             "type": "number",
             "default": 1.2,
-            "description": "线径"
+            "description": "线径",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "pitchMm": {
             "type": "number",
             "default": 3,
-            "description": "螺距"
+            "description": "螺距",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "turns": {
             "type": "number",
             "default": 4,
-            "description": "圈数"
+            "description": "圈数",
+            "unit": "1",
+            "quantityKind": "scalar",
+            "quantizationPolicy": "none"
           },
           "leftHanded": {
             "type": "boolean",
@@ -297,12 +318,18 @@
           "diameter": {
             "type": "number",
             "default": 40,
-            "description": "Badge diameter"
+            "description": "Badge diameter",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "thickness": {
             "type": "number",
             "default": 2,
-            "description": "Plate thickness"
+            "description": "Plate thickness",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "rimWidth": {
             "type": "number",
@@ -351,27 +378,42 @@
           "width": {
             "type": "number",
             "default": 40,
-            "description": "Plate width X"
+            "description": "Plate width X",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "depth": {
             "type": "number",
             "default": 16,
-            "description": "Plate depth Y"
+            "description": "Plate depth Y",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "thickness": {
             "type": "number",
             "default": 3,
-            "description": "Thickness"
+            "description": "Thickness",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "cornerRadius": {
             "type": "number",
             "default": 3,
-            "description": "Outer corner radius"
+            "description": "Outer corner radius",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "holeDiameter": {
             "type": "number",
             "default": 4,
-            "description": "Hole diameter"
+            "description": "Hole diameter",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "holeSpacing": {
             "type": "number",
@@ -395,27 +437,42 @@
           "width": {
             "type": "number",
             "default": 50,
-            "description": "Plate width X"
+            "description": "Plate width X",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "depth": {
             "type": "number",
             "default": 30,
-            "description": "Plate depth Y"
+            "description": "Plate depth Y",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "thickness": {
             "type": "number",
             "default": 3,
-            "description": "Thickness"
+            "description": "Thickness",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "cornerRadius": {
             "type": "number",
             "default": 0,
-            "description": "Outer corner radius"
+            "description": "Outer corner radius",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "holeDiameter": {
             "type": "number",
             "default": 4,
-            "description": "Hole diameter"
+            "description": "Hole diameter",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "insetX": {
             "type": "number",
@@ -474,7 +531,10 @@
           "thickness": {
             "type": "number",
             "default": 3,
-            "description": "Thickness"
+            "description": "Thickness",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           }
         }
       },
@@ -523,7 +583,10 @@
           "thickness": {
             "type": "number",
             "default": 4,
-            "description": "Thickness"
+            "description": "Thickness",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "edgeRadius": {
             "type": "number",
@@ -886,22 +949,34 @@
           "width": {
             "type": "number",
             "default": 40,
-            "description": "Plate width X"
+            "description": "Plate width X",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "depth": {
             "type": "number",
             "default": 16,
-            "description": "Plate depth Y"
+            "description": "Plate depth Y",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "thickness": {
             "type": "number",
             "default": 3,
-            "description": "Plate thickness"
+            "description": "Plate thickness",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "cornerRadius": {
             "type": "number",
             "default": 3,
-            "description": "Plate corner radius"
+            "description": "Plate corner radius",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "bossSpacing": {
             "type": "number",
@@ -950,12 +1025,18 @@
           "height": {
             "type": "number",
             "default": 14,
-            "description": "Total height"
+            "description": "Total height",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "wallThickness": {
             "type": "number",
             "default": 2,
-            "description": "Wall thickness"
+            "description": "Wall thickness",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "floorThickness": {
             "type": "number",
@@ -1009,17 +1090,26 @@
           "height": {
             "type": "number",
             "default": 12,
-            "description": "Total height"
+            "description": "Total height",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "cornerRadius": {
             "type": "number",
             "default": 6,
-            "description": "Outer corner radius"
+            "description": "Outer corner radius",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "wallThickness": {
             "type": "number",
             "default": 2,
-            "description": "Wall thickness"
+            "description": "Wall thickness",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "floorThickness": {
             "type": "number",
@@ -1112,12 +1202,18 @@
           "holeDiameter": {
             "type": "number",
             "default": 4,
-            "description": "Hole diameter"
+            "description": "Hole diameter",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "depth": {
             "type": "number",
             "default": 8,
-            "description": "Total depth"
+            "description": "Total depth",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "headDiameter": {
             "type": "number",
@@ -1190,7 +1286,10 @@
           "thickness": {
             "type": "number",
             "default": 3.5,
-            "description": "Plate thickness"
+            "description": "Plate thickness",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "edgeRadius": {
             "type": "number",
@@ -1229,12 +1328,18 @@
           "thickness": {
             "type": "number",
             "default": 3,
-            "description": "Plate thickness"
+            "description": "Plate thickness",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "holeDiameter": {
             "type": "number",
             "default": 3.3,
-            "description": "End-hole diameter"
+            "description": "End-hole diameter",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "holeInset": {
             "type": "number",
@@ -1307,7 +1412,10 @@
           "thickness": {
             "type": "number",
             "default": 5,
-            "description": "Plate thickness"
+            "description": "Plate thickness",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "holeInsetAngle": {
             "type": "number",
@@ -1317,7 +1425,10 @@
           "holeDiameter": {
             "type": "number",
             "default": 2.3,
-            "description": "Through-hole diameter"
+            "description": "Through-hole diameter",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "recessDiameter": {
             "type": "number",
@@ -1376,12 +1487,18 @@
           "thickness": {
             "type": "number",
             "default": 4,
-            "description": "Plate depth"
+            "description": "Plate depth",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "endRadius": {
             "type": "number",
             "default": 1,
-            "description": "Leg end radius"
+            "description": "Leg end radius",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           }
         }
       },
@@ -1469,7 +1586,10 @@
           "thickness": {
             "type": "number",
             "default": 4,
-            "description": "Flat plate thickness"
+            "description": "Flat plate thickness",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "gapWidth": {
             "type": "number",
@@ -1567,7 +1687,10 @@
           "cornerRadius": {
             "type": "number",
             "default": 6,
-            "description": "Corner radius"
+            "description": "Corner radius",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "windowWidth": {
             "type": "number",
@@ -1587,7 +1710,10 @@
           "thickness": {
             "type": "number",
             "default": 3.7,
-            "description": "Thickness"
+            "description": "Thickness",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "edgeRadius": {
             "type": "number",
@@ -1795,6 +1921,588 @@
             "description": "Wire diameter / square size"
           }
         }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "Separate tongue: X-axis pivot loop and a rounded flat strip along +Y. Length is pivot-center to tip. Approximate loop-head flat tongue only; no stamping bends, knurling, artwork or assembly motion validation.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "buckleTongue"
+          },
+          "lengthMm": {
+            "type": "number",
+            "default": 22,
+            "description": "Pivot to tip",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "widthMm": {
+            "type": "number",
+            "default": 3,
+            "description": "Tongue width X",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "thicknessMm": {
+            "type": "number",
+            "default": 1.2,
+            "description": "Tongue thickness Z",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "pivotDiameterMm": {
+            "type": "number",
+            "default": 2,
+            "description": "Mating pivot diameter"
+          },
+          "clearanceMm": {
+            "type": "number",
+            "default": 0.15,
+            "description": "Diametral clearance"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "Separate crossbar with two open Y-axis rolled eyes and independently tangent inner/outer transitions into the center strip. For regular pull buckles; it remains separate from the frame.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "pullCoreBar"
+          },
+          "eyePitchMm": {
+            "type": "number",
+            "default": 45.5,
+            "description": "Eye center pitch X"
+          },
+          "eyeInnerDiameterMm": {
+            "type": "number",
+            "default": 5.5,
+            "description": "Eye inner diameter"
+          },
+          "widthMm": {
+            "type": "number",
+            "default": 3.2,
+            "description": "Crossbar width Y",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "eyeWallMm": {
+            "type": "number",
+            "default": 1.7,
+            "description": "Eye and tail wall"
+          },
+          "barThicknessMm": {
+            "type": "number",
+            "default": 1.5,
+            "description": "Center strip thickness Z"
+          },
+          "barCenterHeightMm": {
+            "type": "number",
+            "default": 2,
+            "description": "Strip center height Z"
+          },
+          "outerTransitionRadiusMm": {
+            "type": "number",
+            "default": 28.3,
+            "description": "Outer transition radius"
+          },
+          "innerTransitionRadiusMm": {
+            "type": "number",
+            "default": 30,
+            "description": "Inner transition radius"
+          },
+          "tailLengthMm": {
+            "type": "number",
+            "default": 5,
+            "description": "Rolled-eye tail length"
+          },
+          "tailAngleDeg": {
+            "type": "number",
+            "default": 0,
+            "description": "Tail angle"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "A rounded rectangular strip uses two planar circular layers joined by a local transition. Inner/outer diameters define the band; total side depth is split evenly between the layers plus the gap. Turns are limited to >1 and <2; the transition angle must fit within the open tip sector. Four section corners are R0.5; product-specific tip outlines, attachments and patterns are not included.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "keyRing"
+          },
+          "innerDiameterMm": {
+            "type": "number",
+            "default": 25,
+            "description": "Inner diameter"
+          },
+          "outerDiameterMm": {
+            "type": "number",
+            "default": 33,
+            "description": "Outer diameter"
+          },
+          "totalDepthMm": {
+            "type": "number",
+            "default": 3,
+            "description": "Total side depth"
+          },
+          "turns": {
+            "type": "number",
+            "default": 1.9,
+            "description": "Turns",
+            "unit": "1",
+            "quantityKind": "scalar",
+            "quantizationPolicy": "none"
+          },
+          "layerGapMm": {
+            "type": "number",
+            "default": 0.01,
+            "description": "Layer gap"
+          },
+          "sectionCornerRadiusMm": {
+            "type": "number",
+            "default": 0.5,
+            "description": "Section corner radius"
+          },
+          "transitionAngleDeg": {
+            "type": "number",
+            "default": 36,
+            "description": "Transition angle"
+          },
+          "leftHanded": {
+            "type": "boolean",
+            "default": false,
+            "description": "Left handed"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "A horizontal rounded rod joined to an elliptical-section U eye that narrows in Z depth from root to top.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "hangingRod"
+          },
+          "barLengthMm": {
+            "type": "number",
+            "default": 35,
+            "description": "Rod length"
+          },
+          "barDiameterMm": {
+            "type": "number",
+            "default": 5,
+            "description": "Rod diameter"
+          },
+          "endFilletMm": {
+            "type": "number",
+            "default": 0.8,
+            "description": "End fillet radius"
+          },
+          "loopInnerWidthMm": {
+            "type": "number",
+            "default": 7,
+            "description": "Eye inner width"
+          },
+          "loopWireDiameterMm": {
+            "type": "number",
+            "default": 2,
+            "description": "Eye wire diameter"
+          },
+          "loopClearHeightMm": {
+            "type": "number",
+            "default": 6,
+            "description": "Clear height above rod"
+          },
+          "loopRootDepthMm": {
+            "type": "number",
+            "default": 2.5,
+            "description": "Eye root Z depth"
+          },
+          "rootBlendRadiusMm": {
+            "type": "number",
+            "default": 1,
+            "description": "Root junction blend radius"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "A regular round-section U bridge with straight legs, an exact semicircular crown, and optional coaxial holes in both end faces.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "archedBridge"
+          },
+          "outerWidthMm": {
+            "type": "number",
+            "default": 11.3,
+            "description": "Outer width"
+          },
+          "outerHeightMm": {
+            "type": "number",
+            "default": 7.5,
+            "description": "Outer height"
+          },
+          "sectionDiameterMm": {
+            "type": "number",
+            "default": 3.3,
+            "description": "Section diameter"
+          },
+          "holeDiameterMm": {
+            "type": "number",
+            "default": 2,
+            "description": "End-hole diameter"
+          },
+          "holeDepthMm": {
+            "type": "number",
+            "default": 3,
+            "description": "End-hole depth"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "A parameterized two-piece mushroom rivet with a spherical cap, hollow socket, rounded waisted post and base flange. Supports assembled or exploded display, with a blind post bore depth and direction.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "mushroomRivet"
+          },
+          "capDiameterMm": {
+            "type": "number",
+            "default": 10,
+            "description": "Cap overall diameter"
+          },
+          "capRiseMm": {
+            "type": "number",
+            "default": 5,
+            "description": "Cap rise"
+          },
+          "capEdgeRadiusMm": {
+            "type": "number",
+            "default": 0.5,
+            "description": "Cap rear edge radius"
+          },
+          "collarOuterDiameterMm": {
+            "type": "number",
+            "default": 3.5,
+            "description": "Socket outer diameter"
+          },
+          "collarInnerDiameterMm": {
+            "type": "number",
+            "default": 2.9,
+            "description": "Socket inner diameter"
+          },
+          "collarLengthMm": {
+            "type": "number",
+            "default": 2.3,
+            "description": "Socket length"
+          },
+          "postOuterDiameterMm": {
+            "type": "number",
+            "default": 2.8,
+            "description": "Post shaft diameter"
+          },
+          "postInnerDiameterMm": {
+            "type": "number",
+            "default": 2.5,
+            "description": "Post bore diameter"
+          },
+          "postLengthMm": {
+            "type": "number",
+            "default": 9,
+            "description": "Post total length"
+          },
+          "tipRoundRadiusMm": {
+            "type": "number",
+            "default": 0.5,
+            "description": "Post tip round radius"
+          },
+          "waistRadiusMm": {
+            "type": "number",
+            "default": 3.130814708,
+            "description": "Waist main radius"
+          },
+          "waistDepthMm": {
+            "type": "number",
+            "default": 0.26154265,
+            "description": "Waist depth"
+          },
+          "waistCenterFromTipMm": {
+            "type": "number",
+            "default": 2.03741855,
+            "description": "Waist center from tip"
+          },
+          "waistBlendRadiusMm": {
+            "type": "number",
+            "default": 0.5,
+            "description": "Waist blend radius"
+          },
+          "flangeDiameterMm": {
+            "type": "number",
+            "default": 8,
+            "description": "Base flange diameter"
+          },
+          "flangeThicknessMm": {
+            "type": "number",
+            "default": 0.3,
+            "description": "Base flange thickness"
+          },
+          "shoulderHeightMm": {
+            "type": "number",
+            "default": 1,
+            "description": "Shoulder height and radius"
+          },
+          "postBoreDepthMm": {
+            "type": "number",
+            "default": 5,
+            "description": "Post blind bore depth (0=none)"
+          },
+          "boreFromFlange": {
+            "type": "boolean",
+            "default": true,
+            "description": "Bore from flange face"
+          },
+          "explodedOffsetMm": {
+            "type": "number",
+            "default": 12,
+            "description": "Exploded center offset (0=assembled)"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "Two-piece nipple stud with an arc-profiled flat-top body, radiused base, blind M2 nominal clearance bore, crowned screw head, stem, and parameterized six-lobe drive. Threads and standardized drive dimensions are not modeled.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "nippleStud"
+          },
+          "headDiameterMm": {
+            "type": "number",
+            "default": 5,
+            "description": "Head nominal diameter"
+          },
+          "overallHeightMm": {
+            "type": "number",
+            "default": 9.1,
+            "description": "Part A overall height"
+          },
+          "neckDiameterMm": {
+            "type": "number",
+            "default": 3,
+            "description": "Neck diameter"
+          },
+          "neckHeightMm": {
+            "type": "number",
+            "default": 4,
+            "description": "Neck height"
+          },
+          "flangeDiameterMm": {
+            "type": "number",
+            "default": 7,
+            "description": "Part A flange diameter"
+          },
+          "flangeThicknessMm": {
+            "type": "number",
+            "default": 1.3,
+            "description": "Part A flange thickness"
+          },
+          "undersideCollarDiameterMm": {
+            "type": "number",
+            "default": 3,
+            "description": "Deprecated underside collar diameter"
+          },
+          "undersideCollarHeightMm": {
+            "type": "number",
+            "default": 0,
+            "description": "Deprecated collar height (must be 0)"
+          },
+          "boreDiameterMm": {
+            "type": "number",
+            "default": 2,
+            "description": "Part A nominal clearance bore diameter"
+          },
+          "boreDepthMm": {
+            "type": "number",
+            "default": 6,
+            "description": "Part A blind bore depth"
+          },
+          "entryChamferMm": {
+            "type": "number",
+            "default": 0.3,
+            "description": "Bore entry chamfer depth and radial width"
+          },
+          "baseEdgeRadiusMm": {
+            "type": "number",
+            "default": 0.3,
+            "description": "Base outer edge radius"
+          },
+          "screwHeadDiameterMm": {
+            "type": "number",
+            "default": 7,
+            "description": "Part Z screw head diameter"
+          },
+          "screwHeadThicknessMm": {
+            "type": "number",
+            "default": 2,
+            "description": "Part Z head thickness (excluding crown)"
+          },
+          "screwCrownRiseMm": {
+            "type": "number",
+            "default": 1.375,
+            "description": "Part Z crown rise"
+          },
+          "screwEdgeRadiusMm": {
+            "type": "number",
+            "default": 0.5,
+            "description": "Part Z head edge radius"
+          },
+          "screwDiameterMm": {
+            "type": "number",
+            "default": 2,
+            "description": "Part Z stem diameter"
+          },
+          "screwLengthMm": {
+            "type": "number",
+            "default": 5,
+            "description": "Part Z stem net length"
+          },
+          "driveDiameterMm": {
+            "type": "number",
+            "default": 2.6,
+            "description": "Illustrative six-lobe drive diameter"
+          },
+          "driveDepthMm": {
+            "type": "number",
+            "default": 0.5,
+            "description": "Illustrative drive depth"
+          },
+          "assemblyGapMm": {
+            "type": "number",
+            "default": 2,
+            "description": "Assembly gap"
+          },
+          "explodedOffsetMm": {
+            "type": "number",
+            "default": 12,
+            "description": "Exploded center offset (0=assembled)"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "A parameterized two-piece thin-wall eyelet with exact revolved flange bends. Part A has a long shank and Part B is its mating ring. Supports static coaxial fit or exploded display; riveting deformation, logos and lettering are not modeled.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "twoPieceEyelet"
+          },
+          "aFlangeDiameterMm": {
+            "type": "number",
+            "default": 18,
+            "description": "Part A flange diameter"
+          },
+          "aBoreDiameterMm": {
+            "type": "number",
+            "default": 11,
+            "description": "Part A bore diameter"
+          },
+          "aTubeOuterDiameterMm": {
+            "type": "number",
+            "default": 11.5,
+            "description": "Part A tube outer diameter"
+          },
+          "aTubeLengthMm": {
+            "type": "number",
+            "default": 5.8,
+            "description": "Part A tube length"
+          },
+          "aFlangeDepthMm": {
+            "type": "number",
+            "default": 1.2,
+            "description": "Part A flange axial depth"
+          },
+          "aBendRadiusMm": {
+            "type": "number",
+            "default": 0.8,
+            "description": "Part A flange bend outer radius"
+          },
+          "bFlangeDiameterMm": {
+            "type": "number",
+            "default": 18,
+            "description": "Part B flange diameter"
+          },
+          "bBoreDiameterMm": {
+            "type": "number",
+            "default": 11.8,
+            "description": "Part B bore diameter"
+          },
+          "bTubeOuterDiameterMm": {
+            "type": "number",
+            "default": 12.3,
+            "description": "Part B short tube outer diameter"
+          },
+          "bOverallDepthMm": {
+            "type": "number",
+            "default": 2,
+            "description": "Part B overall depth"
+          },
+          "bFlangeDepthMm": {
+            "type": "number",
+            "default": 1.2,
+            "description": "Part B flange axial depth"
+          },
+          "bBendRadiusMm": {
+            "type": "number",
+            "default": 0.8,
+            "description": "Part B flange bend outer radius"
+          },
+          "explodedOffsetMm": {
+            "type": "number",
+            "default": 24,
+            "description": "Exploded center offset (0=coaxial)"
+          }
+        }
       }
     ]
   },
@@ -1808,6 +2516,13 @@
     "uniqueItems": true,
     "minItems": 0,
     "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {
     "ring": {
@@ -2125,6 +2840,113 @@
       "innerWidth": 34.9,
       "innerHeight": 13.9,
       "sectionSize": 6.1
+    },
+    "buckleTongue": {
+      "lengthMm": 22,
+      "widthMm": 3,
+      "thicknessMm": 1.2,
+      "pivotDiameterMm": 2,
+      "clearanceMm": 0.15
+    },
+    "pullCoreBar": {
+      "eyePitchMm": 45.5,
+      "eyeInnerDiameterMm": 5.5,
+      "widthMm": 3.2,
+      "eyeWallMm": 1.7,
+      "barThicknessMm": 1.5,
+      "barCenterHeightMm": 2,
+      "outerTransitionRadiusMm": 28.3,
+      "innerTransitionRadiusMm": 30,
+      "tailLengthMm": 5,
+      "tailAngleDeg": 0
+    },
+    "keyRing": {
+      "innerDiameterMm": 25,
+      "outerDiameterMm": 33,
+      "totalDepthMm": 3,
+      "turns": 1.9,
+      "layerGapMm": 0.01,
+      "sectionCornerRadiusMm": 0.5,
+      "transitionAngleDeg": 36,
+      "leftHanded": false
+    },
+    "hangingRod": {
+      "barLengthMm": 35,
+      "barDiameterMm": 5,
+      "endFilletMm": 0.8,
+      "loopInnerWidthMm": 7,
+      "loopWireDiameterMm": 2,
+      "loopClearHeightMm": 6,
+      "loopRootDepthMm": 2.5,
+      "rootBlendRadiusMm": 1
+    },
+    "archedBridge": {
+      "outerWidthMm": 11.3,
+      "outerHeightMm": 7.5,
+      "sectionDiameterMm": 3.3,
+      "holeDiameterMm": 2,
+      "holeDepthMm": 3
+    },
+    "mushroomRivet": {
+      "capDiameterMm": 10,
+      "capRiseMm": 5,
+      "capEdgeRadiusMm": 0.5,
+      "collarOuterDiameterMm": 3.5,
+      "collarInnerDiameterMm": 2.9,
+      "collarLengthMm": 2.3,
+      "postOuterDiameterMm": 2.8,
+      "postInnerDiameterMm": 2.5,
+      "postLengthMm": 9,
+      "tipRoundRadiusMm": 0.5,
+      "waistRadiusMm": 3.130814708,
+      "waistDepthMm": 0.26154265,
+      "waistCenterFromTipMm": 2.03741855,
+      "waistBlendRadiusMm": 0.5,
+      "flangeDiameterMm": 8,
+      "flangeThicknessMm": 0.3,
+      "shoulderHeightMm": 1,
+      "postBoreDepthMm": 5,
+      "boreFromFlange": true,
+      "explodedOffsetMm": 12
+    },
+    "nippleStud": {
+      "headDiameterMm": 5,
+      "overallHeightMm": 9.1,
+      "neckDiameterMm": 3,
+      "neckHeightMm": 4,
+      "flangeDiameterMm": 7,
+      "flangeThicknessMm": 1.3,
+      "undersideCollarDiameterMm": 3,
+      "undersideCollarHeightMm": 0,
+      "boreDiameterMm": 2,
+      "boreDepthMm": 6,
+      "entryChamferMm": 0.3,
+      "baseEdgeRadiusMm": 0.3,
+      "screwHeadDiameterMm": 7,
+      "screwHeadThicknessMm": 2,
+      "screwCrownRiseMm": 1.375,
+      "screwEdgeRadiusMm": 0.5,
+      "screwDiameterMm": 2,
+      "screwLengthMm": 5,
+      "driveDiameterMm": 2.6,
+      "driveDepthMm": 0.5,
+      "assemblyGapMm": 2,
+      "explodedOffsetMm": 12
+    },
+    "twoPieceEyelet": {
+      "aFlangeDiameterMm": 18,
+      "aBoreDiameterMm": 11,
+      "aTubeOuterDiameterMm": 11.5,
+      "aTubeLengthMm": 5.8,
+      "aFlangeDepthMm": 1.2,
+      "aBendRadiusMm": 0.8,
+      "bFlangeDiameterMm": 18,
+      "bBoreDiameterMm": 11.8,
+      "bTubeOuterDiameterMm": 12.3,
+      "bOverallDepthMm": 2,
+      "bFlangeDepthMm": 1.2,
+      "bBendRadiusMm": 0.8,
+      "explodedOffsetMm": 24
     }
   },
   "selectionTokenSupport": {
@@ -2145,7 +2967,7 @@
     "快捷模型"
   ],
   "description": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-  "schemaHash": "sha256:1d172c8ec6fa246fbfec2f94e58e51f61543cedf75ec05639d84999103a64234",
+  "schemaHash": "sha256:1c734ea521efd9154a834ddb52aa154fe1a7648ad67482ad207bb3e1e68cbe3a",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -5460,6 +6282,1147 @@
         "innerHeight": 13.9,
         "sectionSize": 6.1
       }
+    },
+    {
+      "kind": "buckleTongue",
+      "title": "Loop-head buckle tongue",
+      "description": "Separate tongue: X-axis pivot loop and a rounded flat strip along +Y. Length is pivot-center to tip. Approximate loop-head flat tongue only; no stamping bends, knurling, artwork or assembly motion validation.",
+      "defaults": {
+        "lengthMm": 22,
+        "widthMm": 3,
+        "thicknessMm": 1.2,
+        "pivotDiameterMm": 2,
+        "clearanceMm": 0.15
+      },
+      "fields": [
+        {
+          "key": "lengthMm",
+          "label": "轴心到针尖",
+          "labelEn": "Pivot to tip",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "widthMm",
+          "label": "针宽 X",
+          "labelEn": "Tongue width X",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "thicknessMm",
+          "label": "针厚 Z",
+          "labelEn": "Tongue thickness Z",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "pivotDiameterMm",
+          "label": "配合轴直径",
+          "labelEn": "Mating pivot diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "clearanceMm",
+          "label": "轴孔直径间隙",
+          "labelEn": "Diametral clearance",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "buckleTongue"
+      },
+      "normalExample": {
+        "kind": "buckleTongue",
+        "lengthMm": 22,
+        "widthMm": 3,
+        "thicknessMm": 1.2,
+        "pivotDiameterMm": 2,
+        "clearanceMm": 0.15
+      }
+    },
+    {
+      "kind": "pullCoreBar",
+      "title": "Open-eye buckle crossbar",
+      "description": "Separate crossbar with two open Y-axis rolled eyes and independently tangent inner/outer transitions into the center strip. For regular pull buckles; it remains separate from the frame.",
+      "defaults": {
+        "eyePitchMm": 45.5,
+        "eyeInnerDiameterMm": 5.5,
+        "widthMm": 3.2,
+        "eyeWallMm": 1.7,
+        "barThicknessMm": 1.5,
+        "barCenterHeightMm": 2,
+        "outerTransitionRadiusMm": 28.3,
+        "innerTransitionRadiusMm": 30,
+        "tailLengthMm": 5,
+        "tailAngleDeg": 0
+      },
+      "fields": [
+        {
+          "key": "eyePitchMm",
+          "label": "两眼轴心距 X",
+          "labelEn": "Eye center pitch X",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "eyeInnerDiameterMm",
+          "label": "卷眼内径",
+          "labelEn": "Eye inner diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "widthMm",
+          "label": "横芯宽度 Y",
+          "labelEn": "Crossbar width Y",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "eyeWallMm",
+          "label": "卷眼及尾舌厚",
+          "labelEn": "Eye and tail wall",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "barThicknessMm",
+          "label": "中央扁带厚 Z",
+          "labelEn": "Center strip thickness Z",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "barCenterHeightMm",
+          "label": "扁带中心高度 Z",
+          "labelEn": "Strip center height Z",
+          "type": "number",
+          "min": -50,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "outerTransitionRadiusMm",
+          "label": "外过渡半径",
+          "labelEn": "Outer transition radius",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "innerTransitionRadiusMm",
+          "label": "内过渡半径",
+          "labelEn": "Inner transition radius",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "tailLengthMm",
+          "label": "卷眼尾舌长度",
+          "labelEn": "Rolled-eye tail length",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "tailAngleDeg",
+          "label": "尾舌上扬角",
+          "labelEn": "Tail angle",
+          "type": "number",
+          "min": 0,
+          "max": 60,
+          "step": 0.5,
+          "unit": "deg"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "pullCoreBar"
+      },
+      "normalExample": {
+        "kind": "pullCoreBar",
+        "eyePitchMm": 45.5,
+        "eyeInnerDiameterMm": 5.5,
+        "widthMm": 3.2,
+        "eyeWallMm": 1.7,
+        "barThicknessMm": 1.5,
+        "barCenterHeightMm": 2,
+        "outerTransitionRadiusMm": 28.3,
+        "innerTransitionRadiusMm": 30,
+        "tailLengthMm": 5,
+        "tailAngleDeg": 0
+      }
+    },
+    {
+      "kind": "keyRing",
+      "title": "Flat split key ring",
+      "description": "A rounded rectangular strip uses two planar circular layers joined by a local transition. Inner/outer diameters define the band; total side depth is split evenly between the layers plus the gap. Turns are limited to >1 and <2; the transition angle must fit within the open tip sector. Four section corners are R0.5; product-specific tip outlines, attachments and patterns are not included.",
+      "defaults": {
+        "innerDiameterMm": 25,
+        "outerDiameterMm": 33,
+        "totalDepthMm": 3,
+        "turns": 1.9,
+        "layerGapMm": 0.01,
+        "sectionCornerRadiusMm": 0.5,
+        "transitionAngleDeg": 36,
+        "leftHanded": false
+      },
+      "fields": [
+        {
+          "key": "innerDiameterMm",
+          "label": "内径",
+          "labelEn": "Inner diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "outerDiameterMm",
+          "label": "外径",
+          "labelEn": "Outer diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "totalDepthMm",
+          "label": "侧向总厚",
+          "labelEn": "Total side depth",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "turns",
+          "label": "绕卷圈数",
+          "labelEn": "Turns",
+          "type": "number",
+          "min": 1.01,
+          "max": 2,
+          "step": 0.05
+        },
+        {
+          "key": "layerGapMm",
+          "label": "相邻层间隙",
+          "labelEn": "Layer gap",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "sectionCornerRadiusMm",
+          "label": "截面圆角",
+          "labelEn": "Section corner radius",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "transitionAngleDeg",
+          "label": "跨层角",
+          "labelEn": "Transition angle",
+          "type": "number",
+          "min": 0.1,
+          "max": 180,
+          "step": 1,
+          "unit": "degrees"
+        },
+        {
+          "key": "leftHanded",
+          "label": "左旋",
+          "labelEn": "Left handed",
+          "type": "boolean"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "keyRing"
+      },
+      "normalExample": {
+        "kind": "keyRing",
+        "innerDiameterMm": 25,
+        "outerDiameterMm": 33,
+        "totalDepthMm": 3,
+        "turns": 1.9,
+        "layerGapMm": 0.01,
+        "sectionCornerRadiusMm": 0.5,
+        "transitionAngleDeg": 36,
+        "leftHanded": false
+      }
+    },
+    {
+      "kind": "hangingRod",
+      "title": "Rod with hanging eye",
+      "description": "A horizontal rounded rod joined to an elliptical-section U eye that narrows in Z depth from root to top.",
+      "defaults": {
+        "barLengthMm": 35,
+        "barDiameterMm": 5,
+        "endFilletMm": 0.8,
+        "loopInnerWidthMm": 7,
+        "loopWireDiameterMm": 2,
+        "loopClearHeightMm": 6,
+        "loopRootDepthMm": 2.5,
+        "rootBlendRadiusMm": 1
+      },
+      "fields": [
+        {
+          "key": "barLengthMm",
+          "label": "圆杆总长",
+          "labelEn": "Rod length",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "barDiameterMm",
+          "label": "圆杆直径",
+          "labelEn": "Rod diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "endFilletMm",
+          "label": "端部圆角 R",
+          "labelEn": "End fillet radius",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "loopInnerWidthMm",
+          "label": "吊环内宽",
+          "labelEn": "Eye inner width",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "loopWireDiameterMm",
+          "label": "吊环线径",
+          "labelEn": "Eye wire diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "loopClearHeightMm",
+          "label": "杆顶至内圈最高点",
+          "labelEn": "Clear height above rod",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "loopRootDepthMm",
+          "label": "吊环根部Z深度",
+          "labelEn": "Eye root Z depth",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "rootBlendRadiusMm",
+          "label": "根部交接圆角 R",
+          "labelEn": "Root junction blend radius",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "hangingRod"
+      },
+      "normalExample": {
+        "kind": "hangingRod",
+        "barLengthMm": 35,
+        "barDiameterMm": 5,
+        "endFilletMm": 0.8,
+        "loopInnerWidthMm": 7,
+        "loopWireDiameterMm": 2,
+        "loopClearHeightMm": 6,
+        "loopRootDepthMm": 2.5,
+        "rootBlendRadiusMm": 1
+      }
+    },
+    {
+      "kind": "archedBridge",
+      "title": "Round U bridge with optional end holes",
+      "description": "A regular round-section U bridge with straight legs, an exact semicircular crown, and optional coaxial holes in both end faces.",
+      "defaults": {
+        "outerWidthMm": 11.3,
+        "outerHeightMm": 7.5,
+        "sectionDiameterMm": 3.3,
+        "holeDiameterMm": 2,
+        "holeDepthMm": 3
+      },
+      "fields": [
+        {
+          "key": "outerWidthMm",
+          "label": "外宽",
+          "labelEn": "Outer width",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "outerHeightMm",
+          "label": "外高",
+          "labelEn": "Outer height",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "sectionDiameterMm",
+          "label": "桥身直径",
+          "labelEn": "Section diameter",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "holeDiameterMm",
+          "label": "两端底孔直径",
+          "labelEn": "End-hole diameter",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "holeDepthMm",
+          "label": "两端底孔深度",
+          "labelEn": "End-hole depth",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "archedBridge"
+      },
+      "normalExample": {
+        "kind": "archedBridge",
+        "outerWidthMm": 11.3,
+        "outerHeightMm": 7.5,
+        "sectionDiameterMm": 3.3,
+        "holeDiameterMm": 2,
+        "holeDepthMm": 3
+      }
+    },
+    {
+      "kind": "mushroomRivet",
+      "title": "Single-sided mushroom rivet",
+      "description": "A parameterized two-piece mushroom rivet with a spherical cap, hollow socket, rounded waisted post and base flange. Supports assembled or exploded display, with a blind post bore depth and direction.",
+      "defaults": {
+        "capDiameterMm": 10,
+        "capRiseMm": 5,
+        "capEdgeRadiusMm": 0.5,
+        "collarOuterDiameterMm": 3.5,
+        "collarInnerDiameterMm": 2.9,
+        "collarLengthMm": 2.3,
+        "postOuterDiameterMm": 2.8,
+        "postInnerDiameterMm": 2.5,
+        "postLengthMm": 9,
+        "tipRoundRadiusMm": 0.5,
+        "waistRadiusMm": 3.130814708,
+        "waistDepthMm": 0.26154265,
+        "waistCenterFromTipMm": 2.03741855,
+        "waistBlendRadiusMm": 0.5,
+        "flangeDiameterMm": 8,
+        "flangeThicknessMm": 0.3,
+        "shoulderHeightMm": 1,
+        "postBoreDepthMm": 5,
+        "boreFromFlange": true,
+        "explodedOffsetMm": 12
+      },
+      "fields": [
+        {
+          "key": "capDiameterMm",
+          "label": "面盖总直径",
+          "labelEn": "Cap overall diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "capRiseMm",
+          "label": "面盖拱高",
+          "labelEn": "Cap rise",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "capEdgeRadiusMm",
+          "label": "面盖背缘圆角",
+          "labelEn": "Cap rear edge radius",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "collarOuterDiameterMm",
+          "label": "面盖套筒外径",
+          "labelEn": "Socket outer diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "collarInnerDiameterMm",
+          "label": "面盖套筒内径",
+          "labelEn": "Socket inner diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "collarLengthMm",
+          "label": "面盖套筒长度",
+          "labelEn": "Socket length",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "postOuterDiameterMm",
+          "label": "钉脚杆外径",
+          "labelEn": "Post shaft diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "postInnerDiameterMm",
+          "label": "钉脚孔径",
+          "labelEn": "Post bore diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "postLengthMm",
+          "label": "钉脚总长",
+          "labelEn": "Post total length",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "tipRoundRadiusMm",
+          "label": "钉脚尖端圆角",
+          "labelEn": "Post tip round radius",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "waistRadiusMm",
+          "label": "浅腰主圆半径",
+          "labelEn": "Waist main radius",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "waistDepthMm",
+          "label": "浅腰深度",
+          "labelEn": "Waist depth",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "waistCenterFromTipMm",
+          "label": "浅腰中心距尖端",
+          "labelEn": "Waist center from tip",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "waistBlendRadiusMm",
+          "label": "浅腰相切圆角",
+          "labelEn": "Waist blend radius",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "flangeDiameterMm",
+          "label": "底盘直径",
+          "labelEn": "Base flange diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "flangeThicknessMm",
+          "label": "底盘厚度",
+          "labelEn": "Base flange thickness",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "shoulderHeightMm",
+          "label": "根肩高度及圆角半径",
+          "labelEn": "Shoulder height and radius",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "postBoreDepthMm",
+          "label": "钉脚盲孔深度（0=无孔）",
+          "labelEn": "Post blind bore depth (0=none)",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "boreFromFlange",
+          "label": "从底盘面开孔",
+          "labelEn": "Bore from flange face",
+          "type": "boolean"
+        },
+        {
+          "key": "explodedOffsetMm",
+          "label": "分开展示中心距（0=装配）",
+          "labelEn": "Exploded center offset (0=assembled)",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "mushroomRivet"
+      },
+      "normalExample": {
+        "kind": "mushroomRivet",
+        "capDiameterMm": 10,
+        "capRiseMm": 5,
+        "capEdgeRadiusMm": 0.5,
+        "collarOuterDiameterMm": 3.5,
+        "collarInnerDiameterMm": 2.9,
+        "collarLengthMm": 2.3,
+        "postOuterDiameterMm": 2.8,
+        "postInnerDiameterMm": 2.5,
+        "postLengthMm": 9,
+        "tipRoundRadiusMm": 0.5,
+        "waistRadiusMm": 3.130814708,
+        "waistDepthMm": 0.26154265,
+        "waistCenterFromTipMm": 2.03741855,
+        "waistBlendRadiusMm": 0.5,
+        "flangeDiameterMm": 8,
+        "flangeThicknessMm": 0.3,
+        "shoulderHeightMm": 1,
+        "postBoreDepthMm": 5,
+        "boreFromFlange": true,
+        "explodedOffsetMm": 12
+      }
+    },
+    {
+      "kind": "nippleStud",
+      "title": "Nipple stud",
+      "description": "Two-piece nipple stud with an arc-profiled flat-top body, radiused base, blind M2 nominal clearance bore, crowned screw head, stem, and parameterized six-lobe drive. Threads and standardized drive dimensions are not modeled.",
+      "defaults": {
+        "headDiameterMm": 5,
+        "overallHeightMm": 9.1,
+        "neckDiameterMm": 3,
+        "neckHeightMm": 4,
+        "flangeDiameterMm": 7,
+        "flangeThicknessMm": 1.3,
+        "undersideCollarDiameterMm": 3,
+        "undersideCollarHeightMm": 0,
+        "boreDiameterMm": 2,
+        "boreDepthMm": 6,
+        "entryChamferMm": 0.3,
+        "baseEdgeRadiusMm": 0.3,
+        "screwHeadDiameterMm": 7,
+        "screwHeadThicknessMm": 2,
+        "screwCrownRiseMm": 1.375,
+        "screwEdgeRadiusMm": 0.5,
+        "screwDiameterMm": 2,
+        "screwLengthMm": 5,
+        "driveDiameterMm": 2.6,
+        "driveDepthMm": 0.5,
+        "assemblyGapMm": 2,
+        "explodedOffsetMm": 12
+      },
+      "fields": [
+        {
+          "key": "headDiameterMm",
+          "label": "圆头名义直径",
+          "labelEn": "Head nominal diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "overallHeightMm",
+          "label": "A件总高",
+          "labelEn": "Part A overall height",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "neckDiameterMm",
+          "label": "颈部直径",
+          "labelEn": "Neck diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "neckHeightMm",
+          "label": "颈部高度",
+          "labelEn": "Neck height",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "flangeDiameterMm",
+          "label": "A件底座直径",
+          "labelEn": "Part A flange diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "flangeThicknessMm",
+          "label": "A件底座厚度",
+          "labelEn": "Part A flange thickness",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "undersideCollarDiameterMm",
+          "label": "旧底部小台直径（兼容）",
+          "labelEn": "Deprecated underside collar diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "undersideCollarHeightMm",
+          "label": "旧底部小台高度（须为0）",
+          "labelEn": "Deprecated collar height (must be 0)",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "boreDiameterMm",
+          "label": "A件名义光孔直径",
+          "labelEn": "Part A nominal clearance bore diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "boreDepthMm",
+          "label": "A件盲孔深度",
+          "labelEn": "Part A blind bore depth",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "entryChamferMm",
+          "label": "孔口倒角深度及径向宽度",
+          "labelEn": "Bore entry chamfer depth and radial width",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "baseEdgeRadiusMm",
+          "label": "底座外缘圆角",
+          "labelEn": "Base outer edge radius",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "screwHeadDiameterMm",
+          "label": "Z件螺钉头直径",
+          "labelEn": "Part Z screw head diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "screwHeadThicknessMm",
+          "label": "Z件头部厚度（不含外拱）",
+          "labelEn": "Part Z head thickness (excluding crown)",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "screwCrownRiseMm",
+          "label": "Z件头部外拱高度",
+          "labelEn": "Part Z crown rise",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "screwEdgeRadiusMm",
+          "label": "Z件头部边缘圆角",
+          "labelEn": "Part Z head edge radius",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "screwDiameterMm",
+          "label": "Z件螺杆直径",
+          "labelEn": "Part Z stem diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "screwLengthMm",
+          "label": "Z件螺杆净长",
+          "labelEn": "Part Z stem net length",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "driveDiameterMm",
+          "label": "示意六瓣槽直径",
+          "labelEn": "Illustrative six-lobe drive diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "driveDepthMm",
+          "label": "示意槽深",
+          "labelEn": "Illustrative drive depth",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "assemblyGapMm",
+          "label": "装配留缝",
+          "labelEn": "Assembly gap",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "explodedOffsetMm",
+          "label": "分开展示中心距（0=装配）",
+          "labelEn": "Exploded center offset (0=assembled)",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "nippleStud"
+      },
+      "normalExample": {
+        "kind": "nippleStud",
+        "headDiameterMm": 5,
+        "overallHeightMm": 9.1,
+        "neckDiameterMm": 3,
+        "neckHeightMm": 4,
+        "flangeDiameterMm": 7,
+        "flangeThicknessMm": 1.3,
+        "undersideCollarDiameterMm": 3,
+        "undersideCollarHeightMm": 0,
+        "boreDiameterMm": 2,
+        "boreDepthMm": 6,
+        "entryChamferMm": 0.3,
+        "baseEdgeRadiusMm": 0.3,
+        "screwHeadDiameterMm": 7,
+        "screwHeadThicknessMm": 2,
+        "screwCrownRiseMm": 1.375,
+        "screwEdgeRadiusMm": 0.5,
+        "screwDiameterMm": 2,
+        "screwLengthMm": 5,
+        "driveDiameterMm": 2.6,
+        "driveDepthMm": 0.5,
+        "assemblyGapMm": 2,
+        "explodedOffsetMm": 12
+      }
+    },
+    {
+      "kind": "twoPieceEyelet",
+      "title": "Two-piece eyelet",
+      "description": "A parameterized two-piece thin-wall eyelet with exact revolved flange bends. Part A has a long shank and Part B is its mating ring. Supports static coaxial fit or exploded display; riveting deformation, logos and lettering are not modeled.",
+      "defaults": {
+        "aFlangeDiameterMm": 18,
+        "aBoreDiameterMm": 11,
+        "aTubeOuterDiameterMm": 11.5,
+        "aTubeLengthMm": 5.8,
+        "aFlangeDepthMm": 1.2,
+        "aBendRadiusMm": 0.8,
+        "bFlangeDiameterMm": 18,
+        "bBoreDiameterMm": 11.8,
+        "bTubeOuterDiameterMm": 12.3,
+        "bOverallDepthMm": 2,
+        "bFlangeDepthMm": 1.2,
+        "bBendRadiusMm": 0.8,
+        "explodedOffsetMm": 24
+      },
+      "fields": [
+        {
+          "key": "aFlangeDiameterMm",
+          "label": "A件法兰外径",
+          "labelEn": "Part A flange diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "aBoreDiameterMm",
+          "label": "A件孔径",
+          "labelEn": "Part A bore diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "aTubeOuterDiameterMm",
+          "label": "A件筒外径",
+          "labelEn": "Part A tube outer diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "aTubeLengthMm",
+          "label": "A件伸脚长",
+          "labelEn": "Part A tube length",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "aFlangeDepthMm",
+          "label": "A件法兰轴向深度",
+          "labelEn": "Part A flange axial depth",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "aBendRadiusMm",
+          "label": "A件翻边外弯半径",
+          "labelEn": "Part A flange bend outer radius",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "bFlangeDiameterMm",
+          "label": "B件法兰外径",
+          "labelEn": "Part B flange diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "bBoreDiameterMm",
+          "label": "B件孔径",
+          "labelEn": "Part B bore diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "bTubeOuterDiameterMm",
+          "label": "B件短脚外径",
+          "labelEn": "Part B short tube outer diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "bOverallDepthMm",
+          "label": "B件总深",
+          "labelEn": "Part B overall depth",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "bFlangeDepthMm",
+          "label": "B件法兰轴向深度",
+          "labelEn": "Part B flange axial depth",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "bBendRadiusMm",
+          "label": "B件翻边外弯半径",
+          "labelEn": "Part B flange bend outer radius",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "explodedOffsetMm",
+          "label": "分开展示中心距（0=同轴）",
+          "labelEn": "Exploded center offset (0=coaxial)",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "twoPieceEyelet"
+      },
+      "normalExample": {
+        "kind": "twoPieceEyelet",
+        "aFlangeDiameterMm": 18,
+        "aBoreDiameterMm": 11,
+        "aTubeOuterDiameterMm": 11.5,
+        "aTubeLengthMm": 5.8,
+        "aFlangeDepthMm": 1.2,
+        "aBendRadiusMm": 0.8,
+        "bFlangeDiameterMm": 18,
+        "bBoreDiameterMm": 11.8,
+        "bTubeOuterDiameterMm": 12.3,
+        "bOverallDepthMm": 2,
+        "bFlangeDepthMm": 1.2,
+        "bBendRadiusMm": 0.8,
+        "explodedOffsetMm": 24
+      }
     }
   ],
   "verification": {
@@ -5481,5 +7444,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:c1f42ce1899e5625bd468d548ca3ba67fc11cdcf8a224a5b394fa4b510237395"
+  "docsHash": "sha256:4cf6ee27bfdedda22432d5843b73d0b21c585fbea42c4d1ed1d02fd7784ea56e"
 }

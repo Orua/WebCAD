@@ -35,6 +35,24 @@ test('真实 OCCT：空间圆弧和样条均生成单一实体并可导出', asy
   } finally { arc.delete?.(); spline.delete?.(); }
 });
 
+test('真实 OCCT：圆角扁带沿平面曲线拗弯并保留平面料面', async () => {
+  const params={pathType:'spline',points:[[0,0,0],[2,0,0],[4,1,0],[6,2,0]],tolerance:.005,
+    section:'roundedRectangle',sectionWidth:3,sectionDepth:1.5,sectionCornerRadius:.22};
+  const shape=buildCurveSweep(params,cad);
+  try{
+    assert.equal(shape.solids.length,1);
+    const check=new oc.BRepCheck_Analyzer(shape.wrapped,true,false,false);
+    try{assert.equal(check.IsValid(),true)}finally{check.delete()}
+    assert.ok(shape.faces.some(face=>face.geomType==='PLANE'));
+    assert.ok(cad.measureVolume(shape)>15);
+    assert.ok(await cad.exportSTEP([{shape}]));
+  }finally{shape.delete?.()}
+  assert.throws(()=>buildCurveSweep({...params,sectionCornerRadius:.75},cad),/截面圆角/);
+  const contract=getOperation('curveSweep').inputSchema.properties;
+  assert.ok(contract.section.enum.includes('roundedRectangle'));
+  assert.ok(contract.sectionCornerRadius);
+});
+
 test('真实 OCCT：退化点、过大截面和非法参数明确失败', () => {
   assert.throws(() => buildCurveSweep({ pathType: 'arc', points: [[0, 0, 0], [1, 0, 0], [2, 0, 0]], radius: 0.1 }, cad), /不能共线/);
   assert.throws(() => buildCurveSweep({ pathType: 'arc', points: [[0, 0, 0], [1, 0, 0], [2, 0, 0.01]], radius: 100 }, cad), /扫掠失败|有效实体/);

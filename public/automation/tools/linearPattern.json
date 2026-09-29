@@ -8,19 +8,31 @@
         "type": "integer",
         "description": "Count including original",
         "minimum": 2,
-        "maximum": 100
+        "maximum": 100,
+        "unit": "1",
+        "quantityKind": "scalar",
+        "quantizationPolicy": "none"
       },
       "dx": {
         "type": "number",
-        "description": "Per-copy X step (mm)"
+        "description": "Per-copy X step (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "dy": {
         "type": "number",
-        "description": "Per-copy Y step (mm)"
+        "description": "Per-copy Y step (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "dz": {
         "type": "number",
-        "description": "Per-copy Z step (mm)"
+        "description": "Per-copy Z step (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [],
@@ -37,6 +49,13 @@
     "uniqueItems": true,
     "minItems": 1,
     "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {},
   "selectionTokenSupport": {
@@ -57,7 +76,7 @@
     "直线阵列"
   ],
   "description": "Linear copies as one compound",
-  "schemaHash": "sha256:ffee6f640f50dfadf76b16fd54cceb4b4cd86a05a97972865a71e080fc456fdc",
+  "schemaHash": "sha256:71207ed41b292dc76bdc7082c5d972c07ccf97c13101e90b8d14857a397a687a",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -176,5 +195,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:7fdbbb1d5886ffebe9c05676308a0d1295c016128e96a60f1bcf2857039e6656"
+  "docsHash": "sha256:a07d1f0dbc380f1ad9a6f02b553a0844b82ddaef73a064bb040ff4006023734a"
 }

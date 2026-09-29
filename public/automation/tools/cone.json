@@ -7,17 +7,26 @@
       "radius1": {
         "type": "number",
         "description": "Bottom radius (mm)",
-        "minimum": 0
+        "minimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "radius2": {
         "type": "number",
         "description": "Top radius (mm)",
-        "minimum": 0
+        "minimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "height": {
         "type": "number",
         "description": "Height (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -36,6 +45,13 @@
     "uniqueItems": true,
     "minItems": 0,
     "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {},
   "selectionTokenSupport": {
@@ -56,7 +72,7 @@
     "圆锥"
   ],
   "description": "Cone/frustum along +Z",
-  "schemaHash": "sha256:5f2672471f50436aea8fb78de99db9d7d0d357995436a69f90f6a573e51e58a5",
+  "schemaHash": "sha256:f82f48b4a6ed2ea3b87280c5ebe8d5545f26f6c03e5b6a6d469c45277cc946ce",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -173,5 +189,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:154d0e8a2a5d72f1876f296edb299d23249f9154caf9ce5c301dd0b0ba23487d"
+  "docsHash": "sha256:6ec2cf9f5c0665c26adb2420056f4abcc39dd10a8d564d484e1f6967bb63eac8"
 }

@@ -16,6 +16,7 @@ import { logoFaceSignature } from './logo-face-signature.js';
 import { buildReferenceExtrude } from './reference-profile-extrude.js';
 import { buildReferenceLoft } from './reference-profile-loft.js';
 import { buildSmoothTransition } from './smooth-transition.js';
+import { buildEdgeBlend } from './edge-blend.js';
 import {rotateVector,worldPoint} from './work-frame.js';
 import {placementPolicy} from './placement-policy.js';
 import {halfLengthPoint} from './arc-length.js';
@@ -534,7 +535,23 @@ export class CadKernel {
       case 'union': case 'cut': case 'intersect': {
         if (sources.length < 2) throw new Error('布尔操作至少需要两个实体');
         let out = sources[0].clone(); const method = { union: 'fuse', cut: 'cut', intersect: 'intersect' }[feature.op];
-        try { for (const tool of sources.slice(1)) { const next = out[method](tool); dispose(out); out = next; } return out; }
+        try {
+          for (const tool of sources.slice(1)) {
+            const limit = feature.op === 'intersect' ? Math.min(preciseVolume(out,this.oc),preciseVolume(tool,this.oc)) : null;
+            const next = out[method](tool);
+            if (limit !== null) {
+              try {
+                const volume = preciseVolume(next,this.oc);
+                // GK integrates at 1e-9; permit an absolute floor plus ten times
+                // that relative target. BRepCheck alone can accept a wrong common.
+                const epsilon = 1e-7 + limit * 1e-8;
+                if (volume > limit + epsilon) throw Object.assign(new Error('求交结果体积超过输入实体，内核未生成可信交集；原模型保持。'),{code:'GEOMETRY_INVALID',recoveryAction:'CORRECT_PARAMETERS'});
+              } catch (error) { dispose(next); throw error; }
+            }
+            dispose(out); out = next;
+          }
+          return out;
+        }
         catch (error) { dispose(out); throw error; }
       }
       case 'autoRound': return buildSmoothTransition(source(),{...p,allEdges:true});
@@ -543,15 +560,7 @@ export class CadKernel {
         const shape = source(), amount = positive(p, feature.op === 'fillet' ? 'radius' : 'distance');
         const scopes=Number(!!p.edgeIds?.length)+Number(!!p.faceIds?.length)+Number(p.allEdges===true);
         if(scopes!==1)throw new Error('圆角/倒角必须明确选择边、面边界或整个实体的全部边');
-        const edges=p.allEdges===true?null:p.faceIds?.length?faceBoundaryEdges(shape,p.faceIds):chosenTopology(shape,'edges',p.edgeIds);
-        if(!edges){
-          try{return shape[feature.op](amount);}
-          catch(error){throw Object.assign(new Error(`${feature.op==='fillet'?'圆角半径':'倒角距离'} ${amount} mm 无法用于整个实体的全部边；请减小数值或改选面/边。`,{cause:error}),{code:'GEOMETRY_INVALID',recoveryAction:'CORRECT_PARAMETERS'});}
-        }
-        let finder;
-        try { finder = new cad.EdgeFinder().inList(edges);return shape[feature.op]({ radius: amount, filter: finder }); }
-        catch(error){throw Object.assign(new Error(`${feature.op==='fillet'?'圆角半径':'倒角距离'} ${amount} mm 无法用于所选${p.faceIds?.length?'面边界':'边'}；请减小数值或缩小选择范围。`,{cause:error}),{code:'GEOMETRY_INVALID',recoveryAction:'CORRECT_PARAMETERS'});}
-        finally { dispose(finder); edges.forEach(dispose); }
+        return buildEdgeBlend(shape,feature.op,p);
       }
       case 'shell': {
         const shape = source(), thickness = finite(p, 'thickness'); if (!thickness) throw new Error('抽壳厚度不能为 0');
@@ -600,7 +609,7 @@ export class CadKernel {
         }
       });
       if (mappedFaces.some(g => g.faceId === undefined) || mappedEdges.some(g => g.edgeId === undefined)) throw new Error('拓扑索引映射失败');
-      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges, faceCount:faces.length,edgeCount:edges.length,snapPoints, bounds: { min, max }, volume: solids.length ? preciseVolume(shape,this.oc) : null, solidCount: solids.length, shellCount:shells.length, transitionReport:shape.transitionReport, repairReport:shape.repairReport, threadReport:shape.threadReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
+      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges, faceCount:faces.length,edgeCount:edges.length,snapPoints, bounds: { min, max }, volume: solids.length ? preciseVolume(shape,this.oc) : null, solidCount: solids.length, shellCount:shells.length, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
     } finally { [...faces, ...edges, ...solids, ...shells, bbox].forEach(dispose); }
   }
   async rebuild(document) {
@@ -708,6 +717,50 @@ export class CadKernel {
     const shape = this.activeShape(bodyId);
     const result = queryShapeGeometry(shape, this.oc, kind, filter);
     return { bodyId, ...result, geometryFingerprint:await this.geometryFingerprint(shape) };
+  }
+  resolveProfileEdges(bodyId,edgeIds,features) {
+    const fail=message=>{throw Object.assign(new Error(message),{code:'PROFILE_SELECTION_INVALID'});};
+    const shape=this.activeShape(bodyId),byId=new Map(features.map(f=>[f.id,f])),chain=[],seen=new Set();
+    let source=byId.get(bodyId);
+    while(source?.op!=='sketchProfile'){
+      if(!source||seen.has(source.id)||chain.length>=128||!['transform','copy'].includes(source.op)||source.refs?.length!==1)fail('选中的边须来自解析轮廓或它的移动、旋转副本；请用“编辑路径”编辑其它来源。');
+      seen.add(source.id);chain.unshift(source);source=byId.get(source.refs[0]);
+    }
+    // Use the same kernel transforms and whole-profile anchors as the model.
+    // Never equate displayed edge indices with source entity array order.
+    const transforms=chain.map(feature=>{
+      let params={...feature.params},placement=feature.placement;
+      if((params.scale??1)!==1||params.mode==='scale')fail('缩放后的轮廓请先用“编辑路径”修改源轮廓圆角。');
+      const full=this.shapes.get(feature.refs[0]);if(!full)fail('轮廓来源已失效');
+      if(!params.mode&&params.positionMode==='absolute'){
+        const rotated=applyTransform(full,{...params,positionMode:'relative',x:0,y:0,z:0});
+        const box=rotated.boundingBox;
+        try{const [min,max]=box.bounds;params={...params,positionMode:'relative',...Object.fromEntries(['x','y','z'].map((k,i)=>[k,params[k]-(min[i]+max[i])/2]))};}
+        finally{dispose(box);dispose(rotated);}
+      }
+      if(params.mode==='toPoint')placement={...placement,sourcePoint:sourcePointForShape(full,placement)};
+      return {params,placement};
+    });
+    const raw=buildSketchProfile(source.params,cad);let placement=source.placement;
+    try{if(placement)placement={...placement,sourcePoint:sourcePointForShape(raw,placement)};}finally{dispose(raw);}
+    const candidates=[];
+    for(const entity of source.params.entities.filter(e=>e.type==='line')){
+      let marker=cad.makeLine([...entity.startMm,0],[...entity.endMm,0]);
+      try{
+        if(placement){const next=placeCreation(marker,placement);dispose(marker);marker=next;}
+        for(const step of transforms){const next=step.params.mode?applySpatialTransform(marker,step.params,step.placement):applyTransform(marker,step.params);dispose(marker);marker=next;}
+        const edge=queryShapeGeometry(marker,this.oc,'edge',{}).items[0];
+        candidates.push({entityId:entity.id,edge});
+      }finally{dispose(marker);}
+    }
+    const current=queryShapeGeometry(shape,this.oc,'edge',{}).items,near=(a,b)=>a&&b&&Math.hypot(...a.map((x,i)=>x-b[i]))<1e-6;
+    const entityIds=edgeIds.map(id=>{
+      const edge=current.find(e=>e.edgeId===id);if(edge?.geomType!=='LINE')fail('二维圆角当前支持两条相邻直线，请选择竖边和底部直边。');
+      const matches=candidates.filter(({edge:e})=>near(e.startPoint,edge.startPoint)&&near(e.endPoint,edge.endPoint)||near(e.startPoint,edge.endPoint)&&near(e.endPoint,edge.startPoint));
+      if(matches.length!==1)fail('无法唯一匹配选中边与原始图元，请用“编辑路径”明确选择两段。');
+      return matches[0].entityId;
+    });
+    return {sourceFeatureId:source.id,entityIds};
   }
   async geometryFingerprint(shape){
     const bytes = new TextEncoder().encode(shape.serialize());

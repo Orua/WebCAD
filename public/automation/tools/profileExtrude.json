@@ -26,7 +26,10 @@
       "distanceMm": {
         "type": "number",
         "description": "Explicit positive depth (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "direction": {
         "type": "integer",
@@ -34,29 +37,47 @@
           1,
           -1
         ],
-        "description": "Positive or negative saved profile normal"
+        "description": "Positive or negative saved profile normal",
+        "unit": "1",
+        "quantityKind": "direction",
+        "quantizationPolicy": "none"
       },
       "planePoint": {
         "type": "array",
         "minItems": 3,
         "maxItems": 3,
         "items": {
-          "type": "number"
+          "type": "number",
+          "unit": "mm",
+          "quantityKind": "length",
+          "quantizationPolicy": "none"
         },
-        "description": "Fixed world point on infinite target plane"
+        "description": "Fixed world point on infinite target plane",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "planeNormal": {
         "type": "array",
         "minItems": 3,
         "maxItems": 3,
         "items": {
-          "type": "number"
+          "type": "number",
+          "unit": "1",
+          "quantityKind": "direction",
+          "quantizationPolicy": "none"
         },
-        "description": "Fixed world plane normal"
+        "description": "Fixed world plane normal",
+        "unit": "1",
+        "quantityKind": "direction",
+        "quantizationPolicy": "none"
       },
       "allowanceMm": {
         "type": "number",
-        "description": "Signed distance added along extrusion direction"
+        "description": "Signed distance added along extrusion direction",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -78,6 +99,13 @@
     "minItems": 1,
     "maxItems": 2
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -98,7 +126,7 @@
     "加工"
   ],
   "description": "Extrude a placed exact profile into a new solid, join, cut or intersection",
-  "schemaHash": "sha256:f3eecce4f6a6bdf443657839fb6bfac65c15d13a8d0051889f5d75ac67d0064a",
+  "schemaHash": "sha256:99b07e77b0ddb43513a66ce969f974cf519a6e98585cce0fb329fe861a482cff",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -237,5 +265,5 @@
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:0db956adf89374e8e19fdb089cb63d0f91a43a6387fd1ce318c25f1324a0c157"
+  "docsHash": "sha256:54d73e9720fc57396f23c5b206046d8ff6c8c10c59a36323a84da8692d273e83"
 }

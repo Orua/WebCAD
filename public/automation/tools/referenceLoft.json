@@ -22,6 +22,13 @@
     "minItems": 2,
     "maxItems": 12
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -43,7 +50,7 @@
     "参考截面放样"
   ],
   "description": "按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。",
-  "schemaHash": "sha256:1fb197e22fdd15041eca4ca75752cd7b47f34aadbef69b3e6a19ae3caa8a166f",
+  "schemaHash": "sha256:cd92adb265af223c33b97b838ca1b2b3a9463758424cc0e84f9a551511fb3a07",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -163,5 +170,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:c59d186ac7f19bf515154ef7bfb5b0d0dbe68820c9a21994f7bfc91a1381dd3b"
+  "docsHash": "sha256:28f24c0f03e8cc1ba954005f6c7e6c19950e784e0b36d8e6d2c08ed8f01bce99"
 }

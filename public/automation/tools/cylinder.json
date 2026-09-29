@@ -7,12 +7,18 @@
       "radius": {
         "type": "number",
         "description": "Radius (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "height": {
         "type": "number",
         "description": "Height (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -33,6 +39,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -52,7 +65,7 @@
     "圆柱"
   ],
   "description": "Cylinder on +Z from origin",
-  "schemaHash": "sha256:dd3943a038bca62c7883222cc436f100b0cf7695dfd9c185684fa7944d7cc432",
+  "schemaHash": "sha256:2e55f61e79432303ebf9ef9d3a86f3b7a4e3123203a05e98e6a7f1b2db712ff0",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -167,5 +180,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:f34464544a2ab428cc188acd78489f81bf50c6cacdb875a9c58eba70bd9e0be5"
+  "docsHash": "sha256:8aadf0d27e291ad285c4c4222cf3b614e73e40c52d03f30fee32f2e31732b67e"
 }

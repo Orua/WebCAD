@@ -7,14 +7,20 @@
     "properties": {
       "faceId": {
         "type": "integer",
-        "minimum": 0
+        "minimum": 0,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
       },
       "distanceMm": {
         "type": "number",
         "not": {
           "const": 0
         },
-        "description": "Signed exact normal distance in mm; positive follows the outward/oriented normal."
+        "description": "Signed exact normal distance in mm; positive follows the outward/oriented normal.",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -33,6 +39,13 @@
     "uniqueItems": true,
     "minItems": 1,
     "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {},
   "selectionTokenSupport": {
@@ -53,7 +66,7 @@
     "offsetSurface"
   ],
   "description": "Create one exact normal-offset face while preserving its source body",
-  "schemaHash": "sha256:d0bfdc412f4f247a7d6df1f134a85519743de0750c5f59aed16536dc63066208",
+  "schemaHash": "sha256:a895698f9bd3667fb9bc3ceca264da684fac475120c7cb7cf55112effc753d80",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -186,5 +199,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:f502f8c6c683094b2ebfaf9adfccfbc529b8f5fa3906f4685c4db483df1a9cea"
+  "docsHash": "sha256:c6daee9ac1bb81c8ee560a8299472116b0e199cd3848e5071ab65251ca846f5a"
 }

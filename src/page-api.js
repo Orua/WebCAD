@@ -12,6 +12,8 @@ import {createPageJobs} from './page-jobs.js';
 import {renderQuality} from './render-quality.js';
 import {UI_LAYOUT} from './ui-layout.js';
 import {validateReferenceQuery} from './reference-query.js';
+import {readVectorInput,selectVector} from './browser-vector-input.js';
+import {connectVector} from './vector-import.js';
 
 // Only structured, bounded commands cross this boundary. No mutable app objects escape.
 export function createPageAPI(host){
@@ -35,6 +37,7 @@ export function createPageAPI(host){
   const files=Object.fromEntries(Object.entries(rawFiles).filter(([key])=>key!=='previewInput').map(([key,fn])=>[key,input=>fn(normalizeRequest(input))]));
   const viewKeys=['context','direction','projection','fit','selectedIds','section','display','grid','snap','gizmo','selectionMode','camera','language','temporaryDisplay','anchorVisible','panels'];
   const pasteReceipts=new Map();
+  const vectorCache=new Map();
   const api={
     connect:(input={})=>{
       if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!['queries','toolIds','limit','includeContracts','knownCatalogHash','knownDocsHash','knownHashes'].includes(k)))fail('PARAM_SCHEMA_INVALID','Unexpected connect fields');
@@ -100,14 +103,15 @@ export function createPageAPI(host){
       return {status:'read',source:'saved-analytic-profile',units:{length:'mm'},context:current().context,bodyId:input.bodyId,...result};
     }),
     prepareProfileEdit:guarded(async input=>{
-      const allowed=['context','bodyId','mode','entityId','targetId','endpoint','candidateId','startCandidateId','endCandidateId','keepSide','radiusMm','arcId','output'];check(input,allowed);
+      const allowed=['context','bodyId','mode','entityId','targetId','edgeIds','endpoint','candidateId','startCandidateId','endCandidateId','keepSide','radiusMm','arcId','output'];check(input,allowed);
       if(typeof input.bodyId!=='string'||!current().bodies.some(body=>body.id===input.bodyId))fail('STALE_REFERENCE','Unknown current profile body');
       if(!['intersections','trim','extend','trimCircle','fillet'].includes(input.mode))fail('PARAM_SCHEMA_INVALID','Choose an analytic profile edit mode');
-      for(const key of ['entityId','targetId'])if(typeof input[key]!=='string'||!input[key].length||input[key].length>64)fail('PARAM_SCHEMA_INVALID','Stable entity IDs are required',key);
+      if(input.edgeIds!==undefined){if(input.mode!=='fillet'||!Array.isArray(input.edgeIds)||input.edgeIds.length!==2||new Set(input.edgeIds).size!==2||input.edgeIds.some(id=>!Number.isSafeInteger(id)||id<0)||input.entityId!==undefined||input.targetId!==undefined)fail('PARAM_SCHEMA_INVALID','二维圆角须明确选择两条不同的当前边，不同时传入图元 ID');}
+      else for(const key of ['entityId','targetId'])if(typeof input[key]!=='string'||!input[key].length||input[key].length>64)fail('PARAM_SCHEMA_INVALID','Stable entity IDs are required',key);
       for(const key of ['candidateId','startCandidateId','endCandidateId','arcId'])if(input[key]!==undefined&&(typeof input[key]!=='string'||!input[key].length||input[key].length>64))fail('PARAM_SCHEMA_INVALID','Invalid bounded ID',key);
       if(input.endpoint!==undefined&&!['start','end'].includes(input.endpoint)||input.keepSide!==undefined&&!['cw','ccw'].includes(input.keepSide)||input.output!==undefined&&!['wire','face'].includes(input.output))fail('PARAM_SCHEMA_INVALID','Invalid edit option');
       if(input.mode==='fillet'&&(!Number.isFinite(input.radiusMm)||input.radiusMm<=0||input.radiusMm>1e5||!input.arcId))fail('PARAM_RANGE_INVALID','Fillet requires an explicit positive radius and new arc ID');
-      const result=host.prepareProfileEdit(input);check(input,allowed);
+      const result=await host.prepareProfileEdit(input);check(input,allowed);
       return {status:'read',source:'saved-analytic-profile',units:{length:'mm'},context:current().context,bodyId:input.bodyId,...result};
     }),
     inspectConstraints:guarded(async input=>{
@@ -162,6 +166,19 @@ export function createPageAPI(host){
       else if(!validRef(input.first)||!validRef(input.second))fail('STALE_REFERENCE','需要两个当前有效的实体或拓扑引用');
       const result=await host.measureRelation(input);check(input,['context','mode','first','second','face','pointWorld']);
       return {status:'read',source:'exact-brep',units:{length:'mm',angle:'degrees'},context:current().context,...result};
+    }),
+    readVector:guarded(async input=>{
+      const keys=['context','resourceId','name','text','scaleMm','targetWidthMm','entityIds','bounds','layers','offset','limit'];check(input,keys);
+      if((input.resourceId===undefined)===(input.text===undefined)||typeof input.name!=='string'||input.name.length>255)fail('PARAM_SCHEMA_INVALID','Provide name and exactly one of resourceId/text');
+      const offset=input.offset??0,limit=input.limit??500;if(!Number.isInteger(offset)||offset<0||!Number.isInteger(limit)||limit<1||limit>10000)fail('PARAM_SCHEMA_INVALID','offset >= 0; limit 1..10000');
+      const cacheKey=JSON.stringify([input.resourceId,input.name,input.scaleMm,input.targetWidthMm]);
+      let dataset;if(input.resourceId){const bytes=await rawFiles.read({resourceId:input.resourceId,as:'bytes'});dataset=vectorCache.get(cacheKey);if(!dataset){dataset=await readVectorInput({...input,bytes});if(vectorCache.size>=2)vectorCache.delete(vectorCache.keys().next().value);vectorCache.set(cacheKey,dataset);}}else dataset=await readVectorInput(input);
+      const selected=selectVector(dataset,input);check(input,keys);
+      return {status:'read',...selected,entities:selected.entities.slice(offset,offset+limit),unsupported:selected.unsupported.slice(0,100),unsupportedCount:selected.unsupported.length,total:selected.entities.length,offset,truncated:offset+limit<selected.entities.length,context:current().context};
+    }),
+    connectVector:guarded(async input=>{
+      check(input,['context','entities','toleranceMm','origin','flipY']);
+      return {status:'read',...connectVector(input),context:current().context};
     }),
     fitProfile:guarded(async input=>{
       check(input,['context','kind','plane','points','maxResidualMm']);

@@ -7,7 +7,8 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
   contracts: [
-    'project-name','quick-model-usage','quick-hardware-api',
+    'vector-import',
+    'history-edit-safety','project-name','quick-model-usage','quick-hardware-api',
     'mechanical-tools-contracts','mechanical-page-api','profile-constraints','profile-constraint-history',
     'modeling-precision', 'workspace-upgrade', 'anchor-clearance', 'anchor-lineage', 'align-mode', 'frame-orientation', 'webcad-shortcuts', 'dimension-adapter',
     'tool-discovery', 'agent-onboarding', 'agent-kit', 'browser-logo-input', 'page-batch', 'page-api', 'browser-files', 'artifact-store', 'command-service', 'document-identity', 'logo-import-request', 'operation-registry', 'position-table', 'profile-projection',
@@ -15,10 +16,12 @@ const groups = {
     'tool-state', 'viewport-transform', 'dfam-inspection', 'profile-fitting', 'text-commands',
   ],
   kernel: [
-    'quick-hardware','face-machining','quick-hardware-integration',
+    'material-join','quick-hardware','face-machining','quick-hardware-integration',
     'mechanical-tools-integration','profile-solid-features','direct-modeling-tools','helical-tools',
+    'arched-bridge','edge-blend','edge-picking','hanging-rod','key-ring','mushroom-rivet',
+    'nipple-stud','pull-core-bar','section-curve-loft','two-piece-eyelet',
     'agent-profile-contract',
-    'drag-snap', 'render-quality', 'profile-edit', 'profile-editing', 'profile-primitives', 'profile-inspection', 'fit-inspection', 'thickness-inspection', 'relation-measure', 'boolean-roles', 'hole-wizard', 'draft-tools',
+    'drag-snap','drag-snap-controller','render-quality','profile-edit','profile-editing','profile-primitives','profile-inspection','fit-inspection','thickness-inspection','relation-measure','boolean-roles','hole-wizard','draft-tools',
     'advanced-integration', 'advanced-kernel', 'advanced-loft', 'align-kernel', 'curve-sweep',
     'curved-logo', 'fitted-surface', 'geometry-query', 'nearest-brep', 'group-explode',
     'hardware-templates', 'igs-tools', 'igs30-slot', 'igs30-templates', 'multi-pocket', 'multi-boss', 'dwg-ring-bar', 'dwg-rounded-frame', 'dwg-compact-rect', 'dwg-chamfered-section', 'dwg-compact-slider', 'dwg-figure-eight-capsule', 'dwg-u-end-hole-plate', 'dwg-twin-window-plate', 'dwg-small-twin-window', 'dwg-spline-twin-window', 'dwg-ellipse-bar', 'dwg-ellipse-open-wire', 'dwg-ellipse-u-wire', 'dwg-analytic-arc-profile', 'dwg-profile-loop', 'dwg-capsule-wire', 'dwg-arc-band-plate', 'dwg-ellipse-section-ring', 'dwg-flat-washer', 'dwg-polar-hole-ring', 'dwg-bowed-twin-window', 'dwg-arched-twin-window', 'dwg-d-flat-frame', 'dwg-gable-open-frame', 'dwg-ellipse-section-rect',

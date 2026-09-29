@@ -2,6 +2,12 @@ import { listOperations } from './operation-registry.js';
 
 // This is the UI-to-public-API inventory, also used by the UI and build gate.
 export const UI_API_ROUTES = Object.freeze({
+  pathEdit:{tools:['inspectProfile','feature.edit'],method:'execute',usage:'选择明确的 sketchProfile 原始路径，修改完整 params 后 feature.edit 提交；保留原 placement，重建后续特征。编辑器支持端点、长度/角度、删除段、闭合和线框输出。'},
+  pathTrim:{tools:['prepareProfileEdit','feature.edit'],method:'prepareProfileEdit',usage:'选择 sketchProfile 来源；prepareProfileEdit mode=trim 明确 entityId、targetId、endpoint、candidateId，再 feature.edit 提交完整 profile。'},
+  pathExtend:{tools:['prepareProfileEdit','feature.edit'],method:'prepareProfileEdit',usage:'选择 sketchProfile 来源；prepareProfileEdit mode=extend 沿原解析曲线延伸至明确交点，feature.edit 提交。'},
+  pathFillet:{tools:['prepareProfileEdit','feature.edit'],method:'prepareProfileEdit',usage:'主视图选同一轮廓两条相邻直边；prepareProfileEdit mode=fillet、bodyId、edgeIds、radiusMm、arcId；feature.edit 编辑返回的 sourceFeatureId，提交 profile。选边先后不限。'},
+  pathTrimCircle:{tools:['prepareProfileEdit','feature.edit'],method:'prepareProfileEdit',usage:'选择 sketchProfile 来源；prepareProfileEdit mode=trimCircle，明确两个交点与 keepSide，再 feature.edit 提交。'},
+  vectorImport:{tools:['readVector','connectVector','sketchProfile'],method:'readVector',usage:'选择文件或粘贴矢量文本，框选完整轮廓；connectVector 诊断和组环，sketchProfile 经同一命令服务成面。'},
   quickModelFavorites:{tools:['quickModel','getQuickModelUsage'],method:'execute',usage:'模型菜单显示累计成功创建次数最多的五个 kind；getQuickModelUsage() 只读本浏览器频率，完整列表仍用快捷模型入口。生成用 quickModel 显式 params.kind、参考 placement 与幂等键。'},
   'reference.setWorkFrame':{tools:['reference.setWorkFrame'],method:'execute',usage:'完整 context、idempotencyKey；args 指定 origin 和单位 quaternion。'},
   'reference.resetWorkFrame':{tools:['reference.resetWorkFrame'],method:'execute',usage:'args.scope 为 position、orientation 或 all。'},

@@ -12,6 +12,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -145,17 +152,26 @@
       "height": {
         "type": "number",
         "default": 12,
-        "description": "Total height"
+        "description": "Total height",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "cornerRadius": {
         "type": "number",
         "default": 6,
-        "description": "Outer corner radius"
+        "description": "Outer corner radius",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "wallThickness": {
         "type": "number",
         "default": 2,
-        "description": "Wall thickness"
+        "description": "Wall thickness",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "floorThickness": {
         "type": "number",
@@ -184,7 +200,7 @@
       }
     }
   },
-  "schemaHash": "sha256:18cdf0d2cc4dca5a95a8e120ccdb57184d5372dc60b8cea2999b40769ded8656",
+  "schemaHash": "sha256:2e890611becae040327bd6c60d4ca334f192595f17cc955fbca1d43adced3c32",
   "defaults": {
     "outerWidth": 60,
     "outerDepth": 38,
@@ -318,5 +334,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:583405c5044d9265df6fa6030b2054f40df87650259e84d9a68514178aa1dca1"
+  "docsHash": "sha256:3665a434f65f15dad14a7a79124ee862fd095cf2c26a0775c59af7ceec349c71"
 }

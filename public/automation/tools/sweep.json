@@ -17,22 +17,34 @@
       "width": {
         "type": "number",
         "description": "Width (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "depth": {
         "type": "number",
         "description": "Depth (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "radius": {
         "type": "number",
         "description": "Circle/arc radius (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "cornerRadius": {
         "type": "number",
         "description": "Rounded rectangle corner radius; less than half shorter side (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "points": {
         "type": "array",
@@ -41,20 +53,35 @@
         "items": {
           "type": "array",
           "items": {
-            "type": "number"
+            "type": "number",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
           },
           "minItems": 3,
           "maxItems": 3,
-          "description": "World coordinate [x,y,z] in mm"
-        }
+          "description": "World coordinate [x,y,z] in mm",
+          "unit": "mm",
+          "quantityKind": "length",
+          "quantizationPolicy": "none"
+        },
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "startAngle": {
         "type": "number",
-        "description": "Arc start (degrees)"
+        "description": "Arc start (degrees)",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "endAngle": {
         "type": "number",
-        "description": "Arc end (degrees); absolute span > 0 and < 360"
+        "description": "Arc end (degrees); absolute span > 0 and < 360",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "closure": {
         "type": "string",
@@ -82,6 +109,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -101,7 +135,7 @@
     "扫掠"
   ],
   "description": "Sweep profile along a 3D polyline",
-  "schemaHash": "sha256:b6fe7522fba69107f3227f252e6988c679e96abba6c0b5677980a56bf51e4d53",
+  "schemaHash": "sha256:4c85ca241bd4c657ea438af0bbaf7ce23ab0bde0e5441f9655534d52a656d929",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -240,5 +274,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:091535d01c6f72cb152ed98b7b5b914ecdf348f82b7aa0b7afd0ce45756a0dc8"
+  "docsHash": "sha256:fa5f6c28936bccb65be308fca10271c77162f8a41c9705b1128d8acac31799a2"
 }

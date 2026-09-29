@@ -16,18 +16,33 @@
           "items": {
             "type": "array",
             "items": {
-              "type": "number"
+              "type": "number",
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
             },
             "minItems": 3,
-            "maxItems": 3
-          }
-        }
+            "maxItems": 3,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "unit": "mm",
+          "quantityKind": "length",
+          "quantizationPolicy": "none"
+        },
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "tolerance": {
         "type": "number",
         "minimum": 0.00001,
         "maximum": 0.5,
-        "description": "Millimetres; default 0.01"
+        "description": "Millimetres; default 0.01",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -45,6 +60,13 @@
     "uniqueItems": true,
     "minItems": 0,
     "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {},
   "selectionTokenSupport": {
@@ -65,7 +87,7 @@
     "拟合曲面"
   ],
   "description": "Fit a single B-spline face to a structured point grid",
-  "schemaHash": "sha256:39f5a52d34c74bfbd7715b2b4c3dac6cb355707dfa726a6d88335d6f98a65a3f",
+  "schemaHash": "sha256:51275810f62059702f94a098690093939e8e5e7c1d5e55030509cb5f45e892ca",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -281,5 +303,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:eb9abb0ee51793bb43cda6a651c0c1f1e233833913833dc06484b051a0bd9a96"
+  "docsHash": "sha256:6aa8e651ec25883f7fb57069f6342e316499fad043d09cbd2c6b0b63f51b452a"
 }

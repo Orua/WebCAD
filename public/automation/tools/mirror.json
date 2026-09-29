@@ -33,6 +33,13 @@
     "minItems": 1,
     "maxItems": 1
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -52,7 +59,7 @@
     "镜像"
   ],
   "description": "Mirror across a global origin plane",
-  "schemaHash": "sha256:0a41388108df4ef019f5411e670bf1e25fa25968a2264b2a3ed0f93ea67ef2b6",
+  "schemaHash": "sha256:c01050bdd1e24b5d662c3760c4cce7114f5035297b338610857be45655eedbb8",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -169,5 +176,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:07bc1c4503465f85cef00f68b09ee25b73cad9684684ecdfc3e23f93164ab6e7"
+  "docsHash": "sha256:dbdd0e285a66ab00c7d8ea24b168b238346a82995db3570cf191c590bc711e40"
 }

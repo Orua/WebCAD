@@ -29,3 +29,18 @@ test('invalid face, wrong material side and exceeding length reject without touc
  const source=cad.makeCylinder(10,12),before=source.serialize(),faceId=cylinderFace(source),p={faceId,kind:'external',pitchMm:2,depthMm:.6,lengthMm:10};
  try{assert.throws(()=>buildThread(source,{...p,kind:'internal'},oc,cad),/材料侧/);assert.throws(()=>buildThread(source,{...p,lengthMm:13},oc,cad),/超出/);assert.throws(()=>buildThread(source,{...p,pitchMm:.2},oc,cad),/牙宽/);assert.throws(()=>buildThread(source,{...p,faceId:999},oc,cad),/圆柱面/);assert.equal(source.serialize(),before);}finally{dispose(source);}
 });
+test('small external thread works on a translated X axis and retains source/report',()=>{
+ const source=cad.makeCylinder(1.25,43.5,[-23.875,35.5,2.5],[1,0,0]);
+ const before=source.serialize(),volume=cad.measureVolume(source);let faces=[];
+ try{
+  faces=source.faces;const faceId=faces.findIndex(face=>face.geomType==='CYLINDRE');
+  const result=buildThread(source,{faceId,kind:'external',pitchMm:.45,depthMm:.2,lengthMm:4,startOffsetMm:39.5,includedAngleDeg:60},oc,cad);
+  try{
+   valid(result);assert.ok(Math.abs(volume-cad.measureVolume(result)-1.511257614)<1e-4);
+   assert.equal(source.serialize(),before);assert.equal(result.threadReport.includedAngleDeg,60);
+   assert.deepEqual(result.threadReport.axisOrigin,[15.625,35.5,2.5]);
+   assert.deepEqual(result.threadReport.axisDirection,[1,0,0]);
+   const bounds=result.boundingBox.bounds;assert.ok(Math.abs(bounds[0][0]+23.875)<1e-5);assert.ok(Math.abs(bounds[1][0]-19.625)<1e-5);
+  }finally{dispose(result);}
+ }finally{faces.forEach(dispose);dispose(source);}
+});

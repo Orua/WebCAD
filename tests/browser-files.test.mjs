@@ -54,7 +54,7 @@ test('register copies bytes, applies basename and size limits, and forwards exac
   await assert.rejects(h.files.read({ resourceId: resource.resourceId }), { code: 'RESOURCE_EXPIRED' });
 });
 
-test('save produces immutable bytes and only verified handle writes can confirm the snapshot', async () => {
+test('save produces immutable bytes and verified handle writes can confirm the snapshot', async () => {
   const h = harness();
   const artifact = await h.files.save({ context: context(), name: 'plate.webcad' });
   assert.equal(artifact.name, 'plate.webcad');
@@ -82,6 +82,29 @@ test('save produces immutable bytes and only verified handle writes can confirm 
     assert.equal(h.acknowledgements[0].sha256, artifact.sha256);
     assert.equal(await handle.bytes.text(), '{"version":1}');
   } finally { globalThis.FileSystemFileHandle = previousClass; }
+});
+
+test('external native write confirmation requires an exact generated artifact receipt', async () => {
+  const h = harness();
+  const artifact = await h.files.save({ context: context(), name: 'saved.webcad' });
+  await assert.rejects(h.files.confirmWritten({ resourceId: artifact.resourceId, size: artifact.size + 1, sha256: artifact.sha256 }), { code: 'HASH_MISMATCH' });
+  await assert.rejects(h.files.confirmWritten({ resourceId: artifact.resourceId, size: artifact.size, sha256: '0'.repeat(64) }), { code: 'HASH_MISMATCH' });
+  assert.equal(h.dirty, true);
+  const result = await h.files.confirmWritten({ resourceId: artifact.resourceId, size: artifact.size, sha256: artifact.sha256 });
+  assert.equal(result.writeConfirmation, 'client_reported_verified_write');
+  assert.equal(result.confirmation.saved, true);
+  assert.equal(h.dirty, false);
+  const exported = await h.files.export({ context: context(), format: 'step' });
+  await assert.rejects(h.files.confirmWritten({ resourceId: exported.resourceId, size: exported.size, sha256: exported.sha256 }), { code: 'ASSET_INVALID' });
+});
+
+test('external confirmation of an older snapshot preserves later dirty edits', async () => {
+  const h = harness();
+  const artifact = await h.files.save({ context: context() });
+  h.revision = 5;
+  const result = await h.files.confirmWritten({ resourceId: artifact.resourceId, size: artifact.size, sha256: artifact.sha256 });
+  assert.equal(result.confirmation.saved, false);
+  assert.equal(h.dirty, true);
 });
 
 test('save during later edits stays dirty; failures and downloads never acknowledge', async () => {

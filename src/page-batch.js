@@ -1,9 +1,9 @@
 // Structured batches over an authorized page script channel (or explicit manual debugging).
 // Every mutation still goes through the existing page API / CommandService.
 const methods = new Set(['add','execute','connect','info','getState','searchTools','getTools','getTool','readDocs',
-  'getQuickModelUsage','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.capabilities','files.register',
+  'getQuickModelUsage','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','readVector','connectVector','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.capabilities','files.register',
   'files.import','files.save','files.export','files.release']);
-const contextual = new Set(['execute','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.import','files.save','files.export']);
+const contextual = new Set(['execute','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','readVector','connectVector','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.import','files.save','files.export']);
 const bad = (code,message) => { throw Object.assign(new Error(message),{code}); };
 const plain = x => x && typeof x==='object' && !Array.isArray(x);
 const keys = (x,allowed) => { if(!plain(x)||Object.keys(x).some(k=>!allowed.includes(k)))bad('PARAM_SCHEMA_INVALID','Unexpected object fields'); };
@@ -29,7 +29,7 @@ export function createPageBatch(api){
         unattemptedStepIds:(Array.isArray(input?.steps)?input.steps:[]).filter(step=>typeof step?.id==='string'&&!attempted.has(step.id)).map(step=>step.id)},
       recovery:status==='completed'?null:{action:status==='unknown'?'INSPECT_STATE_BEFORE_RETRY':'READ_STATE_AND_REPLAN_REMAINING',
         message:'Earlier committed steps remain. Read current state; do not recreate them. Use a new key for a revised remainder. An identical request/key only retrieves the original receipt.'},
-      ...(error?{error:{code:error.code||'BATCH_FAILED',message:error.message}}:{}),
+      ...(error?{error:{code:error.code||'BATCH_FAILED',message:error.message,...(error.featureId?{featureId:error.featureId}:{}),...(error.affectedFeatureIds?{affectedFeatureIds:error.affectedFeatureIds,changedFeatureIds:error.changedFeatureIds}:{}),...(error.recoveryAction?{recoveryAction:error.recoveryAction}: {})}}:{}),
       elapsedMs:Math.round(performance.now()-startedAt),context:s.context,
       summary:s.summary,display:s.display,
       displayMatchesContext:s.display?.status==='rendered'&&['documentId','documentInstanceId','revision'].every(k=>s.display.rendered?.[k]===s.context[k])};};

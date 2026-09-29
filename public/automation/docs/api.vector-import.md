@@ -1,0 +1,3 @@
+# api.vector-import
+
+从 files.register 的文件资源或 text 直接 readVector；name 后缀 DWG/ASCII DXF/SVG/JSON。DWG 由浏览器 Worker 内 LibreDWG 解码并释放内存，不上传。DWG/DXF 支持模型空间 LINE、ARC、CIRCLE、无宽度 LWPOLYLINE（含 bulge 圆弧）；跳过类型逐项报告，包括 INSERT/标注/文字/样条，不展开块。scaleMm 显式指定每源单位的毫米数，默认1，不猜单位。SVG复用受限填充路径解析器，曲线离散近似约0.005mm；不冒充精确圆弧，必须声明或输入毫米宽度。JSON为 entities 解析格式，单位mm。bounds 框选只包含整条边，entityIds/layers 可同时过滤；注意分页 total/truncated。先选需要的产品轮廓，再 connectVector 排序、反向、配对容差内唯一端点，报告每处实际移动量；容差0..1mm默认1e-6，不添加长补线。origin/flipY 仅为显式平移/翻转；源坐标和方向默认保留。canCreateFace=false 时返回开口/分叉/重线/交叉位置，不提交部分面。成功的 profile 经 api.run add sketchProfile 由精确内核检查成面，支持外环和孔洞；撤销一次即可删除新面，原图不改。

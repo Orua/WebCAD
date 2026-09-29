@@ -1,0 +1,30 @@
+{
+  "id": "connectVector",
+  "title": "connectVector",
+  "category": "page-method",
+  "version": "1.13.0",
+  "description": "connectVector({context,entities,toleranceMm?:0.000001,origin?:[0,0],flipY?:false}); 1..500 条解析线。",
+  "synonyms": [
+    "connectVector",
+    "自动连接",
+    "闭合轮廓",
+    "成面",
+    "排序",
+    "反向",
+    "孔洞"
+  ],
+  "inputContract": "connectVector({context,entities,toleranceMm?:0.000001,origin?:[0,0],flipY?:false}); 1..500 条解析线。",
+  "outputContract": "只读返回 canCreateFace、问题位置或 sketchProfile 的 profile 参数；确认后 add sketchProfile 一次成面。拒绝断口、分叉、重线、自交。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "VECTOR_INVALID",
+    "PROFILE_INVALID",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docs": "api.vector-import",
+  "docsHash": "sha256:184fc52dc98ce403b856311e928fa701f9bee6538f87f884732e074f6c64a72d"
+}

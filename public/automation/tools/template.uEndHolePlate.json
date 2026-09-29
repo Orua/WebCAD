@@ -12,6 +12,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -150,12 +157,18 @@
       "thickness": {
         "type": "number",
         "default": 3,
-        "description": "Plate thickness"
+        "description": "Plate thickness",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "holeDiameter": {
         "type": "number",
         "default": 3.3,
-        "description": "End-hole diameter"
+        "description": "End-hole diameter",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "holeInset": {
         "type": "number",
@@ -164,7 +177,7 @@
       }
     }
   },
-  "schemaHash": "sha256:edcf1879de3a33d5bbe2df10b353ae1238c755a58d164f004e33d8ae36b2cf91",
+  "schemaHash": "sha256:3f920a4471d858cf41c38c5161e8cce1eb4636842d56ffdd7b6a5cf387da92d5",
   "defaults": {
     "outerWidth": 22,
     "innerWidth": 10,
@@ -258,5 +271,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:b5593566e05a0a4cf56e5d5785425a53d5c0833293c9370fe9afa769355ccfa9"
+  "docsHash": "sha256:6517251695db40d1ae9f278a9cc975028f303c939dad0627f151421915246546"
 }

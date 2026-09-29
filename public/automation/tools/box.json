@@ -7,17 +7,26 @@
       "width": {
         "type": "number",
         "description": "Width (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "depth": {
         "type": "number",
         "description": "Depth (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "height": {
         "type": "number",
         "description": "Height (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -39,6 +48,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -59,7 +75,7 @@
     "plate"
   ],
   "description": "Box from [0,0,0] to [width,depth,height]",
-  "schemaHash": "sha256:943047a54224d6d94371866e96e2801f75e757da9978f9cdb69d8916306ca10b",
+  "schemaHash": "sha256:d082303b846c478cc1d8b09298f7bb401e917a0e4859bb8fcc62832cdd1ba85c",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -190,5 +206,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:1a5c42c44adaba15d925bf79ce66bdc3bc9dc8dc2dd0bcf8c9dfa8e9d6d6cb35"
+  "docsHash": "sha256:88c63be35e8e4c8566cecafd5cbf6075a19d8c10f50847a7369cdb9e189e05bc"
 }

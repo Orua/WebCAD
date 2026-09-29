@@ -1,4 +1,5 @@
 // 有界曲线扫掠：路径由三点圆弧、BSpline 或连续直线/圆弧段生成。
+import {buildSectionCurveLoft} from './section-curve-loft.js';
 const MIN_TOLERANCE = 1e-5;
 const MAX_TOLERANCE = 0.5;
 const EPS = 1e-9;
@@ -17,9 +18,10 @@ function dispose(value) { try { value?.delete?.(); } catch {} }
 
 export function buildCurveSweep(params, cad) {
   if (!params || !cad) fail('缺少参数或 CAD 适配器');
+  if(params.pathType==='sections')return buildSectionCurveLoft(params,cad);
   const { pathType, points, segments, radius } = params;
   const section = params.section ?? 'round';
-  if (!['round','chamferedSquare','ellipse'].includes(section)) fail('截面必须为 round、chamferedSquare 或 ellipse');
+  if (!['round','chamferedSquare','ellipse','roundedRectangle'].includes(section)) fail('截面必须为 round、chamferedSquare、ellipse 或 roundedRectangle');
   if (params.closed !== undefined && typeof params.closed !== 'boolean') fail('closed 须为布尔值');
   if (params.closed === true && pathType !== 'segments') fail('closed:true 只用于分段路径');
   if (!['arc','spline','segments'].includes(pathType)) fail('路径类型必须是 arc、spline 或 segments');
@@ -50,11 +52,13 @@ export function buildCurveSweep(params, cad) {
   const sectionChamfer = params.sectionChamfer;
   const sectionWidth = params.sectionWidth;
   const sectionDepth = params.sectionDepth;
+  const sectionCornerRadius = params.sectionCornerRadius;
   if (section === 'round' && (!Number.isFinite(radius) || radius <= 0)) fail('圆截面半径必须大于0');
   if (section === 'chamferedSquare' && (!Number.isFinite(sectionSize) || sectionSize <= 0 || !Number.isFinite(sectionChamfer) || sectionChamfer <= 0 || sectionChamfer >= sectionSize/2)) fail('倒角方线须满足 sectionSize>0 且 0<sectionChamfer<sectionSize/2');
   if (section === 'ellipse' && (!Number.isFinite(sectionWidth) || !Number.isFinite(sectionDepth) || sectionWidth <= 0 || sectionDepth <= 0 || sectionWidth === sectionDepth)) fail('椭圆截面须提供不同的正面料宽 sectionWidth 和侧深 sectionDepth，均大于0');
+  if (section === 'roundedRectangle' && (!Number.isFinite(sectionWidth) || !Number.isFinite(sectionDepth) || sectionWidth <= 0 || sectionDepth <= 0 || !Number.isFinite(sectionCornerRadius) || sectionCornerRadius <= 0 || sectionCornerRadius >= Math.min(sectionWidth,sectionDepth)/2)) fail('圆角扁带须满足宽、厚>0，且0<截面圆角<较短边一半');
   const span = Math.max(...pathPoints.map((point, i) => Math.max(...pathPoints.slice(i + 1).map(other => distance(point, other)), 0)));
-  const frontWidth=section==='round'?2*radius:section==='ellipse'?sectionWidth:sectionSize;
+  const frontWidth=section==='round'?2*radius:['ellipse','roundedRectangle'].includes(section)?sectionWidth:sectionSize;
   if (!span || frontWidth > span * 20) fail('截面相对路径过大，无法生成有效实体');
   if (section !== 'round' && pathPoints.some(p=>Math.abs(p[2]-pathPoints[0][2])>1e-6)) fail('倒角方线和椭圆截面目前只支持同一 XY 平面的路径');
   const tolerance = params.tolerance ?? 0.01;
@@ -93,12 +97,17 @@ export function buildCurveSweep(params, cad) {
       profile=cad.assembleWire([ellipse]);
     } else {
       const length = Math.hypot(normal[0],normal[1]);
-      if (length <= EPS) fail('倒角方线路径起点切线不得垂直 XY 平面');
+      if (length <= EPS) fail('非圆截面路径起点切线不得垂直 XY 平面');
       plane = new cad.Plane(center,[normal[1]/length,-normal[0]/length,0],normal);
-      const half=sectionSize/2,c=sectionChamfer;
-      drawing=cad.draw([-half+c,-half]).lineTo([half-c,-half]).lineTo([half,-half+c])
-        .lineTo([half,half-c]).lineTo([half-c,half]).lineTo([-half+c,half])
-        .lineTo([-half,half-c]).lineTo([-half,-half+c]).close();
+      if(section==='roundedRectangle'){
+        // Local X follows the in-plane bend normal (thickness); local Y spans strip width.
+        drawing=cad.drawRoundedRectangle(sectionDepth,sectionWidth,sectionCornerRadius);
+      }else{
+        const half=sectionSize/2,c=sectionChamfer;
+        drawing=cad.draw([-half+c,-half]).lineTo([half-c,-half]).lineTo([half,-half+c])
+          .lineTo([half,half-c]).lineTo([half-c,half]).lineTo([-half+c,half])
+          .lineTo([-half,half-c]).lineTo([-half,-half+c]).close();
+      }
       sketch=drawing.sketchOnPlane(plane);
       profile=sketch.wire;
     }

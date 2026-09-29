@@ -12,6 +12,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -135,27 +142,42 @@
       "width": {
         "type": "number",
         "default": 40,
-        "description": "Plate width X"
+        "description": "Plate width X",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "depth": {
         "type": "number",
         "default": 16,
-        "description": "Plate depth Y"
+        "description": "Plate depth Y",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "thickness": {
         "type": "number",
         "default": 3,
-        "description": "Thickness"
+        "description": "Thickness",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "cornerRadius": {
         "type": "number",
         "default": 3,
-        "description": "Outer corner radius"
+        "description": "Outer corner radius",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "holeDiameter": {
         "type": "number",
         "default": 4,
-        "description": "Hole diameter"
+        "description": "Hole diameter",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "holeSpacing": {
         "type": "number",
@@ -164,7 +186,7 @@
       }
     }
   },
-  "schemaHash": "sha256:4ad5da2e952135dc4a111e2d3d74560651f6b791679f8e6de6ce882bc892ed87",
+  "schemaHash": "sha256:fdfaf2621ba160ad6a73ba01fbe33a7ea6498135b3bab602290842b944226be8",
   "defaults": {
     "width": 40,
     "depth": 16,
@@ -258,5 +280,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:d79521c2bcfd2bdfb4e7e0535e06e821d22d8d1fb796b0c60a13c5c8154b04af"
+  "docsHash": "sha256:e0349d78b965ec86c350793e9c8144f8a24c704d8e22cb6a3262b6abea9c719c"
 }

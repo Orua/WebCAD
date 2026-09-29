@@ -12,6 +12,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -135,16 +142,22 @@
       "diameterMm": {
         "type": "number",
         "default": 6,
-        "description": "直径"
+        "description": "直径",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "heightMm": {
         "type": "number",
         "default": 2,
-        "description": "高度"
+        "description": "高度",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     }
   },
-  "schemaHash": "sha256:b1d17e1fdd2dd2b1889c63ca55f27055231cad28d7183925c6b6357d27d48e61",
+  "schemaHash": "sha256:80c8560cfc4b64f82af5934a3edbd94f3cb431ffeed433f1bc97e05fdd193def",
   "defaults": {
     "diameterMm": 6,
     "heightMm": 2
@@ -196,5 +209,5 @@
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:fef934778444b209614cdef1ffd96616e27cf1cc9f63d292ddca48c297309109"
+  "docsHash": "sha256:55e2cace30a8a0bda34e465ab65c03e15629d1175e450b6a43ec4d589cb8b324"
 }

@@ -23,6 +23,13 @@
     "uniqueItems": true,
     "minItems": 2
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -42,7 +49,7 @@
     "合并"
   ],
   "description": "Fuse bodies",
-  "schemaHash": "sha256:2cce87066fa44a2be8c54844a040c7a0b343ec8ec387996660764b9c86cc9ca0",
+  "schemaHash": "sha256:99f1e362d31db99ae09aba41f3dba2068f4e97da5ed25445dd141e8dccc0998f",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -158,5 +165,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:62c6f346c09eb30e2abce4bc01230f3499317bc505614aefe1fd344ec85feb9b"
+  "docsHash": "sha256:89caa94fcb0ecc414958ff2c25faccc7566a9ccd83aa2964ecba11221a436142"
 }

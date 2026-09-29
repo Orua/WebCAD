@@ -1,0 +1,40 @@
+{
+  "id": "files.confirmWritten",
+  "title": "files.confirmWritten",
+  "category": "file",
+  "version": "1.13.0",
+  "label": "confirmWritten",
+  "synonyms": [
+    "confirmWritten",
+    "confirmWritten"
+  ],
+  "description": "confirmWritten({resourceId,size,sha256}); only after the authorized client has written and read back this native project artifact. Exact size and hash must match the retained generated resource.",
+  "inputContract": "confirmWritten({resourceId,size,sha256}); only after the authorized client has written and read back this native project artifact. Exact size and hash must match the retained generated resource.",
+  "outputContract": "status=client_write_confirmed; writeConfirmation=client_reported_verified_write. Browser cannot prove disk fsync. Only the matching document identity and revision can become saved; later edits remain dirty. This grants no filesystem access.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees"
+  },
+  "implementationStatus": "page-adapter",
+  "contractStatus": "browser-file-adapter",
+  "runtimeAvailability": "requires_ready_page",
+  "limits": {
+    "maxBytes": 20971520,
+    "maxResources": 32,
+    "maxTotalBytes": 67108864,
+    "ttlSeconds": 1800
+  },
+  "caveats": [],
+  "errorCodes": [
+    "CAPABILITY_UNAVAILABLE",
+    "REVISION_CONFLICT",
+    "INSTANCE_MISMATCH",
+    "UNSAVED_REPLACEMENT",
+    "HASH_MISMATCH",
+    "SIZE_LIMIT",
+    "RESOURCE_LIMIT",
+    "RESOURCE_EXPIRED",
+    "PERMISSION_REQUIRED"
+  ],
+  "docsHash": "sha256:1cc1249f572a0b36adf151501ab2d81b514f5e3aa1540f918b022eb9a9fec777"
+}

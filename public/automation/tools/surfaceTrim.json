@@ -10,7 +10,10 @@
     "properties": {
       "faceId": {
         "type": "integer",
-        "minimum": 0
+        "minimum": 0,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
       },
       "mode": {
         "type": "string",
@@ -33,6 +36,13 @@
     "minItems": 2,
     "maxItems": 2
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -52,7 +62,7 @@
     "实体修剪面"
   ],
   "description": "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。",
-  "schemaHash": "sha256:45c944dab3a0bd6ada6da472f7f153923a477e083b598a146c0771c408459207",
+  "schemaHash": "sha256:0f9f4654482e9c91c4f415b309f3af52d146d9a95447ebe6527c606aad4a9601",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -175,5 +185,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:eb7f825717e49953b16c7b421b8651f7179330c6ef073e3ea966225652cece90"
+  "docsHash": "sha256:4e4eb771b2237e6640cc5585293729c0d94d7843339392ce9a2c99f03043c9d6"
 }

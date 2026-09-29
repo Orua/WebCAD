@@ -225,6 +225,23 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
           ...(confirmation === undefined ? {} : { confirmation }) };
       } finally { writing.delete(resourceId); }
     },
+    async confirmWritten({ resourceId, size, sha256: hash } = {}) {
+      const resource = requireResource(resourceId);
+      if (resource.kind !== 'output' || !resource.saveSnapshot) {
+        throw failure('ASSET_INVALID', 'Only a generated native project snapshot can be confirmed');
+      }
+      if (!Number.isSafeInteger(size) || size !== resource.size ||
+          typeof hash !== 'string' || hash !== resource.sha256) {
+        throw failure('HASH_MISMATCH', 'External write receipt does not match the generated snapshot');
+      }
+      // An authorized client has performed its own disk write and readback.
+      // This assertion cannot prove disk fsync or grant filesystem access.
+      const confirmation = await confirmSaved({ ...resource.saveSnapshot,
+        sha256: resource.sha256, size: resource.size });
+      return { status: 'client_write_confirmed', resourceId,
+        writeConfirmation: 'client_reported_verified_write',
+        sha256: resource.sha256, size: resource.size, confirmation };
+    },
     release({ resourceId } = {}) {
       if (writing.has(resourceId)) throw failure('RESOURCE_BUSY', 'File write already in progress');
       const resource = requireResource(resourceId);

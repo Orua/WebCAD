@@ -36,6 +36,14 @@ import spring from './spring/index.js';
 import screw from './screw/index.js';
 import threadedSleeve from './threadedSleeve/index.js';
 import domedPin from './domedPin/index.js';
+import buckleTongue from './buckleTongue/index.js';
+import pullCoreBar from './pullCoreBar/index.js';
+import keyRing from './keyRing/index.js';
+import hangingRod from './hangingRod/index.js';
+import archedBridge from './archedBridge/index.js';
+import mushroomRivet from './mushroomRivet/index.js';
+import nippleStud from './nippleStud/index.js';
+import twoPieceEyelet from './twoPieceEyelet/index.js';
 
 const entries = [
   ring, washer, tube, domedPin, spring, screw, threadedSleeve,
@@ -56,6 +64,14 @@ const entries = [
   ellipseOpenWire,
   profileLoop,
   capsuleWire,
+  buckleTongue,
+  pullCoreBar,
+  keyRing,
+  hangingRod,
+  archedBridge,
+  mushroomRivet,
+  nippleStud,
+  twoPieceEyelet,
 ];
 // Hide a model from the picker without breaking projects saved with its kind.
 const hiddenFromPicker = new Set([]);

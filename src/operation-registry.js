@@ -2,6 +2,7 @@ import { operationCatalog } from './operation-catalog.js';
 import { QUICK_MODELS } from './quick-models.js';
 import {mechanicalIds,mechanicalDefaults,mechanicalExamples,mechanicalNames,mechanicalRefCounts,mechanicalResultTypes,mechanicalPreservedIds,profileSolidIds,mechanicalErrorCodes} from './mechanical-tool-contracts.js';
 import { assertJsonValue, contractError, contractHash, validateSchema } from './contracts/operation-schema.js';
+import { annotateParameterSchema, numericInputPolicy } from './parameter-metadata.js';
 
 export const apiVersion = '2.0';
 export const migratedOperationIds = Object.freeze(['box', 'hole', 'holeWizard', 'draftFaces', 'multiHole', 'multiPocket', 'multiBoss', 'faceHole', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell','sketchProfile','profileOffset','profileRepair','profileExtrude',...mechanicalIds]);
@@ -130,7 +131,7 @@ function buildCard(id, source) {
   if (special) known.push(id === 'remove' ? 'Use webcad_remove or v2 feature.remove; not feature.add.' : 'File lifecycle automation is deferred to M2; browser import is not a zero-mouse API.');
   const editRule = ['fillet', 'chamfer'].includes(id)
     ? 'On edit, patch edgeIds or faceIds selects that exact current topology scope and removes the other scope. Patch allEdges=true selects all body edges. Supplying multiple scopes in one patch conflicts. Amount is merged from existing params.' : 'Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.';
-  const contract = { id, version, inputSchema, refsSchema,
+  const contract = { id, version, inputSchema:annotateParameterSchema(inputSchema), refsSchema, numericInputPolicy,
     defaults: id === 'quickModel' ? Object.fromEntries(Object.entries(QUICK_MODELS).map(([kind, definition]) => [kind, clone(definition.defaults)])) : defaults[id] || {},
     selectionTokenSupport: selector, editRule, units: operationCatalog.units,
     coordinateConvention: id === 'box' ? 'World [0,0,0] to [width,depth,height], all in mm.'
@@ -209,6 +210,7 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
   if (op === 'fillet' || op === 'chamfer') {
     const scopes = Number(Object.hasOwn(params, 'edgeIds')) + Number(Object.hasOwn(params, 'faceIds')) + Number(params.allEdges === true);
     if (scopes > 1) contractError('SELECTION_CONFLICT', 'params', 'Choose exactly one of edgeIds, faceIds, or allEdges=true.');
+    if(params.sharedFaces===true&&!(params.faceIds?.length>=2))contractError('SELECTION_CONFLICT','params.sharedFaces','sharedFaces=true requires at least two adjacent faceIds.');
   }
   validateSchema(schema, params);
   return { ...clone(defaults[op]), ...clone(params) };
@@ -221,9 +223,9 @@ export function normalizeOperationPatch(op, previousParams, patch) {
   if (op === 'fillet' || op === 'chamfer') {
     const scopes = Number(Object.hasOwn(patch, 'edgeIds')) + Number(Object.hasOwn(patch, 'faceIds')) + Number(patch.allEdges === true);
     if (scopes > 1) contractError('SELECTION_CONFLICT', 'params', 'One patch cannot select multiple edge scopes.');
-    if (Object.hasOwn(patch, 'edgeIds')) { delete merged.faceIds; delete merged.allEdges; }
+    if (Object.hasOwn(patch, 'edgeIds')) { delete merged.faceIds; delete merged.allEdges; if(!Object.hasOwn(patch,'sharedFaces'))delete merged.sharedFaces; }
     else if (Object.hasOwn(patch, 'faceIds')) { delete merged.edgeIds; delete merged.allEdges; }
-    else if (patch.allEdges === true) { delete merged.edgeIds; delete merged.faceIds; }
+    else if (patch.allEdges === true) { delete merged.edgeIds; delete merged.faceIds; if(!Object.hasOwn(patch,'sharedFaces'))delete merged.sharedFaces; }
   }
   return normalizeOperationParams(op, merged);
 }

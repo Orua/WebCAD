@@ -107,5 +107,5 @@ export function mountProfileEditor(form, initial) {
   apply.addEventListener('pointerenter',()=>{try{const {current,next}=proposedEdit();canvas.showEditPreview(current,next);}catch(error){info.textContent=error.message;}});apply.addEventListener('pointerleave',()=>canvas.clearEditPreview());apply.addEventListener('focus',()=>{try{const {current,next}=proposedEdit();canvas.showEditPreview(current,next);}catch(error){info.textContent=error.message;}});apply.addEventListener('blur',()=>canvas.clearEditPreview());
   form.addEventListener('input',()=>{try{canvas.render();refreshEntities();}catch(error){info.textContent=error.message;}});form.addEventListener('change',()=>{try{refreshEntities();}catch(error){info.textContent=error.message;}});
   refreshEntities();
-  return {read,root:controls,appendProjected(entities){for(const entity of entities)addRow(entity,'construction');refreshEntities();}};
+  return {read,root:controls,activateEditMode(value){const button=editModeButtons.find(item=>item.dataset.editMode===value);if(!button)throw new Error('未知路径编辑方式');button.click();editDetails.scrollIntoView?.({block:'nearest'});},appendProjected(entities){for(const entity of entities)addRow(entity,'construction');refreshEntities();}};
 }

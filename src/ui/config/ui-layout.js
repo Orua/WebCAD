@@ -2,15 +2,16 @@
 // Actions route through UI_API_ROUTES; no eval or geometry logic belongs here.
 import {ACTION_ICONS} from './action-icons.js';
 const tabs = [
-  {id:'edit',label:'编辑',unfolded:true,groups:[['选择',['selectTool']],['变换',['moveTool','rotateTool']],['复制',['copySelection','pasteSelection','copy','mirror']],['组合',['group','explode']],['轮廓编辑',['profileOffset','profileRepair','profileConstraints']],['管理',['remove']]]},
-  {id:'create',label:'创建',unfolded:true,groups:[['轮廓',['sketchProfile','sketch','arcProfile','vectorProfile','helix']],['轮廓成型',['extrude','profileExtrude','revolve','sweep','coil','loft']]]},
-  {id:'model',label:'模型',unfolded:true,groups:[['基本实体',['box','cylinder','sphere','cone','torus']],['常用模型',['quickModelFavorites']],['模型库',['quickModel','importAtFrame']]]},
-  {id:'machine',label:'加工',groups:[['面加工',['faceGroove','innerTurn','outerTurn','faceHole','faceExtrude','logo'],{unfolded:true}],['孔与槽',['hole','slot','thread','holeWizard','multiHole','multiPocket','multiBoss'],{overflowActions:['multiHole','multiPocket','multiBoss']}],['布尔运算',['union','cut','intersect']]]},
-  {id:'finish',label:'修饰',groups:[['边与过渡',['fillet','chamfer','smoothTransition','autoRound']],['壳与拆分',['shell','split','extractSolid','offsetSolid']],['拔模',['draftFaces','draftByPlane']]]},
-  {id:'surface',label:'曲面',groups:[['曲面成型',['curveSweep','advancedLoft','fittedSurface']],['参考提取',['faceBoundary','planeSection','extractFaces','extractShell']],['参考成体',['referenceExtrude','referenceLoft','thickenFace']],['曲面处理',['sewFaces','surfaceTrim','offsetSurface']]]},
-  {id:'inspect',label:'检查',groups:[['几何检查',['measure','section','measureRelation','inspectFit','inspectThickness','inspectDraft','inspectPrintability']],['结果记录',['screenshot']]],controls:['quality']},
-  {id:'view',label:'视图',groups:[],controls:['directions','display','projection','assists','quality']},
-  {id:'settings',label:'设置',groups:[['外观',['themeSettings','displayPreferences','logoConverterSettings']],['交互',['precisionSettings','snapSettings','languageSettings']],['工程',['parameters']],['AGENT',['agentGuide']]]},
+  {id:'edit',label:'编辑',unfolded:true,groups:[['选择',['selectTool']],['复制粘贴',['copySelection','pasteSelection']],['变换',['moveTool','rotateTool','copy','mirror']],['组合与拆分',['group','explode','extractSolid']],['管理',['remove']]]},
+  {id:'path',label:'路径',unfolded:true,groups:[['导入与绘制',['vectorImport','sketchProfile','vectorProfile','helix']],['编辑曲线',['pathEdit','pathFillet','pathTrim','pathExtend','pathTrimCircle']],['闭合与尺寸',['profileRepair','profileConstraints','profileOffset']],['提取路径',['faceBoundary','planeSection']]]},
+  {id:'create',label:'创建',groups:[['路径成型',['profileExtrude','sweep','revolve','loft'],{unfolded:true}],['直接成型',['sketch','arcProfile','extrude','coil']],['高级成型',['referenceExtrude','curveSweep','referenceLoft','advancedLoft']]]},
+  {id:'model',label:'模型库',unfolded:true,groups:[['基本实体',['box','cylinder','cone','sphere','torus']],['常用模型',['quickModelFavorites']],['参数模型',['quickModel']],['导入模型',['importAtFrame']]]},
+  {id:'machine',label:'加工',groups:[['布尔与切分',['union','cut','intersect','split'],{unfolded:true}],['孔与螺纹',['hole','holeWizard','multiHole','thread']],['槽与凸台',['slot','faceGroove','faceHole','faceExtrude','multiPocket','multiBoss'],{overflowActions:['multiPocket','multiBoss']}],['车削',['outerTurn','innerTurn']],['标记',['logo']]]},
+  {id:'surface',label:'曲面',groups:[['提取面与壳',['extractFaces','extractShell']],['曲面生成',['fittedSurface']],['曲面处理',['surfaceTrim','offsetSurface','sewFaces']],['增厚成体',['thickenFace']]]},
+  {id:'finish',label:'修饰',groups:[['圆角与过渡',['fillet','chamfer','autoRound','smoothTransition'],{unfolded:true}],['壳与偏置',['shell','offsetSolid']],['拔模',['draftFaces','draftByPlane']]]},
+  {id:'inspect',label:'检查',groups:[['测量',['measure','measureRelation']],['几何检查',['inspectThickness','inspectFit','inspectDraft','inspectPrintability']],['结果记录',['screenshot']]]},
+  {id:'view',label:'视图',groups:[['剖切查看',['section']]],controls:['directions','projection','display','assists','quality']},
+  {id:'settings',label:'设置',groups:[['交互',['precisionSettings','snapSettings']],['外观',['themeSettings','displayPreferences','languageSettings']],['工程',['parameters']],['导入设置',['logoConverterSettings']],['AGENT',['agentGuide']]]},
 ];
 const controls={
   directions:{label:'标准视角',action:'view',key:'direction',items:[['等轴','iso'],['前视','front'],['后视','back'],['俯视','top'],['仰视','bottom'],['左视','left'],['右视','right']]},
@@ -20,7 +21,7 @@ const controls={
   quality:{label:'显示精度 · 不改变精确几何',action:'renderQuality',key:'quality',setting:'quality',items:[['草稿','draft'],['标准','standard'],['精细','fine'],['高精','ultra']]},
 };
 function freeze(value){if(value&&typeof value==='object'){Object.values(value).forEach(freeze);Object.freeze(value);}return value;}
-export const UI_LAYOUT=freeze({version:3,defaultTab:'create',panels:{left:232,right:320},shortLabels:{themeSettings:'风格',precisionSettings:'精度',snapSettings:'吸附',displayPreferences:'渲染设置',logoConverterSettings:'LOGO转化',languageSettings:'语言',parameters:'参数',agentGuide:'AGENT',revolve:'旋转成型',sketchProfile:'轮廓',sketch:'草图',arcProfile:'线弧轮廓',profileOffset:'等距偏移',profileRepair:'轮廓修复',profileExtrude:'轮廓加工',multiHole:'多点打孔',multiPocket:'批量凹槽',multiBoss:'批量凸台',smoothTransition:'平滑过渡',autoRound:'整件圆边',draftFaces:'拔模',measureRelation:'关系测量',inspectFit:'干涉间隙',inspectThickness:'壁厚',inspectDraft:'拔模检查',inspectPrintability:'成型检查',planeSection:'提取截面',faceBoundary:'提取边界',referenceExtrude:'轮廓拉伸',referenceLoft:'截面放样',advancedLoft:'高级放样',fittedSurface:'拟合曲面',extractFaces:'提取面',surfaceTrim:'曲面修剪',transparentEdges:'透视边线',edges:'实体边线'},ribbon:{visibleActions:3,minOverflow:2,overflowLabel:'更多 ▾',overflowMenuWidth:210},tabs,controls,
+export const UI_LAYOUT=freeze({version:4,defaultTab:'create',panels:{left:232,right:320},shortLabels:{pathEdit:'编辑路径',pathTrim:'修剪',pathExtend:'延伸',pathFillet:'二维圆角',pathTrimCircle:'整圆裁剪',vectorImport:'矢量取线成面',themeSettings:'风格',precisionSettings:'精度',snapSettings:'吸附',displayPreferences:'渲染设置',logoConverterSettings:'LOGO转化',languageSettings:'语言',parameters:'参数',agentGuide:'AGENT',revolve:'旋转成型',sketchProfile:'轮廓',sketch:'草图拉伸',arcProfile:'线弧拉伸',profileOffset:'等距偏移',profileRepair:'轮廓修复',profileExtrude:'轮廓加工',multiHole:'多点打孔',multiPocket:'批量凹槽',multiBoss:'批量凸台',smoothTransition:'平滑过渡',autoRound:'整件圆边',draftFaces:'拔模',measureRelation:'关系测量',inspectFit:'干涉间隙',inspectThickness:'壁厚',inspectDraft:'拔模检查',inspectPrintability:'成型检查',planeSection:'提取截面',faceBoundary:'提取边界',referenceExtrude:'轮廓拉伸',referenceLoft:'截面放样',advancedLoft:'高级放样',fittedSurface:'拟合曲面',extractFaces:'提取面',surfaceTrim:'曲面修剪',transparentEdges:'透视边线',edges:'实体边线'},ribbon:{visibleActions:3,minOverflow:2,overflowLabel:'更多 ▾',overflowMenuWidth:210},tabs,controls,
   viewportActions:[{action:'gizmoRotate',label:'鼠标旋转'},{action:'gizmoTranslate',label:'鼠标移动'}],
   icons:{
     ...ACTION_ICONS,logoConverterSettings:ACTION_ICONS.logo,precisionSettings:ACTION_ICONS.measure,

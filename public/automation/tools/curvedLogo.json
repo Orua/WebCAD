@@ -7,26 +7,44 @@
     "properties": {
       "faceId": {
         "type": "integer",
-        "minimum": 0
+        "minimum": 0,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
       },
       "point": {
         "type": "array",
         "items": {
-          "type": "number"
+          "type": "number",
+          "unit": "mm",
+          "quantityKind": "length",
+          "quantizationPolicy": "none"
         },
         "minItems": 3,
-        "maxItems": 3
+        "maxItems": 3,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "depth": {
         "type": "number",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "scale": {
         "type": "number",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "1",
+        "quantityKind": "scalar",
+        "quantizationPolicy": "none"
       },
       "angle": {
-        "type": "number"
+        "type": "number",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "offsetX": {
         "type": "number"
@@ -87,7 +105,10 @@
       },
       "draftAngle": {
         "type": "number",
-        "const": 0
+        "const": 0,
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "source": {
         "type": "object"
@@ -124,6 +145,13 @@
     "minItems": 1,
     "maxItems": 1
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -143,7 +171,7 @@
     "曲面 LOGO"
   ],
   "description": "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
-  "schemaHash": "sha256:331db68f5d80f3a60c787c67a4c569c8cbda757b2e695951c4edc395f86a94ea",
+  "schemaHash": "sha256:651d7bc7ce435932c30009486d048d6f7c1b40a1ff8d59587ef648d7603142bc",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -309,5 +337,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:e257737d17b0a82b093a36664e35396b8a91c4187e62ea100f5b7bc1afa909e8"
+  "docsHash": "sha256:d43a12edd4e84788b34c0bad99b27a664c16e9580e5c86342baa18c41105a42f"
 }

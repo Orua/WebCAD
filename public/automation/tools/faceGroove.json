@@ -8,22 +8,34 @@
       "faceId": {
         "type": "integer",
         "minimum": 0,
-        "description": "Explicit current planar face index on refs[0]"
+        "description": "Explicit current planar face index on refs[0]",
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
       },
       "lengthMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "description": "Long side in stable face X direction"
+        "description": "Long side in stable face X direction",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "widthMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "description": "Short side in stable face Y direction"
+        "description": "Short side in stable face Y direction",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "depthMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "description": "Inward recess depth"
+        "description": "Inward recess depth",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -45,6 +57,13 @@
     "minItems": 1,
     "maxItems": 1
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -64,7 +83,7 @@
     "faceGroove"
   ],
   "description": "Mill a rectangular recess from a selected planar face",
-  "schemaHash": "sha256:63564fdae3d0c3646791e7d5394d5657fb3a650ffb4d152ae6f6faf70a3eea93",
+  "schemaHash": "sha256:d7b4a83374c45b9b7937c3f7922bc6298d25089d4f6651a5f6921f89c56a15b2",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -204,5 +223,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:35efce4b914e31675c8d3ec9f158728f20ae4b24eaad9ddda9db8bd80f68a466"
+  "docsHash": "sha256:461791ea2f49e2ae3bc3656cdf574d4ba64649f17c421da9a7790600e993b19b"
 }

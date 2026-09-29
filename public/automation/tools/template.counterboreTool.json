@@ -12,6 +12,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -135,12 +142,18 @@
       "holeDiameter": {
         "type": "number",
         "default": 4,
-        "description": "Hole diameter"
+        "description": "Hole diameter",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "depth": {
         "type": "number",
         "default": 8,
-        "description": "Total depth"
+        "description": "Total depth",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "headDiameter": {
         "type": "number",
@@ -163,7 +176,7 @@
       }
     }
   },
-  "schemaHash": "sha256:d8433c98173d51022b5ecfba0f9762a461cf58c48299c93f08d12b8280be60cf",
+  "schemaHash": "sha256:6d9549d60b0de9109e16af5af324fb5512d4ffd894b5bd79bfc21787be36a36a",
   "defaults": {
     "holeDiameter": 4,
     "depth": 8,
@@ -257,5 +270,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:83fcacad73774a9ff2f3a7bfe3d921afe752fa12d5c99107c3d7a4ed9438f8d9"
+  "docsHash": "sha256:cc833b82296ce4542063f9aebab607d164c019a0d09cb1c19aea223c48f95937"
 }

@@ -12,6 +12,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -150,7 +157,10 @@
       "cornerRadius": {
         "type": "number",
         "default": 6,
-        "description": "Corner radius"
+        "description": "Corner radius",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "windowWidth": {
         "type": "number",
@@ -170,7 +180,10 @@
       "thickness": {
         "type": "number",
         "default": 3.7,
-        "description": "Thickness"
+        "description": "Thickness",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "edgeRadius": {
         "type": "number",
@@ -179,7 +192,7 @@
       }
     }
   },
-  "schemaHash": "sha256:c1792aa35a137151ab07d6e2d34d89ddb1b127fb163fc83507ba517ee5e4e8b0",
+  "schemaHash": "sha256:a7630317d74c466b90604a4c17723f01c4b15856d5a0a083a220ad9bf781d189",
   "defaults": {
     "outerHeight": 24.5,
     "topStraightWidth": 30.2527,
@@ -303,5 +316,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:ebe25aa7fbc2090897979c04379c201e849dafef678324eed70cd16df283fd8b"
+  "docsHash": "sha256:71be7c363f68cb2723a72745cfb244d575f9537f6ff316736b77f1ea543543cf"
 }

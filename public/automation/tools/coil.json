@@ -8,18 +8,27 @@
       "radiusMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "description": "Helix centerline radius, mm; not outer radius"
+        "description": "Helix centerline radius, mm; not outer radius",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "pitchMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "description": "Positive axial advance per full turn, mm"
+        "description": "Positive axial advance per full turn, mm",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "turns": {
         "type": "number",
         "exclusiveMinimum": 0,
         "maximum": 100,
-        "description": "Positive number of turns, fractional turns permitted"
+        "description": "Positive number of turns, fractional turns permitted",
+        "unit": "1",
+        "quantityKind": "scalar",
+        "quantizationPolicy": "none"
       },
       "leftHanded": {
         "type": "boolean",
@@ -29,7 +38,10 @@
       "wireDiameterMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "description": "Round wire diameter, mm"
+        "description": "Round wire diameter, mm",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -50,6 +62,13 @@
     "uniqueItems": true,
     "minItems": 0,
     "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {
     "leftHanded": false
@@ -72,7 +91,7 @@
     "coil"
   ],
   "description": "Sweep a circular wire section along an exact helix to create a single spring solid",
-  "schemaHash": "sha256:e1f4009962a1a26de8ca1e3d15d3aa1e70e19bfeae08955c84dc1e3fc7b943dd",
+  "schemaHash": "sha256:fff93987a88702bd9998befe65dff8258248d16868c3d6cd11c8955c4708b608",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -206,5 +225,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:a7835e7f5be820b0d545a9ec102b576537af376a8dc8a57eedb3846e23086071"
+  "docsHash": "sha256:233f68da33068de9cc827b6e931d929862de005d1311bce04267672588ddd340"
 }

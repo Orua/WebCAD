@@ -1,5 +1,13 @@
 # WebCAD 页面 API
 
+### 数值输入与历史修改保护
+
+显式人工/API/表达式数值按原值建模，预览与提交不因显示或鼠标步长隐式舍入。工具卡 `numericInputPolicy` 和已标注字段的 `unit/quantityKind/quantizationPolicy` 是带哈希的数值契约；`numericInput` 回执返回请求参数及实际使用值。`dimensionPrecisionMm/anglePrecisionDeg` 只控制鼠标交互步长，内核容差独立。
+
+人工属性、API `feature.edit`、命名参数与定位改参共享依赖检查。无关零件的后续圆角不会阻塞本件；真实依赖链中的面/边编号无法证明稳定时返回 `UNSAFE_LEGACY_REFERENCE`、`featureId`、`changedFeatureIds` 和 `affectedFeatureIds`。失败保持最后有效工程与 revision。数值编号尚非持久拓扑引用，不承诺自动重新绑定。
+
+保存来源的拉伸/旋转/扫掠/放样加料接受共享面融合；结果须是有效、正体积、单一封闭实体且实际增加材料。分离、仅边/点接触、无材料变化拒绝，不通过移位或加长制造重叠。Worker 几何失败的 `featureId` 保留到命令及批次最终回执。
+
 ### 解析轮廓编辑方案
 
 `prepareProfileEdit({context,bodyId,mode,entityId,targetId,...})` 从已提交的 `sketchProfile` 读取稳定图元 ID，与人工编辑器共用解析算法，不接收屏幕坐标。`mode` 为 `intersections`、`trim`、`extend`、`trimCircle` 或 `fillet`。缺少指定交点时返回候选和 `selectionRequired:true`，不自动取第一个交点。端点用 `endpoint:'start'|'end'`；修剪/延伸用明确的 `candidateId`；整圆转弧用 `startCandidateId/endCandidateId/keepSide`；两线圆角用 `radiusMm` 和唯一 `arcId`。开放结果须明确 `output:'wire'`。
@@ -795,6 +803,8 @@ const coordinates = api.readDocs({ docId: 'coordinates' });
 `profileRepair` 严格操作的 `refs` 为一个保存的 `sketchProfile` 来源 ID。先用 `inspectProfile` 取得 `closure:<chainId>` 等实际 `issueId`，再以 `{issueId,maxEndpointMoveMm}` 执行 `feature.add`；只对指定端点做不超过该毫米上限的移动，闭合开放链时生成一个可加工的派生面。原来源保留，超限或其它问题仍阻碍成面时整步失败。其几何重建使用来源已保存的定位快照，不重新取当前锚点。
 
 布尔 `union`、`cut`、`intersect` 的 `refs[0]` 始终为明确的保留主体，`refs[1..]` 为工具。可选 `params.keepTools:true` 保留工具原件；默认消耗。页面任务面板提供同一角色选择，API 仍需显式传当前 body ID。不要根据选择高亮颜色猜测目标与刀具。
+
+`intersect` 每次两两求交后使用自适应精确 BRep 体积积分，结果不得超过任一输入体积；数值容差为 `1e-7 mm³ + 1e-8 × 较小输入体积`。即使内核实体有效性检查通过，违反这一材料约束仍返回 `GEOMETRY_INVALID`，该步骤保留原模型。工具不会自动改用另一种布尔构造；批次先前成功步骤仍按既有非原子语义保留。
 
 圆角 `fillet` 与倒角 `chamfer` 都要求恰好一种明确范围：`allEdges:true` 表示当前实体全部边；`faceIds:[...]` 表示当前所选面的全部边界（包括孔边）；`edgeIds:[...]` 表示指定边。先对当前实体 `queryGeometry`，不能跨修订复用面/边序号。页面 UI 选体、选面、选边时分别显示并传入相应范围；AI 调用应直接传这三个字段之一。R 值或倒角距离过大、边界过密时内核会拒绝，保持原模型并返回可读错误，不会自动缩小尺寸。2 mm 厚板可先试 R0.3 mm；这只是操作示例，不是产品尺寸建议。
 

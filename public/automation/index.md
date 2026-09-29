@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.13.0 · 操作目录 sha256:07c24fb283ff9594e698155047e313ef629cec6e5c99bde406dcd5f1b324abe5
+API 1.13.0 · 操作目录 sha256:ebaa2b1e0d469107e413d46ea47c18c2dc84e507c28980f4dc18164ebe8b8c55
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -39,6 +39,8 @@ API 1.13.0 · 操作目录 sha256:07c24fb283ff9594e698155047e313ef629cec6e5c99bd
 - `inspectFit`
 - `inspectThickness`
 - `inspectDraft`
+- `readVector`
+- `connectVector`
 - `fitProfile`
 - `traceTwinWindow`
 - `executeText`
@@ -63,6 +65,7 @@ API 1.13.0 · 操作目录 sha256:07c24fb283ff9594e698155047e313ef629cec6e5c99bd
 - `files.read`
 - `files.download`
 - `files.write`
+- `files.confirmWritten`
 - `files.release`
 
 ## 工具目录
@@ -71,12 +74,12 @@ API 1.13.0 · 操作目录 sha256:07c24fb283ff9594e698155047e313ef629cec6e5c99bd
 - `arcProfile` · advisory · Extrude exact closed XY LINE/ARC boundaries with optional holes
 - `autoRound` · migrated · 整件圆边 / Round every sharp edge of one solid
 - `box` · migrated · Box from [0,0,0] to [width,depth,height]
-- `chamfer` · migrated · Chamfer selected edges, face boundaries, or all body edges
+- `chamfer` · migrated · Chamfer sharp edges, shared face edges, face boundaries or the whole solid
 - `circularPattern` · advisory · Rotated copies as one compound
 - `coil` · migrated · Sweep a circular wire section along an exact helix to create a single spring solid
 - `cone` · advisory · Cone/frustum along +Z
 - `copy` · advisory · Copy with scale, rotation and translation
-- `curveSweep` · advisory · Sweep a round, chamfered-square or elliptical section along an arc, approximated spline or connected line/arc segments
+- `curveSweep` · advisory · Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections
 - `curvedLogo` · advisory · Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work
 - `cut` · advisory · Subtract other bodies from first
 - `cylinder` · advisory · Cylinder on +Z from origin
@@ -90,7 +93,7 @@ API 1.13.0 · 操作目录 sha256:07c24fb283ff9594e698155047e313ef629cec6e5c99bd
 - `faceExtrude` · advisory · Push/pull a planar face along its normal
 - `faceGroove` · migrated · Mill a rectangular recess from a selected planar face
 - `faceHole` · migrated · Drill inward from a planar face
-- `fillet` · migrated · Round selected edges, all boundary edges of selected faces, or all body edges
+- `fillet` · migrated · Round sharp edges, shared face edges, face boundaries or the whole solid
 - `fittedSurface` · advisory · Fit a single B-spline face to a structured point grid
 - `group` · advisory · Group bodies as a compound without fusing
 - `helix` · migrated · Create an exact helical wire in the creation frame
@@ -172,6 +175,14 @@ API 1.13.0 · 操作目录 sha256:07c24fb283ff9594e698155047e313ef629cec6e5c99bd
 - `template.ellipseOpenWire` · advisory · 以内孔真椭圆外偏半线径扫掠圆线；底部正中用平行平面切出真实缝宽。外轮廓真椭圆的图纸不可使用本工具。
 - `template.profileLoop` · advisory · 两端半圆、上下直段的闭合长圈；正面料宽、侧面厚度和截面 R 独立。R 可等于截面短边一半，形成两圆端加直段的截面。
 - `template.capsuleWire` · advisory · 闭合圆线长圈：两端精确半圆、上下直段，内宽高与圆线直径独立输入。未标缝宽时不猜接缝。
+- `template.buckleTongue` · advisory · 独立扣针：沿X的轴孔环头、沿+Y的圆头扁针。长度从轴心至针尖；不与扣身融合。用于已确认环头扁针的近似形状，不包含冲压弯曲、滚花、LOGO或装配活动验证。
+- `template.pullCoreBar` · advisory · 独立活动芯：沿X横跨、两端为Y轴开放卷眼，中间扁带由独立内外相切圆弧接入卷眼。适合常规拉心扣芯；不与外框融合。
+- `template.keyRing` · advisory · 圆角矩形扁线由两段平面圆弧层和一段局部跨层过渡连续构成。内外径控制环带，侧向总厚由两层各半厚及层间隙组成。圈数只支持大于1且小于2；跨层角可调，须位于两端错开的扇区。截面四角R0.5；不包含端头专属轮廓、钥匙链附件或花纹。
+- `template.hangingRod` · advisory · 常规吊杆：水平圆杆两端做圆角，上方居中融合一个Z深度由根部向顶部收窄的椭圆截面U形吊环。杆长、杆径、端部圆角、吊环内宽、根部深度、根部圆角和净高均可调；不包含文字、花纹或多个吊环。
+- `template.archedBridge` · advisory · 常规 U 形拱桥：圆截面直腿与精确半圆连续成型，两端可开同轴底孔。外宽、外高、线径和底孔尺寸可调；不包含螺纹牙型、底片、装饰或异形截面。
+- `template.mushroomRivet` · advisory · 参数化的两件式单面蘑菇撞钉：球面盖带空心套筒，配浅腰圆角钉脚和底盘。支持同轴装配或分开展示；孔深与开孔方向可调，不包含 LOGO、文字和装饰纹。
+- `template.nippleStud` · advisory · 两件式奶嘴钉：A件含圆弧头、平顶、圆颈、带R角底座及M2名义光盲孔；Z件含圆拱螺钉头、杆和参数化六瓣槽。螺纹牙及标准槽规格不建模。旧 undersideCollar 参数仅为兼容，必须为0。
+- `template.twoPieceEyelet` · advisory · 参数化两件式薄壁鸡眼，法兰外翻边和内侧圆弯按薄壁截面精确旋转生成。A件为长脚，B件为配套短脚；支持同轴静态套合或分开展示，不模拟压铆变形、LOGO和压字。
 - `getQuickModelUsage` · page-method · getQuickModelUsage({}={})；只读本浏览器累计成功创建次数，不要求几何上下文，预览期间也可读取。
 - `copySelection` · page-method · copySelection({context,bodyIds}); 1–200个当前实体。
 - `pasteSelection` · page-method · pasteSelection({context,idempotencyKey}); 先 copySelection。
@@ -197,12 +208,14 @@ API 1.13.0 · 操作目录 sha256:07c24fb283ff9594e698155047e313ef629cec6e5c99bd
 - `measureRelation` · page-method · measureRelation({context,mode:"shortest"|"centerDistance"|"axisAlignment"|"pointFace"|"parallelFaces",first?,second?,face?,pointWorld?})；引用形式 {bodyId,kind:"body"|"edge"|"face",topologyId?}。
 - `inspectPrintability` · page-method · inspectPrintability({context,bodyId,angleLimitDeg?:45}); angleLimitDeg 在 0 与 90 度之间。
 - `inspectProfile` · page-method · inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。界面检查选项按需展开；API 不依赖界面展开状态。
-- `prepareProfileEdit` · page-method · prepareProfileEdit({context,bodyId,mode:"intersections"|"trim"|"extend"|"trimCircle"|"fillet",entityId,targetId,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})；这是按需使用的高级编辑，普通绘制只需 sketchProfile 显式图元参数。
+- `prepareProfileEdit` · page-method · prepareProfileEdit({context,bodyId,mode:"intersections"|"trim"|"extend"|"trimCircle"|"fillet",entityId?,targetId?,edgeIds?,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})。二维圆角可用 edgeIds:[两条当前边索引] 替代 entityId/targetId，支持解析轮廓及其未缩放的移动/旋转副本，选择先后不限；须显式 radiusMm 与新 arcId。
 - `inspectConstraints` · page-method · inspectConstraints({context,bodyId})；当前保存的 sketchProfile 或 profileConstraints 派生轮廓。只读诊断已有关系；矩形转换为明确四条解析边并保留形状关系。
 - `projectProfile` · page-method · projectProfile({context,bodyId,edgeIds:[当前边索引],frame?:{origin,quaternion}})；或用 pointWorld:[x,y,z] 投影明确坐标点。
 - `inspectFit` · page-method · inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。
 - `inspectThickness` · page-method · inspectThickness({context,bodyId,mode:"ray",point:[x,y,z],direction:[dx,dy,dz]})；或 mode:"faces",faceAId,faceBId,point；两面须平行且射线穿过连续材料。
 - `inspectDraft` · page-method · inspectDraft({context,bodyId,pullDirection:[0,0,1],thresholdDeg:2})；用户决定阈值。
+- `readVector` · page-method · readVector({context,name,resourceId|text,scaleMm?:1,targetWidthMm?,entityIds?,bounds?:[minX,minY,maxX,maxY],layers?,offset?:0,limit?:500}); limit<=10000。文件先 files.register。
+- `connectVector` · page-method · connectVector({context,entities,toleranceMm?:0.000001,origin?:[0,0],flipY?:false}); 1..500 条解析线。
 - `fitProfile` · page-method · fitProfile({context,kind:"circle"|"line",plane?:"XY"|"XZ"|"YZ",points:[[u,v],...],maxResidualMm?}); 3–1000 点。
 - `traceTwinWindow` · page-method · traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBottomY,simplifyToleranceMm?:0..0.2}); 四条上到下 XY 采样曲线，每条3–2000点。
 - `executeText` · page-method · executeText({context,idempotencyKey,text,dryRun?}); 每行 add <op> key=value 或 measure <bodyId|$last>。
@@ -250,6 +263,7 @@ API 1.13.0 · 操作目录 sha256:07c24fb283ff9594e698155047e313ef629cec6e5c99bd
 - `files.read` · browser-file-adapter · read({resourceId,as?}); as is blob (default) or bytes.
 - `files.download` · browser-file-adapter · download({resourceId}); generated output only.
 - `files.write` · browser-file-adapter · write({resourceId,handle}); previously authorized FileSystemFileHandle.
+- `files.confirmWritten` · browser-file-adapter · confirmWritten({resourceId,size,sha256}); only after the authorized client has written and read back this native project artifact. Exact size and hash must match the retained generated resource.
 - `files.release` · browser-file-adapter · release({resourceId}); current page resource ID.
 - `import.iges` · unavailable · 当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。
 - `import.vector-server` · unavailable · 当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。

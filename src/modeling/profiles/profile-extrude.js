@@ -1,10 +1,20 @@
 import {buildReferenceExtrude} from '../../reference-profile-extrude.js';
+import { validMaterialSolid, validateMaterialChange } from './material-validation.js';
 
 const dispose = value => { try { value?.delete?.(); } catch {} };
 const fail = message => { throw Object.assign(new Error(message), { code: 'PROFILE_EXTRUDE_INVALID' }); };
 const dot = (a, b) => a.reduce((sum, v, i) => sum + v * b[i], 0);
 
 export function buildProfileExtrude(shapes, params, cad, savedPlaneNormal=null) {
+  const isolated=[];
+  try {
+    if(!Array.isArray(shapes)||shapes.some(shape=>typeof shape?.serialize!=='function'))fail('来源必须是明确精确几何引用');
+    for(const shape of shapes)isolated.push(cad.deserializeShape(shape.serialize()));
+    return buildIsolatedProfileExtrude(isolated,params,cad,savedPlaneNormal);
+  }finally{isolated.forEach(dispose);}
+}
+
+function buildIsolatedProfileExtrude(shapes, params, cad, savedPlaneNormal) {
   if (!Array.isArray(shapes) || shapes.length !== (params?.operation === 'newBody' ? 1 : 2)) fail('轮廓加工引用须为来源轮廓，及可选的明确目标实体');
   if (!['newBody', 'join', 'cut', 'intersect'].includes(params.operation)) fail('不支持的轮廓加工模式');
   if (!['distance', 'throughSelected', 'toPlane'].includes(params.extent) || params.extent === 'throughSelected' && params.operation === 'newBody') fail('不支持的拉伸终止方式；贯穿只适用于已选目标');
@@ -48,20 +58,18 @@ export function buildProfileExtrude(shapes, params, cad, savedPlaneNormal=null) 
     }
     for (const face of faces) profileTools.push(buildReferenceExtrude(face,{direction:vector,distance},cad));
     tool = profileTools.length === 1 ? profileTools.pop() : cad.makeCompound(profileTools);
-    if (params.operation === 'newBody') { result = tool; tool = null; return result; }
+    if (params.operation === 'newBody') { validMaterialSolid(tool,cad,'拉伸结果'); result = tool; tool = null; return result; }
     const targetSolids = target.solids;
     try { if (targetSolids.length !== 1) fail('加工目标必须是单一精确实体'); }
     finally { targetSolids.forEach(dispose); }
-    const before = Math.abs(cad.measureVolume(target)), toolVolume = Math.abs(cad.measureVolume(tool));
+    const before = validMaterialSolid(target,cad,'加工目标'), toolVolume = Math.abs(cad.measureVolume(tool));
     result = params.operation === 'join' ? target.fuse(tool) : params.operation === 'cut' ? target.cut(tool) : target.intersect(tool);
-    const after = Math.abs(cad.measureVolume(result));
-    if (params.operation === 'join' && !(after > before + 1e-7 && after < before + toolVolume - 1e-7)) fail('加料须与目标相交并实际增加材料');
-    if (params.operation === 'cut' && !(after > 1e-9 && after < before - 1e-7)) fail('切除须实际移除材料且留下有效目标');
-    if (params.operation === 'intersect' && !(after > 1e-9)) fail('轮廓与目标没有有效交集');
+    const after = validMaterialSolid(result,cad,'加工结果');
+    validateMaterialChange(params.operation,before,toolVolume,after);
     const solids = result.solids;
     try { if (solids.length !== 1) fail('加工结果不是单一实体；请调整位置或分开处理'); }
     finally { solids.forEach(dispose); }
     return result;
-  } catch (error) { dispose(result); throw error; }
+  } catch (error) { dispose(result); throw Object.assign(error,{code:'PROFILE_EXTRUDE_INVALID'}); }
   finally { faces.forEach(dispose); profileTools.forEach(dispose); [normal, center, bounds, tool].forEach(dispose); }
 }

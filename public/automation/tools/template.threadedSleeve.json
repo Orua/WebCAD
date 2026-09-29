@@ -12,6 +12,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -238,5 +245,5 @@
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:643219409467f719fa93214302634e559318e22c26b6f5f6810062ad75d5feda"
+  "docsHash": "sha256:c2dfff136f302e4b27b2dda45d3fea172a19f103f2a33d0aa97ac86678a5989b"
 }

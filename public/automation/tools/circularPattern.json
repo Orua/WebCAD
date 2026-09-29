@@ -8,13 +8,19 @@
         "type": "integer",
         "description": "Count including original",
         "minimum": 2,
-        "maximum": 100
+        "maximum": 100,
+        "unit": "1",
+        "quantityKind": "scalar",
+        "quantizationPolicy": "none"
       },
       "angle": {
         "type": "number",
         "description": "Degrees",
         "exclusiveMinimum": 0,
-        "maximum": 360
+        "maximum": 360,
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "axis": {
         "type": "string",
@@ -27,15 +33,24 @@
       },
       "cx": {
         "type": "number",
-        "description": "Axis center X (mm)"
+        "description": "Axis center X (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "cy": {
         "type": "number",
-        "description": "Axis center Y (mm)"
+        "description": "Axis center Y (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "cz": {
         "type": "number",
-        "description": "Axis center Z (mm)"
+        "description": "Axis center Z (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [],
@@ -52,6 +67,13 @@
     "uniqueItems": true,
     "minItems": 1,
     "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {},
   "selectionTokenSupport": {
@@ -72,7 +94,7 @@
     "环形阵列"
   ],
   "description": "Rotated copies as one compound",
-  "schemaHash": "sha256:2e9b193edc844517db95f928da31f30722c02c3ff1376309bf2d7ac19bd208d6",
+  "schemaHash": "sha256:a7db485040eeaaab68043f7c49d8a0c93673a4509d085e5b8aecdeb98b709f41",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -193,5 +215,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:ca72e651d93d723094d277ef735d1eb21c4a40642f3efd97dad4092fae240591"
+  "docsHash": "sha256:cd828991ab8aca392d5a92e2f10969543c010212e6d8ec18985aa640f00f2f5c"
 }

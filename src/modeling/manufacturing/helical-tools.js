@@ -49,7 +49,7 @@ export function buildThread(source,p,oc,cad) {
   if(p.leftHanded!==undefined&&typeof p.leftHanded!=='boolean')fail('leftHanded 须为布尔值');
   const halfWidth=depth*Math.tan(angle*Math.PI/360);
   if(pitch<=2*halfWidth)fail('螺距须大于 V 槽的轴向牙宽');
-  let copy,adaptor,cylinder,axis,location,direction,point,normal,spine,plane,sketch,cutter,clip,trimmed,result;let faces=[],edges=[];
+  let copy,adaptor,cylinder,axis,location,direction,point,framePoint,normal,spine,plane,sketch,cutter,clip,trimmed,result,localSource,localResult;let faces=[],edges=[];
   try {
     copy=cad.deserializeShape(source.serialize());assertSolid(copy,oc,cad);faces=copy.faces;
     const face=faces[p.faceId];if(!face||face.geomType!=='CYLINDRE')fail('选定面必须是解析圆柱面');
@@ -63,19 +63,39 @@ export function buildThread(source,p,oc,cad) {
     normal=face.normalAt(surfacePoint);const n=normal.toTuple(),outward=n.reduce((sum,x,i)=>sum+x*radial[i],0);
     if(p.kind==='external'?outward<0.9:outward>-.9)fail('内／外螺纹类型与圆柱面的材料侧不匹配');
     const base=origin.map((x,i)=>x+dir[i]*(v0+start));
-    spine=cad.makeHelix(pitch,length,radius,base,dir,p.leftHanded??false);edges=spine.edges;
-    const first=edges[0].startPoint.toTuple(),xDir=unit(first.map((x,i)=>x-base[i]));
-    plane=new cad.Plane(base,xDir,cross(xDir,dir));
+    // Normalize the full cylinder frame, including its angular seam. Building
+    // the cutter in world axes (or moving it only after sweeping) can produce
+    // a valid-looking boolean that removes no material on small rotated pins.
+    const lower=origin.map((x,i)=>x+dir[i]*v0),rotationAxis=cross(dir,[0,0,1]);
+    const rotationNorm=Math.hypot(...rotationAxis),cos=Math.max(-1,Math.min(1,dir[2]));
+    const rotateAngle=Math.acos(cos)*180/Math.PI;
+    const rotateAxis=rotationNorm>1e-12?rotationAxis.map(x=>x/rotationNorm):[1,0,0];
+    framePoint=adaptor.Value(0,v);
+    const frameRadial=unit(xyz(framePoint).map((x,i)=>x-axisPoint[i]));
+    const theta=rotateAngle*Math.PI/180,radialCross=cross(rotateAxis,frameRadial);
+    const radialDot=rotateAxis.reduce((sum,x,i)=>sum+x*frameRadial[i],0);
+    const alignedRadial=frameRadial.map((x,i)=>x*Math.cos(theta)+radialCross[i]*Math.sin(theta)+rotateAxis[i]*radialDot*(1-Math.cos(theta)));
+    const yaw=-Math.atan2(alignedRadial[1],alignedRadial[0])*180/Math.PI;
+    localSource=copy.clone().translate(lower.map(x=>-x));
+    if(rotateAngle>1e-10)localSource=localSource.rotate(rotateAngle,[0,0,0],rotateAxis);
+    if(Math.abs(yaw)>1e-10)localSource=localSource.rotate(yaw,[0,0,0],[0,0,1]);
+    const localBase=[0,0,start],localDir=[0,0,1];
+    spine=cad.makeHelix(pitch,length,radius,localBase,localDir,p.leftHanded??false);edges=spine.edges;
+    const first=edges[0].startPoint.toTuple(),xDir=unit(first.map((x,i)=>x-localBase[i]));
+    plane=new cad.Plane(localBase,xDir,cross(xDir,localDir));
     const margin=Math.max(1e-4,depth*.05),tip=p.kind==='external'?radius-depth:radius+depth,outer=p.kind==='external'?radius+margin:radius-margin;
     // Slightly wider base keeps the specified angle of the material-side V.
     const width=(depth+margin)*Math.tan(angle*Math.PI/360);
     sketch=cad.draw([outer,-width]).lineTo([tip,0]).lineTo([outer,width]).close().sketchOnPlane(plane);
     cutter=cad.genericSweep(sketch.wire,spine,{frenet:true,forceProfileSpineOthogonality:false});assertSolid(cutter,oc,cad);
-    clip=cad.makeCylinder(radius+depth+margin+1,length,base,dir);trimmed=cutter.intersect(clip);
-    const before=cad.measureVolume(copy);result=copy.cut(trimmed);assertSolid(result,oc,cad);
+    clip=cad.makeCylinder(radius+depth+margin+1,length,localBase,localDir);trimmed=cutter.intersect(clip);
+    const before=cad.measureVolume(copy);localResult=localSource.cut(trimmed);assertSolid(localResult,oc,cad);
+    if(Math.abs(yaw)>1e-10)localResult=localResult.rotate(-yaw,[0,0,0],[0,0,1]);
+    if(rotateAngle>1e-10)localResult=localResult.rotate(-rotateAngle,[0,0,0],rotateAxis);
+    result=localResult.translate(lower);localResult=null;assertSolid(result,oc,cad);
     const after=cad.measureVolume(result);if(before-after<=Math.max(1e-7,before*1e-9))fail('刀具未实际去除材料');
     result.threadReport={profile:'explicit-symmetric-V-groove',standard:'none',faceId:p.faceId,kind:p.kind,radiusMm:radius,axisOrigin:base,axisDirection:dir,pitchMm:pitch,depthMm:depth,lengthMm:length,turns:length/pitch,includedAngleDeg:angle,leftHanded:p.leftHanded??false};
     const out=result;result=null;return out;
   } catch(e) { if(String(e.message).startsWith('螺旋特征'))throw e; fail('螺纹切除失败，请检查面、牙深、螺距与长度'); }
-  finally { [result,trimmed,clip,cutter,sketch,plane,...edges,spine,normal,point,direction,location,axis,cylinder,adaptor,...faces,copy].forEach(dispose); }
+  finally { [result,localResult,localSource,trimmed,clip,cutter,sketch,plane,...edges,spine,normal,framePoint,point,direction,location,axis,cylinder,adaptor,...faces,copy].forEach(dispose); }
 }

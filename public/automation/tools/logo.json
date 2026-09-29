@@ -7,16 +7,25 @@
       "faceId": {
         "type": "integer",
         "description": "Current selected face index",
-        "minimum": 0
+        "minimum": 0,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
       },
       "point": {
         "type": "array",
         "items": {
-          "type": "number"
+          "type": "number",
+          "unit": "mm",
+          "quantityKind": "length",
+          "quantizationPolicy": "none"
         },
         "minItems": 3,
         "maxItems": 3,
-        "description": "World coordinate [x,y,z] in mm"
+        "description": "World coordinate [x,y,z] in mm",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "placementVersion": {
         "type": "integer",
@@ -62,22 +71,34 @@
       "depth": {
         "type": "number",
         "description": "Explicit engraving depth or emboss height (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "draftAngle": {
         "type": "number",
         "description": "Draft angle degrees; legacy missing value means 0; unified UI initially 0",
         "minimum": 0,
-        "exclusiveMaximum": 45
+        "exclusiveMaximum": 45,
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "scale": {
         "type": "number",
         "description": "Uniform outline scale",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "1",
+        "quantityKind": "scalar",
+        "quantizationPolicy": "none"
       },
       "angle": {
         "type": "number",
-        "description": "Local rotation in degrees"
+        "description": "Local rotation in degrees",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "offsetX": {
         "type": "number",
@@ -167,6 +188,13 @@
     "minItems": 1,
     "maxItems": 1
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -186,7 +214,7 @@
     "LOGO"
   ],
   "description": "Unified reviewed LOGO on one exact face; legacy entries remain planar",
-  "schemaHash": "sha256:2c0768edcccea8397342059a1ffcc4d9a9441129a373736bb8f8dc3982496805",
+  "schemaHash": "sha256:6922665d3e286c279df15994e8360f7090eb03b74467695afdf8a5603dd82592",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -365,5 +393,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:f4d15952d8756f12bf94ddda828d4f5946332dde3aee2c0a8fe314275dd15819"
+  "docsHash": "sha256:95e047d091e2511992860b7f8dc475d128c0f5bcbb0f5c7e588eec0314671c8d"
 }

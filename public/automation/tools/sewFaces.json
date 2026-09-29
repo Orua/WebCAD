@@ -8,7 +8,10 @@
       "tolerance": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "maximum": 0.5
+        "maximum": 0.5,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "makeSolid": {
         "type": "boolean"
@@ -25,6 +28,13 @@
     },
     "uniqueItems": true,
     "minItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {},
   "selectionTokenSupport": {
@@ -45,7 +55,7 @@
     "曲面缝合"
   ],
   "description": "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
-  "schemaHash": "sha256:be48bdb763f0176d0f5b3e913689ed04df282c9122fd0e14c6287a048f30ad8c",
+  "schemaHash": "sha256:c361e97df6b08cc4eb3e52153c058ffc20a803fd073bc6326734474c4b2d0c44",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -166,5 +176,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:847b7724222c662478cae272a1febe44f31668a0e8c04b182f267b7c842a2654"
+  "docsHash": "sha256:351f3f7a347078a955c65e2303d9429f923b6e60003da6fdaed5adeb67bfd3bb"
 }

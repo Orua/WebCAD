@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
   "pageApiVersion": "1.13.0",
-  "buildId": "bad575aefc058c4aa1edaa81d4c920b037313e66-working",
-  "catalogHash": "sha256:07c24fb283ff9594e698155047e313ef629cec6e5c99bde406dcd5f1b324abe5",
-  "docsHash": "sha256:0fe9079c4a6804e21d396f9683307db0ff159487e4a6ac5e00c68ebec022aa8b",
+  "buildId": "79d5dc129bdd1d0e16adc1c7ef8683ffb665f8a2-working",
+  "catalogHash": "sha256:ebaa2b1e0d469107e413d46ea47c18c2dc84e507c28980f4dc18164ebe8b8c55",
+  "docsHash": "sha256:034733371887a4bd27dc0d6560318edb35e1c64af53d9afab1ef32c81d0be727",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -600,6 +600,46 @@
       "method": "pasteSelection",
       "usage": "context、idempotencyKey；整体底面中心放在锚点。"
     },
+    "pathEdit": {
+      "tools": [
+        "inspectProfile",
+        "feature.edit"
+      ],
+      "method": "execute",
+      "usage": "选择明确的 sketchProfile 原始路径，修改完整 params 后 feature.edit 提交；保留原 placement，重建后续特征。编辑器支持端点、长度/角度、删除段、闭合和线框输出。"
+    },
+    "pathExtend": {
+      "tools": [
+        "prepareProfileEdit",
+        "feature.edit"
+      ],
+      "method": "prepareProfileEdit",
+      "usage": "选择 sketchProfile 来源；prepareProfileEdit mode=extend 沿原解析曲线延伸至明确交点，feature.edit 提交。"
+    },
+    "pathFillet": {
+      "tools": [
+        "prepareProfileEdit",
+        "feature.edit"
+      ],
+      "method": "prepareProfileEdit",
+      "usage": "主视图选同一轮廓两条相邻直边；prepareProfileEdit mode=fillet、bodyId、edgeIds、radiusMm、arcId；feature.edit 编辑返回的 sourceFeatureId，提交 profile。选边先后不限。"
+    },
+    "pathTrim": {
+      "tools": [
+        "prepareProfileEdit",
+        "feature.edit"
+      ],
+      "method": "prepareProfileEdit",
+      "usage": "选择 sketchProfile 来源；prepareProfileEdit mode=trim 明确 entityId、targetId、endpoint、candidateId，再 feature.edit 提交完整 profile。"
+    },
+    "pathTrimCircle": {
+      "tools": [
+        "prepareProfileEdit",
+        "feature.edit"
+      ],
+      "method": "prepareProfileEdit",
+      "usage": "选择 sketchProfile 来源；prepareProfileEdit mode=trimCircle，明确两个交点与 keepSide，再 feature.edit 提交。"
+    },
     "perPartMetal": {
       "tools": [
         "body.appearance"
@@ -983,6 +1023,15 @@
       "method": "execute",
       "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
     },
+    "vectorImport": {
+      "tools": [
+        "readVector",
+        "connectVector",
+        "sketchProfile"
+      ],
+      "method": "readVector",
+      "usage": "选择文件或粘贴矢量文本，框选完整轮廓；connectVector 诊断和组环，sketchProfile 经同一命令服务成面。"
+    },
     "vectorProfile": {
       "tools": [
         "vectorProfile"
@@ -1005,6 +1054,12 @@
     }
   },
   "labels": {
+    "pathEdit": "编辑路径 / inspectProfile / 修改参数",
+    "pathTrim": "修剪 / prepareProfileEdit / 修改参数",
+    "pathExtend": "延伸 / prepareProfileEdit / 修改参数",
+    "pathFillet": "二维圆角 / prepareProfileEdit / 修改参数",
+    "pathTrimCircle": "整圆裁剪 / prepareProfileEdit / 修改参数",
+    "vectorImport": "矢量取线成面 / readVector / connectVector / 绘制轮廓",
     "quickModelFavorites": "常用模型 / 快捷模型 / getQuickModelUsage",
     "reference.setWorkFrame": "设置参考锚点（工作基准）",
     "reference.resetWorkFrame": "重置参考锚点（工作基准）",
@@ -1019,7 +1074,7 @@
     "renderQuality": "setRenderQuality",
     "downloadResource": "下载文件",
     "advancedLoft": "高级放样",
-    "arcProfile": "解析线弧轮廓 / 线弧轮廓",
+    "arcProfile": "解析线弧轮廓 / 线弧拉伸",
     "autoRound": "整件圆边",
     "box": "长方体",
     "chamfer": "倒角",
@@ -1118,7 +1173,7 @@
     "preview": "预览模型或文件插入 / convertLogoPdf",
     "commitPreview": "应用预览",
     "cancelPreview": "取消预览",
-    "sketch": "草图 / 拉伸",
+    "sketch": "草图拉伸 / 拉伸",
     "measure": "measure / queryGeometry",
     "inspectPrintability": "成型检查 / inspectPrintability",
     "inspectProfile": "inspectProfile",

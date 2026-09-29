@@ -12,6 +12,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -308,5 +315,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:a332f1683c8d08f2b2c731ad8dfde57dbfcc2595c1a76f08007c7d002f0d2d9b"
+  "docsHash": "sha256:9379749e403f20fda9d7b0d5c8f374c125c82ee200834b9bf82bb131daaabd8d"
 }

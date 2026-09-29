@@ -12,6 +12,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -135,22 +142,34 @@
       "radiusMm": {
         "type": "number",
         "default": 6,
-        "description": "中心线半径"
+        "description": "中心线半径",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "wireDiameterMm": {
         "type": "number",
         "default": 1.2,
-        "description": "线径"
+        "description": "线径",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "pitchMm": {
         "type": "number",
         "default": 3,
-        "description": "螺距"
+        "description": "螺距",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "turns": {
         "type": "number",
         "default": 4,
-        "description": "圈数"
+        "description": "圈数",
+        "unit": "1",
+        "quantityKind": "scalar",
+        "quantizationPolicy": "none"
       },
       "leftHanded": {
         "type": "boolean",
@@ -159,7 +178,7 @@
       }
     }
   },
-  "schemaHash": "sha256:778bede835b214c78b9095a1fd27e47fcaa97bfc01182e032ee273deb35bddfb",
+  "schemaHash": "sha256:bd225a44f296fcb6d24cf4765b2c95311099e2eca6c69f2c901499b96680d496",
   "defaults": {
     "radiusMm": 6,
     "wireDiameterMm": 1.2,
@@ -236,5 +255,5 @@
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:72cc006ffc0aedc23e9a75e999341a6d27ae4d9865505af186cd5707109026b9"
+  "docsHash": "sha256:11b7665c4a9f2e58ad0a433f552f2cf57256e3e07821fb9c6f7f3bc980fdfa12"
 }

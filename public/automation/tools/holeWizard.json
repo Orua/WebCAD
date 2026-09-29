@@ -17,12 +17,18 @@
       "diameterMm": {
         "type": "number",
         "description": "Small hole diameter (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "depthMm": {
         "type": "number",
         "description": "Blind hole depth (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "through": {
         "type": "boolean",
@@ -32,12 +38,18 @@
       "recessDiameterMm": {
         "type": "number",
         "description": "Counterbore/countersink opening diameter (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "recessDepthMm": {
         "type": "number",
         "description": "Counterbore depth (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "includedAngleDeg": {
         "type": "number",
@@ -47,15 +59,24 @@
       },
       "x": {
         "type": "number",
-        "description": "Cutter entrance X (mm)"
+        "description": "Cutter entrance X (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "y": {
         "type": "number",
-        "description": "Cutter entrance Y (mm)"
+        "description": "Cutter entrance Y (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "z": {
         "type": "number",
-        "description": "Cutter entrance Z (mm)"
+        "description": "Cutter entrance Z (mm)",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "axis": {
         "type": "string",
@@ -73,7 +94,10 @@
           1,
           -1
         ],
-        "default": 1
+        "default": 1,
+        "unit": "1",
+        "quantityKind": "direction",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -97,6 +121,13 @@
     "uniqueItems": true,
     "minItems": 1,
     "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {
     "kind": "plain",
@@ -122,7 +153,7 @@
     "孔向导"
   ],
   "description": "Exact plain, counterbore, or included-angle countersink hole in one feature",
-  "schemaHash": "sha256:2cc8457e64372f9f6edc394e8289acaefc6cee0c70f349d612354a64c787c84d",
+  "schemaHash": "sha256:058cd0cabfc0688b35cb354529d1adc7cdfac7afe74227527bff5d16365b8fe8",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -280,5 +311,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:184e69a68e83483b2d875ad4eadaee4c432062cb8251c494aca5b5df9d7d6cfb"
+  "docsHash": "sha256:9aaee10b3851489f1b360fff06eb652f13fbd9edb37bf767e465825d99e70ddb"
 }

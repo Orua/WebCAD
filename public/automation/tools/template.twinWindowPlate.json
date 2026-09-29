@@ -12,6 +12,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -170,7 +177,10 @@
       "thickness": {
         "type": "number",
         "default": 3.5,
-        "description": "Plate thickness"
+        "description": "Plate thickness",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "edgeRadius": {
         "type": "number",
@@ -179,7 +189,7 @@
       }
     }
   },
-  "schemaHash": "sha256:040be496b12d70a3893764bb4a657f6f8422288db4b7173c404cce2cad13f1a1",
+  "schemaHash": "sha256:f0975b9b7d799b5dc854cd3c2d85a4f37a66b996801bb800ca5df69e65b9ace6",
   "defaults": {
     "outerWidth": 44.8,
     "outerHeight": 26.6,
@@ -303,5 +313,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:d54340c99f00e6f8a7990dd3815774727092349b0853b3f6c2c998259b123270"
+  "docsHash": "sha256:ee58ce385408c65573406fed25c5b8e82b7cb4a644e7d072adf13aadf8c373c2"
 }

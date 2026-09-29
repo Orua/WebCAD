@@ -8,17 +8,26 @@
       "faceId": {
         "type": "integer",
         "minimum": 0,
-        "description": "Explicit current planar face index on refs[0]"
+        "description": "Explicit current planar face index on refs[0]",
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
       },
       "diameterMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "description": "Finished internal bore diameter"
+        "description": "Finished internal bore diameter",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "depthMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "description": "Inward axial cutting depth"
+        "description": "Inward axial cutting depth",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       }
     },
     "required": [
@@ -39,6 +48,13 @@
     "minItems": 1,
     "maxItems": 1
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -58,7 +74,7 @@
     "innerTurn"
   ],
   "description": "Bore inside a selected planar section",
-  "schemaHash": "sha256:b94eb9b86b90fa8641cd1d9c294cfbbbbf7a9b5c8b4d36215a40d1f50e2164d8",
+  "schemaHash": "sha256:05673d8c1433a3bf38cb4f79227ab1125d6da43ae96c9807d80e651c7c49a257",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -195,5 +211,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:cf5abf55477e8d7a77203107a8bb15f4512c5ae3139fff782065c5013a9b5f7e"
+  "docsHash": "sha256:284f26083cef592656b330e18c433e97abd59a8f1e50c450afb30dfb0c840615"
 }

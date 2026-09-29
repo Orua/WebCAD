@@ -14,7 +14,7 @@ export function contractError(code, path, message, recoveryAction) {
   throw new OperationContractError(code, path, message, recoveryAction);
 }
 
-const annotations = new Set(['$schema', '$id', 'title', 'description', 'default', 'examples', '$comment']);
+const annotations = new Set(['$schema', '$id', 'title', 'description', 'default', 'examples', '$comment', 'unit', 'quantityKind', 'quantizationPolicy']);
 const assertions = new Set(['type', 'properties', 'required', 'additionalProperties', 'items',
   'minItems', 'maxItems', 'uniqueItems', 'minimum', 'maximum', 'exclusiveMinimum',
   'exclusiveMaximum', 'minLength', 'maxLength', 'pattern', 'enum', 'const', 'anyOf', 'allOf', 'oneOf', 'not']);

@@ -35,6 +35,13 @@
     "minItems": 2,
     "maxItems": 13
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {
     "operation": "newBody",
     "ruled": false
@@ -49,7 +56,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs 按截面顺序排列 2–12 个闭合单外环平面对象；加工模式最后另附目标。复用 referenceLoft 的精确构造，不重新输入数值圆/矩形；相比 referenceLoft 新增加料、切除与交集。无内孔、导轨、端点相切/曲率连续条件或手工边对应，复杂不同拓扑必须检查结果。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。只接受有效正体积单实体，无材料变化的加料/切除或分裂结果失败，失败不改来源。固定来源世界位置，不再次应用工作基准。",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs 按截面顺序排列 2–12 个闭合单外环平面对象；加工模式最后另附目标。复用 referenceLoft 的精确构造，不重新输入数值圆/矩形；相比 referenceLoft 新增加料、切除与交集。无内孔、导轨、端点相切/曲率连续条件或手工边对应，复杂不同拓扑必须检查结果。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。",
   "title": "Loft 2–12 saved exact sections in explicit order, with new-body or material-operation result",
   "category": "modification",
   "synonyms": [
@@ -57,7 +64,7 @@
     "profileLoft"
   ],
   "description": "Loft 2–12 saved exact sections in explicit order, with new-body or material-operation result",
-  "schemaHash": "sha256:4c108b87df5bebddc29a807b81945712ed011a9c0ee776020f9258ad2e970261",
+  "schemaHash": "sha256:538ad26cffd48d1e5e7f92ff0f60581115a8c8d0e5a641abc442ff0ea082b8b4",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -119,7 +126,7 @@
     "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "refs 按截面顺序排列 2–12 个闭合单外环平面对象；加工模式最后另附目标。复用 referenceLoft 的精确构造，不重新输入数值圆/矩形；相比 referenceLoft 新增加料、切除与交集。无内孔、导轨、端点相切/曲率连续条件或手工边对应，复杂不同拓扑必须检查结果。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。只接受有效正体积单实体，无材料变化的加料/切除或分裂结果失败，失败不改来源。固定来源世界位置，不再次应用工作基准。"
+    "refs 按截面顺序排列 2–12 个闭合单外环平面对象；加工模式最后另附目标。复用 referenceLoft 的精确构造，不重新输入数值圆/矩形；相比 referenceLoft 新增加料、切除与交集。无内孔、导轨、端点相切/曲率连续条件或手工边对应，复杂不同拓扑必须检查结果。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。"
   ],
   "minimalExample": {
     "op": "profileLoft",
@@ -206,5 +213,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:9e56af8ba76332e6cdfb3e463e606ae94034be8dafc39b036203a76ed5390c63"
+  "docsHash": "sha256:4f7a3d69b90d376edeb27f712797da7a66b9b45ea1274f22362bc95ca2532e00"
 }

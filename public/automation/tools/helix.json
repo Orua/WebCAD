@@ -8,18 +8,27 @@
       "radiusMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "description": "Helix centerline radius, mm; not outer radius"
+        "description": "Helix centerline radius, mm; not outer radius",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "pitchMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "description": "Positive axial advance per full turn, mm"
+        "description": "Positive axial advance per full turn, mm",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "turns": {
         "type": "number",
         "exclusiveMinimum": 0,
         "maximum": 100,
-        "description": "Positive number of turns, fractional turns permitted"
+        "description": "Positive number of turns, fractional turns permitted",
+        "unit": "1",
+        "quantityKind": "scalar",
+        "quantizationPolicy": "none"
       },
       "leftHanded": {
         "type": "boolean",
@@ -45,6 +54,13 @@
     "minItems": 0,
     "maxItems": 0
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {
     "leftHanded": false
   },
@@ -66,7 +82,7 @@
     "helix"
   ],
   "description": "Create an exact helical wire in the creation frame",
-  "schemaHash": "sha256:0c5fd1ae29e562ddf51194672fa275892710aae2a2e7ac63c2a5f3397b8ccd05",
+  "schemaHash": "sha256:b25fb7578328ff74c64457e24078be44b9abd41351e98513aa1050240260647d",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -197,5 +213,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:0702172e6426b85ffacc583fbf6aa80e27be58c42b8b7f4a30bda10c424ddeb8"
+  "docsHash": "sha256:79827c50453743f0637d7f7de381d0dce811a79d3eb576a8cb03ea99a8a204f2"
 }

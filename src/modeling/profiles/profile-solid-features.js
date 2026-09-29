@@ -1,5 +1,6 @@
 import { prepareReferenceProfile, checkShape } from '../../reference-profile-wires.js';
 import { buildReferenceLoft } from '../../reference-profile-loft.js';
+import { validMaterialSolid as validSolid, validateMaterialChange } from './material-validation.js';
 
 // Inputs are borrowed history shapes. These builders never relocate or delete them.
 const dispose = value => { try { value?.delete?.(); } catch {} };
@@ -19,16 +20,6 @@ function sourcesFor(sources, params, min, max = min) {
   return { operation, profiles: targetCount ? sources.slice(0, -1) : sources.slice(), target: targetCount ? sources.at(-1) : null };
 }
 
-function validSolid(shape, cad, description) {
-  checkShape(shape, cad, description);
-  const solids = shape.solids;
-  try {
-    const volume = cad.measureVolume(shape);
-    if (solids.length !== 1 || !Number.isFinite(volume) || volume <= 1e-9) fail(`${description}须为一个有效正体积实体`);
-    return volume;
-  } finally { solids.forEach(dispose); }
-}
-
 function applyMaterial(tool, target, operation, cad) {
   let result, targetCopy;
   try {
@@ -39,10 +30,7 @@ function applyMaterial(tool, target, operation, cad) {
     targetCopy = target.clone();
     result = operation === 'join' ? targetCopy.fuse(tool) : operation === 'cut' ? targetCopy.cut(tool) : targetCopy.intersect(tool);
     const after = validSolid(result, cad, '加工结果');
-    const epsilon = Math.max(1e-9, Math.max(before, toolVolume) * 1e-10);
-    if (operation === 'join' && !(after > before + epsilon && after < before + toolVolume - epsilon))
-      fail('加料必须与目标相交并实际增加材料');
-    if (operation === 'cut' && !(after < before - epsilon)) fail('切除必须实际移除材料并保留一个有效实体');
+    validateMaterialChange(operation, before, toolVolume, after);
     const complete = result; result = null; return complete;
   } finally { [result, targetCopy, tool].forEach(dispose); }
 }

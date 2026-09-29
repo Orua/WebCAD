@@ -7,7 +7,10 @@
       "distanceMm": {
         "type": "number",
         "description": "Equidistant offset (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "side": {
         "type": "string",
@@ -55,6 +58,13 @@
     "minItems": 1,
     "maxItems": 1
   },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
   "defaults": {},
   "selectionTokenSupport": {
     "supported": false
@@ -75,7 +85,7 @@
     "边框"
   ],
   "description": "Create an exact planar equidistant offset or band from one closed face",
-  "schemaHash": "sha256:1a4d2f576b3abcf0dd939e414c14350b59950acbee1e88960089668394469265",
+  "schemaHash": "sha256:6fe9936e7f32a9228849bddca41a28a25adea6d67d40aa7b8307d6ceb33e9162",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -213,5 +223,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:13325dd00031f96ad788e1db79e9a2e01afa01985871d684b24a5dba26dc9198"
+  "docsHash": "sha256:781e2d09af2f0ea79d2b4f4fdce1c5a5330c84b02943f2c09ee51e1c2efe6efa"
 }
