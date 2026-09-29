@@ -17,6 +17,7 @@ import { buildReferenceExtrude } from './reference-profile-extrude.js';
 import { buildReferenceLoft } from './reference-profile-loft.js';
 import { buildSmoothTransition } from './smooth-transition.js';
 import { buildEdgeBlend } from './edge-blend.js';
+import {buildRounding} from './modeling/rounding/index.js';
 import {rotateVector,worldPoint} from './work-frame.js';
 import {placementPolicy} from './placement-policy.js';
 import {halfLengthPoint} from './arc-length.js';
@@ -556,6 +557,7 @@ export class CadKernel {
       }
       case 'autoRound': return buildSmoothTransition(source(),{...p,allEdges:true});
       case 'smoothTransition': return buildSmoothTransition(source(),p);
+      case 'rounding': return buildRounding(source(),p);
       case 'fillet': case 'chamfer': {
         const shape = source(), amount = positive(p, feature.op === 'fillet' ? 'radius' : 'distance');
         const scopes=Number(!!p.edgeIds?.length)+Number(!!p.faceIds?.length)+Number(p.allEdges===true);
@@ -609,7 +611,7 @@ export class CadKernel {
         }
       });
       if (mappedFaces.some(g => g.faceId === undefined) || mappedEdges.some(g => g.edgeId === undefined)) throw new Error('拓扑索引映射失败');
-      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges, faceCount:faces.length,edgeCount:edges.length,snapPoints, bounds: { min, max }, volume: solids.length ? preciseVolume(shape,this.oc) : null, solidCount: solids.length, shellCount:shells.length, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
+      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges, faceCount:faces.length,edgeCount:edges.length,snapPoints, bounds: { min, max }, volume: solids.length ? preciseVolume(shape,this.oc) : null, solidCount: solids.length, shellCount:shells.length, roundingReport:shape.roundingReport, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
     } finally { [...faces, ...edges, ...solids, ...shells, bbox].forEach(dispose); }
   }
   async rebuild(document) {
@@ -681,7 +683,7 @@ export class CadKernel {
       const raw=String(error?.message||error||'');
       const descriptive=raw.replace(/\s*\[object WebAssembly\.Exception\]\s*$/,'').trim();
       const message=descriptive||'几何内核未能生成有效实体；请减小加工尺寸或缩小目标范围。原模型保持。';
-      throw Object.assign(new Error(message,{cause:error}), { featureId: current, code:error?.code||'GEOMETRY_INVALID', path:error?.path, recoveryAction:error?.recoveryAction||'CORRECT_PARAMETERS' });
+      throw Object.assign(new Error(message,{cause:error}), { featureId: current, code:error?.code||'GEOMETRY_INVALID', path:error?.path, recoveryAction:error?.recoveryAction||'CORRECT_PARAMETERS',report:error?.report });
     }
   }
   activeShape(bodyId) {

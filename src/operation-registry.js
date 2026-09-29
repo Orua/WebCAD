@@ -5,16 +5,16 @@ import { assertJsonValue, contractError, contractHash, validateSchema } from './
 import { annotateParameterSchema, numericInputPolicy } from './parameter-metadata.js';
 
 export const apiVersion = '2.0';
-export const migratedOperationIds = Object.freeze(['box', 'hole', 'holeWizard', 'draftFaces', 'multiHole', 'multiPocket', 'multiBoss', 'faceHole', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell','sketchProfile','profileOffset','profileRepair','profileExtrude',...mechanicalIds]);
+export const migratedOperationIds = Object.freeze(['box', 'hole', 'holeWizard', 'draftFaces', 'multiHole', 'multiPocket', 'multiBoss', 'faceHole', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell','sketchProfile','profileOffset','profileRepair','profileExtrude',...mechanicalIds]);
 const migrated = new Set(migratedOperationIds);
 const clone = value => JSON.parse(JSON.stringify(value));
-const topology = new Set(['faceHole', 'fillet', 'chamfer', 'shell', 'smoothTransition']);
+const topology = new Set(['faceHole', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition']);
 const topologyConvention = operationCatalog.topology;
-const defaults = { autoRound:{}, smoothTransition: {}, box: {}, hole: { x: 0, y: 0, z: 0, axis: 'Z', direction: 1 },holeWizard:{kind:'plain',axis:'Z',direction:1,through:false},
+const defaults = { rounding:{}, autoRound:{}, smoothTransition: {}, box: {}, hole: { x: 0, y: 0, z: 0, axis: 'Z', direction: 1 },holeWizard:{kind:'plain',axis:'Z',direction:1,through:false},
   multiHole: { axis: 'Z', direction: 1 }, multiPocket:{axis:'Z',direction:-1}, multiBoss:{axis:'Z',direction:1}, faceHole: { through: false }, fillet: {}, chamfer: {}, shell: {}, draftFaces:{}, extractFaces:{}, extractShell:{}, sketchProfile:{}, profileOffset:{}, profileRepair:{}, profileExtrude:{},...mechanicalDefaults };
 const triangle = [[-1, -1], [1, -1], [0, 1]];
 const regions = [{ outer: triangle }];
-const examples = { autoRound:{radius:0.1}, smoothTransition:{radius:0.1,faceIds:[0,1]},
+const examples = { rounding:{specVersion:1,mode:'constant',scope:{kind:'edges',edgeIds:[0]},propagation:'selected-only',radiusMm:0.5,boundaryRequirement:'standard',endpoints:{defaultMode:'natural'}}, autoRound:{radius:0.1}, smoothTransition:{radius:0.1,faceIds:[0,1]},
   box: { width: 50, depth: 30, height: 3 }, cylinder: { radius: 10, height: 20 }, sphere: { radius: 10 },
   cone: { radius1: 10, radius2: 0, height: 20 }, torus: { majorRadius: 10, minorRadius: 2 },
   extrude: { profile: 'rectangle', width: 20, depth: 10, height: 5 },
@@ -100,18 +100,18 @@ function categoryFor(id) {
   return operationCatalog.operations[id].refs === 0 ? 'creation' : 'modification';
 }
 
-const names = { box: ['长方体', '安装板', 'plate'], hole: ['孔', '钻孔', 'radius'], multiHole: ['多孔', '孔位', 'mounting plate'], multiPocket:['多凹槽','批量凹刻','rectangular pocket','recess'], multiBoss:['多凸台','批量圆柱凸台','cylindrical boss'],
+const names = { box: ['长方体', '安装板', 'plate'], hole: ['孔', '钻孔', 'radius'], multiHole: ['多孔', '孔位', 'mounting plate'], multiPocket:['多凹槽','批量凹刻','rectangular pocket','recess'], multiBoss:['多凸台','批量圆柱凸台','cylindrical boss'], rounding:['圆角','圆润','R角','fillet'],
   smoothTransition:['平滑过渡','接缝','利角','blend'], faceHole: ['面钻孔', '贯穿'], fillet: ['圆角'], chamfer: ['倒角'], shell: ['抽壳', '壁厚'],
   referenceExtrude: ['参考轮廓', '精确曲线', '拉伸'], referenceLoft: ['参考截面', '精确曲线', '放样'] };
 
 function buildCard(id, source) {
   const strict = migrated.has(id), special = source.mcpAddFeature === false;
-  const version = strict ? '1.0.0' : 'legacy-1';
+  const version = id==='rounding'?'1.1.0':strict ? '1.0.0' : 'legacy-1';
   const inputSchema = schemaFor(id, source), refsSchema = refsFor(source.refs);
   if (id === 'profileExtrude') refsSchema.maxItems = 2;
   if (id === 'referenceLoft') refsSchema.maxItems = 12;
   if (mechanicalRefCounts[id]) refsSchema.maxItems=mechanicalRefCounts[id].max;
-  const selector = topology.has(id) ? { supported: true, kind: ['fillet', 'chamfer'].includes(id) ? 'edge' : 'face',
+  const selector = topology.has(id)&&id!=='rounding' ? { supported: true, kind: ['fillet', 'chamfer'].includes(id) ? 'edge' : 'face',
     location: 'args.selectionToken', featureAddOnly: true,
     conflictsWith: ['faceId', 'faceIds', 'edgeIds', 'allEdges'],
     phases: 'Validate user params with phase=input and selectionToken, resolve against current snapshot, then validate complete params with phase=resolved.' } : { supported: false };
@@ -162,6 +162,7 @@ function buildCard(id, source) {
       explanation: strict ? 'Rejected before kernel execution.' : 'v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement.' }],
     errorCodes: ['PARAM_SCHEMA_INVALID', 'PARAM_RANGE_INVALID', 'UNKNOWN_OPERATION', 'OPERATION_VERSION_UNSUPPORTED', 'SCHEMA_MISMATCH', 'CAPABILITY_UNAVAILABLE', 'GEOMETRY_INVALID',
       ...(topology.has(id) ? ['SELECTION_CONFLICT', 'STALE_REFERENCE', 'UNSAFE_LEGACY_REFERENCE'] : []),
+      ...(id==='rounding'?['AMBIGUOUS_SELECTION','SCOPE_EXPANSION_REQUIRED','KERNEL_BUILD_FAILED','MATERIAL_CHECK_FAILED']:[]),
       ...(['hole', 'multiHole', 'multiPocket', 'faceHole'].includes(id) ? ['NO_MATERIAL_REMOVED'] : []),
       ...(id==='multiBoss'?['NO_MATERIAL_ADDED']:[]),...(mechanicalErrorCodes[id]||[])],
     recoveryActions: ['CORRECT_PARAMETERS', 'READ_STATE_AND_REPLAN', 'READ_TOOL_CONTRACT', 'NONE'],
@@ -213,6 +214,25 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
     if(params.sharedFaces===true&&!(params.faceIds?.length>=2))contractError('SELECTION_CONFLICT','params.sharedFaces','sharedFaces=true requires at least two adjacent faceIds.');
   }
   validateSchema(schema, params);
+  if(op==='rounding'){
+    const fields={edges:['edgeIds'],'face-boundaries':['faceIds'],'shared-faces':['faceAIds','faceBIds'],body:[]};
+    const expected=params.scope.kind==='body'&&Object.hasOwn(params.scope,'excludeEdgeIds')?['excludeEdgeIds']:fields[params.scope.kind],actual=Object.keys(params.scope).filter(key=>key!=='kind');
+    if(expected.length!==actual.length||expected.some(key=>!actual.includes(key)))contractError('SELECTION_CONFLICT','params.scope','Scope kind must match exactly its topology selection fields.');
+    if(params.scope.kind==='shared-faces'&&params.scope.faceAIds.some(id=>params.scope.faceBIds.includes(id)))contractError('SELECTION_CONFLICT','params.scope','Support face groups must be disjoint.');
+    if(params.mode==='constant'){
+      if(!Object.hasOwn(params,'radiusMm')||Object.hasOwn(params,'laws')||Object.hasOwn(params,'widthAMm')||Object.hasOwn(params,'widthBMm'))contractError('PARAM_SCHEMA_INVALID','params.radiusMm','Constant mode requires radiusMm and forbids law and width fields.');
+    }else if(params.mode==='variable'){
+      if(!Object.hasOwn(params,'laws')||Object.hasOwn(params,'radiusMm')||Object.hasOwn(params,'widthAMm')||Object.hasOwn(params,'widthBMm'))contractError('PARAM_SCHEMA_INVALID','params.laws','Variable mode requires laws and forbids constant radius or width fields.');
+      if(params.scope.kind!=='edges'||params.scope.edgeIds.length<1||params.scope.edgeIds.length>16||new Set(params.scope.edgeIds).size!==params.scope.edgeIds.length)contractError('SELECTION_CONFLICT','params.scope','Variable construction requires one to sixteen distinct ordered source edges.');
+      const law=params.laws[0],ids=params.scope.edgeIds,chainId=ids.length===1?`edge:${ids[0]}`:`edges:${ids.join(',')}`;
+      if(law.chainId!==chainId||law.stations[0].s!==0||law.stations.at(-1).s!==1||law.stations.some((item,i)=>i>0&&item.s<=law.stations[i-1].s))contractError('PARAM_SCHEMA_INVALID','params.laws','Law must identify the entire ordered edge chain and contain strictly increasing stations from s=0 to 1.');
+    }else if(params.mode==='width'){
+      if(!Object.hasOwn(params,'widthAMm')||!Object.hasOwn(params,'widthBMm')||Object.hasOwn(params,'radiusMm')||Object.hasOwn(params,'laws'))contractError('PARAM_SCHEMA_INVALID','params.widthAMm','Width mode requires both widths and forbids radius or law fields.');
+      const oneEdge=params.scope.kind==='edges'&&params.scope.edgeIds.length===1;
+      const facePair=params.scope.kind==='shared-faces'&&params.scope.faceAIds.length===1&&params.scope.faceBIds.length===1;
+      if(!oneEdge&&!facePair)contractError('SELECTION_CONFLICT','params.scope','Width construction requires one edge or one explicitly ordered adjacent face pair.');
+    }
+  }
   return { ...clone(defaults[op]), ...clone(params) };
 }
 
@@ -220,6 +240,11 @@ export function normalizeOperationPatch(op, previousParams, patch) {
   assertJsonValue(patch);
   if (!patch || typeof patch !== 'object' || Array.isArray(patch)) contractError('PARAM_SCHEMA_INVALID', 'params', 'Expected a parameter patch object.');
   const merged = { ...previousParams, ...patch };
+  if(op==='rounding'&&patch.mode&&patch.mode!==previousParams.mode){
+    if(patch.mode==='width'){delete merged.radiusMm;delete merged.laws;}
+    else if(patch.mode==='variable'){delete merged.radiusMm;delete merged.widthAMm;delete merged.widthBMm;}
+    else{delete merged.laws;delete merged.widthAMm;delete merged.widthBMm;}
+  }
   if (op === 'fillet' || op === 'chamfer') {
     const scopes = Number(Object.hasOwn(patch, 'edgeIds')) + Number(Object.hasOwn(patch, 'faceIds')) + Number(patch.allEdges === true);
     if (scopes > 1) contractError('SELECTION_CONFLICT', 'params', 'One patch cannot select multiple edge scopes.');

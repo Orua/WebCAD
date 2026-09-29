@@ -23,6 +23,17 @@ test('UI selection explicitly maps body, face and edge scopes',()=>{
   assert.deepEqual(adaptUISelection('fillet',{radius:0.3,allEdges:true},['box'],null),{radius:0.3,allEdges:true});
   assert.deepEqual(adaptUISelection('fillet',{radius:0.3,allEdges:false},['box'],{bodyId:'box',type:'face',ids:[5]}),{radius:0.3,allEdges:false,faceIds:[5]});
   assert.deepEqual(adaptUISelection('chamfer',{distance:0.3,allEdges:false},['box'],{bodyId:'box',type:'edge',ids:[0]}),{distance:0.3,allEdges:false,edgeIds:[0]});
+  const rounding=adaptUISelection('rounding',{mode:'constant',radiusMm:.5,allEdges:true,excludeEdgeIds:[2,5]},['box'],null);
+  assert.deepEqual(rounding.scope,{kind:'body',excludeEdgeIds:[2,5]});
+  assert.equal(Object.hasOwn(rounding,'excludeEdgeIds'),false);
+  assert.deepEqual(normalizeOperationParams('rounding',rounding),rounding);
+  const variable=adaptUISelection('rounding',{mode:'variable',radiusStartMm:.5,radiusEndMm:1.5,intermediateStations:[{s:.4,radiusMm:1.2}],chainDirection:'reverse',allEdges:false},['box'],{bodyId:'box',type:'edge',ids:[8]});
+  assert.deepEqual(variable.laws,[{chainId:'edge:8',direction:'reverse',interpolation:'linear',stations:[{s:0,radiusMm:.5},{s:.4,radiusMm:1.2},{s:1,radiusMm:1.5}]}]);
+  assert.deepEqual(normalizeOperationParams('rounding',variable),variable);
+  const chain=adaptUISelection('rounding',{mode:'variable',radiusStartMm:.5,radiusEndMm:1.5,chainDirection:'forward',allEdges:false},['box'],{bodyId:'box',type:'edge',ids:[2,5]});
+  assert.deepEqual(chain.scope,{kind:'edges',edgeIds:[2,5]});
+  assert.deepEqual(chain.laws,[{chainId:'edges:2,5',direction:'forward',interpolation:'linear',stations:[{s:0,radiusMm:.5},{s:1,radiusMm:1.5}]}]);
+  assert.deepEqual(normalizeOperationParams('rounding',chain),chain);
 });
 
 test('2 mm plate rounds whole body or selected face and chamfers a selected edge',async()=>{
@@ -46,7 +57,9 @@ test('2 mm plate rounds whole body or selected face and chamfers a selected edge
       assert(result.bodies[0].volume>0&&result.bodies[0].volume<720);
     }
     const before=kernel.measure('rounded','body').volume;
-    await assert.rejects(kernel.rebuild(doc('fillet',{radius:2,allEdges:true})),e=>e.code==='GEOMETRY_INVALID'&&/减小数值/.test(e.message));
+    const rejected=doc('fillet',{radius:2,allEdges:true});
+    await assert.rejects(kernel.rebuild(rejected),e=>e.code==='GEOMETRY_INVALID'&&/失败边/.test(e.message)&&/原模型保留/.test(e.message));
+    assert.equal(rejected.features[1].params.radius,2,'failed request must keep the exact requested radius');
     assert.equal(kernel.measure('rounded','body').volume,before,'failed fillet must preserve the last valid body');
   }finally{kernel.dispose();}
 });

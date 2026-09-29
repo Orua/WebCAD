@@ -1,4 +1,4 @@
-const single=new Set(['moveTool','rotateTool','autoRound','transform','copy','mirror','fillet','chamfer','shell','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','faceHole','faceExtrude','logo','curvedLogo','thickenFace','split','extractSolid','explode','gizmoTranslate','gizmoRotate']);
+const single=new Set(['moveTool','rotateTool','rounding','autoRound','transform','copy','mirror','fillet','chamfer','shell','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','faceHole','faceExtrude','logo','curvedLogo','thickenFace','split','extractSolid','explode','gizmoTranslate','gizmoRotate']);
 const boolean=new Set(['union','cut','intersect']);
 export function toolDisabledReason(action,state){
  if(action==='selectTool')return '';

@@ -97,6 +97,44 @@ test('A03 explicit edge modes never silently override conflicting input', () => 
   }
 });
 
+test('rounding width contract keeps widths distinct from radius and edits from upstream', () => {
+  const base={specVersion:1,mode:'width',scope:{kind:'edges',edgeIds:[3]},propagation:'selected-only',widthAMm:1,widthBMm:2,boundaryRequirement:'standard',endpoints:{defaultMode:'natural'}};
+  assert.deepEqual(normalizeOperationParams('rounding',base),base);
+  assert.deepEqual(normalizeOperationParams('rounding',{...base,scope:{kind:'shared-faces',faceAIds:[1],faceBIds:[2]}}).scope,{kind:'shared-faces',faceAIds:[1],faceBIds:[2]});
+  assert.deepEqual(normalizeOperationPatch('rounding',base,{widthBMm:3}),{...base,widthBMm:3});
+  fails(()=>normalizeOperationParams('rounding',{...base,radiusMm:1}),'PARAM_SCHEMA_INVALID','params.widthAMm');
+  fails(()=>normalizeOperationParams('rounding',{...base,widthAMm:0}),'PARAM_RANGE_INVALID','params.widthAMm');
+  fails(()=>normalizeOperationParams('rounding',{...base,scope:{kind:'body'}}),'SELECTION_CONFLICT','params.scope');
+  const constant=normalizeOperationPatch('rounding',base,{mode:'constant',radiusMm:1});
+  assert.equal(constant.radiusMm,1);
+  assert.equal(Object.hasOwn(constant,'widthAMm'),false);
+  assert.equal(Object.hasOwn(constant,'widthBMm'),false);
+});
+
+test('rounding body exclusions retain exact source edge IDs in the public contract', () => {
+  const base={specVersion:1,mode:'constant',scope:{kind:'body',excludeEdgeIds:[2,5]},propagation:'selected-only',radiusMm:.5,boundaryRequirement:'standard',endpoints:{defaultMode:'natural'}};
+  assert.deepEqual(normalizeOperationParams('rounding',base),base);
+  assert.deepEqual(normalizeOperationPatch('rounding',base,{scope:{kind:'body',excludeEdgeIds:[2]}}).scope,{kind:'body',excludeEdgeIds:[2]});
+  fails(()=>normalizeOperationParams('rounding',{...base,scope:{kind:'body',excludeEdgeIds:[2,2]}}),'PARAM_SCHEMA_INVALID');
+  fails(()=>normalizeOperationParams('rounding',{...base,scope:{kind:'edges',edgeIds:[1],excludeEdgeIds:[2]}}),'SELECTION_CONFLICT','params.scope');
+});
+
+test('rounding variable contract binds one directed source edge and exact endpoints', () => {
+  const base={specVersion:1,mode:'variable',scope:{kind:'edges',edgeIds:[8]},propagation:'selected-only',laws:[{chainId:'edge:8',direction:'forward',interpolation:'linear',stations:[{s:0,radiusMm:.5},{s:1,radiusMm:1.5}]}],boundaryRequirement:'standard',endpoints:{defaultMode:'natural'}};
+  assert.deepEqual(normalizeOperationParams('rounding',base),base);
+  assert.deepEqual(normalizeOperationPatch('rounding',base,{laws:[{...base.laws[0],stations:[{s:0,radiusMm:.6},{s:1,radiusMm:1.4}]}]}).laws[0].stations,[{s:0,radiusMm:.6},{s:1,radiusMm:1.4}]);
+  fails(()=>normalizeOperationParams('rounding',{...base,laws:[{...base.laws[0],chainId:'edge:3'}]}),'PARAM_SCHEMA_INVALID','params.laws');
+  fails(()=>normalizeOperationParams('rounding',{...base,laws:[{...base.laws[0],stations:[{s:.1,radiusMm:.5},{s:1,radiusMm:1.5}]}]}),'PARAM_SCHEMA_INVALID','params.laws');
+  fails(()=>normalizeOperationParams('rounding',{...base,radiusMm:.5}),'PARAM_SCHEMA_INVALID','params.laws');
+  fails(()=>normalizeOperationParams('rounding',{...base,scope:{kind:'edges',edgeIds:[8,9]}}),'PARAM_SCHEMA_INVALID','params.laws');
+  const chain={...base,scope:{kind:'edges',edgeIds:[8,9]},laws:[{...base.laws[0],chainId:'edges:8,9'}]};
+  assert.deepEqual(normalizeOperationParams('rounding',chain),chain);
+  fails(()=>normalizeOperationParams('rounding',{...chain,scope:{kind:'edges',edgeIds:[8,9,10]}}),'PARAM_SCHEMA_INVALID','params.laws');
+  const multi={...base,laws:[{...base.laws[0],stations:[{s:0,radiusMm:.5},{s:.4,radiusMm:1.2},{s:1,radiusMm:1.5}]}]};
+  assert.deepEqual(normalizeOperationParams('rounding',multi),multi);
+  fails(()=>normalizeOperationParams('rounding',{...multi,laws:[{...multi.laws[0],stations:[{s:0,radiusMm:.5},{s:.4,radiusMm:1.2},{s:.4,radiusMm:1.5},{s:1,radiusMm:1.6}]}]}),'PARAM_SCHEMA_INVALID','params.laws');
+});
+
 test('token selection uses separate input and resolved validation phases', () => {
   const pointParams = { point: [5, 5, 3], radius: 2, through: true };
   assert.deepEqual(normalizeOperationParams('faceHole', pointParams, { phase: 'input', selectionToken: 'current-token' }), pointParams);

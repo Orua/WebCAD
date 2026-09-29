@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
   "pageApiVersion": "1.13.0",
-  "buildId": "79d5dc129bdd1d0e16adc1c7ef8683ffb665f8a2-working",
-  "catalogHash": "sha256:ebaa2b1e0d469107e413d46ea47c18c2dc84e507c28980f4dc18164ebe8b8c55",
-  "docsHash": "sha256:034733371887a4bd27dc0d6560318edb35e1c64af53d9afab1ef32c81d0be727",
+  "buildId": "99dd3caf778f9547d5a301ef5da95771cad542a8-working",
+  "catalogHash": "sha256:df951788f591463478c2d6c4a28e94477e448b9d4de43f95542e2f67df5ccb76",
+  "docsHash": "sha256:72b25d226d4015b44cb53875df7fcd9e91ab1015b612f4d5f42d8f389c0008c3",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -833,6 +833,13 @@
       "method": "setView",
       "usage": "setView({context,gizmo:\"rotate\",selectedIds?}) 开启单对象鼠标旋转。getState().view.transform 读可拖状态；精确旋转用 transform，显式指定角度、轴与中心，不依赖 UI 选择。多对象分别用 run 的 transform 步骤，atomic=false。"
     },
+    "rounding": {
+      "tools": [
+        "rounding"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
     "save": {
       "tools": [
         "files.save",
@@ -1054,6 +1061,7 @@
     }
   },
   "labels": {
+    "rounding": "圆角／圆润",
     "pathEdit": "编辑路径 / inspectProfile / 修改参数",
     "pathTrim": "修剪 / prepareProfileEdit / 修改参数",
     "pathExtend": "延伸 / prepareProfileEdit / 修改参数",
