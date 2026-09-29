@@ -32,6 +32,6 @@ self.onmessage = ({ data }) => {
         } else result=engine.measure(data.bodyId,data.topologyType,data.topologyId);
       } else throw new Error(`未知请求 ${type}`);
       self.postMessage({ requestId, ok: true, ...result });
-    } catch (error) { self.postMessage({ requestId, ok: false, error: error?.message || String(error), featureId: error?.featureId, code: error?.code, path: error?.path, recoveryAction: error?.recoveryAction }); }
+    } catch (error) { const report=error?.report&&JSON.stringify(error.report).length<=4096?error.report:undefined;self.postMessage({ requestId, ok: false, error: error?.message || String(error), featureId: error?.featureId, code: error?.code, path: error?.path, recoveryAction: error?.recoveryAction,report }); }
   });
 };

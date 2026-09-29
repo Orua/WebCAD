@@ -2,6 +2,13 @@
 
 界面动作与 AI 等价接口（手势以坐标和显式参数代替）：
 {
+  "rounding": {
+    "tools": [
+      "rounding"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
   "pathEdit": {
     "tools": [
       "inspectProfile",

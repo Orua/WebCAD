@@ -2,6 +2,7 @@ import { listOperations } from './operation-registry.js';
 
 // This is the UI-to-public-API inventory, also used by the UI and build gate.
 export const UI_API_ROUTES = Object.freeze({
+  rounding:{tools:['rounding','feature.edit','preview.start','preview.commit','preview.cancel'],method:'execute',usage:'先查询当前实体、边及相邻面，再读 rounding 工具卡。恒 R 使用 mode:constant、radiusMm。已验收的变 R 子范围：两平面公共单一直边、2–16 个线性站点；mode:variable、scope.edgeIds 单边、laws[0].chainId=edge:<当前边号>、direction、interpolation:linear、含 s=0/1 且中间站点严格递增。正式解析构造在真实 WASM 上验证九个截面与接缝；多段链和尚未开放的 smooth 插值仍待验收。两平面直边或平面/圆柱闭合圆边宽圆润使用 mode:width、widthAMm 和 widthBMm。整件恒 R 可用 scope:{kind:body,excludeEdgeIds:[当前来源边序号]} 排除边。共用 specVersion:1、预览和提交；从 roundingReport 读回实际尺寸；feature.edit 从上游重建。'},
   pathEdit:{tools:['inspectProfile','feature.edit'],method:'execute',usage:'选择明确的 sketchProfile 原始路径，修改完整 params 后 feature.edit 提交；保留原 placement，重建后续特征。编辑器支持端点、长度/角度、删除段、闭合和线框输出。'},
   pathTrim:{tools:['prepareProfileEdit','feature.edit'],method:'prepareProfileEdit',usage:'选择 sketchProfile 来源；prepareProfileEdit mode=trim 明确 entityId、targetId、endpoint、candidateId，再 feature.edit 提交完整 profile。'},
   pathExtend:{tools:['prepareProfileEdit','feature.edit'],method:'prepareProfileEdit',usage:'选择 sketchProfile 来源；prepareProfileEdit mode=extend 沿原解析曲线延伸至明确交点，feature.edit 提交。'},

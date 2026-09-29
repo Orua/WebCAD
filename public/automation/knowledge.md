@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.13.0 · sha256:ebaa2b1e0d469107e413d46ea47c18c2dc84e507c28980f4dc18164ebe8b8c55
+API 1.13.0 · sha256:df951788f591463478c2d6c4a28e94477e448b9d4de43f95542e2f67df5ccb76
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -122,6 +122,13 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
 
 界面动作与 AI 等价接口（手势以坐标和显式参数代替）：
 {
+  "rounding": {
+    "tools": [
+      "rounding"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
   "pathEdit": {
     "tools": [
       "inspectProfile",
@@ -22526,6 +22533,460 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
   "docsHash": "sha256:8870c8ae81b150063586148810912a2510365e5d85fc9c0c0cd90904bdee39eb"
+}
+```
+
+## 工具 rounding · 圆角／圆润 / Rounding
+
+```json
+{
+  "id": "rounding",
+  "version": "1.1.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "specVersion": {
+        "type": "integer",
+        "const": 1
+      },
+      "mode": {
+        "type": "string",
+        "description": "Rounding mode",
+        "enum": [
+          "constant",
+          "variable",
+          "width"
+        ]
+      },
+      "scope": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "description": "Target scope",
+            "enum": [
+              "edges",
+              "face-boundaries",
+              "shared-faces",
+              "body"
+            ]
+          },
+          "edgeIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "description": "Zero-based topology index",
+              "minimum": 0,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 1,
+            "uniqueItems": true,
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          },
+          "faceIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "description": "Zero-based topology index",
+              "minimum": 0,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 1,
+            "uniqueItems": true,
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          },
+          "faceAIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "description": "Zero-based topology index",
+              "minimum": 0
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "faceBIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "description": "Zero-based topology index",
+              "minimum": 0
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "excludeEdgeIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "description": "Zero-based topology index",
+              "minimum": 0
+            },
+            "minItems": 1,
+            "uniqueItems": true,
+            "description": "Only with body scope: current source edge IDs excluded from rounding"
+          }
+        }
+      },
+      "propagation": {
+        "type": "string",
+        "description": "Tangent chain selection",
+        "enum": [
+          "selected-only"
+        ]
+      },
+      "radiusMm": {
+        "type": "number",
+        "description": "Exact rolling-ball radius for constant mode (mm)",
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "laws": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 1,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "chainId",
+            "direction",
+            "interpolation",
+            "stations"
+          ],
+          "properties": {
+            "chainId": {
+              "type": "string",
+              "minLength": 6,
+              "maxLength": 256,
+              "description": "One edge: edge:<id>; ordered collinear chain: edges:<id1>,<id2>,..."
+            },
+            "direction": {
+              "type": "string",
+              "description": "Directed source edge",
+              "enum": [
+                "forward",
+                "reverse"
+              ],
+              "unit": "1",
+              "quantityKind": "direction",
+              "quantizationPolicy": "none"
+            },
+            "interpolation": {
+              "type": "string",
+              "description": "Radius interpolation",
+              "enum": [
+                "linear"
+              ]
+            },
+            "stations": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 16,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "s",
+                  "radiusMm"
+                ],
+                "properties": {
+                  "s": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Normalized cumulative source arc length across the full ordered chain"
+                  },
+                  "radiusMm": {
+                    "type": "number",
+                    "description": "Requested radius at station (mm)",
+                    "exclusiveMinimum": 0,
+                    "unit": "mm",
+                    "quantityKind": "length",
+                    "quantizationPolicy": "none"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "widthAMm": {
+        "type": "number",
+        "description": "Width along support A in the local normal section (mm)",
+        "exclusiveMinimum": 0
+      },
+      "widthBMm": {
+        "type": "number",
+        "description": "Width along support B in the local normal section (mm)",
+        "exclusiveMinimum": 0
+      },
+      "boundaryRequirement": {
+        "type": "string",
+        "description": "End boundary validation",
+        "enum": [
+          "standard"
+        ]
+      },
+      "endpoints": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "defaultMode"
+        ],
+        "properties": {
+          "defaultMode": {
+            "type": "string",
+            "description": "Open-chain termination",
+            "enum": [
+              "natural"
+            ]
+          }
+        }
+      }
+    },
+    "required": [
+      "specVersion",
+      "mode",
+      "scope",
+      "propagation",
+      "boundaryRequirement",
+      "endpoints"
+    ],
+    "additionalProperties": false,
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. constant requires radiusMm. variable supports one straight edge or an ordered collinear chain of up to 16 sharp edges sharing two geometric support planes, with 2..16 ordered linear stations and explicit direction. chainId is edge:<id> or edges:<id1>,<id2>,... in scope order. Station s is normalized cumulative arc length across the whole chain. The ruled circular-section construction verifies final sections and sampled G1 support seams on real WASM. Piecewise-linear slope changes can create a station seam. Noncollinear chains and smooth laws remain unverified. width requires widthAMm and widthBMm and one edge or ordered shared-faces pair. A/B follow faceAIds/faceBIds; for one edge they follow ascending adjacent face IDs. Width families are a two-plane straight edge and a planar/cylindrical circular edge, either closed or an open arc bounded by radial planar end faces. When native constant R fails, an isolated BREP-copy same-domain cleanup is tried only for a uniquely remapped single edge with zero symmetric material difference, then exact-arc analytic fallback covers those constant-R families. Four-boundary constrained fill, other width geometries and non-natural endpoints remain unverified. Current topology indices must be queried from the source body.",
+  "title": "圆角／圆润 / Rounding",
+  "category": "modification",
+  "synonyms": [
+    "圆角",
+    "圆润",
+    "R角",
+    "fillet",
+    "圆角／圆润"
+  ],
+  "description": "圆角／圆润 / Rounding",
+  "schemaHash": "sha256:79fadc9e2114b3037886256dc2b2a910500eed050b5388b590f95328f78c9f99",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision.",
+    "Resolve topology against the current snapshot; do not reuse indices across revisions."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+  ],
+  "knownUnsupportedCases": [
+    "constant requires radiusMm. variable supports one straight edge or an ordered collinear chain of up to 16 sharp edges sharing two geometric support planes, with 2..16 ordered linear stations and explicit direction. chainId is edge:<id> or edges:<id1>,<id2>,... in scope order. Station s is normalized cumulative arc length across the whole chain. The ruled circular-section construction verifies final sections and sampled G1 support seams on real WASM. Piecewise-linear slope changes can create a station seam. Noncollinear chains and smooth laws remain unverified. width requires widthAMm and widthBMm and one edge or ordered shared-faces pair. A/B follow faceAIds/faceBIds; for one edge they follow ascending adjacent face IDs. Width families are a two-plane straight edge and a planar/cylindrical circular edge, either closed or an open arc bounded by radial planar end faces. When native constant R fails, an isolated BREP-copy same-domain cleanup is tried only for a uniquely remapped single edge with zero symmetric material difference, then exact-arc analytic fallback covers those constant-R families. Four-boundary constrained fill, other width geometries and non-natural endpoints remain unverified. Current topology indices must be queried from the source body."
+  ],
+  "minimalExample": {
+    "op": "rounding",
+    "params": {
+      "specVersion": 1,
+      "mode": "constant",
+      "scope": {
+        "kind": "edges",
+        "edgeIds": [
+          0
+        ]
+      },
+      "propagation": "selected-only",
+      "radiusMm": 0.5,
+      "boundaryRequirement": "standard",
+      "endpoints": {
+        "defaultMode": "natural"
+      }
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "rounding",
+    "params": {
+      "specVersion": 1,
+      "mode": "constant",
+      "scope": {
+        "kind": "edges",
+        "edgeIds": [
+          0
+        ]
+      },
+      "propagation": "selected-only",
+      "radiusMm": 0.5,
+      "boundaryRequirement": "standard",
+      "endpoints": {
+        "defaultMode": "natural"
+      }
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "specVersion": 1,
+        "mode": "constant",
+        "scope": {
+          "kind": "edges",
+          "edgeIds": [
+            0
+          ]
+        },
+        "propagation": "selected-only",
+        "radiusMm": 0.5,
+        "boundaryRequirement": "standard",
+        "endpoints": {
+          "defaultMode": "natural"
+        },
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SELECTION_CONFLICT",
+    "STALE_REFERENCE",
+    "UNSAFE_LEGACY_REFERENCE",
+    "AMBIGUOUS_SELECTION",
+    "SCOPE_EXPANSION_REQUIRED",
+    "KERNEL_BUILD_FAILED",
+    "MATERIAL_CHECK_FAILED"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "圆角／圆润",
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:f01dbf3b25490be039558e751f4bc48722e0a3685d7f31391cbe94ab61a9e0a8"
 }
 ```
 

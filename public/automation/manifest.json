@@ -1,9 +1,9 @@
 {
   "version": "1.13.0",
-  "buildId": "79d5dc129bdd1d0e16adc1c7ef8683ffb665f8a2-working",
+  "buildId": "99dd3caf778f9547d5a301ef5da95771cad542a8-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:ebaa2b1e0d469107e413d46ea47c18c2dc84e507c28980f4dc18164ebe8b8c55",
-  "docsHash": "sha256:034733371887a4bd27dc0d6560318edb35e1c64af53d9afab1ef32c81d0be727",
+  "catalogHash": "sha256:df951788f591463478c2d6c4a28e94477e448b9d4de43f95542e2f67df5ccb76",
+  "docsHash": "sha256:72b25d226d4015b44cb53875df7fcd9e91ab1015b612f4d5f42d8f389c0008c3",
   "apiMethods": [
     "getQuickModelUsage",
     "copySelection",
@@ -527,6 +527,15 @@
       "version": "legacy-1",
       "docsHash": "sha256:8870c8ae81b150063586148810912a2510365e5d85fc9c0c0cd90904bdee39eb",
       "url": "tools/revolve.json"
+    },
+    {
+      "id": "rounding",
+      "title": "圆角／圆润 / Rounding",
+      "label": "圆角／圆润",
+      "category": "modification",
+      "version": "1.1.0",
+      "docsHash": "sha256:f01dbf3b25490be039558e751f4bc48722e0a3685d7f31391cbe94ab61a9e0a8",
+      "url": "tools/rounding.json"
     },
     {
       "id": "sewFaces",
@@ -1856,7 +1865,7 @@
     },
     {
       "id": "api.ui-coverage",
-      "docsHash": "sha256:c4001e2ad57069e45ac1b465a408fe855d8b28c1bda64f735b746f52ce260f6d",
+      "docsHash": "sha256:201df2d87571359008f9e921e67d06419a3276ded7b5e62f84119f45bd5b4152",
       "url": "docs/api.ui-coverage.md"
     },
     {

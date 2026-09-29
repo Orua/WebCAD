@@ -40,7 +40,7 @@ const emptyDocument = () => ({version:2,documentId:crypto.randomUUID(),name:next
 const pageSessionId=crypto.randomUUID();
 let documentInstanceId=crypto.randomUUID(),lastWarnings=[],persistenceCheckpoint='pending';
 const clone = value => structuredClone(value);
-const labels = {autoRound:'整件圆边',smoothTransition:'平滑过渡',box:'长方体',cylinder:'圆柱',sphere:'球体',cone:'圆锥',torus:'圆环',extrude:'拉伸',revolve:'旋转成型',transform:'变换',copy:'复制',mirror:'镜像',union:'合并',cut:'切除',intersect:'求交',fillet:'圆角',chamfer:'倒角',shell:'抽壳',hole:'打孔',linearPattern:'直线阵列',circularPattern:'环形阵列',import:'导入',remove:'删除'};
+const labels = {rounding:'圆角／圆润',autoRound:'整件圆边',smoothTransition:'平滑过渡',box:'长方体',cylinder:'圆柱',sphere:'球体',cone:'圆锥',torus:'圆环',extrude:'拉伸',revolve:'旋转成型',transform:'变换',copy:'复制',mirror:'镜像',union:'合并',cut:'切除',intersect:'求交',fillet:'圆角',chamfer:'倒角',shell:'抽壳',hole:'打孔',linearPattern:'直线阵列',circularPattern:'环形阵列',import:'导入',remove:'删除'};
 let documentModel=emptyDocument(),bodies=[],selectedIds=[],selectedTopology=null,busy=false,kernelReady=false,dirty=false;
 let qualityKey='standard';
 function qualityState(){return {quality:qualityKey,...RENDER_QUALITIES[qualityKey],triangleCount:bodies.reduce((n,b)=>n+b.indices.length/3,0),source:'viewer-tessellation',adaptive:false};}
@@ -55,10 +55,24 @@ Object.assign(labels,referenceNames);
 Object.assign(labels,mechanicalNames);
 Object.assign(labels,{sketchProfile:'绘制轮廓',profileOffset:'等距偏移 / 边框',profileRepair:'修复轮廓',profileExtrude:'轮廓拉伸 / 加工',holeWizard:'孔向导',draftFaces:'受限拔模'});
 const pending=new Map();
-const worker=new Worker(new URL('./cad-worker.js',import.meta.url),{type:'module'});
-worker.onmessage=event=>{const result=event.data;const job=pending.get(result.requestId);if(!job)return;clearTimeout(job.timer);pending.delete(result.requestId);if(result.ok)job.resolve(result);else job.reject(Object.assign(new Error(result.error||'建模操作失败'),{code:result.code,path:result.path,recoveryAction:result.recoveryAction,featureId:result.featureId}));};
-worker.onerror=event=>{const error=new Error(event.message||'CAD 内核异常，请保存工程后刷新页面。');for(const job of pending.values()){clearTimeout(job.timer);job.reject(error);}pending.clear();kernelReady=false;ui?.showError(error.message);};
-function request(type,payload={}){return new Promise((resolve,reject)=>{const requestId=++requestSequence;const timer=setTimeout(()=>{worker.terminate();kernelReady=false;const error=new Error('计算超过三分钟，已停止内核。当前工程仍保留，请保存工程后刷新页面；复杂模型可先简化。');for(const job of pending.values()){clearTimeout(job.timer);job.reject(error);}pending.clear();},180000);pending.set(requestId,{resolve,reject,timer});worker.postMessage({requestId,type,...payload});});}
+let worker,recoveryPromise=null;
+function rejectPending(error){for(const job of pending.values()){clearTimeout(job.timer);job.reject(error);}pending.clear();}
+function createWorker(){
+  const instance=new Worker(new URL('./cad-worker.js',import.meta.url),{type:'module'});
+  instance.onmessage=event=>{if(instance!==worker)return;const result=event.data,job=pending.get(result.requestId);if(!job)return;clearTimeout(job.timer);pending.delete(result.requestId);if(result.ok)job.resolve(result);else job.reject(Object.assign(new Error(result.error||'建模操作失败'),{code:result.code,path:result.path,recoveryAction:result.recoveryAction,featureId:result.featureId,report:result.report}));};
+  instance.onerror=event=>{if(instance!==worker)return;const error=new Error(event.message||'CAD 内核异常，请保存工程后刷新页面。');rejectPending(error);kernelReady=false;ui?.showError(error.message);};
+  return instance;
+}
+worker=createWorker();
+function request(type,payload={}){return new Promise((resolve,reject)=>{const requestId=++requestSequence,instance=worker;const timer=setTimeout(()=>{if(instance!==worker)return;const error=Object.assign(new Error('计算超过三分钟，已停止内核。当前工程仍保留，请保存工程后刷新页面。'),{code:'KERNEL_TIMEOUT'});if(recoveryPromise){worker.terminate();rejectPending(error);kernelReady=false;reportError(error);}else restartWorker(error).catch(reportError);},180000);pending.set(requestId,{resolve,reject,timer});instance.postMessage({requestId,type,...payload});});}
+function restartWorker(error){
+  if(recoveryPromise)return recoveryPromise;
+  worker.terminate();rejectPending(error);kernelReady=false;worker=createWorker();
+  const recovering=(async()=>{await request('ready');kernelReady=true;const result=await request('rebuild',{document:documentModel});viewport.setBodies(result.bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);refresh();})();
+  recoveryPromise=recovering;
+  void recovering.finally(()=>{if(recoveryPromise===recovering)recoveryPromise=null;}).catch(()=>{});
+  return recovering;
+}
 
 const ui=createUI(document.getElementById('app'),{
   initialDocumentName:documentModel.name,
@@ -168,7 +182,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
 }
 function featureDocument(op,params={},explicitRefs=[],name,placement){
   const mechanicalRange=mechanicalIds.includes(op)?mechanicalRefRange(op,params):null;
-  const refs=[];const selection=explicitRefs;const single=['autoRound','smoothTransition','transform','copy','mirror','fillet','chamfer','shell','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','split','extractSolid','extractShell','faceHole','faceExtrude','logo','curvedLogo','thickenFace','extractFaces'];
+  const refs=[];const selection=explicitRefs;const single=['rounding','autoRound','smoothTransition','transform','copy','mirror','fillet','chamfer','shell','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','split','extractSolid','extractShell','faceHole','faceExtrude','logo','curvedLogo','thickenFace','extractFaces'];
   if(mechanicalRange){if(selection.length<mechanicalRange.min||selection.length>mechanicalRange.max)throw new Error(`此操作须明确提供 ${mechanicalRange.min===mechanicalRange.max?mechanicalRange.min:`${mechanicalRange.min}–${mechanicalRange.max}`} 个当前来源／目标对象。`);refs.push(...selection);}
   if([...single,'planeSection','faceBoundary','referenceExtrude','profileOffset','profileRepair'].includes(op)){
     if(selection.length!==1||!bodies.some(b=>b.id===selection[0]))throw new Error('请先选择一个当前实体。');
@@ -263,8 +277,8 @@ async function previewFeature(op,params,explicitRefs,name,placement,identity=nul
   try{const result=await request('rebuild',{document:next});
     if(generation!==previewGeneration){await request('rebuild',{document:documentModel});previewNext=null;viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);return false;}
     previewNext=next;previewIdentity=identity;viewport.setBodies(result.bodies,next.hidden);viewport.setSelection([]);if(!bodies.length)viewport.fit();setStatus('预览未保存 · 应用或取消 / Preview: apply or cancel');return true;}
-  catch(error){if(previousPreview&&previousIdentity?.previewId===identity?.previewId){const restored=await request('rebuild',{document:previousPreview});previewNext=previousPreview;previewIdentity=previousIdentity;viewport.setBodies(restored.bodies,previousPreview.hidden);}else{previewNext=null;previewIdentity=null;await request('rebuild',{document:documentModel});viewport.setBodies(bodies,documentModel.hidden);}throw error;}
-  finally{previewComputing=false;setBusy(false);}
+  catch(error){if(error.code==='PREVIEW_CANCELLED')return false;if(previousPreview&&previousIdentity?.previewId===identity?.previewId){const restored=await request('rebuild',{document:previousPreview});previewNext=previousPreview;previewIdentity=previousIdentity;viewport.setBodies(restored.bodies,previousPreview.hidden);}else{previewNext=null;previewIdentity=null;await request('rebuild',{document:documentModel});viewport.setBodies(bodies,documentModel.hidden);}throw error;}
+  finally{previewComputing=false;if(recoveryPromise)await recoveryPromise.catch(()=>{});setBusy(false);}
 }
 async function previewFile(fileImport,identity,update=false){
   if(busy)throw new Error('Please wait for the current operation.');
@@ -274,10 +288,10 @@ async function previewFile(fileImport,identity,update=false){
   if(new TextEncoder().encode(JSON.stringify(next,null,2)).byteLength>20*1024*1024-4096)throw Object.assign(new Error('文件预览会使自包含工程超过 20 MiB 限额'),{code:'SIZE_LIMIT'});
   const generation=++previewGeneration;previewComputing=true;setBusy(true,'文件插入预览 / File preview…');
   try{const result=await request('rebuild',{document:next});if(generation!==previewGeneration){await request('rebuild',{document:documentModel});previewNext=null;previewIdentity=null;viewport.setBodies(bodies,documentModel.hidden);return false;}previewNext=next;previewIdentity=identity;viewport.setBodies(result.bodies,next.hidden);viewport.setSelection([]);setStatus('文件插入预览未保存 · 应用或取消');return true;}
-  catch(error){if(previousPreview&&previousIdentity?.previewId===identity?.previewId){const restored=await request('rebuild',{document:previousPreview});previewNext=previousPreview;previewIdentity=previousIdentity;viewport.setBodies(restored.bodies,previousPreview.hidden);}else{await request('rebuild',{document:documentModel});previewNext=null;previewIdentity=null;viewport.setBodies(bodies,documentModel.hidden);}throw error;}
-  finally{previewComputing=false;setBusy(false);}
+  catch(error){if(error.code==='PREVIEW_CANCELLED')return false;if(previousPreview&&previousIdentity?.previewId===identity?.previewId){const restored=await request('rebuild',{document:previousPreview});previewNext=previousPreview;previewIdentity=previousIdentity;viewport.setBodies(restored.bodies,previousPreview.hidden);}else{await request('rebuild',{document:documentModel});previewNext=null;previewIdentity=null;viewport.setBodies(bodies,documentModel.hidden);}throw error;}
+  finally{previewComputing=false;if(recoveryPromise)await recoveryPromise.catch(()=>{});setBusy(false);}
 }
-async function cancelPreview(){previewGeneration++;if(previewComputing||!previewNext)return;setBusy(true,'取消预览 / Cancel preview…');try{await request('rebuild',{document:documentModel});previewNext=null;previewIdentity=null;viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);}finally{setBusy(false);}}
+async function cancelPreview(){previewGeneration++;if(previewComputing){previewNext=null;previewIdentity=null;setBusy(true,'取消并恢复内核 / Cancel and recover kernel…');try{await restartWorker(Object.assign(new Error('Preview cancelled'),{code:'PREVIEW_CANCELLED'}));}finally{setBusy(false);}return;}if(!previewNext)return;setBusy(true,'取消预览 / Cancel preview…');try{await request('rebuild',{document:documentModel});previewNext=null;previewIdentity=null;viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);}finally{setBusy(false);}}
 
 function safeName(name){return (name||'WebCAD').replace(/[<>:"/\\|?*\x00-\x1f]/g,'_').replace(/\.{2,}/g,'_').replace(/[. ]+$/g,'').slice(0,120)||'WebCAD';}
 function download(data,name,mime='application/octet-stream'){
@@ -512,7 +526,7 @@ async function performShortcut(action){
 }
 document.addEventListener('keydown',event=>{
   const typing=event.target instanceof Element&&!!event.target.closest('input,textarea,select,[contenteditable=true]');
-  if(event.key==='Escape'){if(event.isComposing)return;if(ui.cancelTaskPicking()||ui.cancelActiveTask())return;viewport.cancelAnchorDrag();viewport.setGizmo('off');viewport.cancelTask();if(previewNext||previewComputing)cancelPreview().catch(reportError);if(!typing)selectBody(null);else refresh();return;}
+  if(event.key==='Escape'){if(event.isComposing)return;if(previewComputing){ui.cancelTaskPicking();ui.cancelActiveTask();cancelPreview().catch(reportError);return;}if(ui.cancelTaskPicking()||ui.cancelActiveTask())return;viewport.cancelAnchorDrag();viewport.setGizmo('off');viewport.cancelTask();if(previewNext)cancelPreview().catch(reportError);if(!typing)selectBody(null);else refresh();return;}
   const action=webcadShortcut(event,{editing:typing,dialogOpen:!!document.querySelector('dialog[open]')});
   if(action){event.preventDefault();performShortcut(action).catch(reportError);}
 });
@@ -525,8 +539,8 @@ const ready=(async()=>{
   catch(error){reportError(error);return false;}
 })();
 // Public automation surface also used by reproducible acceptance checks; never runs arbitrary code.
-function getState(){return {revision,document:clone(documentModel),bodies:bodies.map(({id,name,bounds,volume,solidCount,shellCount,transitionReport,blendReport,repairReport,threadReport,constraintReport,faceGroups,edges})=>({id,name,bounds,volume,solidCount,shellCount,transitionReport,blendReport,repairReport,threadReport,constraintReport,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,dirty,preview:!!previewNext};}
-function aiState(){return {sessionId:pageSessionId,revision,dirty,documentId:documentModel.documentId,documentInstanceId,documentName:documentModel.name,referenceSystem:clone(documentModel.referenceSystem),features:clone(documentModel.features),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),bodies:bodies.map(({id,name,bounds,volume,solidCount,shellCount,transitionReport,blendReport,repairReport,threadReport,constraintReport,faceGroups,edges})=>({id,name,bounds,volume,solidCount,shellCount,transitionReport,blendReport,repairReport,threadReport,constraintReport,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,preview:!!previewNext,previewInfo:previewIdentity?clone(previewIdentity):null};}
+function getState(){return {revision,document:clone(documentModel),bodies:bodies.map(({id,name,bounds,volume,solidCount,shellCount,transitionReport,blendReport,roundingReport,repairReport,threadReport,constraintReport,faceGroups,edges})=>({id,name,bounds,volume,solidCount,shellCount,transitionReport,blendReport,roundingReport,repairReport,threadReport,constraintReport,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,dirty,preview:!!previewNext};}
+function aiState(){return {sessionId:pageSessionId,revision,dirty,documentId:documentModel.documentId,documentInstanceId,documentName:documentModel.name,referenceSystem:clone(documentModel.referenceSystem),features:clone(documentModel.features),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),bodies:bodies.map(({id,name,bounds,volume,solidCount,shellCount,transitionReport,blendReport,roundingReport,repairReport,threadReport,constraintReport,faceGroups,edges})=>({id,name,bounds,volume,solidCount,shellCount,transitionReport,blendReport,roundingReport,repairReport,threadReport,constraintReport,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,preview:!!previewNext,previewInfo:previewIdentity?clone(previewIdentity):null};}
 async function executeAI(command,args={},options={}){
   if(command==='file_command')return commandService.fileCommand(args,options);
   if(command==='get_state_v2')return commandService.getState(args);
