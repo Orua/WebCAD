@@ -4,10 +4,14 @@
 {
   "rounding": {
     "tools": [
-      "rounding"
+      "rounding",
+      "feature.edit",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel"
     ],
     "method": "execute",
-    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    "usage": "先查询当前来源实体的锐边。新圆角使用 specVersion:2、sizeMm 和 scope:{kind:edges,edgeIds:[当前边号]}；不传算法或模式。预览核对实际影响范围，再提交同一份预览。feature.edit 修改 sizeMm，从上游重新求解。旧 specVersion:1 特征继续按原尺寸与模式重算。"
   },
   "pathEdit": {
     "tools": [
@@ -310,13 +314,6 @@
   "faceHole": {
     "tools": [
       "faceHole"
-    ],
-    "method": "execute",
-    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
-  },
-  "fillet": {
-    "tools": [
-      "fillet"
     ],
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"

@@ -92,3 +92,14 @@ Object.assign(operationCatalog.operations,advancedOperations(operationCatalog.op
 Object.assign(operationCatalog.operations,referenceOperations);
 Object.assign(operationCatalog.operations,referenceProfileOperations);
 Object.assign(operationCatalog.operations,mechanicalOperations);
+
+// Saved v1 features and explicit legacy API calls retain their original contract.
+// New creation exposes one size parameter and lets the solver choose its method.
+export const legacyRoundingOperation=operationCatalog.operations.rounding;
+operationCatalog.operations.rounding=op('圆角 / Round selected edges',1,{
+  specVersion:{type:'integer',const:2},
+  sizeMm:positive('Requested local rounding size; exact-radius candidates use this radius'),
+  scope:{type:'object',additionalProperties:false,required:['kind','edgeIds'],properties:{
+    kind:{type:'string',const:'edges'},edgeIds:{...ids,maxItems:64,uniqueItems:true}
+  }}
+},['specVersion','sizeMm','scope'],'Select current sharp edges, set sizeMm, preview the actual affected region, then commit the validated preview. Algorithms and connected-edge resolution are internal. No automatic shrinking of the requested size. The report distinguishes requested size, measured dimensions, exact-radius results and adaptive transitions. Failed candidates leave the source unchanged. Historical specVersion:1 features and the legacy fillet API retain their exact original semantics; new operations use this v2 contract.');

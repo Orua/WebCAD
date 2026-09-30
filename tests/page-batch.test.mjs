@@ -56,3 +56,42 @@ test('bad result reference fails and external edits are never silently adopted',
 test('concurrent duplicate batches are serialized and create one feature',async()=>{
   const f=fixture(),r=f.request();const [a,b]=await Promise.all([f.run(r),f.run(r)]);assert.deepEqual(a,b);assert.equal(f.count,1);
 });
+
+function previewFixture(){
+  let revision=0,active=false,computing=false,busy=false,count=0;
+  const context=()=>({sessionId:'s',documentId:'d',documentInstanceId:'i',revision});
+  const api={getState:()=>({context:context(),summary:{kernelReady:true,busy},preview:{active,computing}}),
+    execute:async req=>{
+      assert.equal(req.context.expectedRevision,revision);count++;
+      if(req.action==='preview.start'||req.action==='preview.update'){
+        active=true;return {status:'previewing',preview:{active:true,previewId:'p',generation:req.action==='preview.start'?1:2}};
+      }
+      active=false;if(req.action==='preview.commit')revision++;
+      return {status:req.action==='preview.commit'?'committed':'no_change',revisionAfter:revision,preview:{active:false}};
+    }};
+  return {run:createPageBatch(api),get count(){return count;},setActive:()=>active=true,setComputing:()=>computing=true,setBusy:()=>busy=true,
+    request:(key,steps)=>({context:{sessionId:'s',documentId:'d',documentInstanceId:'i',expectedRevision:revision},idempotencyKey:key,steps})};
+}
+const previewStep=(id,action,args={})=>({id,method:'execute',args:{action,args}});
+test('preview start is a completed batch and can update then commit through another batch',async()=>{
+  const f=previewFixture();
+  const start=f.request('start',[previewStep('start','preview.start')]);
+  const first=await f.run(start);assert.equal(first.status,'completed');assert.equal(first.results[0].result.status,'previewing');
+  const next=f.request('finish',[previewStep('update','preview.update',{previewId:'p',expectedGeneration:1}),previewStep('commit','preview.commit',{previewId:'p',expectedGeneration:2})]);
+  const completed=await f.run(next);assert.equal(completed.status,'completed');assert.equal(completed.requestContext.expectedRevision,1);
+  assert.deepEqual(await f.run(next),completed);assert.equal(f.count,3);
+});
+test('an active preview permits explicit cancel but still blocks a new feature',async()=>{
+  const f=previewFixture();f.setActive();
+  const blocked=f.request('blocked',[{id:'new',method:'add',args:{op:'box'}}]);
+  assert.equal((await f.run(blocked)).error.code,'CAPABILITY_UNAVAILABLE');assert.equal(f.count,0);
+  const cancel=f.request('cancel',[previewStep('cancel','preview.cancel',{previewId:'p',expectedGeneration:1})]);
+  assert.equal((await f.run(cancel)).status,'completed');assert.equal(f.count,1);
+});
+test('preview control batches remain blocked while the worker or preview computes',async()=>{
+  for(const set of ['setComputing','setBusy']){
+    const f=previewFixture();f.setActive();f[set]();
+    const req=f.request(set,[previewStep('commit','preview.commit',{previewId:'p',expectedGeneration:1})]);
+    assert.equal((await f.run(req)).error.code,'CAPABILITY_UNAVAILABLE');assert.equal(f.count,0);
+  }
+});

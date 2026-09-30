@@ -50,6 +50,20 @@ test('T1 real WASM constant R rounds synthetic concave pocket edge and adds mate
   }finally{dispose(result);dispose(source);dispose(tool);dispose(outer);}
 });
 
+test('automatic candidates preserve the source and report every failed construction',()=>{
+  const source=cad.makeBox([0,0,0],[20,10,8]),before=source.serialize();
+  try{
+    const row=topologyDetails(source).find(item=>item.sharp&&Math.abs(item.endPoint[0]-item.startPoint[0])>19);
+    assert(row);
+    assert.throws(()=>buildRounding(source,params(row.edgeId,100)),error=>{
+      assert.equal(error.code,'KERNEL_BUILD_FAILED');
+      assert.deepEqual(error.report.candidateAttempts.map(attempt=>attempt.strategy),['native','unified-native','analytic']);
+      return true;
+    });
+    assert.equal(source.serialize(),before);
+  }finally{dispose(source);}
+});
+
 test('A1 adjacent constant R uses an approved tangent contour and preserves the earlier R away from the junction',()=>{
   const source=cad.makeBox([0,0,0],[20,10,8]),before=source.serialize();let first,second,removed,added;
   try{
@@ -69,6 +83,7 @@ test('A1 adjacent constant R uses an approved tangent contour and preserves the 
     assert.equal(report.generatedFaceMap.length,3);
     assert(report.generatedFaceMap.every(row=>row.status==='passed'&&Math.abs(row.measuredRadiusMm-.5)<1e-5));
     assert.equal(report.validation.seams,'G1-contact-sampled');
+    assert.notEqual(report.validation.endpoints,'natural-verified');
     assert(report.validation.maxTangentAngleDeg<.1);
     const vertical=report.generatedFaceMap.find(row=>row.edgeId===next.edgeId);
     const verticalSection=measureBlendSectionRadius(second,{plane:'XY',offset:4,faceId:vertical.faceId},cad);

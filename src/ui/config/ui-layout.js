@@ -8,7 +8,7 @@ const tabs = [
   {id:'model',label:'模型库',unfolded:true,groups:[['基本实体',['box','cylinder','cone','sphere','torus']],['常用模型',['quickModelFavorites']],['参数模型',['quickModel']],['导入模型',['importAtFrame']]]},
   {id:'machine',label:'加工',groups:[['布尔与切分',['union','cut','intersect','split'],{unfolded:true}],['孔与螺纹',['hole','holeWizard','multiHole','thread']],['槽与凸台',['slot','faceGroove','faceHole','faceExtrude','multiPocket','multiBoss'],{overflowActions:['multiPocket','multiBoss']}],['车削',['outerTurn','innerTurn']],['标记',['logo']]]},
   {id:'surface',label:'曲面',groups:[['提取面与壳',['extractFaces','extractShell']],['曲面生成',['fittedSurface']],['曲面处理',['surfaceTrim','offsetSurface','sewFaces']],['增厚成体',['thickenFace']]]},
-  {id:'finish',label:'修饰',groups:[['圆角与过渡',['rounding','fillet','chamfer','autoRound','smoothTransition'],{unfolded:true}],['壳与偏置',['shell','offsetSolid']],['拔模',['draftFaces','draftByPlane']]]},
+  {id:'finish',label:'修饰',groups:[['圆角与过渡',['rounding','chamfer','autoRound','smoothTransition'],{unfolded:true}],['壳与偏置',['shell','offsetSolid']],['拔模',['draftFaces','draftByPlane']]]},
   {id:'inspect',label:'检查',groups:[['测量',['measure','measureRelation']],['几何检查',['inspectThickness','inspectFit','inspectDraft','inspectPrintability']],['结果记录',['screenshot']]]},
   {id:'view',label:'视图',groups:[['剖切查看',['section']]],controls:['directions','projection','display','assists','quality']},
   {id:'settings',label:'设置',groups:[['交互',['precisionSettings','snapSettings']],['外观',['themeSettings','displayPreferences','languageSettings']],['工程',['parameters']],['导入设置',['logoConverterSettings']],['AGENT',['agentGuide']]]},
