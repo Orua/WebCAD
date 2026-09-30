@@ -1,7 +1,7 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { infoMetadata } from '../src/page-api-docs.js';
+import { infoMetadata, getTool } from '../src/page-api-docs.js';
 import { listOperations } from '../src/operation-registry.js';
 import { assertPlacementCoverage } from '../src/placement-policy.js';
 import { UI_API_ROUTES } from '../src/ui-api-coverage.js';
@@ -32,7 +32,10 @@ if (index.metadata.buildId !== buildId || manifest.buildId !== buildId)
 const cards = new Map(index.cards.map(card => [card.id, card]));
 for (const op of listOperations()) {
   const id = ['import', 'remove'].includes(op.id) ? (op.id === 'import' ? 'files.import' : 'feature.remove') : op.id;
-  if (!cards.has(id)) throw new Error(`Operation ${op.id} has no discoverable route`);
+  if(op.legacyOnly){
+    const legacy=getTool({id:op.id});
+    if(!legacy.legacyOnly||legacy.replacedBy!==op.replacedBy||!cards.has(op.replacedBy)||cards.has(op.id))throw new Error(`Legacy operation ${op.id} must remain addressable and expose only its replacement in new discovery`);
+  }else if (!cards.has(id)) throw new Error(`Operation ${op.id} has no discoverable route`);
   if (!report.operations.some(item => item.id === op.id && item.placementPolicy))
     throw new Error(`Operation ${op.id} absent from coverage`);
 }

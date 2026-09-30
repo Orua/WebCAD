@@ -1,6 +1,11 @@
 // UI-only adapter: explicit parameters always win. Core/API never reads selection.
 export function adaptUISelection(op, input, refs, topology) {
   const params=structuredClone(input);
+  if(op==='rounding'&&(params.specVersion===2||Object.hasOwn(params,'sizeMm'))){
+    if(params.scope)return params;
+    if(topology?.bodyId!==refs[0]||topology.type!=='edge'||!topology.ids?.length)throw new Error('请先选择需要圆润的实体边。');
+    return {specVersion:2,sizeMm:params.sizeMm,scope:{kind:'edges',edgeIds:[...topology.ids]}};
+  }
   if(op==='rounding'&&!params.scope){
     const tangent=params.propagateTangent===true;delete params.propagateTangent;
     const allEdges=params.allEdges===true,excludeEdgeIds=params.excludeEdgeIds;delete params.allEdges;delete params.excludeEdgeIds;

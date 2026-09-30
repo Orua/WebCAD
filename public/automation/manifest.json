@@ -1,9 +1,9 @@
 {
   "version": "1.13.0",
-  "buildId": "7239eaaff6c05a40954a8a4e83e0c5b9e9ca94b3-working",
+  "buildId": "3bf4b99688ea8116076ee201de335ddbefabad94-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:847be7b53a9bfeffb9077f7c2ab29279ef10016a873e8f2399674ec43a99a7d7",
-  "docsHash": "sha256:4425fa7d01aa6386dd65652e0d83645eb39239846b5370d33ab7b19e691b4d30",
+  "catalogHash": "sha256:ff30c5e30a6aadc49aa40b756979ea26ec0f539c5b2ca545551f49e3dfdbc429",
+  "docsHash": "sha256:f20ef87fb25dcf41881ef22917aba2b98dbe8bfa880cf32a735c4d17f8e6bd66",
   "apiMethods": [
     "getQuickModelUsage",
     "copySelection",
@@ -257,15 +257,6 @@
       "version": "1.0.0",
       "docsHash": "sha256:9f349e1b4d662ec45cfb732d8024204832524c13ac61e75030b655edc126b268",
       "url": "tools/faceHole.json"
-    },
-    {
-      "id": "fillet",
-      "title": "Round sharp edges, shared face edges, face boundaries or the whole solid",
-      "label": "圆角",
-      "category": "modification",
-      "version": "1.0.0",
-      "docsHash": "sha256:0c073b623da1207dda644dc5b1aec2a108f2b5a89290ed1e71386fc33b240c64",
-      "url": "tools/fillet.json"
     },
     {
       "id": "fittedSurface",
@@ -530,11 +521,11 @@
     },
     {
       "id": "rounding",
-      "title": "圆角／圆润 / Rounding",
-      "label": "圆角／圆润",
+      "title": "圆角 / Round selected edges",
+      "label": "圆角",
       "category": "modification",
-      "version": "1.2.0",
-      "docsHash": "sha256:6cec8ebe6eacc7368113ac42e72d2a3507a496b971a9ff91584765f2a8d0e1e9",
+      "version": "2.0.0",
+      "docsHash": "sha256:299b82f9472eb7ce66e2528b77609997911f837a31ba241ef3ec806a65c77da2",
       "url": "tools/rounding.json"
     },
     {
@@ -1850,7 +1841,7 @@
     },
     {
       "id": "api.run",
-      "docsHash": "sha256:c9334860d64beac57e8bf219661b360e8a5b1560612b6c80359655a35faf4727",
+      "docsHash": "sha256:36f39e9d9cac7e0a5f222ed11fe80ec8678c269d368b1b6c040a6c8302456c42",
       "url": "docs/api.run.md"
     },
     {
@@ -1865,7 +1856,7 @@
     },
     {
       "id": "api.ui-coverage",
-      "docsHash": "sha256:201df2d87571359008f9e921e67d06419a3276ded7b5e62f84119f45bd5b4152",
+      "docsHash": "sha256:35f43f1d64e310b1ae585196ee91f0ce8cf0466670409c29cb34a78ae6308350",
       "url": "docs/api.ui-coverage.md"
     },
     {

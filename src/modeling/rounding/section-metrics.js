@@ -29,6 +29,12 @@ export function measureBlendSectionRadius(shape,{plane,offset,frame,faceId,faceT
     const points=Array.from({length:sampleCount},(_,i)=>{
       const p=edge.pointAt((i+.5)/sampleCount);try{return p.toTuple();}finally{dispose(p);}
     });
+    return {...fitSectionCircle(points),curveType:edge.geomType,blendFaceType:selected.geomType};
+  }finally{edges?.forEach(dispose);dispose(section);faces.forEach(dispose);}
+}
+
+export function fitSectionCircle(points){
+  const sampleCount=points.length;
     const origin=points[0],first=sub(points[Math.floor(sampleCount/2)],origin),last=sub(points[sampleCount-1],origin);
     const fl=norm(first),u=first.map(value=>value/fl),orth=last.map((value,i)=>value-dot(last,u)*u[i]),ol=norm(orth);
     if(fl<1e-10||ol<1e-10)throw new Error('degenerate blend-face section');
@@ -40,6 +46,34 @@ export function measureBlendSectionRadius(shape,{plane,offset,frame,faceId,faceT
     const det=aa*bb-ab*ab;if(Math.abs(det)<1e-20)throw new Error('circle fit singular');
     const cx=(ac*bb-bc*ab)/(2*det)+mx,cy=(bc*aa-ac*ab)/(2*det)+my;
     const distances=xy.map(([x,y])=>Math.hypot(x-cx,y-cy)),radiusMm=distances.reduce((sum,value)=>sum+value,0)/sampleCount;
-    return {radiusMm,sectionFitResidualMm:Math.max(...distances.map(d=>Math.abs(d-radiusMm))),planeResidualMm:Math.max(...points.map(point=>Math.abs(dot(sub(point,origin),w)))),sampleCount,curveType:edge.geomType,blendFaceType:selected.geomType};
-  }finally{edges?.forEach(dispose);dispose(section);faces.forEach(dispose);}
+    return {radiusMm,sectionFitResidualMm:Math.max(...distances.map(d=>Math.abs(d-radiusMm))),planeResidualMm:Math.max(...points.map(point=>Math.abs(dot(sub(point,origin),w)))),sampleCount};
+}
+// Measure real circular sections of native BREP spline blends.
+export function measureGeneratedSurfaceRadius(face,radiusMm,cad){
+  const adaptor=new (cad.getOC().BRepAdaptor_Surface)(face.wrapped,true);
+  const failure=()=>Object.assign(new Error('生成过渡面的实际圆截面与请求大小不符'),{code:'GEOMETRY_INVALID'});
+  try{
+    const ranges=[[adaptor.FirstUParameter(),adaptor.LastUParameter()],[adaptor.FirstVParameter(),adaptor.LastVParameter()]];
+    if(ranges.flat().some(v=>!Number.isFinite(v)))throw failure();
+    const candidates=[];
+    for(const direction of [0,1]){
+      const metrics=[];
+      try{
+        for(const station of [.125,.3,.5,.7,.875]){
+          const points=Array.from({length:17},(_,i)=>{
+            const t=(i+.5)/17,uv=direction===0?[station,t]:[t,station];
+            const point=adaptor.Value(...uv.map((v,k)=>ranges[k][0]+v*(ranges[k][1]-ranges[k][0])));
+            try{return [point.X(),point.Y(),point.Z()];}finally{dispose(point);}
+          });
+          metrics.push(fitSectionCircle(points));
+        }
+        const maxRadiusErrorMm=Math.max(...metrics.map(m=>Math.abs(m.radiusMm-radiusMm)));
+        const maxSectionFitResidualMm=Math.max(...metrics.map(m=>m.sectionFitResidualMm));
+        const maxPlaneResidualMm=Math.max(...metrics.map(m=>m.planeResidualMm));
+        if(maxRadiusErrorMm<=1e-5&&maxSectionFitResidualMm<=1e-5&&maxPlaneResidualMm<=1e-5)candidates.push({radiusMm:metrics.reduce((v,m)=>v+m.radiusMm,0)/metrics.length,maxRadiusErrorMm,maxSectionFitResidualMm,maxPlaneResidualMm,sectionCount:5,method:'BREP-surface-isocurve-circle-fit',direction});
+      }catch{}
+    }
+    if(!candidates.length)throw failure();
+    return candidates.sort((a,b)=>a.maxRadiusErrorMm-b.maxRadiusErrorMm)[0];
+  }finally{dispose(adaptor);}
 }

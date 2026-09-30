@@ -1,0 +1,6 @@
+# Preserve archived CAD geometry and delivery evidence byte for byte.
+*.brep binary
+*.webcad -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+agent/output/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+tests/fixtures/rounding/pg15191-current-document.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+agent/temp/rounding-round3-final-*.log -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

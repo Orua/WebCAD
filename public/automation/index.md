@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.13.0 · 操作目录 sha256:847be7b53a9bfeffb9077f7c2ab29279ef10016a873e8f2399674ec43a99a7d7
+API 1.13.0 · 操作目录 sha256:ff30c5e30a6aadc49aa40b756979ea26ec0f539c5b2ca545551f49e3dfdbc429
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -93,7 +93,6 @@ API 1.13.0 · 操作目录 sha256:847be7b53a9bfeffb9077f7c2ab29279ef10016a873e8f
 - `faceExtrude` · advisory · Push/pull a planar face along its normal
 - `faceGroove` · migrated · Mill a rectangular recess from a selected planar face
 - `faceHole` · migrated · Drill inward from a planar face
-- `fillet` · migrated · Round sharp edges, shared face edges, face boundaries or the whole solid
 - `fittedSurface` · advisory · Fit a single B-spline face to a structured point grid
 - `group` · advisory · Group bodies as a compound without fusing
 - `helix` · migrated · Create an exact helical wire in the creation frame
@@ -123,7 +122,7 @@ API 1.13.0 · 操作目录 sha256:847be7b53a9bfeffb9077f7c2ab29279ef10016a873e8f
 - `referenceExtrude` · advisory · 选择一个闭合平面线框或单张平面面。直接复用精确圆弧/样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。
 - `referenceLoft` · advisory · 按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。
 - `revolve` · advisory · Revolve a closed profile
-- `rounding` · migrated · 圆角／圆润 / Rounding
+- `rounding` · migrated · 圆角 / Round selected edges
 - `sewFaces` · advisory · 选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。
 - `shell` · migrated · Hollow body removing selected faces
 - `sketchProfile` · migrated · Create an editable exact 2D wire or planar face from stable analytic entities
@@ -268,3 +267,5 @@ API 1.13.0 · 操作目录 sha256:847be7b53a9bfeffb9077f7c2ab29279ef10016a873e8f
 - `files.release` · browser-file-adapter · release({resourceId}); current page resource ID.
 - `import.iges` · unavailable · 当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。
 - `import.vector-server` · unavailable · 当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。
+
+旧工程兼容：已知旧操作可通过 getTool({id}) 读取原契约；不作为新建工具展示。

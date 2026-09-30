@@ -1,6 +1,6 @@
 import * as cad from 'replicad';
 import {topologyDetails} from './topology.js';
-import {measureBlendSectionRadius} from './section-metrics.js';
+import {measureGeneratedSurfaceRadius,measureBlendSectionRadius} from './section-metrics.js';
 
 const dispose=value=>{try{value?.delete?.();}catch{}};
 const error=(code,message,report)=>{throw Object.assign(new Error(message),{code,recoveryAction:'CORRECT_PARAMETERS',report});};
@@ -90,8 +90,8 @@ function generatedFaces(builder,sourceEdges,result,edgeIds,rows,radiusMm,oc,stri
           if(strict&&Math.abs(measuredRadiusMm-radiusMm)>1e-5)error('GEOMETRY_INVALID',`边 ${edgeId} 实测 R 与请求不符`,{edgeId,requestedRadiusMm:radiusMm,measuredRadiusMm});
           mapping.push({edgeId,faceId,surfaceType:type,measuredRadiusMm,sectionFitResidualMm,status:Math.abs(measuredRadiusMm-radiusMm)<=1e-5?'passed':'mismatch'});
         }else{
-          if(strict)error('GEOMETRY_INVALID',`边 ${edgeId} 的 ${type} 生成面尚无半径核验`);
-          mapping.push({edgeId,faceId,surfaceType:type,status:'not_run'});
+          const metric=measureGeneratedSurfaceRadius(faces[faceId],radiusMm,cad);
+          mapping.push({edgeId,faceId,surfaceType:type,measuredRadiusMm:metric.radiusMm,sectionFitResidualMm:metric.maxSectionFitResidualMm,sectionCount:metric.sectionCount,radiusMethod:metric.method,status:'passed'});
         }
       }finally{[surface,adaptor,native,list].forEach(dispose);}
     }
@@ -122,6 +122,7 @@ export function nativeConstantFillet(shape,params,plan){
   let builder,result;
   try{
     builder=new oc.BRepFilletAPI_MakeFillet(shape.wrapped,oc.ChFi3d_FilletShape.ChFi3d_Rational);
+    builder.SetParams(1e-6,1e-6,1e-6,1e-7,1e-7,1e-5);
     const contours=[];
     for(const row of plan.targets){
       if(builder.Contour(edges[row.edgeId].wrapped))continue;
@@ -135,8 +136,10 @@ export function nativeConstantFillet(shape,params,plan){
     const progress=new oc.Message_ProgressRange();try{builder.Build(progress);}finally{dispose(progress);}
     if(!builder.IsDone())error('KERNEL_BUILD_FAILED','内核未完成指定半径的圆角构造',{requestedEdgeIds:plan.requestedEdgeIds,faultyContourCount:builder.NbFaultyContours()});
     result=cad.cast(builder.Shape());
-    const generatedFaceMap=generatedFaces(builder,edges,result,actual,plan.rows,params.radiusMm,oc,expanded.length>0);
-    const seamValidation=expanded.length?verifyGeneratedSeams(result,plan,actual,generatedFaceMap,params.radiusMm):null;
+    const closedContours=actual.every(id=>[plan.rows[id].startPoint,plan.rows[id].endPoint].every(point=>
+      actual.reduce((count,other)=>count+[plan.rows[other].startPoint,plan.rows[other].endPoint].filter(p=>distance(p,point)<1e-5).length,0)===2));
+    const generatedFaceMap=generatedFaces(builder,edges,result,actual,plan.rows,params.radiusMm,oc,expanded.length>0||closedContours);
+    const seamValidation=expanded.length||closedContours?verifyGeneratedSeams(result,plan,actual,generatedFaceMap,params.radiusMm):null;
     const output={shape:result,actualEdgeIds:actual,expandedEdgeIds:expanded,contourEdgeIds,generatedFaceMap,seamValidation,contourCount:builder.NbContours(),surfaceCount:builder.NbSurfaces()};
     result=null;return output;
   }finally{dispose(result);dispose(builder);edges.forEach(dispose);}

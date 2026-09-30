@@ -1,0 +1,20 @@
+{
+  "updatedAt": "2026-09-30T20:16:08.5453890+08:00",
+  "repository": "https://github.com/Orua/WebCAD",
+  "branch": "codex/modeling-reliability-upgrade",
+  "archive": "WebCAD_R角工具_成果及问题完整包_20260930.zip",
+  "bytes": 36451591,
+  "sha256": "08295a2dd7f7d5413a0ee9941c6a62137ce237eb2f69ea5f926539331d764bac",
+  "archiveEntryCount": 1676,
+  "payloadHashesVerified": 1675,
+  "currentSourceFilesCompared": 865,
+  "credentialPatternScan": "No private-key, GitHub/OpenAI-token patterns or credential filenames found in archived text.",
+  "handoff": "agent/notes/rounding-unified/HANDOFF.md",
+  "verification": "agent/notes/rounding-unified/verification-20260930.json",
+  "sourceAndArtifactsIncluded": true,
+  "sourceAlgorithmModifiedByDelivery": false,
+  "originalNeedleAccepted": false,
+  "testsRerunByDelivery": false,
+  "priorTargetedTestsPassed": 110,
+  "priorBuildPassed": true
+}

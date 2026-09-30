@@ -28,7 +28,7 @@ const groups = {
     'incremental-rebuild', 'kernel', 'logo-draft', 'logo-kernel', 'logo-model',
     'position-tools', 'work-frame', 'reference-query', 'reference-curves', 'reference-integration', 'reference-profiles',
     'surface-repair', 'vector-profile', 'extract-shell-kernel', 'query-planar-spline',
-    'planar-thickness-invariant', 'round-edit-preferences', 'rounding-modes', 'rounding-history', 'rounding-kernel', 'rounding-section-metrics', 'smooth-transition',
+    'planar-thickness-invariant', 'round-edit-preferences', 'rounding-modes', 'rounding-history', 'rounding-kernel', 'rounding-unified', 'rounding-spline', 'rounding-section-metrics', 'smooth-transition',
   ],
   mcp: ['bridge-cancellation', 'mcp-bridge', 'mcp-v2', 'document-assets', 'agent-cli'],
   'local-fixtures': ['iges-import', 'iges-roundtrip'],

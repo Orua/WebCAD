@@ -1,0 +1,16 @@
+{
+  "bodyId": "78beac08-f964-49db-9b43-c0ae655edbee",
+  "radiusMm": 0.2,
+  "expectedWasmSha256": "4c9f22e9f3828dca6f3c95405934cdbe624e593c35266f47f392ab337478dbde",
+  "expectedVolumeMm3": 119.0879457694,
+  "volumeToleranceMm3": 0.00001,
+  "matchToleranceMm": 0.0001,
+  "targets": [
+    {
+      "name": "right_tip_curve_corresponding_to_revision_9_edge_80",
+      "lengthMm": 1.8196754922179612,
+      "startPoint": [0.04789394057434038, 23.45371476992193, 2.1796786879561036],
+      "endPoint": [1.3768828715594879, 22.578665909865, 1.5372086591077128]
+    }
+  ]
+}

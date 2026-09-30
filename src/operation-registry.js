@@ -1,4 +1,4 @@
-import { operationCatalog } from './operation-catalog.js';
+import { operationCatalog, legacyRoundingOperation } from './operation-catalog.js';
 import { QUICK_MODELS } from './quick-models.js';
 import {mechanicalIds,mechanicalDefaults,mechanicalExamples,mechanicalNames,mechanicalRefCounts,mechanicalResultTypes,mechanicalPreservedIds,profileSolidIds,mechanicalErrorCodes} from './mechanical-tool-contracts.js';
 import { assertJsonValue, contractError, contractHash, validateSchema } from './contracts/operation-schema.js';
@@ -14,7 +14,7 @@ const defaults = { rounding:{}, autoRound:{}, smoothTransition: {}, box: {}, hol
   multiHole: { axis: 'Z', direction: 1 }, multiPocket:{axis:'Z',direction:-1}, multiBoss:{axis:'Z',direction:1}, faceHole: { through: false }, fillet: {}, chamfer: {}, shell: {}, draftFaces:{}, extractFaces:{}, extractShell:{}, sketchProfile:{}, profileOffset:{}, profileRepair:{}, profileExtrude:{},...mechanicalDefaults };
 const triangle = [[-1, -1], [1, -1], [0, 1]];
 const regions = [{ outer: triangle }];
-const examples = { rounding:{specVersion:1,mode:'constant',scope:{kind:'edges',edgeIds:[0]},propagation:'selected-only',radiusMm:0.5,boundaryRequirement:'standard',endpoints:{defaultMode:'natural'}}, autoRound:{radius:0.1}, smoothTransition:{radius:0.1,faceIds:[0,1]},
+const examples = { rounding:{specVersion:2,sizeMm:0.5,scope:{kind:'edges',edgeIds:[0]}}, autoRound:{radius:0.1}, smoothTransition:{radius:0.1,faceIds:[0,1]},
   box: { width: 50, depth: 30, height: 3 }, cylinder: { radius: 10, height: 20 }, sphere: { radius: 10 },
   cone: { radius1: 10, radius2: 0, height: 20 }, torus: { majorRadius: 10, minorRadius: 2 },
   extrude: { profile: 'rectangle', width: 20, depth: 10, height: 5 },
@@ -106,7 +106,7 @@ const names = { box: ['长方体', '安装板', 'plate'], hole: ['孔', '钻孔'
 
 function buildCard(id, source) {
   const strict = migrated.has(id), special = source.mcpAddFeature === false;
-  const version = id==='rounding'?'1.2.0':strict ? '1.0.0' : 'legacy-1';
+  const version = id==='rounding'?'2.0.0':strict ? '1.0.0' : 'legacy-1';
   const inputSchema = schemaFor(id, source), refsSchema = refsFor(source.refs);
   if (id === 'profileExtrude') refsSchema.maxItems = 2;
   if (id === 'referenceLoft') refsSchema.maxItems = 12;
@@ -140,7 +140,7 @@ function buildCard(id, source) {
           : id==='multiBoss' ? 'Each world XYZ is a boss base center; shared radius and positive height extend along signed X/Y/Z. Each must fuse to one solid and add material. No bore.'
         : id === 'faceHole' ? 'World XYZ point on a planar face. Drill inward along the negative outward face normal. through computes depth from body bounds.'
           : `${topologyConvention} ${source.notes || source.description}` };
-  return { ...contract, title: source.description, category: categoryFor(id), synonyms: names[id] || (mechanicalNames[id]?[mechanicalNames[id],id]:[id]),
+  return { ...contract, ...(id==='fillet'?{legacyOnly:true,replacedBy:'rounding'}:{}), title: source.description, category: categoryFor(id), synonyms: names[id] || (mechanicalNames[id]?[mechanicalNames[id],id]:[id]),
     description: source.description, schemaHash: contractHash(contract), apiCompatibility: strict ? ['legacy', '2.0'] : ['legacy'],
     implementationStatus: 'implemented', availability: 'requires_browser', unavailableReason: null,
     strictContract: strict, v2Executable: strict, contractStatus: strict ? 'migrated' : 'advisory',
@@ -200,7 +200,7 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
   assertJsonValue(params);
   if (!params || Array.isArray(params) || typeof params !== 'object') contractError('PARAM_SCHEMA_INVALID', 'params', 'Expected an object.');
   if (!['input', 'resolved'].includes(phase)) throw new Error('Unknown parameter validation phase.');
-  const schema = clone(card.inputSchema);
+  const schema = clone(op==='rounding'&&params.specVersion===1?legacyRoundingOperation.paramsSchema:card.inputSchema);
   if (selectionToken !== undefined) {
     if (!card.selectionTokenSupport.supported) contractError('PARAM_SCHEMA_INVALID', 'args.selectionToken', 'This operation does not support a selection token.');
     if (phase !== 'input') contractError('PARAM_SCHEMA_INVALID', 'args.selectionToken', 'Resolve the selection token before final parameter validation.');
@@ -214,7 +214,7 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
     if(params.sharedFaces===true&&!(params.faceIds?.length>=2))contractError('SELECTION_CONFLICT','params.sharedFaces','sharedFaces=true requires at least two adjacent faceIds.');
   }
   validateSchema(schema, params);
-  if(op==='rounding'){
+  if(op==='rounding'&&params.specVersion===1){
     if(params.mode!=='constant'&&params.propagation!=='selected-only')contractError('PARAM_SCHEMA_INVALID','params.propagation','Tangent-chain propagation currently applies to constant R only.');
     const fields={edges:['edgeIds'],'face-boundaries':['faceIds'],'shared-faces':['faceAIds','faceBIds'],body:[]};
     const expected=fields[params.scope.kind],actual=Object.keys(params.scope).filter(key=>key!=='kind'&&key!=='excludeEdgeIds');

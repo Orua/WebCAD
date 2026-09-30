@@ -1,0 +1,103 @@
+{
+  "documentSha256": "17c50b5ea195be8091fc827ac3a8a004d64499e545fa78adc503f8f6ff175a06",
+  "wasmSha256": "4c9f22e9f3828dca6f3c95405934cdbe624e593c35266f47f392ab337478dbde",
+  "request": {
+    "bodyId": "78beac08-f964-49db-9b43-c0ae655edbee",
+    "radiusMm": 0.2,
+    "expectedWasmSha256": "4c9f22e9f3828dca6f3c95405934cdbe624e593c35266f47f392ab337478dbde",
+    "expectedVolumeMm3": 119.0879457694,
+    "volumeToleranceMm3": 0.00001,
+    "matchToleranceMm": 0.0001,
+    "targets": [
+      {
+        "name": "right_tip_curve_corresponding_to_revision_9_edge_80",
+        "lengthMm": 1.8196754922179612,
+        "startPoint": [
+          0.04789394057434038,
+          23.45371476992193,
+          2.1796786879561036
+        ],
+        "endPoint": [
+          1.3768828715594879,
+          22.578665909865,
+          1.5372086591077128
+        ]
+      }
+    ]
+  },
+  "startedAt": "2026-09-30T04:06:07.980Z",
+  "verificationScope": "input replay and native diagnostic only; not full tool acceptance",
+  "cases": [
+    {
+      "name": "raw-native-original-radius",
+      "radiusMm": 0.2,
+      "seedEdgeIds": [
+        80
+      ],
+      "nativeBuildCalls": 1,
+      "contours": [
+        {
+          "contour": 1,
+          "edgeIds": [
+            77,
+            80,
+            132,
+            111,
+            110
+          ],
+          "stripeStatus": {
+            "readError": "Cannot call BRepFilletAPI_MakeFillet.StripeStatus due to unbound types: 18ChFiDS_ErrorStatus"
+          },
+          "computedSurfaces": 6
+        }
+      ],
+      "isDone": false,
+      "faultyContours": 1,
+      "faultyVertices": 0,
+      "hasPartialResult": false
+    },
+    {
+      "name": "formal-native-only-tangent-chain",
+      "radiusMm": 0.2,
+      "returned": false,
+      "error": {
+        "code": "SCOPE_EXPANSION_REQUIRED",
+        "message": "内核轮廓包含不连续的传播边",
+        "report": {
+          "requestedEdgeIds": [
+            80
+          ],
+          "sharpSeedEdgeIds": [
+            80
+          ],
+          "expandedEdgeIds": [
+            77,
+            132,
+            111,
+            110
+          ],
+          "actualContourEdgeIds": [
+            [
+              77,
+              80,
+              132,
+              111,
+              110
+            ]
+          ]
+        }
+      }
+    }
+  ],
+  "source": {
+    "bodyId": "78beac08-f964-49db-9b43-c0ae655edbee",
+    "volumeMm3": 119.08794576940558,
+    "brepSha256": "e6e23e650f18aa6861d568a9dff4e5850b36b67e6b0c38fbef0a60451e5936fd",
+    "resolvedEdgeIds": [
+      80
+    ],
+    "featureCount": 38
+  },
+  "sourceUnchanged": true,
+  "completedAt": "2026-09-30T04:06:10.731Z"
+}

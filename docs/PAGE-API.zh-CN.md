@@ -882,9 +882,20 @@ if (picture.status !== 'read') throw new Error(picture.error?.code || 'capture f
 
 静态包可部署在 HTTPS 或本机 localhost 的普通静态托管位置。打开页面后等待 `api.info().ready === true`，并核对 `info().page.url` 和 `getState().context` 指向目标标签页；然后调用白名单方法。静态索引位于部署目录的 `automation/index.md` 与 `automation/index.json`，可先阅读接口再操作模型。Node/Vite 是构建及测试工具，不是页面建模服务。代码示例仅展示调用方式，实际浏览器运行和 ChatGPT 侧边栏访问须分别验证。
 
-## 圆角／圆润的已验证变 R 子范围
+## 就绪预览的批次控制
+
+`api.run` 可在已有就绪预览时执行显式 `preview.update`、`preview.commit` 或 `preview.cancel`；预览身份与 generation 仍由命令服务校验。计算中和忙碌时不能确认，其他建模步骤仍被活动预览挡住。单步 `preview.start` 的批次可返回 `completed`，内部结果为 `previewing`，没有提交实体或增加模型 revision。
+## 统一圆角与旧工程兼容
+
+新工具卡为 `rounding` 2.0.0。UI 提供选边、圆润大小、预览和确认；页面 API 使用 `params:{specVersion:2,sizeMm:0.5,scope:{kind:'edges',edgeIds:[当前边号]}}`。自动解析当前来源的连续局部边链，回执给出原选择、扩展边和来源几何签名。大小不自动缩小；尺寸修改使用 `feature.edit` 的 `sizeMm`。旧 `fillet` 不再出现在新工具搜索与工具栏，但明确指定的旧 API 和旧历史继续按原契约执行。
+
+原生样条过渡面增加真实 BREP 圆截面核验，不再仅按面类型拒绝；闭合且无分叉的轮廓还核验生成面接缝。已验证交叉圆柱曲面 R0.3 的预览、确认、测量及保存重开，尚未达到原始 PG15191 与六款产品的完整验收。回执中 `not_yet_verified` 的接缝或端部不能视为已合格；局部裁剪／补面研究仍未接入正式求解器。
+
+以下为历史 `specVersion:1` 参数与已经验证的能力边界，新操作使用上述单一大小接口。
 
 `rounding` 工具卡版本 1.2.0。当前 `mode:'variable'` 只开放一条两平面公共直边的 2–16 个有序线性站点：`scope:{kind:'edges',edgeIds:[当前边号]}`，`laws:[{chainId:'edge:<当前边号>',direction:'forward'|'reverse',interpolation:'linear',stations:[{s:0,radiusMm:起点R},...中间站点,{s:1,radiusMm:终点R}]}]`。`s` 是所选方向上的源边累计弧长比例；中间站点必须严格递增，`chainId` 和边号必须取自当前来源实体，不能复用加工后的拓扑编号。界面以每行 `s,R` 输入可选中间站点。此路线在原始输入上建立精确圆弧截面并构造逐段有界规则面，经真实 WASM 检查最终实体、各段内部截面半径、拟圆残差与两侧接缝切向。分段线性规律的斜率改变处可能存在站点分界线，报告为 C0 半径连续。`roundingReport.variable` 提供实际样本、最大误差、材料方向和构造版本；它没有调用原生自定义 law，原生 law 字段为 `null`。多段链、平滑插值和一般曲边变 R 仍待验收。
+
+自动恒 R 候选各自通过有效实体与材料变化检查后才可返回；生成面的半径未测得时会拒绝该候选并尝试适用的备用构造。`roundingReport.candidateAttempts` 记录此前失败的策略和错误，全部失败时错误报告也包含该列表。体积回执使用 `BRepGProp.VolumePropertiesGK` 自适应积分。端部未完成独立检查时，`validation.endpoints` 为 `not_yet_verified`，不能据接触边 G1 或 `solid:'passed'` 推断端部合格。
 
 预览计算中按 Esc 会中止该次 Worker 计算，从原工程重建内核；取消回执为 `no_change`、`validation.geometry:'cancelled'`。旧预览不能提交，重新预览应使用新鲜 context。180 秒真实超时后的恢复仍需专项验收。
 

@@ -1,0 +1,162 @@
+{
+  "version": 2,
+  "documentId": "a8c7feb4-b251-430b-ac1e-08c6f4b485ba",
+  "name": "新建工程20260930-008",
+  "features": [
+    {
+      "id": "a597e3ce-0857-4a4a-b212-d72352a035fd",
+      "op": "cylinder",
+      "name": "圆柱 1",
+      "params": {
+        "radius": 3,
+        "height": 14
+      },
+      "refs": [],
+      "placement": {
+        "version": 1,
+        "resolverVersion": 1,
+        "frameSnapshot": {
+          "origin": [
+            0,
+            0,
+            0
+          ],
+          "quaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "sourceAnchor": {
+          "kind": "model-origin"
+        },
+        "sourceFrameRef": {
+          "kind": "world"
+        },
+        "sourcePoint": [
+          0,
+          0,
+          0
+        ]
+      },
+      "semanticsVersion": 2
+    },
+    {
+      "id": "965ce8b9-941f-4b48-af8c-360ab7b67b67",
+      "op": "transform",
+      "name": "变换 1",
+      "params": {
+        "rx": -90,
+        "y": -7
+      },
+      "refs": [
+        "a597e3ce-0857-4a4a-b212-d72352a035fd"
+      ]
+    },
+    {
+      "id": "a7c1acd4-ce1c-43fc-9b67-95cabd62fda7",
+      "op": "cylinder",
+      "name": "圆柱 2",
+      "params": {
+        "radius": 2,
+        "height": 14
+      },
+      "refs": [],
+      "placement": {
+        "version": 1,
+        "resolverVersion": 1,
+        "frameSnapshot": {
+          "origin": [
+            0,
+            0,
+            0
+          ],
+          "quaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "sourceAnchor": {
+          "kind": "model-origin"
+        },
+        "sourceFrameRef": {
+          "kind": "world"
+        },
+        "sourcePoint": [
+          0,
+          0,
+          0
+        ]
+      },
+      "semanticsVersion": 2
+    },
+    {
+      "id": "44850bd9-3c19-49ff-a32c-707b22caf627",
+      "op": "transform",
+      "name": "变换 2",
+      "params": {
+        "z": -7
+      },
+      "refs": [
+        "a7c1acd4-ce1c-43fc-9b67-95cabd62fda7"
+      ]
+    },
+    {
+      "id": "c0117320-710c-45d2-9d3b-1976e810eefd",
+      "op": "intersect",
+      "name": "求交 1",
+      "params": {},
+      "refs": [
+        "965ce8b9-941f-4b48-af8c-360ab7b67b67",
+        "44850bd9-3c19-49ff-a32c-707b22caf627"
+      ]
+    },
+    {
+      "id": "d8c5d9f5-faee-4f98-842f-9000d3717a3a",
+      "op": "rounding",
+      "name": "交叉曲面 R0.3 验证",
+      "params": {
+        "specVersion": 2,
+        "sizeMm": 0.3,
+        "scope": {
+          "kind": "edges",
+          "edgeIds": [
+            0
+          ]
+        }
+      },
+      "refs": [
+        "c0117320-710c-45d2-9d3b-1976e810eefd"
+      ]
+    }
+  ],
+  "imports": {},
+  "hidden": [],
+  "referenceSystem": {
+    "version": 1,
+    "workFrame": {
+      "frameVersion": 2,
+      "origin": [
+        0,
+        0,
+        14.05
+      ],
+      "quaternion": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "locked": false,
+      "sourceLabel": "自动避让模型",
+      "provenance": {
+        "kind": "manual"
+      }
+    },
+    "savedFrames": [],
+    "bodyAnchors": []
+  }
+}

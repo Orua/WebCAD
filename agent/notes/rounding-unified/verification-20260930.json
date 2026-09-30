@@ -1,0 +1,269 @@
+{
+  "date": "2026-09-30",
+  "round": 3,
+  "status": "stop_loss_partial_repository_delivery",
+  "originalNeedleAccepted": false,
+  "universalRoundingToolComplete": false,
+  "commitAllowed": true,
+  "pushAllowed": true,
+  "repository": {
+    "name": "WebCAD",
+    "branch": "codex/modeling-reliability-upgrade",
+    "baseCommit": "3bf4b99688ea8116076ee201de335ddbefabad94",
+    "visibility": "public",
+    "sourceFixturesIncludedInDelivery": true
+  },
+  "targetedTests": {
+    "command": "node --test --test-concurrency=1 tests/rounding-spline.test.mjs tests/rounding-unified.test.mjs tests/operation-registry.test.mjs tests/rounding-kernel.test.mjs tests/rounding-history.test.mjs tests/rounding-modes.test.mjs tests/rounding-section-metrics.test.mjs tests/page-batch.test.mjs tests/command-service.test.mjs tests/tool-discovery.test.mjs tests/page-api.test.mjs tests/agent-onboarding.test.mjs",
+    "passed": 110,
+    "failed": 0,
+    "log": "agent/temp/rounding-round3-final-tests.log",
+    "scope": "Final production source after discovery count fix; no full portable/kernel suite run."
+  },
+  "testManifest": {
+    "classifiedFiles": 148,
+    "unclassified": [],
+    "missing": [],
+    "duplicates": 0
+  },
+  "finalBuild": {
+    "command": "npm run build",
+    "result": "pass",
+    "log": "agent/temp/rounding-round3-final-build.log",
+    "toolCards": 197,
+    "operations": 71,
+    "actions": 26,
+    "uiRoutes": 148
+  },
+  "browserInteraction": {
+    "result": "pass_for_synthetic_curved_case",
+    "transport": "Existing IAB tab 2 via authorized window.webcad.api and CDP; no new tabs",
+    "buildId": "3bf4b99688ea8116076ee201de335ddbefabad94-working",
+    "catalogHash": "sha256:ff30c5e30a6aadc49aa40b756979ea26ec0f539c5b2ca545551f49e3dfdbc429",
+    "docsHash": "sha256:f20ef87fb25dcf41881ef22917aba2b98dbe8bfa880cf32a735c4d17f8e6bd66",
+    "documentId": "a8c7feb4-b251-430b-ac1e-08c6f4b485ba",
+    "documentInstanceId": "6cfe8023-4d41-4f6d-8656-6efa244def07",
+    "revision": 2,
+    "bodyId": "bff7424f-a9fd-4c86-8ad4-9c0abcecab8b",
+    "featureCount": 7,
+    "solidCount": 1,
+    "dirty": false,
+    "requestedRadiusMm": 0.3,
+    "measuredLastBlendRadiusMm": 0.300000007627818,
+    "sectionFitResidualMm": 6.402876007172154E-10,
+    "sectionCount": 5,
+    "seams": "G1-contact-sampled",
+    "endpoints": "no_terminal_exception",
+    "maxTangentAngleDeg": 1.4787793334710982E-06,
+    "volumeMm3": 70.68648339095961,
+    "deltaLastOperationMm3": -0.1248131966610373,
+    "volumeMethod": "BRepGProp.VolumePropertiesGK",
+    "displayMatchesContext": true,
+    "previewStartAndCommitBatchVerified": true,
+    "saveConfirmed": true,
+    "savedBytes": 3593,
+    "savedSha256": "304c076c2c75e3fed723942a02bb311034c0344d4746f642fdce4c8824e0d549",
+    "reopenFinalBuildVerified": true,
+    "project": "agent/output/rounding-unified-20260930/R角曲面验证_上下R0.3.webcad",
+    "screenshot": "agent/output/rounding-unified-20260930/rounding-browser-curved-R03.jpg",
+    "screenshotSha256": "ada6a4fd17700cfa4ece7fe551877c9d97a27f8609be90f15d86d3674f6bc2ea",
+    "formalProductAcceptance": false
+  },
+  "original": {
+    "fixtureSha256": "17c50b5ea195be8091fc827ac3a8a004d64499e545fa78adc503f8f6ff175a06",
+    "wasmSha256": "4c9f22e9f3828dca6f3c95405934cdbe624e593c35266f47f392ab337478dbde",
+    "baselineVolumeMm3": 119.08794576940558,
+    "baselineFaceCount": 59,
+    "baselineSeedEdge": 80,
+    "baselineContourEdgeIds": [
+      77,
+      80,
+      132,
+      111,
+      110
+    ],
+    "topologyIndicesRevisionLocal": true,
+    "explicitAdditionalRadiusProbesMm": [
+      0.05,
+      0.1,
+      0.15,
+      0.3
+    ],
+    "explicitAdditionalRadiusResults": "All KERNEL_BUILD_FAILED; not a hidden radius shrink"
+  },
+  "experiments": [
+    {
+      "route": "Clean analytic support-pair fillet and transfer",
+      "nativeFilletValid": true,
+      "transferredContactAnglesDeg": [
+        13.8,
+        179
+      ],
+      "accepted": false
+    },
+    {
+      "route": "All support-pair cutter union/sequential transfer",
+      "result": "TopOpeBRepDS_DataStructure::Point / Standard_ProgramError",
+      "accepted": false
+    },
+    {
+      "route": "Inward offset of cropped front support shell",
+      "distanceMm": -0.2,
+      "isDone": true,
+      "outputShape": "null",
+      "accepted": false
+    },
+    {
+      "route": "C2 source-profile reconstruction at 1e-5 mm",
+      "result": "Native rounded shape invalid; ShapeFixSolid and SameParameter did not repair validity",
+      "accepted": false
+    },
+    {
+      "route": "Offset-center machining canal",
+      "centerSamples": 81,
+      "maxCenterResidualMm": 8.4747877E-09,
+      "extendedArcLoftValid": false,
+      "accepted": false
+    },
+    {
+      "route": "Valid swept bead plus ruled/smooth wedge",
+      "result": "Difference/transfer stalled in owned task processes; OBB difference completed with invalid tool",
+      "accepted": false
+    },
+    {
+      "route": "21 interior arc-section loft",
+      "toolValid": true,
+      "resultValid": true,
+      "remainingNearSharpCount": 70,
+      "maxRemainingAngleDeg": 113.217,
+      "requestedCircleMeasurementPassed": false,
+      "accepted": false
+    },
+    {
+      "route": "Compatibility-corrected loft",
+      "result": "Same sharp seams remained",
+      "accepted": false
+    },
+    {
+      "route": "C2 proxy at 0.001/0.003 mm",
+      "roundedProxyValid": true,
+      "proxyCircleRadiusMeasured": true,
+      "proxyMaxMeasuredRadiusErrorMm": 3.79E-07,
+      "endpointAnglesDeg": [
+        1.300224614845983,
+        1.229076799171198
+      ],
+      "accepted": false
+    },
+    {
+      "route": "C2 proxy cutter transfer",
+      "toolSolidCount": 2,
+      "dominantToolSignedVolumeMm3": -0.006118690087187909,
+      "originalTransferVolumeMm3": 119.095782876492,
+      "resultAddedMaterial": true,
+      "remainingSeamAnglesDeg": "49 to 90",
+      "accepted": false
+    },
+    {
+      "route": "Independent OCP 7.9.3.1 native fillet",
+      "variants": 6,
+      "selectionResolvedFromSourceSignatures": true,
+      "maxSignatureErrorMm": 9E-15,
+      "allBuildsDone": false,
+      "faultyContoursPerBuild": 1,
+      "accepted": false
+    },
+    {
+      "route": "Independent OCP Boolean / solid orientation repair",
+      "variants": 2,
+      "resultSolidCount": 3,
+      "resultVolumeMm3": 119.09785276894,
+      "resultAddedMaterial": true,
+      "accepted": false
+    },
+    {
+      "route": "Direct reconstructed local tip replacement",
+      "resultValid": true,
+      "resultSolidCount": 1,
+      "resultVolumeMm3": 119.12495516427572,
+      "resultAddedMaterial": true,
+      "joinStepAnglesDeg": 90,
+      "accepted": false
+    },
+    {
+      "route": "Local replacement clipped back to original",
+      "resultValid": true,
+      "resultSolidCount": 1,
+      "resultVolumeMm3": 119.06825697201255,
+      "maxGeneratedContactAngleDeg": 5.288552027525123,
+      "contactSeamsSelected": 19,
+      "accepted": false,
+      "log": "agent/temp/rounding-local-replace.log"
+    },
+    {
+      "route": "Secondary smoothing of clipped contact seams",
+      "experimentalRadiusMm": 0.02,
+      "contactSeams": 19,
+      "result": "Standard_Failure: There are no suitable edges for chamfer or fillet",
+      "accepted": false,
+      "integratedIntoProduct": false,
+      "log": "agent/temp/rounding-local-contact-fillet.log"
+    }
+  ],
+  "formalProductLocationsPassed": 0,
+  "formalProductLocationsRequired": 18,
+  "formalScreenshotsCaptured": 0,
+  "formalScreenshotsRequired": 72,
+  "limitations": [
+    "Original selected needle contour still has no qualified integrated result.",
+    "No full open-end G1 or global outside-region invariance verification.",
+    "No stable signature resolver across topology-changing history.",
+    "Synthetic curved R0.3 evidence is not one of the 18 product locations."
+  ],
+  "localMaterialsRetained": [
+    "Private source fixtures and baseline geometry for reproduction",
+    "Unqualified experimental BREP, probe scripts, logs under ignored agent/temp",
+    "Edit backups under ignored agent/backups",
+    "Synthetic project and screenshot under ignored agent/output"
+  ],
+  "notifications": {
+    "enabled": true,
+    "majorProgressConfirmedSent": true,
+    "workContinuedAfterMajorProgress": true,
+    "finalProgressConfirmedSent": true,
+    "finalSendStatusCode": 200,
+    "finalAttachmentsSent": false,
+    "attachmentAutomaticApprovalRejected": true,
+    "attachmentBlockReason": "Sensitive project attachment payload and ownership of fixed recipient were not directly confirmed; safer plain status message sent."
+  },
+  "previewService": {
+    "pid": 249724,
+    "url": "http://127.0.0.1:667/",
+    "keptRunning": true
+  },
+  "newBrowserTabsOpened": 0,
+  "codingStopSnapshot": {
+    "fileCount": 39,
+    "diffCheck": "passed",
+    "commitCreated": false,
+    "pushPerformed": false,
+    "trackedUnstagedFiles": 0,
+    "privateGeometryIncluded": false,
+    "historicalSnapshotBeforeLatestPushAuthorization": true
+  },
+  "repositoryDelivery": {
+    "authorization": "User requested all current code, this round's Markdown, files and handoff to be pushed to the repository.",
+    "branch": "codex/modeling-reliability-upgrade",
+    "entry": "agent/output/rounding-package-delivery-20260930/README.md",
+    "includes": [
+      "Current production source, tests, public contracts and documentation",
+      "Current handoff and verification records",
+      "Original fixture and baseline BREP/topology",
+      "Synthetic curved case, screenshot, targeted-test and build logs",
+      "Full ZIP containing build output, experimental files, OCP probes and original execution package"
+    ],
+    "editBackupsIncluded": false,
+    "runtimeCredentialsIncluded": false,
+    "finalCommit": "Use the Git commit containing this delivery entry; the pre-delivery coding snapshot above is historical."
+  }
+}

@@ -1,38 +1,29 @@
 {
   "id": "rounding",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "inputSchema": {
     "type": "object",
     "properties": {
       "specVersion": {
         "type": "integer",
-        "const": 1
+        "const": 2
       },
-      "mode": {
-        "type": "string",
-        "description": "Rounding mode",
-        "enum": [
-          "constant",
-          "variable",
-          "width"
-        ]
+      "sizeMm": {
+        "type": "number",
+        "description": "Requested local rounding size; exact-radius candidates use this radius (mm)",
+        "exclusiveMinimum": 0
       },
       "scope": {
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "kind"
+          "kind",
+          "edgeIds"
         ],
         "properties": {
           "kind": {
             "type": "string",
-            "description": "Target scope",
-            "enum": [
-              "edges",
-              "face-boundaries",
-              "shared-faces",
-              "body"
-            ]
+            "const": "edges"
           },
           "edgeIds": {
             "type": "array",
@@ -45,187 +36,19 @@
               "quantizationPolicy": "none"
             },
             "minItems": 1,
+            "maxItems": 64,
             "uniqueItems": true,
             "unit": "1",
             "quantityKind": "index",
             "quantizationPolicy": "none"
-          },
-          "faceIds": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "description": "Zero-based topology index",
-              "minimum": 0,
-              "unit": "1",
-              "quantityKind": "index",
-              "quantizationPolicy": "none"
-            },
-            "minItems": 1,
-            "uniqueItems": true,
-            "unit": "1",
-            "quantityKind": "index",
-            "quantizationPolicy": "none"
-          },
-          "faceAIds": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "description": "Zero-based topology index",
-              "minimum": 0
-            },
-            "minItems": 1,
-            "uniqueItems": true
-          },
-          "faceBIds": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "description": "Zero-based topology index",
-              "minimum": 0
-            },
-            "minItems": 1,
-            "uniqueItems": true
-          },
-          "excludeEdgeIds": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "description": "Zero-based topology index",
-              "minimum": 0
-            },
-            "minItems": 1,
-            "uniqueItems": true,
-            "description": "Current source edge IDs excluded from this scope and any tangent propagation"
-          }
-        }
-      },
-      "propagation": {
-        "type": "string",
-        "description": "Tangent chain selection",
-        "enum": [
-          "selected-only",
-          "tangent-chain"
-        ]
-      },
-      "radiusMm": {
-        "type": "number",
-        "description": "Exact rolling-ball radius for constant mode (mm)",
-        "exclusiveMinimum": 0,
-        "unit": "mm",
-        "quantityKind": "length",
-        "quantizationPolicy": "none"
-      },
-      "laws": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 1,
-        "items": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "chainId",
-            "direction",
-            "interpolation",
-            "stations"
-          ],
-          "properties": {
-            "chainId": {
-              "type": "string",
-              "minLength": 6,
-              "maxLength": 256,
-              "description": "One edge: edge:<id>; ordered collinear chain: edges:<id1>,<id2>,..."
-            },
-            "direction": {
-              "type": "string",
-              "description": "Directed source edge",
-              "enum": [
-                "forward",
-                "reverse"
-              ],
-              "unit": "1",
-              "quantityKind": "direction",
-              "quantizationPolicy": "none"
-            },
-            "interpolation": {
-              "type": "string",
-              "description": "Radius interpolation",
-              "enum": [
-                "linear"
-              ]
-            },
-            "stations": {
-              "type": "array",
-              "minItems": 2,
-              "maxItems": 16,
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "s",
-                  "radiusMm"
-                ],
-                "properties": {
-                  "s": {
-                    "type": "number",
-                    "minimum": 0,
-                    "maximum": 1,
-                    "description": "Normalized cumulative source arc length across the full ordered chain"
-                  },
-                  "radiusMm": {
-                    "type": "number",
-                    "description": "Requested radius at station (mm)",
-                    "exclusiveMinimum": 0,
-                    "unit": "mm",
-                    "quantityKind": "length",
-                    "quantizationPolicy": "none"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "widthAMm": {
-        "type": "number",
-        "description": "Width along support A in the local normal section (mm)",
-        "exclusiveMinimum": 0
-      },
-      "widthBMm": {
-        "type": "number",
-        "description": "Width along support B in the local normal section (mm)",
-        "exclusiveMinimum": 0
-      },
-      "boundaryRequirement": {
-        "type": "string",
-        "description": "End boundary validation",
-        "enum": [
-          "standard"
-        ]
-      },
-      "endpoints": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "defaultMode"
-        ],
-        "properties": {
-          "defaultMode": {
-            "type": "string",
-            "description": "Open-chain termination",
-            "enum": [
-              "natural"
-            ]
           }
         }
       }
     },
     "required": [
       "specVersion",
-      "mode",
-      "scope",
-      "propagation",
-      "boundaryRequirement",
-      "endpoints"
+      "sizeMm",
+      "scope"
     ],
     "additionalProperties": false,
     "$schema": "https://json-schema.org/draft/2020-12/schema"
@@ -259,18 +82,17 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. constant requires radiusMm. selected-only preserves the exact source-edge scope and rejects native contour expansion. tangent-chain permits a connected nonbranching G1 sharp-edge contour and reports every expanded source edge and generated face; preview the complete highlighted contour before applying. variable and width require selected-only. variable supports one straight edge or an ordered collinear chain of up to 16 sharp edges sharing two geometric support planes, with 2..16 ordered linear stations and explicit direction. chainId is edge:<id> or edges:<id1>,<id2>,... in scope order. Station s is normalized cumulative arc length across the whole chain. The ruled circular-section construction verifies final sections and sampled G1 support seams on real WASM. Piecewise-linear slope changes can create a station seam. Noncollinear chains and smooth laws remain unverified. width requires widthAMm and widthBMm and one edge or ordered shared-faces pair. A/B follow faceAIds/faceBIds; for one edge they follow ascending adjacent face IDs. Width families are a two-plane straight edge and a planar/cylindrical circular edge, either closed or an open arc bounded by radial planar end faces. When native constant R fails, an isolated BREP-copy same-domain cleanup is tried only for a uniquely remapped single edge with zero symmetric material difference, then exact-arc analytic fallback covers those constant-R families. Four-boundary constrained fill, other width geometries and non-natural endpoints remain unverified. Current topology indices must be queried from the source body.",
-  "title": "圆角／圆润 / Rounding",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Select current sharp edges, set sizeMm, preview the actual affected region, then commit the validated preview. Algorithms and connected-edge resolution are internal. No automatic shrinking of the requested size. The report distinguishes requested size, measured dimensions, exact-radius results and adaptive transitions. Failed candidates leave the source unchanged. Historical specVersion:1 features and the legacy fillet API retain their exact original semantics; new operations use this v2 contract.",
+  "title": "圆角 / Round selected edges",
   "category": "modification",
   "synonyms": [
     "圆角",
     "圆润",
     "R角",
-    "fillet",
-    "圆角／圆润"
+    "fillet"
   ],
-  "description": "圆角／圆润 / Rounding",
-  "schemaHash": "sha256:6d9c55fab0348497417198a1ae7d27f652b84fe640e6e19a6fedd5f6899f7c9e",
+  "description": "圆角 / Round selected edges",
+  "schemaHash": "sha256:caa86992df2d4c11cdf3eebfa5ee0fada43aaccb0a89605cf9ebfa85d7e01818",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -321,24 +143,18 @@
     "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "constant requires radiusMm. selected-only preserves the exact source-edge scope and rejects native contour expansion. tangent-chain permits a connected nonbranching G1 sharp-edge contour and reports every expanded source edge and generated face; preview the complete highlighted contour before applying. variable and width require selected-only. variable supports one straight edge or an ordered collinear chain of up to 16 sharp edges sharing two geometric support planes, with 2..16 ordered linear stations and explicit direction. chainId is edge:<id> or edges:<id1>,<id2>,... in scope order. Station s is normalized cumulative arc length across the whole chain. The ruled circular-section construction verifies final sections and sampled G1 support seams on real WASM. Piecewise-linear slope changes can create a station seam. Noncollinear chains and smooth laws remain unverified. width requires widthAMm and widthBMm and one edge or ordered shared-faces pair. A/B follow faceAIds/faceBIds; for one edge they follow ascending adjacent face IDs. Width families are a two-plane straight edge and a planar/cylindrical circular edge, either closed or an open arc bounded by radial planar end faces. When native constant R fails, an isolated BREP-copy same-domain cleanup is tried only for a uniquely remapped single edge with zero symmetric material difference, then exact-arc analytic fallback covers those constant-R families. Four-boundary constrained fill, other width geometries and non-natural endpoints remain unverified. Current topology indices must be queried from the source body."
+    "Select current sharp edges, set sizeMm, preview the actual affected region, then commit the validated preview. Algorithms and connected-edge resolution are internal. No automatic shrinking of the requested size. The report distinguishes requested size, measured dimensions, exact-radius results and adaptive transitions. Failed candidates leave the source unchanged. Historical specVersion:1 features and the legacy fillet API retain their exact original semantics; new operations use this v2 contract."
   ],
   "minimalExample": {
     "op": "rounding",
     "params": {
-      "specVersion": 1,
-      "mode": "constant",
+      "specVersion": 2,
+      "sizeMm": 0.5,
       "scope": {
         "kind": "edges",
         "edgeIds": [
           0
         ]
-      },
-      "propagation": "selected-only",
-      "radiusMm": 0.5,
-      "boundaryRequirement": "standard",
-      "endpoints": {
-        "defaultMode": "natural"
       }
     },
     "refs": [
@@ -350,19 +166,13 @@
   "normalExample": {
     "op": "rounding",
     "params": {
-      "specVersion": 1,
-      "mode": "constant",
+      "specVersion": 2,
+      "sizeMm": 0.5,
       "scope": {
         "kind": "edges",
         "edgeIds": [
           0
         ]
-      },
-      "propagation": "selected-only",
-      "radiusMm": 0.5,
-      "boundaryRequirement": "standard",
-      "endpoints": {
-        "defaultMode": "natural"
       }
     },
     "refs": [
@@ -374,19 +184,13 @@
   "invalidExamples": [
     {
       "params": {
-        "specVersion": 1,
-        "mode": "constant",
+        "specVersion": 2,
+        "sizeMm": 0.5,
         "scope": {
           "kind": "edges",
           "edgeIds": [
             0
           ]
-        },
-        "propagation": "selected-only",
-        "radiusMm": 0.5,
-        "boundaryRequirement": "standard",
-        "endpoints": {
-          "defaultMode": "natural"
         },
         "__unknownField": true
       },
@@ -430,7 +234,7 @@
     "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
-  "label": "圆角／圆润",
+  "label": "圆角",
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -446,5 +250,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:6cec8ebe6eacc7368113ac42e72d2a3507a496b971a9ff91584765f2a8d0e1e9"
+  "docsHash": "sha256:299b82f9472eb7ce66e2528b77609997911f837a31ba241ef3ec806a65c77da2"
 }

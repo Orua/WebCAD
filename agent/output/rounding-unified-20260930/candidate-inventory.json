@@ -1,0 +1,37 @@
+[
+  {
+    "path": "G:\\TEXT-TO-CAD\\桌面3D文件\\临时图纸\\WebCAD-IGS3-20260923\\HS13285-r001.webcad",
+    "bytes": 3951,
+    "sha256": "86371f22c7e7e8f7b905fd289953203bb592d0a8d535ca795f976cba83ea5948",
+    "status": "candidate_only_unverified",
+    "note": "Product identity, solid validity, three original sharp positions, and format import remain unverified."
+  },
+  {
+    "path": "G:\\TEXT-TO-CAD\\桌面3D文件\\临时图纸\\WebCAD-IGS3-20260923\\HS12954-r001.webcad",
+    "bytes": 3585,
+    "sha256": "748b859d40babd70dcc0c0b04062207a7d72ffc2d246774dc5b338d98ac3a23e",
+    "status": "candidate_only_unverified",
+    "note": "Product identity, solid validity, three original sharp positions, and format import remain unverified."
+  },
+  {
+    "path": "G:\\TEXT-TO-CAD\\桌面3D文件\\临时图纸\\WebCAD-IGS3-20260923\\GC17206-B-r001.webcad",
+    "bytes": 2576,
+    "sha256": "1cee195b6e5fc7dd05e8d53df6369e01fdaab2cc70305fcf39d6f3a1436baaa1",
+    "status": "candidate_only_unverified",
+    "note": "Product identity, solid validity, three original sharp positions, and format import remain unverified."
+  },
+  {
+    "path": "G:\\TEXT-TO-CAD\\桌面3D文件\\临时图纸\\GC16709_Terra指导修复\\GC16709_A_Terra_guided_stage1.stp",
+    "bytes": 28403,
+    "sha256": "0675c034d904f029190c09baea0e68495f05b8bcffc7ab96db8e26bf21da388a",
+    "status": "candidate_only_unverified",
+    "note": "Product identity, solid validity, three original sharp positions, and format import remain unverified."
+  },
+  {
+    "path": "G:\\TEXT-TO-CAD\\桌面3D文件\\临时图纸\\简单款_STP验收\\tommy滴胶方扣-16.stp",
+    "bytes": 164398,
+    "sha256": "ad9a9aca965dbc520f679dff6148491454e880119b9caa54ff80b281d838aecb",
+    "status": "candidate_only_unverified",
+    "note": "Product identity, solid validity, three original sharp positions, and format import remain unverified."
+  }
+]

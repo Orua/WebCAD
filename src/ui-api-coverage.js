@@ -2,7 +2,7 @@ import { listOperations } from './operation-registry.js';
 
 // This is the UI-to-public-API inventory, also used by the UI and build gate.
 export const UI_API_ROUTES = Object.freeze({
-  rounding:{tools:['rounding','feature.edit','preview.start','preview.commit','preview.cancel'],method:'execute',usage:'先查询当前实体、边及相邻面，再读 rounding 工具卡。恒 R 使用 mode:constant、radiusMm。已验收的变 R 子范围：两平面公共单一直边、2–16 个线性站点；mode:variable、scope.edgeIds 单边、laws[0].chainId=edge:<当前边号>、direction、interpolation:linear、含 s=0/1 且中间站点严格递增。正式解析构造在真实 WASM 上验证九个截面与接缝；多段链和尚未开放的 smooth 插值仍待验收。两平面直边或平面/圆柱闭合圆边宽圆润使用 mode:width、widthAMm 和 widthBMm。整件恒 R 可用 scope:{kind:body,excludeEdgeIds:[当前来源边序号]} 排除边。共用 specVersion:1、预览和提交；从 roundingReport 读回实际尺寸；feature.edit 从上游重建。'},
+  rounding:{tools:['rounding','feature.edit','preview.start','preview.commit','preview.cancel'],method:'execute',usage:'先查询当前来源实体的锐边。新圆角使用 specVersion:2、sizeMm 和 scope:{kind:edges,edgeIds:[当前边号]}；不传算法或模式。预览核对实际影响范围，再提交同一份预览。feature.edit 修改 sizeMm，从上游重新求解。旧 specVersion:1 特征继续按原尺寸与模式重算。'},
   pathEdit:{tools:['inspectProfile','feature.edit'],method:'execute',usage:'选择明确的 sketchProfile 原始路径，修改完整 params 后 feature.edit 提交；保留原 placement，重建后续特征。编辑器支持端点、长度/角度、删除段、闭合和线框输出。'},
   pathTrim:{tools:['prepareProfileEdit','feature.edit'],method:'prepareProfileEdit',usage:'选择 sketchProfile 来源；prepareProfileEdit mode=trim 明确 entityId、targetId、endpoint、candidateId，再 feature.edit 提交完整 profile。'},
   pathExtend:{tools:['prepareProfileEdit','feature.edit'],method:'prepareProfileEdit',usage:'选择 sketchProfile 来源；prepareProfileEdit mode=extend 沿原解析曲线延伸至明确交点，feature.edit 提交。'},
@@ -22,7 +22,7 @@ export const UI_API_ROUTES = Object.freeze({
   'reference.alignSelectedFace':{tools:['queryGeometry','reference.setWorkFrame'],method:'execute',usage:'选定当前精确平面面片，读取法向；以当前工作 X 作为面内方向，确认后更新工作基准方向。'},
   renderQuality:{tools:['setRenderQuality'],method:'setRenderQuality',usage:'显式 quality=draft/standard/fine/ultra；getState().renderQuality 读公差、三角面数，不修改 BRep。'},
   downloadResource:{tools:['files.download'],method:'files.download',usage:'使用生成回执的 resourceId 重试下载；不重新生成或清除 dirty。'},
-  ...Object.fromEntries(listOperations().map(c=>[c.id,{tools:[c.id],method:'execute',usage:'feature.add；按工具卡传显式 params/refs，或 run 的 add。'}])),
+  ...Object.fromEntries(listOperations().filter(c=>!['rounding','fillet'].includes(c.id)).map(c=>[c.id,{tools:[c.id],method:'execute',usage:'feature.add；按工具卡传显式 params/refs，或 run 的 add。'}])),
   revolve:{tools:['revolve','profileRevolve'],method:'execute',usage:'已画轮廓使用 profileRevolve，refs为截面及可选加工目标；旧尺寸模式使用 revolve。显式世界轴与角度，读取当前卡。'},
   sweep:{tools:['sweep','profileSweep'],method:'execute',usage:'已画轮廓使用 profileSweep，refs=[截面,开放精确路径,可选加工目标]；截面须在路径起点平面。旧折线尺寸模式使用 sweep。'},
   loft:{tools:['loft','profileLoft'],method:'execute',usage:'已画截面使用 profileLoft，refs按截面顺序排列，加工时最后附目标；旧两个数值截面模式使用 loft。'},

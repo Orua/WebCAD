@@ -1,0 +1,25 @@
+
+> webcad@0.1.0 build
+> node scripts/generate-page-docs.mjs && node scripts/generate-reference-coverage.mjs && vite build && node scripts/verify-release.mjs
+
+Generated 197 page cards in F:\Project\WebCAD\public\automation
+Coverage inventory: 71 operations, 26 actions, 44 page methods, 12 file methods, 36 batch methods, 148 UI routes
+vite v7.3.6 building client environment for production...
+[plugin vite:resolve] Module "node:module" has been externalized for browser compatibility, imported by "F:/Project/WebCAD/node_modules/replicad-opencascadejs/dist/replicad_single.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+transforming...
+✓ 255 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                 1.22 kB │ gzip:     0.70 kB
+dist/assets/cad-worker-CowM6y4J.js            792.81 kB
+dist/assets/replicad_single-B_1cTsn_.wasm  22,980.27 kB │ gzip: 7,267.29 kB
+dist/assets/index-CZF7zL2X.css                 59.02 kB │ gzip:    12.23 kB
+dist/assets/ai-bridge-DcNhHCDG.js               2.34 kB │ gzip:     1.23 kB
+dist/assets/index-Dc91cSBu.js               1,593.94 kB │ gzip:   505.27 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 3.96s
+Release gate passed: 71 operations, 26 actions, 148 UI routes; agent entry and kit verified

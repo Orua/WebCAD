@@ -48,13 +48,13 @@ export function createPageBatch(api){
       if(receipts.size>=100)bad('RESOURCE_LIMIT','100 batch receipts per document instance');
       keys(input.context,['sessionId','documentId','documentInstanceId','expectedRevision']);
       let expected={...input.context};
-      const check=()=>{
+      const check=(allowPreview=false)=>{
         const s=api.getState();
         for(const k of ['sessionId','documentId','documentInstanceId'])if(expected[k]!==s.context[k])bad('INSTANCE_MISMATCH','Read the current page state');
         if(expected.expectedRevision!==s.context.revision)bad('REVISION_CONFLICT','Document changed; read state and replan');
-        if(!s.summary.kernelReady||s.summary.busy||s.preview.active||s.preview.computing)bad('CAPABILITY_UNAVAILABLE','Wait for kernel/preview to finish');
+        if(!s.summary.kernelReady||s.summary.busy||(s.preview.active&&!allowPreview)||s.preview.computing)bad('CAPABILITY_UNAVAILABLE','Wait for kernel/preview to finish');
       };
-      check();
+      check(true);
       if(!Array.isArray(input.steps)||!input.steps.length||input.steps.length>20)bad('RESOURCE_LIMIT','Expected 1..20 steps');
       const names=new Set();
       for(const step of input.steps){
@@ -82,7 +82,9 @@ export function createPageBatch(api){
       };
       started=true;
       for(const step of input.steps){
-        activeStepId=step.id;check();attempted.add(step.id);let args=resolve(step.args||{}),result;
+        activeStepId=step.id;let args=resolve(step.args||{}),result;
+        const allowPreview=step.method==='execute'&&['preview.update','preview.commit','preview.cancel'].includes(args.action);
+        check(allowPreview);attempted.add(step.id);
         if(step.method==='add'){
           keys(args,['op','params','refs','name','placement']);
           const card=api.getTool({id:args.op});
@@ -107,7 +109,7 @@ export function createPageBatch(api){
         // Advance only using this step's receipt, never silently adopt another writer's revision.
         if(result?.status==='committed')expected=result.context?context(result.context):{...expected,expectedRevision:result.revisionAfter};
       }
-      activeStepId=null;check();const result=finish('completed');receipts.set(key,{fingerprint,result:structuredClone(result)});return result;
+      activeStepId=null;check(true);const result=finish('completed');receipts.set(key,{fingerprint,result:structuredClone(result)});return result;
     }catch(e){
       const result=finish(results.length?'partial':'failed',e);
       if(started&&!receipts.has(key))receipts.set(key,{fingerprint,result:structuredClone(result)});
