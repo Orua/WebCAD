@@ -2,6 +2,7 @@
 export function adaptUISelection(op, input, refs, topology) {
   const params=structuredClone(input);
   if(op==='rounding'&&!params.scope){
+    const tangent=params.propagateTangent===true;delete params.propagateTangent;
     const allEdges=params.allEdges===true,excludeEdgeIds=params.excludeEdgeIds;delete params.allEdges;delete params.excludeEdgeIds;
     if(params.mode==='width'){delete params.radiusMm;delete params.radiusStartMm;delete params.radiusEndMm;delete params.chainDirection;}
     else if(params.mode==='variable'){delete params.radiusMm;delete params.widthAMm;delete params.widthBMm;}
@@ -12,12 +13,13 @@ export function adaptUISelection(op, input, refs, topology) {
     else if(topology?.bodyId===refs[0]&&topology.type==='face'&&topology.ids.length===1)scope={kind:'face-boundaries',faceIds:[...topology.ids]};
     else if(topology?.bodyId===refs[0]&&topology.type==='face'&&topology.ids.length===2)scope={kind:'shared-faces',faceAIds:[topology.ids[0]],faceBIds:[topology.ids[1]]};
     if(scope){
+      if(!allEdges&&excludeEdgeIds?.length)scope={...scope,excludeEdgeIds};
       if(params.mode==='variable'){
         const radiusStartMm=params.radiusStartMm,radiusEndMm=params.radiusEndMm,direction=params.chainDirection,intermediate=params.intermediateStations||[];
         delete params.radiusStartMm;delete params.radiusEndMm;delete params.chainDirection;delete params.intermediateStations;
         if(scope.kind==='edges'&&scope.edgeIds.length>=1&&scope.edgeIds.length<=16){const ids=scope.edgeIds;params.laws=[{chainId:ids.length===1?`edge:${ids[0]}`:`edges:${ids.join(',')}`,direction,interpolation:'linear',stations:[{s:0,radiusMm:radiusStartMm},...intermediate,{s:1,radiusMm:radiusEndMm}]}];}
       }
-      return {specVersion:1,mode:'constant',propagation:'selected-only',boundaryRequirement:'standard',endpoints:{defaultMode:'natural'},...params,scope};
+      return {specVersion:1,mode:'constant',propagation:tangent&&params.mode==='constant'?'tangent-chain':'selected-only',boundaryRequirement:'standard',endpoints:{defaultMode:'natural'},...params,scope};
     }
     return params;
   }

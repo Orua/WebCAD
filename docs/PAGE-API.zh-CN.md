@@ -808,11 +808,11 @@ const coordinates = api.readDocs({ docId: 'coordinates' });
 
 圆角 `fillet` 与倒角 `chamfer` 都要求恰好一种明确范围：`allEdges:true` 表示当前实体全部边；`faceIds:[...]` 表示当前所选面的全部边界（包括孔边）；`edgeIds:[...]` 表示指定边。先对当前实体 `queryGeometry`，不能跨修订复用面/边序号。页面 UI 选体、选面、选边时分别显示并传入相应范围；AI 调用应直接传这三个字段之一。R 值或倒角距离过大、边界过密时内核会拒绝，保持原模型并返回可读错误，不会自动缩小尺寸。2 mm 厚板可先试 R0.3 mm；这只是操作示例，不是产品尺寸建议。
 
-新主入口 `rounding`（“加工 → 修饰 → 圆角与过渡 → 圆角／圆润”）采用独立严格契约。当前已验证的模式为恒 R：`refs:[当前实体ID]`，`params:{specVersion:1,mode:'constant',scope:{kind:'edges',edgeIds:[当前边序号]},propagation:'selected-only',radiusMm:1,boundaryRequirement:'standard',endpoints:{defaultMode:'natural'}}`。`scope.kind` 也可用 `face-boundaries` 配 `faceIds`、`shared-faces` 配不相交的 `faceAIds/faceBIds`，或 `body`；UI 会将当前体／面／边选择显式转换为该契约，API 须自行指定。内核若传播到未授权边，返回 `SCOPE_EXPANSION_REQUIRED` 和扩展边号，不提交；取消预览也不增加修订。单一直边的线性变 R 已通过正式解析路线及真实 WASM 截面验收；多边链和原生 SetLaw 持久化仍未通过，详见下文。旧 `fillet` 维持旧契约以读取已有历史。
+新主入口 `rounding`（“加工 → 修饰 → 圆角与过渡 → 圆角／圆润”）采用独立严格契约。恒 R 示例：`refs:[当前实体ID]`，`params:{specVersion:1,mode:'constant',scope:{kind:'edges',edgeIds:[当前边序号]},propagation:'tangent-chain',radiusMm:1,boundaryRequirement:'standard',endpoints:{defaultMode:'natural'}}`。`scope.kind` 也可用 `face-boundaries` 配 `faceIds`、`shared-faces` 配不相交的 `faceAIds/faceBIds`，或 `body`；各范围均可指定 `excludeEdgeIds`，与所选边冲突或传播触及排除边时拒绝。UI 会将当前体／面／边选择显式转换为该契约，API 须自行指定。`tangent-chain` 只授权与所选锐边连续、非分叉且在顶点 G1 相切的锐边链；预览高亮原选边和扩展边，`getState().previewScope`、预览回执 `preview.scope` 及提交后的 `roundingReport` 可读回实际范围。API 提交前需核对预览范围和修订；旧特征及明确指定的 `selected-only` 保持严格范围保护，越界返回 `SCOPE_EXPANSION_REQUIRED` 且不提交。取消预览也不增加修订。单一直边的线性变 R 已通过正式解析路线及真实 WASM 截面验收；多边链和原生 SetLaw 持久化仍未通过，详见下文。旧 `fillet` 维持旧契约以读取已有历史。
 
 宽圆润示例：`params:{specVersion:1,mode:'width',scope:{kind:'shared-faces',faceAIds:[当前 A 面序号],faceBIds:[当前 B 面序号]},propagation:'selected-only',widthAMm:1,widthBMm:2,boundaryRequirement:'standard',endpoints:{defaultMode:'natural'}}`。也可用 `scope:{kind:'edges',edgeIds:[当前单条公共边序号]}`，此时 A/B 分别对应 `queryGeometry` 返回的相邻面 ID 升序；使用有序面组可明确指定两侧。宽度是公共边法截面上沿两侧支撑面到接合轨线的距离，生成三次 Bézier 过渡而非圆弧；`roundingReport` 分别回读宽度、A/B 面 ID、构造策略、材料方向及验证状态。当前几何族为两平面公共直边，以及无孔平面与规则圆柱侧壁的闭合圆边，或端点落在径向平面上的开放圆弧；四边界有约束补面、其他曲线和非自然端点尚未完成。恒 R 原生构造失败时，先在 BREP 序列化重建的副本上试受控同域整理：只接受唯一映射原边、双向布尔差体积为零的候选；仍失败时，对已验证解析几何族试独立精确构造。两者均不改变旧 `fillet` 的语义。单直边线性变 R 已开放；多边链仍未开放。
 
-整件恒 R 可指定 `scope:{kind:'body',excludeEdgeIds:[当前来源边序号]}`。先从当前实体的 `queryGeometry` 取得边序号；被排除的边保持未加工，`roundingReport.excludedEdgeIds` 与 `processedEdgeIds` 可用于读回核对。界面整件模式也提供排除边输入框，历史编辑从该步骤的上游实体重建。排除边仅属于当前来源拓扑，来源改变后须重新查询；失效序号会拒绝，不会静默映射到其他边。
+恒 R 的各范围均可指定 `excludeEdgeIds:[当前来源边序号]`。先从当前实体的 `queryGeometry` 取得边序号；被排除的边保持未加工，`roundingReport.excludedEdgeIds` 与 `processedEdgeIds` 可用于读回核对。界面提供排除边输入框，历史编辑从该步骤的上游实体重建。排除边仅属于当前来源拓扑，来源改变后须重新查询；失效序号会拒绝，不会静默映射到其他边。
 
 ## 命名参数与尺寸联动
 
@@ -884,7 +884,7 @@ if (picture.status !== 'read') throw new Error(picture.error?.code || 'capture f
 
 ## 圆角／圆润的已验证变 R 子范围
 
-`rounding` 工具卡版本 1.1.0。当前 `mode:'variable'` 只开放一条两平面公共直边的 2–16 个有序线性站点：`scope:{kind:'edges',edgeIds:[当前边号]}`，`laws:[{chainId:'edge:<当前边号>',direction:'forward'|'reverse',interpolation:'linear',stations:[{s:0,radiusMm:起点R},...中间站点,{s:1,radiusMm:终点R}]}]`。`s` 是所选方向上的源边累计弧长比例；中间站点必须严格递增，`chainId` 和边号必须取自当前来源实体，不能复用加工后的拓扑编号。界面以每行 `s,R` 输入可选中间站点。此路线在原始输入上建立精确圆弧截面并构造逐段有界规则面，经真实 WASM 检查最终实体、各段内部截面半径、拟圆残差与两侧接缝切向。分段线性规律的斜率改变处可能存在站点分界线，报告为 C0 半径连续。`roundingReport.variable` 提供实际样本、最大误差、材料方向和构造版本；它没有调用原生自定义 law，原生 law 字段为 `null`。多段链、平滑插值和一般曲边变 R 仍待验收。
+`rounding` 工具卡版本 1.2.0。当前 `mode:'variable'` 只开放一条两平面公共直边的 2–16 个有序线性站点：`scope:{kind:'edges',edgeIds:[当前边号]}`，`laws:[{chainId:'edge:<当前边号>',direction:'forward'|'reverse',interpolation:'linear',stations:[{s:0,radiusMm:起点R},...中间站点,{s:1,radiusMm:终点R}]}]`。`s` 是所选方向上的源边累计弧长比例；中间站点必须严格递增，`chainId` 和边号必须取自当前来源实体，不能复用加工后的拓扑编号。界面以每行 `s,R` 输入可选中间站点。此路线在原始输入上建立精确圆弧截面并构造逐段有界规则面，经真实 WASM 检查最终实体、各段内部截面半径、拟圆残差与两侧接缝切向。分段线性规律的斜率改变处可能存在站点分界线，报告为 C0 半径连续。`roundingReport.variable` 提供实际样本、最大误差、材料方向和构造版本；它没有调用原生自定义 law，原生 law 字段为 `null`。多段链、平滑插值和一般曲边变 R 仍待验收。
 
 预览计算中按 Esc 会中止该次 Worker 计算，从原工程重建内核；取消回执为 `no_change`、`validation.geometry:'cancelled'`。旧预览不能提交，重新预览应使用新鲜 context。180 秒真实超时后的恢复仍需专项验收。
 

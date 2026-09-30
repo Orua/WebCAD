@@ -106,7 +106,7 @@ const names = { box: ['长方体', '安装板', 'plate'], hole: ['孔', '钻孔'
 
 function buildCard(id, source) {
   const strict = migrated.has(id), special = source.mcpAddFeature === false;
-  const version = id==='rounding'?'1.1.0':strict ? '1.0.0' : 'legacy-1';
+  const version = id==='rounding'?'1.2.0':strict ? '1.0.0' : 'legacy-1';
   const inputSchema = schemaFor(id, source), refsSchema = refsFor(source.refs);
   if (id === 'profileExtrude') refsSchema.maxItems = 2;
   if (id === 'referenceLoft') refsSchema.maxItems = 12;
@@ -215,9 +215,11 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
   }
   validateSchema(schema, params);
   if(op==='rounding'){
+    if(params.mode!=='constant'&&params.propagation!=='selected-only')contractError('PARAM_SCHEMA_INVALID','params.propagation','Tangent-chain propagation currently applies to constant R only.');
     const fields={edges:['edgeIds'],'face-boundaries':['faceIds'],'shared-faces':['faceAIds','faceBIds'],body:[]};
-    const expected=params.scope.kind==='body'&&Object.hasOwn(params.scope,'excludeEdgeIds')?['excludeEdgeIds']:fields[params.scope.kind],actual=Object.keys(params.scope).filter(key=>key!=='kind');
+    const expected=fields[params.scope.kind],actual=Object.keys(params.scope).filter(key=>key!=='kind'&&key!=='excludeEdgeIds');
     if(expected.length!==actual.length||expected.some(key=>!actual.includes(key)))contractError('SELECTION_CONFLICT','params.scope','Scope kind must match exactly its topology selection fields.');
+    if(params.scope.kind==='edges'&&params.scope.excludeEdgeIds?.some(id=>params.scope.edgeIds.includes(id)))contractError('SELECTION_CONFLICT','params.scope','An edge cannot be selected and excluded in the same request.');
     if(params.scope.kind==='shared-faces'&&params.scope.faceAIds.some(id=>params.scope.faceBIds.includes(id)))contractError('SELECTION_CONFLICT','params.scope','Support face groups must be disjoint.');
     if(params.mode==='constant'){
       if(!Object.hasOwn(params,'radiusMm')||Object.hasOwn(params,'laws')||Object.hasOwn(params,'widthAMm')||Object.hasOwn(params,'widthBMm'))contractError('PARAM_SCHEMA_INVALID','params.radiusMm','Constant mode requires radiusMm and forbids law and width fields.');

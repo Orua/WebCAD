@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.13.0 · sha256:df951788f591463478c2d6c4a28e94477e448b9d4de43f95542e2f67df5ccb76
+API 1.13.0 · sha256:847be7b53a9bfeffb9077f7c2ab29279ef10016a873e8f2399674ec43a99a7d7
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -22541,7 +22541,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 ```json
 {
   "id": "rounding",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -22636,7 +22636,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
             },
             "minItems": 1,
             "uniqueItems": true,
-            "description": "Only with body scope: current source edge IDs excluded from rounding"
+            "description": "Current source edge IDs excluded from this scope and any tangent propagation"
           }
         }
       },
@@ -22644,7 +22644,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "type": "string",
         "description": "Tangent chain selection",
         "enum": [
-          "selected-only"
+          "selected-only",
+          "tangent-chain"
         ]
       },
       "radiusMm": {
@@ -22799,7 +22800,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. constant requires radiusMm. variable supports one straight edge or an ordered collinear chain of up to 16 sharp edges sharing two geometric support planes, with 2..16 ordered linear stations and explicit direction. chainId is edge:<id> or edges:<id1>,<id2>,... in scope order. Station s is normalized cumulative arc length across the whole chain. The ruled circular-section construction verifies final sections and sampled G1 support seams on real WASM. Piecewise-linear slope changes can create a station seam. Noncollinear chains and smooth laws remain unverified. width requires widthAMm and widthBMm and one edge or ordered shared-faces pair. A/B follow faceAIds/faceBIds; for one edge they follow ascending adjacent face IDs. Width families are a two-plane straight edge and a planar/cylindrical circular edge, either closed or an open arc bounded by radial planar end faces. When native constant R fails, an isolated BREP-copy same-domain cleanup is tried only for a uniquely remapped single edge with zero symmetric material difference, then exact-arc analytic fallback covers those constant-R families. Four-boundary constrained fill, other width geometries and non-natural endpoints remain unverified. Current topology indices must be queried from the source body.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. constant requires radiusMm. selected-only preserves the exact source-edge scope and rejects native contour expansion. tangent-chain permits a connected nonbranching G1 sharp-edge contour and reports every expanded source edge and generated face; preview the complete highlighted contour before applying. variable and width require selected-only. variable supports one straight edge or an ordered collinear chain of up to 16 sharp edges sharing two geometric support planes, with 2..16 ordered linear stations and explicit direction. chainId is edge:<id> or edges:<id1>,<id2>,... in scope order. Station s is normalized cumulative arc length across the whole chain. The ruled circular-section construction verifies final sections and sampled G1 support seams on real WASM. Piecewise-linear slope changes can create a station seam. Noncollinear chains and smooth laws remain unverified. width requires widthAMm and widthBMm and one edge or ordered shared-faces pair. A/B follow faceAIds/faceBIds; for one edge they follow ascending adjacent face IDs. Width families are a two-plane straight edge and a planar/cylindrical circular edge, either closed or an open arc bounded by radial planar end faces. When native constant R fails, an isolated BREP-copy same-domain cleanup is tried only for a uniquely remapped single edge with zero symmetric material difference, then exact-arc analytic fallback covers those constant-R families. Four-boundary constrained fill, other width geometries and non-natural endpoints remain unverified. Current topology indices must be queried from the source body.",
   "title": "圆角／圆润 / Rounding",
   "category": "modification",
   "synonyms": [
@@ -22810,7 +22811,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "圆角／圆润"
   ],
   "description": "圆角／圆润 / Rounding",
-  "schemaHash": "sha256:79fadc9e2114b3037886256dc2b2a910500eed050b5388b590f95328f78c9f99",
+  "schemaHash": "sha256:6d9c55fab0348497417198a1ae7d27f652b84fe640e6e19a6fedd5f6899f7c9e",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -22861,7 +22862,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "constant requires radiusMm. variable supports one straight edge or an ordered collinear chain of up to 16 sharp edges sharing two geometric support planes, with 2..16 ordered linear stations and explicit direction. chainId is edge:<id> or edges:<id1>,<id2>,... in scope order. Station s is normalized cumulative arc length across the whole chain. The ruled circular-section construction verifies final sections and sampled G1 support seams on real WASM. Piecewise-linear slope changes can create a station seam. Noncollinear chains and smooth laws remain unverified. width requires widthAMm and widthBMm and one edge or ordered shared-faces pair. A/B follow faceAIds/faceBIds; for one edge they follow ascending adjacent face IDs. Width families are a two-plane straight edge and a planar/cylindrical circular edge, either closed or an open arc bounded by radial planar end faces. When native constant R fails, an isolated BREP-copy same-domain cleanup is tried only for a uniquely remapped single edge with zero symmetric material difference, then exact-arc analytic fallback covers those constant-R families. Four-boundary constrained fill, other width geometries and non-natural endpoints remain unverified. Current topology indices must be queried from the source body."
+    "constant requires radiusMm. selected-only preserves the exact source-edge scope and rejects native contour expansion. tangent-chain permits a connected nonbranching G1 sharp-edge contour and reports every expanded source edge and generated face; preview the complete highlighted contour before applying. variable and width require selected-only. variable supports one straight edge or an ordered collinear chain of up to 16 sharp edges sharing two geometric support planes, with 2..16 ordered linear stations and explicit direction. chainId is edge:<id> or edges:<id1>,<id2>,... in scope order. Station s is normalized cumulative arc length across the whole chain. The ruled circular-section construction verifies final sections and sampled G1 support seams on real WASM. Piecewise-linear slope changes can create a station seam. Noncollinear chains and smooth laws remain unverified. width requires widthAMm and widthBMm and one edge or ordered shared-faces pair. A/B follow faceAIds/faceBIds; for one edge they follow ascending adjacent face IDs. Width families are a two-plane straight edge and a planar/cylindrical circular edge, either closed or an open arc bounded by radial planar end faces. When native constant R fails, an isolated BREP-copy same-domain cleanup is tried only for a uniquely remapped single edge with zero symmetric material difference, then exact-arc analytic fallback covers those constant-R families. Four-boundary constrained fill, other width geometries and non-natural endpoints remain unverified. Current topology indices must be queried from the source body."
   ],
   "minimalExample": {
     "op": "rounding",
@@ -22986,7 +22987,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:f01dbf3b25490be039558e751f4bc48722e0a3685d7f31391cbe94ab61a9e0a8"
+  "docsHash": "sha256:6cec8ebe6eacc7368113ac42e72d2a3507a496b971a9ff91584765f2a8d0e1e9"
 }
 ```
 

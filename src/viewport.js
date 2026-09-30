@@ -56,11 +56,24 @@ export class CADViewport {
   resize(){const {width,height}=this.host.getBoundingClientRect();if(width<1||height<1)return;this.camera.aspect=width/height;if(this.camera.isOrthographicCamera){this.camera.left=-this.camera.top*this.camera.aspect;this.camera.right=this.camera.top*this.camera.aspect;}this.camera.updateProjectionMatrix();this.renderer.setSize(width,height);}
   disposeObject(root){root.traverse(o=>{o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose();});}
   clearGuides(){for(const child of [...this.guideRoot.children]){this.disposeObject(child);this.guideRoot.remove(child);}}
+  clearScopeOverlay(){if(!this.scopeOverlay)return;this.modelRoot.remove(this.scopeOverlay);this.disposeObject(this.scopeOverlay);this.scopeOverlay=null;}
+  setScopeOverlay(sourceEdges,selectedIds,expandedIds){
+    this.clearScopeOverlay();
+    const selected=new Set(selectedIds),expanded=new Set(expandedIds),group=new THREE.Group();
+    for(const edge of sourceEdges||[]){
+      if(!selected.has(edge.edgeId)&&!expanded.has(edge.edgeId)||edge.positions.length<6)continue;
+      const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(edge.positions,3));
+      const line=new THREE.LineSegments(geometry,new THREE.LineBasicMaterial({color:expanded.has(edge.edgeId)?0x00b7c7:0xff8b22,depthTest:false,transparent:true,opacity:1}));
+      line.renderOrder=1000;line.userData={type:'scope-preview',edgeId:edge.edgeId};group.add(line);
+    }
+    this.modelRoot.add(group);this.scopeOverlay=group;
+  }
   setWorkFrame(frame){if(!frame)return;this.anchorProxy.position.fromArray(frame.origin);this.anchorProxy.quaternion.fromArray(frame.quaternion);this.anchorVisual.position.copy(this.anchorProxy.position);this.anchorVisual.quaternion.copy(this.anchorProxy.quaternion);if(frame.locked)this.setAnchorDrag(false);}
   setAnchorVisible(visible){this.anchorVisible=!!visible;this.anchorMarker.hidden=!this.anchorVisible;localStorage.setItem('webcad.anchorVisible',String(this.anchorVisible));}
   setAnchorDrag(enabled){this.setModelingPrecision();this.anchorDragEnabled=!!enabled;this.anchorGizmoHelper.visible=this.anchorDragEnabled;if(this.anchorDragEnabled){this.setGizmo('off');this.anchorGizmo.attach(this.anchorProxy);}else{this.anchorGizmo.detach();this.controls.enabled=true;}}
   cancelAnchorDrag(){if(this.anchorStart){this.anchorProxy.position.copy(this.anchorStart);this.anchorVisual.position.copy(this.anchorStart);this.anchorStart=null;}this.snapCandidates=[];this.setAnchorDrag(false);}
   setBodies(bodies,hidden=[]){
+    this.clearScopeOverlay();
     // Keep unchanged GPU objects alive. Kernel render versions survive a rebuild
     // only when the exact geometry was reused (including undo/preview branches).
     this.hidden=hidden;

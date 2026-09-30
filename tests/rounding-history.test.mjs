@@ -25,6 +25,30 @@ test('real WASM width history rebuild starts from upstream source and reports ef
   }finally{kernel.dispose();fresh.dispose();}
 });
 
+test('A1 second adjacent rounding feature edits from the first rounded upstream solid',async()=>{
+  const kernel=new CadKernel(oc),fresh=new CadKernel(oc);
+  const constant=(id,r,propagation)=>({specVersion:1,mode:'constant',scope:{kind:'edges',edgeIds:[id]},propagation,radiusMm:r,boundaryRequirement:'standard',endpoints:{defaultMode:'natural'}});
+  try{
+    await kernel.rebuild({version:1,features:[box],imports:{}});
+    const original=(await kernel.queryGeometry('box','edge',{})).items.find(row=>row.lengthMm>19.9&&Math.abs(row.midpoint[1])<1e-7&&Math.abs(row.midpoint[2])<1e-7);
+    assert(original);
+    const first={id:'round-one',op:'rounding',refs:['box'],params:constant(original.edgeId,.5,'selected-only')};
+    await kernel.rebuild({version:1,features:[box,first],imports:{}});
+    const adjacent=(await kernel.queryGeometry('round-one','edge',{})).items.find(row=>row.lengthMm>7.4&&row.lengthMm<7.6&&Math.abs(row.midpoint[0]-20)<1e-6&&Math.abs(row.midpoint[1])<1e-6);
+    assert(adjacent);
+    const second=radius=>({id:'round-two',op:'rounding',refs:['round-one'],params:constant(adjacent.edgeId,radius,'tangent-chain')});
+    const doc=radius=>({version:1,features:[box,first,second(radius)],imports:{}});
+    const before=await kernel.rebuild(doc(.5));
+    assert.equal(before.bodies.length,1);
+    assert.equal(before.bodies[0].roundingReport.expandedSelection.length,2);
+    const edited=await kernel.rebuild(doc(.4)),direct=await fresh.rebuild(doc(.4));
+    assert(Math.abs(edited.bodies[0].volume-direct.bodies[0].volume)<1e-7);
+    assert(Math.abs(edited.bodies[0].volume-before.bodies[0].volume)>1e-5);
+    const replay=await kernel.rebuild(doc(.5));
+    assert(Math.abs(replay.bodies[0].volume-before.bodies[0].volume)<1e-7);
+  }finally{kernel.dispose();fresh.dispose();}
+});
+
 test('real WASM body exclusion survives history edits and rebuilding the original request',async()=>{
   const kernel=new CadKernel(oc),fresh=new CadKernel(oc);
   try{
