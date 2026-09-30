@@ -116,7 +116,9 @@ test('rounding body exclusions retain exact source edge IDs in the public contra
   assert.deepEqual(normalizeOperationParams('rounding',base),base);
   assert.deepEqual(normalizeOperationPatch('rounding',base,{scope:{kind:'body',excludeEdgeIds:[2]}}).scope,{kind:'body',excludeEdgeIds:[2]});
   fails(()=>normalizeOperationParams('rounding',{...base,scope:{kind:'body',excludeEdgeIds:[2,2]}}),'PARAM_SCHEMA_INVALID');
-  fails(()=>normalizeOperationParams('rounding',{...base,scope:{kind:'edges',edgeIds:[1],excludeEdgeIds:[2]}}),'SELECTION_CONFLICT','params.scope');
+  assert.deepEqual(normalizeOperationParams('rounding',{...base,scope:{kind:'edges',edgeIds:[1],excludeEdgeIds:[2]}}).scope,{kind:'edges',edgeIds:[1],excludeEdgeIds:[2]});
+  fails(()=>normalizeOperationParams('rounding',{...base,scope:{kind:'edges',edgeIds:[1],excludeEdgeIds:[1]}}),'SELECTION_CONFLICT','params.scope');
+  assert.equal(normalizeOperationParams('rounding',{...base,propagation:'tangent-chain'}).propagation,'tangent-chain');
 });
 
 test('rounding variable contract binds one directed source edge and exact endpoints', () => {

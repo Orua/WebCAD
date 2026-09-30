@@ -1,17 +1,21 @@
-> 推送前阶段快照。最新接续入口请先读 [HANDOFF.md](HANDOFF.md)；`agent/` 内 JSON 和备份是原机器上的本地证据。
+> 这是唯一总进度表。最新执行方法见 [SOL-HIGH-NEXT.md](SOL-HIGH-NEXT.md)；相邻边复现见 [HANDOFF.md](HANDOFF.md)。`agent/` 内 JSON 和备份是原机器上的本地证据。
 
-# 圆角／圆润升级总进度（2026-09-29）
+# 圆角／圆润升级总进度（2026-09-30 A1 实施）
 
-工作区：`F:/Project/WebCAD`；HEAD `99dd3caf778f9547d5a301ef5da95771cad542a8`。本轮开始的工作区状态和跟踪差异保存于 `agent/backups/20260929-144536/`。实际 WASM 为 `replicad-opencascadejs@1.1.0`，SHA-256 `4c9f22e9f3828dca6f3c95405934cdbe624e593c35266f47f392ab337478dbde`。当前所有本文记录提交前状态；部署未执行。
+本轮 A1：20×10×8 箱体先对一条底边 R0.5，再从当次拓扑选相邻竖边 R0.5，正式 `rounding` 的 `tangent-chain` 成功。内核参与轮廓 `[13,9,5]`，原选边 `[5]`、扩展边 `[13,9]`；实际生成面从 `Generated` 来源映射得两张 R0.5 圆柱面及一张 R0.5 球面，抽样接缝最大 0°。旧圆角在远离交汇处复测 R0.5；第二步局部减材 0.944782729 mm³，无加材。反向顺序、固定 R0.5→R0.4、0.1/1/10 尺度与刚体变换、旧 `selected-only` 范围拒绝、排除冲突和过期引用均有定向回归。页面单标签完成 UI 预览／应用、API 改参、撤销／重做与拒绝后 revision 保持；新版页面 API 的预览回执和 `getState().previewScope` 均读回原选边 `[5]`、扩展边 `[13,9]`，取消不增加修订。75 项定向测试通过，1 个可选 STEP 样例跳过；`npm run build` 和发布检查通过。A1 的此标准案例闭环；A2 通用局部面域／材料与原矩阵仍待完成，整体升级未完成。本轮改动尚未提交或部署，编辑前备份在 `agent/backups/20260930-092152/`。
+
+工作区：`F:/Project/WebCAD`；本轮基线 HEAD `7239eaaff6c05a40954a8a4e83e0c5b9e9ca94b3`，远端 main 与开发分支均已到此提交；本地 main 指针仍是 `79d5dc1`。实际 WASM 为 `replicad-opencascadejs@1.1.0`，SHA-256 `4c9f22e9f3828dca6f3c95405934cdbe624e593c35266f47f392ab337478dbde`。此基线之后已有上文 A1 本地源码改动，尚未提交、推送或部署。前次文档备份在 `agent/backups/20260930-090424/`。
+
+A1 之前的基线复现：相邻边正式流程失败为 `SCOPE_EXPANSION_REQUIRED`，直接 native 对照为有效单实体候选；五文件定向测试 46 通过，旧模式专项 8 通过、1 可选跳过。结果保存在 `agent/output/rounding-next-session-20260930/`。旧错误文案断言的修正已验证通过，不与 A1 几何结果混算。下文未标明 A1 的浏览器与几何数据均为 2026-09-29 的历史证据；完整测试及真实磁盘写入仍未重跑。
 
 | 阶段／必做能力 | 依赖 | 当前实现 | 待做代码及验收案例 | 状态／阻碍 |
 | --- | --- | --- | --- | --- |
 | T0 基线 | 无 | 原生恒 R 凸／凹边及 WASM 固定 | 保持旧语义与同 SHA 回归 | passed |
-| T1 正式恒 R | T0 | `src/modeling/rounding/`、Worker、UI/API、预览／提交／回滚；合成凸／凹边和浏览器通过 | 通用半径及接缝生产读回、完整原矩阵 | partial |
-| T2 严格变 R | T1；多段链另需累计弧长映射 | 原生 Simulate 后 `SetLaw` 可读回但 Build 重置；独立解析路线已实现单一直边和共线多段链 2–16 个线性站点；不等长 7+13 mm 链、正反方向、跨分界截面、凹边及刚体变换真实 WASM 通过；页面 API 边链预览/提交、历史及单边工程/STEP 闭环通过 | 非共线连续链、共享 elementary law 去重、端点/交汇、曲边及多段链文件闭环；原生持久 law 仍需候选补丁 | partial：单直边解析子能力通过，原生 law 路线 blocked，整阶段未通过 |
+| T1 正式恒 R | T0 | `src/modeling/rounding/`、Worker、UI/API、预览／提交／回滚；合成凸／凹边和浏览器通过；A1 标准相邻边连续加工及相切链传播通过 | A2 通用半径、接缝、实际面域及局部材料生产验证；完整原矩阵 | partial；A1 标准案例闭环，整体仍待验收 |
+| T2 严格变 R | T1；多段链另需累计弧长映射 | 原生 Simulate 后 `SetLaw` 可读回但 Build 重置；独立解析路线已实现单一直边和共线多段链 2–16 个线性站点；不等长 7+13 mm 链、正反方向、跨分界截面、凹边及刚体变换真实 WASM 通过；页面 API 边链预览/提交、历史及单边／共线双段链工程/STEP 资源跨会话读回通过 | A6 非共线相切链、smooth 插值、闭合一致性、共享 elementary law 去重冲突、端点/交汇；原生持久 law 候选尚未实现；实际磁盘写入未测 | partial：单直边与共线链 linear 子能力有证据；原生临时注入路线 blocked，整阶段未通过 |
 | T3 解析恒 R | T1 | 正式两平面直边凸／凹精确圆弧棱柱布尔、闭合圆边和有径向平面端面的开放圆弧精确回转；尺度 0.1/1/10、反向轮廓、60° 与刚体变换真实 WASM 测试；同边 native/analytic 正向对照；序列化副本受控同域整理后唯一映射原边的 native 候选 | 混合直线／圆弧连续轮廓、带孔面及原矩阵；尚未取得 native 原本失败而整理后成功的实际案例 | partial |
 | T4 宽圆润 | T1；T3 可复用构造／验证 | 正式两平面直边三次 Bézier 宽度构造，凸／凹及对称／非对称；闭合圆边和有径向平面端面的开放圆弧回转；回读宽度及接缝抽样 G1，尺度／反向／刚体变换真实 WASM 和页面 API 测试 | 四边界约束补面与局部替面、混合曲线轮廓、严格接顺端点及原矩阵 | partial |
-| T5 端点／交汇 | 各几何模式 | T1 自然端点 | 相切延续、已有终止面、区域内收口、交汇面和严格接缝验收 | partial |
+| T5 端点／交汇 | 各几何模式 | T1 自然端点 | A5 相切延续、已有终止面、区域内收口、三边交汇和严格接缝验收；当前契约只有 standard/natural，尚无 smooth-region | partial；strict 端部未实施，不是被 T2 阻塞 |
 | T6 整件／历史／恢复 | T1；各模式独立接入 | 恒 R 整件排除源边与真实截面；宽度和排除边从上游重建；单直边变 R 三站点历史改参／撤销／重做与工程新会话重开、STEP 新会话导入；宽圆润工程／STEP 新会话回读；计算中 Esc 真正中止 Worker、由原工程恢复，取消回执为 no_change，恢复后重新预览并提交真实圆角；旧代次预览提交被拒而新代次提交真实 R1.2 | 多链原子性、180 秒超时恢复 | partial |
 | T7 UI/API／文档 | 每种已验收几何能力 | 恒 R／宽度／单直边及共线多段线性变 R、整件排除的工具卡、schema、UI、页面 API；内置浏览器 UI 恒 R／宽度／变 R、API 宽度／变 R 分别实测 | 更多模式同步、同一源边的 UI/API 精确形状等价、Chrome 侧栏专项 | partial |
 | T8 总矩阵／文件 | T0–T7 | 当前定向真实 WASM 测试、工程/STEP 字节跨会话回读、`npm run build` 与 release gate 通过 | 原 24/13/9 案例逐项记录；全仓测试存在其他模块失败／长运行 | partial |
@@ -32,4 +36,4 @@ T3 受控整理专项：在源棱柱的同一直线上保留冗余分段，正�
 
 原方案引用的 `rounding-acceptance-matrix.json` 当前不在 WebCAD 仓库、下载目录或已提供附件内；不能编造原案例 ID 或预填 passed。已向用户请求该文件，同时继续不依赖它的 T2/T3/T4 及闭环工作。矩阵到达后保留原 ID、期望类型和断言逐项记录结果。
 
-证据：`tests/rounding-kernel.test.mjs`、`tests/rounding-history.test.mjs`、`tests/rounding-section-metrics.test.mjs`、`tests/operation-registry.test.mjs`、`agent/output/rounding-browser-acceptance-20260929.json`、`agent/output/rounding-law-lifecycle.json`、`agent/notes/rounding-t2-law-lifecycle.md` 和 `agent/temp/rounding-law-lifecycle-probe.mjs`。当前定向运行：契约／真实 WASM 几何及历史合并定向运行 46/46，旧模式专项另有 8 通过、1 跳过；先前命令服务 18/18。`npm run build` 与 release gate 在最新正式源码／文档上通过。完整 `npm test` 先前已运行：442 项中 434 通过、7 失败、1 跳过，失败包括现有 `halfLengthPoint` 不收敛、PowerShell 文件权限和旧 UI 布局断言；仍须独立定位剩余失败，不能以定向通过覆盖全仓失败。本文记录提交前状态；部署未执行。
+证据：`tests/rounding-kernel.test.mjs`、`tests/rounding-history.test.mjs`、`tests/rounding-section-metrics.test.mjs`、`tests/operation-registry.test.mjs`、`agent/output/rounding-browser-acceptance-20260929.json`、`agent/output/rounding-law-lifecycle.json`、`agent/notes/rounding-t2-law-lifecycle.md` 和 `agent/temp/rounding-law-lifecycle-probe.mjs`。A1 之前定向复跑 46/46，旧模式专项另有 8 通过、1 跳过；本轮 A1 定向 75 通过、1 可选跳过（含命令服务 18 项），`npm run build` 与 release gate 通过。完整 `npm test` 的历史结果为 442 项中 434 通过、7 失败、1 跳过，失败包括 `halfLengthPoint` 不收敛、PowerShell 文件权限和旧 UI 布局断言；需在集成节点保存完整失败列表并定向定位，不能把它们都预判为无关或以定向通过覆盖。基线代码已在远端 main；A1 源码及文档是本地未提交改动，不代表整体升级已完成。

@@ -50,6 +50,61 @@ test('T1 real WASM constant R rounds synthetic concave pocket edge and adds mate
   }finally{dispose(result);dispose(source);dispose(tool);dispose(outer);}
 });
 
+test('A1 adjacent constant R uses an approved tangent contour and preserves the earlier R away from the junction',()=>{
+  const source=cad.makeBox([0,0,0],[20,10,8]),before=source.serialize();let first,second,removed,added;
+  try{
+    const original=topologyDetails(source).find(row=>Math.abs(row.midpoint[1])<1e-8&&Math.abs(row.midpoint[2])<1e-8&&Math.abs(row.endPoint[0]-row.startPoint[0])>19);
+    first=buildRounding(source,params(original.edgeId,.5));
+    const next=topologyDetails(first).find(row=>row.sharp&&Math.abs(row.midpoint[0]-20)<1e-6&&Math.abs(row.midpoint[1])<1e-6&&Math.abs(row.endPoint[2]-row.startPoint[2])>7);
+    assert(next);
+    let expandedIds;
+    assert.throws(()=>buildRounding(first,params(next.edgeId,.5)),error=>{expandedIds=error.report?.expandedEdgeIds;return error.code==='SCOPE_EXPANSION_REQUIRED'&&expandedIds.length===2;});
+    assert.throws(()=>buildRounding(first,params(10000,.5)),error=>error.code==='STALE_REFERENCE');
+    assert.throws(()=>buildRounding(first,{...params(next.edgeId,.5),scope:{kind:'edges',edgeIds:[next.edgeId],excludeEdgeIds:[expandedIds[0]]},propagation:'tangent-chain'}),error=>error.code==='SCOPE_EXPANSION_REQUIRED');
+    assert.throws(()=>buildRounding(first,{...params(next.edgeId,.5),scope:{kind:'edges',edgeIds:[next.edgeId],excludeEdgeIds:[next.edgeId]},propagation:'tangent-chain'}),error=>error.code==='SELECTION_CONFLICT');
+    second=buildRounding(first,{...params(next.edgeId,.5),propagation:'tangent-chain'});
+    const report=second.roundingReport;
+    assert.equal(report.expandedSelection.length,2);
+    assert.equal(report.processedEdgeIds.length,3);
+    assert.equal(report.generatedFaceMap.length,3);
+    assert(report.generatedFaceMap.every(row=>row.status==='passed'&&Math.abs(row.measuredRadiusMm-.5)<1e-5));
+    assert.equal(report.validation.seams,'G1-contact-sampled');
+    assert(report.validation.maxTangentAngleDeg<.1);
+    const vertical=report.generatedFaceMap.find(row=>row.edgeId===next.edgeId);
+    const verticalSection=measureBlendSectionRadius(second,{plane:'XY',offset:4,faceId:vertical.faceId},cad);
+    assert(Math.abs(verticalSection.radiusMm-.5)<1e-5&&verticalSection.sectionFitResidualMm<1e-5);
+    const resultFaces=second.faces;let oldFaceId;
+    try{oldFaceId=resultFaces.findIndex(face=>{const c=face.center;try{return face.geomType==='CYLINDRE'&&Math.abs(c.toTuple()[0]-10)<1;}finally{dispose(c);}});}finally{resultFaces.forEach(dispose);}
+    const oldSection=measureBlendSectionRadius(second,{plane:'YZ',offset:10,faceId:oldFaceId},cad);
+    assert(Math.abs(oldSection.radiusMm-.5)<1e-5&&oldSection.sectionFitResidualMm<1e-5);
+    removed=first.cut(second);added=second.cut(first);
+    const box=removed.boundingBox;try{assert(box.bounds[0][0]>=19.5-1e-5,'material changed only next to authorized contour');}finally{dispose(box);}
+    assert(cad.measureVolume(removed)>.9&&cad.measureVolume(added)<1e-7);
+    assert.equal(source.serialize(),before,'original input was not mutated');
+  }finally{[added,removed,second,first,source].forEach(dispose);}
+});
+
+test('A1 adjacent tangent contour works at fixed scales, after rotation, and in reverse order',()=>{
+  const distance=(a,b)=>Math.hypot(...a.map((v,i)=>v-b[i]));
+  for(const {scale,rotate,reverse,firstR,secondR} of [{scale:.1},{scale:1},{scale:10},{scale:1,rotate:true},{scale:1,reverse:true,firstR:.5,secondR:.4}]){
+    const base=cad.makeBox([0,0,0],[20*scale,10*scale,8*scale]),source=rotate?base.rotate(23,[0,0,0],[0,0,1]):base;
+    let first,second;
+    try{
+      const rows=topologyDetails(source),targetLength=(reverse?8:20)*scale,r1=(firstR??.5)*scale,r2=(secondR??.5)*scale;
+      const start=rows.find(row=>row.sharp&&Math.abs(distance(row.startPoint,row.endPoint)-targetLength)<1e-5);
+      assert(start);
+      first=buildRounding(source,params(start.edgeId,r1));
+      const adjacentLength=(reverse?20:8)*scale-r1;
+      const next=topologyDetails(first).find(row=>row.sharp&&Math.abs(distance(row.startPoint,row.endPoint)-adjacentLength)<1e-5&&[row.startPoint,row.endPoint].some(point=>[start.startPoint,start.endPoint].some(end=>distance(point,end)<r1+1e-5)));
+      assert(next,`adjacent edge after first R at scale ${scale}, reverse=${!!reverse}`);
+      try{second=buildRounding(first,{...params(next.edgeId,r2),propagation:'tangent-chain'});}catch(error){error.message+=` [scale=${scale}, reverse=${!!reverse}, rotated=${!!rotate}]`;throw error;}
+      assert.equal(second.roundingReport.validation.solid,'passed');
+      assert.equal(second.roundingReport.validation.seams,'G1-contact-sampled');
+      assert(second.roundingReport.generatedFaceMap.every(row=>Math.abs(row.measuredRadiusMm-r2)<1e-5));
+    }finally{[second,first,source].forEach(dispose);if(rotate)dispose(base);}
+  }
+});
+
 test('T2 independent ruled circular sections enforce two-end linear R on real WASM',()=>{
   const source=cad.makeBox([0,0,0],[20,10,8]);
   try{

@@ -1,9 +1,9 @@
 {
   "version": "1.13.0",
-  "buildId": "99dd3caf778f9547d5a301ef5da95771cad542a8-working",
+  "buildId": "7239eaaff6c05a40954a8a4e83e0c5b9e9ca94b3-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:df951788f591463478c2d6c4a28e94477e448b9d4de43f95542e2f67df5ccb76",
-  "docsHash": "sha256:72b25d226d4015b44cb53875df7fcd9e91ab1015b612f4d5f42d8f389c0008c3",
+  "catalogHash": "sha256:847be7b53a9bfeffb9077f7c2ab29279ef10016a873e8f2399674ec43a99a7d7",
+  "docsHash": "sha256:4425fa7d01aa6386dd65652e0d83645eb39239846b5370d33ab7b19e691b4d30",
   "apiMethods": [
     "getQuickModelUsage",
     "copySelection",
@@ -533,8 +533,8 @@
       "title": "圆角／圆润 / Rounding",
       "label": "圆角／圆润",
       "category": "modification",
-      "version": "1.1.0",
-      "docsHash": "sha256:f01dbf3b25490be039558e751f4bc48722e0a3685d7f31391cbe94ab61a9e0a8",
+      "version": "1.2.0",
+      "docsHash": "sha256:6cec8ebe6eacc7368113ac42e72d2a3507a496b971a9ff91584765f2a8d0e1e9",
       "url": "tools/rounding.json"
     },
     {
