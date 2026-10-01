@@ -2,6 +2,8 @@
 
 Read [PROJECT.md](PROJECT.md) before implementation. It is the canonical product-purpose, architecture and acceptance specification. See [page API](docs/PAGE-API.zh-CN.md) for integration.
 
+Follow PROJECT.md section 8 for execution: address the user's core real-case failure first, validate only the affected behavior, and enforce one shared experiment budget across routes and agents. A passing synthetic model or growing test count does not complete a failing real case.
+
 For using an open WebCAD page, start with `window.webcad.api.connect({queries:[capability keywords]})`, then batch `getTools({ids})`; use linked docs only as needed. This returns current context and searches all registered tools. The optional versioned offline library is documented in [AI discovery](docs/AI-DISCOVERY.zh-CN.md); cache static contracts, never document state or topology IDs.
 
 Known IDs can be read in one handshake with `connect({toolIds:[...]})`. Check `canExecute/blockers`, not `ready` alone. Template discovery cards (`template.*`) use `op:quickModel` and `params.kind` in their executable examples. First-use workflow is `readDocs({docId:'api.workflow'})`; the portable host skill lives in `skills/webcad-page-api/SKILL.md`. Do not reuse legacy top-level `window.webcad.action/execute/ready` instructions against the current page API.
@@ -19,4 +21,4 @@ Known IDs can be read in one handshake with `connect({toolIds:[...]})`. Check `c
 - Keep records in agent/notes, scratch in agent/temp, reports in agent/output. Back up existing files under agent/backups/<timestamp> with the original relative paths before editing. Keep root clean.
 - Preserve unrelated changes and third-party licenses. Do not overwrite via git reset/checkout/pull.
 - No production deployment, external source upload or Git push without session authorization.
-- Use targeted tests and one relevant browser check when authorized; stop repeated failures within the user's attempt budget and report the precise limitation.
+- Use targeted tests and one relevant browser check when authorized. Stop exploration after two rounds without new mechanism evidence, or when the shared experiment budget is exhausted. Do not extend it by changing parameters, routes, tools, kernels or agents; retain the minimal repro and report the unresolved core problem.
