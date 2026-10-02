@@ -1,0 +1,12 @@
+✔ CadKernel logo engraves selected top and side faces using their real local frames (213.5177ms)
+✔ unified logo v2 dispatches exact planar and curved BRep faces and rejects stale or unsupported modes (326.1074ms)
+✔ CadKernel rejects curved faces and logos that cross a planar face hole; failed rebuild preserves committed source BREP (59.0917ms)
+✔ CadKernel rejects a neighboring collinear reversal instead of treating it as a valid outline (4.7845ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1131.0954

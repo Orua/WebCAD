@@ -1,0 +1,150 @@
+{
+  "experimental": true,
+  "notIntegrated": true,
+  "scope": "Z-axis cylinder only; no selected-face or boundary handling",
+  "started": "2026-10-02T16:41:44.558Z",
+  "cases": [
+    {
+      "name": "medallion",
+      "mode": "emboss",
+      "elapsedMs": 536.1151,
+      "valid": true,
+      "solids": 1,
+      "volume": 51209.19785054792,
+      "changedMm3": 943.7153931113498,
+      "sourceUnchanged": true,
+      "controlGrid": [
+        28,
+        28
+      ],
+      "sampledNormalHeightRange": [
+        -7.105427357601002e-15,
+        2.0000000000000178
+      ],
+      "sampledBaseRadiusDeviation": 1.4210854715202004e-14,
+      "baseLayerMm": 0
+    },
+    {
+      "name": "medallion",
+      "mode": "engrave",
+      "elapsedMs": 359.5104,
+      "valid": true,
+      "solids": 1,
+      "volume": 49403.268065509634,
+      "changedMm3": 862.2143919269365,
+      "sourceUnchanged": true,
+      "controlGrid": [
+        28,
+        28
+      ],
+      "sampledNormalHeightRange": [
+        -1.4210854715202004e-14,
+        2.000000000000007
+      ],
+      "sampledBaseRadiusDeviation": 1.4210854715202004e-14,
+      "baseLayerMm": 0
+    },
+    {
+      "name": "letter",
+      "mode": "emboss",
+      "elapsedMs": 370.0381,
+      "valid": true,
+      "solids": 1,
+      "volume": 50677.83423104741,
+      "changedMm3": 412.3517736108406,
+      "sourceUnchanged": true,
+      "controlGrid": [
+        28,
+        28
+      ],
+      "sampledNormalHeightRange": [
+        -7.105427357601002e-15,
+        1.9999999999999964
+      ],
+      "sampledBaseRadiusDeviation": 1.4210854715202004e-14,
+      "baseLayerMm": 0
+    },
+    {
+      "name": "letter",
+      "mode": "engrave",
+      "elapsedMs": 374.5543,
+      "valid": true,
+      "solids": 1,
+      "volume": 49880.96331979043,
+      "changedMm3": 384.5191376461371,
+      "sourceUnchanged": true,
+      "controlGrid": [
+        28,
+        28
+      ],
+      "sampledNormalHeightRange": [
+        -1.4210854715202004e-14,
+        2
+      ],
+      "sampledBaseRadiusDeviation": 1.4210854715202004e-14,
+      "baseLayerMm": 0
+    },
+    {
+      "name": "waves",
+      "mode": "emboss",
+      "elapsedMs": 329.6466999999998,
+      "valid": true,
+      "solids": 1,
+      "volume": 50423.78663463694,
+      "changedMm3": 158.30417720037076,
+      "sourceUnchanged": true,
+      "controlGrid": [
+        28,
+        28
+      ],
+      "sampledNormalHeightRange": [
+        -7.105427357601002e-15,
+        1.9241722263983938
+      ],
+      "sampledBaseRadiusDeviation": 1.4210854715202004e-14,
+      "baseLayerMm": 0
+    },
+    {
+      "name": "waves",
+      "mode": "engrave",
+      "elapsedMs": 292.97890000000007,
+      "valid": true,
+      "solids": 1,
+      "volume": 50114.204682693686,
+      "changedMm3": 151.2777747428845,
+      "sourceUnchanged": true,
+      "controlGrid": [
+        28,
+        28
+      ],
+      "sampledNormalHeightRange": [
+        -1.4210854715202004e-14,
+        1.9241722263015753
+      ],
+      "sampledBaseRadiusDeviation": 1.4210854715202004e-14,
+      "baseLayerMm": 0
+    },
+    {
+      "name": "zero",
+      "mode": "emboss",
+      "elapsedMs": 167.38740000000007,
+      "valid": true,
+      "solids": 1,
+      "volume": 50265.482457436636,
+      "changedMm3": 6.548361852765083e-11,
+      "sourceUnchanged": true,
+      "controlGrid": [
+        28,
+        28
+      ],
+      "sampledNormalHeightRange": [
+        -7.105427357601002e-15,
+        1.4210854715202004e-14
+      ],
+      "sampledBaseRadiusDeviation": 1.4210854715202004e-14,
+      "baseLayerMm": 0
+    }
+  ],
+  "status": "passed",
+  "finished": "2026-10-02T16:41:46.993Z"
+}

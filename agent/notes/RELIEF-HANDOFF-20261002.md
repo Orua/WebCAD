@@ -1,4 +1,54 @@
-# WebCAD 浮雕与菜单拆分：暂停交接
+# WebCAD 浮雕与菜单拆分：成果与交接
+
+## 最终曲面追加任务交接（优先于以下早期记录）
+
+用户在00:23追加“检查LOGO，然后两个工具支持曲面”。现在完成：
+
+- LOGO 原有曲面等深凹刻已确认：圆柱/球面/光滑放样面内核试验通过（含深度、内孔、背面、薄壁、STEP）；统一LOGO内核4项通过；真实页面圆柱/球面各一次成功。没有重写或冒充新增既有LOGO功能；曲面凸字/拔模仍拒绝。
+- relief 已正式支持外凸圆柱，公共契约增加 point 和 baseMm，UI明确显示基底厚度，API文档升级1.18.0，静态知识包同步。实现 `src/modeling/manufacturing/cylindrical-relief.js`，由现有 relief 操作分派，无独立鼠标专用入口。
+- 柱面矩形基底是明确设计限制：默认0.02 mm、0.005–1 mm可调。总高度baseMm+depthMm，整张图的零值区也有基底。没有零背景无痕包裹。水平圆周弧长/垂直沿轴，point真实点击点；角宽≤90°、总高度≤半径20%、angleDeg=0，拒绝跨缝/孔/边界及内孔柱面。球面和任意自由曲面浮雕仍未实现。
+- 原型先验证：无基底/逐控制点变换导致部分布尔为空；微小负间隙虽然闭合，但刚体不变体积误差0.029 mm³，未通过门禁，不采用。明确0.02基底加刚体变换刀具后，3图×2模式×2姿态=12实体通过，最大体积差约1.46e-11 mm³，随后才产品化。失败证据在backups/20261003-cylinder-combined。
+- 最终目标测试15通过；真实DOM/解码20项通过，包含锁定点击点/基底传参和基底说明。完整contracts与build日志是 `relief-contracts-final.log` / `relief-build-final.log`（后面的早期计数以最终日志为准）。
+- 五件曲面页面示例（3个浮雕/凹雕、2个LOGO）通过，保存 `agent/output/curved-relief-logo-demo-20261003.webcad`（30226字节，SHA-256 `9b73ae2fd6e45148fbc11be9157665a3772f6551177833a7c06881f182e0830c`）。回读重开5实体14特征、体积完全相同、dirty=false、最终模型/渲染/上下文revision18一致。不要把文件名理解成产品项目名，内部名保留测试工程名。
+- 主要成果文档 `agent/output/RELIEF-RESULTS-20261002.md`；画面 `curved-relief-logo-gallery.png`；页面回执 `relief-curved-browser-acceptance.json`、保存重开 `curved-relief-logo-save-reopen.json`。
+
+下一步：若用户继续，优先研究无矩形基底的稳定零高曲面结合，然后球面/自由曲面浮雕。先独立图案试算、有限面/孔/接缝/法向/自交与薄壁门禁，再产品化；不能简单去掉baseMm限制。柱面凹雕当前如平面允许穿透，UI已提示预览壁厚；如需禁止穿透，应新增完整工具包含性验证，不只检查结果单实体。用户未要求生产部署，IIS副本保持不变。
+
+## 2026-10-03 续跑后的有效交接（覆盖下面暂停时的未验收状态）
+
+用户调整模型和速率后明确恢复工作。又补充：以后测试工程自行保存，不要弹窗要求人在场。后续 agent 应先通过公共文件 API 生成资源，再实际写盘、回读校验和 confirmWritten，确认 dirty=false 后才能 new/open/reload；不要调用会弹 native confirm 的 UI 新建。不要伪造写盘确认。
+
+### 本阶段已交付
+
+- 原进度基线已推送 `e9d2cdd`；暂停点已推送 `7a84a99`。最终续跑提交见本文件所在 Git 提交及之后的收尾记录。
+- 加工菜单拆成面加工/实体加工；平面曲面浮雕 UI、Worker、公共 AI 接口与文档齐全。JPG/PNG/SVG → 连续 B 样条起伏，支持灰度/图形柔和鼓起、浮雕/凹雕、偏移旋转、预览、改历史参数、撤销。
+- 续跑修复预览弹窗共享关闭清理标记；保留 SVG 精确比例和物理单位比例；在解码前检查 JPEG/PNG 尺寸；拒绝单实体夹带散面。
+- 本轮先证明三张 JPEG 的计算，再实现正式平面工具；新增柱面两套原型共 14 项通过，但尚未接入正式功能。不要把柱面或任意曲面包裹说成可用。
+
+### 最终验收和成果
+
+- `node --test tests/relief-contract.test.mjs tests/relief-kernel.test.mjs tests/workspace-upgrade.test.mjs`：14 通过。
+- `npm.cmd run test:contracts`：282 总计、281 通过、1 原有跳过、0 失败。日志 `agent/output/relief-contracts-final.log`。
+- 最终 `npm.cmd run build`：75 operations / 28 actions / 160 UI routes 发布门禁通过；日志 `agent/output/relief-build-final.log`。只有既有 bundle 大小提示。
+- 同一 IAB 页/同一 Worker 上 18 项实际 DOM/解码检查通过；三个浮雕样件 + 一个凹雕样件都成为有效单实体；精确体积/失败不提交/幂等/改参/撤销重做通过。验收模块在 `agent/temp/relief-browser-acceptance.js`、`relief-engrave-acceptance.js`；回执在 output 同名 JSON。
+- 四样件已保存为 `agent/output/relief-demo-20261003.webcad`，112757 字节。回读 SHA-256 `0998017f2399b0b51f7f7c29af7b3acff6e65877a5c8df5b4226501173850f24`；公共 API 重开后 4 实体/12 特征、体积完全相同、dirty=false，最终渲染身份与修订一致。详见 `relief-save-reopen.json`、`relief-final-state.json`。
+- 可视成果 `agent/output/relief-four-cases.png`；完整说明 `agent/output/RELIEF-RESULTS-20261002.md`。重载前旧测试页另保存在 `relief-before-reload-20261003.webcad`，仅本地备份，不作为最终示例。
+- 源码和本地构建已完成；没有部署 `D:/Projects/WebCAD` IIS 副本。浏览器使用开发服务 667。浏览器单批返回 rendered 时可能仍是前一帧，必须比较最终 context/model/rendered，不只看 status。
+
+### 下一阶段
+
+1. 读 `agent/notes/RELIEF-CYLINDER-NEXT.md`，把柱面几何构造与实际选面边界门禁合成一个隔离的内核原型，补角宽/深度/半径范围、任意轴材料体积和源不变验证。
+2. 柱面首版可仅开放外凸圆柱；内孔、接缝、孔边界和非等参旋转须明确拒绝。选面中心不能用面积质心猜。当前 `relief` 平面保护保持不变，直到新契约、UI 和 API 同时完整。
+3. 若进一步支持照片的真实深度，应作为独立深度输入/推断问题讨论；当前亮度到高度不恢复真实三维。三次控制网格是平滑近似，不逐点插值。
+4. 浏览器测试复用现有页；先 connect/read current context，不缓存面 ID/文档身份。示例是本轮自造测试件，可以自行保存；源产品仍只读。
+
+### 已知测试环境问题
+
+开发服务运行时 Windows agent-kit 安装器 stage Directory.Move 曾 AccessDenied。停止 dev 后同一测试和完整 contracts 均通过；没有修改安装器生产代码，也没有把相关性当作锁进程根因。需要再跑该组时先停止本地开发服务，跑完恢复。
+
+备份：`agent/backups/20261002-relief-*`、`20261003-cylinder`、`20261003-final-records`。保留其他历史功能，禁止 reset/checkout/pull 覆盖工作。
+
+## 以下为暂停时的历史记录，状态已被上文覆盖
 
 暂停时间：2026-10-02 北京时间 23:27。用户明确要求“计划有变，你做好记录先暂停，我调整一下模型”。停止继续开发、几何实验和浏览器测试；仅整理记录和阶段提交。原先 1% 额度或次日 01:00 的持续工作要求被此次暂停覆盖，不自动恢复。最后一次额度查询为剩余 11%（23:24）。
 

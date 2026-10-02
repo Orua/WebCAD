@@ -1,0 +1,73 @@
+{
+  "saved": {
+    "context": {
+      "documentId": "ef4ced3c-85ba-4580-ae63-6c4e8fb4739c",
+      "documentInstanceId": "62506bfb-fdcf-45f3-84af-372e75ece235",
+      "revision": 17,
+      "sessionId": "c497ffa8-0b35-4d65-92a5-2ce48be86a7e"
+    },
+    "expiresAt": 1790960996184,
+    "mime": "application/json",
+    "name": "curved-relief-logo-demo-20261003.webcad",
+    "resourceId": "art_333ef3199d344b0598dac04f8a2f654c",
+    "sha256": "9b73ae2fd6e45148fbc11be9157665a3772f6551177833a7c06881f182e0830c",
+    "size": 30226,
+    "status": "generated"
+  },
+  "path": "D:/Projects/WebCAD-git/agent/output/curved-relief-logo-demo-20261003.webcad",
+  "confirmed": {
+    "confirmation": {
+      "dirty": false,
+      "documentId": "ef4ced3c-85ba-4580-ae63-6c4e8fb4739c",
+      "documentInstanceId": "62506bfb-fdcf-45f3-84af-372e75ece235",
+      "revision": 17,
+      "saved": true
+    },
+    "resourceId": "art_333ef3199d344b0598dac04f8a2f654c",
+    "sha256": "9b73ae2fd6e45148fbc11be9157665a3772f6551177833a7c06881f182e0830c",
+    "size": 30226,
+    "status": "client_write_confirmed",
+    "writeConfirmation": "client_reported_verified_write"
+  },
+  "reopened": {
+    "after": [
+      50371.55316677876,
+      50042.827999236426,
+      50418.92268283965,
+      50163.38551918804,
+      33408.456394787914
+    ],
+    "before": [
+      50371.55316677876,
+      50042.827999236426,
+      50418.92268283965,
+      50163.38551918804,
+      33408.456394787914
+    ],
+    "context": {
+      "documentId": "ef4ced3c-85ba-4580-ae63-6c4e8fb4739c",
+      "documentInstanceId": "9721af35-f31a-4f70-910a-a29c5978cabe",
+      "revision": 18,
+      "sessionId": "c497ffa8-0b35-4d65-92a5-2ce48be86a7e"
+    },
+    "opened": {
+      "context": {
+        "documentId": "ef4ced3c-85ba-4580-ae63-6c4e8fb4739c",
+        "documentInstanceId": "9721af35-f31a-4f70-910a-a29c5978cabe",
+        "revision": 18,
+        "sessionId": "c497ffa8-0b35-4d65-92a5-2ce48be86a7e"
+      },
+      "dirty": false,
+      "requestId": "39a3d3a6-e080-4478-8ad7-7f86869532c3",
+      "status": "committed"
+    },
+    "summary": {
+      "bodyCount": 5,
+      "busy": false,
+      "dirty": false,
+      "featureCount": 14,
+      "kernelReady": true,
+      "name": "新建工程20261003-007"
+    }
+  }
+}

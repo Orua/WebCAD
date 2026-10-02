@@ -1,0 +1,96 @@
+{
+  "bodyId": "06ace52d-d707-47d5-a6be-fce864cdf2dd",
+  "checks": [
+    "65-sample multilevel SVG decodes through public resource API",
+    "engraving base committed",
+    "current top face queried",
+    "multilevel engraving committed",
+    "engraving removes material while retaining one valid solid",
+    "removed material report agrees with body volume",
+    "engraving undo committed",
+    "undo restores uncut base",
+    "engraving redo committed",
+    "redo restores exact engraving volume",
+    "three earlier relief features preserved",
+    "final frame shows current four-body geometry"
+  ],
+  "display": {
+    "camera": {
+      "position": [
+        222.5976319155636,
+        -156.59763191556297,
+        175.16617461089146
+      ],
+      "projection": "perspective",
+      "target": [
+        19.999999999999996,
+        46,
+        2.958187482662813
+      ],
+      "up": [
+        0,
+        0,
+        1
+      ]
+    },
+    "error": null,
+    "frame": 4050,
+    "model": {
+      "documentId": "f5a02e5f-127d-41dd-85a8-6a4036ffa9b6",
+      "documentInstanceId": "5ccb2689-c5f1-43cc-9dee-8f1d9032918e",
+      "revision": 17
+    },
+    "rendered": {
+      "documentId": "f5a02e5f-127d-41dd-85a8-6a4036ffa9b6",
+      "documentInstanceId": "5ccb2689-c5f1-43cc-9dee-8f1d9032918e",
+      "revision": 17
+    },
+    "status": "rendered"
+  },
+  "elapsedMs": 3161.100000023842,
+  "report": {
+    "addedMm3": 0,
+    "angleDeg": 0,
+    "columns": 65,
+    "controlHeightMm": 1.5,
+    "faceId": 5,
+    "heightMm": 21.333333333333332,
+    "kind": "cubic-bspline-heightfield",
+    "limitations": [
+      "planar-face-only",
+      "image-brightness-is-not-photo-depth",
+      "full-rectangle-within-face"
+    ],
+    "mode": "engrave",
+    "normal": [
+      0,
+      0,
+      1
+    ],
+    "offsetX": 0,
+    "offsetY": 0,
+    "origin": [
+      20,
+      72,
+      3
+    ],
+    "removedMm3": 352.48056560308487,
+    "rows": 43,
+    "smoothing": "approximating-control-grid",
+    "solidCount": 1,
+    "sourceHash": "4f260105f48f38bb007dba8c8d1885513e2de84cd431d0b3117225d35a653614",
+    "sourceName": "relief-levels.svg",
+    "valid": true,
+    "widthMm": 32
+  },
+  "status": "passed",
+  "summary": {
+    "bodyCount": 4,
+    "busy": false,
+    "dirty": true,
+    "featureCount": 12,
+    "kernelReady": true,
+    "name": "新建工程20261003-001"
+  },
+  "volume": 4447.519434396915
+}

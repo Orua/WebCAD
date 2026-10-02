@@ -1,0 +1,350 @@
+{
+  "experimental": true,
+  "notIntegrated": true,
+  "scope": "Actual finite outer cylindrical face, fixed radius 20 and arc 1.4 rad; no UI/API integration",
+  "cases": [
+    {
+      "name": "medallion",
+      "mode": "emboss",
+      "original": {
+        "name": "medallion",
+        "mode": "emboss",
+        "elapsedMs": 787.4961999999999,
+        "valid": true,
+        "solids": 1,
+        "volume": 51225.788655440425,
+        "changedMm3": 960.3061980038547,
+        "sourceUnchanged": true,
+        "controlGrid": [
+          28,
+          28
+        ],
+        "sampledNormalHeightRange": [
+          0.019999999999988916,
+          2.0200000000000102
+        ],
+        "sampledBaseRadiusDeviation": 1.4210854715202004e-14,
+        "baseLayerMm": 0.02
+      },
+      "transformed": {
+        "name": "medallion",
+        "mode": "emboss",
+        "elapsedMs": 753.5604000000001,
+        "valid": true,
+        "solids": 1,
+        "volume": 51225.788655440425,
+        "changedMm3": 960.3061980038183,
+        "sourceUnchanged": true,
+        "controlGrid": [
+          28,
+          28
+        ],
+        "sampledNormalHeightRange": [
+          0.019999999999988916,
+          2.0200000000000102
+        ],
+        "sampledBaseRadiusDeviation": 1.4210854715202004e-14,
+        "baseLayerMm": 0.02
+      },
+      "volumeDifference": 0
+    },
+    {
+      "name": "medallion",
+      "mode": "engrave",
+      "original": {
+        "name": "medallion",
+        "mode": "engrave",
+        "elapsedMs": 743.3579,
+        "valid": true,
+        "solids": 1,
+        "volume": 49388.498878077095,
+        "changedMm3": 876.9835793594757,
+        "sourceUnchanged": true,
+        "controlGrid": [
+          28,
+          28
+        ],
+        "sampledNormalHeightRange": [
+          0.019999999999985363,
+          2.0200000000000067
+        ],
+        "sampledBaseRadiusDeviation": 1.4210854715202004e-14,
+        "baseLayerMm": 0.02
+      },
+      "transformed": {
+        "name": "medallion",
+        "mode": "engrave",
+        "elapsedMs": 667.6226999999999,
+        "valid": true,
+        "solids": 1,
+        "volume": 49388.49887807711,
+        "changedMm3": 876.9835793594975,
+        "sourceUnchanged": true,
+        "controlGrid": [
+          28,
+          28
+        ],
+        "sampledNormalHeightRange": [
+          0.019999999999985363,
+          2.0200000000000067
+        ],
+        "sampledBaseRadiusDeviation": 1.4210854715202004e-14,
+        "baseLayerMm": 0.02
+      },
+      "volumeDifference": 1.4551915228366852e-11
+    },
+    {
+      "name": "letter",
+      "mode": "emboss",
+      "original": {
+        "name": "letter",
+        "mode": "emboss",
+        "elapsedMs": 798.2047000000002,
+        "valid": true,
+        "solids": 1,
+        "volume": 50693.92050650304,
+        "changedMm3": 428.43804906646983,
+        "sourceUnchanged": true,
+        "controlGrid": [
+          28,
+          28
+        ],
+        "sampledNormalHeightRange": [
+          0.019999999999988916,
+          2.020000000000003
+        ],
+        "sampledBaseRadiusDeviation": 1.4210854715202004e-14,
+        "baseLayerMm": 0.02
+      },
+      "transformed": {
+        "name": "letter",
+        "mode": "emboss",
+        "elapsedMs": 812.3827999999994,
+        "valid": true,
+        "solids": 1,
+        "volume": 50693.92050650303,
+        "changedMm3": 428.4380490664262,
+        "sourceUnchanged": true,
+        "controlGrid": [
+          28,
+          28
+        ],
+        "sampledNormalHeightRange": [
+          0.019999999999988916,
+          2.020000000000003
+        ],
+        "sampledBaseRadiusDeviation": 1.4210854715202004e-14,
+        "baseLayerMm": 0.02
+      },
+      "volumeDifference": 7.275957614183426e-12
+    },
+    {
+      "name": "letter",
+      "mode": "engrave",
+      "original": {
+        "name": "letter",
+        "mode": "engrave",
+        "elapsedMs": 501.6207000000004,
+        "valid": true,
+        "solids": 1,
+        "volume": 49865.68959524605,
+        "changedMm3": 399.792862190523,
+        "sourceUnchanged": true,
+        "controlGrid": [
+          28,
+          28
+        ],
+        "sampledNormalHeightRange": [
+          0.019999999999985363,
+          2.019999999999996
+        ],
+        "sampledBaseRadiusDeviation": 1.4210854715202004e-14,
+        "baseLayerMm": 0.02
+      },
+      "transformed": {
+        "name": "letter",
+        "mode": "engrave",
+        "elapsedMs": 655.7678000000005,
+        "valid": true,
+        "solids": 1,
+        "volume": 49865.68959524606,
+        "changedMm3": 399.79286219054484,
+        "sourceUnchanged": true,
+        "controlGrid": [
+          28,
+          28
+        ],
+        "sampledNormalHeightRange": [
+          0.019999999999985363,
+          2.019999999999996
+        ],
+        "sampledBaseRadiusDeviation": 1.4210854715202004e-14,
+        "baseLayerMm": 0.02
+      },
+      "volumeDifference": 1.4551915228366852e-11
+    },
+    {
+      "name": "waves",
+      "mode": "emboss",
+      "original": {
+        "name": "waves",
+        "mode": "emboss",
+        "elapsedMs": 547.2149999999992,
+        "valid": true,
+        "solids": 1,
+        "volume": 50439.62926445617,
+        "changedMm3": 174.14680701959878,
+        "sourceUnchanged": true,
+        "controlGrid": [
+          28,
+          28
+        ],
+        "sampledNormalHeightRange": [
+          0.019999999999988916,
+          1.9441722263983472
+        ],
+        "sampledBaseRadiusDeviation": 1.4210854715202004e-14,
+        "baseLayerMm": 0.02
+      },
+      "transformed": {
+        "name": "waves",
+        "mode": "emboss",
+        "elapsedMs": 637.5094000000008,
+        "valid": true,
+        "solids": 1,
+        "volume": 50439.62926445616,
+        "changedMm3": 174.14680701955513,
+        "sourceUnchanged": true,
+        "controlGrid": [
+          28,
+          28
+        ],
+        "sampledNormalHeightRange": [
+          0.019999999999988916,
+          1.9441722263983472
+        ],
+        "sampledBaseRadiusDeviation": 1.4210854715202004e-14,
+        "baseLayerMm": 0.02
+      },
+      "volumeDifference": 7.275957614183426e-12
+    },
+    {
+      "name": "waves",
+      "mode": "engrave",
+      "original": {
+        "name": "waves",
+        "mode": "engrave",
+        "elapsedMs": 453.7296000000006,
+        "valid": true,
+        "solids": 1,
+        "volume": 50098.68731676386,
+        "changedMm3": 166.79514067270793,
+        "sourceUnchanged": true,
+        "controlGrid": [
+          28,
+          28
+        ],
+        "sampledNormalHeightRange": [
+          0.01999999999998181,
+          1.9441722263015109
+        ],
+        "sampledBaseRadiusDeviation": 1.4210854715202004e-14,
+        "baseLayerMm": 0.02
+      },
+      "transformed": {
+        "name": "waves",
+        "mode": "engrave",
+        "elapsedMs": 549.1253999999999,
+        "valid": true,
+        "solids": 1,
+        "volume": 50098.68731676388,
+        "changedMm3": 166.79514067272976,
+        "sourceUnchanged": true,
+        "controlGrid": [
+          28,
+          28
+        ],
+        "sampledNormalHeightRange": [
+          0.01999999999998181,
+          1.9441722263015109
+        ],
+        "sampledBaseRadiusDeviation": 1.4210854715202004e-14,
+        "baseLayerMm": 0.02
+      },
+      "volumeDifference": 1.4551915228366852e-11
+    }
+  ],
+  "started": "2026-10-02T16:41:47.276Z",
+  "gates": [
+    {
+      "name": "original finite face",
+      "expected": true,
+      "accepted": true,
+      "faceId": 0,
+      "surfaceType": "CYLINDRE",
+      "frame": {
+        "radius": 20,
+        "origin": [
+          0,
+          0,
+          0
+        ],
+        "x": [
+          1,
+          0,
+          0
+        ],
+        "y": [
+          0,
+          1,
+          0
+        ],
+        "z": [
+          0,
+          0,
+          1
+        ]
+      },
+      "anchorDistance": 0,
+      "minimumEdgeDistance": 6,
+      "outward": 1,
+      "sourceUnchanged": true
+    },
+    {
+      "name": "transformed finite face",
+      "expected": true,
+      "accepted": true,
+      "faceId": 0,
+      "surfaceType": "CYLINDRE",
+      "frame": {
+        "radius": 20,
+        "origin": [
+          23,
+          -17,
+          12
+        ],
+        "x": [
+          0.8857338405616898,
+          0.05713307971915508,
+          -0.460664058599804
+        ],
+        "y": [
+          0.05713307971915508,
+          0.9714334601404224,
+          0.230332029299902
+        ],
+        "z": [
+          0.460664058599804,
+          -0.230332029299902,
+          0.8571673007021123
+        ]
+      },
+      "anchorDistance": 3.972054645195637e-15,
+      "minimumEdgeDistance": 5.999999999999999,
+      "outward": 1,
+      "sourceUnchanged": true
+    }
+  ],
+  "status": "passed",
+  "finished": "2026-10-02T16:41:55.345Z"
+}

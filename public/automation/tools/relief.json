@@ -15,10 +15,32 @@
       "faceId": {
         "type": "integer",
         "minimum": 0,
-        "description": "Current selected planar face index on refs[0]",
+        "description": "Current selected planar or convex cylindrical face index on refs[0]",
         "unit": "1",
         "quantityKind": "index",
         "quantizationPolicy": "none"
+      },
+      "point": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "number",
+          "description": "World coordinate in mm",
+          "unit": "mm",
+          "quantityKind": "length",
+          "quantizationPolicy": "none"
+        },
+        "description": "Required placement point on a cylindrical face; ignored for legacy planar placement",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "baseMm": {
+        "type": "number",
+        "description": "Explicit rectangular cylindrical base layer; total height is baseMm + depthMm (mm)",
+        "minimum": 0.005,
+        "maximum": 1
       },
       "widthMm": {
         "type": "number",
@@ -165,7 +187,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 在一个有效封闭实体的当前平面上生成有高低层次的连续曲面浮雕。values 是按图像从下至上、每行从左至右排列的 4–65 行/列矩形高度控制网格，值域 0–1；三次夹持 B 样条平滑近似，通常不穿过每一个样点。depthMm 是控制高度上限，不保证实际峰值达到它。widthMm/heightMm 为完整矩形尺寸；必须全部位于所选有限面内且避开孔，不自动裁剪。图案中心为该面面积质心加 offsetX/offsetY；局部 X 是投影世界 X（近共线时用世界 Y），局部 Y=外法向叉乘 X；angleDeg 绕外法向旋转。mode=emboss 加料，engrave 减料，保留一个有效实体；来源隔离复制，失败不提交。只支持平面，不支持曲面包裹。灰度/颜色不等于真实照片深度。readRelief 在浏览器本地从 JPG/PNG/SVG 生成 values；工程保存该网格和来源哈希，无外部文件依赖。预览、历史改参、撤销共用同一操作；getState().bodies[].reliefReport 读实际增减体积、网格和尺寸。",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 在一个有效封闭实体的平面或外凸圆柱面上生成连续 B 样条浮雕。values 是自下至上、每行从左至右排列的4–65行列矩形高度控制网格，值域0–1；平滑近似，不逐点插值。depthMm 是图案控制高度上限。平面：完整矩形须在有限面内且避开孔，中心为面质心加offsetX/Y；局部X为世界X投影（近共线时用世界Y），Y=外法向叉X，angleDeg绕法向。柱面：必须明确point三维点击点及baseMm基底层（0.005–1 mm，UI默认0.02）；整张矩形先形成基底层，总高度=baseMm+depthMm。局部X沿圆周弧长，Y沿解析圆柱轴；offsetX/Y相对点击点，angleDeg必须0。仅外凸圆柱，半径1–10000 mm、角宽≤90°、总高度≤半径20%；完整足迹须避开边界、接缝和孔，内孔与其他曲面拒绝。mode=emboss加料/engrave减料，保持一个有效实体；来源隔离，失败不提交，凹雕过深可穿透。灰度不是照片真实深度。readRelief本地读取JPG/PNG/SVG；工程保存网格与来源哈希，重建无需原图。预览/历史改参/撤销共用操作；reliefReport回读实际材料体积、网格、柱面半径/轴/基底层和限制。",
   "title": "浮雕：从图片高度场生成有层次的平滑 B 样条曲面 / Surface relief",
   "category": "modification",
   "synonyms": [
@@ -173,7 +195,7 @@
     "relief"
   ],
   "description": "浮雕：从图片高度场生成有层次的平滑 B 样条曲面 / Surface relief",
-  "schemaHash": "sha256:7f5f826d21bc448d508229f408b49ef6187279b0efd838d574d6b6123a69b7de",
+  "schemaHash": "sha256:a5b71efd30d5dddb73eb3eccccaa4f38bba97c8033fde74788ecb11fb98eca99",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -222,7 +244,7 @@
     "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "在一个有效封闭实体的当前平面上生成有高低层次的连续曲面浮雕。values 是按图像从下至上、每行从左至右排列的 4–65 行/列矩形高度控制网格，值域 0–1；三次夹持 B 样条平滑近似，通常不穿过每一个样点。depthMm 是控制高度上限，不保证实际峰值达到它。widthMm/heightMm 为完整矩形尺寸；必须全部位于所选有限面内且避开孔，不自动裁剪。图案中心为该面面积质心加 offsetX/offsetY；局部 X 是投影世界 X（近共线时用世界 Y），局部 Y=外法向叉乘 X；angleDeg 绕外法向旋转。mode=emboss 加料，engrave 减料，保留一个有效实体；来源隔离复制，失败不提交。只支持平面，不支持曲面包裹。灰度/颜色不等于真实照片深度。readRelief 在浏览器本地从 JPG/PNG/SVG 生成 values；工程保存该网格和来源哈希，无外部文件依赖。预览、历史改参、撤销共用同一操作；getState().bodies[].reliefReport 读实际增减体积、网格和尺寸。"
+    "在一个有效封闭实体的平面或外凸圆柱面上生成连续 B 样条浮雕。values 是自下至上、每行从左至右排列的4–65行列矩形高度控制网格，值域0–1；平滑近似，不逐点插值。depthMm 是图案控制高度上限。平面：完整矩形须在有限面内且避开孔，中心为面质心加offsetX/Y；局部X为世界X投影（近共线时用世界Y），Y=外法向叉X，angleDeg绕法向。柱面：必须明确point三维点击点及baseMm基底层（0.005–1 mm，UI默认0.02）；整张矩形先形成基底层，总高度=baseMm+depthMm。局部X沿圆周弧长，Y沿解析圆柱轴；offsetX/Y相对点击点，angleDeg必须0。仅外凸圆柱，半径1–10000 mm、角宽≤90°、总高度≤半径20%；完整足迹须避开边界、接缝和孔，内孔与其他曲面拒绝。mode=emboss加料/engrave减料，保持一个有效实体；来源隔离，失败不提交，凹雕过深可穿透。灰度不是照片真实深度。readRelief本地读取JPG/PNG/SVG；工程保存网格与来源哈希，重建无需原图。预览/历史改参/撤销共用操作；reliefReport回读实际材料体积、网格、柱面半径/轴/基底层和限制。"
   ],
   "minimalExample": {
     "op": "relief",
@@ -435,5 +457,5 @@
   "docs": "api.relief",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:ad8422b38b9a0c74d3189dfde94018d30d7a6003274d81c86d1b96af92435466"
+  "docsHash": "sha256:383c38f0a01afa542dc6c3a5b9b4d0583cb6385f4bdcd0584df7574a41880ad4"
 }

@@ -1,0 +1,23 @@
+✔ relief has a strict bounded heightfield contract and unique menu ownership (2.7324ms)
+✔ RGBA preserves orientation, transparency and explicit brightness polarity (0.2786ms)
+✔ rounded silhouette has continuously changing height controls instead of a flat plateau (1.4084ms)
+✔ raster dimensions are bounded before decoder allocation and malformed headers reject (0.5758ms)
+✔ smooth multilevel relief and engraving on top, bottom and side preserve the source (560.3252ms)
+✔ outside face, face holes, curved targets and zero patterns reject without source changes (113.0819ms)
+✔ stored height controls rebuild without the image, edits recompute and a failed edit preserves cached geometry (550.6644ms)
+✔ a compound with one solid plus unrelated loose geometry is not accepted as a closed target (1.7832ms)
+✔ cylindrical relief uses the actual face and preserves one solid under rigid transforms (627.3936ms)
+✔ face and solid machining preserve all tools once and keep batch tools in overflow (0.9966ms)
+✔ single overflow tools stay visible and ribbon folding follows layout configuration (0.1726ms)
+✔ snapshot contexts adapt without mutation; stale or conflicting revisions never reach host (5.1317ms)
+✔ jobs retain a single receipt for timeouts; queued cancellation cannot execute (40.3755ms)
+✔ 5 MiB project payload decodes exactly without regex stack overflow; larger files fail at declared limit (324.342ms)
+✔ all configurable header/tab/control actions have public routes (0.4813ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2255.9311

@@ -1,0 +1,49 @@
+{
+  "context": {
+    "documentId": "f5a02e5f-127d-41dd-85a8-6a4036ffa9b6",
+    "documentInstanceId": "ba02ed75-45bc-4129-b448-c191408ea4f8",
+    "revision": 18,
+    "sessionId": "e737946b-fd5d-4b6e-a900-2cea9b6bdd9d"
+  },
+  "summary": {
+    "bodyCount": 4,
+    "busy": false,
+    "dirty": false,
+    "featureCount": 12,
+    "kernelReady": true,
+    "name": "新建工程20261003-001"
+  },
+  "display": {
+    "camera": {
+      "position": [
+        222.59763191557852,
+        -156.59763191554873,
+        175.16617461088725
+      ],
+      "projection": "perspective",
+      "target": [
+        19.999999999999996,
+        46,
+        2.958187482662813
+      ],
+      "up": [
+        0,
+        0,
+        1
+      ]
+    },
+    "error": null,
+    "frame": 7591,
+    "model": {
+      "documentId": "f5a02e5f-127d-41dd-85a8-6a4036ffa9b6",
+      "documentInstanceId": "ba02ed75-45bc-4129-b448-c191408ea4f8",
+      "revision": 18
+    },
+    "rendered": {
+      "documentId": "f5a02e5f-127d-41dd-85a8-6a4036ffa9b6",
+      "documentInstanceId": "ba02ed75-45bc-4129-b448-c191408ea4f8",
+      "revision": 18
+    },
+    "status": "rendered"
+  }
+}

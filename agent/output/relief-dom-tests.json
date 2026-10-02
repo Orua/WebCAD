@@ -1,0 +1,26 @@
+{
+  "checks": [
+    "SVG viewBox aspect survives actual image decoding",
+    "SVG gradient becomes continuously varying control heights",
+    "exact SVG viewBox ratio survives integer raster dimensions",
+    "absolute SVG physical units retain their precise ratio",
+    "unbounded SVG dimensions reject before rendering: width=\"100000\" height=\"100000\"",
+    "unbounded SVG dimensions reject before rendering: width=\"100%\" height=\"100%\"",
+    "unsupported/external SVG rejected: <script>",
+    "unsupported/external SVG rejected: <image href=\"https://example.com/x.png\"/>",
+    "unsupported/external SVG rejected: <text>",
+    "unsupported/external SVG rejected: <rect style=\"fill:url(https://example.com/x)\"/>",
+    "broken raster fails with a coded image error",
+    "shared Escape, close and tool-switch paths know to cancel this preview",
+    "empty form cannot preview or apply",
+    "decoded image still requires an explicit geometry preview",
+    "preview retains the explicitly selected source and face",
+    "cylinder preview retains clicked point and explicit base thickness",
+    "cylinder rectangular base layer is disclosed before application",
+    "editing after preview blocks application of stale geometry",
+    "failed commit keeps task open and requires a fresh preview",
+    "successful commit closes only after a fresh matching preview"
+  ],
+  "count": 20,
+  "status": "passed"
+}

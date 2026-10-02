@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.17.0",
-  "buildId": "e9d2cddd7772643d79618f34f3ec454353426c04-src-20c01e5f6cfe0d15-working",
-  "catalogHash": "sha256:48003f19891fb78bc29c0174ba497ecb9158fb5d156a8b1666d91400abf6aaf9",
-  "docsHash": "sha256:adec7aecc55b00165751a0e3dd8c504f6405b5b5a59b4815bd495b209b867102",
+  "pageApiVersion": "1.18.0",
+  "buildId": "7a84a99c3a37fb092b3ba1b5d882cdf66484f0ae-src-abc9da7283cdf248-working",
+  "catalogHash": "sha256:7688d6024b500e4f7997355f65c78c3e87f7aa5586cff920238909239d244ffa",
+  "docsHash": "sha256:49e016649b3830dfba6eaaa825bcc74fbb16660bad23c16f2a2d7793a46c84ff",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -875,7 +875,7 @@
         "history.undo"
       ],
       "method": "execute",
-      "usage": "面加工→浮雕。files.register 图像资源，readRelief 本地生成灰度或柔和鼓起高度网格；run add relief 显式 faceId/refs/尺寸/高度/位置和 values。平面内完整矩形，预览后提交；getState.bodies[].reliefReport 回读实际材料变化。"
+      "usage": "面加工→浮雕。files.register 图像资源，readRelief 本地生成高度网格；run add relief 显式 faceId/refs/尺寸/高度/位置和values。平面或外凸圆柱；柱面还须point/baseMm基底层，角宽≤90°且angleDeg=0，整张矩形形成基底再叠加起伏。预览后提交；getState.bodies[].reliefReport 回读实际材料变化与曲面限制。"
     },
     "remove": {
       "tools": [

@@ -1,0 +1,238 @@
+{
+  "cases": [
+    {
+      "bodyId": "f87c1cf1-0d6d-4072-8f76-cbe82eff03a1",
+      "display": "rendered",
+      "displayMatchesContext": false,
+      "elapsedMs": 896.1000000238419,
+      "name": "JPG 波纹曲面",
+      "report": {
+        "addedMm3": 216.1647000089015,
+        "angleDeg": 0,
+        "columns": 33,
+        "controlHeightMm": 2,
+        "faceId": 5,
+        "heightMm": 32,
+        "kind": "cubic-bspline-heightfield",
+        "limitations": [
+          "planar-face-only",
+          "image-brightness-is-not-photo-depth",
+          "full-rectangle-within-face"
+        ],
+        "mode": "emboss",
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "offsetX": 0,
+        "offsetY": 0,
+        "origin": [
+          -28,
+          20,
+          3
+        ],
+        "removedMm3": 0,
+        "rows": 33,
+        "smoothing": "approximating-control-grid",
+        "solidCount": 1,
+        "sourceHash": "c0616ce1fc780549484626f10da4bde32d683150b03dd8a5bfd7bc646bc15737",
+        "sourceName": "relief-waves.jpg",
+        "valid": true,
+        "widthMm": 32
+      },
+      "solidCount": 1,
+      "source": {
+        "format": "jpg",
+        "name": "relief-waves.jpg",
+        "originalHeight": 129,
+        "originalWidth": 129,
+        "sha256": "c0616ce1fc780549484626f10da4bde32d683150b03dd8a5bfd7bc646bc15737",
+        "style": "grayscale",
+        "threshold": 0.5,
+        "whiteHigh": true
+      },
+      "volume": 5016.1647000089015
+    },
+    {
+      "bodyId": "c6f17598-168a-49a7-a36e-3ca94a92f211",
+      "display": "rendered",
+      "displayMatchesContext": false,
+      "elapsedMs": 4080.1999999284744,
+      "name": "SVG 花瓣层次",
+      "report": {
+        "addedMm3": 728.9029694689243,
+        "angleDeg": 0,
+        "columns": 49,
+        "controlHeightMm": 3,
+        "faceId": 5,
+        "heightMm": 32,
+        "kind": "cubic-bspline-heightfield",
+        "limitations": [
+          "planar-face-only",
+          "image-brightness-is-not-photo-depth",
+          "full-rectangle-within-face"
+        ],
+        "mode": "emboss",
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "offsetX": 0,
+        "offsetY": 0,
+        "origin": [
+          20,
+          20,
+          3
+        ],
+        "removedMm3": 0,
+        "rows": 49,
+        "smoothing": "approximating-control-grid",
+        "solidCount": 1,
+        "sourceHash": "7e51eeda5afba44dc168e8c100117b4c4cfcb6e5262bb42ec1cac1feb30729bf",
+        "sourceName": "relief-rosette.svg",
+        "valid": true,
+        "widthMm": 32
+      },
+      "solidCount": 1,
+      "source": {
+        "format": "svg",
+        "name": "relief-rosette.svg",
+        "originalHeight": 1024,
+        "originalWidth": 1024,
+        "sha256": "7e51eeda5afba44dc168e8c100117b4c4cfcb6e5262bb42ec1cac1feb30729bf",
+        "style": "grayscale",
+        "threshold": 0.5,
+        "whiteHigh": true
+      },
+      "volume": 5528.902969468924
+    },
+    {
+      "bodyId": "1b7a2f25-04a5-464e-af52-a41d66377b1f",
+      "display": "rendered",
+      "displayMatchesContext": false,
+      "elapsedMs": 5193.200000047684,
+      "name": "SVG 叶片柔和鼓起",
+      "report": {
+        "addedMm3": 337.23253987735734,
+        "angleDeg": 0,
+        "columns": 49,
+        "controlHeightMm": 2.5,
+        "faceId": 5,
+        "heightMm": 32,
+        "kind": "cubic-bspline-heightfield",
+        "limitations": [
+          "planar-face-only",
+          "image-brightness-is-not-photo-depth",
+          "full-rectangle-within-face"
+        ],
+        "mode": "emboss",
+        "normal": [
+          0,
+          0,
+          1
+        ],
+        "offsetX": 0,
+        "offsetY": 0,
+        "origin": [
+          68,
+          20,
+          3
+        ],
+        "removedMm3": 0,
+        "rows": 49,
+        "smoothing": "approximating-control-grid",
+        "solidCount": 1,
+        "sourceHash": "f435a17395062852556e9aae061c3ccf2b53f42a95f2e9addc4059ccc034d582",
+        "sourceName": "relief-vine.svg",
+        "valid": true,
+        "widthMm": 32
+      },
+      "solidCount": 1,
+      "source": {
+        "format": "svg",
+        "name": "relief-vine.svg",
+        "originalHeight": 1024,
+        "originalWidth": 1024,
+        "sha256": "f435a17395062852556e9aae061c3ccf2b53f42a95f2e9addc4059ccc034d582",
+        "style": "rounded",
+        "threshold": 0.5,
+        "whiteHigh": false
+      },
+      "volume": 5137.232539877357
+    }
+  ],
+  "checks": [
+    "JPG 波纹曲面 image decoded",
+    "JPG 波纹曲面 base committed",
+    "JPG 波纹曲面 actual top face queried",
+    "JPG 波纹曲面 relief committed",
+    "JPG 波纹曲面 one validated solid",
+    "JPG 波纹曲面 report agrees with exact body volume",
+    "JPG 波纹曲面 duplicate request does not duplicate geometry",
+    "failed geometry does not commit",
+    "history edits relief from upstream base",
+    "history depth edit changes actual relief volume",
+    "undo succeeds",
+    "undo restores original relief geometry",
+    "SVG 花瓣层次 image decoded",
+    "SVG 花瓣层次 base committed",
+    "SVG 花瓣层次 actual top face queried",
+    "SVG 花瓣层次 relief committed",
+    "SVG 花瓣层次 one validated solid",
+    "SVG 花瓣层次 report agrees with exact body volume",
+    "SVG 花瓣层次 duplicate request does not duplicate geometry",
+    "SVG 叶片柔和鼓起 image decoded",
+    "SVG 叶片柔和鼓起 base committed",
+    "SVG 叶片柔和鼓起 actual top face queried",
+    "SVG 叶片柔和鼓起 relief committed",
+    "SVG 叶片柔和鼓起 one validated solid",
+    "SVG 叶片柔和鼓起 report agrees with exact body volume",
+    "SVG 叶片柔和鼓起 duplicate request does not duplicate geometry"
+  ],
+  "display": {
+    "camera": {
+      "position": [
+        222.5976319155635,
+        -182.59763191556317,
+        175.16617461089157
+      ],
+      "projection": "perspective",
+      "target": [
+        19.999999999999996,
+        20,
+        2.958187482662812
+      ],
+      "up": [
+        0,
+        0,
+        1
+      ]
+    },
+    "error": null,
+    "frame": 3136,
+    "model": {
+      "documentId": "f5a02e5f-127d-41dd-85a8-6a4036ffa9b6",
+      "documentInstanceId": "5ccb2689-c5f1-43cc-9dee-8f1d9032918e",
+      "revision": 12
+    },
+    "rendered": {
+      "documentId": "f5a02e5f-127d-41dd-85a8-6a4036ffa9b6",
+      "documentInstanceId": "5ccb2689-c5f1-43cc-9dee-8f1d9032918e",
+      "revision": 12
+    },
+    "status": "rendered"
+  },
+  "finished": "2026-10-02T16:15:57.369Z",
+  "started": "2026-10-02T16:15:45.042Z",
+  "summary": {
+    "bodyCount": 3,
+    "busy": false,
+    "dirty": true,
+    "featureCount": 9,
+    "kernelReady": true,
+    "name": "新建工程20261003-001"
+  },
+  "viewStatus": "read"
+}

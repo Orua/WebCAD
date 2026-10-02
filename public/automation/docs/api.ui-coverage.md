@@ -648,7 +648,7 @@
       "history.undo"
     ],
     "method": "execute",
-    "usage": "面加工→浮雕。files.register 图像资源，readRelief 本地生成灰度或柔和鼓起高度网格；run add relief 显式 faceId/refs/尺寸/高度/位置和 values。平面内完整矩形，预览后提交；getState.bodies[].reliefReport 回读实际材料变化。"
+    "usage": "面加工→浮雕。files.register 图像资源，readRelief 本地生成高度网格；run add relief 显式 faceId/refs/尺寸/高度/位置和values。平面或外凸圆柱；柱面还须point/baseMm基底层，角宽≤90°且angleDeg=0，整张矩形形成基底再叠加起伏。预览后提交；getState.bodies[].reliefReport 回读实际材料变化与曲面限制。"
   },
   "remove": {
     "tools": [

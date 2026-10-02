@@ -1,6 +1,36 @@
 // Local image preparation shared by the UI and public readRelief API.
 // No network requests or model mutation. Only normalized height samples persist.
 const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
+const maxPixels=16777216;
+function checkDimensions(width,height){
+ if(!Number.isFinite(width)||!Number.isFinite(height)||width<=0||height<=0)fail('RELIEF_IMAGE_INVALID','图片宽高无效');
+ if(width*height>maxPixels||width/height<1/64||width/height>64)fail('RELIEF_LIMIT','图片最多 1600 万像素，长宽比不超过 64:1');
+ return {width,height};
+}
+// Reject oversized raster allocations before calling the browser decoder.
+export function rasterDimensions(bytes,format){
+ const data=bytes instanceof Uint8Array?bytes:new Uint8Array(bytes),view=new DataView(data.buffer,data.byteOffset,data.byteLength);
+ if(format==='png'){
+  const signature=[137,80,78,71,13,10,26,10];
+  if(data.length<33||signature.some((v,i)=>data[i]!==v)||view.getUint32(8)!==13||view.getUint32(12)!==0x49484452)fail('RELIEF_IMAGE_INVALID','PNG 文件头无效');
+  return checkDimensions(view.getUint32(16),view.getUint32(20));
+ }
+ if(format!=='jpg'||data.length<4||data[0]!==255||data[1]!==216)fail('RELIEF_IMAGE_INVALID','JPG 文件头无效');
+ for(let i=2;i<data.length;){
+  if(data[i++]!==255)break;
+  while(i<data.length&&data[i]===255)i++;
+  const marker=data[i++];
+  if(marker===0xda||marker===0xd9||marker===undefined)break;
+  if(marker===1||marker>=0xd0&&marker<=0xd7)continue;
+  if(i+2>data.length)break;const length=view.getUint16(i);
+  if(length<2||i+length>data.length)break;
+  if([0xc0,0xc1,0xc2,0xc3,0xc5,0xc6,0xc7,0xc9,0xca,0xcb,0xcd,0xce,0xcf].includes(marker)){
+   if(length<8)break;return checkDimensions(view.getUint16(i+5),view.getUint16(i+3));
+  }
+  i+=length;
+ }
+ fail('RELIEF_IMAGE_INVALID','JPG 缺少有效尺寸帧');
+}
 export function heightValuesFromRgba(data,width,height,{whiteHigh=false,style='grayscale',threshold=.5}={}){
  if(!Number.isInteger(width)||!Number.isInteger(height)||width<4||height<4||width>65||height>65||data.length!==width*height*4)fail('RELIEF_IMAGE_INVALID','采样网格必须为 4–65 行/列');
  if(typeof whiteHigh!=='boolean'||!['grayscale','rounded'].includes(style)||!Number.isFinite(threshold)||threshold<0||threshold>1)fail('PARAM_SCHEMA_INVALID','图片处理参数无效');
@@ -21,7 +51,7 @@ export function heightValuesFromRgba(data,width,height,{whiteHigh=false,style='g
  return values.map(r=>r.map(v=>Math.round(v*1e6)/1e6));
 }
 
-export function validateReliefSvg(text){
+function prepareReliefSvg(text){
  if(/<!DOCTYPE|<!ENTITY/i.test(text))fail('RELIEF_IMAGE_INVALID','SVG 不支持外部实体');
  const doc=new DOMParser().parseFromString(text,'image/svg+xml'),root=doc.documentElement;
  if(doc.querySelector('parsererror')||root.localName!=='svg')fail('RELIEF_IMAGE_INVALID','SVG 格式无效');
@@ -40,11 +70,16 @@ export function validateReliefSvg(text){
  }
  const viewBox=root.getAttribute('viewBox')?.trim().split(/[\s,]+/).map(Number);
  if(viewBox&&(viewBox.length!==4||viewBox.some(v=>!Number.isFinite(v))||viewBox[2]<=0||viewBox[3]<=0))fail('RELIEF_IMAGE_INVALID','SVG viewBox 无效');
- if(viewBox){const ratio=viewBox[2]/viewBox[3];if(ratio<1/64||ratio>64)fail('RELIEF_LIMIT','图像长宽比超过 64:1');root.setAttribute('width',String(Math.round(1024*Math.min(1,ratio))));root.setAttribute('height',String(Math.round(1024*Math.min(1,1/ratio))));}
- else if(!root.hasAttribute('width')||!root.hasAttribute('height'))fail('RELIEF_IMAGE_INVALID','SVG 需要 viewBox 或明确宽高');
+ let aspectRatio;
+ if(viewBox){const ratio=viewBox[2]/viewBox[3];if(ratio<1/64||ratio>64)fail('RELIEF_LIMIT','图像长宽比超过 64:1');aspectRatio=ratio;root.setAttribute('width',String(Math.round(1024*Math.min(1,ratio))));root.setAttribute('height',String(Math.round(1024*Math.min(1,1/ratio))));}
+ else{
+  const absoluteLength=value=>{const m=value?.trim().match(/^([+]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?)\s*(px|mm|cm|in|pt|pc|q)?$/i);if(!m)fail('RELIEF_IMAGE_INVALID','无 viewBox 的 SVG 需要明确的绝对宽高');return Number(m[1])*({px:1,mm:96/25.4,cm:96/2.54,in:96,pt:96/72,pc:16,q:96/101.6}[m[2]?.toLowerCase()??'px']);};
+  const {width,height}=checkDimensions(absoluteLength(root.getAttribute('width')),absoluteLength(root.getAttribute('height')));aspectRatio=width/height;
+ }
  root.setAttribute('xmlns','http://www.w3.org/2000/svg');
- return new XMLSerializer().serializeToString(root);
+ return {text:new XMLSerializer().serializeToString(root),aspectRatio};
 }
+export function validateReliefSvg(text){return prepareReliefSvg(text).text;}
 
 export async function readReliefImage(blob,{name='image.jpg',samples=33,whiteHigh=false,style='grayscale',threshold=.5}={}){
  if(typeof name!=='string'||name.length>255||!Number.isInteger(samples)||samples<4||samples>65||typeof whiteHigh!=='boolean'||!['grayscale','rounded'].includes(style)||!Number.isFinite(threshold)||threshold<0||threshold>1)fail('PARAM_SCHEMA_INVALID','图片名称、采样或明暗参数无效');
@@ -52,13 +87,15 @@ export async function readReliefImage(blob,{name='image.jpg',samples=33,whiteHig
  const format=/\.jpe?g$/i.test(name)?'jpg':/\.png$/i.test(name)?'png':/\.svg$/i.test(name)?'svg':null;
  if(!format)fail('FORMAT_UNSUPPORTED','浮雕支持 JPG、PNG 和 SVG');
  const bytes=await blob.arrayBuffer(),sha256=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),v=>v.toString(16).padStart(2,'0')).join('');
- const imageBlob=format==='svg'?new Blob([validateReliefSvg(new TextDecoder().decode(bytes))],{type:'image/svg+xml'}):new Blob([bytes],{type:format==='jpg'?'image/jpeg':'image/png'});
+ if(format!=='svg')rasterDimensions(bytes,format);
+ const svg=format==='svg'?prepareReliefSvg(new TextDecoder().decode(bytes)):null;
+ const imageBlob=svg?new Blob([svg.text],{type:'image/svg+xml'}):new Blob([bytes],{type:format==='jpg'?'image/jpeg':'image/png'});
  let bitmap,url;
  try{
   if(format==='svg'){url=URL.createObjectURL(imageBlob);bitmap=new Image();bitmap.decoding='async';await new Promise((resolve,reject)=>{bitmap.onload=resolve;bitmap.onerror=()=>reject(Object.assign(new Error('SVG 无法渲染'),{code:'RELIEF_IMAGE_INVALID'}));bitmap.src=url;});}
   else{try{bitmap=await createImageBitmap(imageBlob,{imageOrientation:'from-image'});}catch{fail('RELIEF_IMAGE_INVALID','无法解码图片；请使用有效 JPG 或 PNG');}}
-  const originalWidth=bitmap.width,originalHeight=bitmap.height,ratio=originalWidth/originalHeight;
-  if(!originalWidth||!originalHeight||originalWidth*originalHeight>16777216||ratio<1/64||ratio>64)fail('RELIEF_LIMIT','图片最多 1600 万像素，长宽比不超过 64:1');
+  const originalWidth=bitmap.width,originalHeight=bitmap.height,ratio=svg?.aspectRatio??originalWidth/originalHeight;
+  checkDimensions(originalWidth,originalHeight);
   const width=Math.max(4,Math.round(samples*Math.min(1,ratio))),height=Math.max(4,Math.round(samples*Math.min(1,1/ratio)));
   const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
   const ctx=canvas.getContext('2d',{willReadFrequently:true});if(!ctx)fail('CAPABILITY_UNAVAILABLE','当前浏览器无法处理图片');

@@ -1,0 +1,190 @@
+{
+  "cases": [
+    {
+      "bodyId": "513c606e-92a9-4602-bf14-290f1f891d5a",
+      "name": "relief-waves.jpg",
+      "report": {
+        "addedMm3": 106.07070934215152,
+        "angleDeg": 0,
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "baseMm": 0.02,
+        "columns": 25,
+        "controlHeightMm": 1.5,
+        "faceId": 0,
+        "heightMm": 24,
+        "kind": "cylindrical-bspline-heightfield",
+        "limitations": [
+          "outer-cylinder-only",
+          "full-rectangle-base-layer",
+          "maximum-angle-90-degrees",
+          "no-image-rotation",
+          "image-brightness-is-not-photo-depth"
+        ],
+        "mode": "emboss",
+        "normal": [
+          -1.6081226496766366e-16,
+          -1,
+          0
+        ],
+        "offsetX": 0,
+        "offsetY": 0,
+        "origin": [
+          -3.216245299353273e-15,
+          -20,
+          20
+        ],
+        "radiusMm": 20,
+        "removedMm3": 0,
+        "rows": 25,
+        "smoothing": "approximating-control-grid",
+        "solidCount": 1,
+        "sourceHash": "c0616ce1fc780549484626f10da4bde32d683150b03dd8a5bfd7bc646bc15737",
+        "sourceName": "relief-waves.jpg",
+        "totalControlHeightMm": 1.52,
+        "valid": true,
+        "widthMm": 24
+      },
+      "volume": 50371.55316677876
+    },
+    {
+      "bodyId": "8aa4919b-f01d-4155-aebc-575c7c196586",
+      "name": "relief-rosette.svg",
+      "report": {
+        "addedMm3": 0,
+        "angleDeg": 0,
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "baseMm": 0.02,
+        "columns": 25,
+        "controlHeightMm": 1.5,
+        "faceId": 0,
+        "heightMm": 24,
+        "kind": "cylindrical-bspline-heightfield",
+        "limitations": [
+          "outer-cylinder-only",
+          "full-rectangle-base-layer",
+          "maximum-angle-90-degrees",
+          "no-image-rotation",
+          "image-brightness-is-not-photo-depth"
+        ],
+        "mode": "engrave",
+        "normal": [
+          -3.8285686989269494e-16,
+          -1,
+          0
+        ],
+        "offsetX": 0,
+        "offsetY": 0,
+        "origin": [
+          54.99999999999999,
+          -20,
+          20
+        ],
+        "radiusMm": 20,
+        "removedMm3": 222.65445820018067,
+        "rows": 25,
+        "smoothing": "approximating-control-grid",
+        "solidCount": 1,
+        "sourceHash": "7e51eeda5afba44dc168e8c100117b4c4cfcb6e5262bb42ec1cac1feb30729bf",
+        "sourceName": "relief-rosette.svg",
+        "totalControlHeightMm": 1.52,
+        "valid": true,
+        "widthMm": 24
+      },
+      "volume": 50042.827999236426
+    },
+    {
+      "bodyId": "3df5fc5b-cd9d-4b0d-bc03-552388d15e61",
+      "name": "relief-vine.svg",
+      "report": {
+        "addedMm3": 153.44022540304286,
+        "angleDeg": 0,
+        "axis": [
+          0,
+          0,
+          1
+        ],
+        "baseMm": 0.02,
+        "columns": 25,
+        "controlHeightMm": 1.5,
+        "faceId": 0,
+        "heightMm": 24,
+        "kind": "cylindrical-bspline-heightfield",
+        "limitations": [
+          "outer-cylinder-only",
+          "full-rectangle-base-layer",
+          "maximum-angle-90-degrees",
+          "no-image-rotation",
+          "image-brightness-is-not-photo-depth"
+        ],
+        "mode": "emboss",
+        "normal": [
+          6.123233995736766e-17,
+          -1,
+          0
+        ],
+        "offsetX": 0,
+        "offsetY": 0,
+        "origin": [
+          110,
+          -20,
+          20
+        ],
+        "radiusMm": 20,
+        "removedMm3": 0,
+        "rows": 25,
+        "smoothing": "approximating-control-grid",
+        "solidCount": 1,
+        "sourceHash": "f435a17395062852556e9aae061c3ccf2b53f42a95f2e9addc4059ccc034d582",
+        "sourceName": "relief-vine.svg",
+        "totalControlHeightMm": 1.52,
+        "valid": true,
+        "widthMm": 24
+      },
+      "volume": 50418.92268283965
+    },
+    {
+      "bodyId": "779a5cda-a534-4241-b862-af0257384f0b",
+      "name": "cylinder LOGO",
+      "removedMm3": 102.09693824856367,
+      "volume": 50163.38551918804
+    },
+    {
+      "bodyId": "d98fb354-17b9-46cf-b010-33afb2f09d73",
+      "name": "sphere LOGO",
+      "removedMm3": 101.8652435031472,
+      "volume": 33408.456394787914
+    }
+  ],
+  "checks": [
+    "relief-waves.jpg is one valid cylindrical relief solid",
+    "relief-waves.jpg material report matches actual volume",
+    "unsupported cylinder image rotation fails without commit",
+    "cylindrical relief undo",
+    "cylindrical relief redo preserves exact volume",
+    "relief-rosette.svg is one valid cylindrical relief solid",
+    "relief-rosette.svg material report matches actual volume",
+    "relief-vine.svg is one valid cylindrical relief solid",
+    "relief-vine.svg material report matches actual volume",
+    "cylinder unified LOGO engraves a single solid",
+    "sphere unified LOGO engraves a single solid"
+  ],
+  "finished": "2026-10-02T16:39:27.501Z",
+  "started": "2026-10-02T16:39:20.726Z",
+  "status": "passed",
+  "summary": {
+    "bodyCount": 5,
+    "busy": false,
+    "dirty": true,
+    "featureCount": 14,
+    "kernelReady": true,
+    "name": "新建工程20261003-007"
+  }
+}

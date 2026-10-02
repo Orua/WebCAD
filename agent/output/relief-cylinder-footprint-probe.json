@@ -1,0 +1,247 @@
+{
+  "experimental": true,
+  "notIntegrated": true,
+  "cases": [
+    {
+      "name": "inside finite outer cylindrical face",
+      "expected": true,
+      "accepted": true,
+      "faceId": 0,
+      "surfaceType": "CYLINDRE",
+      "frame": {
+        "radius": 20,
+        "origin": [
+          0,
+          0,
+          0
+        ],
+        "x": [
+          1,
+          0,
+          0
+        ],
+        "y": [
+          0,
+          1,
+          0
+        ],
+        "z": [
+          0,
+          0,
+          1
+        ]
+      },
+      "anchorDistance": 0,
+      "minimumEdgeDistance": 6,
+      "outward": 1,
+      "sourceUnchanged": true
+    },
+    {
+      "name": "crosses seam",
+      "expected": false,
+      "accepted": false,
+      "faceId": 0,
+      "surfaceType": "CYLINDRE",
+      "frame": {
+        "radius": 20,
+        "origin": [
+          0,
+          0,
+          0
+        ],
+        "x": [
+          1,
+          0,
+          0
+        ],
+        "y": [
+          0,
+          1,
+          0
+        ],
+        "z": [
+          0,
+          0,
+          1
+        ]
+      },
+      "anchorDistance": 4.898587196589413e-15,
+      "minimumEdgeDistance": 7.689419359064957e-16,
+      "outward": 1,
+      "sourceUnchanged": true
+    },
+    {
+      "name": "crosses axial end",
+      "expected": false,
+      "accepted": false,
+      "faceId": 0,
+      "surfaceType": "CYLINDRE",
+      "frame": {
+        "radius": 20,
+        "origin": [
+          0,
+          0,
+          0
+        ],
+        "x": [
+          1,
+          0,
+          0
+        ],
+        "y": [
+          0,
+          1,
+          0
+        ],
+        "z": [
+          0,
+          0,
+          1
+        ]
+      },
+      "anchorDistance": 0,
+      "minimumEdgeDistance": 0,
+      "outward": 1,
+      "sourceUnchanged": true
+    },
+    {
+      "name": "outside finite face",
+      "expected": false,
+      "accepted": false,
+      "faceId": 0,
+      "surfaceType": "CYLINDRE",
+      "frame": {
+        "radius": 20,
+        "origin": [
+          0,
+          0,
+          0
+        ],
+        "x": [
+          1,
+          0,
+          0
+        ],
+        "y": [
+          0,
+          1,
+          0
+        ],
+        "z": [
+          0,
+          0,
+          1
+        ]
+      },
+      "anchorDistance": 30,
+      "minimumEdgeDistance": 16,
+      "outward": 1,
+      "sourceUnchanged": true
+    },
+    {
+      "name": "actual translated and rotated cylinder axes",
+      "expected": true,
+      "accepted": true,
+      "faceId": 0,
+      "surfaceType": "CYLINDRE",
+      "frame": {
+        "radius": 20,
+        "origin": [
+          23,
+          -17,
+          12
+        ],
+        "x": [
+          0.8857338405616898,
+          0.05713307971915508,
+          -0.460664058599804
+        ],
+        "y": [
+          0.05713307971915508,
+          0.9714334601404224,
+          0.230332029299902
+        ],
+        "z": [
+          0.460664058599804,
+          -0.230332029299902,
+          0.8571673007021123
+        ]
+      },
+      "anchorDistance": 3.972054645195637e-15,
+      "minimumEdgeDistance": 5.999999999999999,
+      "outward": 1,
+      "sourceUnchanged": true
+    },
+    {
+      "name": "hole entirely inside footprint away from anchor",
+      "expected": false,
+      "accepted": false,
+      "faceId": 0,
+      "surfaceType": "CYLINDRE",
+      "frame": {
+        "radius": 20,
+        "origin": [
+          0,
+          0,
+          0
+        ],
+        "x": [
+          1,
+          0,
+          0
+        ],
+        "y": [
+          0,
+          1,
+          0
+        ],
+        "z": [
+          0,
+          0,
+          1
+        ]
+      },
+      "anchorDistance": 0,
+      "minimumEdgeDistance": 8.334978114692572e-16,
+      "outward": 1,
+      "sourceUnchanged": true
+    },
+    {
+      "name": "inner concave cylinder",
+      "expected": false,
+      "accepted": false,
+      "faceId": 3,
+      "surfaceType": "CYLINDRE",
+      "frame": {
+        "radius": 20,
+        "origin": [
+          0,
+          0,
+          0
+        ],
+        "x": [
+          1,
+          0,
+          0
+        ],
+        "y": [
+          0,
+          1,
+          0
+        ],
+        "z": [
+          0,
+          0,
+          1
+        ]
+      },
+      "anchorDistance": 0,
+      "minimumEdgeDistance": 6,
+      "outward": -1,
+      "sourceUnchanged": true
+    }
+  ],
+  "started": "2026-10-02T16:07:49.555Z",
+  "status": "passed",
+  "finished": "2026-10-02T16:07:50.069Z"
+}

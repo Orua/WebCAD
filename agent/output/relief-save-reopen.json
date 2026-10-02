@@ -1,0 +1,264 @@
+{
+  "saved": {
+    "context": {
+      "documentId": "f5a02e5f-127d-41dd-85a8-6a4036ffa9b6",
+      "documentInstanceId": "5ccb2689-c5f1-43cc-9dee-8f1d9032918e",
+      "revision": 17,
+      "sessionId": "e737946b-fd5d-4b6e-a900-2cea9b6bdd9d"
+    },
+    "expiresAt": 1790959581768,
+    "mime": "application/json",
+    "name": "relief-demo-20261003.webcad",
+    "resourceId": "art_791856e1432a40e49593c30487b37e92",
+    "sha256": "0998017f2399b0b51f7f7c29af7b3acff6e65877a5c8df5b4226501173850f24",
+    "size": 112757,
+    "status": "generated"
+  },
+  "path": "D:/Projects/WebCAD-git/agent/output/relief-demo-20261003.webcad",
+  "confirmed": {
+    "confirmation": {
+      "dirty": false,
+      "documentId": "f5a02e5f-127d-41dd-85a8-6a4036ffa9b6",
+      "documentInstanceId": "5ccb2689-c5f1-43cc-9dee-8f1d9032918e",
+      "revision": 17,
+      "saved": true
+    },
+    "resourceId": "art_791856e1432a40e49593c30487b37e92",
+    "sha256": "0998017f2399b0b51f7f7c29af7b3acff6e65877a5c8df5b4226501173850f24",
+    "size": 112757,
+    "status": "client_write_confirmed",
+    "writeConfirmation": "client_reported_verified_write"
+  },
+  "reopened": {
+    "after": {
+      "context": {
+        "documentId": "f5a02e5f-127d-41dd-85a8-6a4036ffa9b6",
+        "documentInstanceId": "ba02ed75-45bc-4129-b448-c191408ea4f8",
+        "revision": 18,
+        "sessionId": "e737946b-fd5d-4b6e-a900-2cea9b6bdd9d"
+      },
+      "display": {
+        "camera": {
+          "position": [
+            222.5976319155785,
+            -156.59763191555123,
+            175.1661746108886
+          ],
+          "projection": "perspective",
+          "target": [
+            19.999999999999996,
+            46,
+            2.958187482662813
+          ],
+          "up": [
+            0,
+            0,
+            1
+          ]
+        },
+        "error": null,
+        "frame": 6797,
+        "model": {
+          "documentId": "f5a02e5f-127d-41dd-85a8-6a4036ffa9b6",
+          "documentInstanceId": "ba02ed75-45bc-4129-b448-c191408ea4f8",
+          "revision": 18
+        },
+        "rendered": {
+          "documentId": "f5a02e5f-127d-41dd-85a8-6a4036ffa9b6",
+          "documentInstanceId": "5ccb2689-c5f1-43cc-9dee-8f1d9032918e",
+          "revision": 17
+        },
+        "status": "rendered"
+      },
+      "reports": [
+        {
+          "addedMm3": 216.1647000089015,
+          "angleDeg": 0,
+          "columns": 33,
+          "controlHeightMm": 2,
+          "faceId": 5,
+          "heightMm": 32,
+          "kind": "cubic-bspline-heightfield",
+          "limitations": [
+            "planar-face-only",
+            "image-brightness-is-not-photo-depth",
+            "full-rectangle-within-face"
+          ],
+          "mode": "emboss",
+          "normal": [
+            0,
+            0,
+            1
+          ],
+          "offsetX": 0,
+          "offsetY": 0,
+          "origin": [
+            -28,
+            20,
+            3
+          ],
+          "removedMm3": 0,
+          "rows": 33,
+          "smoothing": "approximating-control-grid",
+          "solidCount": 1,
+          "sourceHash": "c0616ce1fc780549484626f10da4bde32d683150b03dd8a5bfd7bc646bc15737",
+          "sourceName": "relief-waves.jpg",
+          "valid": true,
+          "widthMm": 32
+        },
+        {
+          "addedMm3": 728.9029694689243,
+          "angleDeg": 0,
+          "columns": 49,
+          "controlHeightMm": 3,
+          "faceId": 5,
+          "heightMm": 32,
+          "kind": "cubic-bspline-heightfield",
+          "limitations": [
+            "planar-face-only",
+            "image-brightness-is-not-photo-depth",
+            "full-rectangle-within-face"
+          ],
+          "mode": "emboss",
+          "normal": [
+            0,
+            0,
+            1
+          ],
+          "offsetX": 0,
+          "offsetY": 0,
+          "origin": [
+            20,
+            20,
+            3
+          ],
+          "removedMm3": 0,
+          "rows": 49,
+          "smoothing": "approximating-control-grid",
+          "solidCount": 1,
+          "sourceHash": "7e51eeda5afba44dc168e8c100117b4c4cfcb6e5262bb42ec1cac1feb30729bf",
+          "sourceName": "relief-rosette.svg",
+          "valid": true,
+          "widthMm": 32
+        },
+        {
+          "addedMm3": 337.23253987735734,
+          "angleDeg": 0,
+          "columns": 49,
+          "controlHeightMm": 2.5,
+          "faceId": 5,
+          "heightMm": 32,
+          "kind": "cubic-bspline-heightfield",
+          "limitations": [
+            "planar-face-only",
+            "image-brightness-is-not-photo-depth",
+            "full-rectangle-within-face"
+          ],
+          "mode": "emboss",
+          "normal": [
+            0,
+            0,
+            1
+          ],
+          "offsetX": 0,
+          "offsetY": 0,
+          "origin": [
+            68,
+            20,
+            3
+          ],
+          "removedMm3": 0,
+          "rows": 49,
+          "smoothing": "approximating-control-grid",
+          "solidCount": 1,
+          "sourceHash": "f435a17395062852556e9aae061c3ccf2b53f42a95f2e9addc4059ccc034d582",
+          "sourceName": "relief-vine.svg",
+          "valid": true,
+          "widthMm": 32
+        },
+        {
+          "addedMm3": 0,
+          "angleDeg": 0,
+          "columns": 65,
+          "controlHeightMm": 1.5,
+          "faceId": 5,
+          "heightMm": 21.333333333333332,
+          "kind": "cubic-bspline-heightfield",
+          "limitations": [
+            "planar-face-only",
+            "image-brightness-is-not-photo-depth",
+            "full-rectangle-within-face"
+          ],
+          "mode": "engrave",
+          "normal": [
+            0,
+            0,
+            1
+          ],
+          "offsetX": 0,
+          "offsetY": 0,
+          "origin": [
+            20,
+            72,
+            3
+          ],
+          "removedMm3": 352.48056560308487,
+          "rows": 43,
+          "smoothing": "approximating-control-grid",
+          "solidCount": 1,
+          "sourceHash": "4f260105f48f38bb007dba8c8d1885513e2de84cd431d0b3117225d35a653614",
+          "sourceName": "relief-levels.svg",
+          "valid": true,
+          "widthMm": 32
+        }
+      ],
+      "summary": {
+        "bodyCount": 4,
+        "busy": false,
+        "dirty": false,
+        "featureCount": 12,
+        "kernelReady": true,
+        "name": "新建工程20261003-001"
+      },
+      "volumes": [
+        5016.1647000089015,
+        5528.902969468924,
+        5137.232539877357,
+        4447.519434396915
+      ]
+    },
+    "before": {
+      "context": {
+        "documentId": "f5a02e5f-127d-41dd-85a8-6a4036ffa9b6",
+        "documentInstanceId": "5ccb2689-c5f1-43cc-9dee-8f1d9032918e",
+        "revision": 17,
+        "sessionId": "e737946b-fd5d-4b6e-a900-2cea9b6bdd9d"
+      },
+      "summary": {
+        "bodyCount": 4,
+        "busy": false,
+        "dirty": false,
+        "featureCount": 12,
+        "kernelReady": true,
+        "name": "新建工程20261003-001"
+      },
+      "volumes": [
+        5016.1647000089015,
+        5528.902969468924,
+        5137.232539877357,
+        4447.519434396915
+      ]
+    },
+    "opened": {
+      "context": {
+        "documentId": "f5a02e5f-127d-41dd-85a8-6a4036ffa9b6",
+        "documentInstanceId": "ba02ed75-45bc-4129-b448-c191408ea4f8",
+        "revision": 18,
+        "sessionId": "e737946b-fd5d-4b6e-a900-2cea9b6bdd9d"
+      },
+      "dirty": false,
+      "requestId": "da10fc83-50ad-4d0b-ae7a-624c4c85f544",
+      "status": "committed"
+    }
+  }
+}
