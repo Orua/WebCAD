@@ -4,6 +4,7 @@ import * as cad from 'replicad';
 import {renderQuality} from './render-quality.js';
 import { buildQuickModel } from './quick-models.js';
 import { buildLogoOnPlane, buildVectorProfile } from './logo-model.js';
+import {buildRelief} from './modeling/manufacturing/relief.js';
 import { buildAdvancedLoft } from './advanced-loft.js';
 import { buildCurveSweep } from './curve-sweep.js';
 import { buildArcProfile } from './arc-profile.js';
@@ -237,6 +238,7 @@ export class CadKernel {
       case 'faceGroove': case 'innerTurn': case 'outerTurn': return buildFaceMachining(source(),p,feature.op,this.oc,cad);
       case 'curvedLogo': return buildCurvedLogo(source(),p,cad);
       case 'fittedSurface': return buildFittedSurface(p,cad);
+      case 'relief': return buildRelief(source(),p,this.oc,cad);
       case 'thickenFace': return buildFaceThickness(source(),p,cad);
       case 'planeSection': return extractPlaneSection(source(),{plane:p.plane||'XY',offset:p.offset??0,frame},cad);
       case 'faceBoundary': return extractFaceBoundary(source(),p.faceId,cad,{boundary:p.boundary??'all'});
@@ -627,7 +629,7 @@ export class CadKernel {
         }
       });
       if (mappedFaces.some(g => g.faceId === undefined) || mappedEdges.some(g => g.edgeId === undefined)) throw new Error('拓扑索引映射失败');
-      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges, faceCount:faces.length,edgeCount:edges.length,snapPoints, bounds: { min, max }, volume: solids.length ? preciseVolume(shape,this.oc) : null, area:surfaceArea(shape,this.oc), solidCount: solids.length, shellCount:shells.length, refineReport:shape.refineReport, roundReport:shape.roundReport,endRoundingReport:shape.endRoundingReport,roundingReport:shape.roundingReport, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
+      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges, faceCount:faces.length,edgeCount:edges.length,snapPoints, bounds: { min, max }, volume: solids.length ? preciseVolume(shape,this.oc) : null, area:surfaceArea(shape,this.oc), solidCount: solids.length, shellCount:shells.length, reliefReport:shape.reliefReport, refineReport:shape.refineReport, roundReport:shape.roundReport,endRoundingReport:shape.endRoundingReport,roundingReport:shape.roundingReport, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
     } finally { [...faces, ...edges, ...solids, ...shells, bbox].forEach(dispose); }
   }
   async rebuild(document) {

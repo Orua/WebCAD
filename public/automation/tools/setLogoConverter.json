@@ -2,7 +2,7 @@
   "id": "setLogoConverter",
   "title": "setLogoConverter",
   "category": "page-method",
-  "version": "1.16.0",
+  "version": "1.17.0",
   "description": "setLogoConverter({context,url,key?})；URL 必须含 userid，空 key 保留原值。",
   "synonyms": [
     "setLogoConverter",
@@ -24,5 +24,5 @@
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:48d57b5e0ec8352e7a89fedbe97693984cd095826fd0acdbe7df1bed5ac19c87"
+  "docsHash": "sha256:52361cbfb18dc769480a961c58e6f56c447dd9e839f47db4547fd10e32a7c551"
 }

@@ -1,0 +1,3 @@
+# api.relief
+
+浮雕是有层次的连续 B 样条曲面，不是平顶凸字。files.register 登记 JPG/PNG/SVG 后 readRelief({context,resourceId,name,samples:33,whiteHigh:false,style:"grayscale"})，返回 values、aspectRatio、source；style:"rounded" 将单色图形按到背景距离逐渐鼓起，threshold 默认 0.5。透明像素为零高度，values 从下向上排列。图像只在当前浏览器处理，不上传。SVG 支持路径、几何形状、填充、描边、线性/径向渐变，不支持文字、外部图片、滤镜、脚本或 CSS 类。图片最多8 MiB、1600万像素，采样4–65行/列。查询目标平面后 run add op:relief，refs:[bodyId]，params:{faceId,widthMm,heightMm,depthMm,mode:"emboss",values,source,offsetX:0,offsetY:0,angleDeg:0}。完整矩形须在选面内且避开孔。mode:"engrave" 为凹雕；深度过大可能穿透，预览核对壁厚。三次控制网格平滑近似，高度不保证穿过样点或达到最大设置值；照片亮度不是物体真实深度。曲面包裹尚不支持。preview.start/commit/cancel 与 UI 共用操作；getState.bodies[].reliefReport 读实际增减体积，history.undo 可撤销，feature.edit 修改尺寸/高度/位置后从原件重建。工程内保存网格，重开无需原图。

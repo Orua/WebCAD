@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
   contracts: [
+    'relief-contract',
     'document-capacity',
     'generated-file-write',
     'rectangle-selection',
@@ -26,6 +27,7 @@ const groups = {
     'tool-state', 'viewport-transform', 'dfam-inspection', 'profile-fitting', 'text-commands',
   ],
   kernel: [
+    'relief-kernel',
     'clevis-practice',
     'history-import-kernel',
     'primitive-contract-kernel',

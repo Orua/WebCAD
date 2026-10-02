@@ -3,7 +3,7 @@
   "title": "预览模型或文件插入",
   "description": "普通特征 args 同 feature.add；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision。",
   "category": "command",
-  "version": "1.16.0",
+  "version": "1.17.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:028883aced6a5f31037ada7fd6f6e3cf01f3d1f3ed9f3be5ea4aad8c8a081145"
+  "docsHash": "sha256:dd108dbcad6ebf190393bbefaae7f99665209c01c0a266e1ce9a2b60fb7733ea"
 }

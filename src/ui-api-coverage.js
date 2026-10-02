@@ -34,6 +34,7 @@ export const UI_API_ROUTES = Object.freeze({
   renderQuality:{tools:['setRenderQuality'],method:'setRenderQuality',usage:'显式 quality=draft/standard/fine/ultra；getState().renderQuality 读公差、三角面数，不修改 BRep。'},
   downloadResource:{tools:['files.download'],method:'files.download',usage:'使用生成回执的 resourceId 重试下载；不重新生成或清除 dirty。'},
   ...Object.fromEntries(listOperations().filter(c=>!['round','roundEnd','rounding','fillet'].includes(c.id)).map(c=>[c.id,{tools:[c.id],method:'execute',usage:'feature.add；按工具卡传显式 params/refs，或 run 的 add。'}])),
+  relief:{tools:['relief','readRelief','files.register','getState','preview.start','preview.commit','preview.cancel','feature.edit','history.undo'],method:'execute',usage:'面加工→浮雕。files.register 图像资源，readRelief 本地生成灰度或柔和鼓起高度网格；run add relief 显式 faceId/refs/尺寸/高度/位置和 values。平面内完整矩形，预览后提交；getState.bodies[].reliefReport 回读实际材料变化。'},
   refineShape:{tools:['refineShape','getState','queryGeometry','preview.start','preview.commit','preview.cancel','history.undo'],method:'execute',usage:'选择一个封闭实体，feature.add op=refineShape，refs:[bodyId]，params:{}。无需公差参数，可先 preview.start 再 commit；getState.bodies[].refineReport 读前后面边数和材料差。NO_CHANGE 不提交。拓扑编号改变后重新 queryGeometry。'},
   revolve:{tools:['revolve','profileRevolve'],method:'execute',usage:'已画轮廓使用 profileRevolve，refs为截面及可选加工目标；旧尺寸模式使用 revolve。显式世界轴与角度，读取当前卡。'},
   sweep:{tools:['sweep','profileSweep'],method:'execute',usage:'已画轮廓使用 profileSweep，refs=[截面,开放精确路径,可选加工目标]；截面须在路径起点平面。旧折线尺寸模式使用 sweep。'},
