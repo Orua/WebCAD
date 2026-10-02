@@ -1,0 +1,38 @@
+[
+  {
+    "name": "medallion",
+    "grid": 25,
+    "valid": true,
+    "solids": 1,
+    "faces": 7,
+    "volume": 5200.153267279393,
+    "addedVolume": 400.1532672793928,
+    "unchangedSource": true,
+    "triangles": 13904,
+    "elapsedMs": 429
+  },
+  {
+    "name": "letter",
+    "grid": 25,
+    "valid": true,
+    "solids": 1,
+    "faces": 7,
+    "volume": 4976.347997808847,
+    "addedVolume": 176.34799780884714,
+    "unchangedSource": true,
+    "triangles": 6368,
+    "elapsedMs": 169
+  },
+  {
+    "name": "waves",
+    "grid": 25,
+    "valid": true,
+    "solids": 1,
+    "faces": 7,
+    "volume": 4868.413085897493,
+    "addedVolume": 68.41308589749315,
+    "unchangedSource": true,
+    "triangles": 12128,
+    "elapsedMs": 206
+  }
+]

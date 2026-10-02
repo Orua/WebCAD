@@ -17,6 +17,7 @@ import {UI_LAYOUT} from './ui-layout.js';
 import {validateReferenceQuery} from './reference-query.js';
 import {readVectorInput,selectVector} from './browser-vector-input.js';
 import {connectVector} from './vector-import.js';
+import {readReliefImage} from './relief-image.js';
 
 // Only structured, bounded commands cross this boundary. No mutable app objects escape.
 export function createPageAPI(host){
@@ -213,6 +214,13 @@ export function createPageAPI(host){
       else if(!validRef(input.first)||!validRef(input.second))fail('STALE_REFERENCE','需要两个当前有效的实体或拓扑引用');
       const result=await host.measureRelation(input);check(input,['context','mode','first','second','face','pointWorld']);
       return {status:'read',source:'exact-brep',units:{length:'mm',angle:'degrees'},context:current().context,...result};
+    }),
+    readRelief:guarded(async input=>{
+      const keys=['context','resourceId','name','samples','whiteHigh','style','threshold'];check(input,keys);
+      if(typeof input.resourceId!=='string'||!input.resourceId||typeof input.name!=='string')fail('PARAM_SCHEMA_INVALID','Provide a registered image resourceId and its file name');
+      const blob=await rawFiles.read({resourceId:input.resourceId});
+      const data=await readReliefImage(blob,input);check(input,keys);
+      return {status:'read',...data,context:current().context};
     }),
     readVector:guarded(async input=>{
       const keys=['context','resourceId','name','text','scaleMm','targetWidthMm','entityIds','bounds','layers','offset','limit'];check(input,keys);

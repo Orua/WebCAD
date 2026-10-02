@@ -112,7 +112,7 @@ const originalGroups = {
 };
 
 test('workflow tabs preserve the original tool inventory after regrouping', () => {
-  assert.deepEqual(UI_LAYOUT.tabs.map(tab => tab.id), ['edit','path','create','model','machine','surface','finish','inspect','view','settings']);
+  assert.deepEqual(UI_LAYOUT.tabs.map(tab => tab.id), ['edit','path','create','model','machine','solidMachine','surface','finish','inspect','view','settings']);
   const actions = UI_LAYOUT.tabs.flatMap(tab => tab.groups.flatMap(([, ids]) => ids));
   for(const groups of Object.values(originalGroups))for(const [,ids] of groups)for(const id of ids)assert(actions.includes(id),`original tool lost: ${id}`);
   assert.equal(new Set(actions).size,actions.length,'a tool must not be duplicated across tabs');

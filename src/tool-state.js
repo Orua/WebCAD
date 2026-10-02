@@ -5,6 +5,7 @@ export function toolDisabledReason(action,state){
  if(state.busy)return '正在计算，请稍候';
  if(!state.kernelReady)return '建模内核尚未就绪';
  const count=state.selectedIds.length,topology=state.selectedTopology;
+ if(action==='relief'&&(count!==1||topology?.type!=='face'||topology.bodyId!==state.selectedIds[0]||topology.ids?.length!==1))return '切换到选面，选择一张平面来生成曲面浮雕';
  if(action==='refineShape'&&(count!==1||state.bodies.find(body=>body.id===state.selectedIds[0])?.solidCount!==1))return '请选择一个封闭实体';
  if(['offsetSolid','offsetSurface','draftByPlane','thread','faceGroove','innerTurn','outerTurn'].includes(action)&&count!==1)return '请选择一个当前来源对象';
  if(action==='inspectPrintability'&&count!==1)return '请选择一个待检查实体';

@@ -3,7 +3,7 @@
   "title": "快速对齐",
   "description": "按世界 X/Y/Z 对齐包围范围的 min/center/max；移动件和基准件显式分开；group=true 保持相对位置。一次原子历史操作。",
   "category": "command",
-  "version": "1.16.0",
+  "version": "1.17.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -57,5 +57,5 @@
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:10ebd5c212af77b48ca2d54f1295af9b6175953e9949d4580ad2579c2cc2ec6a"
+  "docsHash": "sha256:862d007edf12d1cdad00d19abf6e33bb8c7619d380992668ce79e0eb546c288c"
 }

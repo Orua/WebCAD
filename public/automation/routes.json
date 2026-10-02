@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.16.0",
-  "buildId": "0595511a6bd7549997e823ed1c7f96e6e0ff6ea4-src-37b81a7f148ed8e5-working",
-  "catalogHash": "sha256:988ee88cc18ef90af1d58bf204ac07be78a053eff4529e5878dadcbf569645e4",
-  "docsHash": "sha256:473173771cb6bb7ee9ee33f9c3458c72384310649b21c2c2cf838954adc38d8f",
+  "pageApiVersion": "1.17.0",
+  "buildId": "e9d2cddd7772643d79618f34f3ec454353426c04-src-20c01e5f6cfe0d15-working",
+  "catalogHash": "sha256:48003f19891fb78bc29c0174ba497ecb9158fb5d156a8b1666d91400abf6aaf9",
+  "docsHash": "sha256:adec7aecc55b00165751a0e3dd8c504f6405b5b5a59b4815bd495b209b867102",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -862,6 +862,21 @@
       "method": "execute",
       "usage": "选择一个封闭实体，feature.add op=refineShape，refs:[bodyId]，params:{}。无需公差参数，可先 preview.start 再 commit；getState.bodies[].refineReport 读前后面边数和材料差。NO_CHANGE 不提交。拓扑编号改变后重新 queryGeometry。"
     },
+    "relief": {
+      "tools": [
+        "relief",
+        "readRelief",
+        "files.register",
+        "getState",
+        "preview.start",
+        "preview.commit",
+        "preview.cancel",
+        "feature.edit",
+        "history.undo"
+      ],
+      "method": "execute",
+      "usage": "面加工→浮雕。files.register 图像资源，readRelief 本地生成灰度或柔和鼓起高度网格；run add relief 显式 faceId/refs/尺寸/高度/位置和 values。平面内完整矩形，预览后提交；getState.bodies[].reliefReport 回读实际材料变化。"
+    },
     "remove": {
       "tools": [
         "feature.remove"
@@ -1248,6 +1263,7 @@
     "referenceExtrude": "参考轮廓拉伸 / 轮廓拉伸",
     "referenceLoft": "参考截面放样 / 截面放样",
     "refineShape": "清理分割线 / getState / queryGeometry / 预览模型或文件插入 / 应用预览 / 取消预览 / 撤销",
+    "relief": "浮雕 / readRelief / 登记文件资源 / getState / 预览模型或文件插入 / 应用预览 / 取消预览 / 修改参数 / 撤销",
     "remove": "删除 / 删除实体",
     "revolve": "旋转成型 / 轮廓旋转",
     "sewFaces": "曲面缝合",

@@ -2,7 +2,7 @@
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.16.0",
+  "version": "1.17.0",
   "description": "setDisplayPreferences({context,values}); values 为部分配置，字段及范围见 api.display-preferences。",
   "synonyms": [
     "setDisplayPreferences",
@@ -27,5 +27,5 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.display-preferences",
-  "docsHash": "sha256:44c870c78839e7ef07861dab1e1e63f97d2bee8e2aa9cc91408249b5e33b9551"
+  "docsHash": "sha256:6905f8105bbded3a5c8c22dcffc4454cf103d594aac599ae2c49633747dbdd7e"
 }

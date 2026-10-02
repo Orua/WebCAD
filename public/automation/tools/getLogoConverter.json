@@ -2,7 +2,7 @@
   "id": "getLogoConverter",
   "title": "getLogoConverter",
   "category": "page-method",
-  "version": "1.16.0",
+  "version": "1.17.0",
   "description": "getLogoConverter()；读取当前浏览器 localStorage 的配置。",
   "synonyms": [
     "getLogoConverter",
@@ -18,5 +18,5 @@
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:822d6643fda6bd75bcb8e527670d153cffdc4c4055280cd03e6b401a6b8186fc"
+  "docsHash": "sha256:5e57c22e5fa10bb178c404f0ffff065eba3fccf9bd22ba572b2f634174204308"
 }

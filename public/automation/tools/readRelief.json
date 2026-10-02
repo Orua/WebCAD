@@ -1,0 +1,36 @@
+{
+  "id": "readRelief",
+  "title": "readRelief",
+  "category": "page-method",
+  "version": "1.17.0",
+  "description": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded,threshold?:0.5})。先 files.register；只读，本地解码。",
+  "synonyms": [
+    "readRelief",
+    "浮雕",
+    "图片",
+    "JPG",
+    "PNG",
+    "SVG",
+    "高度场",
+    "灰度",
+    "渐变",
+    "凹凸曲面"
+  ],
+  "inputContract": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded,threshold?:0.5})。先 files.register；只读，本地解码。",
+  "outputContract": "status=read、values、rows、columns、aspectRatio、source{sha256,name,format,style}、interpretation；交给 relief params，不依赖 UI 选择。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "RELIEF_IMAGE_INVALID",
+    "RELIEF_LIMIT",
+    "RELIEF_NO_CHANGE",
+    "FORMAT_UNSUPPORTED",
+    "RESOURCE_EXPIRED",
+    "REVISION_CONFLICT",
+    "PARAM_SCHEMA_INVALID"
+  ],
+  "docs": "api.relief",
+  "docsHash": "sha256:8322ebe7fe60178cef4f2a8fc9a9d8f1e36d967558225fce992be7d91280808d"
+}

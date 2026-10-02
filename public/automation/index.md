@@ -1,13 +1,14 @@
 # WebCAD 页面 API 索引
 
-API 1.16.0 · 操作目录 sha256:988ee88cc18ef90af1d58bf204ac07be78a053eff4529e5878dadcbf569645e4
+API 1.17.0 · 操作目录 sha256:48003f19891fb78bc29c0174ba497ecb9158fb5d156a8b1666d91400abf6aaf9
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
-长度 mm、角度 degrees、体积 mm³。严格契约：box、cylinder、sphere、cone、torus、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、faceHole、round、roundEnd、rounding、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude、profileRevolve、profileSweep、profileLoft、offsetSolid、offsetSurface、draftByPlane、helix、coil、thread、profileConstraints、faceGroove、innerTurn、outerTurn、refineShape；其余操作为 advisory。
+长度 mm、角度 degrees、体积 mm³。严格契约：box、cylinder、sphere、cone、torus、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、faceHole、round、roundEnd、rounding、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude、profileRevolve、profileSweep、profileLoft、offsetSolid、offsetSurface、draftByPlane、helix、coil、thread、profileConstraints、faceGroove、innerTurn、outerTurn、refineShape、relief；其余操作为 advisory。
 
 ## 页面方法
 
+- `readRelief`
 - `getHistory`
 - `planAlignment`
 - `selectRectangle`
@@ -128,6 +129,7 @@ API 1.16.0 · 操作目录 sha256:988ee88cc18ef90af1d58bf204ac07be78a053eff4529e
 - `referenceExtrude` · advisory · 选择一个闭合平面线框或单张平面面。直接复用精确圆弧/样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。
 - `referenceLoft` · advisory · 按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。
 - `refineShape` · migrated · Refine same-domain faces and remove redundant splitter edges
+- `relief` · migrated · 浮雕：从图片高度场生成有层次的平滑 B 样条曲面 / Surface relief
 - `revolve` · advisory · Revolve a closed profile
 - `round` · migrated · 圆润 / Round
 - `roundEnd` · migrated · 端头圆润 / Round free end
@@ -192,6 +194,7 @@ API 1.16.0 · 操作目录 sha256:988ee88cc18ef90af1d58bf204ac07be78a053eff4529e
 - `template.mushroomRivet` · advisory · 参数化的两件式单面蘑菇撞钉：球面盖带空心套筒，配浅腰圆角钉脚和底盘。支持同轴装配或分开展示；孔深与开孔方向可调，不包含 LOGO、文字和装饰纹。
 - `template.nippleStud` · advisory · 两件式奶嘴钉：A件含圆弧头、平顶、圆颈、带R角底座及M2名义光盲孔；Z件含圆拱螺钉头、杆和参数化六瓣槽。螺纹牙及标准槽规格不建模。旧 undersideCollar 参数仅为兼容，必须为0。
 - `template.twoPieceEyelet` · advisory · 参数化两件式薄壁鸡眼，法兰外翻边和内侧圆弯按薄壁截面精确旋转生成。A件为长脚，B件为配套短脚；支持同轴静态套合或分开展示，不模拟压铆变形、LOGO和压字。
+- `readRelief` · page-method · readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded,threshold?:0.5})。先 files.register；只读，本地解码。
 - `getHistory` · page-method · getHistory()。返回已保留状态，不含导入源字节。
 - `planAlignment` · page-method · planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true。
 - `selectRectangle` · page-method · selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。

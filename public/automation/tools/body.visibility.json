@@ -3,7 +3,7 @@
   "title": "显示 隐藏实体",
   "description": "显隐指定当前实体，不删除几何。",
   "category": "command",
-  "version": "1.16.0",
+  "version": "1.17.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -46,5 +46,5 @@
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:109eddf33a94a1a497b961520293c0bee8f408a88178d4e2ff592e2dd2a73a24"
+  "docsHash": "sha256:6f386365b04735f08d5d438ed70d47555c2b7e4dbb3c4197268c17c619285df5"
 }

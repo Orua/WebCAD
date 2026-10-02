@@ -986,3 +986,16 @@ createDrawing 返回 drawingId、views、dimensions、limitations 及 SVG 预览
 getHistory 返回状态 ID、名称、时间、数量、字节数、合并数量和保留上限。history.restore 的 args 为 {stateId}，恢复全部工程数据并产生新的可撤销状态。磁盘格式保存一个基线和前向差量，原导入资源仅保存一次；默认 100 个状态/2 MiB，超限把最早变更合入基线。bytes/maxBytes 只统计历史基线和差量，不包括共享导入源。只有当前工程和所有保留状态都不再引用某个导入源时，才从后续保存的资源池移除；不会改写已有内存撤销/重做快照。载入时发现任一保留状态缺少导入源，返回 HISTORY_INVALID，避免保留无法重建的回退入口。历史是原生工程的 timeline 扩展，兼容旧工程无 timeline 的打开方式；旧版本应用不保证保留新历史扩展。
 
 `body.align`、`body.explode`、`history.restore` 经 Worker 重建后成功提交，回执为 `validation.geometry:'passed'`；没有提交的 `no_change` 则为 `unchanged`。外观、显隐、改名保持几何 `unchanged`。该字段不代替渲染修订或文件写入确认。
+
+## 曲面浮雕 relief（2026-10-02）
+
+在当前平面上生成有高低层次的连续三次 B 样条曲面，支持浮雕加料和凹雕减料。不是平顶凸字，也不把照片明暗推断成真实物体深度。曲面包裹尚未提供。
+
+1. `files.register` 登记 JPG/PNG/SVG 真实字节，调用 `readRelief({context,resourceId,name,samples:33,whiteHigh:false,style:'grayscale'})`。图片只在本地解码；返回 `values`、`aspectRatio`、`source`。单色图形可用 `style:'rounded'` 和 `threshold:0.5`，按到背景距离逐渐鼓起。SVG 支持灰度、渐变和路径，不支持文字、外部图像、滤镜、脚本及 CSS 类。
+2. 查询当前平面，用 `run` 的 add：`op:'relief', refs:[bodyId], params:{faceId,widthMm:20,heightMm:20/aspectRatio,depthMm:1,mode:'emboss',values,source,offsetX:0,offsetY:0,angleDeg:0}`。凹雕用 `mode:'engrave'`。面号是当前修订的真实面号，不能照抄示例。
+3. 中心为面积质心加面内偏移；X 是世界 X 在面上的投影（近共线时改用世界 Y），Y=外法向叉乘 X，角度绕外法向。完整图案矩形必须在有限面内且避开孔；不自动裁剪。
+4. `preview.start/commit/cancel`、`feature.edit`、`history.undo` 共用同一操作。工程保存高度网格与来源哈希，后续重建不依赖原图。`getState().bodies[].reliefReport` 返回网格、尺寸、来源、实际增减体积及验证结果。
+
+图片最多 8 MiB、1600 万像素，长宽比不超过 64:1；高度网格 4–65 行/列，值域 0–1，按下到上、左到右排列。尺寸不超过 1000 mm，起伏高度 0.01–20 mm，目标最多 1000 个面。采样值是三次曲面的控制网格，结果是平滑近似，不保证穿过每个样点或达到设置的最大高度。凹雕过深可能穿透，须核对预览与壁厚。
+
+错误包含 RELIEF_IMAGE_INVALID、RELIEF_LIMIT、RELIEF_UNSUPPORTED、RELIEF_OUTSIDE_FACE、RELIEF_NO_CHANGE、RELIEF_INVALID；失败不提交，来源保持。公开发现文档为 `readDocs({docId:'api.relief'})`。

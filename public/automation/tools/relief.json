@@ -1,0 +1,439 @@
+{
+  "id": "relief",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "faceId",
+      "widthMm",
+      "heightMm",
+      "depthMm",
+      "values"
+    ],
+    "properties": {
+      "faceId": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Current selected planar face index on refs[0]",
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
+      },
+      "widthMm": {
+        "type": "number",
+        "description": "Full image rectangle width in local face X (mm)",
+        "exclusiveMinimum": 0,
+        "maximum": 1000,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "heightMm": {
+        "type": "number",
+        "description": "Full image rectangle height in local face Y (mm)",
+        "exclusiveMinimum": 0,
+        "maximum": 1000,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "depthMm": {
+        "type": "number",
+        "description": "Maximum control height or depth (mm)",
+        "minimum": 0.01,
+        "maximum": 20,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "mode": {
+        "type": "string",
+        "enum": [
+          "emboss",
+          "engrave"
+        ],
+        "default": "emboss"
+      },
+      "offsetX": {
+        "type": "number",
+        "description": "Offset from face centroid in local X (mm)"
+      },
+      "offsetY": {
+        "type": "number",
+        "description": "Offset from face centroid in local Y (mm)"
+      },
+      "angleDeg": {
+        "type": "number",
+        "description": "Rotation around outward face normal (degrees)",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
+      },
+      "values": {
+        "type": "array",
+        "minItems": 4,
+        "maxItems": 65,
+        "items": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 65,
+          "items": {
+            "type": "number",
+            "description": "Normalized height control value",
+            "minimum": 0,
+            "maximum": 1
+          }
+        }
+      },
+      "source": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "jpg",
+              "png",
+              "svg",
+              "grid"
+            ]
+          },
+          "style": {
+            "type": "string",
+            "enum": [
+              "grayscale",
+              "rounded"
+            ]
+          },
+          "whiteHigh": {
+            "type": "boolean"
+          },
+          "threshold": {
+            "type": "number",
+            "description": "Rounded silhouette threshold",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "originalWidth": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "originalHeight": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 在一个有效封闭实体的当前平面上生成有高低层次的连续曲面浮雕。values 是按图像从下至上、每行从左至右排列的 4–65 行/列矩形高度控制网格，值域 0–1；三次夹持 B 样条平滑近似，通常不穿过每一个样点。depthMm 是控制高度上限，不保证实际峰值达到它。widthMm/heightMm 为完整矩形尺寸；必须全部位于所选有限面内且避开孔，不自动裁剪。图案中心为该面面积质心加 offsetX/offsetY；局部 X 是投影世界 X（近共线时用世界 Y），局部 Y=外法向叉乘 X；angleDeg 绕外法向旋转。mode=emboss 加料，engrave 减料，保留一个有效实体；来源隔离复制，失败不提交。只支持平面，不支持曲面包裹。灰度/颜色不等于真实照片深度。readRelief 在浏览器本地从 JPG/PNG/SVG 生成 values；工程保存该网格和来源哈希，无外部文件依赖。预览、历史改参、撤销共用同一操作；getState().bodies[].reliefReport 读实际增减体积、网格和尺寸。",
+  "title": "浮雕：从图片高度场生成有层次的平滑 B 样条曲面 / Surface relief",
+  "category": "modification",
+  "synonyms": [
+    "浮雕",
+    "relief"
+  ],
+  "description": "浮雕：从图片高度场生成有层次的平滑 B 样条曲面 / Surface relief",
+  "schemaHash": "sha256:7f5f826d21bc448d508229f408b49ef6187279b0efd838d574d6b6123a69b7de",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+  ],
+  "knownUnsupportedCases": [
+    "在一个有效封闭实体的当前平面上生成有高低层次的连续曲面浮雕。values 是按图像从下至上、每行从左至右排列的 4–65 行/列矩形高度控制网格，值域 0–1；三次夹持 B 样条平滑近似，通常不穿过每一个样点。depthMm 是控制高度上限，不保证实际峰值达到它。widthMm/heightMm 为完整矩形尺寸；必须全部位于所选有限面内且避开孔，不自动裁剪。图案中心为该面面积质心加 offsetX/offsetY；局部 X 是投影世界 X（近共线时用世界 Y），局部 Y=外法向叉乘 X；angleDeg 绕外法向旋转。mode=emboss 加料，engrave 减料，保留一个有效实体；来源隔离复制，失败不提交。只支持平面，不支持曲面包裹。灰度/颜色不等于真实照片深度。readRelief 在浏览器本地从 JPG/PNG/SVG 生成 values；工程保存该网格和来源哈希，无外部文件依赖。预览、历史改参、撤销共用同一操作；getState().bodies[].reliefReport 读实际增减体积、网格和尺寸。"
+  ],
+  "minimalExample": {
+    "op": "relief",
+    "params": {
+      "faceId": 0,
+      "widthMm": 10,
+      "heightMm": 10,
+      "depthMm": 0.8,
+      "values": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0.3,
+          0.6,
+          0.3,
+          0
+        ],
+        [
+          0,
+          0.6,
+          1,
+          0.6,
+          0
+        ],
+        [
+          0,
+          0.3,
+          0.6,
+          0.3,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "relief",
+    "params": {
+      "faceId": 0,
+      "widthMm": 10,
+      "heightMm": 10,
+      "depthMm": 0.8,
+      "values": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0.3,
+          0.6,
+          0.3,
+          0
+        ],
+        [
+          0,
+          0.6,
+          1,
+          0.6,
+          0
+        ],
+        [
+          0,
+          0.3,
+          0.6,
+          0.3,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "faceId": 0,
+        "widthMm": 10,
+        "heightMm": 10,
+        "depthMm": 0.8,
+        "values": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0.3,
+            0.6,
+            0.3,
+            0
+          ],
+          [
+            0,
+            0.6,
+            1,
+            0.6,
+            0
+          ],
+          [
+            0,
+            0.3,
+            0.6,
+            0.3,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "RELIEF_UNSUPPORTED",
+    "RELIEF_LIMIT",
+    "RELIEF_OUTSIDE_FACE",
+    "RELIEF_NO_CHANGE",
+    "RELIEF_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTools",
+    "queryGeometry",
+    "run",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "浮雕",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "docs": "api.relief",
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:ad8422b38b9a0c74d3189dfde94018d30d7a6003274d81c86d1b96af92435466"
+}

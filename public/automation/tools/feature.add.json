@@ -3,7 +3,7 @@
   "title": "新增几何",
   "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "category": "command",
-  "version": "1.16.0",
+  "version": "1.17.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:06e684646dd17b844d7bdd454b24dc46677083c3db26d23a1b9197502d3e9b81"
+  "docsHash": "sha256:5b451184991b007df26ddee93e01dea7ec03e6307e7befb4ebf1e231bf2f218f"
 }

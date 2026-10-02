@@ -635,6 +635,21 @@
     "method": "execute",
     "usage": "选择一个封闭实体，feature.add op=refineShape，refs:[bodyId]，params:{}。无需公差参数，可先 preview.start 再 commit；getState.bodies[].refineReport 读前后面边数和材料差。NO_CHANGE 不提交。拓扑编号改变后重新 queryGeometry。"
   },
+  "relief": {
+    "tools": [
+      "relief",
+      "readRelief",
+      "files.register",
+      "getState",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel",
+      "feature.edit",
+      "history.undo"
+    ],
+    "method": "execute",
+    "usage": "面加工→浮雕。files.register 图像资源，readRelief 本地生成灰度或柔和鼓起高度网格；run add relief 显式 faceId/refs/尺寸/高度/位置和 values。平面内完整矩形，预览后提交；getState.bodies[].reliefReport 回读实际材料变化。"
+  },
   "remove": {
     "tools": [
       "feature.remove"
