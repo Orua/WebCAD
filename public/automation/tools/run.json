@@ -2,7 +2,7 @@
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}).",
   "synonyms": [
     "run",
@@ -24,7 +24,13 @@
     "INSTANCE_MISMATCH",
     "REVISION_CONFLICT",
     "IDEMPOTENCY_KEY_REUSED",
-    "STALE_REFERENCE"
+    "STALE_REFERENCE",
+    "SIZE_LIMIT"
   ],
-  "docsHash": "sha256:da7c9b3877d6e5208f81b642d15b2d630b523c3bd22d79da3ef63773d9aa3f7d"
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "docsHash": "sha256:0928931c6253b50aea6f9f18abd66b6089610ae288c77ec64ce4b131912eb160"
 }

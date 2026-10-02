@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import {installRectangleSelection,rectangleCandidates} from './viewport/rectangle-selection.js';
+import {RoundRangeGuide} from './viewport/round-range-guide.js';
 import {applyViewportDisplay} from './viewport/display-modes.js';
 import {snapReleasedDrag} from './viewport/drag-snap-controller.js';
 import {rankEdgeHits,worldUnitsPerPixel} from './viewport/edge-picking.js';
@@ -46,6 +48,7 @@ export class CADViewport {
     this.axes=new THREE.AxesHelper(20);this.axes.visible=false;this.scene.add(this.axes);this.raycaster=new THREE.Raycaster();this.pointer=new THREE.Vector2();this.span=50;
     this.hud=document.createElement('div');this.hud.className='viewport-entity-status';this.hud.style.cssText='position:absolute;left:18px;bottom:38px;pointer-events:none;color:#64748b;font:11px monospace;z-index:2';host.append(this.hud);
     this.overlay=document.createElement('div');this.overlay.className='viewport-task';this.overlay.style.cssText='display:none;position:absolute;left:50%;top:20px;transform:translateX(-50%);background:#fff;padding:14px 18px;border:1px solid #cbd5e1;border-radius:10px;box-shadow:0 8px 30px #14213320;z-index:12;min-width:320px;color:#243446;font-size:12px';host.append(this.overlay);
+    this.disposeRectangleSelection=installRectangleSelection(this);
     this.renderer.domElement.addEventListener('pointerdown',e=>{this.down=[e.clientX,e.clientY,e.button];});
     this.renderer.domElement.addEventListener('pointerup',e=>{if(this.gizmo.axis||Date.now()<(this.suppressPickUntil||0)||!this.down||this.down[2]!==0||Math.hypot(e.clientX-this.down[0],e.clientY-this.down[1])>5)return;this.pick(e);});
     this.renderer.domElement.addEventListener('pointermove',e=>this.onMove(e));
@@ -56,6 +59,9 @@ export class CADViewport {
   resize(){const {width,height}=this.host.getBoundingClientRect();if(width<1||height<1)return;this.camera.aspect=width/height;if(this.camera.isOrthographicCamera){this.camera.left=-this.camera.top*this.camera.aspect;this.camera.right=this.camera.top*this.camera.aspect;}this.camera.updateProjectionMatrix();this.renderer.setSize(width,height);}
   disposeObject(root){root.traverse(o=>{o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose();});}
   clearGuides(){for(const child of [...this.guideRoot.children]){this.disposeObject(child);this.guideRoot.remove(child);}}
+  rectangleCandidates(input){return rectangleCandidates(this,input);}
+  clearRoundGuide(){this.roundGuide?.dispose();this.roundGuide=null;}
+  setRoundGuide(report,handlers){this.clearRoundGuide();if(report)this.roundGuide=new RoundRangeGuide(this,report,handlers);}
   clearScopeOverlay(){if(!this.scopeOverlay)return;this.modelRoot.remove(this.scopeOverlay);this.disposeObject(this.scopeOverlay);this.scopeOverlay=null;}
   setScopeOverlay(sourceEdges,selectedIds,expandedIds){
     this.clearScopeOverlay();
@@ -72,7 +78,7 @@ export class CADViewport {
   setAnchorVisible(visible){this.anchorVisible=!!visible;this.anchorMarker.hidden=!this.anchorVisible;localStorage.setItem('webcad.anchorVisible',String(this.anchorVisible));}
   setAnchorDrag(enabled){this.setModelingPrecision();this.anchorDragEnabled=!!enabled;this.anchorGizmoHelper.visible=this.anchorDragEnabled;if(this.anchorDragEnabled){this.setGizmo('off');this.anchorGizmo.attach(this.anchorProxy);}else{this.anchorGizmo.detach();this.controls.enabled=true;}}
   cancelAnchorDrag(){if(this.anchorStart){this.anchorProxy.position.copy(this.anchorStart);this.anchorVisual.position.copy(this.anchorStart);this.anchorStart=null;}this.snapCandidates=[];this.setAnchorDrag(false);}
-  setBodies(bodies,hidden=[]){
+  setBodies(bodies,hidden=[]){this.clearRoundGuide();
     this.clearScopeOverlay();
     // Keep unchanged GPU objects alive. Kernel render versions survive a rebuild
     // only when the exact geometry was reused (including undo/preview branches).
@@ -283,11 +289,11 @@ export class CADViewport {
   drawSketch(){this.clearGuides();const points=this.sketch.points.map(p=>this.sketchWorldPoint(p));if(points.length>1)this.guideRoot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([...points,points[0]]),new THREE.LineBasicMaterial({color:0x008d7e,depthTest:false})));for(const point of points){const dot=new THREE.Mesh(new THREE.SphereGeometry(this.span*.007,10,6),new THREE.MeshBasicMaterial({color:0x008d7e}));dot.position.copy(point);this.guideRoot.add(dot);}this.overlay.querySelector('[data-count]').textContent=`${points.length} ${say('个顶点','vertices')}`;}
   cancelTask(){if(this.sketch)this.grid.visible=this.sketch.previousGridVisible;this.callbacks.onInteraction?.(null);this.sketch=null;this.measuring=null;this.controls.enableRotate=true;this.overlay.style.display='none';this.clearGuides();this.updateHud();}
   markModel(context){this.modelContext={...context};this.displayError=null;}
-  renderFrame(){this.controls.update();this.renderer.render(this.scene,this.camera);const position=this.anchorProxy.position.clone().project(this.camera),width=this.host.clientWidth,height=this.host.clientHeight;this.anchorMarker.style.transform=`translate(${(position.x+1)*width/2}px,${(1-position.y)*height/2}px)`;this.anchorMarker.hidden=!this.anchorVisible||position.z>1;this.renderedContext=this.modelContext?{...this.modelContext}:null;this.frameSequence++;this.displayError=null;}
+  renderFrame(){this.roundGuide?.render();this.controls.update();this.renderer.render(this.scene,this.camera);const position=this.anchorProxy.position.clone().project(this.camera),width=this.host.clientWidth,height=this.host.clientHeight;this.anchorMarker.style.transform=`translate(${(position.x+1)*width/2}px,${(1-position.y)*height/2}px)`;this.anchorMarker.hidden=!this.anchorVisible||position.z>1;this.renderedContext=this.modelContext?{...this.modelContext}:null;this.frameSequence++;this.displayError=null;}
   async frame(){await new Promise(resolve=>requestAnimationFrame(resolve));this.renderFrame();return this.displayState();}
   displayState(){return {model:this.modelContext||null,rendered:this.renderedContext||null,frame:this.frameSequence,status:this.displayError?'failed':this.renderedContext?'rendered':'pending',error:this.displayError||null,camera:{projection:this.camera.isOrthographicCamera?'orthographic':'perspective',position:this.camera.position.toArray(),target:this.controls.target.toArray(),up:this.camera.up.toArray()}};}
   screenshot(){this.renderer.render(this.scene,this.camera);return this.renderer.domElement.toDataURL('image/png');}
-  destroy(){this.resizeObserver.disconnect();this.renderer.setAnimationLoop(null);this.controls.dispose();this.gizmo.dispose();this.disposeObject(this.scene);this.metals.dispose();this.renderer.dispose();}
+  destroy(){this.disposeRectangleSelection?.();this.resizeObserver.disconnect();this.renderer.setAnimationLoop(null);this.controls.dispose();this.gizmo.dispose();this.disposeObject(this.scene);this.metals.dispose();this.renderer.dispose();}
 }
 
 

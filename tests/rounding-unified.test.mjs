@@ -14,9 +14,9 @@ const dispose=value=>{try{value?.delete?.();}catch{}};
 const request=(ids,sizeMm=.5)=>({specVersion:2,sizeMm,scope:{kind:'edges',edgeIds:ids}});
 function topCircle(source){const edges=source.edges;try{return topologyDetails(source).find(r=>r.sharp&&edges[r.edgeId].geomType==='CIRCLE'&&r.midpoint[2]>7.9);}finally{edges.forEach(dispose);}}
 
-test('one public size contract preserves explicit legacy semantics',()=>{
- const card=getOperation('rounding');assert.equal(card.version,'2.0.0');
- assert.deepEqual(Object.keys(card.inputSchema.properties),['specVersion','sizeMm','scope']);
+test('current polishing card preserves the explicit historical size contract',()=>{
+ const card=getOperation('rounding');assert.equal(card.version,'3.0.0');
+ assert.deepEqual(Object.keys(card.historicalInputSchemas[2].properties),['specVersion','sizeMm','scope']);
  assert.deepEqual(normalizeOperationParams('rounding',request([0])),request([0]));
  assert.throws(()=>normalizeOperationParams('rounding',{...request([0]),mode:'constant'}),e=>e.code==='PARAM_SCHEMA_INVALID');
  assert.throws(()=>normalizeOperationParams('rounding',request([0],0)),e=>e.code==='PARAM_RANGE_INVALID');
@@ -26,10 +26,12 @@ test('one public size contract preserves explicit legacy semantics',()=>{
  assert.deepEqual(normalizeOperationParams('fillet',{radius:.5,edgeIds:[0]}),{radius:.5,edgeIds:[0]});
 });
 
-test('UI and discovery use the new entry while old API stays addressable',()=>{
+test('UI preserves historical size input and discovery distinguishes fillet from polishing',()=>{
  assert.deepEqual(adaptUISelection('rounding',{sizeMm:.5},['part'],{bodyId:'part',type:'edge',ids:[2,4]}),request([2,4]));
  assert.throws(()=>adaptUISelection('rounding',{sizeMm:.5},['part'],{bodyId:'part',type:'face',ids:[2]}),/选择/);
- const found=searchTools({query:'圆角',limit:50});assert(found.items.some(tool=>tool.id==='rounding'));assert(!found.items.some(tool=>tool.id==='fillet'));
+ const found=searchTools({query:'圆角',limit:50});assert(found.items.some(tool=>tool.id==='fillet'));
+ assert(searchTools({query:'打磨',limit:50}).items.some(tool=>tool.id==='rounding'));
+ assert(searchTools({query:'圆润',limit:50}).items.some(tool=>tool.id==='round'));
  assert(getTool({id:'fillet'}));
 });
 
@@ -40,6 +42,7 @@ test('size changes real geometry; oversized failure preserves the source',()=>{
   small=buildRounding(source,request([row.edgeId],.3));large=buildRounding(source,request([row.edgeId],.6));
   assert(cad.measureVolume(large)<cad.measureVolume(small));
   assert.equal(small.roundingReport.specVersion,2);assert.equal(small.roundingReport.requestedSpec.sizeMm,.3);
+  assert.equal(small.roundingReport.constructionKind,'constant-radius');assert.equal(large.roundingReport.constructionKind,'constant-radius');
   assert.equal(small.roundingReport.selectionSignatures.length,1);
   assert.throws(()=>buildRounding(source,request([row.edgeId],100)));
   assert.equal(source.serialize(),saved);

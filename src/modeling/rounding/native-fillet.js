@@ -65,15 +65,22 @@ function normalSectionFrame(edge,row){
   }finally{dispose(before);dispose(after);}
 }
 
+function historyShapes(raw,oc){
+  const list=new oc.NCollection_List_TopoDS_Shape(raw),items=[];
+  try{while(list.Extent()){items.push(list.First());list.RemoveFirst();}return items;}
+  finally{dispose(list);dispose(raw);}
+}
+
 function generatedFaces(builder,sourceEdges,result,edgeIds,rows,radiusMm,oc,strict){
   const faces=result.faces,mapping=[];
   try{
     for(const edgeId of edgeIds){
-      const list=builder.Generated(sourceEdges[edgeId].wrapped);
+      const generated=historyShapes(builder.Generated(sourceEdges[edgeId].wrapped),oc);
       let native,adaptor,surface;
       try{
-        if(list.Extent()!==1){if(strict)error('GEOMETRY_INVALID',`边 ${edgeId} 的生成面无法唯一核对`);mapping.push({edgeId,status:'unknown',generatedFaceCount:list.Extent()});continue;}
-        native=list.First();const faceId=faces.findIndex(face=>face.wrapped.IsSame(native));
+        if(!generated.length){if(strict)error('GEOMETRY_INVALID',`边 ${edgeId} 未找到生成面`);mapping.push({edgeId,status:'unknown',generatedFaceCount:0});continue;}
+        for(native of generated){
+        const faceId=faces.findIndex(face=>face.wrapped.IsSame(native));
         if(faceId<0)error('GEOMETRY_INVALID',`边 ${edgeId} 的生成面未在最终实体中找到`);
         const type=faces[faceId].geomType;
         if(type==='CYLINDRE'||type==='SPHERE'||type==='TORUS'){
@@ -93,7 +100,9 @@ function generatedFaces(builder,sourceEdges,result,edgeIds,rows,radiusMm,oc,stri
           const metric=measureGeneratedSurfaceRadius(faces[faceId],radiusMm,cad);
           mapping.push({edgeId,faceId,surfaceType:type,measuredRadiusMm:metric.radiusMm,sectionFitResidualMm:metric.maxSectionFitResidualMm,sectionCount:metric.sectionCount,radiusMethod:metric.method,status:'passed'});
         }
-      }finally{[surface,adaptor,native,list].forEach(dispose);}
+        [surface,adaptor].forEach(dispose);surface=null;adaptor=null;
+        }
+      }finally{[surface,adaptor,...generated].forEach(dispose);}
     }
     return mapping;
   }finally{faces.forEach(dispose);}
@@ -117,7 +126,7 @@ function verifyGeneratedSeams(result,plan,actual,generatedFaceMap,radiusMm){
   return {status:'G1-contact-sampled',contactEdgeCount:seams.length-naturalTerminationEdgeIds.length,naturalTerminationEdgeIds,maxContactAngleDeg:Math.max(0,...seams.filter(row=>!naturalTerminationEdgeIds.includes(row.edgeId)).map(row=>row.normalAngleDeg))};
 }
 
-export function nativeConstantFillet(shape,params,plan){
+export function nativeConstantFillet(shape,params,plan,{completeQuality=false}={}){
   const oc=cad.getOC(),edges=shape.edges;
   let builder,result;
   try{
@@ -138,9 +147,34 @@ export function nativeConstantFillet(shape,params,plan){
     result=cad.cast(builder.Shape());
     const closedContours=actual.every(id=>[plan.rows[id].startPoint,plan.rows[id].endPoint].every(point=>
       actual.reduce((count,other)=>count+[plan.rows[other].startPoint,plan.rows[other].endPoint].filter(p=>distance(p,point)<1e-5).length,0)===2));
-    const generatedFaceMap=generatedFaces(builder,edges,result,actual,plan.rows,params.radiusMm,oc,expanded.length>0||closedContours);
-    const seamValidation=expanded.length||closedContours?verifyGeneratedSeams(result,plan,actual,generatedFaceMap,params.radiusMm):null;
-    const output={shape:result,actualEdgeIds:actual,expandedEdgeIds:expanded,contourEdgeIds,generatedFaceMap,seamValidation,contourCount:builder.NbContours(),surfaceCount:builder.NbSurfaces()};
+    const generatedFaceMap=generatedFaces(builder,edges,result,actual,plan.rows,params.radiusMm,oc,completeQuality||expanded.length>0||closedContours);
+    const seamValidation=completeQuality?null:expanded.length||closedContours?verifyGeneratedSeams(result,plan,actual,generatedFaceMap,params.radiusMm):null;
+    const resultFaceSourceIds=[];
+    if(completeQuality){
+      const sourceFaces=shape.faces,resultFaces=result.faces;
+      try{
+        for(let sourceFaceId=0;sourceFaceId<sourceFaces.length;sourceFaceId++){
+          const sourceFace=sourceFaces[sourceFaceId];
+          resultFaces.forEach((face,faceId)=>{if(face.wrapped.IsSame(sourceFace.wrapped))resultFaceSourceIds.push({faceId,sourceFaceId});});
+          const modified=historyShapes(builder.Modified(sourceFace.wrapped),oc);
+          try{for(const changed of modified)resultFaces.forEach((face,faceId)=>{if(face.wrapped.IsSame(changed)&&!resultFaceSourceIds.some(row=>row.faceId===faceId))resultFaceSourceIds.push({faceId,sourceFaceId});});}
+          finally{modified.forEach(dispose);}
+        }
+        const retained=new Set(resultFaceSourceIds.map(row=>row.faceId)),measured=new Set(generatedFaceMap.map(row=>row.faceId));
+        for(let faceId=0;faceId<resultFaces.length;faceId++){
+          if(retained.has(faceId)||measured.has(faceId))continue;
+          const face=resultFaces[faceId];let measuredRadiusMm,adaptor,surface;
+          try{
+            if(face.geomType==='SPHERE'||face.geomType==='CYLINDRE'){
+              adaptor=new oc.BRepAdaptor_Surface(face.wrapped,true);surface=face.geomType==='SPHERE'?adaptor.Sphere():adaptor.Cylinder();measuredRadiusMm=surface.Radius();
+            }else measuredRadiusMm=measureGeneratedSurfaceRadius(face,params.radiusMm,cad).radiusMm;
+            if(Math.abs(measuredRadiusMm-params.radiusMm)>1e-5)error('GEOMETRY_INVALID','角区生成面的实测半径不符合恒 R 候选',{faceId,measuredRadiusMm});
+            generatedFaceMap.push({faceId,sourceRole:'corner',surfaceType:face.geomType,measuredRadiusMm,status:'passed'});
+          }finally{dispose(surface);dispose(adaptor);}
+        }
+      }finally{sourceFaces.forEach(dispose);resultFaces.forEach(dispose);}
+    }
+    const output={shape:result,actualEdgeIds:actual,expandedEdgeIds:expanded,contourEdgeIds,generatedFaceMap,seamValidation,resultFaceSourceIds,contourCount:builder.NbContours(),surfaceCount:builder.NbSurfaces()};
     result=null;return output;
   }finally{dispose(result);dispose(builder);edges.forEach(dispose);}
 }

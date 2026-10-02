@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.13.0 · sha256:ff30c5e30a6aadc49aa40b756979ea26ec0f539c5b2ca545551f49e3dfdbc429
+API 1.16.0 · sha256:988ee88cc18ef90af1d58bf204ac07be78a053eff4529e5878dadcbf569645e4
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -27,7 +27,7 @@ connect 的 queries 是最多4个短字符串；searchTools 使用单个 query �
 ## api.discovery
 
 首次连接先读 automation/agent-start.html 或机器可读 automation/agent-start.json。connect().onboarding 为 version=1 静态引导：绑定用户选定标签页 → capabilities.list → 当前 CDP 文档 → Runtime.evaluate 调用 connect 并检查 canExecute/blockers → 相关契约 → run → 回执与画面读回。当前宿主实际文档优先；连接传输失败不等于页面 API 不可用，不刷新已有工程或安装服务绕过权限。可选本地技能/客户端由 automation/agent-kit.json 列出，automation/install-agent.ps1 仅 host-opt-in 安装；页面脚本调用不要求先安装。
-首次通过获授权页面脚本通道调用 api.connect({queries:[简短能力关键词]})。无需先遍历源文件或下载全库。connect 同时给出精简的实时 requestContext、ready/busy/preview、最多20个当前实体引用、目录/文档哈希和搜索结果；内核未就绪仍可查契约。queries 最多4项，每项最多500字符，limit 为每项1..10，默认5。结果是相关候选，不自动解释自然语言、不生成操作计划。category 可用于单独 searchTools 过滤；query 为空时分页列出全部工具。
+搜索自动附带的完整契约最多64000字符；contractIdsOmitted/contractReadPolicy.omissions 明确列出未附带项与原因。显式 toolIds 不受此字符预算影响，getTools 按需读取完整卡。快捷模型优先 template.kind。首次通过获授权页面脚本通道调用 api.connect({queries:[简短能力关键词]})。无需先遍历源文件或下载全库。connect 同时给出精简的实时 requestContext、ready/busy/preview、最多20个当前实体引用、目录/文档哈希和搜索结果；内核未就绪仍可查契约。queries 最多4项，每项最多500字符，limit 为每项1..10，默认5。结果是相关候选，不自动解释自然语言、不生成操作计划。category 可用于单独 searchTools 过滤；query 为空时分页列出全部工具。
 接着 getTools({ids:[选中的工具ID],expectedCatalogHash:connect返回的catalogHash}) 一次读完整契约，最多20项。includeContracts:true 可在 connect 中直接取得前20个去重命中的契约，contractIdsOmitted 明示未附带的其余ID。已完整缓存的卡可传 knownHashes:{工具ID:docsHash}；匹配只返回 not_modified，新增或变化返回 read.card，未知ID逐项返回 error，不丢失其他卡。不可仅见过摘要哈希就声称持有完整卡。getTools 不省略约束、不截断 schema；getTool 保持兼容。
 connect 可传 knownCatalogHash/knownDocsHash 检查整体漂移；changed 只表示静态说明变化，实时状态始终重新读取。manifest.json 为每张卡/每篇文档提供 docsHash，可比较增删变化；已删除ID必须从宿主缓存移除。readDocs({docId,knownHash}) 可复用完整文档缓存；knownHash 与 cursor 不可同时使用，分页文档须取完才能缓存为完整文档。缓存版本不能代替当前页面状态。
 可选离线库：一次下载同版本 automation/index.json 与 automation/tool-library.mjs；在具备持久存储能力的宿主保存。import {createToolLibrary} from './tool-library.mjs'; const lib=createToolLibrary(snapshot); lib.search(query) 返回摘要，lib.get(id) 取完整卡，lib.readDoc(id) 取一篇说明；lib.isCurrent(api.connect()) 对比 catalogHash/docsHash，漂移时刷新快照。离线库与页面使用相同搜索实现，所有运行可用性为 unknown；始终从目标页面取得新鲜 requestContext/实体/拓扑。不要把完整快照打印进模型上下文。没有磁盘能力的侧栏直接调用页面搜索即可。
@@ -42,7 +42,7 @@ traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBo
 
 ## api.editor
 
-所有编辑动作均使用 execute({context,idempotencyKey,action,args}) 或 run 的 execute 步骤。先 getTool({id:动作名称})，不要猜字段。document.rename 修改工程名称；feature.rename 可改导入件名称；body.visibility 指定 bodyIds/visible；body.appearance 设置 color/finish；document.appearance 设置工程默认 finish；body.explode 拆多实体组合。颜色 #RRGGBB，null 重置；finish:null 跟随工程，design 显示原色，金属材质暂时盖住原色但保留其数值。getState().colors/appearance/renderFinish/hidden 可读回。外观/显隐/改名不重算几何，保存到 .webcad 且支持撤销。preview.start 的普通特征 args 同 feature.add；文件来源用 fileImport:{resourceId,placement}。回执返回 previewId/generation，更新用 preview.update 的 expectedGeneration，提交或取消也必须带当前预览身份；旧 UI 预览继续接受空 args。草稿不改工程 revision。
+所有编辑动作均使用 execute({context,idempotencyKey,action,args}) 或 run 的 execute 步骤。先 getTool({id:动作名称})，不要猜字段。document.rename 修改工程名称；feature.rename 可改导入件名称；body.visibility 指定 bodyIds/visible；body.appearance 设置 color/finish；document.appearance 设置工程默认 finish；body.explode 拆多实体组合；body.align 平移对齐；history.restore 回到保留的工程状态。后三者成功提交后的 validation.geometry=passed 表示经过重建，no_change 为 unchanged；外观/显隐/改名的几何保持 unchanged。该字段不证明当前画面已渲染或工程已保存。颜色 #RRGGBB，null 重置；finish:null 跟随工程，design 显示原色，金属材质暂时盖住原色但保留其数值。getState().colors/appearance/renderFinish/hidden 可读回。外观/显隐/改名不重算几何，保存到 .webcad 且支持撤销。preview.start 的普通特征 args 同 feature.add；文件来源用 fileImport:{resourceId,placement}。回执返回 previewId/generation，更新用 preview.update 的 expectedGeneration，提交或取消也必须带当前预览身份；旧 UI 预览继续接受空 args。草稿不改工程 revision。
 
 ## api.execute
 
@@ -51,7 +51,7 @@ execute(request) 使用当前 CommandService 的结构化请求：{context:{sess
 
 ## api.file-errors
 
-页面建模、测量、视图与截图方法的失败通常返回 {status:"failed",commitState:"not_committed",error:{code,message},context}；execute 和 queryGeometry 使用 CommandService 的更完整结果。files 方法抛出带 code 的 Error，调用方应捕获，不能把异常解释为已保存。文件状态分别为 registered、generated、download_initiated、write_verified；generated 不证明磁盘写入。输入资源、导入和输出每项最多 20 MiB，最多 32 个资源、合计 64 MiB、30 分钟有效。自包含 .webcad 保存可能含 base64 导入源并超过上限；页面在限制前预留约 4 KiB 空间。读取 files.capabilities() 获得当前实际上限。
+页面建模、测量、视图与截图方法的失败通常返回 {status:"failed",commitState:"not_committed",error:{code,message},context}；execute 和 queryGeometry 使用 CommandService 的更完整结果。files 方法抛出带 code 的 Error，调用方应捕获，不能把异常解释为已保存。文件状态分别为 registered、generated、download_initiated、write_verified；generated 不证明磁盘写入。输入资源、导入和输出每项最多 20 MiB，最多 32 个资源、合计 64 MiB、30 分钟有效。自包含 .webcad 使用紧凑 UTF-8 JSON，最多 2000 个历史特征、20 MiB（含全部保留历史和共享导入源）。2000 是建模特征数，不是撤销步数。新增、预览、导入、粘贴、批量对齐和拆散均受限；批量按实际新增特征数计数，编辑或删除仍可使用。计算前在无 timeline 的工程大小上预留 4 KiB，提交前按含锚点和裁剪后历史的完整文件再次校验。超限返回 SIZE_LIMIT，已运行的内核恢复原工程，revision、撤销/重做和当前工程不提交变化；不要重复重试，应减少特征或拆分工程。读取 files.capabilities() 获得当前实际上限。
 
 ## api.interaction
 
@@ -97,6 +97,10 @@ queryGeometry({context,bodyId,kind:"face"|"edge",filter:{},requireUnique:false,l
 
 世界原点不可修改；工作基准是工程元数据，getState().referenceSystem.workFrame 返回 origin/quaternion/locked/frameVersion。reference.setWorkFrame、resetWorkFrame、setLocked 与保存/激活/改名/删除具名基准均经 execute 的 revision 与幂等检查，可撤销且不移动旧实体。queryReferences({context,kind:"point"|"axis"|"frame",bodyIds,filter:{types?,near?},limit?,offset?,requireUnique?}) 返回精确 B-Rep 或明确派生候选、referenceId、几何指纹、歧义和分页；edge-nearest/trimmed-face-point 必须给 near:{point:[x,y,z],radiusMm}。圆心不冒充面内点；凹面/有孔面面积重心标为不保证落在修剪区域。referenceId 在工程 revision、实例或几何指纹变化后失效。reference.setBodyAnchor 需要当前对象的精确点 referenceId、bodyId、name、单位 quaternion；保存版本和指纹。已知刚体 transform/copy 继承锚点，改形无法证明映射时标记 stale，named 锚点定位拒绝旧来源。placement:{version:1,frame:{kind:"world"|"snapshot"|"work"|"saved",...},sourceAnchor:{kind:"model-origin"|"bottom-center"|"bounds-center"|"named"|"point",anchorId?,point?}}；work/saved 要对应版本，历史保存 frameSnapshot。各工具卡 placementPolicy 声明定位是否适用。transform/copy 新 mode 有 translate、toPoint、rotate、scale、align；align 必须给源/目标点、轴、面内方向、同向/反向、间隙和扭转角，缺失或退化拒绝。旧世界坐标 API 语义保留。新版工程 version:2，仍读取 version:1。
 
+## api.refine
+
+清理分割线 refineShape：用于导入实体或建模后残留的同域分割，不用于删孔、补洞或圆角。先 connect({toolIds:['refineShape','getState','queryGeometry']})，核对 canExecute，再 run({context:当前requestContext,idempotencyKey:crypto.randomUUID(),steps:[{id:'clean',method:'add',args:{op:'refineShape',refs:[当前bodyId],params:{}}}]}）。仅一个封闭实体，最多400面/2000边。固定线性公差1e-7 mm、角公差1e-7 rad；不开放公差放大。采用独立 BREP 副本、OCCT ShapeUpgrade_UnifySameDomain，随后验证有效实体、外廓、体积和两个方向的材料差。无减少返回 NO_CHANGE；失败不写历史。UI 位于修饰→实体整理，选件后预览/应用，无数值参数。getState().bodies[].refineReport 返回 before/after 面边数、removedFaceCount、removedEdgeCount、removedMm3、addedMm3、volumeDeviationMm3、boundsDeviationMm。清理会重新编号边面，后续 queryGeometry 必须重新查询；上游历史保留，可撤销。现有布尔通常已自动整理，简单新建件返回 NO_CHANGE 是正常结果。
+
 ## api.reliability
 
 所有带 context 的页面入口接受 getState().context（revision）或 connect().requestContext（expectedRevision）。createRequestContext(context?) 可显式转换；两字段同时出现且不一致时报错，绝不自动采用新版本。大文件使用 files.register/read，禁止塞进批次或反复回传模型上下文。files.save 生成资源，files.download 只发起下载；files.write 返回 verified 才证明句柄文件写入校验。单资源仍限 20 MiB，总资源 64 MiB。统一异常入口 await api.invoke({method,args}) 支持当前页面方法及 files.*；原同步发现和 files 方法保持兼容，可抛带 code 的异常。后台计算回执：submit({jobId,method,args}) 立即返回 queued，轮询 getJob({jobId})，完全相同 jobId/参数只取原任务；不得换 key 重复提交超时任务。状态 queued/running/committed/completed/partial/failed/unknown/cancelled，result 保留原回执与 context。进度 progress:null 表示内核未提供可测百分比。cancelJob 只能取消尚未运行任务，运行中的内核不承诺中断。仅当前页面内存中保留最多100任务，刷新后先检查模型，不自动重放；无额外服务。
@@ -122,16 +126,115 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
 
 界面动作与 AI 等价接口（手势以坐标和显式参数代替）：
 {
+  "selectTool": {
+    "tools": [
+      "setView",
+      "selectRectangle",
+      "preview.cancel"
+    ],
+    "method": "setView",
+    "usage": "实体模式左键拖框选，左向右全包含、右向左相交，Shift/Ctrl追加，Escape取消；Alt+左键保留旋转。selectRectangle显式指定当前视口0..1矩形。相交模式处理近远裁剪面，仍按对象投影包围框判定。"
+  },
+  "quickDrawing": {
+    "tools": [
+      "createDrawing",
+      "exportDrawing",
+      "files.download"
+    ],
+    "method": "createDrawing",
+    "usage": "选择1–40个bodyIds，创建精确三视图及最多3个截面；按drawingId导出PDF/JPG/DXF/SVG，下载走files.download。DWG暂不可用。"
+  },
+  "drawingCreate": {
+    "tools": [
+      "createDrawing"
+    ],
+    "method": "createDrawing",
+    "usage": "与快速出图生成按钮相同；projection first/third，sections为plane/offset数组。"
+  },
+  "drawingExport": {
+    "tools": [
+      "exportDrawing",
+      "files.download"
+    ],
+    "method": "exportDrawing",
+    "usage": "drawingId、format、paper、title、disabledDimensions；返回generated资源，再files.download/write。"
+  },
+  "alignTool": {
+    "tools": [
+      "planAlignment",
+      "body.align"
+    ],
+    "method": "execute",
+    "usage": "显式指定移动bodyIds和target；X/Y/Z、min/center/max、group保持相对位置。"
+  },
+  "alignBodies": {
+    "tools": [
+      "body.align"
+    ],
+    "method": "execute",
+    "usage": "一次事务对齐；target.kind为body/origin/anchor/point；基准件不能同时被移动。按移动件数新增特征，超过工程2000特征或20 MiB上限返回SIZE_LIMIT且不提交。"
+  },
+  "alignmentPlan": {
+    "tools": [
+      "planAlignment"
+    ],
+    "method": "planAlignment",
+    "usage": "只读回每个移动件的世界坐标delta，便于先核对。"
+  },
+  "restoreHistory": {
+    "tools": [
+      "getHistory",
+      "history.restore"
+    ],
+    "method": "execute",
+    "usage": "读取getHistory的stateId后通过history.restore一键恢复完整工程；不能使用当前特征序号替代状态ID。导入资源在保留状态间共享，全部保留状态不再引用后才回收；bytes仅为历史基线和差量大小。"
+  },
+  "round": {
+    "tools": [
+      "round",
+      "preview.start",
+      "preview.update",
+      "preview.cancel",
+      "preview.commit",
+      "feature.edit"
+    ],
+    "method": "execute",
+    "usage": "统一圆润：edgeIds 必填，mode 默认 auto。边缘用 strength 或 radiusMm；端头用自动推荐或 depthMm。鼠标拖动截面手柄等价 preview.update 修改 depthMm（世界范围见 roundReport.scope）；拖动中只改变草稿，松手预览一次。查看原形等价 preview.cancel，返回预览用 preview.start。必须核对范围后提交。"
+  },
+  "fillet": {
+    "tools": [
+      "fillet",
+      "feature.edit",
+      "preview.start",
+      "preview.update",
+      "preview.commit",
+      "preview.cancel"
+    ],
+    "method": "execute",
+    "usage": "标准数值圆角：查询当前实体边或面，feature.add op=fillet，refs:[当前实体ID]，params:{radius:明确半径mm,edgeIds:[当前边号]}。也可明确 faceIds；多面仅处理公共锐边时设置 sharedFaces:true，或 allEdges:true 处理整个实体，三种范围互斥。可先预览再提交，也可直接应用；历史 feature.edit 修改 radius 从来源重建。返回 blendReport 的 processedEdgeIds、skippedTangentEdgeIds 与实际处理尺寸；失败不提交。无需自动打磨参数或求解相关网络。"
+  },
   "rounding": {
     "tools": [
       "rounding",
       "feature.edit",
       "preview.start",
+      "preview.update",
       "preview.commit",
       "preview.cancel"
     ],
     "method": "execute",
-    "usage": "先查询当前来源实体的锐边。新圆角使用 specVersion:2、sizeMm 和 scope:{kind:edges,edgeIds:[当前边号]}；不传算法或模式。预览核对实际影响范围，再提交同一份预览。feature.edit 修改 sizeMm，从上游重新求解。旧 specVersion:1 特征继续按原尺寸与模式重算。"
+    "usage": "先查询当前来源实体的锐边。自动打磨使用 specVersion:3 和 scope:{kind:edges,edgeIds:[当前边号]}；不需要 sizeMm。可选 strength 为 (0,1] 比例，默认 1。相关边与面允许局部跟随；先核对预览 roundingReport.region 的 sourceBodyId、requestedEdgeIds、expandedEdgeIds 和 affectedFaceIds，再提交同一份预览。feature.edit 修改 strength 从上游重新求解。旧 specVersion:1/2 特征按原参数与语义重算，不能转换为打磨。"
+  },
+  "roundEnd": {
+    "tools": [
+      "roundEnd",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel",
+      "feature.edit"
+    ],
+    "method": "execute",
+    "usage": "先选端部边；传 edgeIds、axis、direction、profileAxis、depthMm。preview.start 核对整个端头替换范围及 endRoundingReport 中保留折痕、长度与材料变化，再 preview.commit。历史改参从来源重建。"
   },
   "pathEdit": {
     "tools": [
@@ -643,6 +746,19 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "refineShape": {
+    "tools": [
+      "refineShape",
+      "getState",
+      "queryGeometry",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel",
+      "history.undo"
+    ],
+    "method": "execute",
+    "usage": "选择一个封闭实体，feature.add op=refineShape，refs:[bodyId]，params:{}。无需公差参数，可先 preview.start 再 commit；getState.bodies[].refineReport 读前后面边数和材料差。NO_CHANGE 不提交。拓扑编号改变后重新 queryGeometry。"
+  },
   "remove": {
     "tools": [
       "feature.remove"
@@ -851,7 +967,7 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
       "pasteSelection"
     ],
     "method": "pasteSelection",
-    "usage": "context、idempotencyKey；整体底面中心放在锚点。"
+    "usage": "context、idempotencyKey；整体底面中心放在锚点。粘贴按对象新增特征，共用2000特征/20 MiB工程容量检查，超限不提交。"
   },
   "importAtFrame": {
     "tools": [
@@ -979,10 +1095,11 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
   "measure": {
     "tools": [
       "measure",
-      "queryGeometry"
+      "queryGeometry",
+      "getState"
     ],
     "method": "measure",
-    "usage": "实体/面/边精确测量；两点距离用 points:[XYZ,XYZ]，来源标为输入坐标。"
+    "usage": "实体/面/边精确测量；属性区总表面积对应 getState().bodies[].area 或 measure(kind:body).area，单位mm²。两点距离用 points:[XYZ,XYZ]，来源标为输入坐标。"
   },
   "inspectPrintability": {
     "tools": [
@@ -1003,7 +1120,7 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
       "inspectFit"
     ],
     "method": "inspectFit",
-    "usage": "显式给两个当前单实体 bodyId、mm 接触容差；精确 B-Rep 求交与最短距离，不修改工程。"
+    "usage": "显式给两个当前单实体 bodyId、mm 接触容差；在独立 BREP 副本上求交与测最短距离，不修改来源、历史或显示修订。"
   },
   "inspectThickness": {
     "tools": [
@@ -1110,13 +1227,6 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
     "method": "setView",
     "usage": "通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
   },
-  "selectTool": {
-    "tools": [
-      "setView"
-    ],
-    "method": "setView",
-    "usage": "通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
-  },
   "gizmo": {
     "tools": [
       "setView"
@@ -1204,6 +1314,7 @@ await api.run({context:c.requestContext,idempotencyKey:crypto.randomUUID(),steps
 ]});
 
 删除只针对用户指定范围。用 getState 的当前 body IDs，execute action:feature.remove args:{bodyIds:[...]}；不能把“删除这个模型”无条件解释成清空所有项目。
+组合建模练习见 readDocs({docId:"recipes.hardware-practice"})：保留轮廓的槽轮旋转与四孔加工、三截面扭转旋钮放样与轴孔。多零件配合流程见 readDocs({docId:"recipes.clevis-practice"})：开口叉架、跨两耳贯穿孔、销轴、双垫片及间隙验证。示例只在获得建模授权后执行，追加当前工程，不自动保存或导出。
 
 ## api.workspace
 
@@ -1262,6 +1373,10 @@ PERSISTENCE_FAILED / RESULT_UNKNOWN: distinguish committed memory from durable s
 ## recipes.chamfered-wire-frame
 
 倒角方线恒截面框：UI 在快捷模型选择 D 扣、方扣、日字扣、圆圈、开口 C 环或四圆弧旦扣；AI 先 getTool({id:'quickModel'})，选择 section:'chamferedSquare'、sectionSize 方线正面宽/侧深、sectionChamfer 单边 45°倒角切入量，须 0<C<sectionSize/2。截面是八条直线组成的等宽等深八边形，四角为平倒角而非圆角；sectionRadius 在该截面下忽略。PG4819 图面正视外37×28.5、内25×16.5，侧剖总深6、顶面平段3，所以截面边长6、C1.5。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'frame',method:'add',args:{op:'quickModel',refs:[],params:{kind:'dBuckle',section:'chamferedSquare',sectionSize:6,sectionChamfer:1.5,innerWidth:25,innerHeight:16.5,innerRadius:2,gapWidth:0}}},{id:'size',method:'measure',args:{bodyId:{$ref:'frame.createdBodyIds.0'}}}]});检查 status、solidCount、精确 bounds/volume 和 getState().display.rendered.revision。该候选应为37×28.5×6 mm 单实体；innerRadius:2 与 D 扣半圆冠路径是外观试拟，PG4819 源冠部为多段不同 R 圆弧，故不可宣称逐线复刻或量化80%相似。方扣等其它中心路径复用同一截面，但须各自满足工具的几何护栏。非法 C 或扫掠失败不提交；历史用 feature.edit 修改 sectionChamfer。
+
+## recipes.clevis-practice
+
+多零件练习位于 automation/clevis-practice.js（源 docs/examples/clevis-practice.js），导出 clevisPracticeSteps 和 runClevisPractice(api)。自主尺寸，不用于还原客户源 CAD，不保证工艺公差或提供装配约束求解。helper 先 connect 点名相关工具并检查 canExecute，再以一个14步有界批次追加当前工程：60×32×36毛坯减开口，孔向导沿X贯穿两个分离的耳板材料区，四个底座安装孔，定位一根销轴，创建垫片后线性阵列到两侧，测量及等轴视图。所有定位显式冻结为world或snapshot，不依赖当前锚点。结果3个对象、4个封闭实体；垫片是一个含两实体的compound，不融合。叉架体积30720−276π mm³；销轴与叉架径向最短间隙0.2 mm，垫片与叉架轴向最短间隙0.5 mm。inspectFit只接收单一实体，因此用于销轴/叉架；measureRelation shortest可测垫片compound与叉架。helper 返回各checks及verified；batch completed不自动代表这些尺寸达标。部分失败立即停，按回执续做未尝试步骤，禁止重放整批。saved:false表示未保存；rendered只反映displayMatchesContext，仍需实际画面核对。此流程经公开API到内核集成验证，浏览器视觉验收需单独记录。
 
 ## recipes.closed-chamfered-path
 
@@ -1323,6 +1438,10 @@ DXF 成对边界推导闭合或开放中心线：在 text-to-cad 仓库使用 ag
 
 斜肩开口框：UI 在“快捷模型”选择“斜肩开口框”；AI 先 getTool({id:"quickModel"}) 读 kind=gableOpenFrame 参数。页面脚本：const api=window.webcad.api; const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"gable",method:"add",args:{op:"quickModel",refs:[],params:{kind:"gableOpenFrame",outerWidth:25,innerWidth:20,outerPeakHeight:16,outerShoulderHeight:12.4,innerPeakHeight:13.5,innerShoulderHeight:10.5,thickness:4,endRadius:1}}},{id:"size",method:"measure",args:{bodyId:{$ref:"gable.createdBodyIds.0"}}}]})。正视两个斜肩屋顶轮廓之间留开口，脚端有真实 R1 四分之一圆弧和短平底，外 25×16×4 mm；不通过事后倒圆改变总高。PG7918 图面明确外宽25、内宽20、外峰高16、外肩约12.4、脚端R1、侧深4；内峰13.5/内肩10.5依据图面轮廓试拟，尚未逐边回读源 CAD，不宣称完全复刻。此工具是平板正视轮廓拉伸，未处理侧视的完整圆端截面。须满足内外峰、肩分离和端R≤带宽一半；失败整步回滚。检查批次 status、measure 和 rendered revision；历史参数用 feature.edit。
 
+## recipes.hardware-practice
+
+可复用组合流程位于 automation/hardware-practice.js（源文件 docs/examples/hardware-practice.js），导出 hardwarePracticeBatches 与 runHardwarePractice(api)。尺寸为自主练习值，不用于重建客户源 CAD。先通过受支持的页面脚本通道取得 api，读取相关卡与最新 context，并确认 canExecute；helper 每批重新取 context，失败即停，不重放已完成批次。第一批 5 步：保存槽轮母线，沿世界 Y 轴旋转，切四个安装孔，使用 body.visibility 的 visible:false 隐藏母线，精确测量。成品外径 32 mm、轴向长度 18 mm。第二批 8 步：保存三个不同尺寸与转角的圆角截面，依次放样，切直径 6 mm 的轴孔，隐藏来源，测量，等轴显示；旋钮高 32 mm。几何量、修订与来源引用来自实际回执，只有 displayMatchesContext 与实际页面画面确认后才算显示验收。helper 的 saved:false 明确表示未写工程文件。内核/公开 API 集成测试不能代替真实页面验收。
+
 ## recipes.mounting-plate
 
 四孔板示例，尺寸单位 mm。先调用 info()/getState() 取得当前完整上下文，再用 getTool({id:"box"}) 与 getTool({id:"multiHole"}) 读取实际版本、schemaHash 与示例。新增 box：{width:50,depth:30,height:3}、refs:[]。取得实际板件 bodyId 与新 revision 后新增 multiHole：{radius:2,depth:5,axis:"Z",direction:-1,points:[[5,5,4],[45,5,4],[5,25,4],[45,25,4]]}、refs:[实际 bodyId]。刀具从全局 Z=4 向下切至 Z=-1。体积期望值是 4500-48π mm³；须以当前精确 B-Rep 测量和导出回读验证。
@@ -1330,11 +1449,11 @@ DXF 成对边界推导闭合或开放中心线：在 text-to-cad 仓库使用 ag
 
 ## recipes.multi-boss
 
-批量圆柱凸台：先 getState() 取得当前上下文和真实 bodyId，getTool({id:"multiBoss"}) 读取严格 v2 卡。UI 路径“加工 → 孔与槽 → 批量圆柱凸台”。在 40×20×3 mm 板顶加两个凸台：feature.add 的 refs:[实际 bodyId]、params:{radius:2,height:3,axis:"Z",direction:1,points:[[10,10,3],[30,10,3]]}。每个 XYZ 是世界坐标的凸台底面中心，圆柱沿指定轴和符号方向长出。最多 64 个；每个都必须与当前主体融合为一个实体且增加材料，否则整步不提交。成功后读回 revision/body/feature，测量精确体积；示例理论值 2400+2×π×2²×3 mm³。历史修改用 feature.edit 传 radius/height/axis/direction 或完整 points 数组。工具只生成实心圆柱；通孔另用 multiHole，圆角另用 fillet/autoRound，不猜轴心或表面。
+批量圆柱凸台：先 getState() 取得当前上下文和真实 bodyId，getTool({id:"multiBoss"}) 读取严格 v2 卡。UI 路径“加工 → 槽与凸台 → 更多 → 批量圆柱凸台”。在 40×20×3 mm 板顶加两个凸台：feature.add 的 refs:[实际 bodyId]、params:{radius:2,height:3,axis:"Z",direction:1,points:[[10,10,3],[30,10,3]]}。每个 XYZ 是世界坐标的凸台底面中心，圆柱沿指定轴和符号方向长出。最多 64 个；每个都必须与当前主体融合为一个实体且增加材料，否则整步不提交。成功后读回 revision/body/feature，测量精确体积；示例理论值 2400+2×π×2²×3 mm³。历史修改用 feature.edit 传 radius/height/axis/direction 或完整 points 数组。工具只生成实心圆柱；通孔另用 multiHole，圆角另用 fillet/autoRound，不猜轴心或表面。
 
 ## recipes.multi-pocket
 
-批量矩形凹槽：先用 getState() 取得当前上下文和实际 bodyId，再用 getTool({id:"multiPocket"}) 读取版本、schemaHash 和严格参数。UI 路径为“加工 → 孔与槽 → 批量矩形凹槽”。在一个已有 40×20×3 mm 板件上执行 feature.add，refs:[实际 bodyId]，params:{depth:0.5,axis:"Z",direction:-1,pockets:[{x:10,y:10,z:3,width:6,height:4},{x:25,y:10,z:3,width:6,height:4,cornerRadius:0.5}]}。每组 XYZ 是世界坐标的刀具入口中心；切入轴 Z 时宽/高沿 X/Y，X 时沿 Y/Z，Y 时沿 Z/X。例中从 Z=3 向下切至 2.5。cornerRadius 可省略或为 0，若提供则必须小于宽高短边一半。1–64 个凹槽，每个都须去除剩余材料；任一失败，整步不提交。用 getState() 读回新 feature/body/revision，再 measure 精确体积。可通过 feature.edit 修改历史步骤的 depth、axis、direction 或完整 pockets 数组，从原始几何重建。圆孔用 multiHole；任意曲面区域另用相应面工具。
+批量矩形凹槽：先用 getState() 取得当前上下文和实际 bodyId，再用 getTool({id:"multiPocket"}) 读取版本、schemaHash 和严格参数。UI 路径为“加工 → 槽与凸台 → 更多 → 批量矩形凹槽”。在一个已有 40×20×3 mm 板件上执行 feature.add，refs:[实际 bodyId]，params:{depth:0.5,axis:"Z",direction:-1,pockets:[{x:10,y:10,z:3,width:6,height:4},{x:25,y:10,z:3,width:6,height:4,cornerRadius:0.5}]}。每组 XYZ 是世界坐标的刀具入口中心；切入轴 Z 时宽/高沿 X/Y，X 时沿 Y/Z，Y 时沿 Z/X。例中从 Z=3 向下切至 2.5。cornerRadius 可省略或为 0，若提供则必须小于宽高短边一半。1–64 个凹槽，每个都须去除剩余材料；任一失败，整步不提交。用 getState() 读回新 feature/body/revision，再 measure 精确体积。可通过 feature.edit 修改历史步骤的 depth、axis、direction 或完整 pockets 数组，从原始几何重建。圆孔用 multiHole；任意曲面区域另用相应面工具。
 
 ## recipes.open-oval
 
@@ -1534,7 +1653,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -1577,7 +1696,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Z must increase. Same vertex count, winding and corresponding start vertex. Default smooth solid. Shell has no caps and is not a closed solid."
+    "Z must increase. Same vertex count, winding and corresponding start vertex. Default smooth solid. Shell has no caps and is not a closed solid.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "advancedLoft",
@@ -1667,7 +1787,51 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "sections": [
+          {
+            "z": 0,
+            "points": [
+              [
+                -1,
+                -1
+              ],
+              [
+                1,
+                -1
+              ],
+              [
+                0,
+                1
+              ]
+            ]
+          },
+          {
+            "z": 10,
+            "points": [
+              [
+                -1,
+                -1
+              ],
+              [
+                1,
+                -1
+              ],
+              [
+                0,
+                1
+              ]
+            ]
+          }
+        ],
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -1675,7 +1839,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -1696,6 +1861,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "高级放样",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -1710,7 +1881,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:44903922d4f02f8ac4045142bf552cf96138214997a6120c9d177a692e26f8ad"
+  "docsHash": "sha256:1a756abf79e4e35e8d7cae60f1d1f43adac99723c5cfdce52932381104ea7f9b"
 }
 ```
 
@@ -1882,7 +2053,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -1924,7 +2095,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Ordered line start/end or arc start/middle/end XY points. Each adjacent endpoint and closure must agree within 0.000001 mm. Output is one exact BRep solid; holes must remove material. Supports XY only, constant Z depth, no spline, variable thickness or source-DXF auto selection. Invalid topology rejects the step."
+    "Ordered line start/end or arc start/middle/end XY points. Each adjacent endpoint and closure must agree within 0.000001 mm. Output is one exact BRep solid; holes must remove material. Supports XY only, constant Z depth, no spline, variable thickness or source-DXF auto selection. Invalid topology rejects the step.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "arcProfile",
@@ -2052,7 +2224,70 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "outer": [
+          {
+            "type": "line",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                10,
+                0
+              ]
+            ]
+          },
+          {
+            "type": "line",
+            "points": [
+              [
+                10,
+                0
+              ],
+              [
+                10,
+                5
+              ]
+            ]
+          },
+          {
+            "type": "line",
+            "points": [
+              [
+                10,
+                5
+              ],
+              [
+                0,
+                5
+              ]
+            ]
+          },
+          {
+            "type": "line",
+            "points": [
+              [
+                0,
+                5
+              ],
+              [
+                0,
+                0
+              ]
+            ]
+          }
+        ],
+        "height": 2,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -2060,7 +2295,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -2081,6 +2317,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "解析线弧轮廓",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -2095,7 +2337,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:cbf18ef2759f2566586235d145280e0d90111d25b0cd1d14d21ba80fcf09f63f"
+  "docsHash": "sha256:447c0a3afdfeae52783d0411798fcf52435ed5796c49acf4c0b34160b2f57e80"
 }
 ```
 
@@ -2251,7 +2493,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -2274,6 +2517,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "整件圆边",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -2289,7 +2538,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:2785d37cb7ac3bdf8f80b5af940e77d7807a5f3d63d617a9f779b1640ba16b26"
+  "docsHash": "sha256:e4c3558c89f60de5d0898d05b349721e52e2b6707c7bdcfdd42f7e984355b2e6"
 }
 ```
 
@@ -2405,8 +2654,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
   ],
   "resultShapeTypes": [
-    "solid",
-    "compound (operation-dependent)"
+    "solid"
   ],
   "consumesInputs": false,
   "preservesInputs": false,
@@ -2465,7 +2713,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -2490,6 +2739,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "长方体",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -2504,7 +2759,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:88c63be35e8e4c8566cecafd5cbf6075a19d8c10f50847a7369cdb9e189e05bc"
+  "docsHash": "sha256:9b3ebb032677716afdb72b60227a5376202f5d309e00237061deba7394d0803e"
 }
 ```
 
@@ -2742,6 +2997,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
     "SELECTION_CONFLICT",
     "STALE_REFERENCE",
     "UNSAFE_LEGACY_REFERENCE"
@@ -2767,6 +3023,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "倒角",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -2782,7 +3044,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:72f3b4c5c79c1d075b2386c49c6364a55eadbd724f7a97fe54296b650b6d3f1c"
+  "docsHash": "sha256:d280c970981ef0f9c0c24556f133e5ab74d73807e7578df92a77f3b54ca9b6fb"
 }
 ```
 
@@ -2893,7 +3155,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -2935,7 +3197,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Defaults count=3,angle=360,axis=Z,center=origin. Full circle excludes duplicate endpoint; partial angle includes both endpoints."
+    "Defaults count=3,angle=360,axis=Z,center=origin. Full circle excludes duplicate endpoint; partial angle includes both endpoints.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "circularPattern",
@@ -2963,7 +3226,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "count": 3,
+        "angle": 360,
+        "axis": "Z",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -2971,7 +3245,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -2992,6 +3267,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "环形阵列",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "spatial-operation",
     "placementSupported": true,
@@ -3006,7 +3287,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:cd828991ab8aca392d5a92e2f10969543c010212e6d8ec18985aa640f00f2f5c"
+  "docsHash": "sha256:2b9b5711e6e303b05e442936901f3f29e8d09b0446bacb7650ca0a1c8780079f"
 }
 ```
 
@@ -3201,7 +3482,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -3225,6 +3507,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "圆线弹簧",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -3240,7 +3528,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:233f68da33068de9cc827b6e931d929862de005d1311bce04267672588ddd340"
+  "docsHash": "sha256:2a461d71393b6ba3f7377bebc42e8607be2137acea6a4cb8eb7a9cdbffd6c4e3"
 }
 ```
 
@@ -3249,7 +3537,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 ```json
 {
   "id": "cone",
-  "version": "legacy-1",
+  "version": "1.0.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -3257,6 +3545,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "type": "number",
         "description": "Bottom radius (mm)",
         "minimum": 0,
+        "default": 10,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -3265,6 +3554,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "type": "number",
         "description": "Top radius (mm)",
         "minimum": 0,
+        "default": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -3302,7 +3592,10 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "displayPreferencesAffectGeometry": false,
     "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
-  "defaults": {},
+  "defaults": {
+    "radius1": 10,
+    "radius2": 0
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -3313,7 +3606,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. At least one radius >0. Defaults radius1=10,radius2=0.",
+  "coordinateConvention": "Full cone/frustum centered on Z; radius1 at Z=0, radius2 at Z=height. Defaults radius1=10, radius2=0 mm. Both radii nonnegative, at least one positive; equal positive radii make a cylinder. Explicit placement transforms this local geometry.",
   "title": "Cone/frustum along +Z",
   "category": "creation",
   "synonyms": [
@@ -3321,16 +3614,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "圆锥"
   ],
   "description": "Cone/frustum along +Z",
-  "schemaHash": "sha256:f82f48b4a6ed2ea3b87280c5ebe8d5545f26f6c03e5b6a6d469c45277cc946ce",
+  "schemaHash": "sha256:1c673bbaa73e72c464cfe53b906855bd80827a99634b5c7c0143081b0f753dc1",
   "apiCompatibility": [
-    "page-advisory"
+    "page-v2"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
-  "strictContract": false,
-  "v2Executable": false,
-  "contractStatus": "advisory",
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
   "outputSchema": {
     "type": "object",
     "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
@@ -3353,8 +3646,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
   ],
   "resultShapeTypes": [
-    "solid",
-    "compound (operation-dependent)"
+    "solid"
   ],
   "consumesInputs": false,
   "preservesInputs": false,
@@ -3368,7 +3660,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
     "At least one radius >0. Defaults radius1=10,radius2=0."
@@ -3382,7 +3674,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "normalExample": {
     "op": "cone",
@@ -3393,9 +3685,29 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "radius1": 10,
+        "radius2": 0,
+        "height": 20,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    },
+    {
+      "params": {
+        "radius1": 0,
+        "radius2": 0,
+        "height": 5
+      },
+      "errorCode": "PARAM_RANGE_INVALID",
+      "explanation": "At least one radius must be positive; validation applies after the existing defaults."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -3403,7 +3715,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -3418,12 +3731,20 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
   "verification": {
-    "contract": "not_migrated",
+    "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "圆锥",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -3437,8 +3758,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:6ec2cf9f5c0665c26adb2420056f4abcc39dd10a8d564d484e1f6967bb63eac8"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:48965764457a1e4a494b442115de93c6ea280da1b9ce9e43cfd72c6ad736349c"
 }
 ```
 
@@ -3691,7 +4012,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -3733,7 +4054,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Preserves original; defaults same as transform."
+    "Preserves original; defaults same as transform.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "copy",
@@ -3757,7 +4079,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "x": 10,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -3765,7 +4096,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -3786,6 +4118,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "复制",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "spatial-operation",
     "placementSupported": true,
@@ -3800,7 +4138,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:90ebf03f8e1f6cf3e413150cc29f96a2e1200601b2772d0067c46a9e5f062a36"
+  "docsHash": "sha256:900ef9585a14927fa148f3f20fd84a9264a3abf30170bc841fd5a7449d63cb1b"
 }
 ```
 
@@ -4068,7 +4406,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -4110,7 +4448,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Set closed:true only for a closed segment chain. Round requires radius; chamferedSquare needs sectionSize and sectionChamfer; ellipse needs unequal sectionWidth and sectionDepth. roundedRectangle sweeps a flat strip: sectionWidth across the strip, sectionDepth along the in-plane bend normal, and 0<sectionCornerRadius<min(width,depth)/2. Non-round sweep sections need an XY-planar path. Sections mode requires 2–24 ordered stations with explicit centerMm, normal, perpendicular widthDirection, widthMm and depthMm; each station is an elliptical plane section. It allows varying width/depth and plane orientation, but no closed loop or automatic shape inference. Crossing station planes or sharp turns can fail. loftDegree (integer 2–8, default 8) bounds surface degree; 2 can reduce interpolation overshoot. Always measure the resulting envelope because a valid solid can exceed the station bounds. Result must be one valid positive-volume solid."
+    "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Set closed:true only for a closed segment chain. Round requires radius; chamferedSquare needs sectionSize and sectionChamfer; ellipse needs unequal sectionWidth and sectionDepth. roundedRectangle sweeps a flat strip: sectionWidth across the strip, sectionDepth along the in-plane bend normal, and 0<sectionCornerRadius<min(width,depth)/2. Non-round sweep sections need an XY-planar path. Sections mode requires 2–24 ordered stations with explicit centerMm, normal, perpendicular widthDirection, widthMm and depthMm; each station is an elliptical plane section. It allows varying width/depth and plane orientation, but no closed loop or automatic shape inference. Crossing station planes or sharp turns can fail. loftDegree (integer 2–8, default 8) bounds surface degree; 2 can reduce interpolation overshoot. Always measure the resulting envelope because a valid solid can exceed the station bounds. Result must be one valid positive-volume solid.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "curveSweep",
@@ -4166,7 +4505,34 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "pathType": "arc",
+        "points": [
+          [
+            10,
+            0,
+            0
+          ],
+          [
+            7.071,
+            7.071,
+            0
+          ],
+          [
+            0,
+            10,
+            0
+          ]
+        ],
+        "radius": 1,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -4174,7 +4540,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -4195,6 +4562,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "曲线扫掠",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -4209,7 +4582,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:fa3a9ba299d9b760297cd43c1c616a810eb00473341b3528e41b497ab0724508"
+  "docsHash": "sha256:a32f00de1dfb328684353d02fb3df0874ae0282c6a8f7827419f578d07ff73db"
 }
 ```
 
@@ -4397,7 +4770,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -4439,7 +4812,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Single closed solid. Pick a point on the face; tangent frame uses projected world X or Y. Orthographic projection of reviewed polygonal contours, then actual normal offset. Reject boundaries, holes, seams, grazing, invalid offsets and breakthrough. No emboss/draft/multi-face wrap. Imported contour approximation is retained."
+    "Single closed solid. Pick a point on the face; tangent frame uses projected world X or Y. Orthographic projection of reviewed polygonal contours, then actual normal offset. Reject boundaries, holes, seams, grazing, invalid offsets and breakthrough. No emboss/draft/multi-face wrap. Imported contour approximation is retained.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "curvedLogo",
@@ -4511,7 +4885,40 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "faceId": 0,
+        "point": [
+          10,
+          0,
+          5
+        ],
+        "depth": 0.2,
+        "regions": [
+          {
+            "outer": [
+              [
+                -1,
+                -1
+              ],
+              [
+                1,
+                -1
+              ],
+              [
+                0,
+                1
+              ]
+            ]
+          }
+        ],
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -4519,7 +4926,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -4540,6 +4948,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "曲面 LOGO",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "legacy-only",
     "placementSupported": false,
@@ -4555,7 +4969,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:d43a12edd4e84788b34c0bad99b27a664c16e9580e5c86342baa18c41105a42f"
+  "docsHash": "sha256:ec30bf65cbf458c56bdaa370abd44a32d5ac39142204196c0dc3f5cd171ba677"
 }
 ```
 
@@ -4621,7 +5035,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -4663,7 +5077,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies."
+    "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "cut",
@@ -4685,7 +5100,15 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -4693,7 +5116,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -4714,6 +5138,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "相减",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -4729,7 +5159,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:6ff0db2975a2e70e5edb2aed97027585d5299844a6ef55bb080b9743b9784ea1"
+  "docsHash": "sha256:70773fbcd97879490b0a7156bd83e6879744367e13fd9dca36f42feb4a2cffce"
 }
 ```
 
@@ -4738,7 +5168,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 ```json
 {
   "id": "cylinder",
-  "version": "legacy-1",
+  "version": "1.0.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -4795,7 +5225,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Cylinder on +Z from origin",
+  "coordinateConvention": "Full cylinder centered on Z, base at [0,0,0], top at Z=height. radius is the cross-section radius, not diameter. Explicit placement transforms this local geometry.",
   "title": "Cylinder on +Z from origin",
   "category": "creation",
   "synonyms": [
@@ -4803,16 +5233,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "圆柱"
   ],
   "description": "Cylinder on +Z from origin",
-  "schemaHash": "sha256:2e55f61e79432303ebf9ef9d3a86f3b7a4e3123203a05e98e6a7f1b2db712ff0",
+  "schemaHash": "sha256:a220f2281b98d86c1c56c176c29af7d5c6a39f60edfb18e10495fd284df60b2e",
   "apiCompatibility": [
-    "page-advisory"
+    "page-v2"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
-  "strictContract": false,
-  "v2Executable": false,
-  "contractStatus": "advisory",
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
   "outputSchema": {
     "type": "object",
     "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
@@ -4835,8 +5265,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
   ],
   "resultShapeTypes": [
-    "solid",
-    "compound (operation-dependent)"
+    "solid"
   ],
   "consumesInputs": false,
   "preservesInputs": false,
@@ -4850,7 +5279,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
     "Cylinder on +Z from origin"
@@ -4863,7 +5292,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "normalExample": {
     "op": "cylinder",
@@ -4873,9 +5302,19 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "radius": 10,
+        "height": 20,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -4883,7 +5322,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -4898,12 +5338,20 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
   "verification": {
-    "contract": "not_migrated",
+    "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "圆柱",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -4917,8 +5365,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:8aadf0d27e291ad285c4c4222cf3b614e73e40c52d03f30fee32f2e31732b67e"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:0dea91c2f2bc3bfcfa4a67b9d4b8f856da5ced724aa288b8c0424d03e11e7d0a"
 }
 ```
 
@@ -5183,7 +5631,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -5207,6 +5656,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "平面拔模",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -5223,7 +5678,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:b2a99cb08c161318a3636ca2c8484860d9fedc509199f71d11e9c25915d08e8f"
+  "docsHash": "sha256:a05389b8af720f1befdcffb81ff694eeddb1f97db13d61a9fd0c1db391123c5c"
 }
 ```
 
@@ -5456,7 +5911,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -5479,6 +5935,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "受限拔模",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -5494,7 +5956,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:b58cf72903b82cbeb70d92e53d7248de1f6676675fef4c6d52843a3d8aec5779"
+  "docsHash": "sha256:94787aaafa0672447c14395f6c0313ccd59dc8d620ea820dbd2998b82eb23a25"
 }
 ```
 
@@ -5663,7 +6125,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -5686,6 +6149,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "提取指定面",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -5701,7 +6170,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:adfdd2e802fdbe7606047e34158b8ff0e5f18c1a100e0389b226f7349d0600fa"
+  "docsHash": "sha256:ac8bd2b89927fd14e84b914777465978aa66941b4b02be3ad28f8a6a0382fcf0"
 }
 ```
 
@@ -5855,7 +6324,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -5878,6 +6348,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "提取壳",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -5893,7 +6369,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:6ef923d99c52b8399588289cde9aa9c9f5812293b600439a5f96ad83796e434f"
+  "docsHash": "sha256:413c4ed472918606180d9306ad2138c8cd23beca03e67bbb3f391f5285e4ddde"
 }
 ```
 
@@ -5968,7 +6444,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -6010,7 +6486,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Use body.solidCount; default index=0."
+    "Use body.solidCount; default index=0.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "extractSolid",
@@ -6034,7 +6511,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "solidIndex": 0,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -6042,7 +6528,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -6063,6 +6550,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "提取实体",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -6078,7 +6571,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:87af7b6d97e0bf677e5dcbdda7ed89ab1362e84980b0fd31692f56227f5aae87"
+  "docsHash": "sha256:853ca57ec1207267815fa53d99b71c79dbd3d643313a4f24bc81e1179faeb060"
 }
 ```
 
@@ -6246,7 +6739,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -6288,7 +6781,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Rectangle/circle are centered profiles. Polygon points are plane coordinates. Profile defaults rectangle; plane XY. Rounded rectangle and arc also supported."
+    "Rectangle/circle are centered profiles. Polygon points are plane coordinates. Profile defaults rectangle; plane XY. Rounded rectangle and arc also supported.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "extrude",
@@ -6314,7 +6808,19 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "profile": "rectangle",
+        "width": 20,
+        "depth": 10,
+        "height": 5,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -6322,7 +6828,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -6343,6 +6850,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "拉伸",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -6357,7 +6870,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:aabcf101c7280e9a49d47f69fb43454ace6b78ea98fcab37daa6ebe9c192e5d1"
+  "docsHash": "sha256:fe39b3678df587b866e630197ebfcff2dc2a4c5655d343b0878c996d0a26821d"
 }
 ```
 
@@ -6436,7 +6949,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -6477,7 +6990,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "先选中一张面。all 提取包括内孔在内的全部边界；outer 明确只提取外环，不带孔。保留源模型，生成精确线框。单闭环可接参考轮廓拉伸/放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。"
+    "先选中一张面。all 提取包括内孔在内的全部边界；outer 明确只提取外环，不带孔。保留源模型，生成精确线框。单闭环可接参考轮廓拉伸/放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "faceBoundary",
@@ -6501,7 +7015,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "faceId": 0,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -6509,7 +7032,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -6530,6 +7054,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "提取面边界",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -6545,7 +7075,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:38ad5cba64945e94bf2c57f080202222da29849bc6cf9838b6e7223204d32334"
+  "docsHash": "sha256:478b11ef9ece16af66214907b154c0ae59986096c59c53d83f94d2f35028fd17"
 }
 ```
 
@@ -6626,7 +7156,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -6668,7 +7198,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Positive fuses outward material; negative cuts inward."
+    "Positive fuses outward material; negative cuts inward.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "faceExtrude",
@@ -6694,7 +7225,17 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "faceId": 0,
+        "height": 2,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -6702,7 +7243,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -6723,6 +7265,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "面上拉伸",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -6738,7 +7286,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:5d9cadd88660fa90cb7f8b75891680446a3af6da3c7021435b9e065073c7341c"
+  "docsHash": "sha256:fe801614c6717fd922080847d588aa76f8db1735ba0dd3854bd16eea56cfce48"
 }
 ```
 
@@ -6930,6 +7478,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
     "NO_MATERIAL_REMOVED"
   ],
   "recoveryActions": [
@@ -6954,6 +7503,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "锣槽",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -6970,7 +7525,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:461791ea2f49e2ae3bc3656cdf574d4ba64649f17c421da9a7790600e993b19b"
+  "docsHash": "sha256:f691d3068f3bfd6e316aad42fa0bf69f7be0f91a7f001223b24d4463213134c4"
 }
 ```
 
@@ -7217,6 +7772,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
     "SELECTION_CONFLICT",
     "STALE_REFERENCE",
     "UNSAFE_LEGACY_REFERENCE",
@@ -7243,6 +7799,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "面上打孔",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "target-face",
     "placementSupported": true,
@@ -7257,7 +7819,296 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:9f349e1b4d662ec45cfb732d8024204832524c13ac61e75030b655edc126b268"
+  "docsHash": "sha256:96a6058b85eb6634064e792b94ac7370df367ff760daa673c6606452f3ba8fee"
+}
+```
+
+## 工具 fillet · Round sharp edges, shared face edges, face boundaries or the whole solid
+
+```json
+{
+  "id": "fillet",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "radius": {
+        "type": "number",
+        "description": "Fillet radius (mm)",
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "edgeIds": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "description": "Zero-based topology index",
+          "minimum": 0,
+          "unit": "1",
+          "quantityKind": "index",
+          "quantizationPolicy": "none"
+        },
+        "minItems": 1,
+        "uniqueItems": true,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
+      },
+      "faceIds": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "description": "Zero-based topology index",
+          "minimum": 0,
+          "unit": "1",
+          "quantityKind": "index",
+          "quantizationPolicy": "none"
+        },
+        "minItems": 1,
+        "uniqueItems": true,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
+      },
+      "sharedFaces": {
+        "type": "boolean",
+        "description": "With at least two faceIds, process only their common sharp edges; omitted/false preserves historical face-boundary scope"
+      },
+      "allEdges": {
+        "type": "boolean",
+        "description": "Explicitly process every sharp edge of the body"
+      }
+    },
+    "required": [
+      "radius"
+    ],
+    "additionalProperties": false,
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      {
+        "required": [
+          "edgeIds"
+        ]
+      },
+      {
+        "required": [
+          "faceIds"
+        ]
+      },
+      {
+        "required": [
+          "allEdges"
+        ],
+        "properties": {
+          "allEdges": {
+            "const": true
+          }
+        }
+      }
+    ]
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": true,
+    "kind": "edge",
+    "location": "args.selectionToken",
+    "featureAddOnly": true,
+    "conflictsWith": [
+      "faceId",
+      "faceIds",
+      "edgeIds",
+      "allEdges"
+    ],
+    "phases": "Validate user params with phase=input and selectionToken, resolve against current snapshot, then validate complete params with phase=resolved."
+  },
+  "editRule": "On edit, patch edgeIds or faceIds selects that exact current topology scope and removes the other scope. Patch allEdges=true selects all body edges. Supplying multiple scopes in one patch conflicts. Amount is merged from existing params.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Choose exactly one scope: edgeIds, faceIds, or allEdges=true. For two or more faces use sharedFaces:true to round only shared edges. UI multi-face selection uses sharedFaces:true; one face selects its boundary including holes. Tangent seams, periodic seams and degenerate edges are excluded. Exact BRep p-curves determine surface normals. Failure reports target/failing edge IDs and commits nothing. For up to eight target edges, a failed radius can trigger bounded read-only trials of smaller radii; the error may report one sampled radius that produced a valid solid. It is not a maximum and is never silently applied. Convex corners remove material; concave corners add a blend inside the recess. getState().bodies[].blendReport returns processed/skipped edges.",
+  "title": "Round sharp edges, shared face edges, face boundaries or the whole solid",
+  "category": "modification",
+  "synonyms": [
+    "圆角",
+    "标准圆角",
+    "倒圆",
+    "半径",
+    "fillet"
+  ],
+  "description": "Round sharp edges, shared face edges, face boundaries or the whole solid",
+  "schemaHash": "sha256:6a30edc68970a527e9e6155563f5b79edfb5db35d7a984dd7e958f33f8ccc69b",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision.",
+    "Resolve topology against the current snapshot; do not reuse indices across revisions."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+  ],
+  "knownUnsupportedCases": [
+    "Choose exactly one scope: edgeIds, faceIds, or allEdges=true. For two or more faces use sharedFaces:true to round only shared edges. UI multi-face selection uses sharedFaces:true; one face selects its boundary including holes. Tangent seams, periodic seams and degenerate edges are excluded. Exact BRep p-curves determine surface normals. Failure reports target/failing edge IDs and commits nothing. For up to eight target edges, a failed radius can trigger bounded read-only trials of smaller radii; the error may report one sampled radius that produced a valid solid. It is not a maximum and is never silently applied. Convex corners remove material; concave corners add a blend inside the recess. getState().bodies[].blendReport returns processed/skipped edges."
+  ],
+  "minimalExample": {
+    "op": "fillet",
+    "params": {
+      "radius": 0.5,
+      "edgeIds": [
+        0
+      ]
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "fillet",
+    "params": {
+      "radius": 0.5,
+      "edgeIds": [
+        0
+      ]
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "radius": 0.5,
+        "edgeIds": [
+          0
+        ],
+        "allEdges": true
+      },
+      "errorCode": "SELECTION_CONFLICT",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "SELECTION_CONFLICT",
+    "STALE_REFERENCE",
+    "UNSAFE_LEGACY_REFERENCE"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "圆角",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:f65a2e9091de0cf853dbb1055d365c47d9e22b65f0258e24dda7fa158d2d3d2d"
 }
 ```
 
@@ -7361,7 +8212,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -7402,7 +8253,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Rectangular grid with consistent row/column correspondence, not unordered point-cloud reconstruction. Verifies point-to-face residuals. Output is one face, zero solids; thicken a selected face to obtain a solid."
+    "Rectangular grid with consistent row/column correspondence, not unordered point-cloud reconstruction. Verifies point-to-face residuals. Output is one face, zero solids; thicken a selected face to obtain a solid.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "fittedSurface",
@@ -7526,7 +8378,68 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "points": [
+          [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              5,
+              0,
+              0
+            ],
+            [
+              10,
+              0,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              5,
+              0
+            ],
+            [
+              5,
+              5,
+              0
+            ],
+            [
+              10,
+              5,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              10,
+              0
+            ],
+            [
+              5,
+              10,
+              0
+            ],
+            [
+              10,
+              10,
+              0
+            ]
+          ]
+        ],
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -7534,7 +8447,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -7555,6 +8469,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "拟合曲面",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -7569,7 +8489,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:6aa8e651ec25883f7fb57069f6342e316499fad043d09cbd2c6b0b63f51b452a"
+  "docsHash": "sha256:0d7509a9ca3cebdfa1ddfaceb28e80a108c2c6592db38a36f1472dea27c4c08d"
 }
 ```
 
@@ -7630,7 +8550,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -7672,7 +8592,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Preserves constituent solid boundaries and positions. UI explode creates separate extractSolid features in one undo transaction. Already-fused single solids cannot be ungrouped into their original components."
+    "Preserves constituent solid boundaries and positions. UI explode creates separate extractSolid features in one undo transaction. Already-fused single solids cannot be ungrouped into their original components.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "group",
@@ -7694,7 +8615,15 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -7702,7 +8631,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -7723,6 +8653,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "组合",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -7738,7 +8674,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:4d27db16905c0312f798ac230724b9363d79e87c65b644de82aaccec43a6d13c"
+  "docsHash": "sha256:920672e1615c0a4feaa22f201e3981039c9c5430b388ae60b1c4106032ac71c7"
 }
 ```
 
@@ -7921,7 +8857,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -7945,6 +8882,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "螺旋线",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -7960,7 +8903,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:79827c50453743f0637d7f7de381d0dce811a79d3eb576a8cb03ea99a8a204f2"
+  "docsHash": "sha256:0c0b80b483caddad1eafbc683a446b709d1ca68056b88ad8777936a6d5693653"
 }
 ```
 
@@ -8197,6 +9140,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
     "NO_MATERIAL_REMOVED"
   ],
   "recoveryActions": [
@@ -8222,6 +9166,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "打孔",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "tool-frame",
     "placementSupported": true,
@@ -8236,7 +9186,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:18354e0e2da6fc0e33b673cd75391a06672529757e4af574e5564e8c7c391474"
+  "docsHash": "sha256:d28ede3916c73f3515715bb4d70016e8a98b5a95aee6e61e7e491c83f502e201"
 }
 ```
 
@@ -8519,7 +9469,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -8542,6 +9493,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "孔向导",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "tool-frame",
     "placementSupported": true,
@@ -8556,7 +9513,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:9aaee10b3851489f1b360fff06eb652f13fbd9edb37bf767e465825d99e70ddb"
+  "docsHash": "sha256:a96a1461dd84a330389b01d970beb0bd0cec95df4aaaebedbf3098d3dc3521e0"
 }
 ```
 
@@ -8736,6 +9693,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
     "NO_MATERIAL_REMOVED"
   ],
   "recoveryActions": [
@@ -8760,6 +9718,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "内车",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -8776,7 +9740,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:284f26083cef592656b330e18c433e97abd59a8f1e50c450afb30dfb0c840615"
+  "docsHash": "sha256:61db3090242c2ffdbedd150fc9f12f9b6042c3637f6af05db810ba30a306af09"
 }
 ```
 
@@ -8842,7 +9806,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -8884,7 +9848,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "refs[0] is the explicit target. Optional keepTools preserves refs[1..] as separate original bodies. Each common is checked with adaptive exact-BRep volume integration: result volume must not exceed either input (tolerance 1e-7 mm³ + 1e-8 times the smaller input volume). A violation returns GEOMETRY_INVALID and preserves the prior model, even if BRepCheck reports valid. No automatic alternative Boolean is applied."
+    "refs[0] is the explicit target. Optional keepTools preserves refs[1..] as separate original bodies. Each common is checked with adaptive exact-BRep volume integration: result volume must not exceed either input (tolerance 1e-7 mm³ + 1e-8 times the smaller input volume). A violation returns GEOMETRY_INVALID and preserves the prior model, even if BRepCheck reports valid. No automatic alternative Boolean is applied.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "intersect",
@@ -8906,7 +9871,15 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -8914,7 +9887,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -8935,6 +9909,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "相交",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -8950,7 +9930,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:9b98427b976c58ced4ab7146aa362b74456479e3d9c3709ceec7748de539b07a"
+  "docsHash": "sha256:57ea26081e4dd1b0fd4ad9d489dd2a2f67f78d03c47501d513a546d0429da438"
 }
 ```
 
@@ -9043,7 +10023,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -9085,7 +10065,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Defaults count=3; at least one step nonzero."
+    "Defaults count=3; at least one step nonzero.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "linearPattern",
@@ -9111,7 +10092,17 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "count": 3,
+        "dx": 20,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -9119,7 +10110,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -9140,6 +10132,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "直线阵列",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "spatial-operation",
     "placementSupported": true,
@@ -9154,7 +10152,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:a07d1f0dbc380f1ad9a6f02b553a0844b82ddaef73a064bb040ff4006023734a"
+  "docsHash": "sha256:c7e239a8afe2bc7414670c6dbca1b0eb3096d6f47b4423cd73bdda919a02c78b"
 }
 ```
 
@@ -9291,7 +10289,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -9333,7 +10331,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Missing end dimensions use corresponding start dimensions."
+    "Missing end dimensions use corresponding start dimensions.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "loft",
@@ -9359,7 +10358,19 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "profile": "circle",
+        "radius": 5,
+        "endRadius": 3,
+        "height": 10,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -9367,7 +10378,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -9388,6 +10400,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "放样",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -9402,7 +10420,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:66c4f6d9f4fb01a403bd0257a04b5186e2b8430da1ffa92897fe2661e9e4d59d"
+  "docsHash": "sha256:ba67651607a891d3c04e6a2f952628f22cae2b1506805f7f797039d9cd8d464b"
 }
 ```
 
@@ -9633,7 +10651,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -9675,7 +10693,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. Reject boundary, seam, invalid geometry or stale face."
+    "New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. Reject boundary, seam, invalid geometry or stale face.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "logo",
@@ -9761,7 +10780,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "placementVersion": 2,
+        "faceId": 0,
+        "point": [
+          5,
+          5,
+          3
+        ],
+        "mode": "engrave",
+        "depth": 0.2,
+        "draftAngle": 0,
+        "regions": [
+          {
+            "outer": [
+              [
+                -1,
+                -1
+              ],
+              [
+                1,
+                -1
+              ],
+              [
+                0,
+                1
+              ]
+            ]
+          }
+        ],
+        "source": {
+          "kind": "reviewed-contours",
+          "reviewed": true
+        },
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -9769,7 +10828,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -9790,6 +10850,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "LOGO",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "target-face",
     "placementSupported": true,
@@ -9804,7 +10870,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:95e047d091e2511992860b7f8dc475d128c0f5bcbb0f5c7e588eec0314671c8d"
+  "docsHash": "sha256:5304bcbcc9818a4fbc12f21bb1512a260db7aea75d23c191333b83c6160018fa"
 }
 ```
 
@@ -9880,7 +10946,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -9922,7 +10988,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Default plane XY."
+    "Default plane XY.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "mirror",
@@ -9946,7 +11013,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "plane": "YZ",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -9954,7 +11030,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -9975,6 +11052,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "镜像",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "spatial-operation",
     "placementSupported": true,
@@ -9989,7 +11072,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:dbdd0e285a66ab00c7d8ea24b168b238346a82995db3570cf191c590bc711e40"
+  "docsHash": "sha256:a2839316e657f44c8f24bd28f404a0c19813c642937b7b55ebec272ee42648e9"
 }
 ```
 
@@ -10249,6 +11332,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
     "NO_MATERIAL_ADDED"
   ],
   "recoveryActions": [
@@ -10272,6 +11356,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "批量圆柱凸台",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "tool-frame",
     "placementSupported": true,
@@ -10286,7 +11376,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:c98287cf7a39680c9bf2afdf5487a688102a0b248d33d8a197e3454b38949085"
+  "docsHash": "sha256:a89dff05ffa5b0e42d74d3db781dd1cf4a738b630385e45d0009140f821126c2"
 }
 ```
 
@@ -10577,6 +11667,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
     "NO_MATERIAL_REMOVED"
   ],
   "recoveryActions": [
@@ -10602,6 +11693,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "多位置打孔",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "tool-frame",
     "placementSupported": true,
@@ -10616,7 +11713,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:53697c4e382da867fa4c1594ddcad779f1f53ae262106644330799b109de489e"
+  "docsHash": "sha256:b9a49ed8ef6ce20ab3821fb879da9af35e7a08bd991130aeb56ca71980acdf4d"
 }
 ```
 
@@ -10921,6 +12018,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
     "NO_MATERIAL_REMOVED"
   ],
   "recoveryActions": [
@@ -10944,6 +12042,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "批量矩形凹槽",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "tool-frame",
     "placementSupported": true,
@@ -10958,7 +12062,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:7f80a6e67b90360ccbb4db7f23b8f76528205aa3dacbbc2be155a81efd73b337"
+  "docsHash": "sha256:1419c1d8546e47f718d33302c605ea2413752d39e4056254ae1ee3b386722d19"
 }
 ```
 
@@ -11126,7 +12230,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -11150,6 +12255,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "实体偏置",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -11166,7 +12277,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:b0e81e4cd94f76496b76baade6db3364c650153cb1ce62acd7d6d14be39dd572"
+  "docsHash": "sha256:61cae61178fd821cd2cec1f166cb5dce5e5a1caee66c4958f515015236a3adc5"
 }
 ```
 
@@ -11334,7 +12445,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -11358,6 +12470,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "偏置面",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -11374,7 +12492,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:c6daee9ac1bb81c8ee560a8299472116b0e199cd3848e5071ab65251ca846f5a"
+  "docsHash": "sha256:ab5d356c0119bd017bb2fc89d8f403e83f81d4cb70df3ae1a1674797865be548"
 }
 ```
 
@@ -11554,6 +12672,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
     "NO_MATERIAL_REMOVED"
   ],
   "recoveryActions": [
@@ -11578,6 +12697,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "外车",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -11594,7 +12719,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:ca2558ddf4a0f8b3c0235df6e077545e1697e796e2ff7d079051bbed65bf09e5"
+  "docsHash": "sha256:cd4388c46dedab38ab218b35239b5613fd1f452fc09cf00accf006a199cb6d99"
 }
 ```
 
@@ -11670,7 +12795,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -11711,7 +12836,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。"
+    "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "planeSection",
@@ -11737,7 +12863,17 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "plane": "XY",
+        "offset": 1,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -11745,7 +12881,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -11766,6 +12903,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "提取真实截面",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "spatial-operation",
     "placementSupported": true,
@@ -11780,7 +12923,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:b7be72460b20f39598393db1a9d89d0bece192898db6433444837016af362f23"
+  "docsHash": "sha256:66f7cac68c72ace38027640a915c7ab55479c8cb07bd9107b6d61c7ac3e6a1e0"
 }
 ```
 
@@ -12622,6 +13765,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
     "PROFILE_CONSTRAINT_INVALID",
     "PROFILE_CONSTRAINT_UNSUPPORTED",
     "PROFILE_CONSTRAINT_LIMIT",
@@ -12652,6 +13796,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "约束尺寸",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -12668,7 +13818,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:03c09530f2eba32fc46c347b9935b4c9f3696a999d93d962d6abbc16e6fb891e"
+  "docsHash": "sha256:e5bc5282a47ed6f35a39f0cdc4ae8d0bc9f59ad6cc158573855b51841c5c678f"
 }
 ```
 
@@ -12903,7 +14053,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -12926,6 +14077,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "轮廓拉伸 / 加工",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -12942,7 +14099,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:54d73e9720fc57396f23c5b206046d8ff6c8c10c59a36323a84da8692d273e83"
+  "docsHash": "sha256:a4c23708f3203e3ecf24c15db7b408b3a6f3feb942b116c123a3e0505f39ccb0"
 }
 ```
 
@@ -13124,6 +14281,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
     "PROFILE_LOFT_INVALID"
   ],
   "recoveryActions": [
@@ -13148,6 +14306,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "轮廓放样",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -13164,7 +14328,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:4f7a3d69b90d376edeb27f712797da7a66b9b45ea1274f22362bc95ca2532e00"
+  "docsHash": "sha256:8030c568b6754da28b46b635a744293643f9232ccb877e68c76b1fa3ff8d415e"
 }
 ```
 
@@ -13358,7 +14522,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -13381,6 +14546,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "等距偏移 / 边框",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -13396,7 +14567,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:781e2d09af2f0ea79d2b4f4fdce1c5a5330c84b02943f2c09ee51e1c2efe6efa"
+  "docsHash": "sha256:72aca9cbc9c59451acfd77a4416e8555b9215981cbf285884e7cc1f05a85a23d"
 }
 ```
 
@@ -13562,7 +14733,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -13585,6 +14757,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "修复轮廓",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -13601,7 +14779,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:c05d23386530307eae9d33a71c395a4e3bc39b0860a98d486360cb19999a67a9"
+  "docsHash": "sha256:0fda6cf4cc72fe3c1450cd8bafcaed5ae449406e739156950a4033129fc3a259"
 }
 ```
 
@@ -13849,6 +15027,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
     "PROFILE_REVOLVE_INVALID"
   ],
   "recoveryActions": [
@@ -13873,6 +15052,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "轮廓旋转",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -13889,7 +15074,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:b2b45dfe075e1bc7ec38d8c98e80bc6541595c2bc3e559afee01e74375f60799"
+  "docsHash": "sha256:2e90bae2e6488101fdf156a44249e25f14629492e69c1c7b9178e414fe282930"
 }
 ```
 
@@ -14084,6 +15269,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
     "PROFILE_SWEEP_INVALID"
   ],
   "recoveryActions": [
@@ -14108,6 +15294,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "轮廓扫掠",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -14124,7 +15316,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:6f71050c74da81d48d594496b12b9d49067f2849e40f3b8c1004c74698e80c17"
+  "docsHash": "sha256:a072fec98d6d885a4be4952b17edb490f3c2448cf601a45127e95c6e62245e4a"
 }
 ```
 
@@ -17108,7 +18300,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -17150,7 +18342,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code."
+    "Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "quickModel",
@@ -17170,7 +18363,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "tube",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -17178,7 +18380,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -21563,6 +22766,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "快捷模型",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -21577,7 +22786,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:4cf6ee27bfdedda22432d5843b73d0b21c585fbea42c4d1ed1d02fd7784ea56e"
+  "docsHash": "sha256:825930374a84db7efb9b61069d5936067b859aa26ee8584e40a42399566d48d7"
 }
 ```
 
@@ -21665,7 +22874,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -21707,7 +22916,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "选择一个闭合平面线框或单张平面面。直接复用精确圆弧/样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。"
+    "选择一个闭合平面线框或单张平面面。直接复用精确圆弧/样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "referenceExtrude",
@@ -21741,7 +22951,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "direction": [
+          0,
+          0,
+          1
+        ],
+        "distance": 3,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -21749,7 +22973,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -21770,6 +22995,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "参考轮廓拉伸",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "spatial-operation",
     "placementSupported": true,
@@ -21784,7 +23015,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:3b23a10280b3ca83ca8f12e02d47438419c16604304e928b9070747f76b658bd"
+  "docsHash": "sha256:ec68b0255d10768ee86ee6977a6c4cc5dbbca4ab2714cea5b7eed2efb8cc7725"
 }
 ```
 
@@ -21851,7 +23082,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -21893,7 +23124,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。"
+    "按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "referenceLoft",
@@ -21919,7 +23151,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "ruled": false,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -21927,7 +23168,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -21948,6 +23190,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "参考截面放样",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -21963,7 +23211,198 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:28f24c0f03e8cc1ba954005f6c7e6c19950e784e0b36d8e6d2c08ed8f01bce99"
+  "docsHash": "sha256:e8ffaf8dba7759e40280fb4852bae7baf9eea10bdb1e980a36c752ec5e588b1d"
+}
+```
+
+## 工具 refineShape · Refine same-domain faces and remove redundant splitter edges
+
+```json
+{
+  "id": "refineShape",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false,
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 清理一个封闭实体上同一平面或曲面的多余分割线。无需参数；固定线性公差 1e-7 mm、角公差 1e-7 rad，不增大公差、不近似重建曲面。最多 400 面、2000 边。检查 BRep、实体数、体积、包围盒及双向材料差；来源隔离复制。没有可清理的边面时返回 NO_CHANGE，不增加历史。替换当前对象，原始上游保留；可预览、撤销。边面编号会改变，后续必须重新 queryGeometry。不是删孔、补洞、去特征或圆角。读取 getState().bodies[].refineReport 的前后面边数与验证结果。",
+  "title": "Refine same-domain faces and remove redundant splitter edges",
+  "category": "modification",
+  "synonyms": [
+    "清理分割线",
+    "refineShape"
+  ],
+  "description": "Refine same-domain faces and remove redundant splitter edges",
+  "schemaHash": "sha256:a55cefb5c3ec65fe20a9c472acde78d72d75aab536bbb6deef966fa45a9622e4",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+  ],
+  "knownUnsupportedCases": [
+    "清理一个封闭实体上同一平面或曲面的多余分割线。无需参数；固定线性公差 1e-7 mm、角公差 1e-7 rad，不增大公差、不近似重建曲面。最多 400 面、2000 边。检查 BRep、实体数、体积、包围盒及双向材料差；来源隔离复制。没有可清理的边面时返回 NO_CHANGE，不增加历史。替换当前对象，原始上游保留；可预览、撤销。边面编号会改变，后续必须重新 queryGeometry。不是删孔、补洞、去特征或圆角。读取 getState().bodies[].refineReport 的前后面边数与验证结果。"
+  ],
+  "minimalExample": {
+    "op": "refineShape",
+    "params": {},
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "refineShape",
+    "params": {},
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "NO_CHANGE",
+    "REFINE_LIMIT",
+    "REFINE_UNSUPPORTED",
+    "REFINE_GEOMETRY_CHANGED",
+    "REFINE_FAILED"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTools",
+    "queryGeometry",
+    "run",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "清理分割线",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "docs": "api.refine",
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:de342cde97de2e6bde6c922b621a9478db45e4752445ee5373e4c6e7326c2384"
 }
 ```
 
@@ -22138,7 +23577,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -22180,7 +23619,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "XY revolves about global Y; XZ/YZ about global Z. Defaults angle=360,offset=10; avoid crossing rotation axis."
+    "XY revolves about global Y; XZ/YZ about global Z. Defaults angle=360,offset=10; avoid crossing rotation axis.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "revolve",
@@ -22208,7 +23648,20 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "profile": "rectangle",
+        "width": 2,
+        "depth": 3,
+        "offset": 10,
+        "angle": 360,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -22216,7 +23669,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -22237,6 +23691,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "旋转成型",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -22251,27 +23711,612 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:8870c8ae81b150063586148810912a2510365e5d85fc9c0c0cd90904bdee39eb"
+  "docsHash": "sha256:1b8af9c8c30e303e30927ae2b6111057f4c8e7d608d668377bc0d595849f03e8"
 }
 ```
 
-## 工具 rounding · 圆角 / Round selected edges
+## 工具 round · 圆润 / Round
+
+```json
+{
+  "id": "round",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "edgeIds": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "description": "Zero-based topology index",
+          "minimum": 0,
+          "unit": "1",
+          "quantityKind": "index",
+          "quantizationPolicy": "none"
+        },
+        "minItems": 1,
+        "maxItems": 32,
+        "uniqueItems": true,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
+      },
+      "mode": {
+        "type": "string",
+        "description": "Automatic recognition or explicit treatment",
+        "enum": [
+          "auto",
+          "edge",
+          "end"
+        ],
+        "default": "auto"
+      },
+      "strength": {
+        "type": "number",
+        "minimum": 0.1,
+        "maximum": 1,
+        "default": 0.5
+      },
+      "radiusMm": {
+        "type": "number",
+        "description": "Optional exact edge radius; edge mode only (mm)",
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "depthMm": {
+        "type": "number",
+        "description": "Optional end rebuild depth (mm)",
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "axis": {
+        "type": "string",
+        "description": "Global axis",
+        "enum": [
+          "X",
+          "Y",
+          "Z"
+        ]
+      },
+      "profileAxis": {
+        "type": "string",
+        "description": "Global axis",
+        "enum": [
+          "X",
+          "Y",
+          "Z"
+        ]
+      },
+      "direction": {
+        "type": "integer",
+        "enum": [
+          1,
+          -1
+        ],
+        "unit": "1",
+        "quantityKind": "direction",
+        "quantizationPolicy": "none"
+      },
+      "directionEdgeId": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "required": [
+      "edgeIds"
+    ],
+    "additionalProperties": false,
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {
+    "mode": "auto",
+    "strength": 0.5
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Unified rounding entrance. mode auto defaults to one geometry-based decision: elongated principal-axis body with selection wholly near its extreme end uses measured half-section end reconstruction, otherwise standard edge fillet. No solver fallback and no radius search; one candidate per preview. strength defaults .5 for edges, end depth is measured and recommended. Optional explicit mode, radiusMm or depthMm, axis/direction/profileAxis and a straight principal-axis directionEdgeId on the same source resolve ambiguity. Only LINE/CIRCLE symmetric stable end sections are supported. End operation replaces the whole declared end and may add/remove material. Existing profile creases up to 1 degree are reported; new body join must meet sampled 0.1 degrees. A recommended depth interval is NOT a guarantee of feasibility. Read roundReport in preview.scope/getState.previewScope and getState.bodies[].roundReport: mode, resolved parameters, control bounds, world scope, endRoundingReport or blendReport, attemptCount. Dragging changes a draft depth; release previews, then explicitly commit. Failure preserves the source; no silent switch between ends and edges.",
+  "title": "圆润 / Round",
+  "category": "modification",
+  "synonyms": [
+    "圆润",
+    "自动圆润",
+    "磨边",
+    "圆头",
+    "round",
+    "smooth selected edge"
+  ],
+  "description": "圆润 / Round",
+  "schemaHash": "sha256:d283dae9e03583c586118c6a417241ffb4631e5db0634371d201d87c481d0980",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      },
+      "roundReport": {
+        "type": "object",
+        "description": "Read preview.scope or bodies[].roundReport: chosen mode, resolved exact parameters, control, world scope, attemptCount:1, endRoundingReport or blendReport."
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+  ],
+  "knownUnsupportedCases": [
+    "Unified rounding entrance. mode auto defaults to one geometry-based decision: elongated principal-axis body with selection wholly near its extreme end uses measured half-section end reconstruction, otherwise standard edge fillet. No solver fallback and no radius search; one candidate per preview. strength defaults .5 for edges, end depth is measured and recommended. Optional explicit mode, radiusMm or depthMm, axis/direction/profileAxis and a straight principal-axis directionEdgeId on the same source resolve ambiguity. Only LINE/CIRCLE symmetric stable end sections are supported. End operation replaces the whole declared end and may add/remove material. Existing profile creases up to 1 degree are reported; new body join must meet sampled 0.1 degrees. A recommended depth interval is NOT a guarantee of feasibility. Read roundReport in preview.scope/getState.previewScope and getState.bodies[].roundReport: mode, resolved parameters, control bounds, world scope, endRoundingReport or blendReport, attemptCount. Dragging changes a draft depth; release previews, then explicitly commit. Failure preserves the source; no silent switch between ends and edges."
+  ],
+  "minimalExample": {
+    "op": "round",
+    "params": {
+      "edgeIds": [
+        0
+      ]
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "round",
+    "params": {
+      "edgeIds": [
+        0
+      ]
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "edgeIds": [
+          0
+        ],
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "ROUND_SELECTION_AMBIGUOUS",
+    "END_ROUNDING_UNSUPPORTED",
+    "KERNEL_BUILD_FAILED",
+    "NO_CHANGE",
+    "STALE_REFERENCE"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "圆润",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:a6ed8a1c6380c0b680280f931c12f5bd4dca789e36ae218f45080e1747544e28"
+}
+```
+
+## 工具 roundEnd · 端头圆润 / Round free end
+
+```json
+{
+  "id": "roundEnd",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "edgeIds": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "description": "Zero-based topology index",
+          "minimum": 0,
+          "unit": "1",
+          "quantityKind": "index",
+          "quantizationPolicy": "none"
+        },
+        "minItems": 1,
+        "maxItems": 32,
+        "uniqueItems": true,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
+      },
+      "axis": {
+        "type": "string",
+        "description": "Global axis",
+        "enum": [
+          "X",
+          "Y",
+          "Z"
+        ],
+        "default": "Y"
+      },
+      "direction": {
+        "type": "integer",
+        "enum": [
+          1,
+          -1
+        ],
+        "description": "End direction along the world axis",
+        "default": 1,
+        "unit": "1",
+        "quantityKind": "direction",
+        "quantizationPolicy": "none"
+      },
+      "profileAxis": {
+        "type": "string",
+        "description": "Cross-section thickness / rotation axis; different from axis",
+        "enum": [
+          "X",
+          "Y",
+          "Z"
+        ],
+        "default": "Z"
+      },
+      "depthMm": {
+        "type": "number",
+        "description": "Distance from the actual extreme end back to the connection section (mm)",
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      }
+    },
+    "required": [
+      "edgeIds",
+      "depthMm"
+    ],
+    "additionalProperties": false,
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {
+    "axis": "Y",
+    "direction": 1,
+    "profileAxis": "Z"
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Rebuild the whole end containing every selected edge by revolving its actual half section 180 degrees. Explicit axis/direction and profileAxis; no fixed R. Supports a single solid with a symmetric, stable straight LINE/CIRCLE section and no profile corner over 1 degree; ellipse and spline sections are unsupported. Preserves smaller inherited profile creases and reports them; not a whole-body G1/G2 claim. New body connection must meet 0.1 degrees; sampled position tolerance 1e-5 mm. Replaces material only inside the declared end region, may add and remove material, never extends overall length. Use preview.start/commit to inspect the full changed end. getState bodies[].endRoundingReport reports section checks, source/head/join angles, residual seams, target displacement, length and separate material changes. Wrong target, taper, asymmetry, insufficient depth, already rounded or invalid solid rejects atomically. World principal axes only; edit rebuilds from the original upstream body.",
+  "title": "端头圆润 / Round free end",
+  "category": "modification",
+  "synonyms": [
+    "端头圆润",
+    "针尖",
+    "圆头",
+    "自由端",
+    "round end",
+    "revolve cap"
+  ],
+  "description": "端头圆润 / Round free end",
+  "schemaHash": "sha256:8544cb08d7c23f33afbb7f1bf2c4156b103680f709cbeafa4444b37864785f39",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      },
+      "endRoundingReport": {
+        "type": "object",
+        "description": "status rounded or rounded-with-inherited-creases; sourceProfileAngleDeg, maxJoinAngleDeg, maxHeadAngleDeg, residualSeams, depthMm, axis, direction, profileAxis, section dimensions/deviations, separate added/removed volumes, lengthChangeMm and targetDisplacementsMm."
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+  ],
+  "knownUnsupportedCases": [
+    "Rebuild the whole end containing every selected edge by revolving its actual half section 180 degrees. Explicit axis/direction and profileAxis; no fixed R. Supports a single solid with a symmetric, stable straight LINE/CIRCLE section and no profile corner over 1 degree; ellipse and spline sections are unsupported. Preserves smaller inherited profile creases and reports them; not a whole-body G1/G2 claim. New body connection must meet 0.1 degrees; sampled position tolerance 1e-5 mm. Replaces material only inside the declared end region, may add and remove material, never extends overall length. Use preview.start/commit to inspect the full changed end. getState bodies[].endRoundingReport reports section checks, source/head/join angles, residual seams, target displacement, length and separate material changes. Wrong target, taper, asymmetry, insufficient depth, already rounded or invalid solid rejects atomically. World principal axes only; edit rebuilds from the original upstream body."
+  ],
+  "minimalExample": {
+    "op": "roundEnd",
+    "params": {
+      "axis": "Y",
+      "direction": 1,
+      "profileAxis": "Z",
+      "depthMm": 2,
+      "edgeIds": [
+        0
+      ]
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "roundEnd",
+    "params": {
+      "axis": "Y",
+      "direction": 1,
+      "profileAxis": "Z",
+      "depthMm": 2,
+      "edgeIds": [
+        0
+      ]
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "axis": "Y",
+        "direction": 1,
+        "profileAxis": "Z",
+        "depthMm": 2,
+        "edgeIds": [
+          0
+        ],
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "END_ROUNDING_UNSUPPORTED",
+    "KERNEL_BUILD_FAILED",
+    "NO_CHANGE"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "端头圆润",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:ba357902b2f88c658fce1424e7272e73c92734f5282434d0cde14a01e8d820c0"
+}
+```
+
+## 工具 rounding · 自动打磨 / Smooth selected sharp edges
 
 ```json
 {
   "id": "rounding",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "inputSchema": {
     "type": "object",
     "properties": {
       "specVersion": {
         "type": "integer",
-        "const": 2
+        "const": 3
       },
-      "sizeMm": {
+      "strength": {
         "type": "number",
-        "description": "Requested local rounding size; exact-radius candidates use this radius (mm)",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "maximum": 1,
+        "default": 1,
+        "unit": "1",
+        "quantityKind": "ratio",
+        "quantizationPolicy": "none",
+        "description": "Optional grinding strength as a dimensionless fraction of the locally feasible smoothing effect; defaults to 1. This is not a radius or a length."
       },
       "scope": {
         "type": "object",
@@ -22307,7 +24352,6 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     },
     "required": [
       "specVersion",
-      "sizeMm",
       "scope"
     ],
     "additionalProperties": false,
@@ -22331,28 +24375,312 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "displayPreferencesAffectGeometry": false,
     "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
-  "defaults": {},
+  "defaults": {
+    "strength": 1
+  },
   "selectionTokenSupport": {
     "supported": false
   },
-  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "editRule": "Patch merges into the saved specVersion without converting history: v3 edits strength; v2 edits sizeMm; v1 retains its mode-specific fields. A changed scope must be resolved on the current upstream source and previewed again. Complete merged params are validated against the matching historical/current schema.",
   "units": {
     "length": "mm",
     "angle": "degrees",
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Select current sharp edges, set sizeMm, preview the actual affected region, then commit the validated preview. Algorithms and connected-edge resolution are internal. No automatic shrinking of the requested size. The report distinguishes requested size, measured dimensions, exact-radius results and adaptive transitions. Failed candidates leave the source unchanged. Historical specVersion:1 features and the legacy fillet API retain their exact original semantics; new operations use this v2 contract.",
-  "title": "圆角 / Round selected edges",
+  "historicalInputSchemas": {
+    "1": {
+      "type": "object",
+      "properties": {
+        "specVersion": {
+          "type": "integer",
+          "const": 1
+        },
+        "mode": {
+          "type": "string",
+          "description": "Rounding mode",
+          "enum": [
+            "constant",
+            "variable",
+            "width"
+          ]
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "description": "Target scope",
+              "enum": [
+                "edges",
+                "face-boundaries",
+                "shared-faces",
+                "body"
+              ]
+            },
+            "edgeIds": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "description": "Zero-based topology index",
+                "minimum": 0,
+                "unit": "1",
+                "quantityKind": "index",
+                "quantizationPolicy": "none"
+              },
+              "minItems": 1,
+              "uniqueItems": true,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            },
+            "faceIds": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "description": "Zero-based topology index",
+                "minimum": 0,
+                "unit": "1",
+                "quantityKind": "index",
+                "quantizationPolicy": "none"
+              },
+              "minItems": 1,
+              "uniqueItems": true,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            },
+            "faceAIds": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "description": "Zero-based topology index",
+                "minimum": 0
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "faceBIds": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "description": "Zero-based topology index",
+                "minimum": 0
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "excludeEdgeIds": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "description": "Zero-based topology index",
+                "minimum": 0
+              },
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "Current source edge IDs excluded from this scope and any tangent propagation"
+            }
+          }
+        },
+        "propagation": {
+          "type": "string",
+          "description": "Tangent chain selection",
+          "enum": [
+            "selected-only",
+            "tangent-chain"
+          ]
+        },
+        "radiusMm": {
+          "type": "number",
+          "description": "Exact rolling-ball radius for constant mode (mm)",
+          "exclusiveMinimum": 0,
+          "unit": "mm",
+          "quantityKind": "length",
+          "quantizationPolicy": "none"
+        },
+        "laws": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "chainId",
+              "direction",
+              "interpolation",
+              "stations"
+            ],
+            "properties": {
+              "chainId": {
+                "type": "string",
+                "minLength": 6,
+                "maxLength": 256,
+                "description": "One edge: edge:<id>; ordered collinear chain: edges:<id1>,<id2>,..."
+              },
+              "direction": {
+                "type": "string",
+                "description": "Directed source edge",
+                "enum": [
+                  "forward",
+                  "reverse"
+                ],
+                "unit": "1",
+                "quantityKind": "direction",
+                "quantizationPolicy": "none"
+              },
+              "interpolation": {
+                "type": "string",
+                "description": "Radius interpolation",
+                "enum": [
+                  "linear"
+                ]
+              },
+              "stations": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 16,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "s",
+                    "radiusMm"
+                  ],
+                  "properties": {
+                    "s": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Normalized cumulative source arc length across the full ordered chain"
+                    },
+                    "radiusMm": {
+                      "type": "number",
+                      "description": "Requested radius at station (mm)",
+                      "exclusiveMinimum": 0,
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "widthAMm": {
+          "type": "number",
+          "description": "Width along support A in the local normal section (mm)",
+          "exclusiveMinimum": 0
+        },
+        "widthBMm": {
+          "type": "number",
+          "description": "Width along support B in the local normal section (mm)",
+          "exclusiveMinimum": 0
+        },
+        "boundaryRequirement": {
+          "type": "string",
+          "description": "End boundary validation",
+          "enum": [
+            "standard"
+          ]
+        },
+        "endpoints": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "defaultMode"
+          ],
+          "properties": {
+            "defaultMode": {
+              "type": "string",
+              "description": "Open-chain termination",
+              "enum": [
+                "natural"
+              ]
+            }
+          }
+        }
+      },
+      "required": [
+        "specVersion",
+        "mode",
+        "scope",
+        "propagation",
+        "boundaryRequirement",
+        "endpoints"
+      ],
+      "additionalProperties": false
+    },
+    "2": {
+      "type": "object",
+      "properties": {
+        "specVersion": {
+          "type": "integer",
+          "const": 2
+        },
+        "sizeMm": {
+          "type": "number",
+          "description": "Requested local rounding scale; exact-radius candidates use this as radius; supported adaptive candidates report their measured scale range (mm)",
+          "exclusiveMinimum": 0
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "edgeIds"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "edges"
+            },
+            "edgeIds": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "description": "Zero-based topology index",
+                "minimum": 0,
+                "unit": "1",
+                "quantityKind": "index",
+                "quantizationPolicy": "none"
+              },
+              "minItems": 1,
+              "maxItems": 64,
+              "uniqueItems": true,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            }
+          }
+        }
+      },
+      "required": [
+        "specVersion",
+        "sizeMm",
+        "scope"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Select current source edges and preview automatic local grinding. No sizeMm or exact-radius target is required. Optional strength is a dimensionless fraction in (0,1], default 1; the solver derives local dimensions from the source geometry. Related edges and support faces may follow only within the reported source-derived local region. The preview and committed roundingReport.region expose sourceBodyId, requestedEdgeIds, expandedEdgeIds and affectedFaceIds; verify this explicit expansion before committing the same preview. Every generated contact, inter-patch and terminal boundary must meet the original strict G0/G1, material and locality checks. Multiple smooth curved patches are permitted; valid topology alone is not acceptance. Unsupported geometry or failed evidence leaves the source unchanged. Historical specVersion:1 and specVersion:2 features retain their original parameters and solver semantics; do not reinterpret them as automatic grinding.",
+  "title": "自动打磨 / Smooth selected sharp edges",
   "category": "modification",
   "synonyms": [
-    "圆角",
+    "自动打磨",
+    "打磨",
     "圆润",
-    "R角",
-    "fillet"
+    "去利角",
+    "smooth sharp edges"
   ],
-  "description": "圆角 / Round selected edges",
-  "schemaHash": "sha256:caa86992df2d4c11cdf3eebfa5ee0fada43aaccb0a89605cf9ebfa85d7e01818",
+  "description": "自动打磨 / Smooth selected sharp edges",
+  "schemaHash": "sha256:27b0cae604964c046d05678b5852a808917eb109a12826cf517c229dbdc0065a",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -22374,6 +24702,63 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
           "failed",
           "unknown"
         ]
+      },
+      "roundingReport": {
+        "type": "object",
+        "description": "Preview receipt, getState().previewScope and committed body roundingReport expose the same report. v3 requires region; historical v1/v2 keep their original fields.",
+        "properties": {
+          "specVersion": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3
+            ]
+          },
+          "region": {
+            "type": "object",
+            "required": [
+              "sourceBodyId",
+              "requestedEdgeIds",
+              "expandedEdgeIds",
+              "affectedFaceIds"
+            ],
+            "properties": {
+              "sourceBodyId": {
+                "type": "string",
+                "minLength": 1,
+                "description": "The same current upstream source body as refs[0]."
+              },
+              "requestedEdgeIds": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Topology IDs on sourceBodyId; never result-body indices."
+              },
+              "expandedEdgeIds": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Topology IDs on sourceBodyId; never result-body indices."
+              },
+              "affectedFaceIds": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Topology IDs on sourceBodyId; never result-body indices."
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -22382,7 +24767,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Resolve topology against the current snapshot; do not reuse indices across revisions."
   ],
   "postconditions": [
-    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit.",
+    "Accepted automatic grinding exposes roundingReport.region with sourceBodyId, requestedEdgeIds, expandedEdgeIds and affectedFaceIds, the effective strength and measured local dimensions, candidate attempts, and every contact/inter-patch/terminal boundary plus material/locality evidence. Historical v1/v2 reports retain their semantics. Failed quality checks preserve the source and do not commit."
   ],
   "resultShapeTypes": [
     "solid",
@@ -22403,13 +24789,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "Select current sharp edges, set sizeMm, preview the actual affected region, then commit the validated preview. Algorithms and connected-edge resolution are internal. No automatic shrinking of the requested size. The report distinguishes requested size, measured dimensions, exact-radius results and adaptive transitions. Failed candidates leave the source unchanged. Historical specVersion:1 features and the legacy fillet API retain their exact original semantics; new operations use this v2 contract."
+    "Select current source edges and preview automatic local grinding. No sizeMm or exact-radius target is required. Optional strength is a dimensionless fraction in (0,1], default 1; the solver derives local dimensions from the source geometry. Related edges and support faces may follow only within the reported source-derived local region. The preview and committed roundingReport.region expose sourceBodyId, requestedEdgeIds, expandedEdgeIds and affectedFaceIds; verify this explicit expansion before committing the same preview. Every generated contact, inter-patch and terminal boundary must meet the original strict G0/G1, material and locality checks. Multiple smooth curved patches are permitted; valid topology alone is not acceptance. Unsupported geometry or failed evidence leaves the source unchanged. Historical specVersion:1 and specVersion:2 features retain their original parameters and solver semantics; do not reinterpret them as automatic grinding."
   ],
   "minimalExample": {
     "op": "rounding",
     "params": {
-      "specVersion": 2,
-      "sizeMm": 0.5,
+      "specVersion": 3,
       "scope": {
         "kind": "edges",
         "edgeIds": [
@@ -22426,14 +24811,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "normalExample": {
     "op": "rounding",
     "params": {
-      "specVersion": 2,
-      "sizeMm": 0.5,
+      "specVersion": 3,
       "scope": {
         "kind": "edges",
         "edgeIds": [
           0
         ]
-      }
+      },
+      "strength": 0.75
     },
     "refs": [
       "<current-bodyId-1>"
@@ -22444,8 +24829,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "specVersion": 2,
-        "sizeMm": 0.5,
+        "specVersion": 3,
         "scope": {
           "kind": "edges",
           "edgeIds": [
@@ -22466,6 +24850,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
     "SELECTION_CONFLICT",
     "STALE_REFERENCE",
     "UNSAFE_LEGACY_REFERENCE",
@@ -22494,7 +24879,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
-  "label": "圆角",
+  "label": "自动打磨",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -22510,7 +24901,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:299b82f9472eb7ce66e2528b77609997911f837a31ba241ef3ec806a65c77da2"
+  "docsHash": "sha256:e78e10ab9ac5f8fe6124cba169b8f00b808e6a840a241719eb65b3647f8c72d5"
 }
 ```
 
@@ -22582,7 +24973,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -22625,7 +25016,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。"
+    "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "sewFaces",
@@ -22651,7 +25043,17 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "tolerance": 0.01,
+        "makeSolid": false,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -22659,7 +25061,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -22680,6 +25083,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "曲面缝合",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -22695,7 +25104,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:351f3f7a347078a955c65e2303d9429f923b6e60003da6fdaed5adeb67bfd3bb"
+  "docsHash": "sha256:4f0c9359ddd062c84163079938e49c9f9f3f31a62bfef2a8e40d060f7be88388"
 }
 ```
 
@@ -22890,6 +25299,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
     "SELECTION_CONFLICT",
     "STALE_REFERENCE",
     "UNSAFE_LEGACY_REFERENCE"
@@ -22915,6 +25325,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "抽壳",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -22930,7 +25346,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:d1b7c8c3b4668ee311dc6a0b8bfbaf107b530c43140f955a7720c81e41c81ea3"
+  "docsHash": "sha256:849b3041c74bee36a32d3cc40328c1f485d439db8f02bbbdb5ecf32c46d3a8db"
 }
 ```
 
@@ -23436,7 +25852,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -23462,6 +25879,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "绘制轮廓",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "closedPrimitiveRefs": {
     "types": [
       "rectangle",
@@ -23491,7 +25914,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:f0fc75376ac0b0b108788767ac981b18c38a6524901526b60953598b0f087d60"
+  "docsHash": "sha256:5c8521179deba331f22fdf52650e13f7a531623874332920f978744f53cb6784"
 }
 ```
 
@@ -23629,7 +26052,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -23671,7 +26094,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "length >= width; equality gives a circular hole. Defaults center=origin,axis=Z,direction=1,angle=0. Unrotated long direction: Z axis -> +X; X axis -> +Y; Y axis -> +Z. Angle always follows the right-hand rule about the positive axis, independent of direction. Depth extends from the start plane along direction * axis. Must remove material. No automatic through depth."
+    "length >= width; equality gives a circular hole. Defaults center=origin,axis=Z,direction=1,angle=0. Unrotated long direction: Z axis -> +X; X axis -> +Y; Y axis -> +Z. Angle always follows the right-hand rule about the positive axis, independent of direction. Depth extends from the start plane along direction * axis. Must remove material. No automatic through depth.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "slot",
@@ -23707,7 +26131,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "length": 10,
+        "width": 3,
+        "depth": 5,
+        "x": 20,
+        "y": 15,
+        "z": 4,
+        "direction": -1,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -23715,7 +26154,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -23736,6 +26176,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "长圆槽",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "tool-frame",
     "placementSupported": true,
@@ -23750,7 +26196,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:fae13d540e027ed1d3f5131bd2ded7b4fb4241a66df01a47a8b4bce883f490e8"
+  "docsHash": "sha256:53eeb2d4fa96fb720c294c622996959bffde3166be250f80841735b256c09a94"
 }
 ```
 
@@ -23950,6 +26396,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
     "SELECTION_CONFLICT",
     "STALE_REFERENCE",
     "UNSAFE_LEGACY_REFERENCE"
@@ -23975,6 +26422,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "平滑过渡",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -23990,7 +26443,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:a65999951ec00db90bbec9b418312972113485fbda0347efff4a8ed2695cdbc9"
+  "docsHash": "sha256:bf32b0939877a26f76acf728e1937920a9825a31016c7da0a4b09f150e903bc2"
 }
 ```
 
@@ -23999,7 +26452,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 ```json
 {
   "id": "sphere",
-  "version": "legacy-1",
+  "version": "1.0.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -24047,7 +26500,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Sphere centered at origin",
+  "coordinateConvention": "Full sphere centered at [0,0,0], bounds [-radius,-radius,-radius] to [radius,radius,radius]. Explicit placement transforms this local geometry.",
   "title": "Sphere centered at origin",
   "category": "creation",
   "synonyms": [
@@ -24055,16 +26508,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "球体"
   ],
   "description": "Sphere centered at origin",
-  "schemaHash": "sha256:c00ad31cda52834f3252e84860de90aa11433db9b5f8302d2063409fc07ad020",
+  "schemaHash": "sha256:d0827ee70301cea62841b0382dc37860b61578003dc9cd484545082b585eda61",
   "apiCompatibility": [
-    "page-advisory"
+    "page-v2"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
-  "strictContract": false,
-  "v2Executable": false,
-  "contractStatus": "advisory",
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
   "outputSchema": {
     "type": "object",
     "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
@@ -24087,8 +26540,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
   ],
   "resultShapeTypes": [
-    "solid",
-    "compound (operation-dependent)"
+    "solid"
   ],
   "consumesInputs": false,
   "preservesInputs": false,
@@ -24102,7 +26554,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
     "Sphere centered at origin"
@@ -24114,7 +26566,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "normalExample": {
     "op": "sphere",
@@ -24123,9 +26575,18 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "radius": 10,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -24133,7 +26594,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -24148,12 +26610,20 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
   "verification": {
-    "contract": "not_migrated",
+    "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "球体",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -24167,8 +26637,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:14f636f9bd9abceced1b9918085444944b8468355cf292c951bc3ba76fe56471"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:a434ce68e926ac1256e4aa6c31cd6b4b1d82a11ec5d06fa502252daaf3915aef"
 }
 ```
 
@@ -24247,7 +26717,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -24289,7 +26759,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Plane must cross interior. Produces compound with both halves."
+    "Plane must cross interior. Produces compound with both halves.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "split",
@@ -24315,7 +26786,17 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "plane": "XY",
+        "offset": 1,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -24323,7 +26804,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -24344,6 +26826,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "分割",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "spatial-operation",
     "placementSupported": true,
@@ -24358,7 +26846,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:3931a136750d316d3cf63a4643cfbe846fd307926729bfa91fa9db74af2335ae"
+  "docsHash": "sha256:e290152bf366e07d660599460d7e52c604f79bdea211955c1b7e960f0d27578c"
 }
 ```
 
@@ -24437,7 +26925,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -24480,7 +26968,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。"
+    "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "surfaceTrim",
@@ -24508,7 +26997,17 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "faceId": 0,
+        "mode": "intersect",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -24516,7 +27015,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -24537,6 +27037,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "实体修剪面",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -24552,7 +27058,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:4e4eb771b2237e6640cc5585293729c0d94d7843339392ce9a2c99f03043c9d6"
+  "docsHash": "sha256:47928476480db99d7c87fcde5cfd3115e5477e144e4b120d73997ab86c1ff526"
 }
 ```
 
@@ -24704,7 +27210,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -24746,7 +27252,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Use circle/rectangle/roundedRectangle/arc profile. points are the PATH, so polygon profile is not suitable for this API. Consecutive path points must differ. Profile is normal to first segment."
+    "Use circle/rectangle/roundedRectangle/arc profile. points are the PATH, so polygon profile is not suitable for this API. Consecutive path points must differ. Profile is normal to first segment.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "sweep",
@@ -24792,7 +27299,29 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "profile": "circle",
+        "radius": 1,
+        "points": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            10
+          ]
+        ],
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -24800,7 +27329,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -24821,6 +27351,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "扫掠",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -24835,7 +27371,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:fa5f6c28936bccb65be308fca10271c77162f8a41c9705b1128d8acac31799a2"
+  "docsHash": "sha256:9018bd1a1a6e3f80896118f5afe2745021e2c591f66c2a3a923bd4a33716d035"
 }
 ```
 
@@ -24914,7 +27450,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -24956,7 +27492,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Nonzero signed thickness. Replaces source object with the selected face thickness only. Not a whole-object shell operation. Invalid offsets fail. Planar faces require adaptive volume to match source area times absolute thickness (relative consistency allowance 1e-5, absolute floor 1e-7 mm^3); inconsistent trimming or footprint change rejects the operation without commit."
+    "Nonzero signed thickness. Replaces source object with the selected face thickness only. Not a whole-object shell operation. Invalid offsets fail. Planar faces require adaptive volume to match source area times absolute thickness (relative consistency allowance 1e-5, absolute floor 1e-7 mm^3); inconsistent trimming or footprint change rejects the operation without commit.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "thickenFace",
@@ -24982,7 +27519,17 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "faceId": 0,
+        "thickness": 1,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -24990,7 +27537,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -25011,6 +27559,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "选面增厚",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -25026,7 +27580,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:ff9ce7a90b185dac0087483bbd66e58df550a5fd9245f1cf1c663ef168b460fa"
+  "docsHash": "sha256:a9a85ee3704481fa711d0260fca365b969444346772b1d4d7a1a4f7022c6796e"
 }
 ```
 
@@ -25257,7 +27811,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -25281,6 +27836,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "螺纹 V 槽",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -25297,7 +27858,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:f1d27d1df080b4626843fb8e5d60df035457f880d9dda6eb5610e591f0289845"
+  "docsHash": "sha256:5537c0a8776df389843b8075252f6238a0d0a1c7b47684e854ca997d5c8848d6"
 }
 ```
 
@@ -25306,7 +27867,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 ```json
 {
   "id": "torus",
-  "version": "legacy-1",
+  "version": "1.0.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -25363,7 +27924,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. majorRadius > minorRadius",
+  "coordinateConvention": "Full ring centered at [0,0,0] around Z. majorRadius is the tube centerline radius, minorRadius the tube radius; majorRadius must exceed minorRadius. Outer diameter=2*(majorRadius+minorRadius), inner diameter=2*(majorRadius-minorRadius), thickness=2*minorRadius. Explicit placement transforms this local geometry.",
   "title": "Torus around Z axis",
   "category": "creation",
   "synonyms": [
@@ -25371,16 +27932,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "圆环"
   ],
   "description": "Torus around Z axis",
-  "schemaHash": "sha256:786fb647b8a3d95db93cf226ef50144c3c4775e5af22a2b47821b42b44b9009d",
+  "schemaHash": "sha256:3ef5129141c381173203d04c781493944ed1bf94597f62b9f6a5f184a946e18f",
   "apiCompatibility": [
-    "page-advisory"
+    "page-v2"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
-  "strictContract": false,
-  "v2Executable": false,
-  "contractStatus": "advisory",
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
   "outputSchema": {
     "type": "object",
     "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
@@ -25403,8 +27964,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
   ],
   "resultShapeTypes": [
-    "solid",
-    "compound (operation-dependent)"
+    "solid"
   ],
   "consumesInputs": false,
   "preservesInputs": false,
@@ -25418,7 +27978,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
     "majorRadius > minorRadius"
@@ -25431,7 +27991,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "normalExample": {
     "op": "torus",
@@ -25441,9 +28001,27 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "majorRadius": 10,
+        "minorRadius": 2,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    },
+    {
+      "params": {
+        "majorRadius": 2,
+        "minorRadius": 2
+      },
+      "errorCode": "PARAM_RANGE_INVALID",
+      "explanation": "The tube radius must be smaller than the centerline radius."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -25451,7 +28029,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -25466,12 +28045,20 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
   "verification": {
-    "contract": "not_migrated",
+    "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "圆环",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -25485,8 +28072,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:83a3c1a538d139e2b26d6167cca535efc9829c23b8a6838f972589c390cd66f5"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:b59824b37eb0e42b1dfb3e4e560a803a736f5ab8ef6c8c5dbe5a879b45855021"
 }
 ```
 
@@ -25740,7 +28327,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -25782,7 +28369,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. Replaces original."
+    "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. Replaces original.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "transform",
@@ -25806,7 +28394,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "x": 10,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -25814,7 +28411,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -25836,6 +28434,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "移动 / 旋转",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "spatial-operation",
     "placementSupported": true,
@@ -25851,7 +28455,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:26b9240b4f9656447d42145ebbc0dff4fb8cf0edac2e7f83748bceb3f7e82dd0"
+  "docsHash": "sha256:d343f96bd58d30293e4ce3108a1cb480d89cb13f74fde940569954e59a4afc24"
 }
 ```
 
@@ -25917,7 +28521,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -25959,7 +28563,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies."
+    "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "union",
@@ -25981,7 +28586,15 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -25989,7 +28602,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -26010,6 +28624,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "合并",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -26025,7 +28645,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:89caa94fcb0ecc414958ff2c25faccc7566a9ccd83aa2964ecba11221a436142"
+  "docsHash": "sha256:5703a87b978c20954d6d2f9d69d2ab688a5ffa0f1a358e4cae70bfece533603c"
 }
 ```
 
@@ -26208,7 +28828,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -26251,7 +28871,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "No selected body needed. Closed regions and holes only; normalize imported bounds center to origin before position. XY normal +Z, XZ normal -Y, YZ normal +X. Curves are approximated at source import tolerance. Face output has zero solids; change output to solid and height to extrude later."
+    "No selected body needed. Closed regions and holes only; normalize imported bounds center to origin before position. XY normal +Z, XZ normal -Y, YZ normal +X. Curves are approximated at source import tolerance. Face output has zero solids; change output to solid and height to extrude later.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "vectorProfile",
@@ -26309,7 +28930,35 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "regions": [
+          {
+            "outer": [
+              [
+                -1,
+                -1
+              ],
+              [
+                1,
+                -1
+              ],
+              [
+                0,
+                1
+              ]
+            ]
+          }
+        ],
+        "output": "solid",
+        "height": 2,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -26317,7 +28966,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -26338,6 +28988,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "导入路径",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -26352,7 +29008,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:9777aabfbd878ea7a791630b2e93f5fad3d765858af5af0d1e81784a3017f49f"
+  "docsHash": "sha256:555c002f591486429cd0785b52a41efef5e37dfb2257276062f94985bfcd584e"
 }
 ```
 
@@ -26400,13 +29056,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "同心圆恒截面单圈；开缝为底部正中平行平切。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -26443,7 +29099,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -26453,11 +29109,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "ring",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -26467,7 +29123,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -26485,6 +29142,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "圆圈",
@@ -26646,7 +29309,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:f88df380721ba7e12bf5e7ec4d2bc558635125cdcce295a189ef7ee5598200b1"
+  "docsHash": "sha256:e5d31b71ed3ea2e9621a3549a83111cc12cdb95eb464a32d7216c13f72d41de4"
 }
 ```
 
@@ -26694,13 +29357,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -26737,7 +29400,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -26747,11 +29410,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "washer",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -26761,7 +29424,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -26779,6 +29443,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "平垫圈",
@@ -26875,7 +29545,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:6b14a58e19d0e530739ecec0c790a31102cc02ec9cd86d20e249595301595323"
+  "docsHash": "sha256:0828e35b2abfeffa7684a3a1f5b39392f80b1aa0bd4b5afc106ac5c07e9abf59"
 }
 ```
 
@@ -26923,13 +29593,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "同轴圆筒，外径 13.4、内径 12.4、高度 3 为用户 C 件默认值。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -26966,7 +29636,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -26979,8 +29649,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "kind": "tube",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -26990,7 +29660,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -27008,6 +29679,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "圆筒（C件默认）",
@@ -27107,7 +29784,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:382b5e50e30da65de37c383a4cfa1967aa8a15fb14c9789d49ac7d8de4337719"
+  "docsHash": "sha256:14297480cc4ccbaaa96ea5302cc68c9573331dd589afb96ed6a109821dbac7da"
 }
 ```
 
@@ -27155,13 +29832,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "平底、光滑凸面；直径和高度独立设置，可以调整拱高，不限于半球。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -27198,7 +29875,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -27208,11 +29885,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "domedPin",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -27222,7 +29899,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -27240,6 +29918,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "半圆钉",
@@ -27325,7 +30009,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:55e2cace30a8a0bda34e465ab65c03e15629d1175e450b6a43ec4d589cb8b324"
+  "docsHash": "sha256:4599ed74058c74494919b07157231168ac611096ac9477a51b400d106e40d466"
 }
 ```
 
@@ -27373,13 +30057,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "圆线沿精确螺旋路径扫掠。螺距大于线径；半径是中心线半径。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -27416,7 +30100,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -27426,11 +30110,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "spring",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -27440,7 +30124,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -27458,6 +30143,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "弹簧",
@@ -27589,7 +30280,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:11b7665c4a9f2e58ad0a433f552f2cf57256e3e07821fb9c6f7f3bc980fdfa12"
+  "docsHash": "sha256:d6e320465d8742a3dff777cf32a2fb221beb12cd8be070b3d053a00a7c15d035"
 }
 ```
 
@@ -27637,13 +30328,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "头在参考位置下端，牙杆朝本地 +Z。沉头外缘固定直升位 0.20 mm。M 使用常用粗牙螺距，真实 V 型牙槽；不含配合公差。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -27680,7 +30371,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -27690,11 +30381,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "screw",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -27704,7 +30395,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -27722,6 +30414,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "螺丝",
@@ -27953,7 +30651,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:c4ab3d321930ee81a075b0be5a22c0b8179a80a1a50dd00643cf2cad30ff2cac"
+  "docsHash": "sha256:2162cc09f2f668b7bb061005b87640224f4fd7a724d45443507ef3a8055dd46f"
 }
 ```
 
@@ -28001,13 +30699,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "底面在参考位置，面端朝本地 -Z；从下方面端向上攻牙。牙径采用支持的名义 M 粗牙直径，不含配合公差。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -28044,7 +30742,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -28054,11 +30752,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "threadedSleeve",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -28068,7 +30766,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -28086,6 +30785,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "丝筒",
@@ -28207,7 +30912,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:c2dfff136f302e4b27b2dda45d3fea172a19f103f2a33d0aa97ac86678a5989b"
+  "docsHash": "sha256:b639f0f3cc811c3232124657c577ec535d26334c8bfe360011ade576e8347c86"
 }
 ```
 
@@ -28255,13 +30960,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "圆形牌面、正面环形凸边和背面两根安装柱组成一个实体。可选空心柱；不包含品牌图案、齿纹、拱面或生产尺寸。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -28298,7 +31003,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -28308,11 +31013,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "roundBadge",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -28322,7 +31027,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -28340,6 +31046,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "双柱圆牌底座",
@@ -28517,7 +31229,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:a24dbcdd84802e98abbf9f961734194cb8439ae8d81879696911e9585885e84c"
+  "docsHash": "sha256:ac2936ba2dd9a1ee901eda9cb88a82f7e5c2f7f1e2ebf9680fbb7b2fb3923e50"
 }
 ```
 
@@ -28565,13 +31277,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "孔沿 X 对称，中心距单独定义；孔为贯穿光孔，不含螺纹、沉头或沉孔。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -28608,7 +31320,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -28618,11 +31330,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "mountingPlate",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -28632,7 +31344,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -28650,6 +31363,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "双孔圆角安装板",
@@ -28806,7 +31525,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:e0349d78b965ec86c350793e9c8144f8a24c704d8e22cb6a3262b6abea9c719c"
+  "docsHash": "sha256:2a61a745b5b3305bc51f94248c1573de150de3a62f64a080280ab1365e9f0853"
 }
 ```
 
@@ -28854,13 +31573,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "矩形板四角各一个贯穿光孔，孔中心到左右及前后边的距离分别可调；可选外角 R。不含螺纹或沉孔。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -28897,7 +31616,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -28907,11 +31626,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "fourHolePlate",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -28921,7 +31640,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -28939,6 +31659,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "四孔安装板",
@@ -29110,7 +31836,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:a033a158bfdb7c983528947796eadca54e4b24150ba21f2db2c7195e7dc0ab10"
+  "docsHash": "sha256:8d8979c50b92a28d410c78be7e5e548adde2d7c9bf4def8b9943b7e14f3780dd"
 }
 ```
 
@@ -29158,13 +31884,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "内外轮廓分别定义，框宽与厚度独立；圆角可等于短边一半形成跑道环。参数模板，不是原 IGS 完整复刻。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -29201,7 +31927,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -29211,11 +31937,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "flatFrame",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -29225,7 +31951,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -29243,6 +31970,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "独立内外圆角平面框",
@@ -29402,7 +32135,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:318e0d7ec5d247f5d2b5856834601590d9fcb1697deedf2d42f41f89ff0f0eaa"
+  "docsHash": "sha256:ffbd47e5a9ab0fa91c7ad7c568a6425b08eb367d9124dc6ea4f277a0c73db7e0"
 }
 ```
 
@@ -29450,13 +32183,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "独立内外圆角的闭合平面框，再以指定 R 一次倒圆所有尖边。圆边 R 必须显式给出；若内核无法完成则整步失败，不自动缩小。R 接近半厚可作外观候选，不保证精确半圆截面。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -29493,7 +32226,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -29503,11 +32236,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "roundedFlatFrame",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -29517,7 +32250,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -29535,6 +32269,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "圆边独立 R 平面框",
@@ -29709,7 +32449,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:a9f66285ba1eb3f24c9322aea5b0c96870e2d2a22a5b5adf214fe5d9cb46e465"
+  "docsHash": "sha256:660a5f976341ecd3aadf47eb28908e4fd8c6d92631f2b8568ed62d365b8429fb"
 }
 ```
 
@@ -29757,13 +32497,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -29800,7 +32540,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -29810,11 +32550,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "dBuckle",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -29824,7 +32564,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -29842,6 +32583,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "D 扣",
@@ -30033,7 +32780,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:750f7d646c577cdd6f00065d9405216c1a22287acdacb1b1d6ffcf2a62c99c5e"
+  "docsHash": "sha256:c65a9f2057884f4de1ae791166f91465e36e1f0dd9718ff8c16b720b6372b657"
 }
 ```
 
@@ -30081,13 +32828,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "恒截面圆角矩形框；闭合圆线可用内短边≥2.5 倍线径的紧凑框，其余至少 4 倍截面尺寸。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -30124,7 +32871,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -30134,11 +32881,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "rectBuckle",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -30148,7 +32895,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -30166,6 +32914,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "方扣",
@@ -30357,7 +33111,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:9379749e403f20fda9d7b0d5c8f374c125c82ee200834b9bf82bb131daaabd8d"
+  "docsHash": "sha256:3b92a0fe98bca572d44c0c6676b036240678693dbf3f856ec120e1f814dcb806"
 }
 ```
 
@@ -30405,13 +33159,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -30448,7 +33202,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -30458,11 +33212,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "ovalBuckle",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -30472,7 +33226,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -30490,6 +33245,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "四圆弧旦扣",
@@ -30681,7 +33442,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:e997e2406aba41beee2f65031f39ca095f38331cb825351eb2fb70b0686a5017"
+  "docsHash": "sha256:e2562ed83d3d7bc7314314f3464d77491ab1fb38211720bbd9719375615b13a1"
 }
 ```
 
@@ -30729,13 +33490,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "外框整体内高；固定圆杆偏移上正下负，不支持开缝。闭合圆线框可用内短边≥2.5倍线径的紧凑双窗，且每侧孔高至少为线径。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -30772,7 +33533,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -30782,11 +33543,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "sliderBuckle",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -30796,7 +33557,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -30814,6 +33576,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "日字扣",
@@ -31027,7 +33795,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:0e17dbfd8c8af89395c0ac81fa7fd952e9454754e7bbc7a3b53d6a4fda1229e0"
+  "docsHash": "sha256:7c29e9890604eb74bc9b9b6a561271f65c286e13c8921ae9ea03c4d11e25300c"
 }
 ```
 
@@ -31075,13 +33843,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "圆角方线 U 主体与固定圆杆融合；杆底与脚底齐平。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -31118,7 +33886,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -31128,11 +33896,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "dBarBuckle",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -31142,7 +33910,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -31160,6 +33929,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "独立圆横杆 D 扣",
@@ -31307,7 +34082,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:0a55a2c9405dbdd9111fca41827532bf1bf80e3cf1af34cca01d5863350a9194"
+  "docsHash": "sha256:2a414038c3d41d783e32470eb0f404c52029ad4b2208b8abed7d928c36880361"
 }
 ```
 
@@ -31355,13 +34130,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "同轴法兰与圆筒轴套，直孔贯穿全长。通用参数化实体，不含螺纹或原产品特征复刻。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -31398,7 +34173,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -31408,11 +34183,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "flangedBushing",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -31422,7 +34197,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -31440,6 +34216,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "法兰轴套",
@@ -31566,7 +34348,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:e1f2cd355b04bb8cfeb6387d6d4c4aa0d4ef5e4ce944ba024cbc7381af45f71d"
+  "docsHash": "sha256:15abf14efff4fe7b52522b76616e820a61debd2e5221066004dcc38267985a57"
 }
 ```
 
@@ -31614,13 +34396,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "圆角板上两根对称空心圆柱凸台，孔贯穿凸台与板。参数化通用实体，不代表螺纹、沉孔或原产品复刻。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -31657,7 +34439,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -31667,11 +34449,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "bossPlate",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -31681,7 +34463,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -31699,6 +34482,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "双空心柱安装板",
@@ -31882,7 +34671,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:8f638e930d6743c59de807e2e5e1974451199e77170221b6db343a1a2a06e378"
+  "docsHash": "sha256:6306dc23e762c5eeb53088b91de894e84a6edb4858fc51bf4b8e75214eb23c32"
 }
 ```
 
@@ -31930,13 +34719,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "单一熔接实体，XY 居中、底面 Z=0、顶部敞口。内腔净宽=外宽−2×壁厚，净深=外深−2×壁厚，净高=总高−底厚。两柱沿 X 对称，柱高从内底面起算，孔贯穿柱和底板。仅直壁、直角、无拔模/圆角/螺纹；不是装配体。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -31973,7 +34762,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -31983,11 +34772,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "thinWallTray",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -31997,7 +34786,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -32015,6 +34805,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "双空心柱薄壁壳",
@@ -32207,7 +35003,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:4201ad162d0c6d1cac0a397b3d5b7ee423908b27c2db0c8a0a0a0aab02e93be0"
+  "docsHash": "sha256:088122fb1336c04c6930f364519bca55c4f0ad3033a548d56898bc5fb433bd88"
 }
 ```
 
@@ -32255,13 +35051,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "圆角矩形薄壁壳，顶部敞口，内底带两根空心柱。外圆角、壁厚、底厚和柱尺寸均可调；直壁无拔模，不包含卡扣、文字或表面花纹。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -32298,7 +35094,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -32308,11 +35104,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "roundedBossTray",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -32322,7 +35118,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -32340,6 +35137,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "圆角双柱薄壁壳",
@@ -32550,7 +35353,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3665a434f65f15dad14a7a79124ee862fd095cf2c26a0775c59af7ceec349c71"
+  "docsHash": "sha256:df1972b2e17e602a3aa9aa282e5a1f73cde1250225048546ec185e7ed1c4e95c"
 }
 ```
 
@@ -32598,13 +35401,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "恒截面圆弧环，开口角度可调，适合开口环、钩环和未闭合圆框的基础毛坯；不包含端头球、铰链或变截面。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -32641,7 +35444,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -32651,11 +35454,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "openArcRing",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -32665,7 +35468,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -32683,6 +35487,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "大开口 C 环",
@@ -32844,7 +35654,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:e6d3235ed51ca7b4428a1abc3e9d7c0913b593a660c575a07d58720129c8ef11"
+  "docsHash": "sha256:19df867fe6c5d0a0fc5785c22e7bf2db214fe1050f578873996f70f2a997d27a"
 }
 ```
 
@@ -32892,13 +35702,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "这是刀具实体：入口在 Z=0，沿 +Z；移动定位到工件表面，必要时旋转 180°，先选主体再选刀具相减。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -32935,7 +35745,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -32945,11 +35755,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "counterboreTool",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -32959,7 +35769,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -32977,6 +35788,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "沉孔／沉头孔刀具",
@@ -33123,7 +35940,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:cc833b82296ce4542063f9aebab607d164c019a0d09cb1c19aea223c48f95937"
+  "docsHash": "sha256:e68617ec33fd843fc40d2b499ccfe4c9b20644f501d80a21259def1d4a6a47c4"
 }
 ```
 
@@ -33171,13 +35988,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "独立外 R 和孔 R 的平板双窗，中间是板体一部分；整件前后尖边按指定 R 倒圆。两个孔等宽等高且上下对称，不含圆杆、偏置孔或侧向拱弯。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -33214,7 +36031,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -33224,11 +36041,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "twinWindowPlate",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -33238,7 +36055,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -33256,6 +36074,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "平板双窗扣",
@@ -33445,7 +36269,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:ee58ce385408c65573406fed25c5b8e82b7cb4a644e7d072adf13aadf8c373c2"
+  "docsHash": "sha256:db72883ef9b8b1fafb5c6cfafacb58a4081c179c947c019f7a44131d5efffd5d"
 }
 ```
 
@@ -33493,13 +36317,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "半圆冠与两条等宽直腿连成一块平板，直腿末端各有一个贯穿孔；内外冠同心，孔沿厚度方向贯穿。适合源图确认的单片 U 件，不含另一装配件、螺纹或截面圆杆。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -33536,7 +36360,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -33546,11 +36370,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "uEndHolePlate",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -33560,7 +36384,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -33578,6 +36403,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "半圆冠双端孔 U 板",
@@ -33725,7 +36556,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:6517251695db40d1ae9f278a9cc975028f303c939dad0627f151421915246546"
+  "docsHash": "sha256:ec58eb21f4a262e220a4a0da526873632b8e1f9213a32781cfb409558a29d9d2"
 }
 ```
 
@@ -33773,13 +36604,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "正面环带宽和侧面深度独立输入，沿圆形中心线扫掠椭圆截面；截面形状是可编辑候选，须按源图验证。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -33816,7 +36647,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -33826,11 +36657,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "ellipseSectionRing",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -33840,7 +36671,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -33858,6 +36690,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "椭圆截面圆环",
@@ -33954,7 +36792,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:d67a3a602d3ae9e79829de5556ad44ad59407826592f388ee04bb55486a7dc96"
+  "docsHash": "sha256:f02668df4fb2d22f809c2c8c95e2bdb7c29832a05de5cfcefd2bc01163600b53"
 }
 ```
 
@@ -34002,13 +36840,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "同心圆弧带板，角度、厚度、两端孔距与沉孔独立输入；用于分体环段，螺纹和装配件须另建。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -34045,7 +36883,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -34055,11 +36893,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "arcBandPlate",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -34069,7 +36907,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -34087,6 +36926,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "双孔弧形带板",
@@ -34279,7 +37124,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:e3ea33a51de9a953f4b7f51e8333c3d35f27ec6bc2bdbd7464abcfb62a769c63"
+  "docsHash": "sha256:303e7cb971ae31bcca4601a6ec41d0f942d4b24983072e75b63b707f29cac698"
 }
 ```
 
@@ -34327,13 +37172,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "两只直腿与屋顶形斜肩组成开口框，端部按指定 R 做两段圆角与短平底。内外宽、内外肩高、内外峰高、板厚分别输入。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -34370,7 +37215,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -34380,11 +37225,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "gableOpenFrame",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -34394,7 +37239,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -34412,6 +37258,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "斜肩开口框",
@@ -34589,7 +37441,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:1c9e514495366ffd97b9492d4610a917b6cbc9f8e83deaecc744e9bc2f5ac986"
+  "docsHash": "sha256:2aedfb551acc383d296844da1be5ee44cce9f0bb4300ad1a952168a74db72fa5"
 }
 ```
 
@@ -34637,13 +37489,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "以独立正面料宽和侧面深度构造椭圆截面，沿圆角矩形中心线扫掠；内 R 为平面内孔圆角，不自动等于侧面 R。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -34680,7 +37532,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -34690,11 +37542,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "ellipseSectionRectFrame",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -34704,7 +37556,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -34722,6 +37575,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "椭圆截面圆角方框",
@@ -34848,7 +37707,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:fb9277fd605feffb6f8147a158bb7a3c166e2587049cda2d3551e15b0071ff18"
+  "docsHash": "sha256:37b95eca42f53fbdb929686a887e672e12b0fe322a2e7f708a733a4a744770ba"
 }
 ```
 
@@ -34896,13 +37755,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "半圆冠、直腿与独立内外底角 R 的平板 D 框；可按实际宽度切开底部中央。厚度为平板厚度，不代替圆线截面。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -34939,7 +37798,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -34949,11 +37808,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "dFlatFrame",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -34963,7 +37822,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -34981,6 +37841,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "独立底角 R 平板 D 框",
@@ -35155,7 +38021,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:1e0dc250fbc94eac3fc3e760e332bbc054eeb0557178e27751688f0769213238"
+  "docsHash": "sha256:d08e2fbb8e7e44e25dad2ad33540632dba99351751fd123211cdde0c6d23977d"
 }
 ```
 
@@ -35203,13 +38069,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "圆角双窗平面轮廓沿 Y 方向投影裁切同轴圆筒薄壁，形成侧视圆弧拱弯。适用于薄条一体双窗；径向板厚、外弧半径独立输入。圆线框及独立圆杆须用其它工具。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -35246,7 +38112,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -35256,11 +38122,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "archedTwinWindowPlate",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -35270,7 +38136,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -35288,6 +38155,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "圆弧拱弯平板双窗扣",
@@ -35474,7 +38347,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:bbe2aade795e11feaa469a28df4f16a1a865934a3714fe19b18145171d75e423"
+  "docsHash": "sha256:7480fba327929dfc43aa7641c426e8356d2677db1e84f160e063a62561c725e8"
 }
 ```
 
@@ -35522,13 +38395,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "上下直边、两侧大圆弧鼓边与四角小 R 相切；两个跑道形窗孔及中横条一体成板，可选前后边缘倒圆。左右、上下镜像参数模型，源图有微小非对称时只能近似。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -35565,7 +38438,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -35575,11 +38448,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "bowedTwinWindowPlate",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -35589,7 +38462,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -35607,6 +38481,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "鼓侧边平板双窗扣",
@@ -35799,7 +38679,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:71be7c363f68cb2723a72745cfb244d575f9537f6ff316736b77f1ea543543cf"
+  "docsHash": "sha256:486de1f301fce77bbc3c66a842382a44330f21f9ce9db8a9adec4be26abf6c46"
 }
 ```
 
@@ -35847,13 +38727,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "同心圆恒截面框与一根沿 X 的圆杆融合为单一实体。横杆可沿 Y 及厚度 Z 微调；不包含活动杆、铰链或精确接头过渡。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -35890,7 +38770,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -35900,11 +38780,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "ringBar",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -35914,7 +38794,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -35932,6 +38813,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "圆环内接横杆",
@@ -36123,7 +39010,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:37064f4b8070f1d6663b985c65424864e1e7a22b8cdd30a9cca0b6642f53208f"
+  "docsHash": "sha256:4ae61a9209ae8ba180fb1dc936038deabc1e4225f32c42aa30a706b0c66d8f88"
 }
 ```
 
@@ -36171,13 +39058,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "从内真椭圆外偏线扫掠圆线，再融合居中固定圆杆。圆线外包围须精确回读；接头过渡与源样条仍须对照。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -36214,7 +39101,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -36224,11 +39111,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "ellipseBar",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -36238,7 +39125,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -36256,6 +39144,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "椭圆圈固定横杆",
@@ -36382,7 +39276,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:c93f448a289e4359d7d5f9b796220bee15510db672ca1b65e3ec2be7bc89d7da"
+  "docsHash": "sha256:66a506e2744b71244e78a904f2590697a9206a138e656e5d29112099d77edd80"
 }
 ```
 
@@ -36430,13 +39324,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "以内孔真椭圆外偏半线径扫掠圆线；底部正中用平行平面切出真实缝宽。外轮廓真椭圆的图纸不可使用本工具。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -36473,7 +39367,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -36483,11 +39377,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "ellipseOpenWire",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -36497,7 +39391,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -36515,6 +39410,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "内真椭圆开缝圆线圈",
@@ -36626,7 +39527,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:68c0899581d8f0fa5ccd5cf3b80b841c6c6faa48c6aeac7018eba85cca6aab83"
+  "docsHash": "sha256:b9b7f6468d27a49c5448895882dd06db7b78a6ed46f8b7767b38ea0ed746a08e"
 }
 ```
 
@@ -36674,13 +39575,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "两端半圆、上下直段的闭合长圈；正面料宽、侧面厚度和截面 R 独立。R 可等于截面短边一半，形成两圆端加直段的截面。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -36717,7 +39618,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -36727,11 +39628,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "profileLoop",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -36741,7 +39642,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -36759,6 +39661,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "圆角扁方截面直段长圈",
@@ -36885,7 +39793,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:8819ccf3dcd961d9ce8f3e3722d7648ef695235a18a9854a22f936322891175c"
+  "docsHash": "sha256:53d5a45408b2a5df77aa925d876b29979e8e0fda0e2c6c1f14dfd7d499712caa"
 }
 ```
 
@@ -36933,13 +39841,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "闭合圆线长圈：两端精确半圆、上下直段，内宽高与圆线直径独立输入。未标缝宽时不猜接缝。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -36976,7 +39884,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -36986,11 +39894,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "capsuleWire",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -37000,7 +39908,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -37018,6 +39927,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "圆线直段长圈",
@@ -37114,7 +40029,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:4275472f020d87e46f0102332052cfa87d5fdd91c4c0a187f495bc936d08f3ba"
+  "docsHash": "sha256:063cb0cb57d6a906dba825f07cae934641ed29239d79050ab3c1839cf437ff76"
 }
 ```
 
@@ -37162,13 +40077,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "独立扣针：沿X的轴孔环头、沿+Y的圆头扁针。长度从轴心至针尖；不与扣身融合。用于已确认环头扁针的近似形状，不包含冲压弯曲、滚花、LOGO或装配活动验证。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -37205,7 +40120,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -37215,11 +40130,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "buckleTongue",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -37229,7 +40144,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -37247,6 +40163,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "扣针（环头扁针）",
@@ -37387,7 +40309,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:4a4dcd2be4aaf99b75c803743985b2bb0ae09d0e993b9ee99f8993cde2551421"
+  "docsHash": "sha256:9123c35ca58fb475df43e3a0bcc4a963d987af1f6a8c4697f1be47e015274f63"
 }
 ```
 
@@ -37435,13 +40357,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "独立活动芯：沿X横跨、两端为Y轴开放卷眼，中间扁带由独立内外相切圆弧接入卷眼。适合常规拉心扣芯；不与外框融合。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -37478,7 +40400,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -37488,11 +40410,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "pullCoreBar",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -37502,7 +40424,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -37520,6 +40443,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "拉心扣活动芯（双卷眼横芯）",
@@ -37735,7 +40664,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:f89e84999f412e35a6b9dc5df4f281fcfc17b9074d049cabc248bcd8e4f9bc90"
+  "docsHash": "sha256:94defe33ac83ba316e6efd75ba0006c7e4f292d4c072c5a4ab63d739e7be411a"
 }
 ```
 
@@ -37783,13 +40712,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "圆角矩形扁线由两段平面圆弧层和一段局部跨层过渡连续构成。内外径控制环带，侧向总厚由两层各半厚及层间隙组成。圈数只支持大于1且小于2；跨层角可调，须位于两端错开的扇区。截面四角R0.5；不包含端头专属轮廓、钥匙链附件或花纹。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -37826,7 +40755,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -37836,11 +40765,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "keyRing",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -37850,7 +40779,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -37868,6 +40798,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "扁线双层匙圈",
@@ -38048,7 +40984,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:01cb6649aecc7b8c0bdd3a741e10e872152ccbcbe7916019c38b47b1ab797c3f"
+  "docsHash": "sha256:05dab22fb561a3ece6b49c9d9d928f0a5e62ffb7722938a0be90d52dfbe32e01"
 }
 ```
 
@@ -38096,13 +41032,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "常规吊杆：水平圆杆两端做圆角，上方居中融合一个Z深度由根部向顶部收窄的椭圆截面U形吊环。杆长、杆径、端部圆角、吊环内宽、根部深度、根部圆角和净高均可调；不包含文字、花纹或多个吊环。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -38139,7 +41075,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -38149,11 +41085,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "hangingRod",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -38163,7 +41099,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -38181,6 +41118,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "圆杆吊环（吊杆）",
@@ -38360,7 +41303,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:d474bf5d0f4681367eb6e0a7d30ba8b5755a9f8baae2c6c5500f8088ac814956"
+  "docsHash": "sha256:053dc4f4f90226f888a5e76699fa89e7abb17138deb3cded03337b6911a3cde4"
 }
 ```
 
@@ -38408,13 +41351,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "常规 U 形拱桥：圆截面直腿与精确半圆连续成型，两端可开同轴底孔。外宽、外高、线径和底孔尺寸可调；不包含螺纹牙型、底片、装饰或异形截面。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -38451,7 +41394,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -38461,11 +41404,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "archedBridge",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -38475,7 +41418,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -38493,6 +41437,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "圆线拱桥（可选双底孔）",
@@ -38624,7 +41574,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:af312e28cb210896a5506d702631b382e6c4b33372d631f6a5d644bfa52c01e9"
+  "docsHash": "sha256:60b77b6477680d511da9040aee98b9cc638d1625f02a1f9d16c560576b09e215"
 }
 ```
 
@@ -38672,13 +41622,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "参数化的两件式单面蘑菇撞钉：球面盖带空心套筒，配浅腰圆角钉脚和底盘。支持同轴装配或分开展示；孔深与开孔方向可调，不包含 LOGO、文字和装饰纹。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -38715,7 +41665,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -38725,11 +41675,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "mushroomRivet",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -38739,7 +41689,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -38757,6 +41708,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "单面蘑菇撞钉",
@@ -39125,7 +42082,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:9fdcee20d80d2b51df96e2624a9186d70dc21883b221501e843f93e267253df6"
+  "docsHash": "sha256:6fef791809fd3adbd5bac897ccfb7a8fa70402b915e8f7d20f76f51b09bbb0fd"
 }
 ```
 
@@ -39173,13 +42130,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "两件式奶嘴钉：A件含圆弧头、平顶、圆颈、带R角底座及M2名义光盲孔；Z件含圆拱螺钉头、杆和参数化六瓣槽。螺纹牙及标准槽规格不建模。旧 undersideCollar 参数仅为兼容，必须为0。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -39216,7 +42173,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -39226,11 +42183,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "nippleStud",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -39240,7 +42197,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -39258,6 +42216,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "奶嘴钉",
@@ -39661,7 +42625,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:017321987ad1cb1552becff084c5405ddb7a93ddfb87ee565613e530b20d49d6"
+  "docsHash": "sha256:bb6d3c6eed07ff317dbb859c279ad88ae7a8837b8c5afd535c09916f74803b31"
 }
 ```
 
@@ -39709,13 +42673,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "description": "参数化两件式薄壁鸡眼，法兰外翻边和内侧圆弯按薄壁截面精确旋转生成。A件为长脚，B件为配套短脚；支持同轴静态套合或分开展示，不模拟压铆变形、LOGO和压字。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -39752,7 +42716,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -39762,11 +42726,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "twoPieceEyelet",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -39776,7 +42740,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -39794,6 +42759,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "双件鸡眼",
@@ -40053,7 +43024,165 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:0753b2f31860c07988004654d4add1d2c04abd0f56f62fd1ac12cd76b319cd72"
+  "docsHash": "sha256:a7375e1773883e76a3c9037db7480d9754486eac77e012fd888dd0b516ad9cc1"
+}
+```
+
+## 工具 getHistory · getHistory
+
+```json
+{
+  "id": "getHistory",
+  "title": "getHistory",
+  "category": "page-method",
+  "version": "1.16.0",
+  "description": "getHistory()。返回已保留状态，不含导入源字节。",
+  "synonyms": [
+    "getHistory",
+    "历史",
+    "状态",
+    "退回",
+    "检查点"
+  ],
+  "inputContract": "getHistory()。返回已保留状态，不含导入源字节。",
+  "outputContract": "entries:{id,label,at,featureId?}、storedSteps、prunedSteps、bytes、maxSteps、maxBytes。bytes/maxBytes仅计历史基线与差量，导入资源在工程中共享一次；资源只有在当前工程与所有保留状态都不引用时才回收，已存在的内存撤销快照不被改写。execute action=history.restore,args:{stateId} 恢复；旧工程只能从开始记录时回退。缺失历史所需源资源的工程拒绝载入（HISTORY_INVALID）。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [],
+  "docsHash": "sha256:2d88a3abe575313fe24a9f039d35f263cdef8610ef51736191605117be0265e9"
+}
+```
+
+## 工具 planAlignment · planAlignment
+
+```json
+{
+  "id": "planAlignment",
+  "title": "planAlignment",
+  "category": "page-method",
+  "version": "1.16.0",
+  "description": "planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true。",
+  "synonyms": [
+    "planAlignment",
+    "对齐",
+    "原点",
+    "基准件",
+    "轴"
+  ],
+  "inputContract": "planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true。",
+  "outputContract": "status=read、moves[{bodyId,delta}]、targetPoint；仅平移，不猜测任意曲面姿态；body.align 提交同参数。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "STALE_REFERENCE",
+    "REVISION_CONFLICT"
+  ],
+  "docsHash": "sha256:ceaefbca376cd78867f6832b0ffaa36cc00cb309dc0d87c606e20ac391298f38"
+}
+```
+
+## 工具 selectRectangle · selectRectangle
+
+```json
+{
+  "id": "selectRectangle",
+  "title": "selectRectangle",
+  "category": "page-method",
+  "version": "1.16.0",
+  "description": "selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。",
+  "synonyms": [
+    "selectRectangle",
+    "框选",
+    "多选",
+    "实体",
+    "选择"
+  ],
+  "inputContract": "selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。",
+  "outputContract": "status=read、selectedIds、context。按当前相机的对象投影包围框选择，隐藏件排除；window须完整包围且整个对象在相机近远深度范围内，crossing对包围盒与近远裁剪面的交点投影后判相交。按包围框而非真实轮廓/孔洞，不做对象间遮挡剔除。左向右拖为window，右向左为crossing，Shift/Ctrl追加，Escape取消鼠标拖框；丢失指针捕获会取消并恢复此前视角控制状态。不修改模型revision。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "UI_TASK_ACTIVE",
+    "REVISION_CONFLICT"
+  ],
+  "docsHash": "sha256:8428ea8fa355d43c13bc418bc6629b01b8d1eadfe8b8f127068d19c1d3b45228"
+}
+```
+
+## 工具 createDrawing · createDrawing
+
+```json
+{
+  "id": "createDrawing",
+  "title": "createDrawing",
+  "category": "page-method",
+  "version": "1.16.0",
+  "description": "createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。",
+  "synonyms": [
+    "createDrawing",
+    "三视图",
+    "工程图",
+    "自动尺寸",
+    "截面"
+  ],
+  "inputContract": "createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。",
+  "outputContract": "status=generated、drawingId、drawing{views,dimensions,limitations}、svg、formats。OCCT隐藏线投影及精确截线；自动候选为外形、圆直径和圆心坐标，不推断工艺/公差。原件只读。默认第一角法。缓存仅保留最近4份。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "RESOURCE_LIMIT",
+    "STALE_REFERENCE",
+    "REVISION_CONFLICT",
+    "GEOMETRY_INVALID"
+  ],
+  "docsHash": "sha256:09538725712b44402a499c28f67ca2f475a228b8ccf15c93cfedb30f81494fca"
+}
+```
+
+## 工具 exportDrawing · exportDrawing
+
+```json
+{
+  "id": "exportDrawing",
+  "title": "exportDrawing",
+  "category": "page-method",
+  "version": "1.16.0",
+  "description": "exportDrawing({context,drawingId,format:pdf|jpg|dxf|svg,paper?:A4|A3,title?,name?,disabledDimensions?:[id]})。drawingId必须仍匹配当前revision；DWG明确不可用。",
+  "synonyms": [
+    "exportDrawing",
+    "工程图",
+    "导出",
+    "PDF",
+    "JPG",
+    "DXF",
+    "SVG",
+    "DWG"
+  ],
+  "inputContract": "exportDrawing({context,drawingId,format:pdf|jpg|dxf|svg,paper?:A4|A3,title?,name?,disabledDimensions?:[id]})。drawingId必须仍匹配当前revision；DWG明确不可用。",
+  "outputContract": "generated文件资源及sha256。再files.read/download/write；生成/下载不代表磁盘写入。PDF为矢量，JPG为300DPI；DXF为真实毫米1:1模型空间；标注文字与线为独立实体，不是关联尺寸。非整圆曲线按0.01mm离散。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "FORMAT_UNSUPPORTED",
+    "STALE_REFERENCE",
+    "REVISION_CONFLICT",
+    "RESOURCE_LIMIT"
+  ],
+  "docsHash": "sha256:8c0ee84cfc373ab8a1c559f328fc56b5cf5b3d052aad2b9f711d10ee9afa3bdb"
 }
 ```
 
@@ -40064,7 +43193,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getQuickModelUsage",
   "title": "getQuickModelUsage",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "getQuickModelUsage({}={})；只读本浏览器累计成功创建次数，不要求几何上下文，预览期间也可读取。",
   "synonyms": [
     "getQuickModelUsage",
@@ -40086,7 +43215,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
-  "docsHash": "sha256:cc7336cc6708b7b7599448a0883b54a84c7e205e1dd2693756536b86736926e8"
+  "docsHash": "sha256:27f0b1f6b103f64ae079fa0667481ef0081fab20a3e2b9746dd37694d6124b44"
 }
 ```
 
@@ -40097,7 +43226,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "copySelection",
   "title": "copySelection",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "copySelection({context,bodyIds}); 1–200个当前实体。",
   "synonyms": [
     "copySelection",
@@ -40111,7 +43240,15 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:41458d8e71594fb042e441a07c6f614cb809a6d6fa99a9849f3480151860a054"
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "STALE_REFERENCE",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE",
+    "UI_TASK_ACTIVE"
+  ],
+  "docsHash": "sha256:9e9cd125cba022527bd09c2fbd73bf39604ee0a2d4ac154ee681c9daec73b10b"
 }
 ```
 
@@ -40122,7 +43259,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "pasteSelection",
   "title": "pasteSelection",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "pasteSelection({context,idempotencyKey}); 先 copySelection。",
   "synonyms": [
     "pasteSelection",
@@ -40136,7 +43273,23 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:6e35c90a8c46c867d63d3385f30ae2d95167b6b32c6c1c9a81a056632658f418"
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "STALE_REFERENCE",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE",
+    "IDEMPOTENCY_KEY_REUSED",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "docsHash": "sha256:93285fb9cc1015791cb7f706100580deae67a22d71e6ac32bcbc0d2004f1c415"
 }
 ```
 
@@ -40147,7 +43300,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "createRequestContext",
   "title": "createRequestContext",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "createRequestContext(context?); omit to read the current context.",
   "synonyms": [
     "createRequestContext",
@@ -40166,7 +43319,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:7e93c69b73bfa66960771f7f1adba067d96a0963fbf67bf67ddd8fe221a90b14"
+  "docsHash": "sha256:f14e53127b464900611d21537511bb62c74f81d2eabb4869021fd47e135d1c2e"
 }
 ```
 
@@ -40177,7 +43330,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "getUILayout()",
   "synonyms": [
     "getUILayout",
@@ -40194,7 +43347,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
   "errorCodes": [],
   "docs": "api.workspace",
-  "docsHash": "sha256:b5cb097431cab1edc9bcbb1159f815f2d8eb26ca5d937664026b6d9e4ac3b539"
+  "docsHash": "sha256:c919c8a68d2266b7bbcbc689dfb1aba7920b23f375690b5caeaf13f19915b4bf"
 }
 ```
 
@@ -40205,7 +43358,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setRenderQuality",
   "title": "setRenderQuality",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "setRenderQuality({context,quality:\"draft\"|\"standard\"|\"fine\"|\"ultra\"})",
   "synonyms": [
     "setRenderQuality",
@@ -40229,7 +43382,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "DISPLAY_FAILED"
   ],
   "docs": "api.workspace",
-  "docsHash": "sha256:14716d84f82abefe49652405d90534bb08b0f8e7eea32a54902be00b10b46080"
+  "docsHash": "sha256:64d5b3a761d23925cf83207322b787b498bf0e645e7e595c8cfeed9d005ea827"
 }
 ```
 
@@ -40240,7 +43393,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "invoke({method,args}); public method name or files.*.",
   "synonyms": [
     "invoke",
@@ -40258,7 +43411,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_SCHEMA_INVALID"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:8b229eeac83f22c6e3a5458b7e121efa1889d45cee027ba4e5378a06bd2a9055"
+  "docsHash": "sha256:ebff4019b772af1581a3ae3b15a6265b5a48fa594dff09c94655948f6db22ba4"
 }
 ```
 
@@ -40269,7 +43422,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "submit",
   "title": "submit",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/inspectConstraints/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.",
   "synonyms": [
     "submit",
@@ -40291,7 +43444,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:c4d48e9aa9c1957a21cd71e06444ab7d0e569da3d987ed5dd7f2a8d82bec92cc"
+  "docsHash": "sha256:1bd21e4155db92d580a2ef910e26a5970e955f64ee0eed05bbbdeab60a37c2dd"
 }
 ```
 
@@ -40302,7 +43455,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getJob",
   "title": "getJob",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "getJob({jobId})",
   "synonyms": [
     "getJob",
@@ -40321,7 +43474,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "JOB_NOT_FOUND"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:492b6f34ee39063441a9cb0557ee976b38dfc89351521f5f7e6185b5079be0ba"
+  "docsHash": "sha256:690703024504f30c2e585c955fc626fca3cf9ea9ec072878dc29172760795373"
 }
 ```
 
@@ -40332,7 +43485,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "cancelJob",
   "title": "cancelJob",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "cancelJob({jobId})",
   "synonyms": [
     "cancelJob",
@@ -40349,7 +43502,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "JOB_NOT_FOUND"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:91d3771b3179b6801f3d10956e5cdba5fb10fb336a6eb7a0e903abd9969980fd"
+  "docsHash": "sha256:c03693e177008855876c95af13103d4ed3f945755db20331425f88162ea92fa8"
 }
 ```
 
@@ -40360,7 +43513,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.",
   "synonyms": [
     "connect",
@@ -40370,7 +43523,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "缓存"
   ],
   "inputContract": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.",
-  "outputContract": "当前 context/requestContext、canExecute/blockers/nextAction、版本与迁移说明、实体引用和工具契约。ready 仅为内核状态；canExecute 才计入 busy/preview。详见 api.workflow。",
+  "outputContract": "当前 context/requestContext、canExecute/blockers/nextAction、版本与迁移说明、实体引用和完整工具契约。搜索自动附带卡最多64000字符，contractIdsOmitted 和 contractReadPolicy 明示省略项；显式 toolIds 与按需 getTools 不受字符预算限制。ready 仅为内核状态；canExecute 才计入 busy/preview。详见 api.workflow。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -40380,7 +43533,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:67c2f20f6f258d3b333f688e19c112388fc7c668411c336eaef3cab02eb2389a"
+  "docsHash": "sha256:2a68fb23e5fdc53043c6c8e12c02b0afe9ad84a13806fa93300f2d42a693edee"
 }
 ```
 
@@ -40391,7 +43544,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "info",
   "title": "info",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "info() 无参数。",
   "synonyms": [
     "info",
@@ -40406,7 +43559,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "runtimeAvailability": "requires_page",
   "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
   "errorCodes": [],
-  "docsHash": "sha256:ad5be738b01125d457df8c20f5029c0d641f621792bec296f46ecbfbe459528c"
+  "docsHash": "sha256:7980186aa77596a0ca2c8ce57f3e722a5633e382001a7e6794c3ad4b769a168b"
 }
 ```
 
@@ -40417,7 +43570,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities/references。",
   "synonyms": [
     "getState",
@@ -40438,7 +43591,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_SCHEMA_INVALID",
     "INSTANCE_MISMATCH"
   ],
-  "docsHash": "sha256:f3f3706776d5c77cd6775528a0c949c0ed4d1872f25cfb4fcdcf6deae32a40e3"
+  "docsHash": "sha256:8a682d8a3170ba2f7947e6dde0c4fe1538daaa66b552fdfa4403c8559c0e14e8"
 }
 ```
 
@@ -40449,7 +43602,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "searchTools",
   "title": "searchTools",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。",
   "synonyms": [
     "searchTools",
@@ -40469,7 +43622,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:250dc4d9176fcd2dffde0e282f3cefea320da86550a5caa69fe3588d27f932d9"
+  "docsHash": "sha256:c26b82b867b31a5eee7b2abb78ead8cf51c98715b1d2d5c779f44f5f6febfd36"
 }
 ```
 
@@ -40480,7 +43633,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getTools",
   "title": "getTools",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.",
   "synonyms": [
     "getTools",
@@ -40501,7 +43654,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CATALOG_CHANGED"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:4b5b779df18071dc708b8d5087ea53fd594053bbaea3348b1673698fd9b0a4ff"
+  "docsHash": "sha256:3be9cab12b6f344995055212451ac9e9551cf9f15606164f70909fb608c90ba0"
 }
 ```
 
@@ -40512,7 +43665,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getTool",
   "title": "getTool",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。",
   "synonyms": [
     "getTool",
@@ -40522,7 +43675,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "契约"
   ],
   "inputContract": "getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。",
-  "outputContract": "完整工具卡、版本和 docsHash。",
+  "outputContract": "完整工具卡、版本和 docsHash；快捷模型优先按 template.kind 读取单个变体，quickModel 是完整总目录。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -40532,7 +43685,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "UNKNOWN_OPERATION",
     "OPERATION_VERSION_UNSUPPORTED"
   ],
-  "docsHash": "sha256:02f4182c24cfc58dc5255e714f69ecf0598c5d977dc7b0613a8eca35fbc341d1"
+  "docsHash": "sha256:7671ea30f1d87a73e5c46dd0239fd60880a261aa5fbd5f94785c87efae1db91e"
 }
 ```
 
@@ -40543,7 +43696,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "readDocs",
   "title": "readDocs",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。",
   "synonyms": [
     "readDocs",
@@ -40563,7 +43716,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_RANGE_INVALID",
     "OPERATION_VERSION_UNSUPPORTED"
   ],
-  "docsHash": "sha256:6ee4477b3eca8e6ad5bb5b4b821cc5d873a8705e62748853e21aa65d104beae3"
+  "docsHash": "sha256:03c2ca5955072a1f41c2e0c1adc9715ec4d17d35b2d2d63a14a6283e4f42629f"
 }
 ```
 
@@ -40574,7 +43727,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "queryGeometry",
   "title": "queryGeometry",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,limit?,cursor?})。",
   "synonyms": [
     "queryGeometry",
@@ -40596,7 +43749,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "NO_MATCH",
     "AMBIGUOUS_SELECTION"
   ],
-  "docsHash": "sha256:83feca6539f3ca14b5e42e7c0fd260ea6c62f943ef48a8a5508a4a730fc66a83"
+  "docsHash": "sha256:d6243311c5856f832160045407466584781ece0bb859d8c80be03b56e348636a"
 }
 ```
 
@@ -40607,7 +43760,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "queryReferences",
   "title": "queryReferences",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "queryReferences({context,bodyIds:[],kind:\"point\"|\"axis\"|\"frame\",filter?:{types?:[\"cad-vertex\",\"edge-midpoint\",\"circle-center\",\"edge-nearest\",\"trimmed-face-point\",...],near?:{point:[x,y,z],radiusMm}},limit?,offset?,requireUnique?})。",
   "synonyms": [
     "queryReferences",
@@ -40626,7 +43779,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "STALE_REFERENCE",
     "AMBIGUOUS_REFERENCE"
   ],
-  "docsHash": "sha256:2138b4c2ba22cfd3a90d31fcf772590aa69aa3bf9d820309a01a7ef853bae4c9"
+  "docsHash": "sha256:f6e3a0e7c2a5b8882cd3425314a1ca6057c3854c18ce218d4341055ac3e9b196"
 }
 ```
 
@@ -40637,7 +43790,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "resolvePlacement",
   "title": "resolvePlacement",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。",
   "synonyms": [
     "resolvePlacement",
@@ -40656,7 +43809,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "FRAME_INVALID",
     "PLACEMENT_NOT_APPLICABLE"
   ],
-  "docsHash": "sha256:8552edf9b39fea87173c9edaada0c33562529c39c6e365e3b15f33c869a1e794"
+  "docsHash": "sha256:60c631d58830262fe5eade6dc103b2e8ba04abaf52e13654e26263565a436301"
 }
 ```
 
@@ -40667,7 +43820,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "execute({context,idempotencyKey,action,args}); action 来自当前命令合同。",
   "synonyms": [
     "execute",
@@ -40687,9 +43840,15 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "INSTANCE_MISMATCH",
     "REVISION_CONFLICT",
     "PARAM_SCHEMA_INVALID",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
-  "docsHash": "sha256:196ae0b961a5127fef7ee32b21caf97a18521fb3057b1f2d0f466cefb3524cdd"
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "docsHash": "sha256:ca2610cb548c61668dddec21b0d992fa7ebe2d54bc7dbdc3221495a15225d140"
 }
 ```
 
@@ -40700,29 +43859,36 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "measure",
   "title": "measure",
   "category": "page-method",
-  "version": "1.13.0",
-  "description": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需非负整数 topologyId。",
+  "version": "1.16.0",
+  "description": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需当前范围内的非负整数 topologyId；整个实体测量不接受 topologyId，坐标点模式不可混用实体字段。",
   "synonyms": [
     "measure",
     "测量",
     "实测",
     "体积",
+    "表面积",
     "包围尺寸",
     "半径"
   ],
-  "inputContract": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需非负整数 topologyId。",
-  "outputContract": "status=read、source=exact-brep、单位、当前 context 和内核实测结果。",
+  "inputContract": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需当前范围内的非负整数 topologyId；整个实体测量不接受 topologyId，坐标点模式不可混用实体字段。",
+  "outputContract": "status=read、单位与当前 context。实体返回 bounds/volume/area/solidCount/shellCount；area 为全部 BREP 面的面积 mm²，含孔壁/内腔，组合件按组成面累加，不先融合重叠体。无实体时 volume=null，纯线形状 area=0。面返回 area，边返回 length，圆边另有 radius/diameter。实体/面/边使用 source=exact-brep；两点距离使用 source=provided-coordinates，不声称取自模型。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
     "STALE_REFERENCE",
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:34cb95eb31f32118723f4eebf3f36aa097a2920b3766adc49d7a226634886cbf"
+  "units": {
+    "length": "mm",
+    "area": "mm^2",
+    "volume": "mm^3"
+  },
+  "docsHash": "sha256:f904601e306f74195ec12193d970cb0463b8aa207819f310261b432abdabdb92"
 }
 ```
 
@@ -40733,7 +43899,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "measureRelation",
   "title": "measureRelation",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "measureRelation({context,mode:\"shortest\"|\"centerDistance\"|\"axisAlignment\"|\"pointFace\"|\"parallelFaces\",first?,second?,face?,pointWorld?})；引用形式 {bodyId,kind:\"body\"|\"edge\"|\"face\",topologyId?}。",
   "synonyms": [
     "measureRelation",
@@ -40756,7 +43922,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:aeb874267c2e8f7832d61d148d7794d6094505b3c8ceb10b24b8e676a50e5777"
+  "docsHash": "sha256:315f6674893998a2b28092c34a037656e7485d44f651cd206e5894c9719cc1fc"
 }
 ```
 
@@ -40767,7 +43933,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectPrintability",
   "title": "inspectPrintability",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "inspectPrintability({context,bodyId,angleLimitDeg?:45}); angleLimitDeg 在 0 与 90 度之间。",
   "synonyms": [
     "inspectPrintability",
@@ -40790,7 +43956,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.printability",
-  "docsHash": "sha256:91c75bb2c192bc71f55478b4bad39a775f1ba5d27fd25250f4d2aa919dd6aa52"
+  "docsHash": "sha256:24466001ec931464d79722a76ff3d19dda4456b7f4751d4ac7cbf76c23b8b200"
 }
 ```
 
@@ -40801,7 +43967,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectProfile",
   "title": "inspectProfile",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。界面检查选项按需展开；API 不依赖界面展开状态。",
   "synonyms": [
     "inspectProfile",
@@ -40824,7 +43990,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.interaction",
-  "docsHash": "sha256:4e2bbfd8485da8510c7ddc3416946b2935fff829cab152d641d36982ded476c2"
+  "docsHash": "sha256:00cec062bc4e9126497fe9b11f9a6ffdec386f36b497213cdcbb8e0261ccad1d"
 }
 ```
 
@@ -40835,7 +44001,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "prepareProfileEdit",
   "title": "prepareProfileEdit",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "prepareProfileEdit({context,bodyId,mode:\"intersections\"|\"trim\"|\"extend\"|\"trimCircle\"|\"fillet\",entityId?,targetId?,edgeIds?,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})。二维圆角可用 edgeIds:[两条当前边索引] 替代 entityId/targetId，支持解析轮廓及其未缩放的移动/旋转副本，选择先后不限；须显式 radiusMm 与新 arcId。",
   "synonyms": [
     "prepareProfileEdit",
@@ -40850,8 +44016,17 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "STALE_REFERENCE",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
   "docs": "api.interaction",
-  "docsHash": "sha256:724357b5a59392e8589c192ccf4023b6a1f25e744ff6a0fd5c007f073020f0ab"
+  "docsHash": "sha256:c0daf5ecda61db98caa221781b81465a4aa1a425d9659ab316d259c428ff31a0"
 }
 ```
 
@@ -40862,7 +44037,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectConstraints",
   "title": "inspectConstraints",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "inspectConstraints({context,bodyId})；当前保存的 sketchProfile 或 profileConstraints 派生轮廓。只读诊断已有关系；矩形转换为明确四条解析边并保留形状关系。",
   "synonyms": [
     "inspectConstraints",
@@ -40891,7 +44066,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PROFILE_CONSTRAINT_GEOMETRY_INVALID"
   ],
   "docs": "api.mechanical",
-  "docsHash": "sha256:77216be30bc0546257b1fa9184159ba4b903e60ac0ff801490e2d12a43519087"
+  "units": {
+    "length": "mm",
+    "angle": "degrees"
+  },
+  "docsHash": "sha256:6d6a814ff8401d3df9d04a620e76d4f132f431a1e6ce78a7c71eb32bd4924815"
 }
 ```
 
@@ -40902,7 +44081,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "projectProfile",
   "title": "projectProfile",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "projectProfile({context,bodyId,edgeIds:[当前边索引],frame?:{origin,quaternion}})；或用 pointWorld:[x,y,z] 投影明确坐标点。",
   "synonyms": [
     "projectProfile",
@@ -40924,7 +44103,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "UNSUPPORTED_CURVE_PROJECTION",
     "DEGENERATE_PROJECTION"
   ],
-  "docsHash": "sha256:fecd8ff3699ff8f645fefd825409763df9e817ce319c54b9ed3ec4b004dd94e8"
+  "docsHash": "sha256:5bb32a8979f5120b88f04748798e03011ac62b1d2cc5758998015a3e3d72355d"
 }
 ```
 
@@ -40935,7 +44114,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectFit",
   "title": "inspectFit",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。",
   "synonyms": [
     "inspectFit",
@@ -40946,7 +44125,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "两实体"
   ],
   "inputContract": "inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。",
-  "outputContract": "status=read、overlap/contactWithinTolerance/separated、公共体积或精确最短距离与见证点、当前 context；只读，不自动判断工艺合格。",
+  "outputContract": "status=read、overlap/contactWithinTolerance/separated、公共体积或精确最短距离与见证点、当前 context。布尔检查只在独立 BREP 副本上执行，保留来源字节、历史与显示修订；不自动判断工艺合格。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -40958,7 +44137,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:9ce549a644fd5c98317159ee39f8d0761c7111ccdf8461de90732642024725e5"
+  "docsHash": "sha256:5bad9c75baace27ddc9664e016af5ccccc030e6c19eba8ae8c5e2838dbae238a"
 }
 ```
 
@@ -40969,7 +44148,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectThickness",
   "title": "inspectThickness",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "inspectThickness({context,bodyId,mode:\"ray\",point:[x,y,z],direction:[dx,dy,dz]})；或 mode:\"faces\",faceAId,faceBId,point；两面须平行且射线穿过连续材料。",
   "synonyms": [
     "inspectThickness",
@@ -40990,7 +44169,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:7be7c4564acda0768eb4229bc58ce68abecdecb9241bb591fd81b51dbb14a7b9"
+  "docsHash": "sha256:5de7d08a34088a7a604e840bc39031431d6957e62322411e4d44445bdc381985"
 }
 ```
 
@@ -41001,7 +44180,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectDraft",
   "title": "inspectDraft",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "inspectDraft({context,bodyId,pullDirection:[0,0,1],thresholdDeg:2})；用户决定阈值。",
   "synonyms": [
     "inspectDraft",
@@ -41022,7 +44201,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:15ec9d4a94e90ad73e25f9b9b2c235311b0ec8dcef48bdf28affe4749fcdf5c6"
+  "docsHash": "sha256:b533d5b6c434d937e0fd1fd9de485e507203ba07631f5fe220a587958c2e16c2"
 }
 ```
 
@@ -41033,7 +44212,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "readVector",
   "title": "readVector",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "readVector({context,name,resourceId|text,scaleMm?:1,targetWidthMm?,entityIds?,bounds?:[minX,minY,maxX,maxY],layers?,offset?:0,limit?:500}); limit<=10000。文件先 files.register。",
   "synonyms": [
     "readVector",
@@ -41059,7 +44238,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.vector-import",
-  "docsHash": "sha256:44223991eaa713fd56bf71f93c3bee65972d5950c45db7deb3557a911a34c88b"
+  "docsHash": "sha256:ac6421e1ad6bd7dfe97cd3e70d4ed0c677d1a9fa37963f0489461aa9400c87a0"
 }
 ```
 
@@ -41070,7 +44249,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "connectVector",
   "title": "connectVector",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "connectVector({context,entities,toleranceMm?:0.000001,origin?:[0,0],flipY?:false}); 1..500 条解析线。",
   "synonyms": [
     "connectVector",
@@ -41094,7 +44273,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.vector-import",
-  "docsHash": "sha256:184fc52dc98ce403b856311e928fa701f9bee6538f87f884732e074f6c64a72d"
+  "docsHash": "sha256:b83c61a92e70dc753abd3b6278a374b1aa75a9c1b5f43a945c3b2887c2325fe9"
 }
 ```
 
@@ -41105,7 +44284,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "fitProfile",
   "title": "fitProfile",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "fitProfile({context,kind:\"circle\"|\"line\",plane?:\"XY\"|\"XZ\"|\"YZ\",points:[[u,v],...],maxResidualMm?}); 3–1000 点。",
   "synonyms": [
     "fitProfile",
@@ -41129,7 +44308,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.profile-fitting",
-  "docsHash": "sha256:4333b6739e4fd446619f8be309d819c934a2133eb781c5f4711f7d8953742323"
+  "docsHash": "sha256:30bc442d9fa823571a9b85e274ce1da793c6bd5fe1ac226110d6784176a69833"
 }
 ```
 
@@ -41140,7 +44319,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "traceTwinWindow",
   "title": "traceTwinWindow",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBottomY,simplifyToleranceMm?:0..0.2}); 四条上到下 XY 采样曲线，每条3–2000点。",
   "synonyms": [
     "traceTwinWindow",
@@ -41162,7 +44341,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.dwg-spline-twin-window",
-  "docsHash": "sha256:062dcb075433f20354b8bcc02d634d5cd545c2f0bd64a87d696b797476b7eb1d"
+  "docsHash": "sha256:395767ee32b71ab9ab6528a58f2486acc2d701a1abda14fd404898a6aba05f0a"
 }
 ```
 
@@ -41173,7 +44352,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "executeText",
   "title": "executeText",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "executeText({context,idempotencyKey,text,dryRun?}); 每行 add <op> key=value 或 measure <bodyId|$last>。",
   "synonyms": [
     "executeText",
@@ -41196,7 +44375,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.text-command",
-  "docsHash": "sha256:1aa74cb09a3fa903afa96133eb3b221fa623e2fe2bd55d0f72a0ccbc89f05857"
+  "docsHash": "sha256:698b33b3983b20fe034bdc42a5a7256e9dc9b80df609829bcad604a8c432312a"
 }
 ```
 
@@ -41207,7 +44386,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "setDisplayPreferences({context,values}); values 为部分配置，字段及范围见 api.display-preferences。",
   "synonyms": [
     "setDisplayPreferences",
@@ -41232,7 +44411,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.display-preferences",
-  "docsHash": "sha256:2b3adc85869e2adda7162c3b7cce3e33752483b01c245601c468567fa58261e3"
+  "docsHash": "sha256:44c870c78839e7ef07861dab1e1e63f97d2bee8e2aa9cc91408249b5e33b9551"
 }
 ```
 
@@ -41243,7 +44422,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getLogoConverter",
   "title": "getLogoConverter",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "getLogoConverter()；读取当前浏览器 localStorage 的配置。",
   "synonyms": [
     "getLogoConverter",
@@ -41258,7 +44437,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:679d0385bc353d94e75c4fd12ff7fcf9ed0a4112e905a9a13f5d2af444a6fca5"
+  "errorCodes": [],
+  "docsHash": "sha256:822d6643fda6bd75bcb8e527670d153cffdc4c4055280cd03e6b401a6b8186fc"
 }
 ```
 
@@ -41269,7 +44449,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setLogoConverter",
   "title": "setLogoConverter",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "setLogoConverter({context,url,key?})；URL 必须含 userid，空 key 保留原值。",
   "synonyms": [
     "setLogoConverter",
@@ -41285,7 +44465,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:5cce282e4d8a7c867fd9c157884cdd4db489d6e7f953c9577afe372241755073"
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docsHash": "sha256:48d57b5e0ec8352e7a89fedbe97693984cd095826fd0acdbe7df1bed5ac19c87"
 }
 ```
 
@@ -41296,7 +44482,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "convertLogoPdf",
   "title": "convertLogoPdf",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "convertLogoPdf({context,name,data,targetWidthMm?})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。",
   "synonyms": [
     "convertLogoPdf",
@@ -41312,7 +44498,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:108fadad9afcae7f3a2d8aad4cf60367763f8169d1d917b4bc62d07f3ada46c1"
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
+  "docsHash": "sha256:913e30d967b337d465aab7d7e883a86f7021e2fce2c73c68f46a31af6cfb7866"
 }
 ```
 
@@ -41323,7 +44516,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
   "synonyms": [
     "setView",
@@ -41352,7 +44545,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SELECTION_CONFLICT"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:9acc43f50682c3e1fbbc432fe73013ccfd5f51f73733926192db5b234b20b8ff"
+  "docsHash": "sha256:d32fc5ff0ef4a645db1bc517ea601f9695688fa522c404bd000a94a78f388dcf"
 }
 ```
 
@@ -41363,7 +44556,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "redraw",
   "title": "redraw",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "redraw({context}); 不接受额外字段。",
   "synonyms": [
     "redraw",
@@ -41384,7 +44577,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "DISPLAY_FAILED"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:d3da34eac622726903a22012de98a23b1d55baf094f202e1875e06a0a2b46b8d"
+  "docsHash": "sha256:ff11d78bc1dcb9cc58ddce18c856969bed122bb07b04b0b2364f8c3af2280a9d"
 }
 ```
 
@@ -41395,7 +44588,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "capture({context}); 不接受额外字段。",
   "synonyms": [
     "capture",
@@ -41416,7 +44609,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "DISPLAY_FAILED"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:a24c383f5ce12444bd9d0c6092d1e96d9474a56c3f6be0ca8a7a408af6415bbc"
+  "docsHash": "sha256:b13fe5af4771baae8abe356e652dce34f00e66bca1fcd0efe3eb949f6925d8ab"
 }
 ```
 
@@ -41427,7 +44620,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}).",
   "synonyms": [
     "run",
@@ -41449,9 +44642,129 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "INSTANCE_MISMATCH",
     "REVISION_CONFLICT",
     "IDEMPOTENCY_KEY_REUSED",
-    "STALE_REFERENCE"
+    "STALE_REFERENCE",
+    "SIZE_LIMIT"
   ],
-  "docsHash": "sha256:da7c9b3877d6e5208f81b642d15b2d630b523c3bd22d79da3ef63773d9aa3f7d"
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "docsHash": "sha256:0928931c6253b50aea6f9f18abd66b6089610ae288c77ec64ce4b131912eb160"
+}
+```
+
+## 工具 body.align · 快速对齐
+
+```json
+{
+  "id": "body.align",
+  "title": "快速对齐",
+  "description": "按世界 X/Y/Z 对齐包围范围的 min/center/max；移动件和基准件显式分开；group=true 保持相对位置。一次原子历史操作。",
+  "category": "command",
+  "version": "1.16.0",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"body.align\",args}); 按世界 X/Y/Z 对齐包围范围的 min/center/max；移动件和基准件显式分开；group=true 保持相对位置。一次原子历史操作。",
+  "fields": [
+    "bodyIds",
+    "target",
+    "axes",
+    "sourceSide",
+    "targetSide",
+    "group",
+    "gapMm"
+  ],
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "STALE_REFERENCE",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState",
+    "getHistory"
+  ],
+  "minimalExample": {
+    "action": "body.align",
+    "args": {
+      "bodyIds": [
+        "<bodyId>"
+      ],
+      "target": {
+        "kind": "origin"
+      },
+      "axes": [
+        "X",
+        "Y",
+        "Z"
+      ],
+      "sourceSide": "center",
+      "targetSide": "center",
+      "group": true
+    }
+  },
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
+  "docs": "api.editor",
+  "docsHash": "sha256:10ebd5c212af77b48ca2d54f1295af9b6175953e9949d4580ad2579c2cc2ec6a"
+}
+```
+
+## 工具 history.restore · 退回工程状态
+
+```json
+{
+  "id": "history.restore",
+  "title": "退回工程状态",
+  "description": "用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。",
+  "category": "command",
+  "version": "1.16.0",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"history.restore\",args}); 用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。",
+  "fields": [
+    "stateId"
+  ],
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "STALE_REFERENCE",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "HISTORY_INVALID"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState",
+    "getHistory"
+  ],
+  "minimalExample": {
+    "action": "history.restore",
+    "args": {
+      "stateId": "<stateId>"
+    }
+  },
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
+  "docs": "api.editor",
+  "docsHash": "sha256:7efd6bf41354f6a2e88e96cc0f755e82d9d822376ce8b4e5cffc36d142773a73"
 }
 ```
 
@@ -41463,7 +44776,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "工程改名",
   "description": "修改工程名称，保留几何。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -41471,15 +44784,38 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "fields": [
     "name"
   ],
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
   "minimalExample": {
     "action": "document.rename",
     "args": {
       "name": "圆环设计"
     }
   },
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:e2d304ffd3b7bcba1fcd92a4ce7b846e282c421c675a555a445360bc7f78002e"
+  "docsHash": "sha256:3bced1636f0379f3d157b2d15e2e2fb6f25169c36f4b35842b44f1d51610baa3"
 }
 ```
 
@@ -41491,7 +44827,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "特征改名 实体名称",
   "description": "修改历史步骤及同 ID 实体名称，导入件也可使用。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -41500,6 +44836,29 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "featureId",
     "name"
   ],
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
   "minimalExample": {
     "action": "feature.rename",
     "args": {
@@ -41507,9 +44866,9 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "name": "主体"
     }
   },
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:20e5619134cc18a7766ecd31f203808b7fc26f0d5f69f3493300b2174d82339d"
+  "docsHash": "sha256:2f6f9a2e0f80a4c258f67770e763ec09312d2a152abcd123ca4ad91d95866974"
 }
 ```
 
@@ -41521,7 +44880,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "显示 隐藏实体",
   "description": "显隐指定当前实体，不删除几何。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -41529,6 +44888,29 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "fields": [
     "bodyIds",
     "visible"
+  ],
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
   ],
   "minimalExample": {
     "action": "body.visibility",
@@ -41539,9 +44921,9 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "visible": false
     }
   },
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:433662d41a9ea3909fb2f9f8ec1450f9ab9bbcdbfb678f5c7620f0fbc868cc1b"
+  "docsHash": "sha256:109eddf33a94a1a497b961520293c0bee8f408a88178d4e2ff592e2dd2a73a24"
 }
 ```
 
@@ -41553,7 +44935,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "实体原色 颜色 金属 材质",
   "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -41562,6 +44944,29 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "bodyIds",
     "color",
     "finish"
+  ],
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
   ],
   "allowedFinishes": [
     "design",
@@ -41586,9 +44991,9 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "finish": "design"
     }
   },
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:0ee0de6e1e0ec294be567a2a49f086fa73299b504a3289685b28245bd316be70"
+  "docsHash": "sha256:18ec10e60d84f52369e01a1cb48bd6363ffe8cd59f4268442ae67fd0f1652446"
 }
 ```
 
@@ -41600,13 +45005,36 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "工程渲染 金属色",
   "description": "设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"document.appearance\",args}); 设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
   "fields": [
     "finish"
+  ],
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
   ],
   "allowedFinishes": [
     "design",
@@ -41627,9 +45055,9 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "finish": "nickel"
     }
   },
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:4ab626caedb1a5ca7a40cfb671cba40a79e414898db523c4303ab97fc4d82a62"
+  "docsHash": "sha256:1fb98dc09e8ce7637c11d04c91445f4f6cbd2fb8b8b03c3f4c0dc2cca9f60ac7"
 }
 ```
 
@@ -41641,7 +45069,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "组合拆散 多实体分解",
   "description": "将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -41649,15 +45077,38 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "fields": [
     "bodyId"
   ],
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
   "minimalExample": {
     "action": "body.explode",
     "args": {
       "bodyId": "<bodyId>"
     }
   },
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:5f0bbca803724ea78d9a4c13b67e07fb9f49d2e561c7e6db23afcb7d59e4fde2"
+  "docsHash": "sha256:6cec6d3d87b30b4de8e9b5ce250ae1fac803b5c1abb719725d4e26dd3d1e0e0d"
 }
 ```
 
@@ -41669,14 +45120,37 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "设置参考锚点（工作基准）",
   "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.setWorkFrame\",args}); args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:6b627d46abff81ca9fd9c16ecc4c49664548161c64b55ca16bfe20787b663e8d"
+  "docsHash": "sha256:b36b3e0b0d9a33c1d1c88a62e7ec39bb679d0c6c474c1ec3027cf97843ddadc9"
 }
 ```
 
@@ -41688,14 +45162,37 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重置参考锚点（工作基准）",
   "description": "args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.resetWorkFrame\",args}); args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:1607b88c11fe64f885f01f3d9b39d5c3ade9e71f1019b2a7eb924433d699b85b"
+  "docsHash": "sha256:33fe9c98d27d9faae56d1307bbe2008a35d1fb010ed09c4e03a92668781b17b0"
 }
 ```
 
@@ -41707,14 +45204,37 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "锁定参考锚点（工作基准）",
   "description": "args:{locked:boolean}；可撤销的元数据操作。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.setLocked\",args}); args:{locked:boolean}；可撤销的元数据操作。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:05961953606fa1ab087e6c008424f5bab4994b8b4a3b7022356e9ab935edcb0d"
+  "docsHash": "sha256:03346f561f46efdcfe72a01e6f847f1fa9436ad45b2af6c161e33a1d1eaa1004"
 }
 ```
 
@@ -41726,14 +45246,37 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "保存具名基准",
   "description": "args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.saveFrame\",args}); args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:d7d61ba3cf24800e257902e68e84e5942eceeb724e41f7b26f4428277babd6f6"
+  "docsHash": "sha256:b0d5fd6bbca9ee41b77d0d1c0f4fee38a143f0491d7b52074b9e0a471c8dea16"
 }
 ```
 
@@ -41745,14 +45288,37 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "激活具名基准",
   "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.activateFrame\",args}); args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:8c46432ee6c2adcd040df185675651d3aa1f27f5da4f3b4af6255bc71e3f7aaa"
+  "docsHash": "sha256:4b6fe7c759e6afe84616c717e1f0c7e991e1a7f408ea56e46d11cbacd1e761e0"
 }
 ```
 
@@ -41764,14 +45330,37 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重命名具名基准",
   "description": "args:{frameId,expectedFrameVersion,name}。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.renameFrame\",args}); args:{frameId,expectedFrameVersion,name}。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:4ded812e06cc21d747293cac633ead3dfebfe6d13650508ac139f71dfc3efeae"
+  "docsHash": "sha256:e7f873fb202fca52ef36f385038ef90c6e1abaa9b9f6339eac0033f0f69d2c07"
 }
 ```
 
@@ -41783,14 +45372,37 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "删除具名基准",
   "description": "args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.deleteFrame\",args}); args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:5f86539c234a08b22ceac7baded8c7ad21614412d8580597ec3ba135edc65eba"
+  "docsHash": "sha256:f95e7ec6102fe0f7e4a5ca1eb3c4f3cd376523c948793928e9c525988b21f68a"
 }
 ```
 
@@ -41802,14 +45414,37 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "对象锚点",
   "description": "args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.setBodyAnchor\",args}); args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:5a8c49a1fe1cfb476f05f62a79d2ffbc01a350e60d10d4c4fcc8d7ec43070792"
+  "docsHash": "sha256:d516cf6ab715b74cbc0813f746c2b44933a56165c345f2052d785161db61c612"
 }
 ```
 
@@ -41821,14 +45456,37 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "删除对象锚点",
   "description": "args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.deleteBodyAnchor\",args}); args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:7dd0efa854d5bdb2d156504d3cc16dbbb709aaf0d7591ff577875aa61b3c6415"
+  "docsHash": "sha256:cb00501d2f17c9e805f5ad0c3b2cbd75719dfe11d029a1a9ac599eadfc9ff68b"
 }
 ```
 
@@ -41840,14 +45498,37 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "新增几何",
   "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"feature.add\",args}); args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:e501e1e1e779bcf7b2e08907498d7ffe0d977fac88805e77027a6f13ff40b045"
+  "docsHash": "sha256:06e684646dd17b844d7bdd454b24dc46677083c3db26d23a1b9197502d3e9b81"
 }
 ```
 
@@ -41859,14 +45540,37 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "修改参数",
   "description": "args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"feature.edit\",args}); args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:c6af0f4faead7c4fa18ae484c36e73d9225588a9de7f9a6f5c00efdd562e60c3"
+  "docsHash": "sha256:f886e896209b3bf5d6c992504c6a969f6ab548bfed00ca741083bca236c81431"
 }
 ```
 
@@ -41878,14 +45582,37 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "删除实体",
   "description": "args:{bodyIds}，不可使用历史已替换 ID。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"feature.remove\",args}); args:{bodyIds}，不可使用历史已替换 ID。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:b299f255d965070b548d4aea3e8ca4e96b56e25dbdeff0f1df796451394f4e2d"
+  "docsHash": "sha256:ba074d93d3fb3efa2edea20565ea1973632b638e2841e9d085f5f028c186c2e9"
 }
 ```
 
@@ -41897,14 +45624,37 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "撤销",
   "description": "args:{}；撤销一个已提交步骤。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"history.undo\",args}); args:{}；撤销一个已提交步骤。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:d3be5604158faa4aa53f43d3a113fc6fb466b187bbcff85b1efa393488179c81"
+  "docsHash": "sha256:69830598399e0e483acc6e4bdb9f4a5696847c65f7afae994a993d56080d3857"
 }
 ```
 
@@ -41916,14 +45666,37 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重做",
   "description": "args:{}；重做一个步骤。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"history.redo\",args}); args:{}；重做一个步骤。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:84080355d5cec7d5b6836073d2b66140517ceee6fe58c362b903d5af89225cea"
+  "docsHash": "sha256:8f6e9cc0cd81152dab11082df20b3a237e02b3df8a99ae9e6bb9f1921a2702e1"
 }
 ```
 
@@ -41935,14 +45708,37 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重建工程",
   "description": "args:{}；重建当前历史。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"document.refresh\",args}); args:{}；重建当前历史。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:ce7a5839532c8b359fb3258f5224917d263f467188a7409e419cbc06e1bcb17d"
+  "docsHash": "sha256:7aeda3066c75102b16f8073424753e30632e59ae9bb9267abfb1e73a94dd0012"
 }
 ```
 
@@ -41954,14 +45750,37 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "预览模型或文件插入",
   "description": "普通特征 args 同 feature.add；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"preview.start\",args}); 普通特征 args 同 feature.add；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:d899b56509f2e63d7b55f6989fdabb929695abcb4e4d1cd880f775c8f8d8334c"
+  "docsHash": "sha256:028883aced6a5f31037ada7fd6f6e3cf01f3d1f3ed9f3be5ea4aad8c8a081145"
 }
 ```
 
@@ -41973,14 +45792,37 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "更新预览",
   "description": "args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"preview.update\",args}); args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:646cf2071047f1f186ac4e24bdcc6233228bf136c5b16cbfefb7e7d6b9d16659"
+  "docsHash": "sha256:c5febb694b4052490dd23be4357134d28bc921130b63378d0074b0bb5eedffec"
 }
 ```
 
@@ -41992,14 +45834,37 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "应用预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"preview.commit\",args}); 新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:6783013dcb3bd82f8ae074443c08ac30e860a1a1dc354b907cdb38237eb62cfc"
+  "docsHash": "sha256:1117d3df51d6def66831a79d5fb3ff1e4c1d5c06765d5ee81c55ce6ebf24bdb3"
 }
 ```
 
@@ -42011,14 +45876,37 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "取消预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"preview.cancel\",args}); 新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:ee3468dcbfde06a6f8923c9e02d0bb0ee2f0e02601d433f954a9c0593d7b76cb"
+  "docsHash": "sha256:b1c7f92a415026ad90cd35e4ba4aa7121a08b9630c46648dcb9fb72b524af961"
 }
 ```
 
@@ -42029,7 +45917,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。",
   "synonyms": [
     "参数",
@@ -42096,14 +45984,20 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_PATH_INVALID",
     "PARAMETER_BOUND",
     "UNSAFE_LEGACY_REFERENCE",
-    "REVISION_CONFLICT"
+    "REVISION_CONFLICT",
+    "SIZE_LIMIT"
   ],
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "knownUnsupportedCases": [
     "No angular/area expression binding in this milestone.",
     "Indexed face/edge references downstream of a changed feature are rejected when stability cannot be proven."
   ],
   "docs": "api.named-parameters",
-  "docsHash": "sha256:7a3c263691fd83f2b7b6f5ccbad1ab96b2e75b2edaba180487892ed3e72d85df"
+  "docsHash": "sha256:67ad2417e28742b896b3ed9dad965d2975a929eb3dfc6e4a56cd176082b110a4"
 }
 ```
 
@@ -42114,7 +46008,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.capabilities",
   "title": "files.capabilities",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "文件能力",
   "synonyms": [
     "文件能力",
@@ -42129,26 +46023,26 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
-  "runtimeAvailability": "requires_ready_page",
+  "runtimeAvailability": "requires_page",
+  "argumentKeys": [],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.capabilities\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
-    "CAPABILITY_UNAVAILABLE",
-    "REVISION_CONFLICT",
-    "INSTANCE_MISMATCH",
-    "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
-    "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
-    "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "PARAM_SCHEMA_INVALID"
   ],
-  "docsHash": "sha256:ade393a72ee8e83a852f21d10f8bbf1a9ccec39d70e71185b663a455058e2aa8"
+  "docsHash": "sha256:d46fd87c87a615b5805b28df0b2683cc2e697db983eabdfc3fde2b5334e1b487"
 }
 ```
 
@@ -42159,7 +46053,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "登记文件资源",
   "synonyms": [
     "登记文件资源",
@@ -42174,26 +46068,34 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
-  "runtimeAvailability": "requires_ready_page",
+  "runtimeAvailability": "requires_page",
+  "argumentKeys": [
+    "name",
+    "data",
+    "mime"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.register\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
-    "CAPABILITY_UNAVAILABLE",
-    "REVISION_CONFLICT",
-    "INSTANCE_MISMATCH",
-    "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
+    "PARAM_SCHEMA_INVALID",
+    "NAME_INVALID",
+    "ASSET_INVALID",
     "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
-    "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:53b3bd5812fb4ad19be6b7c1bc0e199359e66bcf7347fb7e32e03dafba202622"
+  "docsHash": "sha256:150a30a23685930a6fc0b3069a0762ec2b7cc39fd7a0813eb7e7136154ccce70"
 }
 ```
 
@@ -42204,7 +46106,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "新建工程",
   "synonyms": [
     "新建工程",
@@ -42220,25 +46122,34 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
   "runtimeAvailability": "requires_ready_page",
+  "argumentKeys": [
+    "context"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.new\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
     "CAPABILITY_UNAVAILABLE",
     "REVISION_CONFLICT",
     "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
     "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
-    "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
-    "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "FILE_COMMAND_FAILED",
+    "SIZE_LIMIT"
   ],
-  "docsHash": "sha256:42343e787479dd7982b361db882389853c6583932d97e7eb5b1608e6f9005b88"
+  "docsHash": "sha256:2570719159f20a37791669dbfcb8c5b57f3a4a239ddeaab45c6f74766c16f966"
 }
 ```
 
@@ -42249,7 +46160,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "打开工程",
   "synonyms": [
     "打开工程",
@@ -42265,25 +46176,38 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
   "runtimeAvailability": "requires_ready_page",
+  "argumentKeys": [
+    "context",
+    "resourceId"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.open\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
     "CAPABILITY_UNAVAILABLE",
     "REVISION_CONFLICT",
     "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
     "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
+    "FILE_COMMAND_FAILED",
     "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
     "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "ASSET_INVALID",
+    "FORMAT_UNSUPPORTED"
   ],
-  "docsHash": "sha256:43d6469104a719b0f1299b0419d0f5847ff0feca5f0305f9e625a5a3e90b7c8c"
+  "docsHash": "sha256:0926dcc9c83c93533541eef6fe5858b8336b96d2d9a87786d72fc4ac3f414ea3"
 }
 ```
 
@@ -42294,7 +46218,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "导入",
   "synonyms": [
     "导入",
@@ -42310,11 +46234,24 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
   "runtimeAvailability": "requires_ready_page",
+  "argumentKeys": [
+    "context",
+    "resourceId",
+    "placement",
+    "idempotencyKey"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.import\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
+  },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "placementPolicy": {
     "mode": "creation-frame",
@@ -42332,17 +46269,20 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "IGES requires unavailable local conversion in the static build."
   ],
   "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
     "CAPABILITY_UNAVAILABLE",
     "REVISION_CONFLICT",
     "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
     "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
+    "FILE_COMMAND_FAILED",
     "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
     "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "ASSET_INVALID",
+    "FORMAT_UNSUPPORTED",
+    "IDEMPOTENCY_KEY_REUSED"
   ],
-  "docsHash": "sha256:407f5237667241c41730b5a8a4135d23cc8a1d1f83381cad2335c31e78c87093"
+  "docsHash": "sha256:01dad534ed283b5ea36159e8a66911c4c749a05f340ebed13653af201fa3347b"
 }
 ```
 
@@ -42353,7 +46293,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "保存工程",
   "synonyms": [
     "保存工程",
@@ -42369,25 +46309,38 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
   "runtimeAvailability": "requires_ready_page",
+  "argumentKeys": [
+    "context",
+    "name"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.save\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
     "CAPABILITY_UNAVAILABLE",
     "REVISION_CONFLICT",
     "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
     "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
+    "FILE_COMMAND_FAILED",
     "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
-    "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "ASSET_INVALID",
+    "NAME_INVALID",
+    "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:1ab60c285036ca2ae56c17c555d223817d9f9aeac2e4fab78ccd719e7a6fdb04"
+  "docsHash": "sha256:62566c9bdc3144032b7c2b056ce8a42cda11495489a028dcfef2c1e4eb43b82c"
 }
 ```
 
@@ -42398,7 +46351,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "导出文件",
   "synonyms": [
     "导出文件",
@@ -42414,25 +46367,41 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
   "runtimeAvailability": "requires_ready_page",
+  "argumentKeys": [
+    "context",
+    "format",
+    "ids",
+    "name"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.export\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
     "CAPABILITY_UNAVAILABLE",
     "REVISION_CONFLICT",
     "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
     "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
+    "FILE_COMMAND_FAILED",
     "SIZE_LIMIT",
+    "ASSET_INVALID",
+    "NAME_INVALID",
     "RESOURCE_LIMIT",
-    "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "FORMAT_UNSUPPORTED"
   ],
-  "docsHash": "sha256:79a7cc75da5c1b33a820b2c485c70a73afcea35d9e787658f53e802891d0160a"
+  "docsHash": "sha256:8c2d26db516a959a63df9a2655213e1542a5b2a9f28987e04d9018d0deade6d4"
 }
 ```
 
@@ -42443,7 +46412,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "读取文件字节",
   "synonyms": [
     "读取文件字节",
@@ -42458,26 +46427,30 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
-  "runtimeAvailability": "requires_ready_page",
+  "runtimeAvailability": "requires_page",
+  "argumentKeys": [
+    "resourceId",
+    "as"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.read\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
-    "CAPABILITY_UNAVAILABLE",
-    "REVISION_CONFLICT",
-    "INSTANCE_MISMATCH",
-    "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
-    "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
-    "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "PARAM_SCHEMA_INVALID",
+    "RESOURCE_EXPIRED"
   ],
-  "docsHash": "sha256:0fa3af2b5906db52202f56556d9251db3011c8c00e7e1f4616b402b326caa718"
+  "docsHash": "sha256:31d69c00649157ecf2be6bffcfdc6bf7484a8b5b42238865b559d9d31aded6f2"
 }
 ```
 
@@ -42488,7 +46461,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "下载文件",
   "synonyms": [
     "下载文件",
@@ -42503,26 +46476,31 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
-  "runtimeAvailability": "requires_ready_page",
+  "runtimeAvailability": "requires_page",
+  "argumentKeys": [
+    "resourceId"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.download\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
-    "CAPABILITY_UNAVAILABLE",
-    "REVISION_CONFLICT",
-    "INSTANCE_MISMATCH",
-    "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
-    "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
+    "PARAM_SCHEMA_INVALID",
     "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "ASSET_INVALID",
+    "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:4275a4ce42aadb88143e244082e97bf45c0bd5d3c937557141d043c2bc1f43ef"
+  "docsHash": "sha256:6f5aa0d2ea4b7eb9aeef2b015541473d0bcb6de3e648d9cb62f603e9e812242b"
 }
 ```
 
@@ -42533,7 +46511,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "写入文件",
   "synonyms": [
     "写入文件",
@@ -42548,26 +46526,36 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
-  "runtimeAvailability": "requires_ready_page",
+  "runtimeAvailability": "requires_page",
+  "argumentKeys": [
+    "resourceId",
+    "handle"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.write\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
-    "CAPABILITY_UNAVAILABLE",
-    "REVISION_CONFLICT",
-    "INSTANCE_MISMATCH",
-    "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
-    "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
+    "PARAM_SCHEMA_INVALID",
     "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "ASSET_INVALID",
+    "RESOURCE_BUSY",
+    "HANDLE_REQUIRED",
+    "PERMISSION_REQUIRED",
+    "HASH_MISMATCH",
+    "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:0f3e1fedd7f2e3affbd3912bb481cb7fd09a959409a805da7b054e01c91b98e0"
+  "docsHash": "sha256:8a2f2de6119134c768f87d6c3e142a90f49fdcb27213d5b435ed7aae40ee17ce"
 }
 ```
 
@@ -42578,7 +46566,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "confirmWritten",
   "synonyms": [
     "confirmWritten",
@@ -42593,26 +46581,36 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
-  "runtimeAvailability": "requires_ready_page",
+  "runtimeAvailability": "requires_page",
+  "argumentKeys": [
+    "resourceId",
+    "size",
+    "sha256"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.confirmWritten\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
-    "CAPABILITY_UNAVAILABLE",
-    "REVISION_CONFLICT",
-    "INSTANCE_MISMATCH",
-    "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
-    "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
+    "PARAM_SCHEMA_INVALID",
     "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "ASSET_INVALID",
+    "HASH_MISMATCH",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:1cc1249f572a0b36adf151501ab2d81b514f5e3aa1540f918b022eb9a9fec777"
+  "docsHash": "sha256:f9bd9c4a85d5f9caa82bdcd12425264e8b0aa8051ee7fcea8f79ca1bf6edbb85"
 }
 ```
 
@@ -42623,7 +46621,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "释放文件资源",
   "synonyms": [
     "释放文件资源",
@@ -42638,26 +46636,30 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
-  "runtimeAvailability": "requires_ready_page",
+  "runtimeAvailability": "requires_page",
+  "argumentKeys": [
+    "resourceId"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.release\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
-    "CAPABILITY_UNAVAILABLE",
-    "REVISION_CONFLICT",
-    "INSTANCE_MISMATCH",
-    "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
-    "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
+    "PARAM_SCHEMA_INVALID",
     "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "RESOURCE_BUSY"
   ],
-  "docsHash": "sha256:cb0cb6393d132f1dc82bc183686133b6ab1ae8df32a253a7e6d9a64163d3c712"
+  "docsHash": "sha256:16f2a53c32ff300346e2ae067204f7cc2704a1e67a5f84b3e1f22c9a3f2ebf66"
 }
 ```
 
@@ -42669,14 +46671,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "IGES/IGS 导入",
   "description": "当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。",
   "category": "unavailable",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
   "errorCodes": [
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:2d7e3f8247fb6a2a5465dd2817c2b6431dbfc8d25a82da42453c0d39c4b0c232"
+  "docsHash": "sha256:56012757922d1de41340e8f89be1b8f5e73bee29353d8633b949401b04b9479a"
 }
 ```
 
@@ -42688,13 +46690,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
   "description": "当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。",
   "category": "unavailable",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
   "errorCodes": [
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:ebdae771de19b5fb9549adb11af6eb667e0275965d4ebc794f576d44b6084ac4"
+  "docsHash": "sha256:2b9504958009a66b0775d2d35674e5d3240a82a86be0bdf15ad2c5009dfcf303"
 }
 ```

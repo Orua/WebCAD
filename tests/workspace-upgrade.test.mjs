@@ -6,21 +6,21 @@ import {UI_LAYOUT} from '../src/ui-layout.js';
 import {ribbonGroupPolicy} from '../src/ui/config/ribbon-policy.js';
 import {UI_API_ROUTES} from '../src/ui-api-coverage.js';
 
-test('basic face machining leads the ribbon and only batch hole tools overflow',()=>{
+test('boolean operations lead machining and common slot tools stay outside batch overflow',()=>{
  const tab=UI_LAYOUT.tabs.find(t=>t.id==='machine');
- assert.deepEqual(tab.groups[0][1].slice(0,3),['faceGroove','innerTurn','outerTurn']);
+ assert.deepEqual(tab.groups[0][1],['union','cut','intersect','split']);
  assert.equal(ribbonGroupPolicy(UI_LAYOUT,tab,tab.groups[0][1],tab.groups[0][2]).folded,false);
- const group=tab.groups.find(([name])=>name==='孔与槽'),policy=ribbonGroupPolicy(UI_LAYOUT,tab,group[1],group[2]);
- assert.deepEqual(policy.overflowActions,['multiHole','multiPocket','multiBoss']);
+ const group=tab.groups.find(([name])=>name==='槽与凸台'),policy=ribbonGroupPolicy(UI_LAYOUT,tab,group[1],group[2]);
+ assert.deepEqual(policy.overflowActions,['multiPocket','multiBoss']);
  assert.equal(policy.folded,true);
- assert.deepEqual(group[1].filter(action=>!policy.overflowActions.includes(action)),['hole','slot','thread','holeWizard']);
+ assert.deepEqual(group[1].filter(action=>!policy.overflowActions.includes(action)),['slot','faceGroove','faceHole','faceExtrude']);
 });
 
 test('single overflow tools stay visible and ribbon folding follows layout configuration',()=>{
  const finish=UI_LAYOUT.tabs.find(t=>t.id==='finish'),surface=UI_LAYOUT.tabs.find(t=>t.id==='surface');
- for(const [tab,action]of [[finish,'smoothTransition'],[surface,'extractShell']]){
-  const group=tab.groups.find(([,actions])=>actions.includes(action));assert.equal(ribbonGroupPolicy(UI_LAYOUT,tab,group[1],group[2]).folded,false);
- }
+ const roundGroup=finish.groups.find(([,actions])=>actions.includes('round')),roundPolicy=ribbonGroupPolicy(UI_LAYOUT,finish,roundGroup[1],roundGroup[2]);
+ assert.deepEqual(roundGroup[1].filter(action=>!roundPolicy.overflowActions.includes(action)),['round','chamfer']);
+ const extract=surface.groups.find(([,actions])=>actions.includes('extractShell'));assert.equal(ribbonGroupPolicy(UI_LAYOUT,surface,extract[1],extract[2]).folded,false);
  assert.equal(ribbonGroupPolicy(UI_LAYOUT,{},['a','b','c','d','e']).folded,true);
  assert.equal(ribbonGroupPolicy(UI_LAYOUT,{unfolded:true},['a','b','c','d','e']).folded,false);
  assert.equal(ribbonGroupPolicy(UI_LAYOUT,{},['a','b','c','d'],{visibleActions:2}).folded,true);
@@ -68,7 +68,7 @@ test('5 MiB project payload decodes exactly without regex stack overflow; larger
  }
 });
 test('all configurable header/tab/control actions have public routes',()=>{
- assert.deepEqual(UI_LAYOUT.tabs.map(tab=>tab.id),['edit','create','model','machine','finish','surface','inspect','view','settings']);assert(Object.isFrozen(UI_LAYOUT.tabs));
+ assert.deepEqual(UI_LAYOUT.tabs.map(tab=>tab.id),['edit','path','create','model','machine','surface','finish','inspect','view','settings']);assert(Object.isFrozen(UI_LAYOUT.tabs));
  const actions=[...UI_LAYOUT.viewportActions.map(x=>x.action),...UI_LAYOUT.header.map(x=>x.action),...UI_LAYOUT.tabs.flatMap(tab=>tab.groups.flatMap(([,items])=>items)),...Object.values(UI_LAYOUT.controls).flatMap(c=>c.action?[c.action]:c.items.map(([,action])=>action))];
  for(const action of actions)assert(UI_API_ROUTES[action],action);
  for(const action of UI_LAYOUT.tabs.flatMap(tab=>tab.groups.flatMap(([,items])=>items)))assert(UI_LAYOUT.icons[action]?.length,`missing vector icon: ${action}`);

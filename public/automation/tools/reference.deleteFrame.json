@@ -3,12 +3,35 @@
   "title": "删除具名基准",
   "description": "args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.deleteFrame\",args}); args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:5f86539c234a08b22ceac7baded8c7ad21614412d8580597ec3ba135edc65eba"
+  "docsHash": "sha256:f95e7ec6102fe0f7e4a5ca1eb3c4f3cd376523c948793928e9c525988b21f68a"
 }

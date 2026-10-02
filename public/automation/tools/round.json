@@ -1,0 +1,291 @@
+{
+  "id": "round",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "edgeIds": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "description": "Zero-based topology index",
+          "minimum": 0,
+          "unit": "1",
+          "quantityKind": "index",
+          "quantizationPolicy": "none"
+        },
+        "minItems": 1,
+        "maxItems": 32,
+        "uniqueItems": true,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
+      },
+      "mode": {
+        "type": "string",
+        "description": "Automatic recognition or explicit treatment",
+        "enum": [
+          "auto",
+          "edge",
+          "end"
+        ],
+        "default": "auto"
+      },
+      "strength": {
+        "type": "number",
+        "minimum": 0.1,
+        "maximum": 1,
+        "default": 0.5
+      },
+      "radiusMm": {
+        "type": "number",
+        "description": "Optional exact edge radius; edge mode only (mm)",
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "depthMm": {
+        "type": "number",
+        "description": "Optional end rebuild depth (mm)",
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "axis": {
+        "type": "string",
+        "description": "Global axis",
+        "enum": [
+          "X",
+          "Y",
+          "Z"
+        ]
+      },
+      "profileAxis": {
+        "type": "string",
+        "description": "Global axis",
+        "enum": [
+          "X",
+          "Y",
+          "Z"
+        ]
+      },
+      "direction": {
+        "type": "integer",
+        "enum": [
+          1,
+          -1
+        ],
+        "unit": "1",
+        "quantityKind": "direction",
+        "quantizationPolicy": "none"
+      },
+      "directionEdgeId": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "required": [
+      "edgeIds"
+    ],
+    "additionalProperties": false,
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {
+    "mode": "auto",
+    "strength": 0.5
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Unified rounding entrance. mode auto defaults to one geometry-based decision: elongated principal-axis body with selection wholly near its extreme end uses measured half-section end reconstruction, otherwise standard edge fillet. No solver fallback and no radius search; one candidate per preview. strength defaults .5 for edges, end depth is measured and recommended. Optional explicit mode, radiusMm or depthMm, axis/direction/profileAxis and a straight principal-axis directionEdgeId on the same source resolve ambiguity. Only LINE/CIRCLE symmetric stable end sections are supported. End operation replaces the whole declared end and may add/remove material. Existing profile creases up to 1 degree are reported; new body join must meet sampled 0.1 degrees. A recommended depth interval is NOT a guarantee of feasibility. Read roundReport in preview.scope/getState.previewScope and getState.bodies[].roundReport: mode, resolved parameters, control bounds, world scope, endRoundingReport or blendReport, attemptCount. Dragging changes a draft depth; release previews, then explicitly commit. Failure preserves the source; no silent switch between ends and edges.",
+  "title": "圆润 / Round",
+  "category": "modification",
+  "synonyms": [
+    "圆润",
+    "自动圆润",
+    "磨边",
+    "圆头",
+    "round",
+    "smooth selected edge"
+  ],
+  "description": "圆润 / Round",
+  "schemaHash": "sha256:d283dae9e03583c586118c6a417241ffb4631e5db0634371d201d87c481d0980",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      },
+      "roundReport": {
+        "type": "object",
+        "description": "Read preview.scope or bodies[].roundReport: chosen mode, resolved exact parameters, control, world scope, attemptCount:1, endRoundingReport or blendReport."
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+  ],
+  "knownUnsupportedCases": [
+    "Unified rounding entrance. mode auto defaults to one geometry-based decision: elongated principal-axis body with selection wholly near its extreme end uses measured half-section end reconstruction, otherwise standard edge fillet. No solver fallback and no radius search; one candidate per preview. strength defaults .5 for edges, end depth is measured and recommended. Optional explicit mode, radiusMm or depthMm, axis/direction/profileAxis and a straight principal-axis directionEdgeId on the same source resolve ambiguity. Only LINE/CIRCLE symmetric stable end sections are supported. End operation replaces the whole declared end and may add/remove material. Existing profile creases up to 1 degree are reported; new body join must meet sampled 0.1 degrees. A recommended depth interval is NOT a guarantee of feasibility. Read roundReport in preview.scope/getState.previewScope and getState.bodies[].roundReport: mode, resolved parameters, control bounds, world scope, endRoundingReport or blendReport, attemptCount. Dragging changes a draft depth; release previews, then explicitly commit. Failure preserves the source; no silent switch between ends and edges."
+  ],
+  "minimalExample": {
+    "op": "round",
+    "params": {
+      "edgeIds": [
+        0
+      ]
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "round",
+    "params": {
+      "edgeIds": [
+        0
+      ]
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "edgeIds": [
+          0
+        ],
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "ROUND_SELECTION_AMBIGUOUS",
+    "END_ROUNDING_UNSUPPORTED",
+    "KERNEL_BUILD_FAILED",
+    "NO_CHANGE",
+    "STALE_REFERENCE"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "圆润",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:a6ed8a1c6380c0b680280f931c12f5bd4dca789e36ae218f45080e1747544e28"
+}

@@ -3,12 +3,35 @@
   "title": "激活具名基准",
   "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.activateFrame\",args}); args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:8c46432ee6c2adcd040df185675651d3aa1f27f5da4f3b4af6255bc71e3f7aaa"
+  "docsHash": "sha256:4b6fe7c759e6afe84616c717e1f0c7e991e1a7f408ea56e46d11cbacd1e761e0"
 }

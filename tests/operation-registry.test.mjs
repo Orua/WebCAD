@@ -66,6 +66,24 @@ test('quick-model help includes every template parameter and default without ena
   fails(() => validateSchema(card.inputSchema, { kind: 'tube', misspelling: 3 }), 'PARAM_SCHEMA_INVALID');
 });
 
+test('analytic primitive contracts retain defaults, reject invalid combinations and preserve precise dimensions',()=>{
+  for(const id of ['cylinder','sphere','cone','torus']){
+    const card=getOperation(id);assert.equal(card.strictContract,true);assert.equal(card.version,'1.0.0');
+    assert.deepEqual(card.resultShapeTypes,['solid']);assert.deepEqual(validateOperationRefs(id,[]),[]);
+    assertOperationContract(id,{opVersion:card.version,schemaHash:card.schemaHash});
+  }
+  assert.deepEqual(normalizeOperationParams('cone',{height:7}),{radius1:10,radius2:0,height:7});
+  assert.deepEqual(normalizeOperationParams('cone',{radius1:0,radius2:3,height:7}),{radius1:0,radius2:3,height:7});
+  assert.equal(normalizeOperationParams('cylinder',{radius:.123456789,height:2}).radius,.123456789);
+  assert.equal(normalizeOperationPatch('cone',{radius1:3,radius2:0,height:7},{radius2:3}).radius2,3);
+  fails(()=>normalizeOperationParams('cone',{radius1:0,radius2:0,height:7}),'PARAM_RANGE_INVALID','params.radius2');
+  fails(()=>normalizeOperationPatch('cone',{radius1:0,radius2:3,height:7},{radius2:0}),'PARAM_RANGE_INVALID','params.radius2');
+  for(const majorRadius of [2,1])fails(()=>normalizeOperationParams('torus',{majorRadius,minorRadius:2}),'PARAM_RANGE_INVALID','params.majorRadius');
+  for(const radius of [0,-1])fails(()=>normalizeOperationParams('sphere',{radius}),'PARAM_RANGE_INVALID','params.radius');
+  for(const radius of ['1',NaN,Infinity])fails(()=>normalizeOperationParams('cylinder',{radius,height:2}),'PARAM_SCHEMA_INVALID','params.radius');
+  fails(()=>normalizeOperationParams('cylinder',{radius:2,height:3,diameter:4}),'PARAM_SCHEMA_INVALID','params.diameter');
+});
+
 test('A04/A05/A06 invalid fields, units, points, nonfinite numbers and enums reject with paths', () => {
   fails(() => normalizeOperationParams('hole', { radius: 2, depth: 5, diameter: 4 }), 'PARAM_SCHEMA_INVALID', 'params.diameter');
   fails(() => normalizeOperationParams('hole', { radius: '2mm', depth: 5 }), 'PARAM_SCHEMA_INVALID', 'params.radius');

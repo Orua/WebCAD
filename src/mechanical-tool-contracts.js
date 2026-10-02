@@ -4,13 +4,15 @@ import {directModelingOperations,directModelingNames,directModelingExamples,dire
 import {helicalOperations,helicalNames,helicalExamples,helicalFields,helicalNotes,helicalDefaults} from './modeling/manufacturing/helical-contracts.js';
 import {profileConstraintOperations,profileConstraintLabels,profileConstraintExamples,profileConstraintFields} from './modeling/profiles/profile-constraint-contracts.js';
 import {faceMachiningOperations,faceMachiningNames,faceMachiningExamples,faceMachiningFields} from './modeling/manufacturing/face-machining-contracts.js';
-export const mechanicalOperations={...profileSolidOperations,...directModelingOperations,...helicalOperations,...profileConstraintOperations,...faceMachiningOperations};
+import {refineShapeOperations,refineShapeErrors} from './modeling/manufacturing/refine-shape-contracts.js';
+export const mechanicalOperations={...profileSolidOperations,...directModelingOperations,...helicalOperations,...profileConstraintOperations,...faceMachiningOperations,...refineShapeOperations};
 export const mechanicalIds=Object.freeze(Object.keys(mechanicalOperations));
-export const mechanicalNames={...profileSolidLabels,...directModelingNames,...helicalNames,...profileConstraintLabels,...faceMachiningNames};
-export const mechanicalExamples={...profileSolidExamples,...directModelingExamples,...helicalExamples,...profileConstraintExamples,...faceMachiningExamples};
-export const mechanicalFields={...profileSolidFields,...directModelingFields,...helicalFields,...profileConstraintFields,...faceMachiningFields};
+export const mechanicalNames={...profileSolidLabels,...directModelingNames,...helicalNames,...profileConstraintLabels,...faceMachiningNames,refineShape:'清理分割线'};
+export const mechanicalExamples={...profileSolidExamples,...directModelingExamples,...helicalExamples,...profileConstraintExamples,...faceMachiningExamples,refineShape:{}};
+export const mechanicalFields={...profileSolidFields,...directModelingFields,...helicalFields,...profileConstraintFields,...faceMachiningFields,refineShape:[]};
 export const mechanicalNotes={...Object.fromEntries(Object.entries({...profileSolidOperations,...profileConstraintOperations}).map(([id,op])=>[id,op.notes])),...directModelingNotes,...helicalNotes};
 Object.assign(mechanicalNotes,{
+ refineShape:'选一个实体，清理同一平面或曲面上多余的分割线。无需输入参数。预览核对后应用；完成后重新选边、选面。没有可清理内容时保留原件。',
  faceGroove:'先选一个平面，输入长、宽、深度。槽以选中面的中心定位，垂直于该面向实体内部掏空。',
  innerTurn:'先选一个平面截面，设置内孔直径和深度，从该截面向实体内部切削。',
  outerTurn:'先选一个平面截面，设置保留的外径和深度，将这一深度内外径之外的材料车掉。',
@@ -23,6 +25,7 @@ export const mechanicalResultTypes={...Object.fromEntries(mechanicalIds.map(id=>
 export const mechanicalRefCounts=profileSolidRefCounts;
 export const mechanicalErrorCodes={profileRevolve:['PROFILE_REVOLVE_INVALID'],profileSweep:['PROFILE_SWEEP_INVALID'],profileLoft:['PROFILE_LOFT_INVALID'],profileConstraints:['PROFILE_CONSTRAINT_INVALID','PROFILE_CONSTRAINT_UNSUPPORTED','PROFILE_CONSTRAINT_LIMIT','PROFILE_CONSTRAINT_NUMERICAL','PROFILE_CONSTRAINT_UNSATISFIED','PROFILE_CONSTRAINT_GEOMETRY_INVALID']};
 for(const id of Object.keys(faceMachiningOperations))mechanicalErrorCodes[id]=['NO_MATERIAL_REMOVED'];
+mechanicalErrorCodes.refineShape=refineShapeErrors;
 export function mechanicalRefRange(id,params={}) {
  const conditional=profileSolidRefCounts[id];
  if(conditional)return (params.operation??'newBody')==='newBody'?conditional.newBody:conditional.modification;

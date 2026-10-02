@@ -1,5 +1,8 @@
+import {layoutDrawing} from './drawing/technical-layout.js';
+import {drawingSVG,drawingDXF,drawingPDF,drawingJPEG} from './drawing/drawing-export.js';
 import {infoMetadata,discoveryMetadata,searchTools,getTools,getTool,readDocs} from './page-api-docs.js';
 import {createBrowserFiles} from './browser-files.js';
+import {FILE_ARGUMENT_KEYS} from './browser-file-contracts.js';
 import {validateDisplayPreferences} from './display-preferences.js';
 import {createPageBatch} from './page-batch.js';
 import {readBrowserLogo} from './browser-logo-input.js';
@@ -34,11 +37,35 @@ export function createPageAPI(host){
   }
   const guarded=fn=>async(input={})=>{try{return await fn(normalizeRequest(input));}catch(e){return failure(e);}};
   const rawFiles=createBrowserFiles({command:input=>host.files(input),confirmSaved:host.confirmSaved});
-  const files=Object.fromEntries(Object.entries(rawFiles).filter(([key])=>key!=='previewInput').map(([key,fn])=>[key,input=>fn(normalizeRequest(input))]));
+  const files=Object.fromEntries(Object.entries(FILE_ARGUMENT_KEYS).map(([key,keys])=>[key,(input={})=>{
+    if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(name=>!keys.includes(name)))fail('PARAM_SCHEMA_INVALID',`Unexpected files.${key} arguments`);
+    return rawFiles[key](normalizeRequest(input));
+  }]));
   const viewKeys=['context','direction','projection','fit','selectedIds','section','display','grid','snap','gizmo','selectionMode','camera','language','temporaryDisplay','anchorVisible','panels'];
   const pasteReceipts=new Map();
   const vectorCache=new Map();
+  const drawingCache=new Map();
   const api={
+    getHistory:()=>host.history(),
+    planAlignment:guarded(async input=>{check(input,['context','bodyIds','target','axes','sourceSide','targetSide','group','gapMm']);return {status:'read',...host.planAlignment(input),context:current().context};}),
+    selectRectangle:guarded(async input=>{check(input,['context','rect','mode','additive']);if(input.additive!==undefined&&typeof input.additive!=='boolean')fail('PARAM_SCHEMA_INVALID','additive must be boolean');return host.selectRectangle(input);}),
+    createDrawing:guarded(async input=>{
+      const s=check(input,['context','bodyIds','projection','sections','hiddenLines']);
+      if(!Array.isArray(input.bodyIds)||!input.bodyIds.length||input.bodyIds.length>40||new Set(input.bodyIds).size!==input.bodyIds.length||input.bodyIds.some(id=>!s.bodies.some(b=>b.id===id)))fail('STALE_REFERENCE','Select 1–40 current bodies');
+      const drawing=await host.createDrawing(input);check(input,['context','bodyIds','projection','sections','hiddenLines']);
+      const drawingId=crypto.randomUUID();while(drawingCache.size>=4)drawingCache.delete(drawingCache.keys().next().value);
+      drawingCache.set(drawingId,{drawing,context:structuredClone(s.context)});
+      return {status:'generated',drawingId,context:s.context,drawing,formats:['pdf','jpg','dxf','svg'],unavailableFormats:{dwg:'Browser LibreDWG build has no DWG writer'},svg:drawingSVG(layoutDrawing(drawing))};
+    }),
+    exportDrawing:guarded(async input=>{
+      const s=check(input,['context','drawingId','format','disabledDimensions','title','paper','name']);const cached=drawingCache.get(input.drawingId);
+      if(!cached||['documentInstanceId','revision'].some(k=>cached.context[k]!==s.context[k]))fail('STALE_REFERENCE','Regenerate drawing for current model');
+      if(!['pdf','jpg','dxf','svg'].includes(input.format))fail('FORMAT_UNSUPPORTED','Supported: PDF, JPG, DXF, SVG. Native DWG writer unavailable.');
+      if(input.paper!==undefined&&!['A4','A3'].includes(input.paper)||input.title!==undefined&&(typeof input.title!=='string'||input.title.length>70))fail('PARAM_SCHEMA_INVALID','Invalid paper or title');
+      if(input.disabledDimensions!==undefined&&(!Array.isArray(input.disabledDimensions)||input.disabledDimensions.some(id=>!cached.drawing.dimensions.some(d=>d.id===id))))fail('PARAM_SCHEMA_INVALID','Unknown dimension');
+      const scene=layoutDrawing(cached.drawing,input),format=input.format,data=format==='pdf'?drawingPDF(scene):format==='jpg'?await drawingJPEG(scene):new TextEncoder().encode(format==='svg'?drawingSVG(scene):drawingDXF(scene));
+      check({context:input.context},['context']);return rawFiles.generated({bytes:data,name:input.name||'drawing.'+format,mime:{pdf:'application/pdf',jpg:'image/jpeg',dxf:'application/dxf',svg:'image/svg+xml'}[format],context:s.context});
+    }),
     connect:(input={})=>{
       if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!['queries','toolIds','limit','includeContracts','knownCatalogHash','knownDocsHash','knownHashes'].includes(k)))fail('PARAM_SCHEMA_INVALID','Unexpected connect fields');
       const queries=input.queries??[],limit=input.limit??5;
@@ -60,7 +87,20 @@ export function createPageAPI(host){
         bodies:(s.bodies||[]).slice(0,20).map(({id,name,kind})=>({id,...(name?{name}:{}),...(kind?{kind}:{})})),
         bodyCount:(s.bodies||[]).length,bodiesTruncated:(s.bodies||[]).length>20,
         cache:{catalogChanged:input.knownCatalogHash!==metadata.catalogHash,docsChanged:input.knownDocsHash!==metadata.docsHash},results};
-      if((input.includeContracts||toolIds.length)&&ids.length){response.contracts=getTools({ids:ids.slice(0,20),knownHashes:input.knownHashes});response.contractIdsOmitted=ids.slice(20);}
+      if((input.includeContracts||toolIds.length)&&ids.length){
+        const contracts=getTools({ids:ids.slice(0,20),knownHashes:input.knownHashes});
+        const omissions=ids.slice(20).map(id=>({id,reason:'ITEM_LIMIT'}));let automaticChars=0;
+        // Pointed requests keep complete contracts. Broad search results must not
+        // pull an entire template library into the agent's first handshake.
+        contracts.items=contracts.items.filter(item=>{
+          if(toolIds.includes(item.id)||item.status!=='read')return true;
+          const chars=JSON.stringify(item.card).length;
+          if(automaticChars+chars>64000){omissions.push({id:item.id,reason:'CHAR_BUDGET',chars});return false;}
+          automaticChars+=chars;return true;
+        });
+        response.contracts=contracts;response.contractIdsOmitted=omissions.map(item=>item.id);
+        response.contractReadPolicy={automaticCharBudget:64000,automaticChars,omissions,nextAction:omissions.length?'Use getTools({ids:contractIdsOmitted}) only for contracts needed by the plan; template.* cards already contain complete variant arguments.':null};
+      }
       return response;
     },
     info:()=>({...infoMetadata({buildId:host.buildId,browserReady:current().summary.kernelReady}),transport:'in-page',context:current().context,page:{url:location.href,topLevel:window===window.top},display:host.display()}),
@@ -78,13 +118,20 @@ export function createPageAPI(host){
       if(input.points!==undefined){
         if(input.bodyId!==undefined||input.kind!==undefined||input.topologyId!==undefined||!Array.isArray(input.points)||input.points.length!==2||input.points.some(p=>!Array.isArray(p)||p.length!==3||p.some(v=>!Number.isFinite(v))))fail('PARAM_SCHEMA_INVALID','Provide two finite XYZ points only');
         const delta=input.points[1].map((v,i)=>v-input.points[0][i]);
-        return {status:'read',source:'provided-coordinates',units:{length:'mm'},distance:Math.hypot(...delta),delta,context:current().context};
+        const distance=Math.hypot(...delta);
+        if(!Number.isFinite(distance))fail('PARAM_RANGE_INVALID','Coordinate difference exceeds finite measurement range');
+        return {status:'read',source:'provided-coordinates',units:{length:'mm'},distance,delta,context:current().context};
       }
-      if(!current().bodies.some(b=>b.id===input.bodyId))fail('STALE_REFERENCE','Unknown current body');
+      const body=current().bodies.find(b=>b.id===input.bodyId);
+      if(!body)fail('STALE_REFERENCE','Unknown current body');
       if(input.kind!==undefined&&!['body','face','edge'].includes(input.kind))fail('PARAM_SCHEMA_INVALID','kind must be body, face or edge');
-      if(input.kind&&input.kind!=='body'&&(!Number.isSafeInteger(input.topologyId)||input.topologyId<0))fail('PARAM_SCHEMA_INVALID','A nonnegative topologyId is required');
-      const result=await host.measure(input);check(input,['context','bodyId','kind','topologyId']);
-      return {status:'read',source:'exact-brep',units:{length:'mm',volume:'mm^3'},context:current().context,...result};
+      if(input.kind==='face'||input.kind==='edge'){
+        if(!Number.isSafeInteger(input.topologyId)||input.topologyId<0)fail('PARAM_SCHEMA_INVALID','A nonnegative topologyId is required');
+        const count=input.kind==='face'?body.faceCount:body.edgeCount;
+        if(Number.isSafeInteger(count)&&input.topologyId>=count)fail('STALE_REFERENCE','Topology index is outside the current body; query geometry again');
+      }else if(input.topologyId!==undefined)fail('PARAM_SCHEMA_INVALID','topologyId requires kind:face or kind:edge');
+      const result=await host.measure(input);check(input,['context','bodyId','kind','topologyId','points']);
+      return {status:'read',source:'exact-brep',units:{length:'mm',area:'mm^2',volume:'mm^3'},context:current().context,...result};
     }),
     inspectPrintability:guarded(async input=>{
       check(input,['context','bodyId','angleLimitDeg']);
@@ -118,7 +165,7 @@ export function createPageAPI(host){
       check(input,['context','bodyId']);
       if(typeof input.bodyId!=='string'||!current().bodies.some(body=>body.id===input.bodyId))fail('STALE_REFERENCE','Unknown current profile body');
       const result=await host.inspectConstraints(input.bodyId);check(input,['context','bodyId']);
-      return {status:'read',source:'saved-local-constraint-graph',units:{length:'mm',angle:'degree'},context:current().context,bodyId:input.bodyId,...result};
+      return {status:'read',source:'saved-local-constraint-graph',units:{length:'mm',angle:'degrees'},context:current().context,bodyId:input.bodyId,...result};
     }),
     projectProfile:guarded(async input=>{
       check(input,['context','bodyId','edgeIds','pointWorld','frame']);

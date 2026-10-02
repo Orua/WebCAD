@@ -2,16 +2,115 @@
 
 界面动作与 AI 等价接口（手势以坐标和显式参数代替）：
 {
+  "selectTool": {
+    "tools": [
+      "setView",
+      "selectRectangle",
+      "preview.cancel"
+    ],
+    "method": "setView",
+    "usage": "实体模式左键拖框选，左向右全包含、右向左相交，Shift/Ctrl追加，Escape取消；Alt+左键保留旋转。selectRectangle显式指定当前视口0..1矩形。相交模式处理近远裁剪面，仍按对象投影包围框判定。"
+  },
+  "quickDrawing": {
+    "tools": [
+      "createDrawing",
+      "exportDrawing",
+      "files.download"
+    ],
+    "method": "createDrawing",
+    "usage": "选择1–40个bodyIds，创建精确三视图及最多3个截面；按drawingId导出PDF/JPG/DXF/SVG，下载走files.download。DWG暂不可用。"
+  },
+  "drawingCreate": {
+    "tools": [
+      "createDrawing"
+    ],
+    "method": "createDrawing",
+    "usage": "与快速出图生成按钮相同；projection first/third，sections为plane/offset数组。"
+  },
+  "drawingExport": {
+    "tools": [
+      "exportDrawing",
+      "files.download"
+    ],
+    "method": "exportDrawing",
+    "usage": "drawingId、format、paper、title、disabledDimensions；返回generated资源，再files.download/write。"
+  },
+  "alignTool": {
+    "tools": [
+      "planAlignment",
+      "body.align"
+    ],
+    "method": "execute",
+    "usage": "显式指定移动bodyIds和target；X/Y/Z、min/center/max、group保持相对位置。"
+  },
+  "alignBodies": {
+    "tools": [
+      "body.align"
+    ],
+    "method": "execute",
+    "usage": "一次事务对齐；target.kind为body/origin/anchor/point；基准件不能同时被移动。按移动件数新增特征，超过工程2000特征或20 MiB上限返回SIZE_LIMIT且不提交。"
+  },
+  "alignmentPlan": {
+    "tools": [
+      "planAlignment"
+    ],
+    "method": "planAlignment",
+    "usage": "只读回每个移动件的世界坐标delta，便于先核对。"
+  },
+  "restoreHistory": {
+    "tools": [
+      "getHistory",
+      "history.restore"
+    ],
+    "method": "execute",
+    "usage": "读取getHistory的stateId后通过history.restore一键恢复完整工程；不能使用当前特征序号替代状态ID。导入资源在保留状态间共享，全部保留状态不再引用后才回收；bytes仅为历史基线和差量大小。"
+  },
+  "round": {
+    "tools": [
+      "round",
+      "preview.start",
+      "preview.update",
+      "preview.cancel",
+      "preview.commit",
+      "feature.edit"
+    ],
+    "method": "execute",
+    "usage": "统一圆润：edgeIds 必填，mode 默认 auto。边缘用 strength 或 radiusMm；端头用自动推荐或 depthMm。鼠标拖动截面手柄等价 preview.update 修改 depthMm（世界范围见 roundReport.scope）；拖动中只改变草稿，松手预览一次。查看原形等价 preview.cancel，返回预览用 preview.start。必须核对范围后提交。"
+  },
+  "fillet": {
+    "tools": [
+      "fillet",
+      "feature.edit",
+      "preview.start",
+      "preview.update",
+      "preview.commit",
+      "preview.cancel"
+    ],
+    "method": "execute",
+    "usage": "标准数值圆角：查询当前实体边或面，feature.add op=fillet，refs:[当前实体ID]，params:{radius:明确半径mm,edgeIds:[当前边号]}。也可明确 faceIds；多面仅处理公共锐边时设置 sharedFaces:true，或 allEdges:true 处理整个实体，三种范围互斥。可先预览再提交，也可直接应用；历史 feature.edit 修改 radius 从来源重建。返回 blendReport 的 processedEdgeIds、skippedTangentEdgeIds 与实际处理尺寸；失败不提交。无需自动打磨参数或求解相关网络。"
+  },
   "rounding": {
     "tools": [
       "rounding",
       "feature.edit",
       "preview.start",
+      "preview.update",
       "preview.commit",
       "preview.cancel"
     ],
     "method": "execute",
-    "usage": "先查询当前来源实体的锐边。新圆角使用 specVersion:2、sizeMm 和 scope:{kind:edges,edgeIds:[当前边号]}；不传算法或模式。预览核对实际影响范围，再提交同一份预览。feature.edit 修改 sizeMm，从上游重新求解。旧 specVersion:1 特征继续按原尺寸与模式重算。"
+    "usage": "先查询当前来源实体的锐边。自动打磨使用 specVersion:3 和 scope:{kind:edges,edgeIds:[当前边号]}；不需要 sizeMm。可选 strength 为 (0,1] 比例，默认 1。相关边与面允许局部跟随；先核对预览 roundingReport.region 的 sourceBodyId、requestedEdgeIds、expandedEdgeIds 和 affectedFaceIds，再提交同一份预览。feature.edit 修改 strength 从上游重新求解。旧 specVersion:1/2 特征按原参数与语义重算，不能转换为打磨。"
+  },
+  "roundEnd": {
+    "tools": [
+      "roundEnd",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel",
+      "feature.edit"
+    ],
+    "method": "execute",
+    "usage": "先选端部边；传 edgeIds、axis、direction、profileAxis、depthMm。preview.start 核对整个端头替换范围及 endRoundingReport 中保留折痕、长度与材料变化，再 preview.commit。历史改参从来源重建。"
   },
   "pathEdit": {
     "tools": [
@@ -523,6 +622,19 @@
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "refineShape": {
+    "tools": [
+      "refineShape",
+      "getState",
+      "queryGeometry",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel",
+      "history.undo"
+    ],
+    "method": "execute",
+    "usage": "选择一个封闭实体，feature.add op=refineShape，refs:[bodyId]，params:{}。无需公差参数，可先 preview.start 再 commit；getState.bodies[].refineReport 读前后面边数和材料差。NO_CHANGE 不提交。拓扑编号改变后重新 queryGeometry。"
+  },
   "remove": {
     "tools": [
       "feature.remove"
@@ -731,7 +843,7 @@
       "pasteSelection"
     ],
     "method": "pasteSelection",
-    "usage": "context、idempotencyKey；整体底面中心放在锚点。"
+    "usage": "context、idempotencyKey；整体底面中心放在锚点。粘贴按对象新增特征，共用2000特征/20 MiB工程容量检查，超限不提交。"
   },
   "importAtFrame": {
     "tools": [
@@ -859,10 +971,11 @@
   "measure": {
     "tools": [
       "measure",
-      "queryGeometry"
+      "queryGeometry",
+      "getState"
     ],
     "method": "measure",
-    "usage": "实体/面/边精确测量；两点距离用 points:[XYZ,XYZ]，来源标为输入坐标。"
+    "usage": "实体/面/边精确测量；属性区总表面积对应 getState().bodies[].area 或 measure(kind:body).area，单位mm²。两点距离用 points:[XYZ,XYZ]，来源标为输入坐标。"
   },
   "inspectPrintability": {
     "tools": [
@@ -883,7 +996,7 @@
       "inspectFit"
     ],
     "method": "inspectFit",
-    "usage": "显式给两个当前单实体 bodyId、mm 接触容差；精确 B-Rep 求交与最短距离，不修改工程。"
+    "usage": "显式给两个当前单实体 bodyId、mm 接触容差；在独立 BREP 副本上求交与测最短距离，不修改来源、历史或显示修订。"
   },
   "inspectThickness": {
     "tools": [
@@ -984,13 +1097,6 @@
     "usage": "通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
   },
   "selection": {
-    "tools": [
-      "setView"
-    ],
-    "method": "setView",
-    "usage": "通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
-  },
-  "selectTool": {
     "tools": [
       "setView"
     ],

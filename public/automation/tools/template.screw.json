@@ -39,13 +39,13 @@
   ],
   "description": "头在参考位置下端，牙杆朝本地 +Z。沉头外缘固定直升位 0.20 mm。M 使用常用粗牙螺距，真实 V 型牙槽；不含配合公差。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -82,7 +82,7 @@
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -92,11 +92,11 @@
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "screw",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -106,7 +106,8 @@
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -124,6 +125,12 @@
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "螺丝",
@@ -355,5 +362,5 @@
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:c4ab3d321930ee81a075b0be5a22c0b8179a80a1a50dd00643cf2cad30ff2cac"
+  "docsHash": "sha256:2162cc09f2f668b7bb061005b87640224f4fd7a724d45443507ef3a8055dd46f"
 }

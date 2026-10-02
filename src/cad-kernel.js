@@ -1,3 +1,4 @@
+import {createTechnicalDrawing} from './drawing/technical-drawing.js';
 import {findExactDragSnap} from './modeling/interaction/drag-snap.js';
 import * as cad from 'replicad';
 import {renderQuality} from './render-quality.js';
@@ -17,6 +18,8 @@ import { buildReferenceExtrude } from './reference-profile-extrude.js';
 import { buildReferenceLoft } from './reference-profile-loft.js';
 import { buildSmoothTransition } from './smooth-transition.js';
 import { buildEdgeBlend } from './edge-blend.js';
+import {buildRoundTool} from './modeling/rounding/round-tool.js';
+import {buildEndRounding} from './modeling/rounding/end-rounding.js';
 import {buildRounding} from './modeling/rounding/index.js';
 import {rotateVector,worldPoint} from './work-frame.js';
 import {placementPolicy} from './placement-policy.js';
@@ -32,6 +35,7 @@ import {buildHoleWizard} from './hole-wizard.js';
 import {buildDraftFaces,inspectDraftExact} from './draft-tools.js';
 import {buildProfileRevolve,buildProfileSweep,buildProfileLoft} from './modeling/profiles/profile-solid-features.js';
 import {buildOffsetSolid,buildOffsetSurface,buildDraftByPlane} from './modeling/manufacturing/direct-modeling-tools.js';
+import {buildRefineShape} from './modeling/manufacturing/refine-shape.js';
 import {buildHelix,buildCoil,buildThread} from './modeling/manufacturing/helical-tools.js';
 import {buildFaceMachining} from './modeling/manufacturing/face-machining.js';
 import {profileSolidIds,mechanicalPreservedIds} from './mechanical-tool-contracts.js';
@@ -61,6 +65,15 @@ const preciseVolume = (shape, oc) => {
     if (!Number.isFinite(error) || error < 0 || !Number.isFinite(volume)) throw new Error('实体体积自适应积分失败');
     return volume;
   } finally { dispose(properties); }
+};
+const surfaceArea = (shape, oc) => {
+  const properties=new oc.GProp_GProps();
+  try{
+    oc.BRepGProp.SurfaceProperties(shape.wrapped,properties,false,false);
+    const area=properties.Mass();
+    if(!Number.isFinite(area)||area<0)throw new Error('表面积积分失败');
+    return area;
+  }finally{dispose(properties);}
 };
 const positive = (p, key, fallback) => {
   const n = Number(p[key] ?? fallback);
@@ -215,6 +228,7 @@ export class CadKernel {
       case 'profileSweep': return buildProfileSweep(sources,p,cad);
       case 'profileLoft': return buildProfileLoft(sources,p,cad);
       case 'offsetSolid': return buildOffsetSolid(source(),p,this.oc,cad);
+      case 'refineShape': return buildRefineShape(source());
       case 'offsetSurface': return buildOffsetSurface(source(),p,this.oc,cad);
       case 'draftByPlane': return buildDraftByPlane(source(),p,this.oc,cad);
       case 'helix': return buildHelix(p,cad);
@@ -557,7 +571,9 @@ export class CadKernel {
       }
       case 'autoRound': return buildSmoothTransition(source(),{...p,allEdges:true});
       case 'smoothTransition': return buildSmoothTransition(source(),p);
-      case 'rounding': return buildRounding(source(),p);
+      case 'round': return buildRoundTool(source(),p);
+      case 'roundEnd': return buildEndRounding(source(),p);
+      case 'rounding': return buildRounding(source(),p,{sourceBodyId:refs[0]});
       case 'fillet': case 'chamfer': {
         const shape = source(), amount = positive(p, feature.op === 'fillet' ? 'radius' : 'distance');
         const scopes=Number(!!p.edgeIds?.length)+Number(!!p.faceIds?.length)+Number(p.allEdges===true);
@@ -611,7 +627,7 @@ export class CadKernel {
         }
       });
       if (mappedFaces.some(g => g.faceId === undefined) || mappedEdges.some(g => g.edgeId === undefined)) throw new Error('拓扑索引映射失败');
-      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges, faceCount:faces.length,edgeCount:edges.length,snapPoints, bounds: { min, max }, volume: solids.length ? preciseVolume(shape,this.oc) : null, solidCount: solids.length, shellCount:shells.length, roundingReport:shape.roundingReport, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
+      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges, faceCount:faces.length,edgeCount:edges.length,snapPoints, bounds: { min, max }, volume: solids.length ? preciseVolume(shape,this.oc) : null, area:surfaceArea(shape,this.oc), solidCount: solids.length, shellCount:shells.length, refineReport:shape.refineReport, roundReport:shape.roundReport,endRoundingReport:shape.endRoundingReport,roundingReport:shape.roundingReport, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
     } finally { [...faces, ...edges, ...solids, ...shells, bbox].forEach(dispose); }
   }
   async rebuild(document) {
@@ -686,6 +702,7 @@ export class CadKernel {
       throw Object.assign(new Error(message,{cause:error}), { featureId: current, code:error?.code||'GEOMETRY_INVALID', path:error?.path, recoveryAction:error?.recoveryAction||'CORRECT_PARAMETERS',report:error?.report });
     }
   }
+  technicalDrawing(input){return createTechnicalDrawing(input.bodyIds.map(id=>this.activeShape(id)),input);}
   activeShape(bodyId) {
     if(!this.active.has(bodyId))throw new Error('找不到当前实体');
     return this.shapes.get(bodyId);
@@ -777,7 +794,7 @@ export class CadKernel {
     const shape=this.activeShape(bodyId);
     if(topologyType===undefined||topologyType==='body'){
       const box=shape.boundingBox,solids=shape.solids,shells=Array.from(cad.iterTopo(shape.wrapped,'shell'),item=>cad.cast(item));
-      try{const [min,max]=box.bounds;return {bodyId,bounds:{min,max},volume:solids.length?preciseVolume(shape,this.oc):null,solidCount:solids.length,shellCount:shells.length};}
+      try{const [min,max]=box.bounds;return {bodyId,bounds:{min,max},volume:solids.length?preciseVolume(shape,this.oc):null,area:surfaceArea(shape,this.oc),solidCount:solids.length,shellCount:shells.length};}
       finally{dispose(box);solids.forEach(dispose);shells.forEach(dispose);}
     }
     if(!['edge','face'].includes(topologyType))throw new Error('请选择边或面');
@@ -798,9 +815,14 @@ export class CadKernel {
   inspectFit(bodyAId,bodyBId,toleranceMm=1e-5,volumeThresholdMm3=1e-6){
     if(bodyAId===bodyBId)throw new Error('配合检查需要两个不同实体');
     if(!Number.isFinite(toleranceMm)||toleranceMm<0||toleranceMm>1||!Number.isFinite(volumeThresholdMm3)||volumeThresholdMm3<=0)throw new Error('间隙容差或体积阈值无效');
-    const a=this.activeShape(bodyAId),b=this.activeShape(bodyBId),solidsA=a.solids,solidsB=b.solids;
-    let common,extrema,p1,p2;
+    let a,b,common,extrema,p1,p2,solidsA=[],solidsB=[];
     try{
+      // OCCT booleans can update source tolerances/pcurves even for a read-only
+      // intersection. Isolate both arguments across a BREP boundary; clone()
+      // may retain shared topology and is insufficient for document inspection.
+      a=cad.deserializeShape(this.activeShape(bodyAId).serialize());
+      b=cad.deserializeShape(this.activeShape(bodyBId).serialize());
+      solidsA=a.solids;solidsB=b.solids;
       if(solidsA.length!==1||solidsB.length!==1)throw new Error('配合检查须选择两个单一封闭实体');
       common=a.intersect(b);
       const commonVolumeMm3=Math.abs(cad.measureVolume(common));
@@ -812,7 +834,7 @@ export class CadKernel {
       if(!Number.isFinite(distanceMm)||distanceMm<0)throw new Error('精确最短距离无效');
       p1=extrema.PointOnShape1(1);p2=extrema.PointOnShape2(1);
       return {classification:distanceMm<=toleranceMm?'contactWithinTolerance':'separated',commonVolumeMm3,distanceMm,witnessPoints:[[p1.X(),p1.Y(),p1.Z()],[p2.X(),p2.Y(),p2.Z()]],toleranceMm,volumeThresholdMm3,method:'exact-brep-distance-and-intersection'};
-    }finally{[...solidsA,...solidsB,common,extrema,p1,p2].forEach(dispose);}
+    }finally{[...solidsA,...solidsB,common,extrema,p1,p2,a,b].forEach(dispose);}
   }
   dragSnap(input){return findExactDragSnap(input,id=>this.activeShape(id),this.oc,cad);}
   inspectThickness(input){

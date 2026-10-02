@@ -3,12 +3,35 @@
   "title": "取消预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"preview.cancel\",args}); 新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:ee3468dcbfde06a6f8923c9e02d0bb0ee2f0e02601d433f954a9c0593d7b76cb"
+  "docsHash": "sha256:b1c7f92a415026ad90cd35e4ba4aa7121a08b9630c46648dcb9fb72b524af961"
 }

@@ -3,12 +3,35 @@
   "title": "预览模型或文件插入",
   "description": "普通特征 args 同 feature.add；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision。",
   "category": "command",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"preview.start\",args}); 普通特征 args 同 feature.add；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision。",
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:d899b56509f2e63d7b55f6989fdabb929695abcb4e4d1cd880f775c8f8d8334c"
+  "docsHash": "sha256:028883aced6a5f31037ada7fd6f6e3cf01f3d1f3ed9f3be5ea4aad8c8a081145"
 }

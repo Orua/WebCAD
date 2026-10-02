@@ -2,7 +2,7 @@
   "id": "files.capabilities",
   "title": "files.capabilities",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "文件能力",
   "synonyms": [
     "文件能力",
@@ -17,24 +17,24 @@
   },
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
-  "runtimeAvailability": "requires_ready_page",
+  "runtimeAvailability": "requires_page",
+  "argumentKeys": [],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.capabilities\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
-    "CAPABILITY_UNAVAILABLE",
-    "REVISION_CONFLICT",
-    "INSTANCE_MISMATCH",
-    "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
-    "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
-    "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "PARAM_SCHEMA_INVALID"
   ],
-  "docsHash": "sha256:ade393a72ee8e83a852f21d10f8bbf1a9ccec39d70e71185b663a455058e2aa8"
+  "docsHash": "sha256:d46fd87c87a615b5805b28df0b2683cc2e697db983eabdfc3fde2b5334e1b487"
 }

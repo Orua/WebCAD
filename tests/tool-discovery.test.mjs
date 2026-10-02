@@ -72,6 +72,9 @@ test('conditional card reads detect drift and bound request sizes',()=>{
 });
 
 test('document conditional reads work for both page and legacy docs without caching a partial page',()=>{
+  assert.throws(()=>getTool({id:'box',unexpected:true}),{code:'PARAM_SCHEMA_INVALID'});
+  assert.throws(()=>getTool({id:'x'.repeat(151)}),{code:'PARAM_SCHEMA_INVALID'});
+  assert.throws(()=>readDocs({docId:'api.discovery',limit:5}),{code:'PARAM_SCHEMA_INVALID'});
   for(const docId of ['api.discovery','coordinates']){
     const first=readDocs({docId,limitChars:1000});
     const hit=readDocs({docId,knownHash:first.docsHash});
@@ -93,6 +96,18 @@ test('connect joins live context, search and optional complete contracts without
   assert.equal(next.requestContext.expectedRevision,12);assert.equal(next.context.documentInstanceId,'instance-b');
   assert.equal(next.ready,false);assert(next.contracts.items.every(item=>item.status==='not_modified'));
   assert.deepEqual(next.cache,{catalogChanged:false,docsChanged:false});assert.equal(writes(),0);
+});
+
+test('search handshake bounds automatic contracts while named and cached reads stay complete',()=>{
+  const {api,writes}=fixture();
+  const c=api.connect({queries:['螺丝'],includeContracts:true,limit:3});
+  assert(c.contracts.items.some(item=>item.id==='template.screw'&&item.status==='read'));
+  assert(c.contractIdsOmitted.includes('quickModel'));assert(c.contractReadPolicy.omissions.some(item=>item.id==='quickModel'&&item.reason==='CHAR_BUDGET'));
+  assert(JSON.stringify(c).length<80000);
+  const full=api.connect({toolIds:['quickModel']});assert(full.contracts.items[0].card.templates.length>10);assert.deepEqual(full.contractIdsOmitted,[]);
+  const cached=api.connect({queries:['螺丝'],includeContracts:true,limit:3,knownHashes:{quickModel:full.contracts.items[0].docsHash}});
+  assert.equal(cached.contracts.items.find(item=>item.id==='quickModel').status,'not_modified');assert.deepEqual(cached.contractIdsOmitted,[]);
+  assert.equal(writes(),0);
 });
 
 test('connect bounds state and never silently omits contract results',()=>{
@@ -129,12 +144,30 @@ test('generated manifest supports per-item invalidation and offline module match
   assert.equal(await readFile(new URL('tool-library.mjs',base),'utf8'),await readFile(new URL('../src/tool-discovery.js',import.meta.url),'utf8'));
 });
 
+test('page advisory cards describe the actual browser execution and validation path',()=>{
+  for(const id of ['union','quickModel','transform','linearPattern']){
+    const card=getTool({id});assert.equal(card.v2Executable,true);assert.equal(card.strictContract,false);
+    assert.equal(card.validationMode,'schema-validation-with-kernel-prerequisites');
+    assert(card.invalidExamples.every(e=>e.errorCode!=='NOT_A_STRICT_V2_OPERATION'));
+    assert(!card.knownUnsupportedCases.some(s=>s.includes('use the documented legacy entry')));
+  }
+});
+
 test('template names route to small complete variant cards with executable parent examples',()=>{
   const parent=getTool({id:'quickModel'});
   for(const [kind,model] of Object.entries(QUICK_MODELS)){
     const id=`template.${kind}`,card=getTool({id});
     assert(ids(model.label).includes(id),`${model.label}: ${ids(model.label)}`);
     assert.equal(card.operationId,'quickModel');assert(!card.templates);
+    assert.equal(card.v2Executable,true);
+    assert.deepEqual(card.apiCompatibility,['page-advisory']);
+    assert.equal(card.validationMode,parent.validationMode);
+    assert.equal(card.idempotency,parent.idempotency);
+    assert(card.invalidExamples.length>0);
+    for(const invalid of card.invalidExamples){
+      assert.equal(invalid.params.kind,kind);
+      assert.throws(()=>validateSchema(card.inputSchema,invalid.params),{code:invalid.errorCode});
+    }
     assert.deepEqual(card.inputSchema,parent.inputSchema.oneOf.find(s=>s.properties.kind.const===kind));
     assert.equal(card.minimalExample.op,'quickModel');
     validateSchema(card.inputSchema,card.normalExample.params);

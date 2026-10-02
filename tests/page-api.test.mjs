@@ -50,7 +50,7 @@ function fixture() {
     buildId: 'test-build',
     state: () => ({ status: 'read', context: { ...context(), revision },
       summary: { name: 'Plate', kernelReady: true, busy: false, dirty: true },
-      preview: { active: false, computing: false }, bodies: [{ id: 'body-1' }], features: [] }),
+      preview: { active: false, computing: false }, bodies: [{ id: 'body-1',faceCount:6,edgeCount:12 }], features: [] }),
     display: () => ({ status: displayStatus,
       rendered: { documentId: 'doc-1', documentInstanceId: 'instance-1', revision: renderedRevision }, frame: 12 }),
     measure: async () => { calls.measure++; return { volume: 42, bounds: { min: [0, 0, 0], max: [7, 3, 2] } }; },
@@ -69,6 +69,26 @@ function fixture() {
     set displayStatus(value) { displayStatus = value; },
     set frameError(value) { frameError = value; } };
 }
+
+test('file API rejects misspelled selection fields before export and still accepts binary input',async()=>{
+  const {api,calls,host}=fixture();
+  assert.throws(()=>api.files.export({context:context(),format:'step',bodyIds:['body-1']}),{code:'PARAM_SCHEMA_INVALID'});
+  assert.equal(calls.files,0,'a selection typo must not silently export the entire document');
+  const bad=await api.invoke({method:'files.export',args:{context:context(),format:'step',bodyIds:['body-1']}});
+  assert.equal(bad.status,'failed');assert.equal(bad.error.code,'PARAM_SCHEMA_INVALID');
+  assert.equal(calls.files,0);
+  let forwarded;
+  host.files=async request=>{forwarded=request;return {status:'read',revision:7,extension:'step',encoding:'base64',data:btoa('fixture')};};
+  const resource=await api.files.export({context:context(),format:'step',ids:['body-1']});
+  assert.deepEqual(forwarded.args.ids,['body-1']);assert.equal(resource.status,'generated');
+  const input=await api.files.register({name:'fixture.step',data:new Blob(['exact input'])});
+  assert.equal(await (await api.files.read({resourceId:input.resourceId})).text(),'exact input');
+  assert.throws(()=>api.files.read({resourceId:input.resourceId,format:'base64'}),{code:'PARAM_SCHEMA_INVALID'});
+  const card=getTool({id:'files.export'});
+  assert(card.argumentKeys.includes('ids'));assert.equal(card.unknownFields,'rejected');
+  assert(card.errorCodes.includes('FORMAT_UNSUPPORTED'));
+  assert.equal(getTool({id:'files.register'}).runtimeAvailability,'requires_page');
+});
 
 test('editor discovery covers every registered UI route and supports paginated inventory',()=>{
   for(const route of Object.values(UI_API_ROUTES))for(const id of route.tools)assert.equal(getTool({id}).id,id);
@@ -195,6 +215,7 @@ test('measure rejects invalid or stale context before the host runs, then return
   assert.equal(result.status, 'read');
   assert.equal(result.source, 'exact-brep');
   assert.equal(result.units.volume, 'mm^3');
+  assert.equal(result.units.area, 'mm^2');
   assert.equal(result.volume, 42);
   assert.deepEqual(result.bounds.max, [7, 3, 2]);
   assert.equal(f.calls.measure, 1);
@@ -212,6 +233,19 @@ test('measure detects revision change during host work and does not relabel stal
   const result = await pending;
   assert.equal(result.error.code, 'REVISION_CONFLICT');
   assert.equal(result.volume, undefined);
+});
+
+test('measurement modes reject ambiguous topology, out-of-range indices and nonfinite distance results',async()=>{
+  const f=fixture(),base={context:context(),bodyId:'body-1'};
+  for(const input of [{...base,topologyId:0},{...base,kind:'body',topologyId:0}])assert.equal((await f.api.measure(input)).error.code,'PARAM_SCHEMA_INVALID');
+  for(const [kind,topologyId] of [['face',6],['edge',12]])assert.equal((await f.api.measure({...base,kind,topologyId})).error.code,'STALE_REFERENCE');
+  assert.equal(f.calls.measure,0);
+  assert.equal((await f.api.measure({...base,kind:'face',topologyId:5})).status,'read');
+  assert.equal(f.calls.measure,1);
+  const huge=await f.api.measure({context:context(),points:[[-1e308,0,0],[1e308,0,0]]});
+  assert.equal(huge.status,'failed');assert.equal(huge.error.code,'PARAM_RANGE_INVALID');
+  const distance=await f.api.measure({context:context(),points:[[0,0,0],[3,4,0]]});
+  assert.equal(distance.distance,5);assert.equal(distance.source,'provided-coordinates');
 });
 
 test('capture waits for a matching rendered frame and preserves display failure', async () => {

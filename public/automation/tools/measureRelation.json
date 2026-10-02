@@ -2,7 +2,7 @@
   "id": "measureRelation",
   "title": "measureRelation",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "measureRelation({context,mode:\"shortest\"|\"centerDistance\"|\"axisAlignment\"|\"pointFace\"|\"parallelFaces\",first?,second?,face?,pointWorld?})；引用形式 {bodyId,kind:\"body\"|\"edge\"|\"face\",topologyId?}。",
   "synonyms": [
     "measureRelation",
@@ -25,5 +25,5 @@
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:aeb874267c2e8f7832d61d148d7794d6094505b3c8ceb10b24b8e676a50e5777"
+  "docsHash": "sha256:315f6674893998a2b28092c34a037656e7485d44f651cd206e5894c9719cc1fc"
 }

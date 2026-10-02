@@ -51,7 +51,7 @@ export function blendTargets(shape,{edgeIds,faceIds,allEdges=false,sharedFaces=f
   return {targets,rows,skipped:candidates.filter(row=>!row.sharp).map(row=>row.edgeId)};
 }
 
-export function buildEdgeBlend(shape,op,params) {
+export function buildEdgeBlend(shape,op,params,{suggestRadius=true}={}) {
   const amount=params[op==='fillet'?'radius':'distance'];
   const {targets,rows,skipped}=blendTargets(shape,params),oc=cad.getOC(),edges=shape.edges;
   let builder,result;
@@ -78,7 +78,7 @@ export function buildEdgeBlend(shape,op,params) {
     const nearKinks=rows.filter(row=>row.normalAngleDeg>.05&&row.normalAngleDeg<5&&targets.some(target=>
       [row.startPoint,row.endPoint].some(a=>[target.startPoint,target.endPoint].some(b=>Math.hypot(...a.map((v,i)=>v-b[i]))<1e-5))));
     const continuity=nearKinks.length?`相连边存在小折角：${nearKinks.slice(0,8).map(row=>`${row.edgeId} (${row.normalAngleDeg.toFixed(3)}°)`).join(', ')}；视觉接近平滑不等于精确相切。`:'';
-    const sampled=op==='fillet'?sampledFilletRadius(shape,amount,targets,edges,oc):null;
+    const sampled=op==='fillet'&&suggestRadius?sampledFilletRadius(shape,amount,targets,edges,oc):null;
     const alternative=sampled===null?'':`较小半径 R${sampled.toFixed(6)} mm 已单独试算为有效单实体，仅供参考，未应用；这不是最大可用半径。`;
     let detail=error?.message;
     if(!detail)try{detail=oc.getExceptionMessage(error);}catch{}

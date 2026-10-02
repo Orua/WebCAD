@@ -63,7 +63,7 @@
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -106,7 +106,8 @@
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。"
+    "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "sewFaces",
@@ -132,7 +133,17 @@
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "tolerance": 0.01,
+        "makeSolid": false,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -140,7 +151,8 @@
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -161,6 +173,12 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "曲面缝合",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -176,5 +194,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:351f3f7a347078a955c65e2303d9429f923b6e60003da6fdaed5adeb67bfd3bb"
+  "docsHash": "sha256:4f0c9359ddd062c84163079938e49c9f9f3f31a62bfef2a8e40d060f7be88388"
 }

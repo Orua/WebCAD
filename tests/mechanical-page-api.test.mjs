@@ -36,7 +36,7 @@ function fixture(features=[feature('outline','sketchProfile',rectangle())]){
 
 test('inspectConstraints exposes actual rectangle edge IDs, dimensions and free placement without a geometry transaction',async()=>{
   const f=fixture(),input={context:f.context(),bodyId:'outline'},result=await f.api.inspectConstraints(input);
-  assert.equal(result.status,'read',JSON.stringify(result));assert.equal(result.source,'saved-local-constraint-graph');assert.deepEqual(result.units,{length:'mm',angle:'degree'});assert.equal(result.bodyId,'outline');assert.equal(result.context.revision,7);
+  assert.equal(result.status,'read',JSON.stringify(result));assert.equal(result.source,'saved-local-constraint-graph');assert.deepEqual(result.units,{length:'mm',angle:'degrees'});assert.equal(result.bodyId,'outline');assert.equal(result.context.revision,7);
   const ids=['rectangle-1_0','rectangle-1_1','rectangle-1_2','rectangle-1_3'];
   assert.deepEqual(result.profile.entities.map(entity=>entity.id),ids);assert.ok(result.profile.entities.every(entity=>entity.type==='line'));
   assert.deepEqual(result.profile.loops[0].edges.map(edge=>edge.entityId),ids);assert.deepEqual(result.profile.regions,rectangle().regions);

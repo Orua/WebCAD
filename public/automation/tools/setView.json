@@ -2,7 +2,7 @@
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
   "synonyms": [
     "setView",
@@ -31,5 +31,5 @@
     "SELECTION_CONFLICT"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:9acc43f50682c3e1fbbc432fe73013ccfd5f51f73733926192db5b234b20b8ff"
+  "docsHash": "sha256:d32fc5ff0ef4a645db1bc517ea601f9695688fa522c404bd000a94a78f388dcf"
 }

@@ -1,6 +1,8 @@
 // Public editor actions: one contract for the UI, AI, and generated documentation.
 export const FINISH_KEYS = Object.freeze(['design','light-gold','nickel','24k-gold','gunmetal','matt-nickel','matt-light-gold','matt-24k-gold','matt-gunmetal','antique-brass','antique-silver']);
 export const EDITOR_ACTIONS = Object.freeze({
+  'body.align': {title:'快速对齐',fields:['bodyIds','target','axes','sourceSide','targetSide','group','gapMm'],example:{bodyIds:['<bodyId>'],target:{kind:'origin'},axes:['X','Y','Z'],sourceSide:'center',targetSide:'center',group:true},description:'按世界 X/Y/Z 对齐包围范围的 min/center/max；移动件和基准件显式分开；group=true 保持相对位置。一次原子历史操作。'},
+  'history.restore': {title:'退回工程状态',fields:['stateId'],example:{stateId:'<stateId>'},description:'用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。'},
   'document.rename': {title:'工程改名', fields:['name'], example:{name:'圆环设计'}, description:'修改工程名称，保留几何。'},
   'feature.rename': {title:'特征改名 实体名称', fields:['featureId','name'], example:{featureId:'<featureId>',name:'主体'}, description:'修改历史步骤及同 ID 实体名称，导入件也可使用。'},
   'body.visibility': {title:'显示 隐藏实体', fields:['bodyIds','visible'], example:{bodyIds:['<bodyId>'],visible:false}, description:'显隐指定当前实体，不删除几何。'},
@@ -13,6 +15,8 @@ export function validateEditorAction(action,args,state){
   const fail=(message,code='PARAM_SCHEMA_INVALID')=>{throw Object.assign(new Error(message),{code,path:'args'});};
   if(!spec||!args||Array.isArray(args)||typeof args!=='object'||Object.keys(args).some(k=>!spec.fields.includes(k)))fail('Unexpected editor action fields');
   const current=id=>state.bodies.some(b=>b.id===id);
+  if(action==='history.restore'&&(typeof args.stateId!=='string'||args.stateId.length>150))fail('需要有效的历史状态 ID');
+  if(action==='body.align'&&(!Array.isArray(args.bodyIds)||!args.bodyIds.length||args.bodyIds.some(id=>!current(id))))fail('请选择当前移动件','STALE_REFERENCE');
   if(action.endsWith('.rename')){
     if(typeof args.name!=='string'||!args.name.trim()||args.name.length>120)fail('name must contain 1–120 characters');
     if(action==='feature.rename'&&!state.features.some(f=>f.id===args.featureId))fail('Unknown feature','STALE_REFERENCE');

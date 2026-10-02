@@ -2,7 +2,7 @@
   "id": "prepareProfileEdit",
   "title": "prepareProfileEdit",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "prepareProfileEdit({context,bodyId,mode:\"intersections\"|\"trim\"|\"extend\"|\"trimCircle\"|\"fillet\",entityId?,targetId?,edgeIds?,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})。二维圆角可用 edgeIds:[两条当前边索引] 替代 entityId/targetId，支持解析轮廓及其未缩放的移动/旋转副本，选择先后不限；须显式 radiusMm 与新 arcId。",
   "synonyms": [
     "prepareProfileEdit",
@@ -17,6 +17,15 @@
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "STALE_REFERENCE",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID"
+  ],
   "docs": "api.interaction",
-  "docsHash": "sha256:724357b5a59392e8589c192ccf4023b6a1f25e744ff6a0fd5c007f073020f0ab"
+  "docsHash": "sha256:c0daf5ecda61db98caa221781b81465a4aa1a425d9659ab316d259c428ff31a0"
 }

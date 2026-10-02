@@ -1,7 +1,8 @@
-import { mkdir, writeFile, copyFile, readFile, readdir, unlink } from 'node:fs/promises';
+import { mkdir, copyFile, readFile, readdir, unlink } from 'node:fs/promises';
+import {writeGeneratedFile as writeFile} from './generated-file-write.mjs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { execFileSync } from 'node:child_process';
+import { readBuildIdentity } from './build-identity.mjs';
 import { createStaticPageApiIndex, getTool, infoMetadata, readDocs, searchTools } from '../src/page-api-docs.js';
 import { UI_API_ROUTES, requireUIRoute } from '../src/ui-api-coverage.js';
 import { TOOL_CATEGORIES } from '../src/ui-toolbars.js';
@@ -12,9 +13,7 @@ import { generateAgentKit } from './generate-agent-kit.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const target = resolve(root, 'public', 'automation');
-const commit=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8',cwd:root}).trim();
-const dirty=!!execFileSync('git',['status','--porcelain'],{encoding:'utf8',cwd:root}).trim();
-const metadata = infoMetadata({buildId:`${commit}${dirty?'-working':''}`});
+const metadata = infoMetadata({buildId:readBuildIdentity(root).buildId});
 const cards = [];
 let cursor;
 do {
@@ -101,6 +100,8 @@ console.log(`Generated ${cards.length} page cards in ${target}`);
 
 await copyFile(resolve(root,'docs/examples/page-api-plate.js'),resolve(target,'page-api-plate.js'));
 await copyFile(resolve(root,'docs/examples/frame-placement.js'),resolve(target,'frame-placement.js'));
+await copyFile(resolve(root,'docs/examples/hardware-practice.js'),resolve(target,'hardware-practice.js'));
+await copyFile(resolve(root,'docs/examples/clevis-practice.js'),resolve(target,'clevis-practice.js'));
 await mkdir(resolve(root,'public','docs'),{recursive:true});
 await copyFile(resolve(root,'docs/USER-GUIDE.zh-CN.md'),resolve(root,'public','docs','USER-GUIDE.zh-CN.md'));
 await generateAgentKit({root,target,metadata,routes:UI_API_ROUTES});

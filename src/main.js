@@ -1,3 +1,6 @@
+import {recordTimeline,restoreTimeline,timelineList,validateTimeline} from './document-timeline.js';
+import {DOCUMENT_LIMITS,serializeBoundedDocument} from './document-limits.js';
+import {planBodyAlignment} from './modeling/interaction/align-bodies.js';
 import {nextProjectName} from './project-name.js';
 import {getQuickModelUsage,recordQuickModelUse} from './quick-model-usage.js';
 import {quantizeModelParams} from './modeling/interaction/modeling-precision.js';
@@ -16,7 +19,7 @@ import { inspectPrintabilityMesh } from './dfam-inspection.js';
 import { inspectProfileModel } from './profile-inspection.js';
 import { prepareAnalyticProfileEdit } from './profile-editing.js';
 import {projectEdgeToProfile,projectPointToProfile} from './profile-projection.js';
-import { FINISH_KEYS } from './editor-actions.js';
+import { FINISH_KEYS,EDITOR_ACTIONS } from './editor-actions.js';
 import { evaluateDocumentParameters, evaluateNamedParameters } from './named-parameters.js';
 import { t, getLanguage, setLanguage } from './i18n.js';
 import { referenceNames } from './reference-tool-fields.js';
@@ -40,7 +43,7 @@ const emptyDocument = () => ({version:2,documentId:crypto.randomUUID(),name:next
 const pageSessionId=crypto.randomUUID();
 let documentInstanceId=crypto.randomUUID(),lastWarnings=[],persistenceCheckpoint='pending';
 const clone = value => structuredClone(value);
-const labels = {rounding:'圆角',autoRound:'整件圆边',smoothTransition:'平滑过渡',box:'长方体',cylinder:'圆柱',sphere:'球体',cone:'圆锥',torus:'圆环',extrude:'拉伸',revolve:'旋转成型',transform:'变换',copy:'复制',mirror:'镜像',union:'合并',cut:'切除',intersect:'求交',fillet:'圆角',chamfer:'倒角',shell:'抽壳',hole:'打孔',linearPattern:'直线阵列',circularPattern:'环形阵列',import:'导入',remove:'删除'};
+const labels = {round:'圆润',roundEnd:'端头圆润',rounding:'自动打磨',autoRound:'整件圆边',smoothTransition:'平滑过渡',box:'长方体',cylinder:'圆柱',sphere:'球体',cone:'圆锥',torus:'圆环',extrude:'拉伸',revolve:'旋转成型',transform:'变换',copy:'复制',mirror:'镜像',union:'合并',cut:'切除',intersect:'求交',fillet:'圆角',chamfer:'倒角',shell:'抽壳',hole:'打孔',linearPattern:'直线阵列',circularPattern:'环形阵列',import:'导入',remove:'删除'};
 let documentModel=emptyDocument(),bodies=[],selectedIds=[],selectedTopology=null,busy=false,kernelReady=false,dirty=false;
 let qualityKey='standard';
 function qualityState(){return {quality:qualityKey,...RENDER_QUALITIES[qualityKey],triangleCount:bodies.reduce((n,b)=>n+b.indices.length/3,0),source:'viewer-tessellation',adaptive:false};}
@@ -77,6 +80,7 @@ function restartWorker(error){
 const ui=createUI(document.getElementById('app'),{
   initialDocumentName:documentModel.name,
   onAction:(action,params)=>performAction(action,params).catch(error=>{reportError(error);return false;}),
+  onRoundGuide:(report,handlers)=>viewport.setRoundGuide(report,handlers),
   onSelection:(id,additive)=>selectBody(id,additive),
   onPickCandidate:hit=>pick(hit,false),
   onEditFeature:(id,params,name)=>editFeature(id,params,name).then(result=>{ui.clearPropertyDraft();return result;}),
@@ -92,6 +96,7 @@ const ui=createUI(document.getElementById('app'),{
   onProfileViewRestore:previous=>viewport.restoreFrameView(previous),
 });
 const viewport=new CADViewport(document.getElementById('viewport'),{
+  onRectangleSelect:input=>selectRectangle(input),
   onPick:pick,
   onPickCandidates:candidates=>ui.showPickCandidates(candidates),
   onSketch:({expectedFrameVersion,...params})=>{if(expectedFrameVersion!==documentModel.referenceSystem.workFrame.frameVersion){reportError(Object.assign(new Error('绘制期间参考锚点已变化，请重新绘制，避免轮廓落在错误平面。'),{code:'STALE_REFERENCE'}));return;}performAction('extrude',params).catch(reportError);},
@@ -108,8 +113,9 @@ const viewport=new CADViewport(document.getElementById('viewport'),{
 function refresh(){document.title=(dirty?'● ':'')+documentModel.name+' — WebCAD';const url=new URL(location.href);if(url.searchParams.get('document')!==documentModel.documentId){url.searchParams.set('document',documentModel.documentId);history.replaceState(null,'',url);}ui.update({renderQuality:qualityState(),document:documentModel,bodies,selectedIds,selectedTopology,undoAvailable:undoStack.length>0,redoAvailable:redoStack.length>0,busy,status,kernelReady,dirty,displayPreferences:viewport.displayPreferences,metalFinish:viewport.finishKey,aiStatus,revision,viewState:{quality:qualityKey,display:viewport.mode,projection:viewport.camera.isOrthographicCamera?'orthographic':'perspective',grid:viewport.grid.visible,snap:viewport.snapEnabled,gizmo:viewport.gizmoMode,transform:viewport.getTransformState(),selection:viewport.selectionMode,anchorDrag:viewport.anchorDragEnabled,anchorVisible:viewport.anchorVisible,temporaryDisplay:viewport.temporaryDisplay}});}
 function setStatus(message){status=message;ui.setStatus(t(message));}
 function reportError(error){console.error(error);ui.showError(error.message||String(error));setStatus(error.message||String(error));}
-function pushUndo(){undoStack.push(clone(documentModel));if(undoStack.length>40)undoStack.shift();redoStack=[];}
+function pushUndo(next,label){if(next){recordTimeline(documentModel,next,{label});serializeBoundedDocument(next);}const {imports,timeline,...rest}=documentModel;undoStack.push({...clone(rest),imports,timeline});if(undoStack.length>40)undoStack.shift();redoStack=[];}
 function setBusy(value,message){busy=value;viewport.setBusy?.(value);ui.setBusy(value,message);if(message)setStatus(message);refresh();}
+function selectRectangle(input){if(busy)return;const ids=viewport.rectangleCandidates(input);ui.discardForSelection();selectedIds=input.additive?[...new Set([...selectedIds,...ids])]:ids;selectedTopology=null;viewport.setSelection(selectedIds);refresh();return {status:'read',selectedIds:[...selectedIds],context:pageAPI.getState().context};}
 function selectBody(id,additive=false){
   if(busy)return;
   if(id!==selectedIds[0]||additive)ui.discardForSelection();
@@ -144,29 +150,32 @@ function applyAppearance(){
   viewport.setMetalFinish(FINISH_KEYS.includes(documentModel.renderFinish)?documentModel.renderFinish:viewport.displayPreferences.defaultFinish);
 }
 
-async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,expectedRevision,newInstance=false}={}){
+async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,expectedRevision,newInstance=false,restoring=false,historyLabel}={}){
   if(busy)throw new Error('当前操作尚未完成，请稍候。');
   if(!kernelReady)throw new Error('建模内核尚未就绪。');
   setBusy(true,'正在计算精确实体…');
   try{
     checkTransaction(signal,expectedRevision);
-    const previousDocument=record&&!newInstance&&next.documentId===documentModel.documentId?documentModel:next;
+    const previousDocument=record&&!newInstance&&!restoring&&next.documentId===documentModel.documentId?documentModel:next;
     if(next.parameters!==undefined||next.features.some(f=>f.expressions))next=evaluateDocumentParameters(next,{previousDocument});
     assertHistoryEditSafe(previousDocument,next);
     // Keep every committed project saveable through the bounded browser file API.
     // Reserve a small margin for subsequent UI name/appearance metadata changes.
-    if(new TextEncoder().encode(JSON.stringify(next,null,2)).byteLength>20*1024*1024-4096)throw Object.assign(new Error('自包含工程超过 20 MiB 浏览器文件限额；请拆分工程。原工程保留。'),{code:'SIZE_LIMIT'});
+    serializeBoundedDocument(next,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});
     const result=await request('rebuild',{document:next});
     try{checkTransaction(signal,expectedRevision);}catch(error){await request('rebuild',{document:documentModel});throw error;}
-    try{await synchronizeBodyAnchors(documentModel,next,bodies,result.bodies,async bodyId=>(await request('queryGeometry',{bodyId,kind:'edge',filter:{}})).geometryFingerprint);checkTransaction(signal,expectedRevision);}catch(error){await request('rebuild',{document:documentModel});throw error;}
+    try{if(!restoring)await synchronizeBodyAnchors(documentModel,next,bodies,result.bodies,async bodyId=>(await request('queryGeometry',{bodyId,kind:'edge',filter:{}})).geometryFingerprint);checkTransaction(signal,expectedRevision);}catch(error){await request('rebuild',{document:documentModel});throw error;}
     // Automatic clearance belongs to the same geometry transaction. A locked
     // frame and a user-chosen empty point are left alone.
-    if(record&&JSON.stringify(next.features)!==JSON.stringify(documentModel.features)&&!next.referenceSystem.workFrame.locked){
+    if(record&&!restoring&&JSON.stringify(next.features)!==JSON.stringify(documentModel.features)&&!next.referenceSystem.workFrame.locked){
       const work=next.referenceSystem.workFrame,clear=clearOccupiedAnchor(work.origin,result.bodies);
       if(clear!==work.origin){work.origin=clear;work.frameVersion++;work.sourceLabel='自动避让模型';work.provenance={kind:'manual'};}
     }
     const newQuickModels=record&&!newInstance&&documentModel.documentId===next.documentId?next.features.filter(f=>f.op==='quickModel'&&!documentModel.features.some(old=>old.id===f.id)):[];
-    if(record)pushUndo();
+    // Anchors and retained history can grow after preflight. Validate the final
+    // snapshot before changing undo/redo, revision, or the authoritative model.
+    try{if(record)pushUndo(next,historyLabel);else serializeBoundedDocument(next);}
+    catch(error){await request('rebuild',{document:documentModel});throw error;}
     if(newInstance||documentModel.documentId!==next.documentId){documentInstanceId=crypto.randomUUID();projectFileHandle=null;}
     documentModel=next;bodies=result.bodies;selectedTopology=null;previewNext=null;previewIdentity=null;previewScopeReport=null;revision++;
     for(const feature of newQuickModels)recordQuickModelUse(feature.params.kind);
@@ -182,7 +191,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
 }
 function featureDocument(op,params={},explicitRefs=[],name,placement){
   const mechanicalRange=mechanicalIds.includes(op)?mechanicalRefRange(op,params):null;
-  const refs=[];const selection=explicitRefs;const single=['rounding','autoRound','smoothTransition','transform','copy','mirror','fillet','chamfer','shell','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','split','extractSolid','extractShell','faceHole','faceExtrude','logo','curvedLogo','thickenFace','extractFaces'];
+  const refs=[];const selection=explicitRefs;const single=['round','roundEnd','rounding','autoRound','smoothTransition','transform','copy','mirror','fillet','chamfer','shell','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','split','extractSolid','extractShell','faceHole','faceExtrude','logo','curvedLogo','thickenFace','extractFaces'];
   if(mechanicalRange){if(selection.length<mechanicalRange.min||selection.length>mechanicalRange.max)throw new Error(`此操作须明确提供 ${mechanicalRange.min===mechanicalRange.max?mechanicalRange.min:`${mechanicalRange.min}–${mechanicalRange.max}`} 个当前来源／目标对象。`);refs.push(...selection);}
   if([...single,'planeSection','faceBoundary','referenceExtrude','profileOffset','profileRepair'].includes(op)){
     if(selection.length!==1||!bodies.some(b=>b.id===selection[0]))throw new Error('请先选择一个当前实体。');
@@ -260,10 +269,10 @@ async function editFeature(id,params,name,options={}){
 }
 async function navigateHistory(direction,options={}){
   const source=direction==='undo'?undoStack:redoStack;if(!source.length||busy)return;
-  const next=source[source.length-1],old=clone(documentModel);
+  const next=clone(source[source.length-1]),old=clone(documentModel);recordTimeline(documentModel,next,{label:direction==='undo'?'撤销到上一状态':'重做状态'});
   if(JSON.stringify({features:next.features,imports:next.imports})===JSON.stringify({features:old.features,imports:old.imports})){
-    checkTransaction(options.signal,options.expectedRevision);documentModel=clone(next);revision++;dirty=true;void autosave();viewport.setWorkFrame?.(next.referenceSystem.workFrame);viewport.markModel({documentId:next.documentId,documentInstanceId,revision});refresh();
-  }else await rebuild(clone(next),{...options,record:false});source.pop();(direction==='undo'?redoStack:undoStack).push(old);try{refresh();}catch(error){lastWarnings.push({code:'DISPLAY_FAILED',message:error.message});}
+    checkTransaction(options.signal,options.expectedRevision);serializeBoundedDocument(next);documentModel=clone(next);revision++;dirty=true;void autosave();viewport.setWorkFrame?.(next.referenceSystem.workFrame);viewport.markModel({documentId:next.documentId,documentInstanceId,revision});refresh();
+  }else await rebuild(clone(next),{...options,record:false,restoring:true});source.pop();(direction==='undo'?redoStack:undoStack).push(old);try{refresh();}catch(error){lastWarnings.push({code:'DISPLAY_FAILED',message:error.message});}
 }
 function checkTransaction(signal,expectedRevision){if(signal?.aborted)throw Object.assign(new Error('AI request cancelled before commit'),{code:'CANCELLED',path:'context',recoveryAction:'READ_STATE_AND_REPLAN'});if(expectedRevision!==undefined&&expectedRevision!==revision)throw Object.assign(new Error(`Revision conflict: expected ${expectedRevision}, current ${revision}. Read state and retry.`),{code:'REVISION_CONFLICT',path:'context.expectedRevision',recoveryAction:'READ_STATE_AND_REPLAN'});}
 async function previewFeature(op,params,explicitRefs,name,placement,identity=null){
@@ -273,13 +282,15 @@ async function previewFeature(op,params,explicitRefs,name,placement,identity=nul
   const uiParams=explicitRefs?params:adaptUISelection(op,params,selectedIds,selectedTopology);
   const refs=explicitRefs||[...selectedIds];
   const resolved=await resolveLogoParams(op,migratedOperationIds.includes(op)?normalizeOperationParams(op,uiParams):uiParams,refs);
-  const {next}=featureDocument(op,resolved,refs,name,placement),generation=++previewGeneration;previewComputing=true;setBusy(true,'预览 / Preview…');
+  const {next}=featureDocument(op,resolved,refs,name,placement);serializeBoundedDocument(next,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});
+  const generation=++previewGeneration;previewComputing=true;setBusy(true,'预览 / Preview…');
   try{const result=await request('rebuild',{document:next});
     if(generation!==previewGeneration){await request('rebuild',{document:documentModel});previewNext=null;viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);return false;}
-    previewNext=next;previewIdentity=identity;const previewBody=result.bodies.find(body=>body.id===next.features.at(-1)?.id);previewScopeReport=op==='rounding'?previewBody?.roundingReport||null:null;
+    previewNext=next;previewIdentity=identity;const previewBody=result.bodies.find(body=>body.id===next.features.at(-1)?.id);previewScopeReport=op==='refineShape'?previewBody?.refineReport||null:op==='round'?previewBody?.roundReport||null:op==='rounding'?previewBody?.roundingReport||null:op==='roundEnd'?previewBody?.endRoundingReport||null:null;
     viewport.setBodies(result.bodies,next.hidden);viewport.setSelection([]);
-    if(previewScopeReport){const sourceBody=bodies.find(body=>body.id===refs[0]);viewport.setScopeOverlay(sourceBody?.edges,previewScopeReport.requestedSelection,previewScopeReport.expandedSelection);}
-    if(!bodies.length)viewport.fit();setStatus('预览未保存 · 应用或取消 / Preview: apply or cancel');return previewScopeReport?{roundingReport:clone(previewScopeReport)}:true;}
+    if(previewScopeReport&&op==='rounding'){const sourceBody=bodies.find(body=>body.id===refs[0]);viewport.setScopeOverlay(sourceBody?.edges,previewScopeReport.requestedSelection,previewScopeReport.expandedSelection);}
+    if(op==='round'&&previewScopeReport){previewScopeReport={...previewScopeReport,previewBodyId:previewBody.id,sourceBodyId:refs[0]};viewport.setRoundGuide(previewScopeReport);if(previewScopeReport.mode==='edge')viewport.setScopeOverlay(bodies.find(b=>b.id===refs[0])?.edges,params.edgeIds||[],params.edgeIds||[]);}
+    if(!bodies.length)viewport.fit();setStatus('预览未保存 · 应用或取消 / Preview: apply or cancel');return previewScopeReport?{[op==='refineShape'?'refineReport':op==='round'?'roundReport':op==='roundEnd'?'endRoundingReport':'roundingReport']:clone(previewScopeReport)}:true;}
   catch(error){if(error.code==='PREVIEW_CANCELLED')return false;previewScopeReport=null;if(previousPreview&&previousIdentity?.previewId===identity?.previewId){const restored=await request('rebuild',{document:previousPreview});previewNext=previousPreview;previewIdentity=previousIdentity;previewScopeReport=previousScopeReport;viewport.setBodies(restored.bodies,previousPreview.hidden);}else{previewNext=null;previewIdentity=null;await request('rebuild',{document:documentModel});viewport.setBodies(bodies,documentModel.hidden);}throw error;}
   finally{previewComputing=false;if(recoveryPromise)await recoveryPromise.catch(()=>{});setBusy(false);}
 }
@@ -288,13 +299,13 @@ async function previewFile(fileImport,identity,update=false){
   const previousPreview=previewNext,previousIdentity=previewIdentity,next=update?clone(previewNext):clone(documentModel);
   if(update){if(!next||!previousIdentity||previousIdentity.previewId!==identity.previewId||previousIdentity.generation+1!==identity.generation)throw Object.assign(new Error('Preview generation changed'),{code:'STALE_REFERENCE'});next.features.at(-1).placement=fileImport.placement;}
   else{const {name,data,placement}=fileImport,extension=name.split('.').pop().toLowerCase(),format=['step','stp'].includes(extension)?'step':['brep','brp'].includes(extension)?'brep':null;if(!format)throw Object.assign(new Error('Unsupported file preview format'),{code:'FORMAT_UNSUPPORTED'});const key=crypto.randomUUID(),id=crypto.randomUUID();next.imports[key]={format,data};next.features.push({id,op:'import',name,params:{key},refs:[],placement,semanticsVersion:2});}
-  if(new TextEncoder().encode(JSON.stringify(next,null,2)).byteLength>20*1024*1024-4096)throw Object.assign(new Error('文件预览会使自包含工程超过 20 MiB 限额'),{code:'SIZE_LIMIT'});
+  serializeBoundedDocument(next,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});
   const generation=++previewGeneration;previewComputing=true;setBusy(true,'文件插入预览 / File preview…');
   try{const result=await request('rebuild',{document:next});if(generation!==previewGeneration){await request('rebuild',{document:documentModel});previewNext=null;previewIdentity=null;previewScopeReport=null;viewport.clearScopeOverlay();viewport.setBodies(bodies,documentModel.hidden);return false;}previewNext=next;previewIdentity=identity;previewScopeReport=null;viewport.clearScopeOverlay();viewport.setBodies(result.bodies,next.hidden);viewport.setSelection([]);setStatus('文件插入预览未保存 · 应用或取消');return true;}
   catch(error){if(error.code==='PREVIEW_CANCELLED')return false;if(previousPreview&&previousIdentity?.previewId===identity?.previewId){const restored=await request('rebuild',{document:previousPreview});previewNext=previousPreview;previewIdentity=previousIdentity;viewport.setBodies(restored.bodies,previousPreview.hidden);}else{await request('rebuild',{document:documentModel});previewNext=null;previewIdentity=null;viewport.setBodies(bodies,documentModel.hidden);}throw error;}
   finally{previewComputing=false;if(recoveryPromise)await recoveryPromise.catch(()=>{});setBusy(false);}
 }
-async function cancelPreview(){previewGeneration++;previewScopeReport=null;viewport.clearScopeOverlay();if(previewComputing){previewNext=null;previewIdentity=null;setBusy(true,'取消并恢复内核 / Cancel and recover kernel…');try{await restartWorker(Object.assign(new Error('Preview cancelled'),{code:'PREVIEW_CANCELLED'}));}finally{setBusy(false);}return;}if(!previewNext)return;setBusy(true,'取消预览 / Cancel preview…');try{await request('rebuild',{document:documentModel});previewNext=null;previewIdentity=null;viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);}finally{setBusy(false);}}
+async function cancelPreview(){viewport.clearRoundGuide();previewGeneration++;previewScopeReport=null;viewport.clearScopeOverlay();if(previewComputing){previewNext=null;previewIdentity=null;setBusy(true,'取消并恢复内核 / Cancel and recover kernel…');try{await restartWorker(Object.assign(new Error('Preview cancelled'),{code:'PREVIEW_CANCELLED'}));}finally{setBusy(false);}return;}if(!previewNext)return;setBusy(true,'取消预览 / Cancel preview…');try{await request('rebuild',{document:documentModel});previewNext=null;previewIdentity=null;viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);}finally{setBusy(false);}}
 
 function safeName(name){return (name||'WebCAD').replace(/[<>:"/\\|?*\x00-\x1f]/g,'_').replace(/\.{2,}/g,'_').replace(/[. ]+$/g,'').slice(0,120)||'WebCAD';}
 function download(data,name,mime='application/octet-stream'){
@@ -335,8 +346,9 @@ function chooseFile(accept='.webcad,.json,.step,.stp,.brep,.brp,.iges,.igs,.stl'
 function base64(array){let text='';for(let i=0;i<array.length;i+=0x8000)text+=String.fromCharCode(...array.subarray(i,i+0x8000));return btoa(text);}
 function validateDocument(doc){
   if(!doc||![1,2].includes(doc.version)||!Array.isArray(doc.features)||typeof doc.imports!=='object'||!doc.imports)throw new Error('不是有效的 WebCAD 1.x/2.x 工程文件。');
-  if(doc.features.length>2000)throw new Error('工程操作超过 2000 项，暂不适合此浏览器工作台。');
+  serializeBoundedDocument(doc);
   const ids=new Set();for(const f of doc.features){if(!f.id||ids.has(f.id)||typeof f.op!=='string'||!f.params||!Array.isArray(f.refs))throw new Error('工程特征结构无效。');for(const ref of f.refs)if(!ids.has(ref))throw new Error('工程包含无效的操作引用。');if(f.placement!==undefined){if(doc.version!==2||f.semanticsVersion!==2)throw Object.assign(new Error('定位特征需要工程版本 2 和语义版本 2。'),{code:'DOCUMENT_VERSION_UNSUPPORTED'});validateResolvedPlacement(f.placement,f.op);}ids.add(f.id);}
+  if(doc.timeline){validateTimeline(doc);validateReferenceSystem(doc.referenceSystem);return clone(doc);}
   return {version:2,referenceSystem:doc.version===2?validateReferenceSystem(doc.referenceSystem):createReferenceSystem(),...(doc.parameters!==undefined?{parameters:doc.parameters}:{}),documentId:typeof doc.documentId==='string'&&doc.documentId.length>0&&doc.documentId.length<=150?doc.documentId:crypto.randomUUID(),name:String(doc.name||'导入工程'),features:doc.features,imports:doc.imports,hidden:Array.isArray(doc.hidden)?doc.hidden:[],appearance:doc.appearance&&typeof doc.appearance==='object'?doc.appearance:{},colors:doc.colors&&typeof doc.colors==='object'?Object.fromEntries(Object.entries(doc.colors).filter(([,v])=>typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v))):{},renderFinish:doc.renderFinish??null};
 }
 async function openFiles(files,{confirmReplace=true,signal,expectedRevision,mcp=false,placement}={}){
@@ -397,7 +409,7 @@ async function performAction(action,params={}){
   if(action.startsWith('reference.'))return runEditorAction(action,params);
   if(action==='language'){viewport.updateLanguage();refresh();return;}
   if(action==='cancelPreview'){await cancelPreview();return;}
-  if(action==='commitPreview'){if(!previewNext)throw new Error('No preview to apply');await rebuild(clone(previewNext),{select:previewNext.features.at(-1)?.id});return;}
+  if(action==='commitPreview'){if(!previewNext)throw new Error('No preview to apply');await rebuild(clone(previewNext),{select:previewNext.features.at(-1)?.id});return true;}
   if(action==='preview'){
     const input=clone(params.params),useFrame=input.useWorkFrame===true,sourceAnchor=input.placementSourceAnchor,taskRefs=input._targetRefs,taskTopology=input._targetTopology,frameSnapshot=input._placementFrameSnapshot;delete input.useWorkFrame;delete input.placementSourceAnchor;delete input._targetRefs;delete input._targetTopology;delete input._placementFrameSnapshot;
     const placement=useFrame?resolvePlacement({version:1,frame:frameSnapshot?{kind:'snapshot',origin:[...frameSnapshot.origin],quaternion:[...frameSnapshot.quaternion]}:{kind:'work',expectedFrameVersion:documentModel.referenceSystem.workFrame.frameVersion},sourceAnchor:sourceAnchor||{kind:params.op==='box'?'bottom-center':'model-origin'}},documentModel.referenceSystem,params.op,input):undefined;
@@ -422,6 +434,11 @@ async function performAction(action,params={}){
   if(action==='display'){viewport.setDisplay(params.mode);refresh();return;}
   if(action==='projection'){viewport.setProjection(params.mode);document.querySelector('.view-label').textContent=params.mode==='orthographic'?'正交视图':'透视视图';refresh();return;}
   if(action==='grid'){setStatus(viewport.toggleGrid()?'网格已显示':'网格已隐藏');refresh();return;}
+  if(action==='restoreHistory')return runEditorAction('history.restore',params);
+  if(action==='alignBodies')return runEditorAction('body.align',params);
+  if(action==='alignmentPlan')return planBodyAlignment(params,bodies,documentModel.referenceSystem);
+  if(action==='drawingCreate'){const {revision,...identity}=pageAPI.getState().context;return pageAPI.createDrawing({context:{...identity,expectedRevision:revision},...params});}
+  if(action==='drawingExport'){const {revision,...identity}=pageAPI.getState().context;const artifact=await pageAPI.exportDrawing({context:{...identity,expectedRevision:revision},...params});if(artifact.status==='failed')throw new Error(artifact.error.message);const result=await pageAPI.files.download({resourceId:artifact.resourceId});return {artifact,result};}
   if(action==='selectTool'){await cancelPreview();viewport.setGizmo('off');viewport.setSelectionMode('body');viewport.renderer.domElement.style.cursor='default';selectedTopology=null;viewport.setSelection(selectedIds);refresh();return;}
   if(action==='selectMode'){if(params.mode!=='body')viewport.setGizmo('off');viewport.setSelectionMode(params.mode);selectedTopology=null;viewport.setSelection(selectedIds);refresh();return;}
   if(action==='help'){ui.showInfo('WebCAD 使用说明','新建实体：选择基本体，输入毫米尺寸。选择：点击模型或左侧实体，Shift 多选。切除：先选主体，再选刀具。圆角/倒角：切换选边，可 Shift 选择多条边；处理全部边需明确勾选。抽壳：先选开口面。草图：在 XY 网格点击轮廓后拉伸。左键拖动旋转，右键平移，滚轮缩放，F 适配。Ctrl+Z 撤销，Ctrl+Shift+Z 重做，Ctrl+S 保存工程。STEP/BREP 可导入后加工；原 CAD 特征树不会恢复。保存 .webcad 保留参数历史，导出 STEP 用于 Creo / SolidWorks / FreeCAD，STL 用于切片打印。');return;}
@@ -542,8 +559,8 @@ const ready=(async()=>{
   catch(error){reportError(error);return false;}
 })();
 // Public automation surface also used by reproducible acceptance checks; never runs arbitrary code.
-function getState(){return {revision,document:clone(documentModel),bodies:bodies.map(({id,name,bounds,volume,solidCount,shellCount,transitionReport,blendReport,roundingReport,repairReport,threadReport,constraintReport,faceGroups,edges})=>({id,name,bounds,volume,solidCount,shellCount,transitionReport,blendReport,roundingReport,repairReport,threadReport,constraintReport,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,dirty,preview:!!previewNext};}
-function aiState(){return {sessionId:pageSessionId,revision,dirty,documentId:documentModel.documentId,documentInstanceId,documentName:documentModel.name,referenceSystem:clone(documentModel.referenceSystem),features:clone(documentModel.features),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),bodies:bodies.map(({id,name,bounds,volume,solidCount,shellCount,transitionReport,blendReport,roundingReport,repairReport,threadReport,constraintReport,faceGroups,edges})=>({id,name,bounds,volume,solidCount,shellCount,transitionReport,blendReport,roundingReport,repairReport,threadReport,constraintReport,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,preview:!!previewNext,previewInfo:previewIdentity?clone(previewIdentity):null,previewScope:previewScopeReport?clone(previewScopeReport):null};}
+function getState(){return {revision,document:clone(documentModel),bodies:bodies.map(({id,name,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,threadReport,constraintReport,refineReport,faceGroups,edges})=>({id,name,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,threadReport,constraintReport,refineReport,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,dirty,preview:!!previewNext};}
+function aiState(){return {sessionId:pageSessionId,revision,dirty,documentId:documentModel.documentId,documentInstanceId,documentName:documentModel.name,referenceSystem:clone(documentModel.referenceSystem),features:clone(documentModel.features),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),bodies:bodies.map(({id,name,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,threadReport,constraintReport,refineReport,faceGroups,edges})=>({id,name,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,threadReport,constraintReport,refineReport,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,preview:!!previewNext,previewInfo:previewIdentity?clone(previewIdentity):null,previewScope:previewScopeReport?clone(previewScopeReport):null};}
 async function executeAI(command,args={},options={}){
   if(command==='file_command')return commandService.fileCommand(args,options);
   if(command==='get_state_v2')return commandService.getState(args);
@@ -561,13 +578,22 @@ async function executeAI(command,args={},options={}){
   if(command==='reference_action'){
     const next=clone(documentModel);next.referenceSystem=args.referenceSystem;
     if(JSON.stringify(next.referenceSystem)===JSON.stringify(documentModel.referenceSystem))return aiState();
-    checkTransaction(options.signal,options.expectedRevision);pushUndo();documentModel=next;revision++;dirty=true;lastWarnings=[];
+    checkTransaction(options.signal,options.expectedRevision);pushUndo(next,'修改参考基准');documentModel=next;revision++;dirty=true;lastWarnings=[];
     viewport.setWorkFrame?.(next.referenceSystem.workFrame);viewport.markModel({documentId:next.documentId,documentInstanceId,revision});refresh();void autosave();return aiState();
   }
   if(command==='preview.cancel'){if(!previewNext)throw new Error('No preview to cancel');if(previewIdentity&&(previewIdentity.previewId!==args.previewId||previewIdentity.generation!==args.expectedGeneration))throw Object.assign(new Error('Preview identity changed'),{code:'STALE_REFERENCE'});await cancelPreview();return aiState();}
   if(command==='preview.commit'){if(!previewNext)throw new Error('No preview to apply');if(previewIdentity&&(previewIdentity.previewId!==args.previewId||previewIdentity.generation!==args.expectedGeneration))throw Object.assign(new Error('Preview identity changed'),{code:'STALE_REFERENCE'});await rebuild(clone(previewNext),{...options,select:previewNext.features.at(-1)?.id});return aiState();}
   if(command==='editor_action'){
     const {action,values:a}=args,next=clone(documentModel);
+    if(action==='history.restore'){
+      const restored=restoreTimeline(documentModel,a.stateId),entry=timelineList(documentModel).entries.find(e=>e.id===a.stateId);delete restored.timeline;
+      const target=validateDocument(restored);await rebuild(target,{...options,restoring:true,historyLabel:'退回：'+entry.label});return aiState();
+    }
+    if(action==='body.align'){
+      const plan=planBodyAlignment(a,bodies,documentModel.referenceSystem),ids=[];
+      for(const move of plan.moves){const id=crypto.randomUUID();ids.push(id);next.features.push({id,op:'transform',name:'对齐 · '+(bodies.find(b=>b.id===move.bodyId)?.name||'实体'),params:{x:move.delta[0],y:move.delta[1],z:move.delta[2],rx:0,ry:0,rz:0,scale:1},refs:[move.bodyId]});for(const key of ['appearance','colors'])if(next[key]?.[move.bodyId])next[key][id]=next[key][move.bodyId];}
+      await rebuild(next,{...options,historyLabel:'快速对齐 '+ids.length+' 件',select:ids[0]});selectedIds=ids;viewport.setSelection(ids);refresh();return aiState();
+    }
     if(action==='body.explode'){
       const source=bodies.find(b=>b.id===a.bodyId),ids=[];
       for(let i=0;i<source.solidCount;i++){
@@ -585,7 +611,7 @@ async function executeAI(command,args={},options={}){
     if(action==='body.appearance')for(const id of a.bodyIds){
       for(const [field,value] of [['colors',a.color],['appearance',a.finish]])if(value!==undefined){next[field]={...next[field]};if(value===null)delete next[field][id];else next[field][id]=value;}
     }
-    checkTransaction(options.signal,options.expectedRevision);pushUndo();documentModel=next;dirty=true;revision++;
+    checkTransaction(options.signal,options.expectedRevision);pushUndo(next,EDITOR_ACTIONS[action]?.title);documentModel=next;dirty=true;revision++;
     if(action==='feature.rename'){const body=bodies.find(b=>b.id===a.featureId);if(body)body.name=a.name.trim();}
     lastWarnings=[];
     try{applyAppearance();viewport.setHidden(next.hidden);viewport.markModel({documentId:next.documentId,documentInstanceId,revision});refresh();}catch(e){lastWarnings.push({code:'DISPLAY_FAILED',message:e.message});}
@@ -601,7 +627,7 @@ async function executeAI(command,args={},options={}){
   }
   if(command==='file_save'){
     const savedRevision=revision,instance=documentInstanceId,docId=documentModel.documentId;
-    const bytes=new TextEncoder().encode(JSON.stringify(clone(documentModel),null,2));
+    const bytes=serializeBoundedDocument(documentModel);
     checkTransaction(options.signal,savedRevision);
     return {revision:savedRevision,documentId:docId,documentInstanceId:instance,encoding:'base64',data:base64(bytes),extension:'webcad',mime:'application/json'};
   }else if(command==='acknowledge_save'){
@@ -663,6 +689,10 @@ const commandService=createCommandService({
   query:args=>request('queryGeometry',args),
 });
 const pageAPI=createPageAPI({
+  history:()=>timelineList(documentModel),
+  planAlignment:input=>planBodyAlignment(input,bodies,documentModel.referenceSystem),
+  selectRectangle:input=>{if(ui.hasActiveTask())throw Object.assign(new Error('请先完成当前人工任务'),{code:'UI_TASK_ACTIVE'});return selectRectangle(input);},
+  createDrawing:async input=>{const expected=revision;if(input.bodyIds.reduce((sum,id)=>sum+(bodies.find(b=>b.id===id)?.faceGroups.length||0),0)>1500)throw Object.assign(new Error('选择的面超过1500个，请分批出图'),{code:'RESOURCE_LIMIT'});setBusy(true,'生成三视图与截面…');try{const result=await request('technicalDrawing',{input});checkTransaction(undefined,expected);return result.drawing;}finally{setBusy(false);}},
   quickModelUsage:getQuickModelUsage,
   clipboard:async(action,ids)=>{if(ui.hasActiveTask())throw Object.assign(new Error('请先应用或取消人工任务'),{code:'UI_TASK_ACTIVE'});if(action==='copy'){modelClipboard={documentInstanceId,ids:[...ids],pasteCount:0};return;}return pasteModelClipboard();},
   buildId:__WEBCAD_BUILD__,

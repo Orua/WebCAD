@@ -39,13 +39,13 @@
   ],
   "description": "圆角矩形扁线由两段平面圆弧层和一段局部跨层过渡连续构成。内外径控制环带，侧向总厚由两层各半厚及层间隙组成。圈数只支持大于1且小于2；跨层角可调，须位于两端错开的扇区。截面四角R0.5；不包含端头专属轮廓、钥匙链附件或花纹。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -82,7 +82,7 @@
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -92,11 +92,11 @@
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "keyRing",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -106,7 +106,8 @@
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -124,6 +125,12 @@
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "扁线双层匙圈",
@@ -304,5 +311,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:01cb6649aecc7b8c0bdd3a741e10e872152ccbcbe7916019c38b47b1ab797c3f"
+  "docsHash": "sha256:05dab22fb561a3ece6b49c9d9d928f0a5e62ffb7722938a0be90d52dfbe32e01"
 }

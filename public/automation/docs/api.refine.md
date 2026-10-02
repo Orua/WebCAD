@@ -1,0 +1,3 @@
+# api.refine
+
+清理分割线 refineShape：用于导入实体或建模后残留的同域分割，不用于删孔、补洞或圆角。先 connect({toolIds:['refineShape','getState','queryGeometry']})，核对 canExecute，再 run({context:当前requestContext,idempotencyKey:crypto.randomUUID(),steps:[{id:'clean',method:'add',args:{op:'refineShape',refs:[当前bodyId],params:{}}}]}）。仅一个封闭实体，最多400面/2000边。固定线性公差1e-7 mm、角公差1e-7 rad；不开放公差放大。采用独立 BREP 副本、OCCT ShapeUpgrade_UnifySameDomain，随后验证有效实体、外廓、体积和两个方向的材料差。无减少返回 NO_CHANGE；失败不写历史。UI 位于修饰→实体整理，选件后预览/应用，无数值参数。getState().bodies[].refineReport 返回 before/after 面边数、removedFaceCount、removedEdgeCount、removedMm3、addedMm3、volumeDeviationMm3、boundsDeviationMm。清理会重新编号边面，后续 queryGeometry 必须重新查询；上游历史保留，可撤销。现有布尔通常已自动整理，简单新建件返回 NO_CHANGE 是正常结果。

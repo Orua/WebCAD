@@ -20,3 +20,4 @@ await api.run({context:c.requestContext,idempotencyKey:crypto.randomUUID(),steps
 ]});
 
 删除只针对用户指定范围。用 getState 的当前 body IDs，execute action:feature.remove args:{bodyIds:[...]}；不能把“删除这个模型”无条件解释成清空所有项目。
+组合建模练习见 readDocs({docId:"recipes.hardware-practice"})：保留轮廓的槽轮旋转与四孔加工、三截面扭转旋钮放样与轴孔。多零件配合流程见 readDocs({docId:"recipes.clevis-practice"})：开口叉架、跨两耳贯穿孔、销轴、双垫片及间隙验证。示例只在获得建模授权后执行，追加当前工程，不自动保存或导出。

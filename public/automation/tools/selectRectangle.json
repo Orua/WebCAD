@@ -1,0 +1,26 @@
+{
+  "id": "selectRectangle",
+  "title": "selectRectangle",
+  "category": "page-method",
+  "version": "1.16.0",
+  "description": "selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。",
+  "synonyms": [
+    "selectRectangle",
+    "框选",
+    "多选",
+    "实体",
+    "选择"
+  ],
+  "inputContract": "selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。",
+  "outputContract": "status=read、selectedIds、context。按当前相机的对象投影包围框选择，隐藏件排除；window须完整包围且整个对象在相机近远深度范围内，crossing对包围盒与近远裁剪面的交点投影后判相交。按包围框而非真实轮廓/孔洞，不做对象间遮挡剔除。左向右拖为window，右向左为crossing，Shift/Ctrl追加，Escape取消鼠标拖框；丢失指针捕获会取消并恢复此前视角控制状态。不修改模型revision。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "UI_TASK_ACTIVE",
+    "REVISION_CONFLICT"
+  ],
+  "docsHash": "sha256:8428ea8fa355d43c13bc418bc6629b01b8d1eadfe8b8f127068d19c1d3b45228"
+}

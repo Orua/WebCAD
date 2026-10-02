@@ -2,7 +2,7 @@
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "confirmWritten",
   "synonyms": [
     "confirmWritten",
@@ -17,24 +17,34 @@
   },
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
-  "runtimeAvailability": "requires_ready_page",
+  "runtimeAvailability": "requires_page",
+  "argumentKeys": [
+    "resourceId",
+    "size",
+    "sha256"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.confirmWritten\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
-    "CAPABILITY_UNAVAILABLE",
-    "REVISION_CONFLICT",
-    "INSTANCE_MISMATCH",
-    "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
-    "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
+    "PARAM_SCHEMA_INVALID",
     "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "ASSET_INVALID",
+    "HASH_MISMATCH",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:1cc1249f572a0b36adf151501ab2d81b514f5e3aa1540f918b022eb9a9fec777"
+  "docsHash": "sha256:f9bd9c4a85d5f9caa82bdcd12425264e8b0aa8051ee7fcea8f79ca1bf6edbb85"
 }

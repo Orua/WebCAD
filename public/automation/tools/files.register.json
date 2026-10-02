@@ -2,7 +2,7 @@
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "登记文件资源",
   "synonyms": [
     "登记文件资源",
@@ -17,24 +17,32 @@
   },
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
-  "runtimeAvailability": "requires_ready_page",
+  "runtimeAvailability": "requires_page",
+  "argumentKeys": [
+    "name",
+    "data",
+    "mime"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.register\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
-    "CAPABILITY_UNAVAILABLE",
-    "REVISION_CONFLICT",
-    "INSTANCE_MISMATCH",
-    "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
+    "PARAM_SCHEMA_INVALID",
+    "NAME_INVALID",
+    "ASSET_INVALID",
     "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
-    "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:53b3bd5812fb4ad19be6b7c1bc0e199359e66bcf7347fb7e32e03dafba202622"
+  "docsHash": "sha256:150a30a23685930a6fc0b3069a0762ec2b7cc39fd7a0813eb7e7136154ccce70"
 }

@@ -39,13 +39,13 @@
   ],
   "description": "同心圆恒截面单圈；开缝为底部正中平行平切。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -82,7 +82,7 @@
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -92,11 +92,11 @@
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "ring",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -106,7 +106,8 @@
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -124,6 +125,12 @@
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "圆圈",
@@ -285,5 +292,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:f88df380721ba7e12bf5e7ec4d2bc558635125cdcce295a189ef7ee5598200b1"
+  "docsHash": "sha256:e5d31b71ed3ea2e9621a3549a83111cc12cdb95eb464a32d7216c13f72d41de4"
 }

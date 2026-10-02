@@ -1,18 +1,21 @@
 import { defineConfig } from 'vite';
-import { execFileSync } from 'node:child_process';
 import {mkdir,copyFile} from 'node:fs/promises';
-const commit = execFileSync('git', ['rev-parse', 'HEAD'], {encoding:'utf8'}).trim();
-const dirty = !!execFileSync('git', ['status', '--porcelain'], {encoding:'utf8'}).trim();
+import {resolve} from 'node:path';
+import {readBuildIdentity} from './scripts/build-identity.mjs';
+const root=import.meta.dirname;
+const {buildId}=readBuildIdentity(root);
+let outputDirectory;
 export default defineConfig({
   base:'./',
   plugins:[{
     name:'vector-dwg-runtime',
+    configResolved(config){outputDirectory=resolve(config.root,config.build.outDir);},
     async closeBundle(){
       const runtime=['bindings/libredwg-web.js','wasm/libredwg-web.js','wasm/libredwg-web.wasm','open-source-notices.html'];
-      const files=[...runtime.map(file=>[`cad-viewer/${file}`,`dist/cad-viewer/${file}`]),
-        ...['MIT.txt','GPL-3.0-or-later.txt'].map(file=>[`LICENSES/${file}`,`dist/cad-viewer/LICENSES/${file}`])];
-      for(const [source,target] of files){await mkdir(target.slice(0,target.lastIndexOf('/')),{recursive:true});await copyFile(source,target);}
+      const files=[...runtime.map(file=>[`cad-viewer/${file}`,`cad-viewer/${file}`]),
+        ...['MIT.txt','GPL-3.0-or-later.txt'].map(file=>[`LICENSES/${file}`,`cad-viewer/LICENSES/${file}`])];
+      for(const [source,target] of files){const destination=resolve(outputDirectory,target);await mkdir(resolve(destination,'..'),{recursive:true});await copyFile(resolve(root,source),destination);}
     },
   }],
-  define:{__WEBCAD_BUILD__:JSON.stringify(`${commit}${dirty?'-working':''}`)},
+  define:{__WEBCAD_BUILD__:JSON.stringify(buildId)},
 });

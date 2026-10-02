@@ -2,7 +2,7 @@
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.",
   "synonyms": [
     "connect",
@@ -12,7 +12,7 @@
     "缓存"
   ],
   "inputContract": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.",
-  "outputContract": "当前 context/requestContext、canExecute/blockers/nextAction、版本与迁移说明、实体引用和工具契约。ready 仅为内核状态；canExecute 才计入 busy/preview。详见 api.workflow。",
+  "outputContract": "当前 context/requestContext、canExecute/blockers/nextAction、版本与迁移说明、实体引用和完整工具契约。搜索自动附带卡最多64000字符，contractIdsOmitted 和 contractReadPolicy 明示省略项；显式 toolIds 与按需 getTools 不受字符预算限制。ready 仅为内核状态；canExecute 才计入 busy/preview。详见 api.workflow。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -22,5 +22,5 @@
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:67c2f20f6f258d3b333f688e19c112388fc7c668411c336eaef3cab02eb2389a"
+  "docsHash": "sha256:2a68fb23e5fdc53043c6c8e12c02b0afe9ad84a13806fa93300f2d42a693edee"
 }

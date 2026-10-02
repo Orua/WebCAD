@@ -2,7 +2,7 @@
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "invoke({method,args}); public method name or files.*.",
   "synonyms": [
     "invoke",
@@ -20,5 +20,5 @@
     "PARAM_SCHEMA_INVALID"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:8b229eeac83f22c6e3a5458b7e121efa1889d45cee027ba4e5378a06bd2a9055"
+  "docsHash": "sha256:ebff4019b772af1581a3ae3b15a6265b5a48fa594dff09c94655948f6db22ba4"
 }

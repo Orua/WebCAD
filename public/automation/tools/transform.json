@@ -245,7 +245,7 @@
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -287,7 +287,8 @@
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. Replaces original."
+    "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. Replaces original.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "transform",
@@ -311,7 +312,16 @@
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "x": 10,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -319,7 +329,8 @@
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -341,6 +352,12 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "移动 / 旋转",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "spatial-operation",
     "placementSupported": true,
@@ -356,5 +373,5 @@
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:26b9240b4f9656447d42145ebbc0dff4fb8cf0edac2e7f83748bceb3f7e82dd0"
+  "docsHash": "sha256:d343f96bd58d30293e4ce3108a1cb480d89cb13f74fde940569954e59a4afc24"
 }

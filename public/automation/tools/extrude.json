@@ -159,7 +159,7 @@
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -201,7 +201,8 @@
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Rectangle/circle are centered profiles. Polygon points are plane coordinates. Profile defaults rectangle; plane XY. Rounded rectangle and arc also supported."
+    "Rectangle/circle are centered profiles. Polygon points are plane coordinates. Profile defaults rectangle; plane XY. Rounded rectangle and arc also supported.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "extrude",
@@ -227,7 +228,19 @@
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "profile": "rectangle",
+        "width": 20,
+        "depth": 10,
+        "height": 5,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -235,7 +248,8 @@
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -256,6 +270,12 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "拉伸",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -270,5 +290,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:aabcf101c7280e9a49d47f69fb43454ace6b78ea98fcab37daa6ebe9c192e5d1"
+  "docsHash": "sha256:fe39b3678df587b866e630197ebfcff2dc2a4c5655d343b0878c996d0a26821d"
 }

@@ -2,7 +2,7 @@
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "释放文件资源",
   "synonyms": [
     "释放文件资源",
@@ -17,24 +17,28 @@
   },
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
-  "runtimeAvailability": "requires_ready_page",
+  "runtimeAvailability": "requires_page",
+  "argumentKeys": [
+    "resourceId"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.release\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
-    "CAPABILITY_UNAVAILABLE",
-    "REVISION_CONFLICT",
-    "INSTANCE_MISMATCH",
-    "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
-    "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
+    "PARAM_SCHEMA_INVALID",
     "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "RESOURCE_BUSY"
   ],
-  "docsHash": "sha256:cb0cb6393d132f1dc82bc183686133b6ab1ae8df32a253a7e6d9a64163d3c712"
+  "docsHash": "sha256:16f2a53c32ff300346e2ae067204f7cc2704a1e67a5f84b3e1f22c9a3f2ebf66"
 }

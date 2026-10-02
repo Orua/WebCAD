@@ -274,7 +274,8 @@
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -297,6 +298,12 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "孔向导",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "tool-frame",
     "placementSupported": true,
@@ -311,5 +318,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:9aaee10b3851489f1b360fff06eb652f13fbd9edb37bf767e465825d99e70ddb"
+  "docsHash": "sha256:a96a1461dd84a330389b01d970beb0bd0cec95df4aaaebedbf3098d3dc3521e0"
 }

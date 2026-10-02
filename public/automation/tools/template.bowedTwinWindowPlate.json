@@ -39,13 +39,13 @@
   ],
   "description": "上下直边、两侧大圆弧鼓边与四角小 R 相切；两个跑道形窗孔及中横条一体成板，可选前后边缘倒圆。左右、上下镜像参数模型，源图有微小非对称时只能近似。",
   "apiCompatibility": [
-    "legacy"
+    "page-advisory"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -82,7 +82,7 @@
     "Authorized local modeling session; no external upload."
   ],
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
-  "idempotency": "Legacy calls do not guarantee idempotency.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
@@ -92,11 +92,11 @@
   "invalidExamples": [
     {
       "params": {
-        "kind": "tube",
+        "kind": "bowedTwinWindowPlate",
         "__unknownField": true
       },
-      "errorCode": "NOT_A_STRICT_V2_OPERATION",
-      "explanation": "v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement."
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
     }
   ],
   "errorCodes": [
@@ -106,7 +106,8 @@
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -124,6 +125,12 @@
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
   "label": "鼓侧边平板双窗扣",
@@ -316,5 +323,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:71be7c363f68cb2723a72745cfb244d575f9537f6ff316736b77f1ea543543cf"
+  "docsHash": "sha256:486de1f301fce77bbc3c66a842382a44330f21f9ce9db8a9adec4be26abf6c46"
 }

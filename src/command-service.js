@@ -3,6 +3,7 @@ import { EDITOR_ACTIONS, validateEditorAction } from './editor-actions.js';
 import {REFERENCE_ACTIONS,applyReferenceAction} from './reference-contracts.js';
 import {resolvePlacement,describeResolvedPlacement} from './work-frame.js';
 import { assertHistoryEditSafe } from './history-edit-safety.js';
+import {assertFeatureCapacity} from './document-limits.js';
 
 const clone=structuredClone;
 const uid=()=>crypto.randomUUID();
@@ -163,6 +164,9 @@ export function createCommandService(adapter) {
         default:if(REFERENCE_ACTIONS.includes(input.action)){let proof;if(input.action==='reference.setWorkFrame'&&a?.referenceId!==undefined){const item=await verifiedReference(a.referenceId,s);if(item.kind!=='point'||!item.worldPoint?.every((v,i)=>Math.abs(v-a.origin?.[i])<=1e-6))fail('SOURCE_ANCHOR_INVALID','args.referenceId','Reference point does not match requested origin');delete a.referenceId;}if(input.action==='reference.setBodyAnchor'){if(!s.bodies.some(body=>body.id===a?.bodyId))fail('STALE_REFERENCE','args.bodyId','Body is not current');const item=await verifiedReference(a.referenceId,s);if(item.kind!=='point'||item.source?.bodyId!==a.bodyId||!item.source.geometryFingerprint)fail('SOURCE_ANCHOR_INVALID','args.referenceId','Exact point on the specified body required');proof={bodyId:a.bodyId,worldPoint:item.worldPoint,geometryFingerprint:item.source.geometryFingerprint};}args={action:input.action,referenceSystem:applyReferenceAction(s.referenceSystem,input.action,a,proof)};command='reference_action';break;}if(Object.hasOwn(EDITOR_ACTIONS,input.action)){({command,args}=validateEditorAction(input.action,a,s));break;}fail('PARAM_SCHEMA_INVALID','action','Unsupported action');
       }
       if(command==='edit_feature')assertHistoryEditSafe(s,{features:s.features.map(feature=>feature.id===args.featureId?{...feature,params:args.params,...(args.placement?{placement:args.placement}: {})}:feature)});
+      if(['add_feature','preview_feature','preview_update','preview_file','preview_file_update'].includes(command)||command==='preview.commit'&&s.preview)assertFeatureCapacity(s.features,1);
+      if(command==='editor_action'&&input.action==='body.align')assertFeatureCapacity(s.features,args.values.bodyIds.length);
+      if(command==='editor_action'&&input.action==='body.explode')assertFeatureCapacity(s.features,s.bodies.find(body=>body.id===args.values.bodyId).solidCount);
       context(input.context,snapshot());available(snapshot(),allowPreview);revisionBefore=s.revision;
       await adapter.execute(command,args,{signal:options.signal,expectedRevision:s.revision});
       const after=snapshot();let result;
@@ -174,7 +178,7 @@ export function createCommandService(adapter) {
         const replacements=after.features.filter(f=>createdFeatureIds.includes(f.id)&&createdBodyIds.includes(f.id)).flatMap(f=>(f.refs||[]).filter(id=>removedIds.has(id)).map(id=>({before:id,after:f.id})));
         result={status:'committed',requestId,transactionId:uid(),documentId:after.documentId,documentInstanceId:after.documentInstanceId,revisionBefore,revisionAfter:after.revision,createdFeatureIds,createdBodyIds,replacements,validation:{geometry:'passed',...(args?.placement?{placement:'passed'}:{}),...(['hole','multiHole','multiPocket','faceHole'].includes(op)?{materialRemoved:true}:{}),...(op==='multiBoss'?{materialAdded:true}:{})},persistence:after.persistence,warnings:after.warnings??[]};
       }
-      if(command==='editor_action')result.validation={geometry:input.action==='body.explode'?'passed':'unchanged',editor:'passed'};
+      if(command==='editor_action')result.validation={geometry:result.status==='committed'&&['body.explode','body.align','history.restore'].includes(input.action)?'passed':'unchanged',editor:'passed'};
       if(command==='reference_action'){result.validation={geometry:'unchanged',reference:'passed'};result.referenceSystem=clone(after.referenceSystem);}
       if(args?.placement)result.resolvedPlacement={...describeResolvedPlacement(op,args.params,args.placement),geometryValidated:result.status==='committed',referenceQuality:'provided-coordinates',binding:'snapshot'};
       if(args?.params&&op){const effective=after.previewDraft?.params&&input.action.startsWith('preview.')?after.previewDraft.params:after.features.find(feature=>feature.id===(args.featureId||result.createdFeatureIds?.[0]))?.params;result.numericInput={policy:'exact',requestedParams:clone(input.args?.params||input.args?.patch?.params||{}),effectiveParams:clone(effective||args.params),quantizationWarnings:[]};}
@@ -204,6 +208,7 @@ export function createCommandService(adapter) {
           if(receipts.size>=1000)fail('RESOURCE_LIMIT','args.idempotencyKey','Receipt cache full');
         }
         context(input.context,before);available(before);
+        if(input.action==='import')assertFeatureCapacity(before.features,1);
         const result=await adapter.execute(`file_${input.action}`,input.args??{},{...options,expectedRevision:before.revision});
         const after=snapshot(),readOnly=['save','export'].includes(input.action),receipt={status:readOnly?'read':'committed',requestId,context:contextOf(readOnly?before:after),...result};
         if(key)receipts.set(key,{fingerprint,result:clone(receipt)});return receipt;

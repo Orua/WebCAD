@@ -2,7 +2,7 @@
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "新建工程",
   "synonyms": [
     "新建工程",
@@ -18,23 +18,32 @@
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
   "runtimeAvailability": "requires_ready_page",
+  "argumentKeys": [
+    "context"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.new\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
     "CAPABILITY_UNAVAILABLE",
     "REVISION_CONFLICT",
     "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
     "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
-    "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
-    "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "FILE_COMMAND_FAILED",
+    "SIZE_LIMIT"
   ],
-  "docsHash": "sha256:42343e787479dd7982b361db882389853c6583932d97e7eb5b1608e6f9005b88"
+  "docsHash": "sha256:2570719159f20a37791669dbfcb8c5b57f3a4a239ddeaab45c6f74766c16f966"
 }

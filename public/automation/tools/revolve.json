@@ -166,7 +166,7 @@
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -208,7 +208,8 @@
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "XY revolves about global Y; XZ/YZ about global Z. Defaults angle=360,offset=10; avoid crossing rotation axis."
+    "XY revolves about global Y; XZ/YZ about global Z. Defaults angle=360,offset=10; avoid crossing rotation axis.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "revolve",
@@ -236,7 +237,20 @@
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "profile": "rectangle",
+        "width": 2,
+        "depth": 3,
+        "offset": 10,
+        "angle": 360,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -244,7 +258,8 @@
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -265,6 +280,12 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "旋转成型",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -279,5 +300,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:8870c8ae81b150063586148810912a2510365e5d85fc9c0c0cd90904bdee39eb"
+  "docsHash": "sha256:1b8af9c8c30e303e30927ae2b6111057f4c8e7d608d668377bc0d595849f03e8"
 }

@@ -1,6 +1,6 @@
 {
   "id": "cylinder",
-  "version": "legacy-1",
+  "version": "1.0.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -57,7 +57,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Cylinder on +Z from origin",
+  "coordinateConvention": "Full cylinder centered on Z, base at [0,0,0], top at Z=height. radius is the cross-section radius, not diameter. Explicit placement transforms this local geometry.",
   "title": "Cylinder on +Z from origin",
   "category": "creation",
   "synonyms": [
@@ -65,16 +65,16 @@
     "圆柱"
   ],
   "description": "Cylinder on +Z from origin",
-  "schemaHash": "sha256:2e55f61e79432303ebf9ef9d3a86f3b7a4e3123203a05e98e6a7f1b2db712ff0",
+  "schemaHash": "sha256:a220f2281b98d86c1c56c176c29af7d5c6a39f60edfb18e10495fd284df60b2e",
   "apiCompatibility": [
-    "page-advisory"
+    "page-v2"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
-  "strictContract": false,
-  "v2Executable": false,
-  "contractStatus": "advisory",
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
   "outputSchema": {
     "type": "object",
     "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
@@ -97,8 +97,7 @@
     "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
   ],
   "resultShapeTypes": [
-    "solid",
-    "compound (operation-dependent)"
+    "solid"
   ],
   "consumesInputs": false,
   "preservesInputs": false,
@@ -112,7 +111,7 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
     "Cylinder on +Z from origin"
@@ -125,7 +124,7 @@
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "normalExample": {
     "op": "cylinder",
@@ -135,9 +134,19 @@
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "radius": 10,
+        "height": 20,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -145,7 +154,8 @@
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -160,12 +170,20 @@
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
   "verification": {
-    "contract": "not_migrated",
+    "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "圆柱",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -179,6 +197,6 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:8aadf0d27e291ad285c4c4222cf3b614e73e40c52d03f30fee32f2e31732b67e"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:0dea91c2f2bc3bfcfa4a67b9d4b8f856da5ced724aa288b8c0424d03e11e7d0a"
 }

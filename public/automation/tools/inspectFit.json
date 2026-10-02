@@ -2,7 +2,7 @@
   "id": "inspectFit",
   "title": "inspectFit",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。",
   "synonyms": [
     "inspectFit",
@@ -13,7 +13,7 @@
     "两实体"
   ],
   "inputContract": "inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。",
-  "outputContract": "status=read、overlap/contactWithinTolerance/separated、公共体积或精确最短距离与见证点、当前 context；只读，不自动判断工艺合格。",
+  "outputContract": "status=read、overlap/contactWithinTolerance/separated、公共体积或精确最短距离与见证点、当前 context。布尔检查只在独立 BREP 副本上执行，保留来源字节、历史与显示修订；不自动判断工艺合格。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -25,5 +25,5 @@
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:9ce549a644fd5c98317159ee39f8d0761c7111ccdf8461de90732642024725e5"
+  "docsHash": "sha256:5bad9c75baace27ddc9664e016af5ccccc030e6c19eba8ae8c5e2838dbae238a"
 }

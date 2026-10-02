@@ -14,6 +14,10 @@
 
 方案中的 `profile` 是通过校验的完整轮廓参数。确认后，用当前 `sketchProfile` 工具卡的版本和哈希，通过 `feature.edit` 提交这些参数，形成一次撤销事务。方案读取不改模型、revision 或用户草稿；提交仍会拒绝过期上下文和人工未提交草稿。此方法也可经 `invoke`、`run` 和页面任务队列调用。
 
+## 基础实体的严格参数契约
+
+基础实体 `cylinder/sphere/cone/torus` 当前工具版本为 `1.0.0`，支持严格参数归一化。圆柱和球输入半径；圆锥的 `radius1/radius2` 分别位于本地 Z=0/Z=height，省略时保留10/0 mm默认值，等半径仍生成圆柱。圆环 `majorRadius` 是管中心线半径，`minorRadius` 是管半径，前者须大于后者。非法组合在进入内核之前失败，不增加修订；旧工程的有效几何与精确尺寸保持。用 `getTools` 获取当前版本/哈希和完整错误示例。
+
 ## 工作基准与来源基点（v1.8）
 
 当前用户界面将 `referenceSystem.workFrame` 呈现为唯一“参考锚点”：可见小号呼吸球可隐藏，编辑时先预览草稿，再点击“应用锚点”提交一次正式 `reference.setWorkFrame`。原始世界坐标系不提供可见编辑入口，现有 API 坐标语义保持兼容。新增模型仅在占用当前锚点位置时使其沿 Z 向上自动避让；单纯在旁边增加高度不会挪动锚点。显隐属于本地 UI 偏好，不改变工程 revision。
@@ -798,7 +802,9 @@ const coordinates = api.readDocs({ docId: 'coordinates' });
 
 `profileOffset` 的 `refs` 为一个已放置的闭合面 ID，参数为 `distanceMm` 正数、`side:inside|outside`、`join:intersection|round`、`output:wire|face|band`。来源仍保留；崩塌或多结果会报错。`profileExtrude` 的 `refs[0]` 为已放置轮廓 ID；`operation:newBody` 只用一个引用，`join|cut|intersect` 还需明确 `refs[1]` 的实体目标。`extent:distance` 指定 `distanceMm`，`extent:throughSelected` 只以所选目标的实际边界决定贯穿距离。`direction:1|-1` 相对于轮廓保存的法向；不同外环方向可能改变法向，执行前应预览并核对目标。多区域轮廓可用于一步切多个孔，但分离区域不能作为单一新实体生成。每次使用当前 `getTool({id})` 的 `version/schemaHash`、当前 requestContext、全新幂等键和当前 body ID；提交后核对回执、体积与历史。
 
-`inspectProfile({context,bodyId})` 对当前 `sketchProfile` 解析来源只读返回 `issues`、稳定 `issueId`、相关实体 ID、间隙距离与问题位置；不修复，也不增加历史。`inspectFit({context,bodyAId,bodyBId,toleranceMm?,volumeThresholdMm3?})` 接受两个当前单一封闭实体，按精确 B-Rep 公共材料体积及最短距离分类为 `overlap`、`contactWithinTolerance`、`separated`。返回公共体积 mm³、距离 mm、容差、体积阈值、可用的见证点与来源 context；结果仅对该修订有效。计算失败返回失败，不能当作“无干涉”。
+`inspectProfile({context,bodyId})` 对当前 `sketchProfile` 解析来源只读返回 `issues`、稳定 `issueId`、相关实体 ID、间隙距离与问题位置；不修复，也不增加历史。`inspectFit({context,bodyAId,bodyBId,toleranceMm?,volumeThresholdMm3?})` 接受两个当前单一封闭实体，按精确 B-Rep 公共材料体积及最短距离分类为 `overlap`、`contactWithinTolerance`、`separated`。求交在两个隔离BREP副本上执行，避免OCCT调整来源边面容差或参数曲线。返回公共体积 mm³、距离 mm、容差、体积阈值、可用的见证点与来源 context；结果仅对该修订有效。计算失败返回失败，不能当作“无干涉”。
+
+`measure({context,bodyId,kind:'body'})` 返回包围范围、`volume`、`area`、实体数和壳数；总表面积也在 `getState().bodies[].area` 与属性区显示，单位mm²。面积从BREP曲面计算，包含孔壁/内腔；组合件按组成面累加，不自动融合重叠体。纯曲线面积为0，无实体的形状体积为null。面/边测量必须明确有效`kind/topologyId`；整个实体测量不能夹带`topologyId`。两点输入的距离注明`provided-coordinates`来源，不与模型实测混淆。
 
 `profileRepair` 严格操作的 `refs` 为一个保存的 `sketchProfile` 来源 ID。先用 `inspectProfile` 取得 `closure:<chainId>` 等实际 `issueId`，再以 `{issueId,maxEndpointMoveMm}` 执行 `feature.add`；只对指定端点做不超过该毫米上限的移动，闭合开放链时生成一个可加工的派生面。原来源保留，超限或其它问题仍阻碍成面时整步失败。其几何重建使用来源已保存的定位快照，不重新取当前锚点。
 
@@ -808,7 +814,7 @@ const coordinates = api.readDocs({ docId: 'coordinates' });
 
 圆角 `fillet` 与倒角 `chamfer` 都要求恰好一种明确范围：`allEdges:true` 表示当前实体全部边；`faceIds:[...]` 表示当前所选面的全部边界（包括孔边）；`edgeIds:[...]` 表示指定边。先对当前实体 `queryGeometry`，不能跨修订复用面/边序号。页面 UI 选体、选面、选边时分别显示并传入相应范围；AI 调用应直接传这三个字段之一。R 值或倒角距离过大、边界过密时内核会拒绝，保持原模型并返回可读错误，不会自动缩小尺寸。2 mm 厚板可先试 R0.3 mm；这只是操作示例，不是产品尺寸建议。
 
-新主入口 `rounding`（“加工 → 修饰 → 圆角与过渡 → 圆角／圆润”）采用独立严格契约。恒 R 示例：`refs:[当前实体ID]`，`params:{specVersion:1,mode:'constant',scope:{kind:'edges',edgeIds:[当前边序号]},propagation:'tangent-chain',radiusMm:1,boundaryRequirement:'standard',endpoints:{defaultMode:'natural'}}`。`scope.kind` 也可用 `face-boundaries` 配 `faceIds`、`shared-faces` 配不相交的 `faceAIds/faceBIds`，或 `body`；各范围均可指定 `excludeEdgeIds`，与所选边冲突或传播触及排除边时拒绝。UI 会将当前体／面／边选择显式转换为该契约，API 须自行指定。`tangent-chain` 只授权与所选锐边连续、非分叉且在顶点 G1 相切的锐边链；预览高亮原选边和扩展边，`getState().previewScope`、预览回执 `preview.scope` 及提交后的 `roundingReport` 可读回实际范围。API 提交前需核对预览范围和修订；旧特征及明确指定的 `selected-only` 保持严格范围保护，越界返回 `SCOPE_EXPANSION_REQUIRED` 且不提交。取消预览也不增加修订。单一直边的线性变 R 已通过正式解析路线及真实 WASM 截面验收；多边链和原生 SetLaw 持久化仍未通过，详见下文。旧 `fillet` 维持旧契约以读取已有历史。
+历史 `rounding` v1（当时名为“圆角／圆润”）采用独立严格契约。恒 R 示例：`refs:[当前实体ID]`，`params:{specVersion:1,mode:'constant',scope:{kind:'edges',edgeIds:[当前边序号]},propagation:'tangent-chain',radiusMm:1,boundaryRequirement:'standard',endpoints:{defaultMode:'natural'}}`。`scope.kind` 也可用 `face-boundaries` 配 `faceIds`、`shared-faces` 配不相交的 `faceAIds/faceBIds`，或 `body`；各范围均可指定 `excludeEdgeIds`，与所选边冲突或传播触及排除边时拒绝。旧 UI 会将当前体／面／边选择显式转换为该契约，API 须自行指定。`tangent-chain` 只授权与所选锐边连续、非分叉且在顶点 G1 相切的锐边链；预览高亮原选边和扩展边，`getState().previewScope`、预览回执 `preview.scope` 及提交后的 `roundingReport` 可读回实际范围。API 提交前需核对预览范围和修订；旧特征及明确指定的 `selected-only` 保持严格范围保护，越界返回 `SCOPE_EXPANSION_REQUIRED` 且不提交。取消预览也不增加修订。单一直边的线性变 R 已通过正式解析路线及真实 WASM 截面验收；多边链和原生 SetLaw 持久化仍未通过，详见下文。旧 `fillet` 维持旧契约以读取已有历史。新入口使用下文 v3 自动打磨。
 
 宽圆润示例：`params:{specVersion:1,mode:'width',scope:{kind:'shared-faces',faceAIds:[当前 A 面序号],faceBIds:[当前 B 面序号]},propagation:'selected-only',widthAMm:1,widthBMm:2,boundaryRequirement:'standard',endpoints:{defaultMode:'natural'}}`。也可用 `scope:{kind:'edges',edgeIds:[当前单条公共边序号]}`，此时 A/B 分别对应 `queryGeometry` 返回的相邻面 ID 升序；使用有序面组可明确指定两侧。宽度是公共边法截面上沿两侧支撑面到接合轨线的距离，生成三次 Bézier 过渡而非圆弧；`roundingReport` 分别回读宽度、A/B 面 ID、构造策略、材料方向及验证状态。当前几何族为两平面公共直边，以及无孔平面与规则圆柱侧壁的闭合圆边，或端点落在径向平面上的开放圆弧；四边界有约束补面、其他曲线和非自然端点尚未完成。恒 R 原生构造失败时，先在 BREP 序列化重建的副本上试受控同域整理：只接受唯一映射原边、双向布尔差体积为零的候选；仍失败时，对已验证解析几何族试独立精确构造。两者均不改变旧 `fillet` 的语义。单直边线性变 R 已开放；多边链仍未开放。
 
@@ -870,7 +876,9 @@ if (picture.status !== 'read') throw new Error(picture.error?.code || 'capture f
 
 `api.files` 提供 `capabilities`、`register`、`new`、`open`、`import`、`save`、`export`、`read`、`download`、`write`、`release`。`capabilities()` 返回当前浏览器限制和格式。`register({name,data,mime?})` 的 `data` 是实际 `File`、`Blob`、`ArrayBuffer` 或 `Uint8Array`，`name` 是安全文件名；不能用本机路径字符串或远端 URL 代替。它返回 `resourceId`、字节长度和 SHA-256。`new({context})`、`open({context,resourceId})`、`import({context,resourceId})`、`save({context,name?})`、`export({context,format,ids?,name?})` 使用当前完整上下文。页面 API 的新建/打开遇 dirty **一律拒绝** `UNSAVED_REPLACEMENT`；UI 的真实用户确认是另一条路径。坏文件或重建失败保留原几何、历史、身份和 dirty。原生 `.webcad` 包含导入源字节和可编辑历史，重开生成新的 `documentInstanceId`。
 
-`save`/`export` 返回 `status: 'generated'` 的资源描述；`read({resourceId,as:'blob'|'bytes'})` 返回实际 Blob 或 `Uint8Array`。`download({resourceId})` 仅返回 `download_initiated`；`write({resourceId,handle})` 在已授权的 File System Access 句柄写入、关闭并校验回读大小和 SHA-256 后返回 `write_verified`。保存旧快照时若已有新 revision，dirty 仍为真。`release({resourceId})` 释放资源；已经启动的下载 Object URL 由定时器回收，不因 release 立即撤销。文件选择或授权可能需要真实用户操作，页面 API 不会伪造授权点击。跨插件 JSON 边界不能假设 Blob 会无损传递；客户端不能传真实字节时，可由用户在 WebCAD 页面选择文件。每个资源上限 20 MiB，最多 32 个、合计 64 MiB，有效期 30 分钟。自包含工程的导入源会以 base64 放入格式化 JSON；为保证仍能生成 `.webcad`，有效上限约为 20 MiB 减去 4 KiB，不能只看原始导入文件大小。
+`save`/`export` 返回 `status: 'generated'` 的资源描述；`read({resourceId,as:'blob'|'bytes'})` 返回实际 Blob 或 `Uint8Array`。`download({resourceId})` 仅返回 `download_initiated`；`write({resourceId,handle})` 在已授权的 File System Access 句柄写入、关闭并校验回读大小和 SHA-256 后返回 `write_verified`。保存旧快照时若已有新 revision，dirty 仍为真。`release({resourceId})` 释放资源；已经启动的下载 Object URL 由定时器回收，不因 release 立即撤销。文件选择或授权可能需要真实用户操作，页面 API 不会伪造授权点击。跨插件 JSON 边界不能假设 Blob 会无损传递；客户端不能传真实字节时，可由用户在 WebCAD 页面选择文件。每个资源上限 20 MiB，最多 32 个、合计 64 MiB，有效期 30 分钟。
+
+原生 `.webcad` 最多 2000 个建模历史特征，完整紧凑 UTF-8 JSON 最多 20 MiB，包含保留状态历史、锚点和 base64 导入源。2000 不是撤销步数；对齐/拆散/粘贴按实际新增的特征数计。新增、预览、导入及批量操作在计算前检查容量（不计可裁剪的 timeline，预留 4 KiB），提交前在锚点同步和历史裁剪之后检查完整大小；超限返回 `SIZE_LIMIT`，恢复原 Worker 工程并保留原 revision 和撤销/重做。编辑、删除和取消预览仍可使用。工具卡 `documentLimits` 提供限额；收到超限不要重复提交，应减少特征或拆分工程，不能只看原始导入文件大小。
 
 静态版不含原有本机 IGES 转换器，也不含 DWG/DXF/矢量 PDF/AI 的服务端转换器。目录中相应卡片标为 `unavailable`，执行应返回 `CAPABILITY_UNAVAILABLE`。可先在现有 CAD 工具中离线转 STEP；这不算 WebCAD 的原生 IGES 支持。
 
@@ -885,13 +893,29 @@ if (picture.status !== 'read') throw new Error(picture.error?.code || 'capture f
 ## 就绪预览的批次控制
 
 `api.run` 可在已有就绪预览时执行显式 `preview.update`、`preview.commit` 或 `preview.cancel`；预览身份与 generation 仍由命令服务校验。计算中和忙碌时不能确认，其他建模步骤仍被活动预览挡住。单步 `preview.start` 的批次可返回 `completed`，内部结果为 `previewing`，没有提交实体或增加模型 revision。
-## 统一圆角与旧工程兼容
+## 自动打磨与旧工程兼容
 
-新工具卡为 `rounding` 2.0.0。UI 提供选边、圆润大小、预览和确认；页面 API 使用 `params:{specVersion:2,sizeMm:0.5,scope:{kind:'edges',edgeIds:[当前边号]}}`。自动解析当前来源的连续局部边链，回执给出原选择、扩展边和来源几何签名。大小不自动缩小；尺寸修改使用 `feature.edit` 的 `sizeMm`。旧 `fillet` 不再出现在新工具搜索与工具栏，但明确指定的旧 API 和旧历史继续按原契约执行。
+当前单一入口仍为 `rounding`，工具卡版本 `3.0.0`，UI 名称“自动打磨”。调用前通过 `connect({queries:['打磨','锐边']})` 与 `getTools({ids:['rounding','preview.start','preview.update','preview.commit','preview.cancel','feature.edit']})` 取得新鲜上下文和当前卡片；`opVersion` 与 `schemaHash` 必须来自当前卡片。输入为 `params:{specVersion:3,scope:{kind:'edges',edgeIds:[当前来源边号]}}`，`refs:[当前来源实体ID]`。`scope` 只接受当前来源实体的明确边号；不能使用 `allEdges`、当前 UI 隐式选择或加工后旧边号。
 
-原生样条过渡面增加真实 BREP 圆截面核验，不再仅按面类型拒绝；闭合且无分叉的轮廓还核验生成面接缝。已验证交叉圆柱曲面 R0.3 的预览、确认、测量及保存重开，尚未达到原始 PG15191 与六款产品的完整验收。回执中 `not_yet_verified` 的接缝或端部不能视为已合格；局部裁剪／补面研究仍未接入正式求解器。
+不要求 `sizeMm` 或固定 R。可选 `strength` 为无量纲比例，`0 < strength <= 1`，省略时为 `1`；它控制按来源几何确定的局部可行打磨效果比例，不是毫米长度或精确半径。可由多片相接弧面完成过渡，相关边与面允许在来源派生的局部范围内跟随。不得把原工程 v1/v2 的尺寸值转换成该比例。
 
-以下为历史 `specVersion:1` 参数与已经验证的能力边界，新操作使用上述单一大小接口。
+先用 `preview.start`；参数变化后用 `preview.update`，核对同一预览回执中的 `roundingReport.region`：`sourceBodyId` 是当前上游来源实体，`requestedEdgeIds` 是本次原选边，`expandedEdgeIds` 是新增跟随边，`affectedFaceIds` 是实际影响的来源面。上述边与面号均属于同一上游实体；不能把结果体的拓扑号混入。原有 `requestedSelection`、`expandedSelection`、`processedEdgeIds` 保留，供现有预览高亮与范围读回使用。预览缺失完整范围或与锁定目标不一致时 UI 不允许确认。核对实际范围及新鲜预览身份后，`preview.commit` 提交同一份结果；`preview.cancel` 取消且不增加模型修订。
+
+成功结果及 `getState().bodies[].roundingReport` 同样提供该 `region`、有效强度、实测局部尺寸与质量证据。接触缝、片间缝和所有端部边界仍须通过原有严格 G0/G1、材料变化与局部保留区检查；允许范围跟随不等于免检。`feature.edit` 对 v3 修改 `strength`，从保存的上游来源重新求解并重建后续历史。失败保持原工程；工具卡和参数文档不能证明任意曲边或原始 PG15191 针尖已完成验收。
+
+### 历史 specVersion:2：请求圆润大小
+
+历史工具卡为 `rounding` 2.1.0，输入为 `params:{specVersion:2,sizeMm:0.5,scope:{kind:'edges',edgeIds:[当前边号]}}`。显式 v2 参数仍按原 schema 校验，旧历史继续执行原求解语义；调用 API 仍需使用当前工具卡的版本与哈希，不能复用旧卡缓存。旧步骤属性保留“圆润大小 · mm”，尺寸修改使用 `feature.edit` 的 `sizeMm`；旧 `fillet` 的明确 API 和历史继续按原契约执行。
+
+正式调度先尝试精确恒 R 构造；失败后，只在实际支持的几何族上尝试真正的非恒 R 局部光顺构造。`sizeMm` 是保持不变的请求圆润尺度；恒 R 候选把它用作精确半径并做真实 BREP 圆截面量测，非恒 R 候选允许局部尺寸随几何变化，但必须量测并报告实际尺度范围，不能标成精确 R、默默缩小请求值或用近零效果替代。
+
+`roundingReport` 区分实际构造类型、请求尺度、实测尺度范围及 `candidateAttempts`；同时提供全部接触缝、端部／片间缝、材料方向、局部影响区和保留区的检查证据。开口链也需要这些质量证据，不能因未自动扩边而免检；端点附近不能一概作为例外。凸圆润与凹圆润分别核对适用的减料／加料方向。仅有有效实体、内核完成或接触边中段采样不能替代完整结果验收；`not_yet_verified` 的接缝或端部不得视为通过。
+
+未支持的边、支撑面或端部几何族，以及构造或质量门槛失败的结果会带尝试记录拒绝并保持来源与工程修订。版本 2.1.0 不承诺任意曲边和任意大小均可成功。旧局部裁剪／稀疏填面失败记录不构成通过证据；原始 PG15191、独立案例和完整产品验收以本轮真实输入、输出、量测与截图报告为准，不能由工具卡版本或测试数量推断。
+
+### 历史 specVersion:1：尺寸、模式与传播
+
+以下为历史 `specVersion:1` 参数与已经验证的能力边界；显式 v1 参数和历史保留原语义，新入口使用上述 v3 自动打磨契约。
 
 `rounding` 工具卡版本 1.2.0。当前 `mode:'variable'` 只开放一条两平面公共直边的 2–16 个有序线性站点：`scope:{kind:'edges',edgeIds:[当前边号]}`，`laws:[{chainId:'edge:<当前边号>',direction:'forward'|'reverse',interpolation:'linear',stations:[{s:0,radiusMm:起点R},...中间站点,{s:1,radiusMm:终点R}]}]`。`s` 是所选方向上的源边累计弧长比例；中间站点必须严格递增，`chainId` 和边号必须取自当前来源实体，不能复用加工后的拓扑编号。界面以每行 `s,R` 输入可选中间站点。此路线在原始输入上建立精确圆弧截面并构造逐段有界规则面，经真实 WASM 检查最终实体、各段内部截面半径、拟圆残差与两侧接缝切向。分段线性规律的斜率改变处可能存在站点分界线，报告为 C0 半径连续。`roundingReport.variable` 提供实际样本、最大误差、材料方向和构造版本；它没有调用原生自定义 law，原生 law 字段为 `null`。多段链、平滑插值和一般曲边变 R 仍待验收。
 
@@ -913,6 +937,22 @@ if (picture.status !== 'read') throw new Error(picture.error?.code || 'capture f
 
 新增只读检查也可经 `invoke`、`run` 和页面 `submit/getJob` 调用；这些入口返回原检查事实与 revision。`getState().bodies[].repairReport` 包含修复源 ID、指定端点、允许位移和实际位移。`setView({context,temporaryDisplay:'selectedOnly'|'transparentOthers'|'normal'})` 控制临时隔离/透明，持久隐藏列表不变。
 
+## 统一圆润 round
+
+`connect({toolIds:['round','preview.start','preview.update','preview.commit'],includeContracts:true})` 后，以当前 body ID 和真实 edge IDs 执行 `op:'round',refs:[bodyId],params:{edgeIds:[...]}`。默认 `mode:'auto',strength:0.5`。几何分析选择一次端头重建或普通边圆角，不做失败后兜底或半径扫描。端头分析仅量测一次实际截面，默认深度向上取到 0.01 mm；显式 depthMm/radiusMm 保留原数值。
+
+覆盖参数：`mode:'edge'|'end'`，边缘 `strength:0.1..1` 或精确 `radiusMm`，端头 `depthMm`、`axis`、`direction`、`profileAxis`，以及同一来源轴向直边 `directionEdgeId`。世界主轴以外方向、复杂截面仍明确拒绝。预览回执 `preview.scope`、`getState().previewScope` 和提交后的 `bodies[].roundReport` 返回 `mode/resolved/control/scope/attemptCount/endRoundingReport/blendReport`。scope 给出世界轴、方向、端部坐标、截面中心和尺寸；control 的范围是操作建议，不保证区间内每个值均可构造。
+
+UI 拖动范围手柄等价于 `preview.update` 修改 `params.depthMm`；必须使用当前预览身份和 generation。拖动中只更新草稿，松手后计算一次，最新预览成功才可提交。查看原形等价 `preview.cancel`，返回预览是新的 `preview.start`；所有操作维持同一来源 body/edge 引用。ROUND_SELECTION_AMBIGUOUS 表示需指定方式或方向；END_ROUNDING_UNSUPPORTED 表示截面/范围不适用；失败不提交。原 fillet/roundEnd/rounding API 与历史仍然可用。
+
+## 端头圆润 roundEnd
+
+先 `connect({toolIds:['roundEnd','preview.start','preview.commit','queryGeometry'],includeContracts:true})` 读取当前工具卡和执行条件。用当前拓扑查询所得边号执行 `op:'roundEnd',refs:[bodyId],params:{edgeIds:[当前端部边号],axis:'Y',direction:1,profileAxis:'Z',depthMm:1.5}`；轴、方向和深度均由来源几何决定，示例不是针扣专用参数。预览后核对整个端头再提交。
+
+该工具旋转实际半截面 180° 并替换指定深度内的端头，支持沿世界主轴、对称且稳定的直线/圆弧截面。椭圆、样条、锥度、尖角、非对称、深度不足或目标未改变会失败，来源不变。`getState().bodies[].endRoundingReport` 和预览回执包含截面稳定性、源截面折痕、新接缝角度及间隙、选边位移、长度变化和分开的增料/减料体积。`rounded-with-inherited-creases` 表示保留了不超过 1° 的原截面微小折痕，不等于全局 G1/G2；新旧连接按 0.1° 抽样门槛验收。支持 `feature.edit`、撤销及重做，与 UI 共用内核。
+
+直接 `execute` 调用 `preview.start` 时，args 还须带当前工具卡的 `opVersion:card.version,schemaHash:card.schemaHash`。回执的 `preview.previewId/generation` 或随后 `getState().previewInfo` 是提交身份；`getState().preview` 只表示 active/computing。不支持截面报 `END_ROUNDING_UNSUPPORTED`，内核组装失败报 `KERNEL_BUILD_FAILED`，目标没有实际变化报 `NO_CHANGE`。
+
 ## 快捷五金模型与面加工（页面 API 1.13.0）
 
 快捷模型新增弹簧 `spring`、螺丝 `screw`、丝筒 `threadedSleeve`、半圆钉 `domedPin`。模型菜单显示本浏览器累计成功创建次数最多的 5 个，剩余模型用“快捷模型”打开；同次数按简单模型优先的目录顺序。面板列表固定最小 240px，窗口高度不足时下方内容纵向滚动。历史工程的原 kind 均保持可用。
@@ -921,7 +961,28 @@ if (picture.status !== 'read') throw new Error(picture.error?.code || 'capture f
 
 先 `api.connect({toolIds:['template.screw','faceGroove','innerTurn','outerTurn','getQuickModelUsage'],includeContracts:true})`，按需 `api.readDocs({docId:'api.quick-hardware'})`；template 卡用于发现，执行仍是 `op:'quickModel',params:{kind:'screw',...}`。使用当前 context 和唯一幂等键通过 `api.run` 提交，显式 placement 可指定冻结参考位置；修改历史参数用 feature.edit。只读 `api.getQuickModelUsage()` 返回 counts、topKinds、maxVisible 和 storage，可经 invoke/run 调用，预览期间也能读。成功提交新快捷模型才计数；预览、失败、取消、修改、撤销重做、打开工程均不增加。默认 localStorage 持久化；受限时回退当前页内存。
 
-三个基本加工工具直接展开在“加工 → 面加工”，不折叠进“更多”，也不进入快捷模型列表。锣槽 `faceGroove`：refs=[当前单实体]，params={faceId,lengthMm,widthMm,depthMm}。内车 `innerTurn` / 外车 `outerTurn`：params={faceId,diameterMm,depthMm}。先 queryGeometry 查询真实平面 faceId，三个工具均以面面积中心为轴心、沿反向外法线进入材料，不再次应用当前参考锚点。锣槽长边方向为世界 X 在面上的投影（退化时用世界 Y）。内车移除指定直径内的圆柱材料；外车在指定深度内去除目标直径之外的材料，下方保持。非平面、未切到材料、空结果、剩余多实体会失败，原模型保留。参数严格校验，失败回执可见 NO_MATERIAL_REMOVED/GEOMETRY_INVALID；它们没有机床刀路或进给设置。检查回执、精确测量和 rendered revision 后再确认完成。
+锣槽直接显示在“加工 → 槽与凸台”，内车/外车直接显示在“加工 → 车削”，不折叠进“更多”，也不进入快捷模型列表。锣槽 `faceGroove`：refs=[当前单实体]，params={faceId,lengthMm,widthMm,depthMm}。内车 `innerTurn` / 外车 `outerTurn`：params={faceId,diameterMm,depthMm}。先 queryGeometry 查询真实平面 faceId，三个工具均以面面积中心为轴心、沿反向外法线进入材料，不再次应用当前参考锚点。锣槽长边方向为世界 X 在面上的投影（退化时用世界 Y）。内车移除指定直径内的圆柱材料；外车在指定深度内去除目标直径之外的材料，下方保持。非平面、未切到材料、空结果、剩余多实体会失败，原模型保留。参数严格校验，失败回执可见 NO_MATERIAL_REMOVED/GEOMETRY_INVALID；它们没有机床刀路或进给设置。检查回执、精确测量和 rendered revision 后再确认完成。
 
 
 新建工程默认命名为 `新建工程YYYYMMDD-001`，使用本机日期与当天递增序号（至少三位）。UI 新建与 `files.new` 使用同一规则；序号保存在本浏览器的 localStorage，存储不可用时退回当前页面内计数。初始化只分配一次序号；打开已有工程与保存不重新命名，用户手动命名保留。
+
+## AI 速读与实体整理（页面 API 1.15.0）
+
+页面工具卡的 v2Executable 表示当前浏览器可执行；strictContract/validationMode 区分严格归一化与参数 schema 校验。不要把旧服务注册表的 strict-only 门槛解释成圆柱、布尔、阵列等页面工具不可用。几何前提仍需实际验收。编辑菜单恢复直线阵列和环形阵列的直接入口，沿用原来的工具及 API。
+
+
+`connect` 按搜索结果自动附带的完整契约最多 64,000 字符、20 项；未附带项明确列在 `contractIdsOmitted` 和 `contractReadPolicy.omissions`，原因是 `CHAR_BUDGET` 或 `ITEM_LIMIT`。只对计划真正需要的项继续 `getTools({ids})`。显式 `toolIds` 保留完整契约，不受自动字符预算影响；缓存命中的卡仍返回 `not_modified`。快捷模型优先读取 `template.kind`，例如 `template.screw`，执行仍用 `op:'quickModel'`；不要为了一个螺丝读取全部模型总卡。
+
+`refineShape` 清理同一平面或曲面的多余分割线：`run` 的 `add` 步骤传 `args:{op:'refineShape',refs:[当前实体ID],params:{}}`。仅一个封闭实体，最多 400 面/2000 边，无数值参数。可走 `preview.start → preview.commit`，错误 `NO_CHANGE` 表示无可清理内容且不提交。读取 `getState().bodies[].refineReport` 的面边数、体积、外廓及双向材料差；完成后重新查询拓扑编号。算法、固定公差与支持边界见 `readDocs({docId:'api.refine'})`。这不是去特征、删孔或圆角。
+
+## 快速工作台（页面 API 1.14.0）
+
+先 connect({queries:['三视图','对齐','历史','框选']})，再 getTools({ids:[...]}) 读取当前卡。新增方法为 selectRectangle、planAlignment、createDrawing、exportDrawing、getHistory；事务动作 body.align 和 history.restore 通过 execute 执行。全部使用当前 context，事务动作还需 idempotencyKey。
+
+selectRectangle 使用视口归一化 [左,上,右,下]，mode 为 window/crossing，additive 明确追加语义；返回 selectedIds。按当前相机的对象投影包围框判断：window 要求完整包围且整个对象在近远深度范围内；crossing 将包围盒边裁到相机近远平面后投影，避免放大到近处时漏选可见部分。隐藏件不参与，孔洞/真实轮廓与对象间遮挡不在此筛选范围。鼠标 Escape 或丢失指针捕获取消拖框，恢复拖框前视角控制，不提交选中操作。planAlignment 返回每个移动件的世界坐标 delta；body.align 使用相同 bodyIds、target、axes、sourceSide、targetSide、group 参数，基准件不移动。target.kind 为 body/origin/anchor/point，point 明确三维毫米坐标。
+
+createDrawing 返回 drawingId、views、dimensions、limitations 及 SVG 预览。最多 40 个当前对象、1500 面、三个截面；仅缓存四份图纸，模型修订变化后不能导出过期图纸。exportDrawing 支持 pdf/jpg/dxf/svg，disabledDimensions 明确排除的尺寸 ID；返回标准生成文件资源，可 files.read/download/write。PDF 为矢量、JPG 为 300 DPI、DXF 为真实毫米 1:1。生成、发起下载、实际写盘分别核验。DWG 不支持。
+
+getHistory 返回状态 ID、名称、时间、数量、字节数、合并数量和保留上限。history.restore 的 args 为 {stateId}，恢复全部工程数据并产生新的可撤销状态。磁盘格式保存一个基线和前向差量，原导入资源仅保存一次；默认 100 个状态/2 MiB，超限把最早变更合入基线。bytes/maxBytes 只统计历史基线和差量，不包括共享导入源。只有当前工程和所有保留状态都不再引用某个导入源时，才从后续保存的资源池移除；不会改写已有内存撤销/重做快照。载入时发现任一保留状态缺少导入源，返回 HISTORY_INVALID，避免保留无法重建的回退入口。历史是原生工程的 timeline 扩展，兼容旧工程无 timeline 的打开方式；旧版本应用不保证保留新历史扩展。
+
+`body.align`、`body.explode`、`history.restore` 经 Worker 重建后成功提交，回执为 `validation.geometry:'passed'`；没有提交的 `no_change` 则为 `unchanged`。外观、显隐、改名保持几何 `unchanged`。该字段不代替渲染修订或文件写入确认。

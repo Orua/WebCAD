@@ -138,6 +138,8 @@
 .work-frame-bar .frame-summary{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:650}
 .work-frame-bar button{min-height:30px;padding:4px 7px;font-size:12px}
 .right-panel .properties{flex:1;overflow:auto;padding:14px}
+/* A task owns this pane even when responsive styles force the sidebar open. */
+.webcad-app.right-open .right-panel>.properties[hidden]{display:none!important}
 .right-panel .property-title{font-size:16px;overflow-wrap:anywhere}
 .right-panel .property-footnote{font-size:13px;line-height:1.5;color:#5b6370}
 .right-panel .property-form input,.right-panel .property-form select,.right-panel .frame-task input,.right-panel .frame-task select{min-height:34px;font-size:14px}

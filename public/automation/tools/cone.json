@@ -1,6 +1,6 @@
 {
   "id": "cone",
-  "version": "legacy-1",
+  "version": "1.0.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -8,6 +8,7 @@
         "type": "number",
         "description": "Bottom radius (mm)",
         "minimum": 0,
+        "default": 10,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -16,6 +17,7 @@
         "type": "number",
         "description": "Top radius (mm)",
         "minimum": 0,
+        "default": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -53,7 +55,10 @@
     "displayPreferencesAffectGeometry": false,
     "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
-  "defaults": {},
+  "defaults": {
+    "radius1": 10,
+    "radius2": 0
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -64,7 +69,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. At least one radius >0. Defaults radius1=10,radius2=0.",
+  "coordinateConvention": "Full cone/frustum centered on Z; radius1 at Z=0, radius2 at Z=height. Defaults radius1=10, radius2=0 mm. Both radii nonnegative, at least one positive; equal positive radii make a cylinder. Explicit placement transforms this local geometry.",
   "title": "Cone/frustum along +Z",
   "category": "creation",
   "synonyms": [
@@ -72,16 +77,16 @@
     "圆锥"
   ],
   "description": "Cone/frustum along +Z",
-  "schemaHash": "sha256:f82f48b4a6ed2ea3b87280c5ebe8d5545f26f6c03e5b6a6d469c45277cc946ce",
+  "schemaHash": "sha256:1c673bbaa73e72c464cfe53b906855bd80827a99634b5c7c0143081b0f753dc1",
   "apiCompatibility": [
-    "page-advisory"
+    "page-v2"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
-  "strictContract": false,
-  "v2Executable": false,
-  "contractStatus": "advisory",
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
   "outputSchema": {
     "type": "object",
     "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
@@ -104,8 +109,7 @@
     "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
   ],
   "resultShapeTypes": [
-    "solid",
-    "compound (operation-dependent)"
+    "solid"
   ],
   "consumesInputs": false,
   "preservesInputs": false,
@@ -119,7 +123,7 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
     "At least one radius >0. Defaults radius1=10,radius2=0."
@@ -133,7 +137,7 @@
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "normalExample": {
     "op": "cone",
@@ -144,9 +148,29 @@
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "radius1": 10,
+        "radius2": 0,
+        "height": 20,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    },
+    {
+      "params": {
+        "radius1": 0,
+        "radius2": 0,
+        "height": 5
+      },
+      "errorCode": "PARAM_RANGE_INVALID",
+      "explanation": "At least one radius must be positive; validation applies after the existing defaults."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -154,7 +178,8 @@
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -169,12 +194,20 @@
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
   "verification": {
-    "contract": "not_migrated",
+    "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "圆锥",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -188,6 +221,6 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:6ec2cf9f5c0665c26adb2420056f4abcc39dd10a8d564d484e1f6967bb63eac8"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:48965764457a1e4a494b442115de93c6ea280da1b9ce9e43cfd72c6ad736349c"
 }
