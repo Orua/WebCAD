@@ -18,7 +18,9 @@
 
 ![最终曲面加工页面](curved-relief-logo-gallery.png)
 
-最新专项测试 15 通过，浏览器 DOM/解码 20 项通过。LOGO 独立脚本通过圆柱/球面/放样面0.3 mm法向深度、内孔保留、不伤背面、薄壁/接缝拒绝及STEP回读；统一内核 LOGO 4 项通过，日志 `logo-curved-review.log`、`logo-kernel-review.log`。构建和契约回归见最终交接。以下保留先完成的平面阶段证据。
+最新专项测试 16 通过，浏览器 DOM/解码 20 项通过。新增独立解析验证：R=2/10/100 mm，凸/凹六例，恒高场材料变化与圆柱扇形公式 `0.5×角宽×轴向高×abs((R±h)²−R²)` 一致，误差门槛 max(1e-6 mm³, 理论体积×1e-8)，h=baseMm+depthMm。LOGO 独立脚本通过圆柱/球面/放样面0.3 mm法向深度、内孔保留、不伤背面、薄壁/接缝拒绝及STEP回读；统一内核 LOGO 4 项通过，日志 `logo-curved-review.log`、`logo-kernel-review.log`。最终构建门禁通过，contracts 281通过/1原有跳过/0失败。以下保留先完成的平面阶段证据。
+
+![圆柱和球面等深 LOGO 细节](curved-logo-closeup.png)
 
 ## 已落地的产品功能
 
