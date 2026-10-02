@@ -2,27 +2,34 @@
   "id": "measure",
   "title": "measure",
   "category": "page-method",
-  "version": "1.13.0",
-  "description": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需非负整数 topologyId。",
+  "version": "1.16.0",
+  "description": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需当前范围内的非负整数 topologyId；整个实体测量不接受 topologyId，坐标点模式不可混用实体字段。",
   "synonyms": [
     "measure",
     "测量",
     "实测",
     "体积",
+    "表面积",
     "包围尺寸",
     "半径"
   ],
-  "inputContract": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需非负整数 topologyId。",
-  "outputContract": "status=read、source=exact-brep、单位、当前 context 和内核实测结果。",
+  "inputContract": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需当前范围内的非负整数 topologyId；整个实体测量不接受 topologyId，坐标点模式不可混用实体字段。",
+  "outputContract": "status=read、单位与当前 context。实体返回 bounds/volume/area/solidCount/shellCount；area 为全部 BREP 面的面积 mm²，含孔壁/内腔，组合件按组成面累加，不先融合重叠体。无实体时 volume=null，纯线形状 area=0。面返回 area，边返回 length，圆边另有 radius/diameter。实体/面/边使用 source=exact-brep；两点距离使用 source=provided-coordinates，不声称取自模型。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
     "STALE_REFERENCE",
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:34cb95eb31f32118723f4eebf3f36aa097a2920b3766adc49d7a226634886cbf"
+  "units": {
+    "length": "mm",
+    "area": "mm^2",
+    "volume": "mm^3"
+  },
+  "docsHash": "sha256:f904601e306f74195ec12193d970cb0463b8aa207819f310261b432abdabdb92"
 }

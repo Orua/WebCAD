@@ -7,6 +7,16 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
   contracts: [
+    'document-capacity',
+    'generated-file-write',
+    'rectangle-selection',
+    'build-identity',
+    'rounding-normal-measurement', 'rounding-polishing-contract', 'standard-fillet-entry',
+    'quick-workbench', 'quick-workbench-api',
+    'round-tool-contract', 'round-tool-dialog', 'rounding-quality-evidence', 'end-rounding-contract',
+    'rounding-geometry-quality',
+    'rounding-trimmed-material',
+    'rounding-safe-difference',
     'vector-import',
     'history-edit-safety','project-name','quick-model-usage','quick-hardware-api',
     'mechanical-tools-contracts','mechanical-page-api','profile-constraints','profile-constraint-history',
@@ -16,6 +26,14 @@ const groups = {
     'tool-state', 'viewport-transform', 'dfam-inspection', 'profile-fitting', 'text-commands',
   ],
   kernel: [
+    'clevis-practice',
+    'history-import-kernel',
+    'primitive-contract-kernel',
+    'hardware-practice',
+    'arc-length',
+    'refine-shape',
+    'technical-drawing',
+    'rounding-adaptive', 'round-tool-kernel', 'end-rounding-kernel',
     'material-join','quick-hardware','face-machining','quick-hardware-integration',
     'mechanical-tools-integration','profile-solid-features','direct-modeling-tools','helical-tools',
     'arched-bridge','edge-blend','edge-picking','hanging-rod','key-ring','mushroom-rivet',

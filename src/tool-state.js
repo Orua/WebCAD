@@ -1,10 +1,11 @@
-const single=new Set(['moveTool','rotateTool','rounding','autoRound','transform','copy','mirror','fillet','chamfer','shell','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','faceHole','faceExtrude','logo','curvedLogo','thickenFace','split','extractSolid','explode','gizmoTranslate','gizmoRotate']);
+const single=new Set(['moveTool','rotateTool','round','roundEnd','rounding','autoRound','transform','copy','mirror','fillet','chamfer','shell','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','faceHole','faceExtrude','logo','curvedLogo','thickenFace','split','extractSolid','explode','gizmoTranslate','gizmoRotate']);
 const boolean=new Set(['union','cut','intersect']);
 export function toolDisabledReason(action,state){
  if(action==='selectTool')return '';
  if(state.busy)return '正在计算，请稍候';
  if(!state.kernelReady)return '建模内核尚未就绪';
  const count=state.selectedIds.length,topology=state.selectedTopology;
+ if(action==='refineShape'&&(count!==1||state.bodies.find(body=>body.id===state.selectedIds[0])?.solidCount!==1))return '请选择一个封闭实体';
  if(['offsetSolid','offsetSurface','draftByPlane','thread','faceGroove','innerTurn','outerTurn'].includes(action)&&count!==1)return '请选择一个当前来源对象';
  if(action==='inspectPrintability'&&count!==1)return '请选择一个待检查实体';
  if(action==='inspectFit'&&(count!==2||state.selectedIds.some(id=>state.bodies.find(body=>body.id===id)?.solidCount!==1)))return '请按 Ctrl 选择两个封闭实体';
@@ -20,6 +21,7 @@ export function toolDisabledReason(action,state){
  if(single.has(action)&&count!==1)return '此工具需要恰好选择一个实体';
  if(action==='copySelection'&&!count)return '请先选择要复制的实体';
  if(action==='remove'&&!count)return '请先选择要删除的实体';
+ if(action==='roundEnd'&&!(topology?.type==='edge'&&topology.bodyId===state.selectedIds[0]&&topology.ids?.length))return '切换到选边，选择需要圆润的端部边';
  const faces=topology?.type==='face'&&topology.bodyId===state.selectedIds[0]?topology.ids.length:0;
  if(['offsetSurface','thread','faceGroove','innerTurn','outerTurn'].includes(action)&&faces!==1)return '切换到选面，选择一张当前面';
  if(action==='draftByPlane'&&!faces)return '切换到选面，选择要拔模的面';
@@ -30,6 +32,6 @@ export function toolDisabledReason(action,state){
  if(action==='extractSolid'&&state.bodies.find(b=>b.id===state.selectedIds[0])?.solidCount<2)return '请选择包含多个实体的复合体';
  if(action==='extractShell'&&!(state.bodies.find(b=>b.id===state.selectedIds[0])?.shellCount>=1))return '请选择包含壳的对象';
  if(action==='explode'&&!(state.bodies.find(b=>b.id===state.selectedIds[0])?.solidCount>1))return '当前对象只有一个实体，无法拆散；已融合的形状请先用分割工具';
- if(['measure','fit','section','export'].includes(action)&&!state.bodies.length)return '请先创建或打开模型';
+ if(['quickDrawing','measure','fit','section','export'].includes(action)&&!state.bodies.length)return '请先创建或打开模型';
  return '';
 }

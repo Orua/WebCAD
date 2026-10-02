@@ -2,7 +2,7 @@
   "id": "info",
   "title": "info",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "info() 无参数。",
   "synonyms": [
     "info",
@@ -17,5 +17,5 @@
   "runtimeAvailability": "requires_page",
   "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
   "errorCodes": [],
-  "docsHash": "sha256:ad5be738b01125d457df8c20f5029c0d641f621792bec296f46ecbfbe459528c"
+  "docsHash": "sha256:7980186aa77596a0ca2c8ce57f3e722a5633e382001a7e6794c3ad4b769a168b"
 }

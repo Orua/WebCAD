@@ -23,7 +23,7 @@ test('static onboarding is compact JSON, ordered by actual host discovery, and c
 
 test('runtime discovery and info return isolated onboarding and explain the matching entry documents',()=>{
   const discovery=discoveryMetadata(),info=infoMetadata();
-  assert.equal(discovery.pageApiVersion,'1.13.0');assert.equal(info.pageApiVersion,'1.13.0');
+  assert.match(discovery.pageApiVersion,/^1\.\d+\.\d+$/);assert.equal(info.pageApiVersion,discovery.pageApiVersion);
   assert.deepEqual(discovery.onboarding,AGENT_ONBOARDING);
   assert.equal(info.knowledge.agentStart,AGENT_ONBOARDING.startUrl);
   assert.equal(info.knowledge.agentBootstrap,AGENT_ONBOARDING.bootstrapUrl);
@@ -31,7 +31,7 @@ test('runtime discovery and info return isolated onboarding and explain the matc
   discovery.onboarding.steps[0].action='modified';discovery.onboarding.localKit.installation='modified';
   assert.deepEqual(discoveryMetadata().onboarding,AGENT_ONBOARDING);
   assert.deepEqual(info.discovery.onboarding,AGENT_ONBOARDING);
-  assert.equal(getTool({id:'connect'}).version,'1.13.0');
+  assert.equal(getTool({id:'connect'}).version,discovery.pageApiVersion);
   for(const id of ['start','api.discovery','api.connection']){
     const doc=readDocs({docId:id,limitChars:12000});
     assert.ok(doc.text.includes(AGENT_ONBOARDING.startUrl),id);

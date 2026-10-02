@@ -2,7 +2,7 @@
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "下载文件",
   "synonyms": [
     "下载文件",
@@ -17,24 +17,29 @@
   },
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
-  "runtimeAvailability": "requires_ready_page",
+  "runtimeAvailability": "requires_page",
+  "argumentKeys": [
+    "resourceId"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.download\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
-    "CAPABILITY_UNAVAILABLE",
-    "REVISION_CONFLICT",
-    "INSTANCE_MISMATCH",
-    "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
-    "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
+    "PARAM_SCHEMA_INVALID",
     "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "ASSET_INVALID",
+    "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:4275a4ce42aadb88143e244082e97bf45c0bd5d3c937557141d043c2bc1f43ef"
+  "docsHash": "sha256:6f5aa0d2ea4b7eb9aeef2b015541473d0bcb6de3e648d9cb62f603e9e812242b"
 }

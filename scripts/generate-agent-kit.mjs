@@ -1,4 +1,5 @@
-import {mkdir,readFile,writeFile,copyFile,stat} from 'node:fs/promises';
+import {mkdir,readFile,copyFile,stat} from 'node:fs/promises';
+import {writeGeneratedFile as writeFile} from './generated-file-write.mjs';
 import {resolve,relative,dirname,isAbsolute} from 'node:path';
 import {createHash} from 'node:crypto';
 import {TOOL_LABELS} from '../src/tool-labels.js';

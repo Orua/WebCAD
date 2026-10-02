@@ -2,7 +2,7 @@
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "导入",
   "synonyms": [
     "导入",
@@ -18,11 +18,24 @@
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
   "runtimeAvailability": "requires_ready_page",
+  "argumentKeys": [
+    "context",
+    "resourceId",
+    "placement",
+    "idempotencyKey"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.import\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
+  },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
   },
   "placementPolicy": {
     "mode": "creation-frame",
@@ -40,15 +53,18 @@
     "IGES requires unavailable local conversion in the static build."
   ],
   "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
     "CAPABILITY_UNAVAILABLE",
     "REVISION_CONFLICT",
     "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
     "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
+    "FILE_COMMAND_FAILED",
     "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
     "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "ASSET_INVALID",
+    "FORMAT_UNSUPPORTED",
+    "IDEMPOTENCY_KEY_REUSED"
   ],
-  "docsHash": "sha256:407f5237667241c41730b5a8a4135d23cc8a1d1f83381cad2335c31e78c87093"
+  "docsHash": "sha256:01dad534ed283b5ea36159e8a66911c4c749a05f340ebed13653af201fa3347b"
 }

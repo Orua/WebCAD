@@ -1,5 +1,7 @@
 import * as cad from 'replicad';
 import {topologyDetails} from './topology.js';
+import {buildAdaptivePlanarRim} from './adaptive-planar-rim.js';
+import {measureRoundingQuality} from './geometry-quality.js';
 
 const dispose=value=>{try{value?.delete?.();}catch{}};
 const distance=(a,b)=>Math.hypot(...a.map((v,i)=>v-b[i]));
@@ -48,12 +50,49 @@ export function resolveRoundingEdges(shape,params){
 
 export function buildUnifiedRounding(shape,params,legacySolve){
   if(params.specVersion!==2||!Number.isFinite(params.sizeMm)||params.sizeMm<=0||params.scope?.kind!=='edges'||!params.scope.edgeIds?.length)fail('PARAM_SCHEMA_INVALID','圆角需要当前选边和正数圆润大小');
-  const scope=resolveRoundingEdges(shape,params);
-  const result=legacySolve(shape,{specVersion:1,mode:'constant',radiusMm:params.sizeMm,scope:{kind:'edges',edgeIds:scope.edgeIds},propagation:'selected-only',boundaryRequirement:'standard',endpoints:{defaultMode:'natural'}});
-  const previous=result.roundingReport;
-  result.roundingReport={...previous,specVersion:2,mode:'adaptive',solverVersion:2,requestedSpec:{sizeMm:params.sizeMm,scope:params.scope},
-    effectiveSpec:{sizeMm:params.sizeMm,...previous.effectiveSpec},dimensionKind:'exact-radius',
-    requestedSelection:[...params.scope.edgeIds],expandedSelection:scope.edgeIds.filter(id=>!params.scope.edgeIds.includes(id)),
-    actualContourEdgeIds:scope.contours,selectionSignatures:scope.signatures};
-  return result;
+  const originalBrep=shape.serialize(),scope=resolveRoundingEdges(shape,params);
+  const attempts=[];let firstFailure;
+  let constantSource;
+  try{
+    constantSource=cad.deserializeShape(originalBrep);
+    const result=legacySolve(constantSource,{specVersion:1,mode:'constant',radiusMm:params.sizeMm,scope:{kind:'edges',edgeIds:scope.edgeIds},propagation:'selected-only',boundaryRequirement:'standard',endpoints:{defaultMode:'natural'}});
+    const previous=result.roundingReport;
+    result.roundingReport={...previous,specVersion:2,mode:'adaptive',solverVersion:2.1,constructionKind:'constant-radius',requestedSpec:{sizeMm:params.sizeMm,scope:params.scope},
+      effectiveSpec:{sizeMm:params.sizeMm,...previous.effectiveSpec},dimensionKind:'exact-radius',
+      requestedSelection:[...params.scope.edgeIds],expandedSelection:scope.edgeIds.filter(id=>!params.scope.edgeIds.includes(id)),
+      actualContourEdgeIds:scope.contours,selectionSignatures:scope.signatures};
+    return result;
+  }catch(error){
+    if(!['KERNEL_BUILD_FAILED','GEOMETRY_INVALID','MATERIAL_CHECK_FAILED','GEOMETRY_CONFLICT'].includes(error?.code))throw error;
+    firstFailure=error;
+    attempts.push(...(error.report?.candidateAttempts||[{strategy:'constant-radius',code:error.code,message:String(error.message)}]));
+  }finally{dispose(constantSource);}
+  let candidate,adaptiveSource;
+  try{
+    // A rejected native attempt may have raised its private tolerances. The
+    // constructive fallback starts from the identical pristine source BRep.
+    adaptiveSource=cad.deserializeShape(originalBrep);
+    candidate=buildAdaptivePlanarRim(adaptiveSource,params,scope,cad);
+    const checked=measureRoundingQuality(adaptiveSource,candidate.shape,{sizeMm:params.sizeMm,sourceEdgeIds:candidate.actualEdgeIds,
+      generatedFaceIds:candidate.generatedFaceIds,resultFaceSourceIds:candidate.resultFaceSourceIds,
+      dimensionKind:'rounding-scale',measuredScaleMm:candidate.measuredScaleMm,
+      adaptiveScaleRatios:{minRatio:.35,maxRatio:1.0001}},cad);
+    candidate.shape.roundingReport={specVersion:2,mode:'adaptive',solverVersion:2.1,constructionKind:'nonconstant-smooth',
+      requestedSpec:{sizeMm:params.sizeMm,scope:params.scope},effectiveSpec:{sizeMm:params.sizeMm,
+        minimumContactWidthMm:Math.min(...candidate.measuredScaleMm),maximumContactWidthMm:Math.max(...candidate.measuredScaleMm)},
+      dimensionKind:'rounding-scale',strategy:candidate.strategy,candidateAttempts:attempts,
+      requestedSelection:[...params.scope.edgeIds],expandedSelection:scope.edgeIds.filter(id=>!params.scope.edgeIds.includes(id)),
+      processedEdgeIds:candidate.actualEdgeIds,actualContourEdgeIds:scope.contours,selectionSignatures:scope.signatures,
+      resultFaceSourceIds:candidate.resultFaceSourceIds,newSurfaceCount:candidate.surfaceCount,adaptive:{...candidate.adaptive,accepted:true,
+        constructionValidationState:candidate.adaptive.validationState,validationState:'SHARED_BREP_QUALITY_PASSED'},qualityEvidence:checked.evidence,
+      validation:{quality:checked.report,seams:checked.report.seams,endpoints:checked.report.endpoints,maxTangentAngleDeg:checked.report.maxContactAngleDeg},
+      verificationLevel:'brep-solid-material-locality-and-all-contact-end-sampled'};
+    return candidate.shape;
+  }catch(error){
+    dispose(candidate?.shape);
+    if(!['ADAPTIVE_FAMILY_UNMATCHED','KERNEL_BUILD_FAILED','GEOMETRY_INVALID','MATERIAL_CHECK_FAILED','GEOMETRY_CONFLICT'].includes(error?.code))throw error;
+    attempts.push({strategy:'adaptive-planar-extrusion-rim-hermite',code:error.code,message:String(error.message),...(error.report?{details:error.report}:{})});
+    firstFailure.report={...(firstFailure.report||{}),candidateAttempts:attempts,nonconstantFallbackAttempted:true};
+    throw firstFailure;
+  }finally{dispose(adaptiveSource);}
 }

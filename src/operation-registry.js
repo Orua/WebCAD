@@ -1,20 +1,20 @@
-import { operationCatalog, legacyRoundingOperation } from './operation-catalog.js';
+import { operationCatalog, legacyRoundingOperation, legacyUnifiedRoundingOperation } from './operation-catalog.js';
 import { QUICK_MODELS } from './quick-models.js';
 import {mechanicalIds,mechanicalDefaults,mechanicalExamples,mechanicalNames,mechanicalRefCounts,mechanicalResultTypes,mechanicalPreservedIds,profileSolidIds,mechanicalErrorCodes} from './mechanical-tool-contracts.js';
 import { assertJsonValue, contractError, contractHash, validateSchema } from './contracts/operation-schema.js';
 import { annotateParameterSchema, numericInputPolicy } from './parameter-metadata.js';
 
 export const apiVersion = '2.0';
-export const migratedOperationIds = Object.freeze(['box', 'hole', 'holeWizard', 'draftFaces', 'multiHole', 'multiPocket', 'multiBoss', 'faceHole', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell','sketchProfile','profileOffset','profileRepair','profileExtrude',...mechanicalIds]);
+export const migratedOperationIds = Object.freeze(['box', 'cylinder', 'sphere', 'cone', 'torus', 'hole', 'holeWizard', 'draftFaces', 'multiHole', 'multiPocket', 'multiBoss', 'faceHole', 'round', 'roundEnd', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell','sketchProfile','profileOffset','profileRepair','profileExtrude',...mechanicalIds]);
 const migrated = new Set(migratedOperationIds);
 const clone = value => JSON.parse(JSON.stringify(value));
 const topology = new Set(['faceHole', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition']);
 const topologyConvention = operationCatalog.topology;
-const defaults = { rounding:{}, autoRound:{}, smoothTransition: {}, box: {}, hole: { x: 0, y: 0, z: 0, axis: 'Z', direction: 1 },holeWizard:{kind:'plain',axis:'Z',direction:1,through:false},
+const defaults = { cylinder:{},sphere:{},cone:{radius1:10,radius2:0},torus:{},round:{mode:'auto',strength:.5}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z'}, rounding:{strength:1}, autoRound:{}, smoothTransition: {}, box: {}, hole: { x: 0, y: 0, z: 0, axis: 'Z', direction: 1 },holeWizard:{kind:'plain',axis:'Z',direction:1,through:false},
   multiHole: { axis: 'Z', direction: 1 }, multiPocket:{axis:'Z',direction:-1}, multiBoss:{axis:'Z',direction:1}, faceHole: { through: false }, fillet: {}, chamfer: {}, shell: {}, draftFaces:{}, extractFaces:{}, extractShell:{}, sketchProfile:{}, profileOffset:{}, profileRepair:{}, profileExtrude:{},...mechanicalDefaults };
 const triangle = [[-1, -1], [1, -1], [0, 1]];
 const regions = [{ outer: triangle }];
-const examples = { rounding:{specVersion:2,sizeMm:0.5,scope:{kind:'edges',edgeIds:[0]}}, autoRound:{radius:0.1}, smoothTransition:{radius:0.1,faceIds:[0,1]},
+const examples = { round:{edgeIds:[0]}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z',depthMm:2,edgeIds:[0]}, rounding:{specVersion:3,scope:{kind:'edges',edgeIds:[0]}}, autoRound:{radius:0.1}, smoothTransition:{radius:0.1,faceIds:[0,1]},
   box: { width: 50, depth: 30, height: 3 }, cylinder: { radius: 10, height: 20 }, sphere: { radius: 10 },
   cone: { radius1: 10, radius2: 0, height: 20 }, torus: { majorRadius: 10, minorRadius: 2 },
   extrude: { profile: 'rectangle', width: 20, depth: 10, height: 5 },
@@ -100,13 +100,13 @@ function categoryFor(id) {
   return operationCatalog.operations[id].refs === 0 ? 'creation' : 'modification';
 }
 
-const names = { box: ['长方体', '安装板', 'plate'], hole: ['孔', '钻孔', 'radius'], multiHole: ['多孔', '孔位', 'mounting plate'], multiPocket:['多凹槽','批量凹刻','rectangular pocket','recess'], multiBoss:['多凸台','批量圆柱凸台','cylindrical boss'], rounding:['圆角','圆润','R角','fillet'],
-  smoothTransition:['平滑过渡','接缝','利角','blend'], faceHole: ['面钻孔', '贯穿'], fillet: ['圆角'], chamfer: ['倒角'], shell: ['抽壳', '壁厚'],
+const names = { round:['圆润','自动圆润','磨边','圆头','round','smooth selected edge'], roundEnd:['端头圆润','针尖','圆头','自由端','round end','revolve cap'], box: ['长方体', '安装板', 'plate'], hole: ['孔', '钻孔', 'radius'], multiHole: ['多孔', '孔位', 'mounting plate'], multiPocket:['多凹槽','批量凹刻','rectangular pocket','recess'], multiBoss:['多凸台','批量圆柱凸台','cylindrical boss'], rounding:['自动打磨','打磨','圆润','去利角','smooth sharp edges'],
+  smoothTransition:['平滑过渡','接缝','利角','blend'], faceHole: ['面钻孔', '贯穿'], fillet: ['圆角','标准圆角','倒圆','半径','fillet'], chamfer: ['倒角'], shell: ['抽壳', '壁厚'],
   referenceExtrude: ['参考轮廓', '精确曲线', '拉伸'], referenceLoft: ['参考截面', '精确曲线', '放样'] };
 
 function buildCard(id, source) {
   const strict = migrated.has(id), special = source.mcpAddFeature === false;
-  const version = id==='rounding'?'2.0.0':strict ? '1.0.0' : 'legacy-1';
+  const version = id==='rounding'?'3.0.0':strict ? '1.0.0' : 'legacy-1';
   const inputSchema = schemaFor(id, source), refsSchema = refsFor(source.refs);
   if (id === 'profileExtrude') refsSchema.maxItems = 2;
   if (id === 'referenceLoft') refsSchema.maxItems = 12;
@@ -129,27 +129,42 @@ function buildCard(id, source) {
   const known = [source.notes || source.description];
   if (!strict) known.push('This operation has not migrated to the strict v2 contract. Its schema remains advisory; use the documented legacy entry.');
   if (special) known.push(id === 'remove' ? 'Use webcad_remove or v2 feature.remove; not feature.add.' : 'File lifecycle automation is deferred to M2; browser import is not a zero-mouse API.');
-  const editRule = ['fillet', 'chamfer'].includes(id)
+  const editRule = id==='rounding' ? 'Patch merges into the saved specVersion without converting history: v3 edits strength; v2 edits sizeMm; v1 retains its mode-specific fields. A changed scope must be resolved on the current upstream source and previewed again. Complete merged params are validated against the matching historical/current schema.' : ['fillet', 'chamfer'].includes(id)
     ? 'On edit, patch edgeIds or faceIds selects that exact current topology scope and removes the other scope. Patch allEdges=true selects all body edges. Supplying multiple scopes in one patch conflicts. Amount is merged from existing params.' : 'Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.';
   const contract = { id, version, inputSchema:annotateParameterSchema(inputSchema), refsSchema, numericInputPolicy,
     defaults: id === 'quickModel' ? Object.fromEntries(Object.entries(QUICK_MODELS).map(([kind, definition]) => [kind, clone(definition.defaults)])) : defaults[id] || {},
     selectionTokenSupport: selector, editRule, units: operationCatalog.units,
+    ...(id==='rounding'?{historicalInputSchemas:{1:annotateParameterSchema(clone(legacyRoundingOperation.paramsSchema)),2:annotateParameterSchema(clone(legacyUnifiedRoundingOperation.paramsSchema))}}:{}),
     coordinateConvention: id === 'box' ? 'World [0,0,0] to [width,depth,height], all in mm.'
+      : id === 'cylinder' ? 'Full cylinder centered on Z, base at [0,0,0], top at Z=height. radius is the cross-section radius, not diameter. Explicit placement transforms this local geometry.'
+        : id === 'sphere' ? 'Full sphere centered at [0,0,0], bounds [-radius,-radius,-radius] to [radius,radius,radius]. Explicit placement transforms this local geometry.'
+          : id === 'cone' ? 'Full cone/frustum centered on Z; radius1 at Z=0, radius2 at Z=height. Defaults radius1=10, radius2=0 mm. Both radii nonnegative, at least one positive; equal positive radii make a cylinder. Explicit placement transforms this local geometry.'
+            : id === 'torus' ? 'Full ring centered at [0,0,0] around Z. majorRadius is the tube centerline radius, minorRadius the tube radius; majorRadius must exceed minorRadius. Outer diameter=2*(majorRadius+minorRadius), inner diameter=2*(majorRadius-minorRadius), thickness=2*minorRadius. Explicit placement transforms this local geometry.'
       : ['hole', 'multiHole'].includes(id) ? 'World XYZ cutter start, signed principal axis, radius in mm (not diameter), fixed positive depth. No through parameter.'
         : id==='multiPocket' ? 'Each world XYZ is a pocket cutter start center; shared positive depth cuts along signed axis. Width/height directions: Z axis X/Y, X axis Y/Z, Y axis Z/X. No automatic through or inferred surface.'
           : id==='multiBoss' ? 'Each world XYZ is a boss base center; shared radius and positive height extend along signed X/Y/Z. Each must fuse to one solid and add material. No bore.'
         : id === 'faceHole' ? 'World XYZ point on a planar face. Drill inward along the negative outward face normal. through computes depth from body bounds.'
           : `${topologyConvention} ${source.notes || source.description}` };
-  return { ...contract, ...(id==='fillet'?{legacyOnly:true,replacedBy:'rounding'}:{}), title: source.description, category: categoryFor(id), synonyms: names[id] || (mechanicalNames[id]?[mechanicalNames[id],id]:[id]),
+  return { ...contract, title: source.description, category: categoryFor(id), synonyms: names[id] || (mechanicalNames[id]?[mechanicalNames[id],id]:[id]),
     description: source.description, schemaHash: contractHash(contract), apiCompatibility: strict ? ['legacy', '2.0'] : ['legacy'],
     implementationStatus: 'implemented', availability: 'requires_browser', unavailableReason: null,
     strictContract: strict, v2Executable: strict, contractStatus: strict ? 'migrated' : 'advisory',
     outputSchema: { type: 'object', description: 'Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.',
-      properties: { status: { type: 'string', enum: ['committed', 'no_change', 'failed', 'unknown'] } } },
+      properties: { status: { type: 'string', enum: ['committed', 'no_change', 'failed', 'unknown'] },
+        ...(id==='round'?{roundReport:{type:'object',description:'Read preview.scope or bodies[].roundReport: chosen mode, resolved exact parameters, control, world scope, attemptCount:1, endRoundingReport or blendReport.'}}:{}),
+        ...(id==='roundEnd'?{endRoundingReport:{type:'object',description:'status rounded or rounded-with-inherited-creases; sourceProfileAngleDeg, maxJoinAngleDeg, maxHeadAngleDeg, residualSeams, depthMm, axis, direction, profileAxis, section dimensions/deviations, separate added/removed volumes, lengthChangeMm and targetDisplacementsMm.'}}:{}),
+        ...(id==='rounding'?{roundingReport:{type:'object',description:'Preview receipt, getState().previewScope and committed body roundingReport expose the same report. v3 requires region; historical v1/v2 keep their original fields.',properties:{
+          specVersion:{type:'integer',enum:[1,2,3]},region:{type:'object',required:['sourceBodyId','requestedEdgeIds','expandedEdgeIds','affectedFaceIds'],properties:{
+            sourceBodyId:{type:'string',minLength:1,description:'The same current upstream source body as refs[0].'},
+            ...Object.fromEntries(['requestedEdgeIds','expandedEdgeIds','affectedFaceIds'].map(key=>[key,{type:'array',uniqueItems:true,items:{type:'integer',minimum:0},description:'Topology IDs on sourceBodyId; never result-body indices.'}]))
+          }}
+        }}}:{})
+      } },
     preconditions: [minRefs ? 'Use current referenced bodies in the same document instance and revision.' : 'Use explicit empty refs for independent creation.',
       ...(topology.has(id) ? ['Resolve topology against the current snapshot; do not reuse indices across revisions.'] : [])],
-    postconditions: ['A successful modeling operation commits one undoable history transaction; invalid geometry must not commit.'],
-    resultShapeTypes: mechanicalResultTypes[id] || (id==='sketchProfile'||id==='profileOffset'||id==='profileRepair'?['wire','planar face']:['planeSection', 'faceBoundary'].includes(id) ? ['curve compound'] : id === 'extractFaces' ? ['face','compound of faces'] : id === 'extractShell' ? ['shell'] : id === 'fittedSurface' ? ['face']
+    postconditions: ['A successful modeling operation commits one undoable history transaction; invalid geometry must not commit.',
+      ...(id==='rounding'?['Accepted automatic grinding exposes roundingReport.region with sourceBodyId, requestedEdgeIds, expandedEdgeIds and affectedFaceIds, the effective strength and measured local dimensions, candidate attempts, and every contact/inter-patch/terminal boundary plus material/locality evidence. Historical v1/v2 reports retain their semantics. Failed quality checks preserve the source and do not commit.']:[])],
+    resultShapeTypes: mechanicalResultTypes[id] || (['box','cylinder','sphere','cone','torus'].includes(id)?['solid']:id==='sketchProfile'||id==='profileOffset'||id==='profileRepair'?['wire','planar face']:['planeSection', 'faceBoundary'].includes(id) ? ['curve compound'] : id === 'extractFaces' ? ['face','compound of faces'] : id === 'extractShell' ? ['shell'] : id === 'fittedSurface' ? ['face']
       : ['advancedLoft', 'vectorProfile', 'sewFaces', 'surfaceTrim'].includes(id) ? ['solid', 'shell', 'face (operation-dependent)'] : special ? [] : ['solid', 'compound (operation-dependent)']),
     ...(mechanicalRefCounts[id]?{conditionalRefs:clone(mechanicalRefCounts[id])}:{}),
     consumesInputs: minRefs > 0 && preserves !== true, preservesInputs: preserves, createsResults: id !== 'remove',
@@ -157,10 +172,14 @@ function buildCard(id, source) {
     undoBehavior: 'One successful feature operation is one undo step. Legacy refresh is separately documented.',
     idempotency: strict ? 'v2 same documentInstanceId, at most 1000 in-memory receipts; refuses new commands at capacity without evicting old receipts. No durable or cross-reload guarantee.' : 'Legacy calls do not guarantee idempotency.',
     limits: strict ? ['Finite JSON values; no numeric strings, unknown fields, or implicit UI selection.'] : ['Schema advisory only; existing operation/kernel restrictions apply.'],
-    knownUnsupportedCases: known, minimalExample: example, normalExample: clone(example),
+    knownUnsupportedCases: known, minimalExample: example, normalExample: id==='rounding'?{...clone(example),params:{...clone(example.params),strength:0.75}}:clone(example),
     invalidExamples: [{ params: invalidParams, errorCode: strict ? (id === 'box' ? 'PARAM_RANGE_INVALID' : ['fillet', 'chamfer'].includes(id) ? 'SELECTION_CONFLICT' : 'PARAM_SCHEMA_INVALID') : 'NOT_A_STRICT_V2_OPERATION',
-      explanation: strict ? 'Rejected before kernel execution.' : 'v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement.' }],
-    errorCodes: ['PARAM_SCHEMA_INVALID', 'PARAM_RANGE_INVALID', 'UNKNOWN_OPERATION', 'OPERATION_VERSION_UNSUPPORTED', 'SCHEMA_MISMATCH', 'CAPABILITY_UNAVAILABLE', 'GEOMETRY_INVALID',
+      explanation: strict ? 'Rejected before kernel execution.' : 'v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement.' },
+      ...(id==='cone'?[{params:{radius1:0,radius2:0,height:5},errorCode:'PARAM_RANGE_INVALID',explanation:'At least one radius must be positive; validation applies after the existing defaults.'}]:[]),
+      ...(id==='torus'?[{params:{majorRadius:2,minorRadius:2},errorCode:'PARAM_RANGE_INVALID',explanation:'The tube radius must be smaller than the centerline radius.'}]:[])],
+    errorCodes: ['PARAM_SCHEMA_INVALID', 'PARAM_RANGE_INVALID', 'UNKNOWN_OPERATION', 'OPERATION_VERSION_UNSUPPORTED', 'SCHEMA_MISMATCH', 'CAPABILITY_UNAVAILABLE', 'GEOMETRY_INVALID', 'SIZE_LIMIT',
+      ...(id==='round'?['ROUND_SELECTION_AMBIGUOUS','END_ROUNDING_UNSUPPORTED','KERNEL_BUILD_FAILED','NO_CHANGE','STALE_REFERENCE']:[]),
+      ...(id==='roundEnd'?['END_ROUNDING_UNSUPPORTED','KERNEL_BUILD_FAILED','NO_CHANGE']:[]),
       ...(topology.has(id) ? ['SELECTION_CONFLICT', 'STALE_REFERENCE', 'UNSAFE_LEGACY_REFERENCE'] : []),
       ...(id==='rounding'?['AMBIGUOUS_SELECTION','SCOPE_EXPANSION_REQUIRED','KERNEL_BUILD_FAILED','MATERIAL_CHECK_FAILED']:[]),
       ...(['hole', 'multiHole', 'multiPocket', 'faceHole'].includes(id) ? ['NO_MATERIAL_REMOVED'] : []),
@@ -200,7 +219,7 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
   assertJsonValue(params);
   if (!params || Array.isArray(params) || typeof params !== 'object') contractError('PARAM_SCHEMA_INVALID', 'params', 'Expected an object.');
   if (!['input', 'resolved'].includes(phase)) throw new Error('Unknown parameter validation phase.');
-  const schema = clone(op==='rounding'&&params.specVersion===1?legacyRoundingOperation.paramsSchema:card.inputSchema);
+  const schema = clone(op==='rounding'&&params.specVersion===1?legacyRoundingOperation.paramsSchema:op==='rounding'&&params.specVersion===2?legacyUnifiedRoundingOperation.paramsSchema:card.inputSchema);
   if (selectionToken !== undefined) {
     if (!card.selectionTokenSupport.supported) contractError('PARAM_SCHEMA_INVALID', 'args.selectionToken', 'This operation does not support a selection token.');
     if (phase !== 'input') contractError('PARAM_SCHEMA_INVALID', 'args.selectionToken', 'Resolve the selection token before final parameter validation.');
@@ -235,7 +254,10 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
       if(!oneEdge&&!facePair)contractError('SELECTION_CONFLICT','params.scope','Width construction requires one edge or one explicitly ordered adjacent face pair.');
     }
   }
-  return { ...clone(defaults[op]), ...clone(params) };
+  const normalized={ ...clone(op==='rounding'&&params.specVersion!==3?{}:defaults[op]), ...clone(params) };
+  if(op==='cone'&&normalized.radius1===0&&normalized.radius2===0)contractError('PARAM_RANGE_INVALID','params.radius2','At least one cone radius must be positive.');
+  if(op==='torus'&&normalized.majorRadius<=normalized.minorRadius)contractError('PARAM_RANGE_INVALID','params.majorRadius','majorRadius must exceed minorRadius; use centerline radius and tube radius, not diameters.');
+  return normalized;
 }
 
 export function normalizeOperationPatch(op, previousParams, patch) {

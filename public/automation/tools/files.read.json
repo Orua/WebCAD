@@ -2,7 +2,7 @@
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "读取文件字节",
   "synonyms": [
     "读取文件字节",
@@ -17,24 +17,28 @@
   },
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
-  "runtimeAvailability": "requires_ready_page",
+  "runtimeAvailability": "requires_page",
+  "argumentKeys": [
+    "resourceId",
+    "as"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.read\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
-    "CAPABILITY_UNAVAILABLE",
-    "REVISION_CONFLICT",
-    "INSTANCE_MISMATCH",
-    "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
-    "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
-    "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "PARAM_SCHEMA_INVALID",
+    "RESOURCE_EXPIRED"
   ],
-  "docsHash": "sha256:0fa3af2b5906db52202f56556d9251db3011c8c00e7e1f4616b402b326caa718"
+  "docsHash": "sha256:31d69c00649157ecf2be6bffcfdc6bf7484a8b5b42238865b559d9d31aded6f2"
 }

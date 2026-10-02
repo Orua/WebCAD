@@ -2,7 +2,7 @@
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "保存工程",
   "synonyms": [
     "保存工程",
@@ -18,23 +18,36 @@
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
   "runtimeAvailability": "requires_ready_page",
+  "argumentKeys": [
+    "context",
+    "name"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.save\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
     "CAPABILITY_UNAVAILABLE",
     "REVISION_CONFLICT",
     "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
     "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
+    "FILE_COMMAND_FAILED",
     "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
-    "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "ASSET_INVALID",
+    "NAME_INVALID",
+    "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:1ab60c285036ca2ae56c17c555d223817d9f9aeac2e4fab78ccd719e7a6fdb04"
+  "docsHash": "sha256:62566c9bdc3144032b7c2b056ce8a42cda11495489a028dcfef2c1e4eb43b82c"
 }

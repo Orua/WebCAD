@@ -228,6 +228,7 @@
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
     "NO_MATERIAL_REMOVED"
   ],
   "recoveryActions": [
@@ -253,6 +254,12 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "打孔",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "tool-frame",
     "placementSupported": true,
@@ -267,5 +274,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:18354e0e2da6fc0e33b673cd75391a06672529757e4af574e5564e8c7c391474"
+  "docsHash": "sha256:d28ede3916c73f3515715bb4d70016e8a98b5a95aee6e61e7e491c83f502e201"
 }

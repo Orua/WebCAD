@@ -2,7 +2,7 @@
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "写入文件",
   "synonyms": [
     "写入文件",
@@ -17,24 +17,34 @@
   },
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
-  "runtimeAvailability": "requires_ready_page",
+  "runtimeAvailability": "requires_page",
+  "argumentKeys": [
+    "resourceId",
+    "handle"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.write\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
-    "CAPABILITY_UNAVAILABLE",
-    "REVISION_CONFLICT",
-    "INSTANCE_MISMATCH",
-    "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
-    "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
+    "PARAM_SCHEMA_INVALID",
     "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "ASSET_INVALID",
+    "RESOURCE_BUSY",
+    "HANDLE_REQUIRED",
+    "PERMISSION_REQUIRED",
+    "HASH_MISMATCH",
+    "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:0f3e1fedd7f2e3affbd3912bb481cb7fd09a959409a805da7b054e01c91b98e0"
+  "docsHash": "sha256:8a2f2de6119134c768f87d6c3e142a90f49fdcb27213d5b435ed7aae40ee17ce"
 }

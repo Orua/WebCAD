@@ -1,0 +1,22 @@
+{
+  "id": "getHistory",
+  "title": "getHistory",
+  "category": "page-method",
+  "version": "1.16.0",
+  "description": "getHistory()。返回已保留状态，不含导入源字节。",
+  "synonyms": [
+    "getHistory",
+    "历史",
+    "状态",
+    "退回",
+    "检查点"
+  ],
+  "inputContract": "getHistory()。返回已保留状态，不含导入源字节。",
+  "outputContract": "entries:{id,label,at,featureId?}、storedSteps、prunedSteps、bytes、maxSteps、maxBytes。bytes/maxBytes仅计历史基线与差量，导入资源在工程中共享一次；资源只有在当前工程与所有保留状态都不引用时才回收，已存在的内存撤销快照不被改写。execute action=history.restore,args:{stateId} 恢复；旧工程只能从开始记录时回退。缺失历史所需源资源的工程拒绝载入（HISTORY_INVALID）。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [],
+  "docsHash": "sha256:2d88a3abe575313fe24a9f039d35f263cdef8610ef51736191605117be0265e9"
+}

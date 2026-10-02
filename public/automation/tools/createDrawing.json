@@ -1,0 +1,28 @@
+{
+  "id": "createDrawing",
+  "title": "createDrawing",
+  "category": "page-method",
+  "version": "1.16.0",
+  "description": "createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。",
+  "synonyms": [
+    "createDrawing",
+    "三视图",
+    "工程图",
+    "自动尺寸",
+    "截面"
+  ],
+  "inputContract": "createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。",
+  "outputContract": "status=generated、drawingId、drawing{views,dimensions,limitations}、svg、formats。OCCT隐藏线投影及精确截线；自动候选为外形、圆直径和圆心坐标，不推断工艺/公差。原件只读。默认第一角法。缓存仅保留最近4份。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "RESOURCE_LIMIT",
+    "STALE_REFERENCE",
+    "REVISION_CONFLICT",
+    "GEOMETRY_INVALID"
+  ],
+  "docsHash": "sha256:09538725712b44402a499c28f67ca2f475a228b8ccf15c93cfedb30f81494fca"
+}

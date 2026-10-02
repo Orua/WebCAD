@@ -1,0 +1,3 @@
+# recipes.clevis-practice
+
+多零件练习位于 automation/clevis-practice.js（源 docs/examples/clevis-practice.js），导出 clevisPracticeSteps 和 runClevisPractice(api)。自主尺寸，不用于还原客户源 CAD，不保证工艺公差或提供装配约束求解。helper 先 connect 点名相关工具并检查 canExecute，再以一个14步有界批次追加当前工程：60×32×36毛坯减开口，孔向导沿X贯穿两个分离的耳板材料区，四个底座安装孔，定位一根销轴，创建垫片后线性阵列到两侧，测量及等轴视图。所有定位显式冻结为world或snapshot，不依赖当前锚点。结果3个对象、4个封闭实体；垫片是一个含两实体的compound，不融合。叉架体积30720−276π mm³；销轴与叉架径向最短间隙0.2 mm，垫片与叉架轴向最短间隙0.5 mm。inspectFit只接收单一实体，因此用于销轴/叉架；measureRelation shortest可测垫片compound与叉架。helper 返回各checks及verified；batch completed不自动代表这些尺寸达标。部分失败立即停，按回执续做未尝试步骤，禁止重放整批。saved:false表示未保存；rendered只反映displayMatchesContext，仍需实际画面核对。此流程经公开API到内核集成验证，浏览器视觉验收需单独记录。

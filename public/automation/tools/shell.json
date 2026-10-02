@@ -186,6 +186,7 @@
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
     "SELECTION_CONFLICT",
     "STALE_REFERENCE",
     "UNSAFE_LEGACY_REFERENCE"
@@ -211,6 +212,12 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "抽壳",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -226,5 +233,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:d1b7c8c3b4668ee311dc6a0b8bfbaf107b530c43140f955a7720c81e41c81ea3"
+  "docsHash": "sha256:849b3041c74bee36a32d3cc40328c1f485d439db8f02bbbdb5ecf32c46d3a8db"
 }

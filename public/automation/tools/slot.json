@@ -129,7 +129,7 @@
   "availability": "requires_browser",
   "unavailableReason": null,
   "strictContract": false,
-  "v2Executable": false,
+  "v2Executable": true,
   "contractStatus": "advisory",
   "outputSchema": {
     "type": "object",
@@ -171,7 +171,8 @@
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "length >= width; equality gives a circular hole. Defaults center=origin,axis=Z,direction=1,angle=0. Unrotated long direction: Z axis -> +X; X axis -> +Y; Y axis -> +Z. Angle always follows the right-hand rule about the positive axis, independent of direction. Depth extends from the start plane along direction * axis. Must remove material. No automatic through depth."
+    "length >= width; equality gives a circular hole. Defaults center=origin,axis=Z,direction=1,angle=0. Unrotated long direction: Z axis -> +X; X axis -> +Y; Y axis -> +Z. Angle always follows the right-hand rule about the positive axis, independent of direction. Depth extends from the start plane along direction * axis. Must remove material. No automatic through depth.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
     "op": "slot",
@@ -207,7 +208,22 @@
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
     "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "length": 10,
+        "width": 3,
+        "depth": 5,
+        "x": 20,
+        "y": 15,
+        "z": 4,
+        "direction": -1,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -215,7 +231,8 @@
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -236,6 +253,12 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "长圆槽",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "tool-frame",
     "placementSupported": true,
@@ -250,5 +273,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:fae13d540e027ed1d3f5131bd2ded7b4fb4241a66df01a47a8b4bce883f490e8"
+  "docsHash": "sha256:53eeb2d4fa96fb720c294c622996959bffde3166be250f80841735b256c09a94"
 }

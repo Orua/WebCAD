@@ -107,8 +107,7 @@
     "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
   ],
   "resultShapeTypes": [
-    "solid",
-    "compound (operation-dependent)"
+    "solid"
   ],
   "consumesInputs": false,
   "preservesInputs": false,
@@ -167,7 +166,8 @@
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -192,6 +192,12 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "长方体",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -206,5 +212,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:88c63be35e8e4c8566cecafd5cbf6075a19d8c10f50847a7369cdb9e189e05bc"
+  "docsHash": "sha256:9b3ebb032677716afdb72b60227a5376202f5d309e00237061deba7394d0803e"
 }

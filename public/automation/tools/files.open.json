@@ -2,7 +2,7 @@
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "打开工程",
   "synonyms": [
     "打开工程",
@@ -18,23 +18,36 @@
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
   "runtimeAvailability": "requires_ready_page",
+  "argumentKeys": [
+    "context",
+    "resourceId"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.open\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
     "CAPABILITY_UNAVAILABLE",
     "REVISION_CONFLICT",
     "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
     "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
+    "FILE_COMMAND_FAILED",
     "SIZE_LIMIT",
-    "RESOURCE_LIMIT",
     "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "ASSET_INVALID",
+    "FORMAT_UNSUPPORTED"
   ],
-  "docsHash": "sha256:43d6469104a719b0f1299b0419d0f5847ff0feca5f0305f9e625a5a3e90b7c8c"
+  "docsHash": "sha256:0926dcc9c83c93533541eef6fe5858b8336b96d2d9a87786d72fc4ac3f414ea3"
 }

@@ -1,6 +1,16 @@
 // UI-only adapter: explicit parameters always win. Core/API never reads selection.
 export function adaptUISelection(op, input, refs, topology) {
   const params=structuredClone(input);
+  if(['round','roundEnd'].includes(op)&&params.edgeIds===undefined){
+    if(topology?.bodyId!==refs[0]||topology.type!=='edge'||!topology.ids?.length)throw new Error('请先选择需要圆润的端部边。');
+    params.edgeIds=[...topology.ids];
+  }
+  const legacyRoundingFields=['mode','radiusMm','laws','widthAMm','widthBMm','propagation','boundaryRequirement','endpoints'];
+  if(op==='rounding'&&(params.specVersion===3||params.specVersion===undefined&&!Object.hasOwn(params,'sizeMm')&&!legacyRoundingFields.some(key=>Object.hasOwn(params,key)))){
+    if(params.scope)return {specVersion:3,...params};
+    if(topology?.bodyId!==refs[0]||topology.type!=='edge'||!topology.ids?.length)throw new Error('请先选择需要打磨的实体边。');
+    return {specVersion:3,...params,scope:{kind:'edges',edgeIds:[...topology.ids]}};
+  }
   if(op==='rounding'&&(params.specVersion===2||Object.hasOwn(params,'sizeMm'))){
     if(params.scope)return params;
     if(topology?.bodyId!==refs[0]||topology.type!=='edge'||!topology.ids?.length)throw new Error('请先选择需要圆润的实体边。');

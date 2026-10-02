@@ -1,0 +1,20 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {getOperation,normalizeOperationParams,normalizeOperationPatch} from '../src/operation-registry.js';
+import {getTool} from '../src/page-api-docs.js';
+import {UI_LAYOUT} from '../src/ui/config/ui-layout.js';
+import {UI_API_ROUTES} from '../src/ui-api-coverage.js';
+import {adaptUISelection} from '../src/ui-selection-adapter.js';
+import {assertPlacementCoverage} from '../src/placement-policy.js';
+test('roundEnd has matching explicit UI/API and preserves partial-result semantics',()=>{
+ assert(getOperation('roundEnd').strictContract);assert(getTool({id:'roundEnd'}).outputSchema.properties.endRoundingReport);
+ assert(getTool({id:'roundEnd'}).errorCodes.includes('END_ROUNDING_UNSUPPORTED'));
+ assert(UI_LAYOUT.tabs.flatMap(t=>t.groups.flatMap(g=>g[1])).includes('roundEnd'));
+ assert(UI_API_ROUTES.roundEnd.tools.includes('preview.commit'));assertPlacementCoverage();
+ const p=adaptUISelection('roundEnd',{depthMm:2},['body'],{bodyId:'body',type:'edge',ids:[5]});
+ assert.deepEqual(normalizeOperationParams('roundEnd',p),{axis:'Y',direction:1,profileAxis:'Z',depthMm:2,edgeIds:[5]});
+ assert.throws(()=>adaptUISelection('roundEnd',{depthMm:2},['body'],{bodyId:'other',type:'edge',ids:[5]}));
+ assert.throws(()=>normalizeOperationParams('roundEnd',{depthMm:0,edgeIds:[5]}));
+ assert.throws(()=>normalizeOperationParams('roundEnd',{depthMm:2,edgeIds:[5],radius:1}));
+ assert.deepEqual(normalizeOperationPatch('roundEnd',normalizeOperationParams('roundEnd',p),{depthMm:3}).edgeIds,[5]);
+});

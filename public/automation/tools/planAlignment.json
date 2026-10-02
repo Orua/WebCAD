@@ -1,0 +1,26 @@
+{
+  "id": "planAlignment",
+  "title": "planAlignment",
+  "category": "page-method",
+  "version": "1.16.0",
+  "description": "planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true。",
+  "synonyms": [
+    "planAlignment",
+    "对齐",
+    "原点",
+    "基准件",
+    "轴"
+  ],
+  "inputContract": "planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true。",
+  "outputContract": "status=read、moves[{bodyId,delta}]、targetPoint；仅平移，不猜测任意曲面姿态；body.align 提交同参数。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "STALE_REFERENCE",
+    "REVISION_CONFLICT"
+  ],
+  "docsHash": "sha256:ceaefbca376cd78867f6832b0ffaa36cc00cb309dc0d87c606e20ac391298f38"
+}

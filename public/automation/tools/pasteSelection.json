@@ -2,7 +2,7 @@
   "id": "pasteSelection",
   "title": "pasteSelection",
   "category": "page-method",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "description": "pasteSelection({context,idempotencyKey}); 先 copySelection。",
   "synonyms": [
     "pasteSelection",
@@ -16,5 +16,21 @@
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:6e35c90a8c46c867d63d3385f30ae2d95167b6b32c6c1c9a81a056632658f418"
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "STALE_REFERENCE",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE",
+    "IDEMPOTENCY_KEY_REUSED",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "docsHash": "sha256:93285fb9cc1015791cb7f706100580deae67a22d71e6ac32bcbc0d2004f1c415"
 }

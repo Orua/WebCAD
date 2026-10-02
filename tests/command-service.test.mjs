@@ -7,7 +7,7 @@ import { createReferenceSystem } from '../src/work-frame.js';
 
 test('editor contracts reject invalid colors/materials/references and preserve exact intent',()=>{
  const state={bodies:[{id:'b',solidCount:2}],features:[{id:'f'}]};
- const valid={ 'document.rename':{name:'设计'},'feature.rename':{featureId:'f',name:'导入体'},'body.visibility':{bodyIds:['b'],visible:false},'body.appearance':{bodyIds:['b'],color:'#123abc',finish:'design'},'document.appearance':{finish:'nickel'},'body.explode':{bodyId:'b'}};
+ const valid={ 'body.align':{bodyIds:['b'],target:{kind:'origin'}},'history.restore':{stateId:'saved-state'},'document.rename':{name:'设计'},'feature.rename':{featureId:'f',name:'导入体'},'body.visibility':{bodyIds:['b'],visible:false},'body.appearance':{bodyIds:['b'],color:'#123abc',finish:'design'},'document.appearance':{finish:'nickel'},'body.explode':{bodyId:'b'}};
  for(const id of Object.keys(EDITOR_ACTIONS))assert.deepEqual(validateEditorAction(id,valid[id],state).args.values,valid[id]);
  for(const a of [{bodyIds:['b'],color:'red'},{bodyIds:['b'],color:'#123456',extra:1},{bodyIds:['wrong'],color:'#123456'},{bodyIds:['b','b'],finish:'design'},{bodyIds:['b'],finish:'fake'},{bodyIds:[]}])assert.throws(()=>validateEditorAction('body.appearance',a,state));
  assert.deepEqual(validateEditorAction('body.appearance',{bodyIds:['b'],color:null,finish:null},state).args.values,{bodyIds:['b'],color:null,finish:null});
@@ -21,6 +21,17 @@ test('editor changes share revision guards, queue and duplicate receipts',async(
  const stale=await service.execute({...input,idempotencyKey:'stale'});assert.equal(stale.error.code,'REVISION_CONFLICT');assert.equal(calls,1);
 });
 
+test('alignment and history restore report rebuilt geometry; editor no-ops do not claim a geometry commit',async()=>{
+ for(const [action,args]of [['body.align',{bodyIds:['b'],target:{kind:'origin'}}],['history.restore',{stateId:'saved-state'}],['body.explode',{bodyId:'b'}]]){
+  for(const changed of [true,false]){
+   let calls=0;const s={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:1,features:[],bodies:[{id:'b',solidCount:2,bounds:{min:[5,0,0],max:[10,2,2]}}],selectedIds:[],kernelReady:true,busy:false};
+   const service=createCommandService({snapshot:()=>structuredClone(s),execute:async()=>{calls++;if(changed){s.bodies[0].bounds={min:[0,0,0],max:[5,2,2]};s.revision++;}}});
+   const request={context:{sessionId:'s',documentId:'d',documentInstanceId:'i',expectedRevision:1},idempotencyKey:'editor',action,args};
+   const result=await service.execute(request);assert.equal(result.status,changed?'committed':'no_change');assert.equal(result.validation.geometry,changed?'passed':'unchanged');
+   assert.deepEqual(await service.execute(request),result);assert.equal(calls,1);
+  }
+ }
+});
 test('active previews can be committed or cancelled through the same command queue',async()=>{
  const s={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:1,features:[],bodies:[],kernelReady:true,busy:false,preview:true};
  const service=createCommandService({snapshot:()=>structuredClone(s),execute:async command=>{assert.equal(command,'preview.cancel');s.preview=false;}});
@@ -53,6 +64,19 @@ test('context checks and strict input rejection precede any model modification',
  for(const params of [{width:1,depth:2,height:3,diameter:4},{width:NaN,depth:2,height:3},{width:'50',depth:30,height:3}]){
   const t=setup();assert.equal((await t.service.execute(t.add(params))).status,'failed');assert.equal(t.calls,0);
  }
+});
+
+test('invalid cone and torus dimensions never enter the kernel adapter; cone defaults are explicit',async()=>{
+  for(const [op,params] of [['cone',{radius1:0,radius2:0,height:5}],['torus',{majorRadius:2,minorRadius:2}]]){
+    const t=setup(),card=getOperation(op),request=t.add();
+    request.args={op,opVersion:card.version,schemaHash:card.schemaHash,params,refs:[]};
+    const result=await t.service.execute(request);
+    assert.equal(result.status,'failed');assert.equal(result.error.code,'PARAM_RANGE_INVALID');assert.equal(t.calls,0);
+  }
+  const t=setup(),card=getOperation('cone'),request=t.add();
+  request.args={op:'cone',opVersion:card.version,schemaHash:card.schemaHash,params:{height:5},refs:[]};
+  assert.equal((await t.service.execute(request)).status,'committed');
+  assert.deepEqual(t.state.features[0].params,{radius1:10,radius2:0,height:5});
 });
 test('late abort retains committed receipt and early abort does not execute',async()=>{
  const t=setup(),controller=new AbortController();t.abortAfterCommit(controller);const r=await t.service.execute(t.add(),{signal:controller.signal});assert.equal(r.status,'committed');assert(controller.signal.aborted);

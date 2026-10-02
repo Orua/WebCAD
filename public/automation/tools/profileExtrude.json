@@ -226,7 +226,8 @@
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -249,6 +250,12 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "轮廓拉伸 / 加工",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "not-applicable",
     "placementSupported": false,
@@ -265,5 +272,5 @@
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:54d73e9720fc57396f23c5b206046d8ff6c8c10c59a36323a84da8692d273e83"
+  "docsHash": "sha256:a4c23708f3203e3ecf24c15db7b408b3a6f3feb942b116c123a3e0505f39ccb0"
 }

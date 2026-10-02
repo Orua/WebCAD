@@ -1,0 +1,31 @@
+{
+  "id": "exportDrawing",
+  "title": "exportDrawing",
+  "category": "page-method",
+  "version": "1.16.0",
+  "description": "exportDrawing({context,drawingId,format:pdf|jpg|dxf|svg,paper?:A4|A3,title?,name?,disabledDimensions?:[id]})。drawingId必须仍匹配当前revision；DWG明确不可用。",
+  "synonyms": [
+    "exportDrawing",
+    "工程图",
+    "导出",
+    "PDF",
+    "JPG",
+    "DXF",
+    "SVG",
+    "DWG"
+  ],
+  "inputContract": "exportDrawing({context,drawingId,format:pdf|jpg|dxf|svg,paper?:A4|A3,title?,name?,disabledDimensions?:[id]})。drawingId必须仍匹配当前revision；DWG明确不可用。",
+  "outputContract": "generated文件资源及sha256。再files.read/download/write；生成/下载不代表磁盘写入。PDF为矢量，JPG为300DPI；DXF为真实毫米1:1模型空间；标注文字与线为独立实体，不是关联尺寸。非整圆曲线按0.01mm离散。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "FORMAT_UNSUPPORTED",
+    "STALE_REFERENCE",
+    "REVISION_CONFLICT",
+    "RESOURCE_LIMIT"
+  ],
+  "docsHash": "sha256:8c0ee84cfc373ab8a1c559f328fc56b5cf5b3d052aad2b9f711d10ee9afa3bdb"
+}

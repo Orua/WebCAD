@@ -2,7 +2,7 @@
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.13.0",
+  "version": "1.16.0",
   "label": "导出文件",
   "synonyms": [
     "导出文件",
@@ -18,23 +18,39 @@
   "implementationStatus": "page-adapter",
   "contractStatus": "browser-file-adapter",
   "runtimeAvailability": "requires_ready_page",
+  "argumentKeys": [
+    "context",
+    "format",
+    "ids",
+    "name"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.export\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
     "maxTotalBytes": 67108864,
     "ttlSeconds": 1800
   },
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "caveats": [],
   "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
     "CAPABILITY_UNAVAILABLE",
     "REVISION_CONFLICT",
     "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
     "UNSAVED_REPLACEMENT",
-    "HASH_MISMATCH",
+    "FILE_COMMAND_FAILED",
     "SIZE_LIMIT",
+    "ASSET_INVALID",
+    "NAME_INVALID",
     "RESOURCE_LIMIT",
-    "RESOURCE_EXPIRED",
-    "PERMISSION_REQUIRED"
+    "FORMAT_UNSUPPORTED"
   ],
-  "docsHash": "sha256:79a7cc75da5c1b33a820b2c485c70a73afcea35d9e787658f53e802891d0160a"
+  "docsHash": "sha256:8c2d26db516a959a63df9a2655213e1542a5b2a9f28987e04d9018d0deade6d4"
 }

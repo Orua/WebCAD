@@ -111,16 +111,14 @@ const originalGroups = {
   view: [], settings: [['外观', ['themeSettings', 'displayPreferences', 'logoConverterSettings']], ['交互', ['precisionSettings', 'snapSettings', 'languageSettings']], ['工程', ['parameters']], ['AGENT', ['agentGuide']]],
 };
 
-test('original nine tabs and tool inventory remain intact after requested simple-first ordering', () => {
-  assert.deepEqual(UI_LAYOUT.tabs.map(tab => tab.id), Object.keys(originalGroups));
-  for (const tab of UI_LAYOUT.tabs) {
-    const groups=tab.groups.filter(([name])=>tab.id!=='model'||name!=='常用模型');
-    assert.deepEqual(groups.map(([name]) => name).sort(), originalGroups[tab.id].map(([name]) => name).sort());
-    originalGroups[tab.id].forEach(([name, actions]) => {const current=groups.find(([label])=>label===name)[1];assert.deepEqual(current.filter(action=>actions.includes(action)).sort(),[...actions].sort(),`${tab.id}/${name}`);});
-    if(tab.id==='model')assert.deepEqual(tab.groups.filter(([name])=>name==='常用模型'),[['常用模型',['quickModelFavorites']]]);
-    if (['edit', 'create', 'model'].includes(tab.id)) assert.equal(tab.unfolded, true);
-  }
+test('workflow tabs preserve the original tool inventory after regrouping', () => {
+  assert.deepEqual(UI_LAYOUT.tabs.map(tab => tab.id), ['edit','path','create','model','machine','surface','finish','inspect','view','settings']);
   const actions = UI_LAYOUT.tabs.flatMap(tab => tab.groups.flatMap(([, ids]) => ids));
+  for(const groups of Object.values(originalGroups))for(const [,ids] of groups)for(const id of ids)assert(actions.includes(id),`original tool lost: ${id}`);
+  assert.equal(new Set(actions).size,actions.length,'a tool must not be duplicated across tabs');
+  assert.deepEqual(UI_LAYOUT.tabs.find(tab=>tab.id==='model').groups.filter(([name])=>name==='常用模型'),[['常用模型',['quickModelFavorites']]]);
+  for(const id of ['edit','path','model'])assert.equal(UI_LAYOUT.tabs.find(tab=>tab.id===id).unfolded,true);
+  const create=UI_LAYOUT.tabs.find(tab=>tab.id==='create');assert.equal(create.groups.find(([name])=>name==='路径成型')[2].unfolded,true);
   assert.equal(actions.filter(id => ['profileRevolve', 'profileSweep', 'profileLoft'].includes(id)).length, 0, 'source operations share original entries instead of duplicate ribbon buttons');
 });
 

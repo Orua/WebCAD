@@ -1,0 +1,279 @@
+{
+  "id": "roundEnd",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "edgeIds": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "description": "Zero-based topology index",
+          "minimum": 0,
+          "unit": "1",
+          "quantityKind": "index",
+          "quantizationPolicy": "none"
+        },
+        "minItems": 1,
+        "maxItems": 32,
+        "uniqueItems": true,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
+      },
+      "axis": {
+        "type": "string",
+        "description": "Global axis",
+        "enum": [
+          "X",
+          "Y",
+          "Z"
+        ],
+        "default": "Y"
+      },
+      "direction": {
+        "type": "integer",
+        "enum": [
+          1,
+          -1
+        ],
+        "description": "End direction along the world axis",
+        "default": 1,
+        "unit": "1",
+        "quantityKind": "direction",
+        "quantizationPolicy": "none"
+      },
+      "profileAxis": {
+        "type": "string",
+        "description": "Cross-section thickness / rotation axis; different from axis",
+        "enum": [
+          "X",
+          "Y",
+          "Z"
+        ],
+        "default": "Z"
+      },
+      "depthMm": {
+        "type": "number",
+        "description": "Distance from the actual extreme end back to the connection section (mm)",
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      }
+    },
+    "required": [
+      "edgeIds",
+      "depthMm"
+    ],
+    "additionalProperties": false,
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {
+    "axis": "Y",
+    "direction": 1,
+    "profileAxis": "Z"
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Rebuild the whole end containing every selected edge by revolving its actual half section 180 degrees. Explicit axis/direction and profileAxis; no fixed R. Supports a single solid with a symmetric, stable straight LINE/CIRCLE section and no profile corner over 1 degree; ellipse and spline sections are unsupported. Preserves smaller inherited profile creases and reports them; not a whole-body G1/G2 claim. New body connection must meet 0.1 degrees; sampled position tolerance 1e-5 mm. Replaces material only inside the declared end region, may add and remove material, never extends overall length. Use preview.start/commit to inspect the full changed end. getState bodies[].endRoundingReport reports section checks, source/head/join angles, residual seams, target displacement, length and separate material changes. Wrong target, taper, asymmetry, insufficient depth, already rounded or invalid solid rejects atomically. World principal axes only; edit rebuilds from the original upstream body.",
+  "title": "端头圆润 / Round free end",
+  "category": "modification",
+  "synonyms": [
+    "端头圆润",
+    "针尖",
+    "圆头",
+    "自由端",
+    "round end",
+    "revolve cap"
+  ],
+  "description": "端头圆润 / Round free end",
+  "schemaHash": "sha256:8544cb08d7c23f33afbb7f1bf2c4156b103680f709cbeafa4444b37864785f39",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      },
+      "endRoundingReport": {
+        "type": "object",
+        "description": "status rounded or rounded-with-inherited-creases; sourceProfileAngleDeg, maxJoinAngleDeg, maxHeadAngleDeg, residualSeams, depthMm, axis, direction, profileAxis, section dimensions/deviations, separate added/removed volumes, lengthChangeMm and targetDisplacementsMm."
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+  ],
+  "knownUnsupportedCases": [
+    "Rebuild the whole end containing every selected edge by revolving its actual half section 180 degrees. Explicit axis/direction and profileAxis; no fixed R. Supports a single solid with a symmetric, stable straight LINE/CIRCLE section and no profile corner over 1 degree; ellipse and spline sections are unsupported. Preserves smaller inherited profile creases and reports them; not a whole-body G1/G2 claim. New body connection must meet 0.1 degrees; sampled position tolerance 1e-5 mm. Replaces material only inside the declared end region, may add and remove material, never extends overall length. Use preview.start/commit to inspect the full changed end. getState bodies[].endRoundingReport reports section checks, source/head/join angles, residual seams, target displacement, length and separate material changes. Wrong target, taper, asymmetry, insufficient depth, already rounded or invalid solid rejects atomically. World principal axes only; edit rebuilds from the original upstream body."
+  ],
+  "minimalExample": {
+    "op": "roundEnd",
+    "params": {
+      "axis": "Y",
+      "direction": 1,
+      "profileAxis": "Z",
+      "depthMm": 2,
+      "edgeIds": [
+        0
+      ]
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "roundEnd",
+    "params": {
+      "axis": "Y",
+      "direction": 1,
+      "profileAxis": "Z",
+      "depthMm": 2,
+      "edgeIds": [
+        0
+      ]
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "axis": "Y",
+        "direction": 1,
+        "profileAxis": "Z",
+        "depthMm": 2,
+        "edgeIds": [
+          0
+        ],
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "END_ROUNDING_UNSUPPORTED",
+    "KERNEL_BUILD_FAILED",
+    "NO_CHANGE"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "端头圆润",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:ba357902b2f88c658fce1424e7272e73c92734f5282434d0cde14a01e8d820c0"
+}

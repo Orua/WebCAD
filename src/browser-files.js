@@ -1,9 +1,10 @@
 // Browser-only transfer boundary for the existing document file commands.
 // File handles are selected by the UI before calling write; this module never opens a picker.
-const MAX_BYTES = 20 * 1024 * 1024;
-const MAX_RESOURCES = 32;
-const MAX_TOTAL_BYTES = 64 * 1024 * 1024;
-const TTL_MS = 30 * 60 * 1000;
+import {FILE_LIMITS} from './browser-file-contracts.js';
+const MAX_BYTES = FILE_LIMITS.maxBytes;
+const MAX_RESOURCES = FILE_LIMITS.maxResources;
+const MAX_TOTAL_BYTES = FILE_LIMITS.maxTotalBytes;
+const TTL_MS = FILE_LIMITS.ttlSeconds * 1000;
 
 function failure(code, message) {
   return Object.assign(new Error(message), { code });
@@ -139,6 +140,7 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
   }
 
   return Object.freeze({
+    generated:input=>add({...input,kind:"output"}),
     capabilities() { return Object.freeze({ maxBytes: MAX_BYTES, maxResources: MAX_RESOURCES,
       maxTotalBytes: MAX_TOTAL_BYTES, ttlSeconds: TTL_MS / 1000,
       imports: ['step', 'stp', 'brep', 'brp'], exports: ['step', 'stl', 'brep', 'png'],

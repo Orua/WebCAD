@@ -1,6 +1,6 @@
 {
   "id": "torus",
-  "version": "legacy-1",
+  "version": "1.0.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -57,7 +57,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. majorRadius > minorRadius",
+  "coordinateConvention": "Full ring centered at [0,0,0] around Z. majorRadius is the tube centerline radius, minorRadius the tube radius; majorRadius must exceed minorRadius. Outer diameter=2*(majorRadius+minorRadius), inner diameter=2*(majorRadius-minorRadius), thickness=2*minorRadius. Explicit placement transforms this local geometry.",
   "title": "Torus around Z axis",
   "category": "creation",
   "synonyms": [
@@ -65,16 +65,16 @@
     "圆环"
   ],
   "description": "Torus around Z axis",
-  "schemaHash": "sha256:786fb647b8a3d95db93cf226ef50144c3c4775e5af22a2b47821b42b44b9009d",
+  "schemaHash": "sha256:3ef5129141c381173203d04c781493944ed1bf94597f62b9f6a5f184a946e18f",
   "apiCompatibility": [
-    "page-advisory"
+    "page-v2"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
-  "strictContract": false,
-  "v2Executable": false,
-  "contractStatus": "advisory",
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
   "outputSchema": {
     "type": "object",
     "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
@@ -97,8 +97,7 @@
     "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
   ],
   "resultShapeTypes": [
-    "solid",
-    "compound (operation-dependent)"
+    "solid"
   ],
   "consumesInputs": false,
   "preservesInputs": false,
@@ -112,7 +111,7 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
     "majorRadius > minorRadius"
@@ -125,7 +124,7 @@
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "normalExample": {
     "op": "torus",
@@ -135,9 +134,27 @@
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
-  "invalidExamples": [],
+  "invalidExamples": [
+    {
+      "params": {
+        "majorRadius": 10,
+        "minorRadius": 2,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    },
+    {
+      "params": {
+        "majorRadius": 2,
+        "minorRadius": 2
+      },
+      "errorCode": "PARAM_RANGE_INVALID",
+      "explanation": "The tube radius must be smaller than the centerline radius."
+    }
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -145,7 +162,8 @@
     "OPERATION_VERSION_UNSUPPORTED",
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
-    "GEOMETRY_INVALID"
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -160,12 +178,20 @@
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
   "verification": {
-    "contract": "not_migrated",
+    "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "圆环",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
   "placementPolicy": {
     "mode": "creation-frame",
     "placementSupported": true,
@@ -179,6 +205,6 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:83a3c1a538d139e2b26d6167cca535efc9829c23b8a6838f972589c390cd66f5"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:b59824b37eb0e42b1dfb3e4e560a803a736f5ab8ef6c8c5dbe5a879b45855021"
 }
