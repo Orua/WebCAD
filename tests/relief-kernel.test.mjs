@@ -82,3 +82,16 @@ test('cylindrical relief uses the actual face and preserves one solid under rigi
   }
  }finally{dispose(moved);dispose(base);}
 });
+
+test('constant cylindrical height agrees with the analytic annular-sector volume across radii',()=>{
+ const flat=Array.from({length:9},()=>Array(9).fill(1));
+ for(const radius of [2,10,100])for(const mode of ['emboss','engrave']){
+  const source=cad.makeCylinder(radius,4*radius),depthMm=radius*.05,baseMm=.005,heightMm=radius,widthMm=.8*radius,h=depthMm+baseMm,sign=mode==='engrave'?-1:1;
+  const expected=Math.abs(.5*(widthMm/radius)*heightMm*((radius+sign*h)**2-radius**2));let result;
+  try{
+   result=buildRelief(source,{faceId:0,point:[0,radius,2*radius],values:flat,baseMm,depthMm,widthMm,heightMm,offsetX:.1*radius,offsetY:.1*radius,mode},oc,cad);valid(result);
+   const actual=result.reliefReport.addedMm3||result.reliefReport.removedMm3;
+   assert.ok(Math.abs(actual-expected)<Math.max(1e-6,expected*1e-8),`R${radius} ${mode}: ${actual} vs analytic ${expected}`);
+  }finally{dispose(result);dispose(source);}
+ }
+});
