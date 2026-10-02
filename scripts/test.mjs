@@ -52,7 +52,7 @@ const groups = {
   ],
   mcp: ['bridge-cancellation', 'mcp-bridge', 'mcp-v2', 'document-assets', 'agent-cli'],
   'local-fixtures': ['iges-import', 'iges-roundtrip'],
-  'browser-dom-modules':['profile-solid-dialogs','direct-modeling-dialogs','profile-constraints-dialog'],
+  'browser-dom-modules':['relief-browser','profile-solid-dialogs','direct-modeling-dialogs','profile-constraints-dialog'],
 };
 const fixturePaths = [
   ['WEBCAD_IGES_IMPORT_FIXTURE', process.env.WEBCAD_IGES_IMPORT_FIXTURE || 'G:/TEXT-TO-CAD/工程图3D_20260914/0/gc15372.igs'],

@@ -3,12 +3,12 @@
   "title": "IGES/IGS 导入",
   "description": "当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。",
   "category": "unavailable",
-  "version": "1.17.0",
+  "version": "1.18.0",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
   "errorCodes": [
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:ef662f976b5953a34bfca67e915bf3343c2997a33549846e63d6ee75479d9e70"
+  "docsHash": "sha256:7a78abfbac967b4ab741dff4a8a05d8ee9eb5330a400550a67bc510c5561fd8f"
 }

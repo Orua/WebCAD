@@ -989,11 +989,13 @@ getHistory 返回状态 ID、名称、时间、数量、字节数、合并数量
 
 ## 曲面浮雕 relief（2026-10-02）
 
-在当前平面上生成有高低层次的连续三次 B 样条曲面，支持浮雕加料和凹雕减料。不是平顶凸字，也不把照片明暗推断成真实物体深度。曲面包裹尚未提供。
+在当前平面或外凸圆柱面上生成有高低层次的连续三次 B 样条曲面，支持浮雕加料和凹雕减料。不是平顶凸字，也不把照片明暗推断成真实物体深度。
+
+圆柱面需要额外显式参数 `point:[x,y,z]`、`baseMm:0.02`。point 是所选有限面上的三维放置点（最多 0.1 mm 显示网格吸附）；整张矩形首先加工 baseMm 基底层，再叠加图案起伏，总高度是 baseMm+depthMm。baseMm 范围 0.005–1 mm。widthMm/offsetX 为圆周弧长，heightMm/offsetY 沿解析圆柱轴；angleDeg 必须 0。当前仅外凸圆柱：半径 1–10000 mm、图案角宽≤90°、总高度≤半径20%，足迹不可跨边界/接缝/孔。内孔、球面与其他自由曲面浮雕明确拒绝。`reliefReport.kind='cylindrical-bspline-heightfield'`，增加 radiusMm/baseMm/totalControlHeightMm/axis 回读。原有平面参数语义不变。
 
 1. `files.register` 登记 JPG/PNG/SVG 真实字节，调用 `readRelief({context,resourceId,name,samples:33,whiteHigh:false,style:'grayscale'})`。图片只在本地解码；返回 `values`、`aspectRatio`、`source`。单色图形可用 `style:'rounded'` 和 `threshold:0.5`，按到背景距离逐渐鼓起。SVG 支持灰度、渐变和路径，不支持文字、外部图像、滤镜、脚本及 CSS 类。
 2. 查询当前平面，用 `run` 的 add：`op:'relief', refs:[bodyId], params:{faceId,widthMm:20,heightMm:20/aspectRatio,depthMm:1,mode:'emboss',values,source,offsetX:0,offsetY:0,angleDeg:0}`。凹雕用 `mode:'engrave'`。面号是当前修订的真实面号，不能照抄示例。
-3. 中心为面积质心加面内偏移；X 是世界 X 在面上的投影（近共线时改用世界 Y），Y=外法向叉乘 X，角度绕外法向。完整图案矩形必须在有限面内且避开孔；不自动裁剪。
+3. 平面中心为面积质心加面内偏移；X 是世界 X 在面上的投影（近共线时改用世界 Y），Y=外法向叉乘 X，角度绕外法向。柱面使用上文点击点与圆周/轴向坐标。完整图案矩形必须在有限面内且避开孔；不自动裁剪。
 4. `preview.start/commit/cancel`、`feature.edit`、`history.undo` 共用同一操作。工程保存高度网格与来源哈希，后续重建不依赖原图。`getState().bodies[].reliefReport` 返回网格、尺寸、来源、实际增减体积及验证结果。
 
 图片最多 8 MiB、1600 万像素，长宽比不超过 64:1；高度网格 4–65 行/列，值域 0–1，按下到上、左到右排列。尺寸不超过 1000 mm，起伏高度 0.01–20 mm，目标最多 1000 个面。采样值是三次曲面的控制网格，结果是平滑近似，不保证穿过每个样点或达到设置的最大高度。凹雕过深可能穿透，须核对预览与壁厚。

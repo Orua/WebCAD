@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {normalizeOperationParams,getOperation} from '../src/operation-registry.js';
 import {reliefExample} from '../src/modeling/manufacturing/relief-contracts.js';
-import {heightValuesFromRgba} from '../src/relief-image.js';
+import {heightValuesFromRgba,rasterDimensions} from '../src/relief-image.js';
+import fs from 'node:fs';
 import {UI_LAYOUT} from '../src/ui/config/ui-layout.js';
 import {toolDisabledReason} from '../src/tool-state.js';
 
@@ -23,4 +24,14 @@ test('rounded silhouette has continuously changing height controls instead of a 
  const size=9,pixels=new Uint8ClampedArray(size*size*4).fill(255);for(let y=1;y<8;y++)for(let x=1;x<8;x++)pixels.set([0,0,0,255],(y*size+x)*4);
  const v=heightValuesFromRgba(pixels,size,size,{style:'rounded'});assert.equal(v[0][0],0);assert.equal(v[4][4],1);assert.ok(v[1][4]>0&&v[1][4]<v[3][4]);
  assert.throws(()=>heightValuesFromRgba(pixels,size,size,{threshold:2}),/参数/);
+});
+
+test('raster dimensions are bounded before decoder allocation and malformed headers reject',()=>{
+ const jpg=fs.readFileSync(new URL('../agent/temp/relief-waves.jpg',import.meta.url));
+ assert.deepEqual(rasterDimensions(jpg,'jpg'),{width:129,height:129});
+ assert.throws(()=>rasterDimensions(jpg.subarray(0,20),'jpg'),e=>e.code==='RELIEF_IMAGE_INVALID');
+ const png=new Uint8Array(33),view=new DataView(png.buffer);png.set([137,80,78,71,13,10,26,10]);view.setUint32(8,13);view.setUint32(12,0x49484452);view.setUint32(16,300);view.setUint32(20,200);
+ assert.deepEqual(rasterDimensions(png,'png'),{width:300,height:200});
+ view.setUint32(16,100000);view.setUint32(20,100000);assert.throws(()=>rasterDimensions(png,'png'),e=>e.code==='RELIEF_LIMIT');
+ assert.throws(()=>rasterDimensions(new Uint8Array([255,216,255,224,255,255]),'jpg'),e=>e.code==='RELIEF_IMAGE_INVALID');
 });

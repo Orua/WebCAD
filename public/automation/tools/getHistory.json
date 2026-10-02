@@ -2,7 +2,7 @@
   "id": "getHistory",
   "title": "getHistory",
   "category": "page-method",
-  "version": "1.17.0",
+  "version": "1.18.0",
   "description": "getHistory()。返回已保留状态，不含导入源字节。",
   "synonyms": [
     "getHistory",
@@ -18,5 +18,5 @@
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:10205781b7e0105057595f29c2c66523d753784555c62408196302dd33dabe8a"
+  "docsHash": "sha256:0ccd640a6d61e977526c64cccf31575a15f906eb2c077e3d208709ab614ec2cf"
 }

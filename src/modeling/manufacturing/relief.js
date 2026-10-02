@@ -1,14 +1,24 @@
 import {planarFace} from '../../reference-profile-wires.js';
 import {validateSchema,contractError} from '../../contracts/operation-schema.js';
 import {reliefOperations} from './relief-contracts.js';
+import {cylindricalReliefTool} from './cylindrical-relief.js';
 
 const dispose=x=>{try{x?.delete?.();}catch{}};
 const dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0);
 const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
 const unit=v=>{const n=Math.hypot(...v);return v.map(x=>x/n);};
 const fail=(code,message,path='params')=>contractError(code,path,message,'READ_STATE_AND_REPLAN');
-const countSolids=s=>{const list=s.solids;try{return list.length;}finally{list.forEach(dispose);}};
-function valid(shape,oc){const check=new oc.BRepCheck_Analyzer(shape.wrapped,true,false,false);try{return check.IsValid()&&countSolids(shape)===1;}finally{dispose(check);}}
+function valid(shape,oc){
+ const solids=shape.solids,owned=[...solids];
+ try{
+  if(solids.length!==1)return false;
+  const faces=shape.faces,edges=shape.edges,solidFaces=solids[0].faces,solidEdges=solids[0].edges;
+  owned.push(...faces,...edges,...solidFaces,...solidEdges);
+  if(faces.length!==solidFaces.length||edges.length!==solidEdges.length)return false;
+  const check=new oc.BRepCheck_Analyzer(shape.wrapped,true,false,false);owned.push(check);
+  return check.IsValid();
+ }finally{owned.reverse().forEach(dispose);}
+}
 function volume(shape,oc){
  const properties=new oc.GProp_GProps();
  try{const error=oc.BRepGProp.VolumePropertiesGK(shape.wrapped,properties,1e-9,true,true,false,false,false),value=Math.abs(properties.Mass());if(!Number.isFinite(error)||error<0||!Number.isFinite(value))fail('RELIEF_INVALID','浮雕体积积分失败');return value;}
@@ -43,7 +53,18 @@ export function buildRelief(source,p,oc,cad){
   const faces=copy.faces;owned.push(...faces);
   if(faces.length>1000)fail('RELIEF_LIMIT','目标超过 1000 个面，请简化后再试');
   const face=faces[p.faceId];if(!face)fail('STALE_REFERENCE','目标面已失效，请重新选择','params.faceId');
-  if(!planarFace(face,cad))fail('RELIEF_UNSUPPORTED','当前浮雕仅支持平面；曲面贴合尚未提供','params.faceId');
+  if(!planarFace(face,cad)){
+   const built=cylindricalReliefTool(face,p,oc,cad),tool=hold(built.tool);
+   if(!valid(tool,oc))fail('RELIEF_INVALID','柱面浮雕刀具不是有效实体');
+   const before=volume(copy,oc),direction=p.mode==='engrave'?-1:1;
+   const builder=hold(direction===1?new oc.BRepAlgoAPI_Fuse(copy.wrapped,tool.wrapped):new oc.BRepAlgoAPI_Cut(copy.wrapped,tool.wrapped));
+   builder.SetFuzzyValue(1e-7);builder.SetNonDestructive(true);builder.Build();
+   if(builder.HasErrors())fail('RELIEF_INVALID','柱面浮雕布尔失败，请减小图案或调整位置');
+   result=cad.cast(builder.Shape());if(!valid(result,oc))fail('RELIEF_INVALID','柱面浮雕结果未保持一个有效实体');
+   const delta=(volume(result,oc)-before)*direction;if(!(delta>1e-7))fail('RELIEF_NO_CHANGE','柱面浮雕没有可测量的材料变化');
+   result.reliefReport={...built.report,mode:p.mode??'emboss',faceId:p.faceId,rows,columns:cols,widthMm:p.widthMm,heightMm:p.heightMm,controlHeightMm:p.depthMm,offsetX:p.offsetX??0,offsetY:p.offsetY??0,angleDeg:0,addedMm3:direction===1?delta:0,removedMm3:direction===-1?delta:0,sourceName:p.source?.name??null,sourceHash:p.source?.sha256??null,valid:true,solidCount:1,smoothing:'approximating-control-grid'};
+   const out=result;result=null;return out;
+  }
   const center=hold(face.center).toTuple(),normal=unit(hold(face.normalAt(center)).toTuple());
   const seed=Math.abs(normal[0])<.9?[1,0,0]:[0,1,0],x=unit(seed.map((v,i)=>v-dot(seed,normal)*normal[i])),y=cross(normal,x);
   const angle=(p.angleDeg??0)*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle),direction=p.mode==='engrave'?-1:1;
