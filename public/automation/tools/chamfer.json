@@ -1,15 +1,53 @@
 {
   "id": "chamfer",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "inputSchema": {
     "type": "object",
     "properties": {
       "distance": {
         "type": "number",
-        "description": "Chamfer distance (mm)",
+        "description": "Distance on reference support face (mm)",
         "exclusiveMinimum": 0,
         "unit": "mm",
         "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "mode": {
+        "type": "string",
+        "description": "Omitted mode preserves equal-distance chamfer",
+        "enum": [
+          "equalDistance",
+          "twoDistances",
+          "distanceAngle"
+        ]
+      },
+      "distance2": {
+        "type": "number",
+        "description": "Distance on other support face; required only for twoDistances (mm)",
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "angleDeg": {
+        "type": "number",
+        "description": "Chamfer angle relative to reference face; required only for distanceAngle",
+        "exclusiveMinimum": 0,
+        "exclusiveMaximum": 90,
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
+      },
+      "flipDirection": {
+        "type": "boolean",
+        "description": "Use the other adjacent support face"
+      },
+      "referenceFaceId": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Optional current source face index incident to every selected edge; default first adjacent face in current topology order",
+        "unit": "1",
+        "quantityKind": "index",
         "quantizationPolicy": "none"
       },
       "edgeIds": {
@@ -120,14 +158,14 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Choose exactly one scope: edgeIds, faceIds, or allEdges=true. sharedFaces:true with at least two faces selects their common sharp edges; UI multi-face selection uses this mode. Tangent seams, periodic seams and degenerate edges are excluded. Failure reports edge IDs, preserves the source and does not silently reduce distance. Convex corners cut inward; concave corners fill the recess. getState().bodies[].blendReport returns processed/skipped edges.",
-  "title": "Chamfer sharp edges, shared face edges, face boundaries or the whole solid",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Choose exactly one scope: edgeIds, faceIds, or allEdges=true. sharedFaces:true selects their common sharp edges. Legacy/omitted mode is equalDistance. twoDistances requires distance2; distanceAngle requires angleDeg in (0,90), radians are converted only at kernel call. Opposite mode fields are rejected; equalDistance forbids asymmetric options. Asymmetric distance is on referenceFaceId, or first adjacent current source face; flipDirection uses the other face. Optional explicit reference face must touch every selected edge. Tangent/periodic seams and degenerate edges are excluded. Failure preserves source, never reduces dimensions. getState().bodies[].blendReport returns mode, processed/skipped edges and resolved supportFaces for asymmetric modes.",
+  "title": "Equal-distance, two-distance or distance-angle chamfer of sharp edges",
   "category": "modification",
   "synonyms": [
     "倒角"
   ],
-  "description": "Chamfer sharp edges, shared face edges, face boundaries or the whole solid",
-  "schemaHash": "sha256:89f0006297810fab8b47f98c27dc7686de34b8ad6471e50c11990c9481c9615b",
+  "description": "Equal-distance, two-distance or distance-angle chamfer of sharp edges",
+  "schemaHash": "sha256:2e9b6af05ecf5bff6571194b7fd660fcd5df4e9fc53ac1b9d18ca2dd4ebe5af1",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -178,7 +216,7 @@
     "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "Choose exactly one scope: edgeIds, faceIds, or allEdges=true. sharedFaces:true with at least two faces selects their common sharp edges; UI multi-face selection uses this mode. Tangent seams, periodic seams and degenerate edges are excluded. Failure reports edge IDs, preserves the source and does not silently reduce distance. Convex corners cut inward; concave corners fill the recess. getState().bodies[].blendReport returns processed/skipped edges."
+    "Choose exactly one scope: edgeIds, faceIds, or allEdges=true. sharedFaces:true selects their common sharp edges. Legacy/omitted mode is equalDistance. twoDistances requires distance2; distanceAngle requires angleDeg in (0,90), radians are converted only at kernel call. Opposite mode fields are rejected; equalDistance forbids asymmetric options. Asymmetric distance is on referenceFaceId, or first adjacent current source face; flipDirection uses the other face. Optional explicit reference face must touch every selected edge. Tangent/periodic seams and degenerate edges are excluded. Failure preserves source, never reduces dimensions. getState().bodies[].blendReport returns mode, processed/skipped edges and resolved supportFaces for asymmetric modes."
   ],
   "minimalExample": {
     "op": "chamfer",
@@ -276,5 +314,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:d280c970981ef0f9c0c24556f133e5ab74d73807e7578df92a77f3b54ca9b6fb"
+  "docsHash": "sha256:51012d2dd521ce71e3cc5780f20b798c0f8f79e578df19823cd8127d0ec202d4"
 }

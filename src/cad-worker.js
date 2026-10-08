@@ -14,7 +14,7 @@ self.onmessage = ({ data }) => {
       if(type==='ready')result={ready:true};
       else if(type==='rebuild')result=await engine.rebuild(data.document);
       else if(type==='remesh')result=engine.remesh(data.quality);
-      else if(type==='export')result=await engine.export(data.format,data.ids);
+      else if(type==='export')result=await engine.export(data.format,data.ids,data.appearance);
       else if(type==='technicalDrawing')result={drawing:engine.technicalDrawing(data.input)};
       else if(type==='faceInfo')result=engine.faceInfo(data.bodyId,data.faceId);
       else if(type==='logoTarget')result=await engine.logoTarget(data.bodyId,data.faceId);
@@ -22,6 +22,7 @@ self.onmessage = ({ data }) => {
       else if(type==='resolveProfileEdges')result=engine.resolveProfileEdges(data.bodyId,data.edgeIds,data.features);
       else if(type==='dragSnap')result=engine.dragSnap(data.input);
       else if(type==='nearestGeometry')result=await engine.nearestGeometry(data.bodyId,data.kind,data.point,data.options);
+      else if(type==='inspectDesign')result=engine.inspectDesign(data.input);
       else if(type==='inspectFit')result=engine.inspectFit(data.bodyAId,data.bodyBId,data.toleranceMm,data.volumeThresholdMm3);
       else if(type==='inspectThickness')result=engine.inspectThickness(data.input);
       else if(type==='inspectDraft')result=engine.inspectDraft(data.input);

@@ -147,6 +147,17 @@ function equationsFor(model,constraints,intrinsicCount=0) {
     } else if(['radius','diameter'].includes(constraint.type)) {
       entity(constraint.entityId,'circle',`${path}.entityId`);
       add('mm',x=>constraint.type==='radius'?radius(constraint.entityId,x)-constraint.radiusMm/scale:2*radius(constraint.entityId,x)-constraint.diameterMm/scale);
+    } else if(['pointOnLine','pointOnCircle'].includes(constraint.type)) {
+      ref(constraint.point,`${path}.point`);
+      const circular=constraint.type==='pointOnCircle';
+      entity(constraint.entityId,circular?'circle':'line',`${path}.entityId`);
+      if(constraint.point.entityId===constraint.entityId)reject('点与目标图元必须来自不同图元',`${path}.point.entityId`);
+      if(circular)add('mm',x=>{const p=point(constraint.point,x),c=point({entityId:constraint.entityId,point:'center'},x);return Math.hypot(p[0]-c[0],p[1]-c[1])-radius(constraint.entityId,x);});
+      else add('mm',x=>{const p=point(constraint.point,x),a=point({entityId:constraint.entityId,point:'start'},x),d=direction(constraint.entityId,x);return (d[0]*(p[1]-a[1])-d[1]*(p[0]-a[0]))/norm(d);});
+    } else if(constraint.type==='concentric') {
+      entity(constraint.firstId,'circle',`${path}.firstId`);entity(constraint.secondId,'circle',`${path}.secondId`);
+      if(constraint.firstId===constraint.secondId)reject('同心约束需要两个不同圆',`${path}.secondId`);
+      addPoint({entityId:constraint.firstId,point:'center'},x=>point({entityId:constraint.secondId,point:'center'},x));
     } else if(constraint.type==='equalRadius') {
       entity(constraint.firstId,'circle',`${path}.firstId`);entity(constraint.secondId,'circle',`${path}.secondId`);add('mm',x=>radius(constraint.firstId,x)-radius(constraint.secondId,x));
     } else if(constraint.type==='tangent') {

@@ -18,6 +18,7 @@ import {validateReferenceQuery} from './reference-query.js';
 import {readVectorInput,selectVector} from './browser-vector-input.js';
 import {connectVector} from './vector-import.js';
 import {readReliefImage} from './relief-image.js';
+import {validateDesignRequirements} from './design-inspection.js';
 
 // Only structured, bounded commands cross this boundary. No mutable app objects escape.
 export function createPageAPI(host){
@@ -177,6 +178,19 @@ export function createPageAPI(host){
       if(input.frame!==undefined){const f=input.frame;if(!f||!Array.isArray(f.origin)||f.origin.length!==3||f.origin.some(v=>!Number.isFinite(v))||!Array.isArray(f.quaternion)||f.quaternion.length!==4||f.quaternion.some(v=>!Number.isFinite(v))||Math.abs(Math.hypot(...f.quaternion)-1)>1e-6)fail('PARAM_SCHEMA_INVALID','目标平面快照无效');}
       const result=await host.projectProfile(input);check(input,['context','bodyId','edgeIds','pointWorld','frame']);
       return {status:'read',source:edges?'exact-brep-snapshot':'provided-coordinate',units:{length:'mm'},context:current().context,...result};
+    }),
+    inspectDesign:guarded(async input=>{
+      const allowed=['context','requirements','requirePass'];
+      const state=check(input,allowed);
+      if(input.requirePass!==undefined&&typeof input.requirePass!=='boolean')fail('PARAM_SCHEMA_INVALID','requirePass must be boolean','requirePass');
+      validateDesignRequirements(input.requirements);
+      for(const r of input.requirements)if(!state.bodies.some(body=>body.id===r.bodyId))fail('STALE_REFERENCE','Unknown current body',`requirements.${r.id}.bodyId`);
+      if(typeof host.inspectDesign!=='function')fail('CAPABILITY_UNAVAILABLE','Design inspection is unavailable');
+      const result=await host.inspectDesign({requirements:input.requirements});
+      check(input,allowed);
+      const report={status:'read',readOnly:true,source:'exact-brep',units:{length:'mm'},context:current().context,...result};
+      if(input.requirePass&&result.verdict!=='pass')return {...report,status:'failed',commitState:'not_committed',error:{code:'DESIGN_REQUIREMENTS_NOT_MET',message:'Specified requirements failed or remain unverified',retryable:false,recoveryAction:'REVIEW_FAILED_REQUIREMENTS'}};
+      return report;
     }),
     inspectFit:guarded(async input=>{
       check(input,['context','bodyAId','bodyBId','toleranceMm','volumeThresholdMm3']);

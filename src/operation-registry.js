@@ -5,12 +5,13 @@ import { assertJsonValue, contractError, contractHash, validateSchema } from './
 import { annotateParameterSchema, numericInputPolicy } from './parameter-metadata.js';
 
 export const apiVersion = '2.0';
-export const migratedOperationIds = Object.freeze(['box', 'cylinder', 'sphere', 'cone', 'torus', 'hole', 'holeWizard', 'draftFaces', 'multiHole', 'multiPocket', 'multiBoss', 'faceHole', 'round', 'roundEnd', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell','sketchProfile','profileOffset','profileRepair','profileExtrude',...mechanicalIds]);
+export const migratedOperationIds = Object.freeze(['box', 'cylinder', 'sphere', 'cone', 'torus', 'mirror', 'linearPattern', 'circularPattern', 'hole', 'holeWizard', 'draftFaces', 'multiHole', 'multiPocket', 'multiBoss', 'faceHole', 'round', 'roundEnd', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell','sketchProfile','profileOffset','profileRepair','profileExtrude',...mechanicalIds]);
 const migrated = new Set(migratedOperationIds);
 const clone = value => JSON.parse(JSON.stringify(value));
 const topology = new Set(['faceHole', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition']);
 const topologyConvention = operationCatalog.topology;
 const defaults = { cylinder:{},sphere:{},cone:{radius1:10,radius2:0},torus:{},round:{mode:'auto',strength:.5}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z'}, rounding:{strength:1}, autoRound:{}, smoothTransition: {}, box: {}, hole: { x: 0, y: 0, z: 0, axis: 'Z', direction: 1 },holeWizard:{kind:'plain',axis:'Z',direction:1,through:false},
+  mirror:{plane:'XY',offsetMm:0,keepOriginal:true},linearPattern:{count:3,dx:0,dy:0,dz:0,outputMode:'compound'},circularPattern:{count:3,angle:360,axis:'Z',cx:0,cy:0,cz:0,outputMode:'compound'},
   multiHole: { axis: 'Z', direction: 1 }, multiPocket:{axis:'Z',direction:-1}, multiBoss:{axis:'Z',direction:1}, faceHole: { through: false }, fillet: {}, chamfer: {}, shell: {}, draftFaces:{}, extractFaces:{}, extractShell:{}, sketchProfile:{}, profileOffset:{}, profileRepair:{}, profileExtrude:{},...mechanicalDefaults };
 const triangle = [[-1, -1], [1, -1], [0, 1]];
 const regions = [{ outer: triangle }];
@@ -106,7 +107,7 @@ const names = { round:['圆润','自动圆润','磨边','圆头','round','smooth
 
 function buildCard(id, source) {
   const strict = migrated.has(id), special = source.mcpAddFeature === false;
-  const version = id==='rounding'?'3.0.0':strict ? '1.0.0' : 'legacy-1';
+  const version = id==='rounding'?'3.0.0':['mirror','linearPattern','circularPattern','chamfer','holeWizard','profileConstraints'].includes(id)?'1.1.0':strict ? '1.0.0' : 'legacy-1';
   const inputSchema = schemaFor(id, source), refsSchema = refsFor(source.refs);
   if (id === 'profileExtrude') refsSchema.maxItems = 2;
   if (id === 'referenceLoft') refsSchema.maxItems = 12;
@@ -233,6 +234,20 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
     if(params.sharedFaces===true&&!(params.faceIds?.length>=2))contractError('SELECTION_CONFLICT','params.sharedFaces','sharedFaces=true requires at least two adjacent faceIds.');
   }
   validateSchema(schema, params);
+  if(op==='chamfer'){
+    const mode=params.mode||'equalDistance';
+    if(mode==='twoDistances'&&!Object.hasOwn(params,'distance2'))contractError('PARAM_SCHEMA_INVALID','params.distance2','Two-distance chamfer requires distance2.');
+    if(mode==='distanceAngle'&&!Object.hasOwn(params,'angleDeg'))contractError('PARAM_SCHEMA_INVALID','params.angleDeg','Distance-angle chamfer requires angleDeg.');
+    if(mode!=='twoDistances'&&Object.hasOwn(params,'distance2')||mode!=='distanceAngle'&&Object.hasOwn(params,'angleDeg'))contractError('PARAM_SCHEMA_INVALID','params.mode','Only fields belonging to the selected chamfer mode are allowed.');
+    if(mode==='equalDistance'&&(Object.hasOwn(params,'referenceFaceId')||params.flipDirection===true))contractError('PARAM_SCHEMA_INVALID','params.mode','Equal-distance mode has no asymmetric support direction.');
+  }
+  if(op==='holeWizard'){
+    if(params.through!==true&&!Object.hasOwn(params,'depthMm'))contractError('PARAM_SCHEMA_INVALID','params.depthMm','Blind hole requires depthMm.');
+    if(params.kind==='counterbore'&&(!Object.hasOwn(params,'recessDiameterMm')||!Object.hasOwn(params,'recessDepthMm')))contractError('PARAM_SCHEMA_INVALID','params','Counterbore requires opening diameter and recess depth.');
+    if(params.kind==='countersink'&&(!Object.hasOwn(params,'recessDiameterMm')||!Object.hasOwn(params,'includedAngleDeg')))contractError('PARAM_SCHEMA_INVALID','params','Countersink requires opening diameter and included angle.');
+    if(params.drillPoint==='angled'&&params.through===true)contractError('PARAM_SCHEMA_INVALID','params.drillPoint','Angled tip is only for blind holes.');
+    if(params.drillPoint!=='angled'&&(Object.hasOwn(params,'drillPointAngleDeg')||Object.hasOwn(params,'depthReference')))contractError('PARAM_SCHEMA_INVALID','params.drillPoint','Tip angle/depth reference requires angled drillPoint.');
+  }
   if(op==='rounding'&&params.specVersion===1){
     if(params.mode!=='constant'&&params.propagation!=='selected-only')contractError('PARAM_SCHEMA_INVALID','params.propagation','Tangent-chain propagation currently applies to constant R only.');
     const fields={edges:['edgeIds'],'face-boundaries':['faceIds'],'shared-faces':['faceAIds','faceBIds'],body:[]};
@@ -255,8 +270,12 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
     }
   }
   const normalized={ ...clone(op==='rounding'&&params.specVersion!==3?{}:defaults[op]), ...clone(params) };
+  if(op==='holeWizard'&&normalized.drillPoint==='angled'){
+    normalized.drillPointAngleDeg??=118;normalized.depthReference??='cylindricalLength';
+  }
   if(op==='cone'&&normalized.radius1===0&&normalized.radius2===0)contractError('PARAM_RANGE_INVALID','params.radius2','At least one cone radius must be positive.');
   if(op==='torus'&&normalized.majorRadius<=normalized.minorRadius)contractError('PARAM_RANGE_INVALID','params.majorRadius','majorRadius must exceed minorRadius; use centerline radius and tube radius, not diameters.');
+  if(op==='linearPattern'&&[normalized.dx,normalized.dy,normalized.dz].every(value=>value===0))contractError('PARAM_RANGE_INVALID','params','Linear pattern requires at least one nonzero step.');
   return normalized;
 }
 
@@ -264,6 +283,15 @@ export function normalizeOperationPatch(op, previousParams, patch) {
   assertJsonValue(patch);
   if (!patch || typeof patch !== 'object' || Array.isArray(patch)) contractError('PARAM_SCHEMA_INVALID', 'params', 'Expected a parameter patch object.');
   const merged = { ...previousParams, ...patch };
+  if(op==='chamfer'&&patch.mode&&patch.mode!==previousParams.mode){
+    if(patch.mode!=='twoDistances'&&!Object.hasOwn(patch,'distance2'))delete merged.distance2;
+    if(patch.mode!=='distanceAngle'&&!Object.hasOwn(patch,'angleDeg'))delete merged.angleDeg;
+    if(patch.mode==='equalDistance'){if(!Object.hasOwn(patch,'referenceFaceId'))delete merged.referenceFaceId;if(!Object.hasOwn(patch,'flipDirection'))delete merged.flipDirection;}
+  }
+  if(op==='holeWizard'&&(patch.drillPoint==='flat'||patch.through===true)){
+    if(patch.through===true&&!Object.hasOwn(patch,'drillPoint'))merged.drillPoint='flat';
+    if(!Object.hasOwn(patch,'drillPointAngleDeg'))delete merged.drillPointAngleDeg;if(!Object.hasOwn(patch,'depthReference'))delete merged.depthReference;
+  }
   if(op==='rounding'&&patch.mode&&patch.mode!==previousParams.mode){
     if(patch.mode==='width'){delete merged.radiusMm;delete merged.laws;}
     else if(patch.mode==='variable'){delete merged.radiusMm;delete merged.widthAMm;delete merged.widthBMm;}

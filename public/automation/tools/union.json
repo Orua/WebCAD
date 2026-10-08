@@ -41,7 +41,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range.",
   "title": "Fuse bodies",
   "category": "modification",
   "synonyms": [
@@ -49,7 +49,7 @@
     "合并"
   ],
   "description": "Fuse bodies",
-  "schemaHash": "sha256:99f1e362d31db99ae09aba41f3dba2068f4e97da5ed25445dd141e8dccc0998f",
+  "schemaHash": "sha256:ba47123a373370476944e415c13401a9c8ebd9f394cef166899f3e1d67cbea46",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -99,7 +99,7 @@
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies.",
+    "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
@@ -181,5 +181,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:5703a87b978c20954d6d2f9d69d2ab688a5ffa0f1a358e4cae70bfece533603c"
+  "docsHash": "sha256:78e4a412c54ec0ce134c26f1ab9922ff5a48d6893d82547556963ee73d78c34d"
 }

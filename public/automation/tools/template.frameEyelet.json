@@ -1,0 +1,472 @@
+{
+  "id": "template.frameEyelet",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "安装鸡眼",
+  "category": "template",
+  "synonyms": [
+    "frameEyelet",
+    "安装鸡眼",
+    "Mounting frame eyelet"
+  ],
+  "description": "圆形或圆角方形面框、恒壁厚短颈口、对称安装柱及普通直孔，一次生成单件。颈口和柱沿本地+Z；面框底面Z=0。孔深0为通孔，正值为从柱顶向下的盲孔。安装柱数量0/2/4，2柱沿Y布置。可将颈口/柱高度设0作背片。不含牙槽、锥孔、压铆、饰面及三维边圆角；按原图再加工。圆形模式内外宽高必须分别相等，角R仅用于方形。",
+  "apiCompatibility": [
+    "page-advisory"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": true,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "frameEyelet",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "operationId": "quickModel",
+  "label": "安装鸡眼",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "One exact circular or rounded rectangular frame with an optional constant-wall collar, symmetric mounting posts and plain straight holes. Collar and posts extend along local +Z from a flange at Z=0. Hole depth 0 means through; positive depth is blind from the post top. 0/2/4 posts; two posts lie on Y. Zero collar/post heights make a backplate. No threads, taper, riveting, decoration or 3D edge blends. Circular mode requires matching width/height pairs; corner radii apply only to rectangular mode.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "frameEyelet"
+      },
+      "shape": {
+        "type": "string",
+        "default": "roundedRect",
+        "description": "Frame shape",
+        "enum": [
+          "round",
+          "roundedRect"
+        ]
+      },
+      "outerWidthMm": {
+        "type": "number",
+        "default": 25.6,
+        "description": "Outer width/diameter"
+      },
+      "outerHeightMm": {
+        "type": "number",
+        "default": 30,
+        "description": "Outer height (circular=width)"
+      },
+      "outerRadiusMm": {
+        "type": "number",
+        "default": 3.5,
+        "description": "Outer rectangular corner R"
+      },
+      "boreWidthMm": {
+        "type": "number",
+        "default": 12,
+        "description": "Bore width/diameter"
+      },
+      "boreHeightMm": {
+        "type": "number",
+        "default": 16.5,
+        "description": "Bore height (circular=width)"
+      },
+      "boreRadiusMm": {
+        "type": "number",
+        "default": 1.2,
+        "description": "Bore rectangular corner R"
+      },
+      "flangeThicknessMm": {
+        "type": "number",
+        "default": 1.5,
+        "description": "Flange thickness"
+      },
+      "collarProjectionMm": {
+        "type": "number",
+        "default": 3,
+        "description": "Collar projection (0=none)"
+      },
+      "collarWallMm": {
+        "type": "number",
+        "default": 0.3,
+        "description": "Collar wall thickness"
+      },
+      "mountingCount": {
+        "type": "number",
+        "default": 4,
+        "description": "Post count (0/2/4)"
+      },
+      "pitchXMm": {
+        "type": "number",
+        "default": 6,
+        "description": "Four-post X pitch"
+      },
+      "pitchYMm": {
+        "type": "number",
+        "default": 22.6,
+        "description": "Y pitch"
+      },
+      "bossDiameterMm": {
+        "type": "number",
+        "default": 4,
+        "description": "Post diameter"
+      },
+      "bossHeightMm": {
+        "type": "number",
+        "default": 3.5,
+        "description": "Post height (0=none)"
+      },
+      "holeDiameterMm": {
+        "type": "number",
+        "default": 2.6,
+        "description": "Plain hole diameter (0=solid)"
+      },
+      "holeDepthMm": {
+        "type": "number",
+        "default": 2,
+        "description": "Hole depth (0=through)"
+      }
+    }
+  },
+  "schemaHash": "sha256:2a0cb614769292eb5c3733600fcae0b1f60ed7f31d427271ca707a281849c215",
+  "defaults": {
+    "shape": "roundedRect",
+    "outerWidthMm": 25.6,
+    "outerHeightMm": 30,
+    "outerRadiusMm": 3.5,
+    "boreWidthMm": 12,
+    "boreHeightMm": 16.5,
+    "boreRadiusMm": 1.2,
+    "flangeThicknessMm": 1.5,
+    "collarProjectionMm": 3,
+    "collarWallMm": 0.3,
+    "mountingCount": 4,
+    "pitchXMm": 6,
+    "pitchYMm": 22.6,
+    "bossDiameterMm": 4,
+    "bossHeightMm": 3.5,
+    "holeDiameterMm": 2.6,
+    "holeDepthMm": 2
+  },
+  "fields": [
+    {
+      "key": "shape",
+      "label": "面框形状",
+      "labelEn": "Frame shape",
+      "type": "select",
+      "options": [
+        {
+          "value": "round",
+          "label": "圆形",
+          "labelEn": "Circular"
+        },
+        {
+          "value": "roundedRect",
+          "label": "圆角方形",
+          "labelEn": "Rounded rectangle"
+        }
+      ]
+    },
+    {
+      "key": "outerWidthMm",
+      "label": "外宽/外径",
+      "labelEn": "Outer width/diameter",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "outerHeightMm",
+      "label": "外高（圆形=外宽）",
+      "labelEn": "Outer height (circular=width)",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "outerRadiusMm",
+      "label": "方形外角R",
+      "labelEn": "Outer rectangular corner R",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "boreWidthMm",
+      "label": "内孔宽/径",
+      "labelEn": "Bore width/diameter",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "boreHeightMm",
+      "label": "内孔高（圆形=内宽）",
+      "labelEn": "Bore height (circular=width)",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "boreRadiusMm",
+      "label": "方形内角R",
+      "labelEn": "Bore rectangular corner R",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "flangeThicknessMm",
+      "label": "面框厚度",
+      "labelEn": "Flange thickness",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "collarProjectionMm",
+      "label": "颈口伸出长（0=无）",
+      "labelEn": "Collar projection (0=none)",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "collarWallMm",
+      "label": "颈口壁厚",
+      "labelEn": "Collar wall thickness",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "mountingCount",
+      "label": "安装柱数量（0/2/4）",
+      "labelEn": "Post count (0/2/4)",
+      "type": "number",
+      "min": 0,
+      "max": 4,
+      "step": 2,
+      "unit": "1"
+    },
+    {
+      "key": "pitchXMm",
+      "label": "四柱横向中心距",
+      "labelEn": "Four-post X pitch",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "pitchYMm",
+      "label": "纵向中心距",
+      "labelEn": "Y pitch",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "bossDiameterMm",
+      "label": "安装柱外径",
+      "labelEn": "Post diameter",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "bossHeightMm",
+      "label": "安装柱伸出长（0=无柱）",
+      "labelEn": "Post height (0=none)",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "holeDiameterMm",
+      "label": "普通孔径（0=实柱）",
+      "labelEn": "Plain hole diameter (0=solid)",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "holeDepthMm",
+      "label": "孔深（0=通孔）",
+      "labelEn": "Hole depth (0=through)",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    }
+  ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "frameEyelet"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "frameEyelet",
+      "shape": "roundedRect",
+      "outerWidthMm": 25.6,
+      "outerHeightMm": 30,
+      "outerRadiusMm": 3.5,
+      "boreWidthMm": 12,
+      "boreHeightMm": 16.5,
+      "boreRadiusMm": 1.2,
+      "flangeThicknessMm": 1.5,
+      "collarProjectionMm": 3,
+      "collarWallMm": 0.3,
+      "mountingCount": 4,
+      "pitchXMm": 6,
+      "pitchYMm": 22.6,
+      "bossDiameterMm": 4,
+      "bossHeightMm": 3.5,
+      "holeDiameterMm": 2.6,
+      "holeDepthMm": 2
+    },
+    "refs": []
+  },
+  "docs": "api.quick-installation",
+  "docsHash": "sha256:3e4d192d8d507e94b1b578aa1b86a8fe17d36c172716c376fae6ce4307cfd182"
+}

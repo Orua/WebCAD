@@ -28,6 +28,18 @@ const rectangle = (originMm = [3, 0], widthMm = 2, heightMm = 4) => buildSketchP
 }, cad);
 const axis = { axisPoint: [0, 0, 0], axisDirection: [0, 1, 0], angleDeg: 360 };
 const snapshot = shapes => shapes.map(shape => shape.serialize());
+const materialAt = (shape, point) => {
+  const copy = cad.deserializeShape(shape.serialize()), vertex = cad.makeVertex(point);
+  let common;
+  try { common = copy.intersect(vertex); return Array.from(cad.iterTopo(common.wrapped, 'vertex')).length > 0; }
+  finally { [common, vertex, copy].forEach(dispose); }
+};
+const annulus = (origin = [0, 0, 0], normal = [0, 0, 1]) => {
+  const outerEdge = cad.makeCircle(2, origin, normal), innerEdge = cad.makeCircle(1, origin, normal);
+  const outer = cad.assembleWire([outerEdge]), innerForward = cad.assembleWire([innerEdge]), inner = innerForward.flipOrientation();
+  try { return cad.makeFace(outer, [inner]); }
+  finally { [inner, innerForward, outer, innerEdge, outerEdge].forEach(dispose); }
+};
 
 test('contracts expose explicit world axis, true source ref counts and valid minimal params', () => {
   for (const [id, operation] of Object.entries(profileSolidOperations)) {
@@ -117,16 +129,115 @@ test('sweep material modes change only an explicit last target and retain profil
   finally { [target, path, section].forEach(dispose); }
 });
 
-test('sweep rejects holed sections, closed/disconnected/branch paths and mispositioned profiles atomically', () => {
+test('saved exact closed circle sweeps to a watertight torus without changing source', async () => {
+  const edge = cad.makeCircle(0.5, [10, 0, 0], [0, 1, 0]), section = cad.assembleWire([edge]), path = circle(0, 10);
+  const before = snapshot([section, path]); let result, imported;
+  try {
+    result = buildProfileSweep([section, path], {}, cad); valid(result);
+    near(cad.measureVolume(result), 2 * Math.PI ** 2 * 10 * 0.5 ** 2, 1e-4);
+    imported = await cad.importSTEP(await cad.exportSTEP([{shape:result}])); valid(imported);
+    near(cad.measureVolume(imported), cad.measureVolume(result), 1e-4);
+    assert.deepEqual(snapshot([section, path]), before);
+  } finally { [imported, result, path, section, edge].forEach(dispose); }
+});
+
+test('multi-edge closed capsule retains exact arcs and rejects a second independent closed loop', () => {
+  const path = buildSketchProfile({profileVersion:1,entities:[{id:'loop',type:'capsule',originMm:[0,0],widthMm:34,heightMm:18}],loops:[{id:'outer',edges:[{entityId:'loop',reversed:false}]}],output:'wire'},cad);
+  const curve = path.curve;let point,normal;
+  try {point=tupleForTest(curve.startPoint);normal=tupleForTest(curve.tangentAt(0));}finally{dispose(curve);}
+  const edge=cad.makeCircle(2,point,normal),section=cad.assembleWire([edge]), extra=cad.makeCircle(4,[100,0,0],[0,0,1]), disconnected=cad.makeCompound([path.clone(),extra.clone()]);
+  const before=snapshot([section,path,disconnected]);let result;
+  try {
+    result=buildProfileSweep([section,path],{},cad);valid(result);near(cad.measureVolume(result),Math.PI*4*(32+18*Math.PI),1e-4);
+    assert.throws(()=>buildProfileSweep([section,disconnected],{},cad),/路径|连续/);
+    assert.deepEqual(snapshot([section,path,disconnected]),before);
+  }finally{[result,disconnected,extra,section,edge,path].forEach(dispose);}
+});
+function tupleForTest(v){try{return v.toTuple();}finally{dispose(v);}}
+
+test('holed face sweeps to an open tube with exact wall material and unblocked ends', () => {
+  const section = annulus(), path = cad.makeLine([0, 0, 0], [0, 0, 10]), before = snapshot([section, path]); let result;
+  try {
+    result = buildProfileSweep([section, path], {}, cad); valid(result);
+    near(cad.measureVolume(result), 30 * Math.PI);
+    for (const z of [0.001, 5, 9.999]) {
+      assert.equal(materialAt(result, [0, 0, z]), false, 'tube lumen stays open');
+      assert.equal(materialAt(result, [1.5, 0, z]), true, 'wall stays present');
+    }
+    assert.deepEqual(snapshot([section, path]), before);
+  } finally { [result, path, section].forEach(dispose); }
+});
+
+test('holed face follows an exact quarter-circle with preserved lumen and analytical volume', () => {
+  const q = Math.SQRT1_2, section = annulus([10, 0, 0], [0, 1, 0]);
+  const path = cad.makeThreePointArc([10, 0, 0], [10 * q, 10 * q, 0], [0, 10, 0]);
+  const before = snapshot([section, path]); let result;
+  try {
+    result = buildProfileSweep([section, path], {}, cad); valid(result); near(cad.measureVolume(result), 15 * Math.PI ** 2, 1e-4);
+    for (const angle of [0.001, Math.PI / 4, Math.PI / 2 - 0.001]) {
+      const x = 10 * Math.cos(angle), y = 10 * Math.sin(angle);
+      assert.equal(materialAt(result, [x, y, 0]), false);
+      assert.equal(materialAt(result, [x, y, 1.5]), true);
+    }
+    assert.equal(path.geomType, 'CIRCLE'); assert.deepEqual(snapshot([section, path]), before);
+  } finally { [result, path, section].forEach(dispose); }
+});
+
+test('closed path retains an enclosed hollow torus rather than filling its tube', () => {
+  const section = annulus([10, 0, 0], [0, 1, 0]), path = circle(0, 10), before = snapshot([section, path]); let result;
+  try {
+    result = buildProfileSweep([section, path], {}, cad); valid(result); near(cad.measureVolume(result), 60 * Math.PI ** 2, 1e-4);
+    for (const angle of [0, Math.PI / 2, Math.PI, 3 * Math.PI / 2]) {
+      const x = 10 * Math.cos(angle), y = 10 * Math.sin(angle);
+      assert.equal(materialAt(result, [x, y, 0]), false);
+      assert.equal(materialAt(result, [x, y, 1.5]), true);
+    }
+    assert.deepEqual(snapshot([section, path]), before);
+  } finally { [result, path, section].forEach(dispose); }
+});
+
+test('explicit two-hole sketch face retains both channels and intervening material', () => {
+  const section = buildSketchProfile({ profileVersion: 1, output: 'face',
+    entities: [{ id: 'outline', type: 'rectangle', originMm: [-4, -3], widthMm: 8, heightMm: 6 },
+      ...[-2, 2].map((x, i) => ({ id: `hole${i}`, type: 'circle', centerMm: [x, 0], diameterMm: 2 }))],
+    loops: ['outline', 'hole0', 'hole1'].map(entityId => ({ id: entityId, edges: [{ entityId, reversed: false }] })),
+    regions: [{ id: 'tube', outerLoopId: 'outline', holeLoopIds: ['hole0', 'hole1'] }],
+  }, cad), path = cad.makeLine([0, 0, 0], [0, 0, 10]), before = snapshot([section, path]); let result;
+  try {
+    result = buildProfileSweep([section, path], {}, cad); valid(result); near(cad.measureVolume(result), 10 * (48 - 2 * Math.PI));
+    for (const z of [0.001, 5, 9.999]) {
+      assert.equal(materialAt(result, [-2, 0, z]), false); assert.equal(materialAt(result, [2, 0, z]), false);
+      assert.equal(materialAt(result, [0, 0, z]), true);
+    }
+    assert.deepEqual(snapshot([section, path]), before);
+  } finally { [result, path, section].forEach(dispose); }
+});
+
+test('holed sweep material modes use the hollow tool and preserve all borrowed sources', () => {
+  const section = annulus(), path = cad.makeLine([0, 0, 0], [0, 0, 10]), target = cad.makeBox([-3, -3, -2], [3, 3, 5]);
+  const before = snapshot([section, path, target]);
+  try {
+    for (const [operation, volume, core] of [['join', 252 + 15 * Math.PI, true], ['cut', 252 - 15 * Math.PI, true], ['intersect', 15 * Math.PI, false]]) {
+      let result;
+      try {
+        result = buildProfileSweep([section, path, target], { operation }, cad); valid(result); near(cad.measureVolume(result), volume);
+        assert.equal(materialAt(result, [0, 0, 2]), core, `${operation} does not fill or remove the lumen core`);
+      } finally { dispose(result); }
+    }
+    assert.deepEqual(snapshot([section, path, target]), before);
+  } finally { [target, path, section].forEach(dispose); }
+});
+
+test('sweep rejects disconnected/branch paths and mispositioned profiles atomically', () => {
   const section = circle(), outer = circle(0, 2), inner = circle(0, 0.5).flipOrientation(), face = cad.makeFace(outer, [inner]);
   const path = cad.makeLine([0, 0, 0], [0, 0, 10]), offset = section.clone().translate(0, 0, 1), closed = circle(0, 10);
   const branch = cad.makeCompound([path.clone(), cad.makeLine([0, 0, 10], [0, 0, 15]), cad.makeLine([0, 0, 10], [1, 0, 10])]);
   const disconnected = cad.makeCompound([path.clone(), cad.makeLine([0, 0, 11], [0, 0, 15])]);
   const before = snapshot([section, path, face, offset, closed, branch, disconnected]);
   try {
-    assert.throws(() => buildProfileSweep([face, path], {}, cad), /孔/);
     assert.throws(() => buildProfileSweep([offset, path], {}, cad), /起点平面/);
-    for (const invalid of [closed, branch, disconnected]) assert.throws(() => buildProfileSweep([section, invalid], {}, cad), /路径|开放/);
+    assert.throws(() => buildProfileSweep([section, closed], {}, cad), /起点平面/);
+    for (const invalid of [branch, disconnected]) assert.throws(() => buildProfileSweep([section, invalid], {}, cad), /路径|开放/);
     assert.deepEqual(snapshot([section, path, face, offset, closed, branch, disconnected]), before);
   } finally { [disconnected, branch, closed, offset, path, face, inner, outer, section].forEach(dispose); }
 });

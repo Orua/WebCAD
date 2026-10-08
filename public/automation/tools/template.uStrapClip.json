@@ -1,0 +1,350 @@
+{
+  "id": "template.uStrapClip",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "U形带夹",
+  "category": "template",
+  "synonyms": [
+    "uStrapClip",
+    "U形带夹",
+    "U-shaped strap clip"
+  ],
+  "description": "沿X等宽的恒壁厚开口U夹，前后片可不同高，内外弯角为精确相切圆弧；内弯R=内净距/2时为半圆底。底面Z=0，开口朝+Z，后片在+Y。可加后片普通通孔0/1/2个，2孔沿X布置。不是四边封闭的帽套；不含牙槽、前面饰面、片端三维圆角和弹性变形。孔中心须处于后片直段。",
+  "apiCompatibility": [
+    "page-advisory"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": true,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "uStrapClip",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "operationId": "quickModel",
+  "label": "U形带夹",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Constant-wall open U clip of uniform X width, independent front/back heights and exact tangent bend arcs. An inner radius equal to half the gap makes a semicircular bottom. Bottom Z=0, opening +Z, back wall +Y. Optional 0/1/2 plain back-wall through holes; two holes lie on X. Not a closed cap. No threads, decorations, end blends or elastic deformation. Holes must fit entirely within the straight back wall.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "uStrapClip"
+      },
+      "widthMm": {
+        "type": "number",
+        "default": 20,
+        "description": "Clip width",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "innerGapMm": {
+        "type": "number",
+        "default": 3,
+        "description": "Inner gap"
+      },
+      "wallThicknessMm": {
+        "type": "number",
+        "default": 1.3,
+        "description": "Wall thickness"
+      },
+      "frontHeightMm": {
+        "type": "number",
+        "default": 7,
+        "description": "Front overall height"
+      },
+      "backHeightMm": {
+        "type": "number",
+        "default": 5,
+        "description": "Back overall height"
+      },
+      "innerBendRadiusMm": {
+        "type": "number",
+        "default": 0.2,
+        "description": "Inner bend radius"
+      },
+      "holeCount": {
+        "type": "number",
+        "default": 2,
+        "description": "Back hole count (0/1/2)"
+      },
+      "holeDiameterMm": {
+        "type": "number",
+        "default": 2,
+        "description": "Plain back through-hole diameter"
+      },
+      "holePitchMm": {
+        "type": "number",
+        "default": 14,
+        "description": "Two-hole pitch"
+      },
+      "holeHeightMm": {
+        "type": "number",
+        "default": 3,
+        "description": "Hole center height from bottom"
+      }
+    }
+  },
+  "schemaHash": "sha256:76c51a14a77bab83b9dbdb5ef341f5373b62ac203e48a5b9bd520bab20031997",
+  "defaults": {
+    "widthMm": 20,
+    "innerGapMm": 3,
+    "wallThicknessMm": 1.3,
+    "frontHeightMm": 7,
+    "backHeightMm": 5,
+    "innerBendRadiusMm": 0.2,
+    "holeCount": 2,
+    "holeDiameterMm": 2,
+    "holePitchMm": 14,
+    "holeHeightMm": 3
+  },
+  "fields": [
+    {
+      "key": "widthMm",
+      "label": "夹宽",
+      "labelEn": "Clip width",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "innerGapMm",
+      "label": "内净距",
+      "labelEn": "Inner gap",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "wallThicknessMm",
+      "label": "壁厚",
+      "labelEn": "Wall thickness",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "frontHeightMm",
+      "label": "前片总高",
+      "labelEn": "Front overall height",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "backHeightMm",
+      "label": "后片总高",
+      "labelEn": "Back overall height",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "innerBendRadiusMm",
+      "label": "内弯R",
+      "labelEn": "Inner bend radius",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "holeCount",
+      "label": "后孔数（0/1/2）",
+      "labelEn": "Back hole count (0/1/2)",
+      "type": "number",
+      "min": 0,
+      "max": 2,
+      "step": 1,
+      "unit": "1"
+    },
+    {
+      "key": "holeDiameterMm",
+      "label": "后片普通通孔径",
+      "labelEn": "Plain back through-hole diameter",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "holePitchMm",
+      "label": "双孔中心距",
+      "labelEn": "Two-hole pitch",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "holeHeightMm",
+      "label": "孔心距底面",
+      "labelEn": "Hole center height from bottom",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    }
+  ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "uStrapClip"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "uStrapClip",
+      "widthMm": 20,
+      "innerGapMm": 3,
+      "wallThicknessMm": 1.3,
+      "frontHeightMm": 7,
+      "backHeightMm": 5,
+      "innerBendRadiusMm": 0.2,
+      "holeCount": 2,
+      "holeDiameterMm": 2,
+      "holePitchMm": 14,
+      "holeHeightMm": 3
+    },
+    "refs": []
+  },
+  "docs": "api.quick-installation",
+  "docsHash": "sha256:a50626e6ecae431e4d192b625a048636126f654640c5231b28fb8c41bd047b21"
+}

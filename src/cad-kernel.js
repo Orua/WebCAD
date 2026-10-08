@@ -1,6 +1,8 @@
 import {createTechnicalDrawing} from './drawing/technical-drawing.js';
+import {inspectDesignRequirements} from './design-inspection.js';
 import {findExactDragSnap} from './modeling/interaction/drag-snap.js';
 import * as cad from 'replicad';
+import {exportColoredSTEP} from './modeling/io/step-export.js';
 import {renderQuality} from './render-quality.js';
 import { buildQuickModel } from './quick-models.js';
 import { buildLogoOnPlane, buildVectorProfile } from './logo-model.js';
@@ -19,6 +21,7 @@ import { buildReferenceExtrude } from './reference-profile-extrude.js';
 import { buildReferenceLoft } from './reference-profile-loft.js';
 import { buildSmoothTransition } from './smooth-transition.js';
 import { buildEdgeBlend } from './edge-blend.js';
+import {patternOutput} from './modeling/organization/pattern-output.js';
 import {buildRoundTool} from './modeling/rounding/round-tool.js';
 import {buildEndRounding} from './modeling/rounding/end-rounding.js';
 import {buildRounding} from './modeling/rounding/index.js';
@@ -394,9 +397,15 @@ export class CadKernel {
       case 'torus': {
         const major = positive(p, 'majorRadius'), minor = positive(p, 'minorRadius');
         if (major <= minor) throw new Error('圆环主半径必须大于管半径');
-        const drawing = cad.drawCircle(minor).translate(major, 0);
-        const sketch = drawing.sketchOnPlane('XZ');
-        try { return sketch.revolve([0, 0, 1], { origin: [0, 0, 0], angle: 360 }); } finally { dispose(sketch); dispose(drawing); }
+        // Keep the meridian as one periodic circle. Two semicircle faces can
+        // make OCCT fusion discard the ring at tangent ellipse-sweep joins.
+        let edge, wire, face;
+        try {
+          edge = cad.makeCircle(minor, [major, 0, 0], [0, 1, 0]);
+          wire = cad.assembleWire([edge]);
+          face = cad.makeFace(wire);
+          return cad.revolution(face, [0, 0, 0], [0, 0, 1], 360);
+        } finally { [face, wire, edge].forEach(dispose); }
       }
       case 'extrude': {
         const h = finite(p, 'height'); if (!h) throw new Error('拉伸距离不能为 0');
@@ -421,8 +430,8 @@ export class CadKernel {
       }
       case 'transform': case 'copy': return p.mode?applySpatialTransform(source(),p,feature.placement):applyTransform(source(),p);
       case 'mirror': {
-        if(!frame)return source().clone().mirror(planeName(p));
-        const plane=workPlane(planeName(p));try{return source().clone().mirror(plane);}finally{dispose(plane);}
+        const plane=workPlane(planeName(p),finite(p,'offsetMm'));
+        try{return source().clone().mirror(plane);}finally{dispose(plane);}
       }
       case 'slot': {
         const shape=source(),length=positive(p,'length',20),width=positive(p,'width',6),depth=positive(p,'depth',5);
@@ -536,7 +545,7 @@ export class CadKernel {
         const instances = [];
         try {
           for (let i = 0; i < count; i++) instances.push(shape.clone().translate(delta.map(v => v * i)));
-          return cad.makeCompound(instances);
+          return patternOutput(instances,p.outputMode,cad);
         } finally { instances.forEach(dispose); }
       }
       case 'circularPattern': {
@@ -546,7 +555,7 @@ export class CadKernel {
         const step = angle / (angle === 360 ? count : count - 1), instances = [];
         try {
           for (let i = 0; i < count; i++) instances.push(shape.clone().rotate(step * i, center, axis));
-          return cad.makeCompound(instances);
+          return patternOutput(instances,p.outputMode,cad);
         } finally { instances.forEach(dispose); }
       }
       case 'union': case 'cut': case 'intersect': {
@@ -554,17 +563,20 @@ export class CadKernel {
         let out = sources[0].clone(); const method = { union: 'fuse', cut: 'cut', intersect: 'intersect' }[feature.op];
         try {
           for (const tool of sources.slice(1)) {
-            const limit = feature.op === 'intersect' ? Math.min(preciseVolume(out,this.oc),preciseVolume(tool,this.oc)) : null;
+            const before = preciseVolume(out,this.oc), toolVolume = preciseVolume(tool,this.oc);
+            const lower = feature.op === 'union' ? Math.max(before,toolVolume) : 0;
+            const upper = feature.op === 'union' ? before+toolVolume : feature.op === 'cut' ? before : Math.min(before,toolVolume);
             const next = out[method](tool);
-            if (limit !== null) {
-              try {
-                const volume = preciseVolume(next,this.oc);
-                // GK integrates at 1e-9; permit an absolute floor plus ten times
-                // that relative target. BRepCheck alone can accept a wrong common.
-                const epsilon = 1e-7 + limit * 1e-8;
-                if (volume > limit + epsilon) throw Object.assign(new Error('求交结果体积超过输入实体，内核未生成可信交集；原模型保持。'),{code:'GEOMETRY_INVALID',recoveryAction:'CORRECT_PARAMETERS'});
-              } catch (error) { dispose(next); throw error; }
-            }
+            try {
+              const volume = preciseVolume(next,this.oc);
+              // Valid topology can still contain the wrong material. Apply the
+              // same GK integration tolerance to every Boolean's volume bounds.
+              const epsilon = 1e-7 + upper * 1e-8;
+              if (!Number.isFinite(volume) || volume < lower-epsilon || volume > upper+epsilon) {
+                const label = {union:'融合',cut:'切割',intersect:'求交'}[feature.op];
+                throw Object.assign(new Error(`${label}结果违反输入材料体积范围，内核未生成可信结果；原模型保持。`),{code:'GEOMETRY_INVALID',recoveryAction:'CORRECT_PARAMETERS'});
+              }
+            } catch (error) { dispose(next); throw error; }
             dispose(out); out = next;
           }
           return out;
@@ -814,6 +826,7 @@ export class CadKernel {
       return result;
     } finally {all.forEach(dispose);}
   }
+  inspectDesign(input){return inspectDesignRequirements(input.requirements,this,cad,this.oc);}
   inspectFit(bodyAId,bodyBId,toleranceMm=1e-5,volumeThresholdMm3=1e-6){
     if(bodyAId===bodyBId)throw new Error('配合检查需要两个不同实体');
     if(!Number.isFinite(toleranceMm)||toleranceMm<0||toleranceMm>1||!Number.isFinite(volumeThresholdMm3)||volumeThresholdMm3<=0)throw new Error('间隙容差或体积阈值无效');
@@ -870,20 +883,28 @@ export class CadKernel {
   }
   measureRelation(input){return measureRelationExact(input,id=>this.activeShape(id),this.oc,cad);}
   inspectDraft(input){return inspectDraftExact(this.activeShape(input.bodyId),input);}
-  async export(format, ids) {
+  async export(format, ids, {colors = {}, defaultColor = '#aac4d9'} = {}) {
     const selected = ids === undefined ? [...this.active.keys()] : ids;
     if (!Array.isArray(selected) || !selected.length) throw new Error('没有可导出的实体');
     const shapes = selected.map(id => { if (!this.active.has(id)) throw new Error(`找不到导出实体 ${id}`); return this.shapes.get(id); });
     if (format === 'step') {
-      const blob = cad.exportSTEP(shapes.map((shape, i) => ({ shape, name: this.active.get(selected[i]).name || selected[i] })), { unit: 'MM', modelUnit: 'MM' });
-      return { data: new Uint8Array(await blob.arrayBuffer()), mime: 'application/step', extension: 'step' };
+      const configs = shapes.map((shape, i) => {
+        const id = selected[i], color = colors[id] ?? defaultColor;
+        if (typeof color !== 'string' || !/^#[0-9a-f]{6}$/i.test(color)) throw new Error(`实体 ${id} 的导出颜色无效`);
+        return {shape, name: this.active.get(id).name || id, color};
+      });
+      return {data:exportColoredSTEP(configs, this.oc), mime:'application/step', extension:'step'};
     }
-    const combined = shapes.length > 1 ? cad.makeCompound(shapes) : shapes[0];
+    // makeCompound consumes wrappers and can alter shared topology flags;
+    // STL meshing changes triangulations too. Isolate exports from history.
+    const owned = format === 'stl' || shapes.length > 1 ? shapes.map(shape=>cad.deserializeShape(shape.serialize())) : [];
+    const exportShapes = owned.length ? owned : shapes;
+    const combined = exportShapes.length > 1 ? cad.makeCompound(exportShapes) : exportShapes[0];
     try {
       if (format === 'stl') return { data: new Uint8Array(await combined.blobSTL({ binary: true, tolerance: 0.05, angularTolerance: 0.1 }).arrayBuffer()), mime: 'model/stl', extension: 'stl' };
       if (format === 'brep') return { data: combined.serialize(), mime: 'application/octet-stream', extension: 'brep' };
       throw new Error('不支持的导出格式');
-    } finally { if (shapes.length > 1) dispose(combined); }
+    } finally { if (owned.length) {dispose(combined);owned.forEach(dispose);} }
   }
   dispose() { this.shapes.forEach(dispose); this.shapes.clear(); this.active.clear(); this.renderCache.clear(); this.historySignature = []; this.importsSignature = ''; }
 }

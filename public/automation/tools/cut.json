@@ -41,7 +41,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range.",
   "title": "Subtract other bodies from first",
   "category": "modification",
   "synonyms": [
@@ -49,7 +49,7 @@
     "相减"
   ],
   "description": "Subtract other bodies from first",
-  "schemaHash": "sha256:a6edba2c9cb90c24d73f925a1a16e0dbfa37297a6962db09da203364ce53700e",
+  "schemaHash": "sha256:0ebc4016d4fd53a25ac5a903224c2c6d31328db1004daf3a01383076e98e8a2e",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -99,7 +99,7 @@
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies.",
+    "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
@@ -181,5 +181,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:70773fbcd97879490b0a7156bd83e6879744367e13fd9dca36f42feb4a2cffce"
+  "docsHash": "sha256:b666f25db66a6ec763c3430ce624c7d4d5439f66d8a7bf0bbbfc6ff6b3ad9c98"
 }

@@ -1,12 +1,14 @@
 # WebCAD AI 完整知识库
 
-API 1.18.0 · sha256:7688d6024b500e4f7997355f65c78c3e87f7aa5586cff920238909239d244ffa
+API 1.22.0 · sha256:8169c30117759ceeed2e9348df321dce4744a29f1be40186d88b0a1a4c416c7c
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
 ## api.connection
 
 AI 应通过宿主已授权的页面脚本通道在后台调用 window.webcad.api。不要为查工具或执行建模打开 JSON 调试面板、填输入框或点击执行按钮。没有可用脚本通道时，明确报告通道不可用；不要自动退回界面操作。
+
+首次握手后，Agent按connect().onboarding.knowledge下载automation/agent-knowledge.json清单及其静态文件到宿主存储，验证SHA-256和大小；按页面base URL、catalogHash和docsHash缓存，重连时复用匹配的完整缓存。先按agent-routing.json路由任务，再只载入需要的工作流和工具卡；精确UI动作仍查routes.json。宿主没有下载/存储能力时明确报告，不能把握手指引当成已经写盘。完整说明见api.knowledge-cache。
 
 首次入口为 automation/agent-start.html，机器可读引导为 automation/agent-start.json。connect().onboarding 返回同一 version=1 静态连接步骤，不包含工程状态或实体身份。需要可选本地技能/客户端时，先读 automation/agent-kit.json；安装脚本 automation/install-agent.ps1 仅供宿主或用户明确选择安装，installation=host-opt-in，不会增加浏览器权限，也不是页面建模的必需服务。
 
@@ -23,6 +25,34 @@ connect 的 queries 是最多4个短字符串；searchTools 使用单个 query �
 连接出错要先区分标签页绑定、宿主通道和页面 API。宿主超时/传输错误不证明页面或 API 不可用；只在脚本已成功进入目标页后，才检查 window.webcad.api.connect 是否存在。缺失可能是页面尚未初始化、当前页不是 WebCAD 或旧版本，按实际结果报告；不能套用新版文档或刷新已有工程。当前宿主文档与权限优先于这里的示例，不自行安装服务或桥接绕过限制。新版公开面只有 window.webcad.api，不沿用旧 action/execute/ready/viewport。握手返回 canExecute/blockers；ready 仅指内核初始化完成，忙碌或预览中仍不能执行。已知能力 ID 可用 connect({toolIds:['advancedLoft','transform'],includeContracts:true})，一次拿到实时上下文和完整卡。模板按名称检索，读 template.* 的单模板卡；按卡里的 minimalExample 用 op:quickModel 执行，不把 template.* 当几何操作 ID。
 
 静态文档可直接按页面 base URL 读取 automation/quickstart.md、automation/tools/<id>.json、automation/docs/<docId>.md。HTTP 读取 JSON 必须按 UTF-8 解码，避免中文乱码。manifest/index 为程序索引输入，不要将全目录或全库打印进模型上下文。缓存只包含静态契约，不能代替实时工程状态。
+
+## api.design-checks
+
+按源图要求核对 inspectDesign
+
+用途：一次只读调用检查指定实体的世界XYZ包围尺寸、实体数，以及指定位置有材料/应留空。解决包围尺寸与单一solid通过后仍漏横杆、漏连接或封孔的风险。它不自动读懂图纸，也不替代截面、圆角连续性和用户验收。
+
+调用 inspectDesign({context,requirements,requirePass?:false})。context 使用当前 requestContext。requirements 为1–64个对象，每项必须有唯一 id（字母开头，1–40位字母数字、下划线或连字符）、当前 bodyId、kind、evidence:{kind:'drawing'|'user'|'assumption',reference:1–500字符来源说明}。未知字段拒绝。
+
+- kind:'bounds'：sizeMm:[X尺寸,Y尺寸,Z尺寸]，三个非负有限数；toleranceMm 必须明确给出，>0且<=1 mm。比较当前精确包围盒的轴向跨度，不证明位置、截面或轮廓相同。
+- kind:'solidCount'：count 为1–1000整数。只比较精确实体数，不声称完整BRep有效性或正确装配。
+- kind:'material'：points:[[世界x,y,z],...]，全请求总计不超过128点；expected:'inside'|'outside'。仅当前单一solid。toleranceMm 默认0.00001 mm，>0且<=0.01 mm。通过实体与点的精确common判定材料，边界距离在容差内返回boundary，matches=null、verdict=unverified；不能将模糊边界强行当材料或孔洞。
+
+返回 status:read、readOnly:true、source:exact-brep、当前context、verdict:pass|fail|unverified、summary和逐项results。每项有expected、actual、matches、evidence。bounds的actual带sizeMm/deltaMm；材料actual.samples带point/classification/boundaryDistanceMm。任何明确不匹配为fail；边界样点或匹配的assumption为unverified。scope=specified-checks-only；sourceEvidenceVerified=false，因为来源标签由调用者提供，页面未独立验证图纸。不得把这份报告称作完整产品验收。
+
+requirePass:true 时，只要有fail/unverified就返回status:failed及DESIGN_REQUIREMENTS_NOT_MET，并保留完整诊断。用于api.run中在导出前停止：早先建模步骤仍已提交，atomic=false，不能据此宣称整批回滚。只读失败commitState:not_committed仅指检查步骤没有修改模型。直接、invoke、run与submit入口一致；中途revision变化会拒绝结果。
+
+先从最新有效图框、剖面、用户要求确定期望，不从生成模型反推期望。材料点应覆盖横杆内部、连接内部及保留孔位置；只检查端点会漏掉中间缺料。点采样不证明整段连续性或整个孔通透，需要时用现有inspectThickness/planeSection/inspectFit继续检查具体位置。二维轮廓R、截面R与三维倒圆分开核对。
+
+示例（尺寸仅用于示例；实际bodyId来自前步回执）：
+{method:'inspectDesign',args:{requirePass:true,requirements:[
+ {id:'size',kind:'bounds',bodyId:{$ref:'part.createdBodyIds.0'},sizeMm:[40,20,2],toleranceMm:0.01,evidence:{kind:'user',reference:'当前用户要求40×20×2 mm'}},
+ {id:'oneSolid',kind:'solidCount',bodyId:{$ref:'part.createdBodyIds.0'},count:1,evidence:{kind:'user',reference:'单件板'}},
+ {id:'bridge',kind:'material',bodyId:{$ref:'part.createdBodyIds.0'},points:[[10,10,1]],expected:'inside',evidence:{kind:'drawing',reference:'有效图框横杆中部'}},
+ {id:'opening',kind:'material',bodyId:{$ref:'part.createdBodyIds.0'},points:[[20,10,1]],expected:'outside',evidence:{kind:'drawing',reference:'有效图框通孔中心'}}
+]}}
+
+限制：只验证列出的检查，不自动证明完整连接、所有孔、截面形状、圆角G1/G2、标准螺纹或装配合格；渲染、文件生成及磁盘写入仍各自确认。
 
 ## api.discovery
 
@@ -49,6 +79,13 @@ traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBo
 execute(request) 使用当前 CommandService 的结构化请求：{context:{sessionId,documentId,documentInstanceId,expectedRevision},idempotencyKey,action,args}。feature.add 的 args 使用真实工具卡的 op、opVersion、schemaHash、params、refs；feature.edit 使用 featureId、opVersion、schemaHash、params 补丁。严格参数契约列表以 info().capabilities.migratedOperations 和当前工具卡为准。其他操作的卡片是 advisory，不得把它当成严格 v2 可执行保证。
 同一页面修改由原命令队列串行处理。幂等回执只在当前 documentInstanceId 的有限内存范围内有效，不跨页面重载。成功提交与后续显示或文件写入失败应分别报告。
 
+## api.feature-plan
+
+快速多特征事务
+execute action feature.addMany 的 args 为 {features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}，1–64项。或在run里用 method:addMany，args:{features:[{key,op,params,refs,placement?}]}，由当前工具卡补版本/哈希。refs中的当前bodyId字符串引用现存对象；{feature:"earlierKey"}引用本事务前序特征。成功返回featurePlan:{atomic:true,featureIds,featureCount}，整个计划一次重建、一次revision和一个撤销步骤，保留每项参数历史。run整体仍atomic:false；addMany这个单独步骤失败时全部不提交。
+先完成来源/尺寸/空间结构判断再批量提交。支持的操作：box, cylinder, sphere, cone, torus, extrude, revolve, sweep, loft, quickModel, vectorProfile, arcProfile, sketchProfile, curveSweep, advancedLoft, transform, copy, mirror, linearPattern, circularPattern, union, cut, intersect, group, fillet, chamfer, hole, multiHole, multiPocket, multiBoss。只使用完整工具卡中明确的参数，独立创建尽量显式world frame，所有定位使用事务开始的参考锚点快照，不在中间自动移动锚点。圆角/倒角仅allEdges:true；面/边编号、选择token、Logo、导入、检查、文件和不在清单内的操作另行执行。需要当前面/边时把计划分段，提交后查询新拓扑。不得把不适用模板或假设尺寸塞进事务。失败返回实际featureId及featureKey，先定位该项再修订，不重复盲试。
+几何提交后可用{$ref:"build.featurePlan.featureIds.finalKey"}检查或导出；仅最终仍存在的bodyId可做后续操作。检查关键材料/尺寸及displayMatchesContext，一次通过即交付。速度统计必须注明WASM启动、计划编写/读图、计算/网格、检查、导出与传输是否计入；单事务速度不代表整件已经正确。
+
 ## api.file-errors
 
 页面建模、测量、视图与截图方法的失败通常返回 {status:"failed",commitState:"not_committed",error:{code,message},context}；execute 和 queryGeometry 使用 CommandService 的更完整结果。files 方法抛出带 code 的 Error，调用方应捕获，不能把异常解释为已保存。文件状态分别为 registered、generated、download_initiated、write_verified；generated 不证明磁盘写入。输入资源、导入和输出每项最多 20 MiB，最多 32 个资源、合计 64 MiB、30 分钟有效。自包含 .webcad 使用紧凑 UTF-8 JSON，最多 2000 个历史特征、20 MiB（含全部保留历史和共享导入源）。2000 是建模特征数，不是撤销步数。新增、预览、导入、粘贴、批量对齐和拆散均受限；批量按实际新增特征数计数，编辑或删除仍可使用。计算前在无 timeline 的工程大小上预留 4 KiB，提交前按含锚点和裁剪后历史的完整文件再次校验。超限返回 SIZE_LIMIT，已运行的内核恢复原工程，revision、撤销/重做和当前工程不提交变化；不要重复重试，应减少特征或拆分工程。读取 files.capabilities() 获得当前实际上限。
@@ -58,6 +95,15 @@ execute(request) 使用当前 CommandService 的结构化请求：{context:{sess
 鼠标与数值入口操作同一份工程。编辑页移动/旋转默认启用实体手柄，API 用 setView({context,gizmo:"translate"|"rotate",selectedIds?})；省略 selectionMode 自动转为 body，显式指定 face/edge 与该 gizmo 冲突返回 SELECTION_CONFLICT，host 未被调用。可以先启用模式再选实体；getState().view.transform 返回 {mode,bodyIds,attached,canDrag,blocker}。blocker 为 MODE_OFF、NO_SELECTION、MULTIPLE_SELECTION、HIDDEN_SELECTION、STALE_SELECTION、BUSY 或 null；attached/canDrag 表明当前单个可见对象是否已挂接、是否可拖。启用/取消手柄或更换选择不增加工程 revision，鼠标拖动松手通过 transform 提交一个历史步骤。精确数值变换先读 getTool({id:"transform"})；移动可用 params:{x:10,y:0,z:0}。绕指定中心旋转用 params:{mode:"rotate",pivot:[0,0,0],axisVector:[0,0,1],angleDeg:90}，并显式传 placement:{version:1,frame:{kind:"world"},sourceAnchor:{kind:"model-origin"}}；refs 必须是一个当前对象 ID。多个对象分别以 run 的 transform 步骤处理，atomic=false，遇失败前面的成功步骤保留。读回新 body/feature/revision 和 display.rendered。
 绘制轮廓默认按图元点击，不要求用户配置全部选项；API 使用现有严格 sketchProfile 契约，显式传 entities 和 chains/loops/regions，output 为 wire 或 face，工作平面用 placement。先读 getTool({id:"sketchProfile"})；minimalExample 是完整可执行参数示例。线、圆、三点圆弧、矩形、折线等图元均保存为解析来源；参数矩形、圆角矩形、长圆的外环可直接引用其原始图元 ID 一次（entityId 为该 id，reversed 为 false），内部会自动展开有序边；不自动生成 loops/regions，也不要求猜派生边 ID。sketchProfile.normalExample 提供完整40×30矩形闭面；详见 recipes.rectangle-profile。二维 heightMm 不表示拉伸厚度，profileExtrude.distanceMm 必须来自用户要求。人工参数和高级编辑按当前任务显示；菜单页签、分组和展开策略保持用户原设计。inspectProfile({context,bodyId}) 只读诊断。prepareProfileEdit 为高级修剪/延伸/圆角提供明确 entityId/targetId 与交点候选，selectionRequired=true 时必须选择候选；不猜测交点。轮廓成体另用 profileExtrude，保持轮廓来源可编辑。
 
+## api.knowledge-cache
+
+首次握手本地知识库与路由
+connect().onboarding.knowledge.policy=required-on-first-handshake。Agent首次连接当前WebCAD来源后，下载automation/agent-knowledge.json，再下载清单内index.json、agent-routing.json、routes.json到宿主存储；逐文件验证SHA-256和字节数。只把轻量路由及命中的完整文档/工具卡送进模型上下文，不打印1–2MiB全库。没有宿主下载或存储能力时报告具体限制，不假称已下载，也不为此安装后台服务。
+缓存按当前页面base URL、catalogHash、docsHash隔离。重连时哈希匹配且本地文件验证成功就复用；变更、缺文件或损坏时更新完整包。调用仍读新鲜context，静态库不包含活文档、当前实体编号或拓扑快照。静态库里的示例编号不是当前ID。
+两级路由：agent-routing.json按任务命中源图重建、模板、轮廓、加工、圆角、Logo/浮雕、检查、编辑、文件；routes.json按精确UI动作找公共接口。任务先读工作流→选工具→取完整卡→按需专题。template.*单模板优先，避免读取quickModel总目录。未命中用实时searchTools；当前页面哈希与工具契约优先。
+可选Node宿主helper（不是网页运行依赖）：createPageClient({send:宿主授权CDP适配器,knowledge:{baseUrl:目标页URL,directory:宿主缓存目录}})。connect自动下载/验证，返回knowledgeStatus:{status:ready,cacheHit,directory,downloadedFiles}；已有匹配缓存不发下载请求。未配置knowledge时返回download_required，helper.run在知识包准备前拒绝执行。其他宿主按相同清单实现存储适配。页面不能证明远端Agent已经写盘，不能把handshake描述符当成下载回执。
+await client.route('DWG图纸重建')返回匹配路由和需要的doc/tool IDs；await client.readLocal({docIds:['api.reconstruction'],toolIds:['inspectDesign']})仅取这两项。默认字符预算32000，不能容纳的整项返回omitted/CHAR_BUDGET，不截断schema；调用方缩小本次读取范围。下载不自动安装技能；安装包仍由宿主选择并执行。
+
 ## api.logo
 
 统一 LOGO：工具栏“加工→LOGO”与页面 execute({action:"feature.add",args:{op:"logo",...}}) 共用建模内核。先 getState() 得到当前 bodyId/revision，queryGeometry({context,bodyId,kind:"face",requireUnique:false}) 找精确 BRep 面与 faceId；放置点 point 必须为该面的三维 XYZ。新操作 params 使用 {placementVersion:2,faceId,point:[x,y,z],mode:"engrave"|"emboss",depth:显式正数,draftAngle:0,scale:1,angle:0,offsetX:0,offsetY:0,mirrorX:false,regions:[{outer:[[x,y],...],holes:[]}],source:{kind:"reviewed-contours",reviewed:true,original:{...}}}，refs:[bodyId]。source.reviewed=true 是调用者已复核轮廓来源、尺寸和孔洞的明确声明；新流程不猜深度。平面可凹刻/凸字/拔模，非平面只允许 mode=engrave 且 draftAngle=0，仍受原曲面边界、接缝、薄壁校验。创建时记录源 BRep 哈希作快照审计；历史重建以稳定的面几何签名、类型、面积与中心校验，不能把跨内核不稳定的原始序列化字节误作历史匹配依据。旧 logo 缺少 placementVersion 沿用原平面语义，旧 curvedLogo 只供历史兼容。轮廓单位 mm、局部 X 为全局 X 投影到目标面切平面（X 法向附近改 Y）、局部 Y=法向×局部 X。浏览器 UI 本地读取 .logo.json/受限 SVG/粘贴 SVG 或闭合 d；外部 AI 可直接提供经复核的 regions，不能把 SVG 字符串当 regions。SVG 曲线离散误差源尺度约 0.005 mm，等比放大后误差也按比例增加。静态版没有位图/复杂矢量转换服务。
@@ -65,7 +111,7 @@ execute(request) 使用当前 CommandService 的结构化请求：{context:{sess
 ## api.mechanical
 
 机械 CAD 特征扩展，页面 API 1.12.0。所有新操作经 connect/getTools 发现，run 的 method:add 提供显式 params/refs；feature.edit 编辑已有步骤，完整 requestContext 和唯一 idempotencyKey 按现有规约处理。不要把数值示例当成实际拓扑位置。
-profileRevolve 用已保存闭合平面截面、固定世界轴点 axisPoint 和轴方向 axisDirection、angleDeg；profileSweep 用已保存截面与精确开放路径，截面必须已在路径起点平面且垂直起点切线；profileLoft 按次序使用2–12已保存截面，ruled 控制直纹。它们 operation=newBody 时保留全部来源，join/cut/intersect 时最后一个 refs 是明确目标，仅替换该目标。不得把当前锚点再次作用于保存来源；轴也是世界坐标。原旋转成型/扫掠/放样菜单默认进入保存来源模式，基本尺寸模式仍映射原操作。
+profileRevolve 用已保存闭合平面截面、固定世界轴点 axisPoint 和轴方向 axisDirection、angleDeg；profileSweep 用已保存截面与单一精确开放或闭合路径，截面必须已在路径起点平面且垂直起点切线。平面Face已定义的内孔沿相同路径精确扫掠并完整扣除，开放端面保留孔、闭环保留管腔；独立多环不自动推断内外，内腔越界/交叠/无效结果拒绝。sketchProfile用regions.holeLoopIds显式定义孔。profileLoft 按次序使用2–12已保存截面，ruled 控制直纹，仍不支持内孔。它们 operation=newBody 时保留全部来源，join/cut/intersect 时最后一个 refs 是明确目标，仅替换该目标。不得把当前锚点再次作用于保存来源；轴也是世界坐标。原旋转成型/扫掠/放样菜单默认进入保存来源模式，基本尺寸模式仍映射原操作。
 profileConstraints refs=[保存sketchProfile或其约束派生轮廓]，params.constraints 是明确关系/尺寸数组，读卡中 oneOf 定义。直线/圆支持固定、重合、水平/垂直、平行、垂直、等长、线长、点间距离、圆半径/直径、等半径、角度、线圆相切。矩形在派生结果转换为原图元ID_0..3的四边，保留矩形形状关系；原点不暗中固定。先调用 inspectConstraints({context,bodyId})，读取 profile.entities 中的真实派生ID、局部坐标、已有关系和自由度，再建立约束，不猜CAD面/边索引。后续约束继承之前约束，来源保留；几何沿原冻结平面，局部二维mm，source内任何弧或样条首版不参与求解。getState().bodies[].constraintReport 返回真实 maxResidualMm/maxAngularResidualDeg/rank/degreesOfFreedom/underconstrained/redundantEquationCount，rank为局部数值Jacobian，不是全局唯一性证明。feature.edit 原约束的 constraints 数组修改尺寸后会重建下游，冲突或非收敛不提交。
 offsetSolid refs=[单一实体]，distanceMm 有符号，join=intersection/round；它是真等距偏移而非缩放，替换来源，局部曲率塌陷与自交拒绝。offsetSurface refs=[来源]、当前 faceId、distanceMm，生成一张独立偏置面并保留整个来源，面没有实体体积。draftByPlane refs=[单一实体]，当前明确 faceIds、neutralPoint、neutralNormal、pullDirection 和 angleDeg（非零且绝对值小于45）。世界中性平面与拉出方向必须平行/反平行，联动面须全部明确选入；圆锥面的 angleDeg 是目标锥角，不能把它当原角增量或保证总减料。
 helix 的 radiusMm 是中心线半径，pitchMm 是每圈正轴向进给，turns最多100且可小数，leftHanded 控制旋向；生成精确路径。coil 另给 wireDiameterMm，螺距必须大于线径，生成真实圆线弹簧单实体。两项沿创建基准局部Z，原点是轴心起始高度，可显式 creation placement 冻结位置。
@@ -81,6 +127,17 @@ thread refs=[单一实体]，当前圆柱 faceId、kind=external/internal、pitc
 
 从 text-to-cad 的 dfam-check 迁移的浏览器几何事实检查。inspectPrintability({context,bodyId,angleLimitDeg?:45}) 接受当前实体 ID，角度须大于 0 小于 90 度。读取当前显示网格逐三角面计算表面积、六种轴向摆放的悬垂面积、面积占比、成型高度与支撑柱体粗估；距平台 0.1 mm 内的面视为已支撑。包围盒、体积与 solidCount 取内核 B-Rep 元数据。结果不改变工程 revision，不给合格判定。网格精度、材料、工艺、壁厚、孔径、粉末排出和切片支撑均需另行核验。
 
+## api.product-source
+
+陌生图的结构简表与本地路由（宿主helper，不是页面建模命令）
+首次下载知识包后，await client.planSource(brief,{includeKnowledge:true,maxChars:32000}) 可在一次校验的静态快照中同时取族和完整所需卡，省去再读一次磁盘与解析。默认includeKnowledge:false只返回路由；预算1000..64000，knowledge.items明确read/omitted/error，不能将省略卡当已读。brief仅保存在调用方；路由结果不缓存源图、货号或当前ID，不修改工程。
+brief:{schemaVersion:1,typeId:官方正整数,familyId?:明确结构族id,scope:'part'|'assembly',targetPartIds?:['B'],source:{kind:'dwg'|'photo',reference:'源文件hash/图框/视图等',version:'resolved'|'unresolved',geometry:'complete'|'partial'|'unreadable',units:'mm'|'cm'|'m'|'in'|'unresolved'},parts:[{id:'A',role:'main'|'moving'|'fastener'|'backplate'|'purchased'|'decoration',reference:'零件证据',section:'resolved'|'unresolved'}],unknowns:['缺少孔深']}
+最多32个零件、32个未知项，id唯一且targetPartIds必须存在；单件scope必须明确目标。空parts允许先筛选，但返回待补项。photos即使标complete也不能证明工程尺寸。
+返回status:'needs_evidence'|'needs_family'|'planning_ready'、canPlan、blockers、candidateFamilies和选中docIds/toolIds。未明确族不自动选模板。源版本未定、几何残缺、照片、单位未确认、目标件截面缺失、未知项均保留阻碍；单件任务只要求目标件截面，参照配件仍返回。planning_ready只表示调用方简表满足规划门槛，sourceEvidenceVerified:false，不代表3D或装配验收；此helper不执行CAD，也不拦截绕过它的页面run。
+source.units为提交几何和尺寸的单位；缺失或unresolved保持待核，cm/m/in返回转换要求。原单位和实际转换依据须记在source.reference，转换后才能提交units:mm；不得把字段改成mm代替真正换算。路由不会修改源图或代做单位转换。
+TypeID为本地系统分类线索，不当结构真值。明确familyId可跨品类选择已核结构，返回categoryHintOverridden:true；候选列表仍按官方TypeID提供。杂类不训练统一模板；同类存在多个稳定族时逐族选。A/B/C字母不能代替零件职责；主件、活动件、底片、外购件分清后，再加载选中的完整卡，依据原尺寸做feature计划。尺寸、剖面、轴孔配合与开闭/出货状态应在规划时附来源；Logo最后。
+目录由结构抽样经验形成，非模型权重训练、非完整产品验证。原始业务图纸与照片留在本地，不随公共知识包下载。
+
 ## api.profile-fitting
 
 fitProfile({context,kind:"circle"|"line",plane?:"XY"|"XZ"|"YZ",points:[[u,v],...],maxResidualMm?}) 基于 3–1000 个按截面坐标给出的有限采样点，只计算圆或直线候选，不生成实体也不修改 revision。circle 返回圆心、半径、按输入顺序展开的角覆盖；line 返回中心点、方向和投影长度；两者都返回最大与 RMS 残差。maxResidualMm 只作用户输入阈值的数值比较，不是默认产品公差。源自 text-to-cad 的截面圆候选算法思想；结果是点样本的近似，不能替代原图尺寸、完整拓扑或内核精确实体。拟合曲面建模另有 fittedSurface 操作，需 3–12×3–12 对应点阵。
@@ -92,6 +149,21 @@ queryGeometry({context,bodyId,kind:"face"|"edge",filter:{},requireUnique:false,l
 ## api.quick-hardware
 
 快捷模型包括 spring 弹簧、screw 螺丝、threadedSleeve 丝筒、domedPin 半圆钉。先 getTool({id:'template.screw'}) 或其他 template.kind 读完整 defaults、fields、inputSchema，然后 run({context,idempotencyKey,steps:[{id:'part',method:'add',args:{op:'quickModel',refs:[],params:{kind:'screw',headType:'flat',headWidthMm:6,headThicknessMm:2,threadSize:'M3',threadLengthMm:8,drive:'cross'}}}]})；每次使用新鲜 context 和唯一幂等键，默认放到当前参考位置。页面 API 中尺寸单位 mm。螺丝平头是圆柱头，沉头固定 0.20 mm 外缘直升位加圆锥，headThicknessMm 包含直升位；头的最下面位于参考位置，牙杆朝本地 +Z。槽型 cross/slotted/star/hex，默认十字，梅花由六组相切圆弧组成。M1–M12 支持卡内列出的粗牙规格，自动选螺距；实际 V 型牙槽不声称标准等级或配合公差，最长 100 圈。丝筒 upper bottom 在参考位置、本地 -Z 向下，face 是下端；从下端向 +Z 攻内牙，threadDepthMm 不超过总高，两端外径须大于名义螺牙直径。螺牙直径必须匹配支持的 M 粗牙直径。半圆钉只有 diameterMm、heightMm，由光滑 Bézier 母线旋转，平底在参考位置、凸面向 +Z，不要求球面。弹簧 radiusMm 是中心线半径，wireDiameterMm 是线径，pitchMm 是每圈轴向螺距，turns 是圈数，leftHanded 是左旋；螺距必须大于线径。getQuickModelUsage() 返回本浏览器累计成功创建次数和五个常用项；完整目录按简单优先，面板列表固定最小 240px，空间不足纵向滚动。仅新创建并提交后计数，不统计预览、失败、修改、撤销重做和打开工程。锣槽 faceGroove(refs:[bodyId],params:{faceId,lengthMm,widthMm,depthMm})；内车 innerTurn/外车 outerTurn(refs:[bodyId],params:{faceId,diameterMm,depthMm})。先 queryGeometry 选真实 planar faceId，工具沿该面的反向法线进入材料，中心用面面积中心；锣槽 X 为世界 X 在面上的投影（退化时世界 Y），宽方向保持右手系。内车移除给定直径的内圆柱材料，外车在给定深度内移除给定直径之外材料；不会把当前工作锚点再次应用到加工几何。选择只能是一个平面截面，非平面、没有切到材料或破坏单一有效实体会失败，来源不改。它们是实体几何操作，没有机床刀路或进给。读回 receipts、measure、queryGeometry 和 rendered revision；修改用 feature.edit，保存/STEP 导出用 files API。
+
+## api.quick-installation
+
+安装结构先按剖面选族：薄壁旋转翻边两件用 template.twoPieceEyelet；圆/圆角方形面框、短颈口和对称柱/普通孔用 template.frameEyelet；恒厚开口U夹用 template.uStrapClip。先 getTool({id:'template.frameEyelet'}) 或 getTool({id:'template.uStrapClip'}) 读该模板完整字段、默认值与限制，不必加载总目录。调用 run({context:新鲜requestContext,idempotencyKey:唯一键,steps:[{id:'part',method:'add',args:{op:'quickModel',refs:[],params:{kind:'frameEyelet'},name:'安装鸡眼'}}]})，U夹把kind改为uStrapClip；省略字段沿完整卡defaults，实际来源尺寸必须显式覆盖。两者一次创建一个精确实体、一条可编辑历史和一个撤销步骤；UI模型库→快捷模型共用同一构建。frameEyelet面框XY居中、底面Z=0，颈口/柱朝本地+Z，2柱沿Y、4柱按XY中心距；round要求内外宽高分别相等，角R仅控制roundedRect平面轮廓。孔径0为实柱；孔深0是通孔，正孔深从柱顶向-Z且必须留底。颈口/柱长0可生成背片，背片安装孔同样为直孔。uStrapClip宽沿X，后片+Y，底面Z=0，开口+Z；前后高度含底厚，外弯R=内弯R+壁厚，内弯R不能超过内净距/2；等于一半时为半圆底，0为内直角。后孔只穿后片，孔高从底面量，完整孔须位于直段。闭合帽套、变壁厚和空间扭曲不能套用。两者不模拟真实攻牙、锥孔、饰面/LOGO、压铆、弹性和三维边圆角；平面轮廓R不是三维边圆角。需按来源另用thread/holeWizard/rounding或原剖面建模，不能拿基础模板宣称产品完整通过。改尺寸用feature.edit（读新鲜context），然后measure/inspectDesign检查开孔、颈壁、盲孔底及后片孔；rendered revision须与提交一致。模板不自动保存或导出，也不修改源图。
+
+## api.reconstruction
+
+源图重建的快速流程（使用现有工具）：
+1. 一次核对货号、最新有效图框、实物照片和零件角色。保留DWG原图元handle/原曲线及版本；照片判断形态，反光不直接作为高度场。
+2. 建模前记录来源简表：内外尺寸、截面、空间坐标、开口/接缝、连接、孔槽、关键R和未知项。标注、原图测量、用户值与假设分开。模板不能覆盖变截面时改用原解析截面/扫掠/放样，而不是直接判图纸不可理解。
+3. 主体与配件→切除/补料/加工→真实圆角→关键核对→Logo。box基点为[0,0,0]；不能套其他内核的居中坐标。变换明确relative/absolute，编辑后重新查询拓扑。只读相关template.*卡；常见形状复用参数模板，复杂形状按部件分批。
+4. 用inspectDesign一次核对来源期望的尺寸、实体数和关键材料点；必要时用planeSection查截面、inspectThickness查连续材料、inspectFit查配件干涉/间隙。有效STEP和正确包围盒不足以证明完整产品。未知接缝、小R、Logo深度和孔深不得通过epsilon或改小参数偷偷补齐。
+5. 每轮只做相关验证。具体失败先定位一个差异，再做一次有据修正。连续同机制失败且无新证据时记为未解决；新工具先修原始真实夹具，不为某货号硬编码，不枚举半径或放宽验收。
+6. 在同一窗口继续工作；保存/导出仅按任务要求进行。区分离线内核、当前页面提交、匹配显示、生成文件与写盘。记录取证/生成/验证/截图/传输的阶段耗时，自动阶段耗时不能称为端到端耗时。
+细节见readDocs({docId:'api.design-checks'})；材料检查的来源标签仍由调用者核对。
 
 ## api.references
 
@@ -1318,8 +1390,8 @@ setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid
 1. 通过宿主实际允许的脚本通道调用 api.connect({queries:['任务中的具体能力'],limit:2,includeContracts:true})；已知工具改用 toolIds（最多20个）。canExecute=false 时按 blockers 等待计算或处理预览，不自动提交/取消用户预览。契约已有则不重复读；缓存失配就更新。
 2. 先判断目标几何。圆圈可能指二维圆线或有线径的实体圆环；圆形拉伸是实体，不能冒充二维曲线。模板名命中 template.* 时读取该模板卡；若上下文无法区分影响几何的含义，简短澄清。不支持的目标应说明，不能用相近工具冒充。
 3. 复杂模型按部件和依赖规划：外形/主体、附属件、细节。模型名称（如飞机）不是工具 ID；按放样、曲线扫掠、多边形拉伸、变换等能力检索。先确定尺寸/坐标和关键截面，读这些完整契约，再分阶段执行。模板只在形状确实匹配时使用。概念模型可说明合理尺寸假设；复刻源图时不猜尺寸。
-4. 用 api.run 执行1–20步的有界批次；每步有明确 name/params/refs。创建用 method:add；修改/删除/撤销用 method:execute。后续步骤用 {$ref:'part.createdBodyIds.0'} 读取真实结果，变换后使用变换回执的新 ID，不沿用被替换的旧实体。跨批次重新读状态。所有修改共用页面 Worker/历史；不是修改产品源码或注入任意内核代码。
-5. 在批次中测量关键部件，必要时设轴测/适配视图；最后核对每步 status、实际实体、尺寸/体积、displayMatchesContext，并检查画面。有形状或尺寸要求时，实体数量增加不能单独证明完成。不要对每个参数往返一次，也不要默认导出保存。
+4. 已明确参数且无需中间拓扑的主体/刀具/布尔优先读 api.feature-plan，用 run method:addMany 一次提交1–64个特征；保留各项历史、一个撤销步骤。需要面/边、Logo或读回时在提交后分段。用 api.run 执行1–20步的有界批次；每步有明确 name/params/refs。创建用 method:add；修改/删除/撤销用 method:execute。后续步骤用 {$ref:'part.createdBodyIds.0'} 读取真实结果，变换后使用变换回执的新 ID，不沿用被替换的旧实体。跨批次重新读状态。所有修改共用页面 Worker/历史；不是修改产品源码或注入任意内核代码。
+5. 在批次中测量关键部件，必要时设轴测/适配视图；最后核对每步 status、实际实体、尺寸/体积、displayMatchesContext，并检查画面。有形状或尺寸要求时，实体数量增加不能单独证明完成。源图重建先读 api.reconstruction，使用 inspectDesign 一次核对带来源的尺寸、实体数、关键材料/留空点；检查结果不代表完整产品验收。不要对每个参数往返一次，也不要默认导出保存。
 6. partial/failed：查看 progress.failedStepId、completedStepIds、unattemptedStepIds 和原始 error。前面已提交步骤保留；读当前状态后只规划剩余步骤，并给修改后的请求新 key。unknown/宿主超时：先查状态，不能盲目再次创建。相同请求/key只返回原回执，不会继续未完成步骤；回执 context 是当时快照，重连后核对。
 
 示例（通过授权脚本通道；已阅读 template.ring/measure/setView 卡并确认要实体圆环）：
@@ -1360,18 +1432,258 @@ GEOMETRY_INVALID / NO_MATERIAL_REMOVED: review geometry and explicit dimensions.
 PREVIEW_ACTIVE / RESOURCE_LIMIT / IDEMPOTENCY_KEY_REUSED: resolve the reported constraint; do not change idempotency keys merely to bypass an uncertain result.
 PERSISTENCE_FAILED / RESULT_UNKNOWN: distinguish committed memory from durable storage or unknown delivery. No durable guarantee in M1. When no automatic action exists, recoveryAction=NONE.
 
+## product.bar-heads
+
+双端头杆件
+适用候选TypeID: 37，类别仅提供候选。
+先取证：主杆及两端截面；牙长/粘胶端；包皮/木柱/底片及目标范围。
+方向：两端头不一定相同，杆长不等于牙长；一端预装另一端客户自装属于交付状态，不能直接融合。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.bridge
+
+桥体与安装脚
+适用候选TypeID: 12，类别仅提供候选。
+先取证：桥下净空；脚座与底片；螺钉规格/孔位置。
+方向：桥体、独立脚/底座、底片和螺钉分件。脚长不等于桥高，装饰面牌仅复用安装接口。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.chain
+
+重复链节与端扣
+适用候选TypeID: 17，类别仅提供候选。
+先取证：单节真实截面/空间扭转；节距/交替方向/节数；端钩/接圈和出货开口。
+方向：先一节，再明确交替方向与间距装配。投影椭圆不等于平面圆环；外购链长度和节数按图纸/订单，不凭照片数圈。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.cord-lock
+
+索绳扣孔位机构
+适用候选TypeID: 48，类别仅提供候选。
+先取证：绳孔与按件对孔；压簧与止口；绳径/装配状态。
+方向：壳、按件、弹簧分件；先确定松开/锁紧孔位。无弹簧通孔珠不是活动索绳机构。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.end-cap
+
+U槽尾夹
+适用候选TypeID: 28，类别仅提供候选。
+先取证：U槽剖面/开口；带厚；夹紧件/螺钉/连接环。
+方向：恒厚开口U夹、前后片高和后孔已明确时，先读template.uStrapClip及api.quick-installation；半圆底和内直角仍按真实剖面设置。封闭帽套、字珠、面牌和自由侧面不套U夹；仅复用已核夹持接口，螺钉独立。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.eyelet
+
+鸡眼与背件
+适用候选TypeID: 16，类别仅提供候选。
+先取证：A/B剖面或方眼脚仔；翻边前后状态；脚片/螺钉连接。
+方向：薄壁翻边两件先读template.twoPieceEyelet；圆/圆角方形恒厚面框、恒壁颈口及对称柱/直孔先读template.frameEyelet和api.quick-installation。椭圆、锥口、自由饰面和变壁厚保留原剖面路线。翻边、脚仔、螺钉固定分别处理，直孔不能冒充螺纹或锥孔。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.flap-lock
+
+翻片拍锁
+适用候选TypeID: 46，类别仅提供候选。
+先取证：活动舌轴线；止口/弹簧腔；底片脚和开闭状态。
+方向：面牌、翻片、轴、簧和底壳分件。方向与运动间隙先于Logo。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.flat-loop
+
+平板或扁带框
+适用候选TypeID: 1,3,13,20,21,41,45，类别仅提供候选。
+先取证：内外轮廓；侧厚和侧弯；独立内外R。
+方向：平面恒厚时面域拉伸；侧弯、非等宽、变截面另用原截面路线。不能用圆线模板覆盖。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.gate
+
+铰门弹簧圈或狗扣
+适用候选TypeID: 2,9，类别仅提供候选。
+先取证：主框和活动门；轴与弹簧腔；转接环/开闭状态。
+方向：主框、门、轴、簧、转接环分件，不融合。圆圈和椭圆圈外形不同但铰门关系相似。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.handle
+
+手挽环和固定基座
+适用候选TypeID: 38,43，类别仅提供候选。
+先取证：环/拉片轮廓与截面；转轴或固定夹座；底片/螺钉/方向。
+方向：拉头不默认拉链Y形滑块；先环/拉片、轴或卷眼、夹座、底片，再装饰。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.headed-fastener
+
+饰头紧固件
+适用候选TypeID: 30，类别仅提供候选。
+先取证：螺纹/铆脚连接机制；面头与杆/背片；安装料厚及出货范围。
+方向：先从接口判断螺钉、铆脚或外购钉。任意饰面不统一成尖杆或撞钉；回转头杆与异形面头分开。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.hinge
+
+铰及轴管
+适用候选TypeID: 32，类别仅提供候选。
+先取证：轴线与耳/管分段；活动或无功能备注；销/螺杆/弹簧。
+方向：两侧耳管与销分件，保持轴向/径向间隙。无功能备注优先于类别名。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.hollow-cap
+
+空心绳端帽
+适用候选TypeID: 27，类别仅提供候选。
+先取证：帽空腔及壁厚；侧螺钉/端孔；与环链的连接。
+方向：稳定帽族用原轴向剖面回转或原面域构造；整串饰件和珠件只学帽接口，不套统一外形。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.insert-lock
+
+插舌锁
+适用候选TypeID: 35，类别仅提供候选。
+先取证：插入方向；舌/锁壳侧剖；弹簧/轴/底片。
+方向：按背装图拆面牌、舌、锁壳、簧、底片和螺钉；外饰轮廓不能决定锁壳内部。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.keeper
+
+穿带介子
+适用候选TypeID: 45，类别仅提供候选。
+先取证：内窗与截面；侧拱/皮厚；封口螺钉/铰件。
+方向：本地介子主要指穿带框，不能默认垫圈。螺母、方珠、球珠和任意装饰牌不进此族。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.magnetic
+
+磁钮壳与公母配套
+适用候选TypeID: 33，类别仅提供候选。
+先取证：公母角色与外购规格；磁芯/壳套；脚片/螺钉。
+方向：饰面、磁芯、壳套、脚片分件；型号与N等级依文字，几何模型不验证磁力。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.multi-window
+
+梯扣多窗口
+适用候选TypeID: 5，类别仅提供候选。
+先取证：窗口和独立横杆；侧阶/空间折弯；防滑纹/销轴。
+方向：横杆数量、不同截面和台阶分别恢复；齿纹后做。梯扣分类混入三角环和铰件须改族。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.plate-mount
+
+牌仔安装接口
+适用候选TypeID: 24，类别仅提供候选。
+先取证：面牌轮廓/侧厚；脚仔或螺钉孔位置；背片对孔/安装态。
+方向：复用安装关系，不复用任意字牌外形。弧牌须保留侧弯；锁牌走锁机构族；凹凸文字和自由饰面后做。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.prong
+
+针框及可选滚筒
+适用候选TypeID: 10,34，类别仅提供候选。
+先取证：框与舌针截面；针槽/轴孔；滚筒和转动间隙。
+方向：框、舌针、轴、滚筒分件。先框和针槽，再卷眼/弯针，再滚筒，最后字位。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.pull-core
+
+框与独立芯杆
+适用候选TypeID: 22，类别仅提供候选。
+先取证：框和芯杆截面；卷钩/上下夹片；穿带净空。
+方向：线框+钩芯、上下夹片、弹簧销套分族；不能只画主框或把芯杆融合。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.pull-tab
+
+拉牌与连接环
+适用候选TypeID: 26，类别仅提供候选。
+先取证：源轮廓和侧厚/侧拱；顶孔/卷眼/独立环；销/开口出货态。
+方向：先拉牌轮廓和侧剖，再卷眼/独立环/销，文字最后。大圆拉环和皮绳不强套薄片牌。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.rivet
+
+公母铆件
+适用候选TypeID: 7，类别仅提供候选。
+先取证：公杆与母帽剖面；中空孔与咬合长度；料厚/目标零件范围。
+方向：公母杆帽回转，异形饰面另拉伸。B/C字母不固定等于公母件；螺钉连接款切换连接机制。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.sliding-clasp
+
+纵向滑栓狗扣
+适用候选TypeID: 9，类别仅提供候选。
+先取证：滑栓方向/止口；压簧腔；转接座和端帽。
+方向：先钩身与滑孔，再滑栓、簧和转环。别把压簧拉栓当铰门；粘胶端帽不能遗漏。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.snap
+
+急钮和饰面配套
+适用候选TypeID: 18,19，类别仅提供候选。
+先取证：单脚/钮珠/弹弓/面帽角色；外购规格号；目标饰面或整套。
+方向：不要混用1号/4号/8050配套。只建用户指定的饰面或部件，不擅自扩成整套。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.split-ring
+
+双平层匙圈
+适用候选TypeID: 31，类别仅提供候选。
+先取证：圆/扁线截面；双层和局部跨层；端帽/接缝。
+方向：双层匙圈不自动变成均匀螺旋；链、狗扣、开口锁壳属于独立装配。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.stud
+
+奶嘴钉及底螺钉
+适用候选TypeID: 8，类别仅提供候选。
+先取证：头/颈/底法兰剖面；攻牙与底杆规格；皮厚净距。
+方向：球头、锥头或平头按原剖面回转；底螺钉独立。M2.6攻牙不自动改成M2或M2.5螺杆。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.tbar
+
+中眼吊杆
+适用候选TypeID: 40，类别仅提供候选。
+先取证：横杆截面；中央环耳/孔；端座/独立连接圈。
+方向：先杆与环耳，再孔和独立圈。自由装饰挂钩、长杆端座另取原轮廓，不硬套T杆。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.turn-lock
+
+拧制转锁
+适用候选TypeID: 11，类别仅提供候选。
+先取证：窗口和转头；轴/压簧/止位；开闭方向和底片。
+方向：面窗、转头、转轴、定位件、簧分件。闭合投影重合不代表可以融合。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.variable-loop
+
+变截面及空间弯框
+适用候选TypeID: 1,3,13,20,21,41，类别仅提供候选。
+先取证：各段剖面；侧视空间弯曲；连接和厚度变化。
+方向：保留源截面与空间路径；放样/扫掠按真实证据选，不能凭照片反光给厚度。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
+## product.wire-loop
+
+恒截面线环
+适用候选TypeID: 1,3,13,20,21,41，类别仅提供候选。
+先取证：中心路径/内外曲线；实测截面；真实接缝/出货状态。
+方向：核内外轮廓是否真实偏置，再原路径扫掠。仅真同心圆或两端半圆加直段且截面吻合时，可读单张template.ring或template.profileLoop卡走快路；自由多弧环不能套长圈。长圈不默认是真椭圆；二维R与三维圆角分开。
+这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
+
 ## recipe.examples
 
 打开用户提供的 .webcad 工程：经授权取得文件字节，await api.files.register({name,data}) 后调用 files.open({context,resourceId})。context 在读文件前取得；遇并发修改拒绝，未保存工程不能替换。读取卡片 files.write 了解真实磁盘保存；仅 files.save 生成字节不清除 dirty。正式界面不提供预置示例。
 
 ## recipe.file-workflow
 
-浏览器文件流程：先调用 api.files.capabilities() 读取格式和限制。api.files.register({name,data,mime?}) 登记 File/Blob/ArrayBuffer/Uint8Array 真实字节，返回 resourceId。api.files.new({context})、open/import({context,resourceId}) 操作当前工程；save({context,name?})、export({context,format,ids?,name?}) 返回 status=generated 的资源描述。read({resourceId,as:"blob"|"bytes"}) 返回实际 Blob 或 Uint8Array。download({resourceId}) 返回 download_initiated；write({resourceId,handle}) 仅在已授权句柄写入、关闭与 SHA-256/大小回读匹配后返回 write_verified。release({resourceId}) 释放页面资源；已启动下载的 Object URL 由定时器回收，不因 release 立即撤销。
+浏览器文件流程：先调用 api.files.capabilities() 读取格式和限制。api.files.register({name,data,mime?}) 登记 File/Blob/ArrayBuffer/Uint8Array 真实字节，返回 resourceId。api.files.new({context})、open/import({context,resourceId}) 操作当前工程；save({context,name?})、export({context,format,ids?,name?}) 返回 status=generated 的资源描述。STEP 保留当前实体设计原色；未设实体颜色时使用当前默认颜色。材质灯光效果属于视口显示，STEP 不保存 PBR 渲染效果；改色后导出无需重建几何。read({resourceId,as:"blob"|"bytes"}) 返回实际 Blob 或 Uint8Array。download({resourceId}) 返回 download_initiated；write({resourceId,handle}) 仅在已授权句柄写入、关闭与 SHA-256/大小回读匹配后返回 write_verified。release({resourceId}) 释放页面资源；已启动下载的 Object URL 由定时器回收，不因 release 立即撤销。
 单资源 20 MiB、最多 32 个、总计 64 MiB、有效期 30 分钟。生成 Blob 不等于写盘，下载启动不等于写盘成功。旧快照写入不能清除新 revision 的 dirty。页面 API 的新建/打开遇 dirty 一律拒绝 UNSAVED_REPLACEMENT；UI 的真实用户确认是独立路径。File/Blob 不保证能跨侧边栏 JSON 通道传递；宿主不能传字节时由用户在页面选择文件。当前静态版不含本机 IGES 转换器及服务端矢量转换器。
 
 ## recipes.analytic-arc-profile
 
-解析线弧轮廓：先 getTool({id:'arcProfile'})。outer 是顺序相接且闭合的数组；每段 {type:'line',points:[[起点X,Y],[终点X,Y]]} 或 {type:'arc',points:[[起点X,Y],[弧中X,Y],[终点X,Y]]}。holes 是同样轮廓的数组，height 为非零有符号 Z 拉伸深度（mm）。相邻端点及首尾端点须在0.000001 mm内重合；孔必须切除材料，输出必须是拓扑有效单实体，失败不提交。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const outer=[{type:'line',points:[[0,0],[10,0]]},{type:'arc',points:[[10,0],[12,2.5],[10,5]]},{type:'line',points:[[10,5],[0,5]]},{type:'line',points:[[0,5],[0,0]]}];const r=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'part',method:'add',args:{op:'arcProfile',refs:[],params:{outer,holes:[],height:3}}},{id:'size',method:'measure',args:{bodyId:{$ref:'part.createdBodyIds.0'}}}]});检查逐步 status、solidCount、精确测量和 getState().display.rendered.revision；历史可 feature.edit 修改原段列表及高度。该工具保留 CAD 中的解析圆弧与侧面圆柱面；不读取本地 DXF、不猜轮廓归属、不支持样条、变厚或曲面投影。PG11419 原 DXF 的12个明确 LINE/ARC handle 可经 text-to-cad/agent/tools/cad-learning/export_dxf_arc_profile.py 转为此操作参数，详见 recipes.pg11419-analytic-profile。
+解析线弧轮廓：先 getTool({id:'arcProfile'})。outer 是顺序相接且闭合的数组，每环2–256段，holes最多16环；每段 {type:'line',points:[[起点X,Y],[终点X,Y]]} 或 {type:'arc',points:[[起点X,Y],[弧中X,Y],[终点X,Y]]}。holes 是同样轮廓的数组，height 为非零有符号 Z 拉伸深度（mm）。相邻端点及首尾端点须在0.000001 mm内重合；孔必须切除材料，输出必须是拓扑有效单实体，失败不提交。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const outer=[{type:'line',points:[[0,0],[10,0]]},{type:'arc',points:[[10,0],[12,2.5],[10,5]]},{type:'line',points:[[10,5],[0,5]]},{type:'line',points:[[0,5],[0,0]]}];const r=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'part',method:'add',args:{op:'arcProfile',refs:[],params:{outer,holes:[],height:3}}},{id:'size',method:'measure',args:{bodyId:{$ref:'part.createdBodyIds.0'}}}]});检查逐步 status、solidCount、精确测量和 getState().display.rendered.revision；历史可 feature.edit 修改原段列表及高度。该工具保留 CAD 中的解析圆弧与侧面圆柱面；不读取本地 DXF、不猜轮廓归属、不支持样条、变厚或曲面投影。PG11419 原 DXF 的12个明确 LINE/ARC handle 可经 text-to-cad/agent/tools/cad-learning/export_dxf_arc_profile.py 转为此操作参数，详见 recipes.pg11419-analytic-profile。
 
 ## recipes.arc-band-plate
 
@@ -1962,7 +2274,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
           }
         },
         "minItems": 2,
-        "maxItems": 128
+        "maxItems": 256
       },
       "holes": {
         "type": "array",
@@ -2010,7 +2322,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
             }
           },
           "minItems": 2,
-          "maxItems": 128
+          "maxItems": 256
         },
         "maxItems": 16
       },
@@ -2056,7 +2368,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Ordered line start/end or arc start/middle/end XY points. Each adjacent endpoint and closure must agree within 0.000001 mm. Output is one exact BRep solid; holes must remove material. Supports XY only, constant Z depth, no spline, variable thickness or source-DXF auto selection. Invalid topology rejects the step.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Ordered line start/end or arc start/middle/end XY points. Each boundary accepts 2–256 segments; up to16 holes. Each adjacent endpoint and closure must agree within 0.000001 mm. Output is one exact BRep solid; holes must remove material. Supports XY only, constant Z depth, no spline, variable thickness or source-DXF auto selection. Invalid topology rejects the step.",
   "title": "Extrude exact closed XY LINE/ARC boundaries with optional holes",
   "category": "creation",
   "synonyms": [
@@ -2064,7 +2376,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "解析线弧轮廓"
   ],
   "description": "Extrude exact closed XY LINE/ARC boundaries with optional holes",
-  "schemaHash": "sha256:ae720d288338ed859ee8e2ec0abd429e54388b02e2ff0330bbc48905a08acff1",
+  "schemaHash": "sha256:4b96a136ad60e9c6926e8ce26b9cb51263bfc04aee98e794c2e0e0a005593859",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -2114,7 +2426,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Ordered line start/end or arc start/middle/end XY points. Each adjacent endpoint and closure must agree within 0.000001 mm. Output is one exact BRep solid; holes must remove material. Supports XY only, constant Z depth, no spline, variable thickness or source-DXF auto selection. Invalid topology rejects the step.",
+    "Ordered line start/end or arc start/middle/end XY points. Each boundary accepts 2–256 segments; up to16 holes. Each adjacent endpoint and closure must agree within 0.000001 mm. Output is one exact BRep solid; holes must remove material. Supports XY only, constant Z depth, no spline, variable thickness or source-DXF auto selection. Invalid topology rejects the step.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
@@ -2356,7 +2668,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:447c0a3afdfeae52783d0411798fcf52435ed5796c49acf4c0b34160b2f57e80"
+  "docsHash": "sha256:aec5feffbfc6460efed86d25f5aa9b336f55ca7d24db6d5a1ba92daa4d73c307"
 }
 ```
 
@@ -2782,21 +3094,59 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 }
 ```
 
-## 工具 chamfer · Chamfer sharp edges, shared face edges, face boundaries or the whole solid
+## 工具 chamfer · Equal-distance, two-distance or distance-angle chamfer of sharp edges
 
 ```json
 {
   "id": "chamfer",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "inputSchema": {
     "type": "object",
     "properties": {
       "distance": {
         "type": "number",
-        "description": "Chamfer distance (mm)",
+        "description": "Distance on reference support face (mm)",
         "exclusiveMinimum": 0,
         "unit": "mm",
         "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "mode": {
+        "type": "string",
+        "description": "Omitted mode preserves equal-distance chamfer",
+        "enum": [
+          "equalDistance",
+          "twoDistances",
+          "distanceAngle"
+        ]
+      },
+      "distance2": {
+        "type": "number",
+        "description": "Distance on other support face; required only for twoDistances (mm)",
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "angleDeg": {
+        "type": "number",
+        "description": "Chamfer angle relative to reference face; required only for distanceAngle",
+        "exclusiveMinimum": 0,
+        "exclusiveMaximum": 90,
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
+      },
+      "flipDirection": {
+        "type": "boolean",
+        "description": "Use the other adjacent support face"
+      },
+      "referenceFaceId": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Optional current source face index incident to every selected edge; default first adjacent face in current topology order",
+        "unit": "1",
+        "quantityKind": "index",
         "quantizationPolicy": "none"
       },
       "edgeIds": {
@@ -2907,14 +3257,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Choose exactly one scope: edgeIds, faceIds, or allEdges=true. sharedFaces:true with at least two faces selects their common sharp edges; UI multi-face selection uses this mode. Tangent seams, periodic seams and degenerate edges are excluded. Failure reports edge IDs, preserves the source and does not silently reduce distance. Convex corners cut inward; concave corners fill the recess. getState().bodies[].blendReport returns processed/skipped edges.",
-  "title": "Chamfer sharp edges, shared face edges, face boundaries or the whole solid",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Choose exactly one scope: edgeIds, faceIds, or allEdges=true. sharedFaces:true selects their common sharp edges. Legacy/omitted mode is equalDistance. twoDistances requires distance2; distanceAngle requires angleDeg in (0,90), radians are converted only at kernel call. Opposite mode fields are rejected; equalDistance forbids asymmetric options. Asymmetric distance is on referenceFaceId, or first adjacent current source face; flipDirection uses the other face. Optional explicit reference face must touch every selected edge. Tangent/periodic seams and degenerate edges are excluded. Failure preserves source, never reduces dimensions. getState().bodies[].blendReport returns mode, processed/skipped edges and resolved supportFaces for asymmetric modes.",
+  "title": "Equal-distance, two-distance or distance-angle chamfer of sharp edges",
   "category": "modification",
   "synonyms": [
     "倒角"
   ],
-  "description": "Chamfer sharp edges, shared face edges, face boundaries or the whole solid",
-  "schemaHash": "sha256:89f0006297810fab8b47f98c27dc7686de34b8ad6471e50c11990c9481c9615b",
+  "description": "Equal-distance, two-distance or distance-angle chamfer of sharp edges",
+  "schemaHash": "sha256:2e9b6af05ecf5bff6571194b7fd660fcd5df4e9fc53ac1b9d18ca2dd4ebe5af1",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -2965,7 +3315,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "Choose exactly one scope: edgeIds, faceIds, or allEdges=true. sharedFaces:true with at least two faces selects their common sharp edges; UI multi-face selection uses this mode. Tangent seams, periodic seams and degenerate edges are excluded. Failure reports edge IDs, preserves the source and does not silently reduce distance. Convex corners cut inward; concave corners fill the recess. getState().bodies[].blendReport returns processed/skipped edges."
+    "Choose exactly one scope: edgeIds, faceIds, or allEdges=true. sharedFaces:true selects their common sharp edges. Legacy/omitted mode is equalDistance. twoDistances requires distance2; distanceAngle requires angleDeg in (0,90), radians are converted only at kernel call. Opposite mode fields are rejected; equalDistance forbids asymmetric options. Asymmetric distance is on referenceFaceId, or first adjacent current source face; flipDirection uses the other face. Optional explicit reference face must touch every selected edge. Tangent/periodic seams and degenerate edges are excluded. Failure preserves source, never reduces dimensions. getState().bodies[].blendReport returns mode, processed/skipped edges and resolved supportFaces for asymmetric modes."
   ],
   "minimalExample": {
     "op": "chamfer",
@@ -3063,16 +3413,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:d280c970981ef0f9c0c24556f133e5ab74d73807e7578df92a77f3b54ca9b6fb"
+  "docsHash": "sha256:51012d2dd521ce71e3cc5780f20b798c0f8f79e578df19823cd8127d0ec202d4"
 }
 ```
 
-## 工具 circularPattern · Rotated copies as one compound
+## 工具 circularPattern · Rotated copies as a compound or explicitly fused solid
 
 ```json
 {
   "id": "circularPattern",
-  "version": "legacy-1",
+  "version": "1.1.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -3081,6 +3431,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "description": "Count including original",
         "minimum": 2,
         "maximum": 100,
+        "default": 3,
         "unit": "1",
         "quantityKind": "scalar",
         "quantizationPolicy": "none"
@@ -3090,6 +3441,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "description": "Degrees",
         "exclusiveMinimum": 0,
         "maximum": 360,
+        "default": 360,
         "unit": "deg",
         "quantityKind": "angle",
         "quantizationPolicy": "none"
@@ -3101,11 +3453,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
           "X",
           "Y",
           "Z"
-        ]
+        ],
+        "default": "Z"
       },
       "cx": {
         "type": "number",
         "description": "Axis center X (mm)",
+        "default": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -3113,6 +3467,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "cy": {
         "type": "number",
         "description": "Axis center Y (mm)",
+        "default": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -3120,9 +3475,19 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "cz": {
         "type": "number",
         "description": "Axis center Z (mm)",
+        "default": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
+      },
+      "outputMode": {
+        "type": "string",
+        "description": "Output type",
+        "enum": [
+          "compound",
+          "fuse"
+        ],
+        "default": "compound"
       }
     },
     "required": [],
@@ -3147,7 +3512,15 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "displayPreferencesAffectGeometry": false,
     "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
-  "defaults": {},
+  "defaults": {
+    "count": 3,
+    "angle": 360,
+    "axis": "Z",
+    "cx": 0,
+    "cy": 0,
+    "cz": 0,
+    "outputMode": "compound"
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -3158,24 +3531,24 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults count=3,angle=360,axis=Z,center=origin. Full circle excludes duplicate endpoint; partial angle includes both endpoints.",
-  "title": "Rotated copies as one compound",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults count=3,angle=360,axis=Z,center=origin,outputMode=compound. Full circle excludes duplicate endpoint; partial angle includes both endpoints. Fuse requires one connected solid. Placement transforms local axis and center.",
+  "title": "Rotated copies as a compound or explicitly fused solid",
   "category": "organization",
   "synonyms": [
     "circularPattern",
     "环形阵列"
   ],
-  "description": "Rotated copies as one compound",
-  "schemaHash": "sha256:a7db485040eeaaab68043f7c49d8a0c93673a4509d085e5b8aecdeb98b709f41",
+  "description": "Rotated copies as a compound or explicitly fused solid",
+  "schemaHash": "sha256:cea5a6fb12486d19d1494116475d1579c6a3212b2964ec92bd38ad75e782b95a",
   "apiCompatibility": [
-    "page-advisory"
+    "page-v2"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
-  "strictContract": false,
+  "strictContract": true,
   "v2Executable": true,
-  "contractStatus": "advisory",
+  "contractStatus": "migrated",
   "outputSchema": {
     "type": "object",
     "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
@@ -3213,11 +3586,10 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "Defaults count=3,angle=360,axis=Z,center=origin. Full circle excludes duplicate endpoint; partial angle includes both endpoints.",
-    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
+    "Defaults count=3,angle=360,axis=Z,center=origin,outputMode=compound. Full circle excludes duplicate endpoint; partial angle includes both endpoints. Fuse requires one connected solid. Placement transforms local axis and center."
   ],
   "minimalExample": {
     "op": "circularPattern",
@@ -3230,7 +3602,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "<current-bodyId-1>"
     ],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "normalExample": {
     "op": "circularPattern",
@@ -3243,7 +3615,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "<current-bodyId-1>"
     ],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "invalidExamples": [
     {
@@ -3254,7 +3626,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "__unknownField": true
       },
       "errorCode": "PARAM_SCHEMA_INVALID",
-      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+      "explanation": "Rejected before kernel execution."
     }
   ],
   "errorCodes": [
@@ -3280,13 +3652,15 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
   "verification": {
-    "contract": "not_migrated",
+    "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "环形阵列",
-  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -3305,8 +3679,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:2b9b5711e6e303b05e442936901f3f29e8d09b0446bacb7650ca0a1c8780079f"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:c7512b9573a0608947ae60b97ad6fb13d4bf833e30b0ec00e9f9d4dd0ea49e66"
 }
 ```
 
@@ -5038,7 +5412,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range.",
   "title": "Subtract other bodies from first",
   "category": "modification",
   "synonyms": [
@@ -5046,7 +5420,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "相减"
   ],
   "description": "Subtract other bodies from first",
-  "schemaHash": "sha256:a6edba2c9cb90c24d73f925a1a16e0dbfa37297a6962db09da203364ce53700e",
+  "schemaHash": "sha256:0ebc4016d4fd53a25ac5a903224c2c6d31328db1004daf3a01383076e98e8a2e",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -5096,7 +5470,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies.",
+    "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
@@ -5178,7 +5552,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:70773fbcd97879490b0a7156bd83e6879744367e13fd9dca36f42feb4a2cffce"
+  "docsHash": "sha256:b666f25db66a6ec763c3430ce624c7d4d5439f66d8a7bf0bbbfc6ff6b3ad9c98"
 }
 ```
 
@@ -9209,12 +9583,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 }
 ```
 
-## 工具 holeWizard · Exact plain, counterbore, or included-angle countersink hole in one feature
+## 工具 holeWizard · Exact plain, counterbore, or countersink hole with flat or angled blind drill point
 
 ```json
 {
   "id": "holeWizard",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -9238,7 +9612,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       },
       "depthMm": {
         "type": "number",
-        "description": "Blind hole depth (mm)",
+        "description": "Blind depth according to depthReference (mm)",
         "exclusiveMinimum": 0,
         "unit": "mm",
         "quantityKind": "length",
@@ -9246,8 +9620,34 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       },
       "through": {
         "type": "boolean",
-        "description": "Through first body along drilling axis",
+        "description": "Through body along drilling axis",
         "default": false
+      },
+      "drillPoint": {
+        "type": "string",
+        "description": "Blind bottom shape; omitted means flat",
+        "enum": [
+          "flat",
+          "angled"
+        ]
+      },
+      "drillPointAngleDeg": {
+        "type": "number",
+        "description": "Drill tip included angle; angled default 118 degrees",
+        "exclusiveMinimum": 0,
+        "exclusiveMaximum": 179,
+        "default": 118,
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
+      },
+      "depthReference": {
+        "type": "string",
+        "description": "Angled blind depth: cylindrical segment length or total entrance-to-tip depth",
+        "enum": [
+          "cylindricalLength",
+          "tipDepth"
+        ]
       },
       "recessDiameterMm": {
         "type": "number",
@@ -9269,7 +9669,10 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "type": "number",
         "description": "Countersink included angle in degrees",
         "exclusiveMinimum": 0,
-        "exclusiveMaximum": 179
+        "exclusiveMaximum": 179,
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "x": {
         "type": "number",
@@ -9359,15 +9762,15 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. One current solid target. Start point must lie on the boundary and direction enter continuous material. Blind depth must stop before its first exit. Counterbore uses recessDepthMm; countersink derives depth (D-d)/(2*tan(includedAngle/2)). No modeled thread geometry.",
-  "title": "Exact plain, counterbore, or included-angle countersink hole in one feature",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. One current solid target. Start point must lie on the boundary and direction enter continuous material. Blind depth including tip must stop before its first exit. Legacy/omitted drillPoint is flat. Angled blind tip height=diameter/(2*tan(drillPointAngleDeg/2)); default angle 118 deg, depthReference defaults cylindricalLength (tip is additional). tipDepth includes the tip and must leave positive cylinder length. Through holes reject angled tips. Recess must fit within cylindrical segment. Counterbore uses recessDepthMm; countersink derives depth (D-d)/(2*tan(includedAngle/2)). No modeled thread geometry.",
+  "title": "Exact plain, counterbore, or countersink hole with flat or angled blind drill point",
   "category": "modification",
   "synonyms": [
     "holeWizard",
     "孔向导"
   ],
-  "description": "Exact plain, counterbore, or included-angle countersink hole in one feature",
-  "schemaHash": "sha256:058cd0cabfc0688b35cb354529d1adc7cdfac7afe74227527bff5d16365b8fe8",
+  "description": "Exact plain, counterbore, or countersink hole with flat or angled blind drill point",
+  "schemaHash": "sha256:df530ec2084a8f172eccd25604cfc58e23234a1c29cbd8e4156a180f102c928f",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -9417,7 +9820,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "One current solid target. Start point must lie on the boundary and direction enter continuous material. Blind depth must stop before its first exit. Counterbore uses recessDepthMm; countersink derives depth (D-d)/(2*tan(includedAngle/2)). No modeled thread geometry."
+    "One current solid target. Start point must lie on the boundary and direction enter continuous material. Blind depth including tip must stop before its first exit. Legacy/omitted drillPoint is flat. Angled blind tip height=diameter/(2*tan(drillPointAngleDeg/2)); default angle 118 deg, depthReference defaults cylindricalLength (tip is additional). tipDepth includes the tip and must leave positive cylinder length. Through holes reject angled tips. Recess must fit within cylindrical segment. Counterbore uses recessDepthMm; countersink derives depth (D-d)/(2*tan(includedAngle/2)). No modeled thread geometry."
   ],
   "minimalExample": {
     "op": "holeWizard",
@@ -9532,7 +9935,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:a96a1461dd84a330389b01d970beb0bd0cec95df4aaaebedbf3098d3dc3521e0"
+  "docsHash": "sha256:efeaf244d0f59bdd37f4d1802cc533988201d2e0873dd46acf5383292b8c59c7"
 }
 ```
 
@@ -9953,12 +10356,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 }
 ```
 
-## 工具 linearPattern · Linear copies as one compound
+## 工具 linearPattern · Linear copies as a compound or explicitly fused solid
 
 ```json
 {
   "id": "linearPattern",
-  "version": "legacy-1",
+  "version": "1.1.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -9967,6 +10370,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "description": "Count including original",
         "minimum": 2,
         "maximum": 100,
+        "default": 3,
         "unit": "1",
         "quantityKind": "scalar",
         "quantizationPolicy": "none"
@@ -9974,6 +10378,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "dx": {
         "type": "number",
         "description": "Per-copy X step (mm)",
+        "default": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -9981,6 +10386,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "dy": {
         "type": "number",
         "description": "Per-copy Y step (mm)",
+        "default": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -9988,9 +10394,19 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "dz": {
         "type": "number",
         "description": "Per-copy Z step (mm)",
+        "default": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
+      },
+      "outputMode": {
+        "type": "string",
+        "description": "Output type",
+        "enum": [
+          "compound",
+          "fuse"
+        ],
+        "default": "compound"
       }
     },
     "required": [],
@@ -10015,7 +10431,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "displayPreferencesAffectGeometry": false,
     "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
-  "defaults": {},
+  "defaults": {
+    "count": 3,
+    "dx": 0,
+    "dy": 0,
+    "dz": 0,
+    "outputMode": "compound"
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -10026,24 +10448,24 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults count=3; at least one step nonzero.",
-  "title": "Linear copies as one compound",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults count=3, dx=dy=dz=0, outputMode=compound; at least one step must be nonzero. Fuse requires all copies to form one solid and fails without committing if disconnected. Placement transforms local step vectors.",
+  "title": "Linear copies as a compound or explicitly fused solid",
   "category": "organization",
   "synonyms": [
     "linearPattern",
     "直线阵列"
   ],
-  "description": "Linear copies as one compound",
-  "schemaHash": "sha256:71207ed41b292dc76bdc7082c5d972c07ccf97c13101e90b8d14857a397a687a",
+  "description": "Linear copies as a compound or explicitly fused solid",
+  "schemaHash": "sha256:5635e1346b3ed2f78820350d44d2be713c0275b76414b743e9f8118ae850a590",
   "apiCompatibility": [
-    "page-advisory"
+    "page-v2"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
-  "strictContract": false,
+  "strictContract": true,
   "v2Executable": true,
-  "contractStatus": "advisory",
+  "contractStatus": "migrated",
   "outputSchema": {
     "type": "object",
     "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
@@ -10081,11 +10503,10 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "Defaults count=3; at least one step nonzero.",
-    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
+    "Defaults count=3, dx=dy=dz=0, outputMode=compound; at least one step must be nonzero. Fuse requires all copies to form one solid and fails without committing if disconnected. Placement transforms local step vectors."
   ],
   "minimalExample": {
     "op": "linearPattern",
@@ -10097,7 +10518,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "<current-bodyId-1>"
     ],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "normalExample": {
     "op": "linearPattern",
@@ -10109,7 +10530,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "<current-bodyId-1>"
     ],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "invalidExamples": [
     {
@@ -10119,7 +10540,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "__unknownField": true
       },
       "errorCode": "PARAM_SCHEMA_INVALID",
-      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+      "explanation": "Rejected before kernel execution."
     }
   ],
   "errorCodes": [
@@ -10145,13 +10566,15 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
   "verification": {
-    "contract": "not_migrated",
+    "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "直线阵列",
-  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -10170,8 +10593,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:c7e239a8afe2bc7414670c6dbca1b0eb3096d6f47b4423cd73bdda919a02c78b"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:2d2607d46817fe9a25bb353e14bba1195afadaab48d2ec532f361e19cea1522d"
 }
 ```
 
@@ -10893,12 +11316,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 }
 ```
 
-## 工具 mirror · Mirror across a global origin plane
+## 工具 mirror · Mirror across a coordinate plane at an explicit offset
 
 ```json
 {
   "id": "mirror",
-  "version": "legacy-1",
+  "version": "1.1.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -10909,11 +11332,21 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
           "XY",
           "XZ",
           "YZ"
-        ]
+        ],
+        "default": "XY"
+      },
+      "offsetMm": {
+        "type": "number",
+        "description": "Signed plane coordinate; XY=Z, XZ=Y, YZ=X (mm)",
+        "default": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "keepOriginal": {
         "type": "boolean",
-        "description": "Preserve original; default true"
+        "description": "Preserve original; default true",
+        "default": true
       }
     },
     "required": [],
@@ -10938,7 +11371,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "displayPreferencesAffectGeometry": false,
     "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
-  "defaults": {},
+  "defaults": {
+    "plane": "XY",
+    "offsetMm": 0,
+    "keepOriginal": true
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -10949,24 +11386,24 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Default plane XY.",
-  "title": "Mirror across a global origin plane",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults plane=XY, offsetMm=0, keepOriginal=true. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates.",
+  "title": "Mirror across a coordinate plane at an explicit offset",
   "category": "organization",
   "synonyms": [
     "mirror",
     "镜像"
   ],
-  "description": "Mirror across a global origin plane",
-  "schemaHash": "sha256:c01050bdd1e24b5d662c3760c4cce7114f5035297b338610857be45655eedbb8",
+  "description": "Mirror across a coordinate plane at an explicit offset",
+  "schemaHash": "sha256:c2c206cc3c1513cfb0d739b1adfcbb672ae89c93f08fb6981225163b4fde99cc",
   "apiCompatibility": [
-    "page-advisory"
+    "page-v2"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
-  "strictContract": false,
+  "strictContract": true,
   "v2Executable": true,
-  "contractStatus": "advisory",
+  "contractStatus": "migrated",
   "outputSchema": {
     "type": "object",
     "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
@@ -11004,11 +11441,10 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "Default plane XY.",
-    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
+    "Defaults plane=XY, offsetMm=0, keepOriginal=true. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates."
   ],
   "minimalExample": {
     "op": "mirror",
@@ -11019,7 +11455,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "<current-bodyId-1>"
     ],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "normalExample": {
     "op": "mirror",
@@ -11030,7 +11466,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "<current-bodyId-1>"
     ],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "invalidExamples": [
     {
@@ -11039,7 +11475,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "__unknownField": true
       },
       "errorCode": "PARAM_SCHEMA_INVALID",
-      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+      "explanation": "Rejected before kernel execution."
     }
   ],
   "errorCodes": [
@@ -11065,13 +11501,15 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
   "verification": {
-    "contract": "not_migrated",
+    "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "镜像",
-  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -11090,8 +11528,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:a2839316e657f44c8f24bd28f404a0c19813c642937b7b55ebec272ee42648e9"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:5b9af818e341400c0468647ab98aa8ce823ae94396ab077e0c3ba09bcf8978b0"
 }
 ```
 
@@ -12951,7 +13389,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 ```json
 {
   "id": "profileConstraints",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -13130,6 +13568,122 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
                 }
               },
               "description": "Coincide two line endpoints or circle centers."
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "point",
+                "entityId"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "type": {
+                  "type": "string",
+                  "const": "pointOnLine"
+                },
+                "point": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "entityId",
+                    "point"
+                  ],
+                  "properties": {
+                    "entityId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "point": {
+                      "type": "string",
+                      "enum": [
+                        "start",
+                        "end",
+                        "center"
+                      ],
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    }
+                  },
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
+                },
+                "entityId": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              },
+              "description": "Place an endpoint or circle center on the supporting infinite line, including its extension."
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "point",
+                "entityId"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "type": {
+                  "type": "string",
+                  "const": "pointOnCircle"
+                },
+                "point": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "entityId",
+                    "point"
+                  ],
+                  "properties": {
+                    "entityId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "point": {
+                      "type": "string",
+                      "enum": [
+                        "start",
+                        "end",
+                        "center"
+                      ],
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    }
+                  },
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
+                },
+                "entityId": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              },
+              "description": "Place an endpoint or another circle center on a circle circumference."
             },
             {
               "type": "object",
@@ -13529,6 +14083,40 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
               "required": [
                 "type",
                 "firstId",
+                "secondId"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "type": {
+                  "type": "string",
+                  "const": "concentric"
+                },
+                "firstId": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "secondId": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              },
+              "description": "Two distinct circles share a center; radii remain independent."
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "firstId",
                 "secondId",
                 "angleDeg"
               ],
@@ -13662,7 +14250,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "profileConstraints"
   ],
   "description": "Solve common saved line/circle profile constraints and derive a new profile while preserving the source, entity IDs and ordered paths",
-  "schemaHash": "sha256:5fde80d902c88a8fcb5c28b781807e6872529df7f139f2b4b6449956be653a70",
+  "schemaHash": "sha256:a30a7eec08f3b9390f34a9d72ab2181e3c91138653d74f136e9674f0116fdf58",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -13837,7 +14425,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:e5bc5282a47ed6f35a39f0cdc4ae8d0bc9f59ad6cc158573855b51841c5c678f"
+  "docsHash": "sha256:17e733607dca58c4f349f00e5b13e5cd89a88db7d589ba5677d8aa19d3e2ce3a"
 }
 ```
 
@@ -15097,7 +15685,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 }
 ```
 
-## 工具 profileSweep · Sweep a saved exact section along a saved exact open path, with explicit material result
+## 工具 profileSweep · Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result
 
 ```json
 {
@@ -15168,15 +15756,15 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] 截面，refs[1] 单一连续开放精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；截面必须已在路径起点平面并垂直其起点切线，不自动居中/定位。首版无内孔截面、无闭合路径、无分叉，不提供变截面、导轨、扭转或自动减小半径。曲线保留为精确圆弧/样条，非离散折线。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。",
-  "title": "Sweep a saved exact section along a saved exact open path, with explicit material result",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] 截面，refs[1] 单一连续开放或闭合精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；闭合环仍使用保存路径的起点和切线。截面必须已在路径起点平面并垂直其起点切线，不自动居中/定位。支持单一平面 Face 的一个外环和已定义内孔（包括仅含该 Face 的 Compound）；外环与各内孔使用相同路径和过渡设置精确扫掠，再完整扣除内腔。原生 Face 或 sketchProfile 的 regions.holeLoopIds 定义孔，独立多环 Wire/纯边 Compound 不自动推断内外。内孔扫掠超出外部、与其它内孔交叠、无效或分裂结果拒绝。无分叉或多个独立路径，不提供变截面、导轨、扭转或自动减小半径。开放路径端面保留孔，闭环保留内部管腔；结果须通过有效正体积单实体检查，否则原子失败。曲线保留为精确圆弧/样条，非离散折线。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。",
+  "title": "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
   "category": "modification",
   "synonyms": [
     "轮廓扫掠",
     "profileSweep"
   ],
-  "description": "Sweep a saved exact section along a saved exact open path, with explicit material result",
-  "schemaHash": "sha256:4ae813af0a941553325ed3dfab5edce7ac62c56b4114637fc1ecc9f99b3f04c1",
+  "description": "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
+  "schemaHash": "sha256:5b2c3992cfb18372cf8f591eb2f18e8cf2653478740d5bfe51c520c51c4b8b2b",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -15238,7 +15826,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "refs[0] 截面，refs[1] 单一连续开放精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；截面必须已在路径起点平面并垂直其起点切线，不自动居中/定位。首版无内孔截面、无闭合路径、无分叉，不提供变截面、导轨、扭转或自动减小半径。曲线保留为精确圆弧/样条，非离散折线。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。"
+    "refs[0] 截面，refs[1] 单一连续开放或闭合精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；闭合环仍使用保存路径的起点和切线。截面必须已在路径起点平面并垂直其起点切线，不自动居中/定位。支持单一平面 Face 的一个外环和已定义内孔（包括仅含该 Face 的 Compound）；外环与各内孔使用相同路径和过渡设置精确扫掠，再完整扣除内腔。原生 Face 或 sketchProfile 的 regions.holeLoopIds 定义孔，独立多环 Wire/纯边 Compound 不自动推断内外。内孔扫掠超出外部、与其它内孔交叠、无效或分裂结果拒绝。无分叉或多个独立路径，不提供变截面、导轨、扭转或自动减小半径。开放路径端面保留孔，闭环保留内部管腔；结果须通过有效正体积单实体检查，否则原子失败。曲线保留为精确圆弧/样条，非离散折线。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。"
   ],
   "minimalExample": {
     "op": "profileSweep",
@@ -15335,7 +15923,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:a072fec98d6d885a4be4952b17edb490f3c2448cf601a45127e95c6e62245e4a"
+  "docsHash": "sha256:37ae4f52f971ad98a32e9dac34d4d3c06c955e16e47dca472d68ea0bd08342b4"
 }
 ```
 
@@ -17847,6 +18435,176 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
             "description": "Exploded center offset (0=coaxial)"
           }
         }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "One exact circular or rounded rectangular frame with an optional constant-wall collar, symmetric mounting posts and plain straight holes. Collar and posts extend along local +Z from a flange at Z=0. Hole depth 0 means through; positive depth is blind from the post top. 0/2/4 posts; two posts lie on Y. Zero collar/post heights make a backplate. No threads, taper, riveting, decoration or 3D edge blends. Circular mode requires matching width/height pairs; corner radii apply only to rectangular mode.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "frameEyelet"
+          },
+          "shape": {
+            "type": "string",
+            "default": "roundedRect",
+            "description": "Frame shape",
+            "enum": [
+              "round",
+              "roundedRect"
+            ]
+          },
+          "outerWidthMm": {
+            "type": "number",
+            "default": 25.6,
+            "description": "Outer width/diameter"
+          },
+          "outerHeightMm": {
+            "type": "number",
+            "default": 30,
+            "description": "Outer height (circular=width)"
+          },
+          "outerRadiusMm": {
+            "type": "number",
+            "default": 3.5,
+            "description": "Outer rectangular corner R"
+          },
+          "boreWidthMm": {
+            "type": "number",
+            "default": 12,
+            "description": "Bore width/diameter"
+          },
+          "boreHeightMm": {
+            "type": "number",
+            "default": 16.5,
+            "description": "Bore height (circular=width)"
+          },
+          "boreRadiusMm": {
+            "type": "number",
+            "default": 1.2,
+            "description": "Bore rectangular corner R"
+          },
+          "flangeThicknessMm": {
+            "type": "number",
+            "default": 1.5,
+            "description": "Flange thickness"
+          },
+          "collarProjectionMm": {
+            "type": "number",
+            "default": 3,
+            "description": "Collar projection (0=none)"
+          },
+          "collarWallMm": {
+            "type": "number",
+            "default": 0.3,
+            "description": "Collar wall thickness"
+          },
+          "mountingCount": {
+            "type": "number",
+            "default": 4,
+            "description": "Post count (0/2/4)"
+          },
+          "pitchXMm": {
+            "type": "number",
+            "default": 6,
+            "description": "Four-post X pitch"
+          },
+          "pitchYMm": {
+            "type": "number",
+            "default": 22.6,
+            "description": "Y pitch"
+          },
+          "bossDiameterMm": {
+            "type": "number",
+            "default": 4,
+            "description": "Post diameter"
+          },
+          "bossHeightMm": {
+            "type": "number",
+            "default": 3.5,
+            "description": "Post height (0=none)"
+          },
+          "holeDiameterMm": {
+            "type": "number",
+            "default": 2.6,
+            "description": "Plain hole diameter (0=solid)"
+          },
+          "holeDepthMm": {
+            "type": "number",
+            "default": 2,
+            "description": "Hole depth (0=through)"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "Constant-wall open U clip of uniform X width, independent front/back heights and exact tangent bend arcs. An inner radius equal to half the gap makes a semicircular bottom. Bottom Z=0, opening +Z, back wall +Y. Optional 0/1/2 plain back-wall through holes; two holes lie on X. Not a closed cap. No threads, decorations, end blends or elastic deformation. Holes must fit entirely within the straight back wall.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "uStrapClip"
+          },
+          "widthMm": {
+            "type": "number",
+            "default": 20,
+            "description": "Clip width",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "innerGapMm": {
+            "type": "number",
+            "default": 3,
+            "description": "Inner gap"
+          },
+          "wallThicknessMm": {
+            "type": "number",
+            "default": 1.3,
+            "description": "Wall thickness"
+          },
+          "frontHeightMm": {
+            "type": "number",
+            "default": 7,
+            "description": "Front overall height"
+          },
+          "backHeightMm": {
+            "type": "number",
+            "default": 5,
+            "description": "Back overall height"
+          },
+          "innerBendRadiusMm": {
+            "type": "number",
+            "default": 0.2,
+            "description": "Inner bend radius"
+          },
+          "holeCount": {
+            "type": "number",
+            "default": 2,
+            "description": "Back hole count (0/1/2)"
+          },
+          "holeDiameterMm": {
+            "type": "number",
+            "default": 2,
+            "description": "Plain back through-hole diameter"
+          },
+          "holePitchMm": {
+            "type": "number",
+            "default": 14,
+            "description": "Two-hole pitch"
+          },
+          "holeHeightMm": {
+            "type": "number",
+            "default": 3,
+            "description": "Hole center height from bottom"
+          }
+        }
       }
     ]
   },
@@ -18291,6 +19049,37 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "bFlangeDepthMm": 1.2,
       "bBendRadiusMm": 0.8,
       "explodedOffsetMm": 24
+    },
+    "frameEyelet": {
+      "shape": "roundedRect",
+      "outerWidthMm": 25.6,
+      "outerHeightMm": 30,
+      "outerRadiusMm": 3.5,
+      "boreWidthMm": 12,
+      "boreHeightMm": 16.5,
+      "boreRadiusMm": 1.2,
+      "flangeThicknessMm": 1.5,
+      "collarProjectionMm": 3,
+      "collarWallMm": 0.3,
+      "mountingCount": 4,
+      "pitchXMm": 6,
+      "pitchYMm": 22.6,
+      "bossDiameterMm": 4,
+      "bossHeightMm": 3.5,
+      "holeDiameterMm": 2.6,
+      "holeDepthMm": 2
+    },
+    "uStrapClip": {
+      "widthMm": 20,
+      "innerGapMm": 3,
+      "wallThicknessMm": 1.3,
+      "frontHeightMm": 7,
+      "backHeightMm": 5,
+      "innerBendRadiusMm": 0.2,
+      "holeCount": 2,
+      "holeDiameterMm": 2,
+      "holePitchMm": 14,
+      "holeHeightMm": 3
     }
   },
   "selectionTokenSupport": {
@@ -18311,7 +19100,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "快捷模型"
   ],
   "description": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-  "schemaHash": "sha256:1c734ea521efd9154a834ddb52aa154fe1a7648ad67482ad207bb3e1e68cbe3a",
+  "schemaHash": "sha256:de9756b418ea854f8469fb9a4f262a1de24d41743a956ef0a3fd4123cca4ed75",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -22778,6 +23567,350 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "bBendRadiusMm": 0.8,
         "explodedOffsetMm": 24
       }
+    },
+    {
+      "kind": "frameEyelet",
+      "title": "Mounting frame eyelet",
+      "description": "One exact circular or rounded rectangular frame with an optional constant-wall collar, symmetric mounting posts and plain straight holes. Collar and posts extend along local +Z from a flange at Z=0. Hole depth 0 means through; positive depth is blind from the post top. 0/2/4 posts; two posts lie on Y. Zero collar/post heights make a backplate. No threads, taper, riveting, decoration or 3D edge blends. Circular mode requires matching width/height pairs; corner radii apply only to rectangular mode.",
+      "defaults": {
+        "shape": "roundedRect",
+        "outerWidthMm": 25.6,
+        "outerHeightMm": 30,
+        "outerRadiusMm": 3.5,
+        "boreWidthMm": 12,
+        "boreHeightMm": 16.5,
+        "boreRadiusMm": 1.2,
+        "flangeThicknessMm": 1.5,
+        "collarProjectionMm": 3,
+        "collarWallMm": 0.3,
+        "mountingCount": 4,
+        "pitchXMm": 6,
+        "pitchYMm": 22.6,
+        "bossDiameterMm": 4,
+        "bossHeightMm": 3.5,
+        "holeDiameterMm": 2.6,
+        "holeDepthMm": 2
+      },
+      "fields": [
+        {
+          "key": "shape",
+          "label": "面框形状",
+          "labelEn": "Frame shape",
+          "type": "select",
+          "options": [
+            {
+              "value": "round",
+              "label": "圆形",
+              "labelEn": "Circular"
+            },
+            {
+              "value": "roundedRect",
+              "label": "圆角方形",
+              "labelEn": "Rounded rectangle"
+            }
+          ]
+        },
+        {
+          "key": "outerWidthMm",
+          "label": "外宽/外径",
+          "labelEn": "Outer width/diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "outerHeightMm",
+          "label": "外高（圆形=外宽）",
+          "labelEn": "Outer height (circular=width)",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "outerRadiusMm",
+          "label": "方形外角R",
+          "labelEn": "Outer rectangular corner R",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "boreWidthMm",
+          "label": "内孔宽/径",
+          "labelEn": "Bore width/diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "boreHeightMm",
+          "label": "内孔高（圆形=内宽）",
+          "labelEn": "Bore height (circular=width)",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "boreRadiusMm",
+          "label": "方形内角R",
+          "labelEn": "Bore rectangular corner R",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "flangeThicknessMm",
+          "label": "面框厚度",
+          "labelEn": "Flange thickness",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "collarProjectionMm",
+          "label": "颈口伸出长（0=无）",
+          "labelEn": "Collar projection (0=none)",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "collarWallMm",
+          "label": "颈口壁厚",
+          "labelEn": "Collar wall thickness",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "mountingCount",
+          "label": "安装柱数量（0/2/4）",
+          "labelEn": "Post count (0/2/4)",
+          "type": "number",
+          "min": 0,
+          "max": 4,
+          "step": 2,
+          "unit": "1"
+        },
+        {
+          "key": "pitchXMm",
+          "label": "四柱横向中心距",
+          "labelEn": "Four-post X pitch",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "pitchYMm",
+          "label": "纵向中心距",
+          "labelEn": "Y pitch",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "bossDiameterMm",
+          "label": "安装柱外径",
+          "labelEn": "Post diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "bossHeightMm",
+          "label": "安装柱伸出长（0=无柱）",
+          "labelEn": "Post height (0=none)",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "holeDiameterMm",
+          "label": "普通孔径（0=实柱）",
+          "labelEn": "Plain hole diameter (0=solid)",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "holeDepthMm",
+          "label": "孔深（0=通孔）",
+          "labelEn": "Hole depth (0=through)",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "frameEyelet"
+      },
+      "normalExample": {
+        "kind": "frameEyelet",
+        "shape": "roundedRect",
+        "outerWidthMm": 25.6,
+        "outerHeightMm": 30,
+        "outerRadiusMm": 3.5,
+        "boreWidthMm": 12,
+        "boreHeightMm": 16.5,
+        "boreRadiusMm": 1.2,
+        "flangeThicknessMm": 1.5,
+        "collarProjectionMm": 3,
+        "collarWallMm": 0.3,
+        "mountingCount": 4,
+        "pitchXMm": 6,
+        "pitchYMm": 22.6,
+        "bossDiameterMm": 4,
+        "bossHeightMm": 3.5,
+        "holeDiameterMm": 2.6,
+        "holeDepthMm": 2
+      }
+    },
+    {
+      "kind": "uStrapClip",
+      "title": "U-shaped strap clip",
+      "description": "Constant-wall open U clip of uniform X width, independent front/back heights and exact tangent bend arcs. An inner radius equal to half the gap makes a semicircular bottom. Bottom Z=0, opening +Z, back wall +Y. Optional 0/1/2 plain back-wall through holes; two holes lie on X. Not a closed cap. No threads, decorations, end blends or elastic deformation. Holes must fit entirely within the straight back wall.",
+      "defaults": {
+        "widthMm": 20,
+        "innerGapMm": 3,
+        "wallThicknessMm": 1.3,
+        "frontHeightMm": 7,
+        "backHeightMm": 5,
+        "innerBendRadiusMm": 0.2,
+        "holeCount": 2,
+        "holeDiameterMm": 2,
+        "holePitchMm": 14,
+        "holeHeightMm": 3
+      },
+      "fields": [
+        {
+          "key": "widthMm",
+          "label": "夹宽",
+          "labelEn": "Clip width",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "innerGapMm",
+          "label": "内净距",
+          "labelEn": "Inner gap",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "wallThicknessMm",
+          "label": "壁厚",
+          "labelEn": "Wall thickness",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "frontHeightMm",
+          "label": "前片总高",
+          "labelEn": "Front overall height",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "backHeightMm",
+          "label": "后片总高",
+          "labelEn": "Back overall height",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "innerBendRadiusMm",
+          "label": "内弯R",
+          "labelEn": "Inner bend radius",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "holeCount",
+          "label": "后孔数（0/1/2）",
+          "labelEn": "Back hole count (0/1/2)",
+          "type": "number",
+          "min": 0,
+          "max": 2,
+          "step": 1,
+          "unit": "1"
+        },
+        {
+          "key": "holeDiameterMm",
+          "label": "后片普通通孔径",
+          "labelEn": "Plain back through-hole diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "holePitchMm",
+          "label": "双孔中心距",
+          "labelEn": "Two-hole pitch",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "holeHeightMm",
+          "label": "孔心距底面",
+          "labelEn": "Hole center height from bottom",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "uStrapClip"
+      },
+      "normalExample": {
+        "kind": "uStrapClip",
+        "widthMm": 20,
+        "innerGapMm": 3,
+        "wallThicknessMm": 1.3,
+        "frontHeightMm": 7,
+        "backHeightMm": 5,
+        "innerBendRadiusMm": 0.2,
+        "holeCount": 2,
+        "holeDiameterMm": 2,
+        "holePitchMm": 14,
+        "holeHeightMm": 3
+      }
     }
   ],
   "verification": {
@@ -22805,7 +23938,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:825930374a84db7efb9b61069d5936067b859aa26ee8584e40a42399566d48d7"
+  "docsHash": "sha256:6a5b3da03e36f010dabdd6a72d7cd29796f13d7cd162a183c647882cd7d766dc"
 }
 ```
 
@@ -28127,7 +29260,10 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "type": "number",
         "minimum": 20,
         "maximum": 120,
-        "default": 60
+        "default": 60,
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "leftHanded": {
         "type": "boolean",
@@ -28177,7 +29313,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 先选真实圆柱面；工具从所选面的轴向下界开始，按明确螺距、径向牙深和V槽包含角实际切除材料。支持内／外、左／右旋，起止处按长度裁切。周向起点沿所选圆柱面的U=0母线，随该面的轴坐标旋转。它不提供ISO/GB规格、配合公差、端部退刀槽或多头螺纹；不是标准螺纹认证。",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 先选真实圆柱面；内外材料方向按单位法向判断，支持小半径内孔。工具从所选面的轴向下界开始，按明确螺距、径向牙深和V槽包含角实际切除材料。支持内／外、左／右旋，起止处按长度裁切。周向起点沿所选圆柱面的U=0母线，随该面的轴坐标旋转。它不提供ISO/GB规格、配合公差、端部退刀槽或多头螺纹；不是标准螺纹认证。",
   "title": "Cut an explicit symmetric helical V groove on a selected cylindrical material face",
   "category": "modification",
   "synonyms": [
@@ -28185,7 +29321,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "thread"
   ],
   "description": "Cut an explicit symmetric helical V groove on a selected cylindrical material face",
-  "schemaHash": "sha256:bada844cec90cdc984895bea22b6ad4b2f60cd0f97fc4823e398f5056171c8ff",
+  "schemaHash": "sha256:9fc594ea1a850e55bb7a206d346b38499cb543f3dcb39f207526a6e2a53048e2",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -28234,7 +29370,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "先选真实圆柱面；工具从所选面的轴向下界开始，按明确螺距、径向牙深和V槽包含角实际切除材料。支持内／外、左／右旋，起止处按长度裁切。周向起点沿所选圆柱面的U=0母线，随该面的轴坐标旋转。它不提供ISO/GB规格、配合公差、端部退刀槽或多头螺纹；不是标准螺纹认证。"
+    "先选真实圆柱面；内外材料方向按单位法向判断，支持小半径内孔。工具从所选面的轴向下界开始，按明确螺距、径向牙深和V槽包含角实际切除材料。支持内／外、左／右旋，起止处按长度裁切。周向起点沿所选圆柱面的U=0母线，随该面的轴坐标旋转。它不提供ISO/GB规格、配合公差、端部退刀槽或多头螺纹；不是标准螺纹认证。"
   ],
   "minimalExample": {
     "op": "thread",
@@ -28343,7 +29479,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:5537c0a8776df389843b8075252f6238a0d0a1c7b47684e854ca997d5c8848d6"
+  "docsHash": "sha256:bbe25808fc3984b6d529a73887caeac7faae1cf615bc134aa8bd94c180b7619e"
 }
 ```
 
@@ -28990,7 +30126,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range.",
   "title": "Fuse bodies",
   "category": "modification",
   "synonyms": [
@@ -28998,7 +30134,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "合并"
   ],
   "description": "Fuse bodies",
-  "schemaHash": "sha256:99f1e362d31db99ae09aba41f3dba2068f4e97da5ed25445dd141e8dccc0998f",
+  "schemaHash": "sha256:ba47123a373370476944e415c13401a9c8ebd9f394cef166899f3e1d67cbea46",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -29048,7 +30184,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies.",
+    "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
@@ -29130,7 +30266,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:5703a87b978c20954d6d2f9d69d2ab688a5ffa0f1a358e4cae70bfece533603c"
+  "docsHash": "sha256:78e4a412c54ec0ce134c26f1ab9922ff5a48d6893d82547556963ee73d78c34d"
 }
 ```
 
@@ -43513,6 +44649,838 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 }
 ```
 
+## 工具 template.frameEyelet · 安装鸡眼
+
+```json
+{
+  "id": "template.frameEyelet",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "安装鸡眼",
+  "category": "template",
+  "synonyms": [
+    "frameEyelet",
+    "安装鸡眼",
+    "Mounting frame eyelet"
+  ],
+  "description": "圆形或圆角方形面框、恒壁厚短颈口、对称安装柱及普通直孔，一次生成单件。颈口和柱沿本地+Z；面框底面Z=0。孔深0为通孔，正值为从柱顶向下的盲孔。安装柱数量0/2/4，2柱沿Y布置。可将颈口/柱高度设0作背片。不含牙槽、锥孔、压铆、饰面及三维边圆角；按原图再加工。圆形模式内外宽高必须分别相等，角R仅用于方形。",
+  "apiCompatibility": [
+    "page-advisory"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": true,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "frameEyelet",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "operationId": "quickModel",
+  "label": "安装鸡眼",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "One exact circular or rounded rectangular frame with an optional constant-wall collar, symmetric mounting posts and plain straight holes. Collar and posts extend along local +Z from a flange at Z=0. Hole depth 0 means through; positive depth is blind from the post top. 0/2/4 posts; two posts lie on Y. Zero collar/post heights make a backplate. No threads, taper, riveting, decoration or 3D edge blends. Circular mode requires matching width/height pairs; corner radii apply only to rectangular mode.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "frameEyelet"
+      },
+      "shape": {
+        "type": "string",
+        "default": "roundedRect",
+        "description": "Frame shape",
+        "enum": [
+          "round",
+          "roundedRect"
+        ]
+      },
+      "outerWidthMm": {
+        "type": "number",
+        "default": 25.6,
+        "description": "Outer width/diameter"
+      },
+      "outerHeightMm": {
+        "type": "number",
+        "default": 30,
+        "description": "Outer height (circular=width)"
+      },
+      "outerRadiusMm": {
+        "type": "number",
+        "default": 3.5,
+        "description": "Outer rectangular corner R"
+      },
+      "boreWidthMm": {
+        "type": "number",
+        "default": 12,
+        "description": "Bore width/diameter"
+      },
+      "boreHeightMm": {
+        "type": "number",
+        "default": 16.5,
+        "description": "Bore height (circular=width)"
+      },
+      "boreRadiusMm": {
+        "type": "number",
+        "default": 1.2,
+        "description": "Bore rectangular corner R"
+      },
+      "flangeThicknessMm": {
+        "type": "number",
+        "default": 1.5,
+        "description": "Flange thickness"
+      },
+      "collarProjectionMm": {
+        "type": "number",
+        "default": 3,
+        "description": "Collar projection (0=none)"
+      },
+      "collarWallMm": {
+        "type": "number",
+        "default": 0.3,
+        "description": "Collar wall thickness"
+      },
+      "mountingCount": {
+        "type": "number",
+        "default": 4,
+        "description": "Post count (0/2/4)"
+      },
+      "pitchXMm": {
+        "type": "number",
+        "default": 6,
+        "description": "Four-post X pitch"
+      },
+      "pitchYMm": {
+        "type": "number",
+        "default": 22.6,
+        "description": "Y pitch"
+      },
+      "bossDiameterMm": {
+        "type": "number",
+        "default": 4,
+        "description": "Post diameter"
+      },
+      "bossHeightMm": {
+        "type": "number",
+        "default": 3.5,
+        "description": "Post height (0=none)"
+      },
+      "holeDiameterMm": {
+        "type": "number",
+        "default": 2.6,
+        "description": "Plain hole diameter (0=solid)"
+      },
+      "holeDepthMm": {
+        "type": "number",
+        "default": 2,
+        "description": "Hole depth (0=through)"
+      }
+    }
+  },
+  "schemaHash": "sha256:2a0cb614769292eb5c3733600fcae0b1f60ed7f31d427271ca707a281849c215",
+  "defaults": {
+    "shape": "roundedRect",
+    "outerWidthMm": 25.6,
+    "outerHeightMm": 30,
+    "outerRadiusMm": 3.5,
+    "boreWidthMm": 12,
+    "boreHeightMm": 16.5,
+    "boreRadiusMm": 1.2,
+    "flangeThicknessMm": 1.5,
+    "collarProjectionMm": 3,
+    "collarWallMm": 0.3,
+    "mountingCount": 4,
+    "pitchXMm": 6,
+    "pitchYMm": 22.6,
+    "bossDiameterMm": 4,
+    "bossHeightMm": 3.5,
+    "holeDiameterMm": 2.6,
+    "holeDepthMm": 2
+  },
+  "fields": [
+    {
+      "key": "shape",
+      "label": "面框形状",
+      "labelEn": "Frame shape",
+      "type": "select",
+      "options": [
+        {
+          "value": "round",
+          "label": "圆形",
+          "labelEn": "Circular"
+        },
+        {
+          "value": "roundedRect",
+          "label": "圆角方形",
+          "labelEn": "Rounded rectangle"
+        }
+      ]
+    },
+    {
+      "key": "outerWidthMm",
+      "label": "外宽/外径",
+      "labelEn": "Outer width/diameter",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "outerHeightMm",
+      "label": "外高（圆形=外宽）",
+      "labelEn": "Outer height (circular=width)",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "outerRadiusMm",
+      "label": "方形外角R",
+      "labelEn": "Outer rectangular corner R",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "boreWidthMm",
+      "label": "内孔宽/径",
+      "labelEn": "Bore width/diameter",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "boreHeightMm",
+      "label": "内孔高（圆形=内宽）",
+      "labelEn": "Bore height (circular=width)",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "boreRadiusMm",
+      "label": "方形内角R",
+      "labelEn": "Bore rectangular corner R",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "flangeThicknessMm",
+      "label": "面框厚度",
+      "labelEn": "Flange thickness",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "collarProjectionMm",
+      "label": "颈口伸出长（0=无）",
+      "labelEn": "Collar projection (0=none)",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "collarWallMm",
+      "label": "颈口壁厚",
+      "labelEn": "Collar wall thickness",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "mountingCount",
+      "label": "安装柱数量（0/2/4）",
+      "labelEn": "Post count (0/2/4)",
+      "type": "number",
+      "min": 0,
+      "max": 4,
+      "step": 2,
+      "unit": "1"
+    },
+    {
+      "key": "pitchXMm",
+      "label": "四柱横向中心距",
+      "labelEn": "Four-post X pitch",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "pitchYMm",
+      "label": "纵向中心距",
+      "labelEn": "Y pitch",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "bossDiameterMm",
+      "label": "安装柱外径",
+      "labelEn": "Post diameter",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "bossHeightMm",
+      "label": "安装柱伸出长（0=无柱）",
+      "labelEn": "Post height (0=none)",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "holeDiameterMm",
+      "label": "普通孔径（0=实柱）",
+      "labelEn": "Plain hole diameter (0=solid)",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "holeDepthMm",
+      "label": "孔深（0=通孔）",
+      "labelEn": "Hole depth (0=through)",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    }
+  ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "frameEyelet"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "frameEyelet",
+      "shape": "roundedRect",
+      "outerWidthMm": 25.6,
+      "outerHeightMm": 30,
+      "outerRadiusMm": 3.5,
+      "boreWidthMm": 12,
+      "boreHeightMm": 16.5,
+      "boreRadiusMm": 1.2,
+      "flangeThicknessMm": 1.5,
+      "collarProjectionMm": 3,
+      "collarWallMm": 0.3,
+      "mountingCount": 4,
+      "pitchXMm": 6,
+      "pitchYMm": 22.6,
+      "bossDiameterMm": 4,
+      "bossHeightMm": 3.5,
+      "holeDiameterMm": 2.6,
+      "holeDepthMm": 2
+    },
+    "refs": []
+  },
+  "docs": "api.quick-installation",
+  "docsHash": "sha256:3e4d192d8d507e94b1b578aa1b86a8fe17d36c172716c376fae6ce4307cfd182"
+}
+```
+
+## 工具 template.uStrapClip · U形带夹
+
+```json
+{
+  "id": "template.uStrapClip",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "U形带夹",
+  "category": "template",
+  "synonyms": [
+    "uStrapClip",
+    "U形带夹",
+    "U-shaped strap clip"
+  ],
+  "description": "沿X等宽的恒壁厚开口U夹，前后片可不同高，内外弯角为精确相切圆弧；内弯R=内净距/2时为半圆底。底面Z=0，开口朝+Z，后片在+Y。可加后片普通通孔0/1/2个，2孔沿X布置。不是四边封闭的帽套；不含牙槽、前面饰面、片端三维圆角和弹性变形。孔中心须处于后片直段。",
+  "apiCompatibility": [
+    "page-advisory"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": true,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "uStrapClip",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "operationId": "quickModel",
+  "label": "U形带夹",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Constant-wall open U clip of uniform X width, independent front/back heights and exact tangent bend arcs. An inner radius equal to half the gap makes a semicircular bottom. Bottom Z=0, opening +Z, back wall +Y. Optional 0/1/2 plain back-wall through holes; two holes lie on X. Not a closed cap. No threads, decorations, end blends or elastic deformation. Holes must fit entirely within the straight back wall.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "uStrapClip"
+      },
+      "widthMm": {
+        "type": "number",
+        "default": 20,
+        "description": "Clip width",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "innerGapMm": {
+        "type": "number",
+        "default": 3,
+        "description": "Inner gap"
+      },
+      "wallThicknessMm": {
+        "type": "number",
+        "default": 1.3,
+        "description": "Wall thickness"
+      },
+      "frontHeightMm": {
+        "type": "number",
+        "default": 7,
+        "description": "Front overall height"
+      },
+      "backHeightMm": {
+        "type": "number",
+        "default": 5,
+        "description": "Back overall height"
+      },
+      "innerBendRadiusMm": {
+        "type": "number",
+        "default": 0.2,
+        "description": "Inner bend radius"
+      },
+      "holeCount": {
+        "type": "number",
+        "default": 2,
+        "description": "Back hole count (0/1/2)"
+      },
+      "holeDiameterMm": {
+        "type": "number",
+        "default": 2,
+        "description": "Plain back through-hole diameter"
+      },
+      "holePitchMm": {
+        "type": "number",
+        "default": 14,
+        "description": "Two-hole pitch"
+      },
+      "holeHeightMm": {
+        "type": "number",
+        "default": 3,
+        "description": "Hole center height from bottom"
+      }
+    }
+  },
+  "schemaHash": "sha256:76c51a14a77bab83b9dbdb5ef341f5373b62ac203e48a5b9bd520bab20031997",
+  "defaults": {
+    "widthMm": 20,
+    "innerGapMm": 3,
+    "wallThicknessMm": 1.3,
+    "frontHeightMm": 7,
+    "backHeightMm": 5,
+    "innerBendRadiusMm": 0.2,
+    "holeCount": 2,
+    "holeDiameterMm": 2,
+    "holePitchMm": 14,
+    "holeHeightMm": 3
+  },
+  "fields": [
+    {
+      "key": "widthMm",
+      "label": "夹宽",
+      "labelEn": "Clip width",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "innerGapMm",
+      "label": "内净距",
+      "labelEn": "Inner gap",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "wallThicknessMm",
+      "label": "壁厚",
+      "labelEn": "Wall thickness",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "frontHeightMm",
+      "label": "前片总高",
+      "labelEn": "Front overall height",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "backHeightMm",
+      "label": "后片总高",
+      "labelEn": "Back overall height",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "innerBendRadiusMm",
+      "label": "内弯R",
+      "labelEn": "Inner bend radius",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "holeCount",
+      "label": "后孔数（0/1/2）",
+      "labelEn": "Back hole count (0/1/2)",
+      "type": "number",
+      "min": 0,
+      "max": 2,
+      "step": 1,
+      "unit": "1"
+    },
+    {
+      "key": "holeDiameterMm",
+      "label": "后片普通通孔径",
+      "labelEn": "Plain back through-hole diameter",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "holePitchMm",
+      "label": "双孔中心距",
+      "labelEn": "Two-hole pitch",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "holeHeightMm",
+      "label": "孔心距底面",
+      "labelEn": "Hole center height from bottom",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    }
+  ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "uStrapClip"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "uStrapClip",
+      "widthMm": 20,
+      "innerGapMm": 3,
+      "wallThicknessMm": 1.3,
+      "frontHeightMm": 7,
+      "backHeightMm": 5,
+      "innerBendRadiusMm": 0.2,
+      "holeCount": 2,
+      "holeDiameterMm": 2,
+      "holePitchMm": 14,
+      "holeHeightMm": 3
+    },
+    "refs": []
+  },
+  "docs": "api.quick-installation",
+  "docsHash": "sha256:a50626e6ecae431e4d192b625a048636126f654640c5231b28fb8c41bd047b21"
+}
+```
+
 ## 工具 readRelief · readRelief
 
 ```json
@@ -43520,7 +45488,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "readRelief",
   "title": "readRelief",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded,threshold?:0.5})。先 files.register；只读，本地解码。",
   "synonyms": [
     "readRelief",
@@ -43550,7 +45518,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_SCHEMA_INVALID"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:c07026a2ff35b580924025bc016ee7853ee880dd5f5af4d27fc5ad4b782ef2d4"
+  "docsHash": "sha256:77ba4a121096b5a239c4e11a5e74becc5767fd303f758573e117a770316050ed"
 }
 ```
 
@@ -43561,7 +45529,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getHistory",
   "title": "getHistory",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "getHistory()。返回已保留状态，不含导入源字节。",
   "synonyms": [
     "getHistory",
@@ -43577,7 +45545,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:0ccd640a6d61e977526c64cccf31575a15f906eb2c077e3d208709ab614ec2cf"
+  "docsHash": "sha256:a6a23bc368ff927d2efeae39aaaa23df2db99370541e7880f212ff30a0ce6fcc"
 }
 ```
 
@@ -43588,7 +45556,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "planAlignment",
   "title": "planAlignment",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true。",
   "synonyms": [
     "planAlignment",
@@ -43608,7 +45576,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "STALE_REFERENCE",
     "REVISION_CONFLICT"
   ],
-  "docsHash": "sha256:170289b2a97f5c425463873e3f6e0c201dbaea625d70f5c5b47556de3343e5b2"
+  "docsHash": "sha256:cea238e03cde65b9e3ef3846daa89f52fdb4593b3b3e395d46ddde2371e648a1"
 }
 ```
 
@@ -43619,7 +45587,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "selectRectangle",
   "title": "selectRectangle",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。",
   "synonyms": [
     "selectRectangle",
@@ -43639,7 +45607,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "UI_TASK_ACTIVE",
     "REVISION_CONFLICT"
   ],
-  "docsHash": "sha256:91746b9169c7fd89264f998d0458e5b0f663000e7918b6ec6caf12cb181b80cd"
+  "docsHash": "sha256:36b2b98f51b2425320750a46449a1710b6de02a4619b74e14dbb7724c3b531bb"
 }
 ```
 
@@ -43650,7 +45618,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "createDrawing",
   "title": "createDrawing",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。",
   "synonyms": [
     "createDrawing",
@@ -43672,7 +45640,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "GEOMETRY_INVALID"
   ],
-  "docsHash": "sha256:2380beff939ad02bd98c87a34ed09fa784136a0271ad37ba98022df89c77b4a3"
+  "docsHash": "sha256:4add4c6ac936f83b7876cc18551de76651699c23a33136016c5d2a3c24e95da4"
 }
 ```
 
@@ -43683,7 +45651,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "exportDrawing",
   "title": "exportDrawing",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "exportDrawing({context,drawingId,format:pdf|jpg|dxf|svg,paper?:A4|A3,title?,name?,disabledDimensions?:[id]})。drawingId必须仍匹配当前revision；DWG明确不可用。",
   "synonyms": [
     "exportDrawing",
@@ -43708,7 +45676,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:60afedf19af9b7784d6e6b8ab56fc39574999f82fc766a8656eabc62112a0d84"
+  "docsHash": "sha256:7c910dc39937be0047d418a78a67d53a7c528cf15cb4b5facf67d8f877b15fac"
 }
 ```
 
@@ -43719,7 +45687,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getQuickModelUsage",
   "title": "getQuickModelUsage",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "getQuickModelUsage({}={})；只读本浏览器累计成功创建次数，不要求几何上下文，预览期间也可读取。",
   "synonyms": [
     "getQuickModelUsage",
@@ -43741,7 +45709,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
-  "docsHash": "sha256:45c394d83314c0a3e4d052fe936d33be19d79b69f66fd907ddab4d4b803fd2df"
+  "docsHash": "sha256:7130a8e523debba4c57a215307283075a1fc091d90e753aee3c794497e8b89ea"
 }
 ```
 
@@ -43752,7 +45720,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "copySelection",
   "title": "copySelection",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "copySelection({context,bodyIds}); 1–200个当前实体。",
   "synonyms": [
     "copySelection",
@@ -43774,7 +45742,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE",
     "UI_TASK_ACTIVE"
   ],
-  "docsHash": "sha256:380c68341382ce943289bc94e30269e62de909a763f9284975da3775a7966988"
+  "docsHash": "sha256:e1e930bb6f97886b474e2e1211e1add943a558ed0f8236300ae529be05e95624"
 }
 ```
 
@@ -43785,7 +45753,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "pasteSelection",
   "title": "pasteSelection",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "pasteSelection({context,idempotencyKey}); 先 copySelection。",
   "synonyms": [
     "pasteSelection",
@@ -43815,7 +45783,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "maxBytes": 20971520,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:1415531518a88e34b4ef666f2675c0d046b0fdd3e982bd08da1a9a738e5e9b6b"
+  "docsHash": "sha256:753424b381997a78d11752b0297ab1b0d1efc55ee27a08a33a7726daa443a863"
 }
 ```
 
@@ -43826,7 +45794,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "createRequestContext",
   "title": "createRequestContext",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "createRequestContext(context?); omit to read the current context.",
   "synonyms": [
     "createRequestContext",
@@ -43845,7 +45813,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:0c2d9b02ebb6c06340f3fe20567974e0d2f056ecfb669aa4ff9d51b847edb363"
+  "docsHash": "sha256:15815eb5f94e608a4eb463f9ec5bb0f220657e65670aa89d52cc1d66d623e617"
 }
 ```
 
@@ -43856,7 +45824,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "getUILayout()",
   "synonyms": [
     "getUILayout",
@@ -43873,7 +45841,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
   "errorCodes": [],
   "docs": "api.workspace",
-  "docsHash": "sha256:18ba67c89140ab3ade229b0ef296d8913812d0d2779d098d3a75a89a46abf71b"
+  "docsHash": "sha256:dd72055432bc09b1820f4a8626cb8455565de3c491785b7f1b9a7e0d6ebf3f3f"
 }
 ```
 
@@ -43884,7 +45852,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setRenderQuality",
   "title": "setRenderQuality",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "setRenderQuality({context,quality:\"draft\"|\"standard\"|\"fine\"|\"ultra\"})",
   "synonyms": [
     "setRenderQuality",
@@ -43908,7 +45876,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "DISPLAY_FAILED"
   ],
   "docs": "api.workspace",
-  "docsHash": "sha256:65d7c92f00d05ce43079c610261ad0c000ac450731cb5c3c1903bb78d2e0eb84"
+  "docsHash": "sha256:120c9b794eff246f99c1d63463969dc98a836fb4769b3e213d79ddda7c5b6ed0"
 }
 ```
 
@@ -43919,7 +45887,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "invoke({method,args}); public method name or files.*.",
   "synonyms": [
     "invoke",
@@ -43937,7 +45905,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_SCHEMA_INVALID"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:ffcf53bd9a700031a855995f5ab86b9ad165a343881bb0582d7197bce6e495a1"
+  "docsHash": "sha256:7ee4e9184786a114c361687673134a013f178492cbadb00bbaea30fcb63b4d87"
 }
 ```
 
@@ -43948,7 +45916,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "submit",
   "title": "submit",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/inspectConstraints/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.",
   "synonyms": [
     "submit",
@@ -43970,7 +45938,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:448180a15dd5bb7d1bb8a8c971ee7f6667b0d5ca3f66c03fb0e0148518951a86"
+  "docsHash": "sha256:a7e2b0af6c943152b45f11afb509beb4f469874897993ff63ba1980dcc0b71c4"
 }
 ```
 
@@ -43981,7 +45949,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getJob",
   "title": "getJob",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "getJob({jobId})",
   "synonyms": [
     "getJob",
@@ -44000,7 +45968,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "JOB_NOT_FOUND"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:0b7d9be22341bd1d9bc3b42b778157a423346bd4a58c18334e60195635c6fab1"
+  "docsHash": "sha256:a44b414b62227cbaa9884cefc0d8caeb58dd479db74beff3e625fb9ee5ba79d8"
 }
 ```
 
@@ -44011,7 +45979,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "cancelJob",
   "title": "cancelJob",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "cancelJob({jobId})",
   "synonyms": [
     "cancelJob",
@@ -44028,7 +45996,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "JOB_NOT_FOUND"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:fa3c854992ed8ed9b7ca976fee6e50dffaf74c7c9b097918eef01b896e6d3b3b"
+  "docsHash": "sha256:51b28937e1b00a275d221610eac2ff007b73f727e5f5f1ba9e0828c8611cafe6"
 }
 ```
 
@@ -44039,7 +46007,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.",
   "synonyms": [
     "connect",
@@ -44059,7 +46027,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:0c58b365f22e05f5fb0963d14d6f937f2153660eb48022df8a89ad46f7c9d2eb"
+  "docsHash": "sha256:dd0a3ba56a112d21fb585331cb8803baf66d3d58d1d6405f84fcb81486ca2284"
 }
 ```
 
@@ -44070,7 +46038,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "info",
   "title": "info",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "info() 无参数。",
   "synonyms": [
     "info",
@@ -44085,7 +46053,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "runtimeAvailability": "requires_page",
   "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
   "errorCodes": [],
-  "docsHash": "sha256:b7464bdb51b8bb7aacc70f86d7d051898c67180bc5118ad89fbeb320e931e9cc"
+  "docsHash": "sha256:dc57e900daa4c7417886fdf553468aad97b0dc269ea2b617eb7422740517ba0b"
 }
 ```
 
@@ -44096,7 +46064,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities/references。",
   "synonyms": [
     "getState",
@@ -44117,7 +46085,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_SCHEMA_INVALID",
     "INSTANCE_MISMATCH"
   ],
-  "docsHash": "sha256:f8dc55ef7868649869e00bb229221d09095b15162ea72f4d534e73c71a363340"
+  "docsHash": "sha256:8dc48f05fb52c7bcf41d1742269b8b45872185cc8becbadf67b96bb4911a9ee4"
 }
 ```
 
@@ -44128,7 +46096,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "searchTools",
   "title": "searchTools",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。",
   "synonyms": [
     "searchTools",
@@ -44148,7 +46116,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:ba286a3d5e0611592fd4bd9dcabbaf189964f642600d72b87df399d3f32d3f5d"
+  "docsHash": "sha256:80d327de60578356a0af8234847c12b6d42730624d2f90792f9c6d0c1c45f9fa"
 }
 ```
 
@@ -44159,7 +46127,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getTools",
   "title": "getTools",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.",
   "synonyms": [
     "getTools",
@@ -44180,7 +46148,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CATALOG_CHANGED"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:ad4751959480de4f7e288cadcffa63fa651fb325457a642979378cc57d8bfb17"
+  "docsHash": "sha256:e86d07bbf5a6b95158433cdeacc9259602d254f15b4984470d03cdf2d06228a8"
 }
 ```
 
@@ -44191,7 +46159,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getTool",
   "title": "getTool",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。",
   "synonyms": [
     "getTool",
@@ -44211,7 +46179,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "UNKNOWN_OPERATION",
     "OPERATION_VERSION_UNSUPPORTED"
   ],
-  "docsHash": "sha256:3317375f8979ef21f621883c46aa7b849883d74adb9bcbc4ba2e59a12118006b"
+  "docsHash": "sha256:8b59c65adb277b598aa563a2009b0a74c87945582def1abed71a2abc02559bb0"
 }
 ```
 
@@ -44222,7 +46190,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "readDocs",
   "title": "readDocs",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。",
   "synonyms": [
     "readDocs",
@@ -44242,7 +46210,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_RANGE_INVALID",
     "OPERATION_VERSION_UNSUPPORTED"
   ],
-  "docsHash": "sha256:dca4fa0473115cb41e30c5900e8ef39c9306517a80755fbfbdf369cfa4b88470"
+  "docsHash": "sha256:3fb35449bddf2fdc750a55079237440bd81bfedc0f9942927b1ab9a7fab43ca9"
 }
 ```
 
@@ -44253,7 +46221,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "queryGeometry",
   "title": "queryGeometry",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,limit?,cursor?})。",
   "synonyms": [
     "queryGeometry",
@@ -44275,7 +46243,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "NO_MATCH",
     "AMBIGUOUS_SELECTION"
   ],
-  "docsHash": "sha256:660401e72a2f33d980184d84fd4723012a07bbcaabda671d9cfb3cb5deb657af"
+  "docsHash": "sha256:182eb3c532030c86453879de39f9b56709faa4cf29dbbebb9f62d4f3a8851ee2"
 }
 ```
 
@@ -44286,7 +46254,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "queryReferences",
   "title": "queryReferences",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "queryReferences({context,bodyIds:[],kind:\"point\"|\"axis\"|\"frame\",filter?:{types?:[\"cad-vertex\",\"edge-midpoint\",\"circle-center\",\"edge-nearest\",\"trimmed-face-point\",...],near?:{point:[x,y,z],radiusMm}},limit?,offset?,requireUnique?})。",
   "synonyms": [
     "queryReferences",
@@ -44305,7 +46273,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "STALE_REFERENCE",
     "AMBIGUOUS_REFERENCE"
   ],
-  "docsHash": "sha256:356925e401ac4e16886f4360020ec6b65d83a9e419cb4e166b407843d7843d90"
+  "docsHash": "sha256:8cbbdea5f055f3e9ac6eb1e04c3b038fdebfa6db78a9ed8480c90e60237a00b2"
 }
 ```
 
@@ -44316,7 +46284,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "resolvePlacement",
   "title": "resolvePlacement",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。",
   "synonyms": [
     "resolvePlacement",
@@ -44335,7 +46303,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "FRAME_INVALID",
     "PLACEMENT_NOT_APPLICABLE"
   ],
-  "docsHash": "sha256:43316acf579c70a8e1b70b6f7302ecd915f95f9c042bbf5ac44e280c2b9939aa"
+  "docsHash": "sha256:1cee6ce18244119af0925a3dcb06c70717bcbaa8014910fdb02793aed5d7b394"
 }
 ```
 
@@ -44346,7 +46314,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "execute({context,idempotencyKey,action,args}); action 来自当前命令合同。",
   "synonyms": [
     "execute",
@@ -44374,7 +46342,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "maxBytes": 20971520,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:4da985aa9929140c0fb7ceb40f5f433b2450f1a52d224692f2e0a0e4989555c6"
+  "docsHash": "sha256:aa6ad085639574b9a9f2c60ee4041817cda873ffbf7484dae76093e1545d5731"
 }
 ```
 
@@ -44385,7 +46353,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "measure",
   "title": "measure",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需当前范围内的非负整数 topologyId；整个实体测量不接受 topologyId，坐标点模式不可混用实体字段。",
   "synonyms": [
     "measure",
@@ -44414,7 +46382,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "area": "mm^2",
     "volume": "mm^3"
   },
-  "docsHash": "sha256:417669c2011148caa920d6ddfeefe35e88252e0a0ad686ef0c0c8a26e300d398"
+  "docsHash": "sha256:cf12905d8ad43f03b20bc84122077e8da57fd584b5cfb8cbc52e2e2a8a7b288b"
 }
 ```
 
@@ -44425,7 +46393,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "measureRelation",
   "title": "measureRelation",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "measureRelation({context,mode:\"shortest\"|\"centerDistance\"|\"axisAlignment\"|\"pointFace\"|\"parallelFaces\",first?,second?,face?,pointWorld?})；引用形式 {bodyId,kind:\"body\"|\"edge\"|\"face\",topologyId?}。",
   "synonyms": [
     "measureRelation",
@@ -44448,7 +46416,306 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:3d138ad5aa86aafb20d5223205ffc4c8da4d5df2d407361a5fdc6189b5e2612d"
+  "docsHash": "sha256:27376e06243b6170d761bd0ee657a4948e9a34cda7f66a6f4bd85430588f665a"
+}
+```
+
+## 工具 inspectDesign · inspectDesign
+
+```json
+{
+  "id": "inspectDesign",
+  "title": "inspectDesign",
+  "category": "page-method",
+  "version": "1.22.0",
+  "description": "inspectDesign({context,requirements,requirePass?:false})；1–64项{id,bodyId,kind:bounds|solidCount|material,evidence:{kind:drawing|user|assumption,reference}}。bounds加sizeMm:[X,Y,Z]/明确toleranceMm；solidCount加count；material加points/expected:inside|outside，可选toleranceMm。总计<=128个世界XYZ材料点。完整字段与示例见api.design-checks。",
+  "synonyms": [
+    "inspectDesign",
+    "源图",
+    "要求",
+    "核对",
+    "尺寸",
+    "材料",
+    "漏接",
+    "横杆",
+    "保留孔",
+    "验收",
+    "假设"
+  ],
+  "inputContract": "inspectDesign({context,requirements,requirePass?:false})；1–64项{id,bodyId,kind:bounds|solidCount|material,evidence:{kind:drawing|user|assumption,reference}}。bounds加sizeMm:[X,Y,Z]/明确toleranceMm；solidCount加count；material加points/expected:inside|outside，可选toleranceMm。总计<=128个世界XYZ材料点。完整字段与示例见api.design-checks。",
+  "outputContract": "只读精确BRep，逐项matches、expected/actual、verdict:pass|fail|unverified；假设和边界点不放行，sourceEvidenceVerified=false；requirePass:true在不通过时返回failed并保留诊断，可阻止批次后续导出。点采样不证明完整连接、截面或圆角。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "RESOURCE_LIMIT",
+    "STALE_REFERENCE",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE",
+    "DESIGN_CHECK_UNSUPPORTED",
+    "DESIGN_CHECK_INCONCLUSIVE",
+    "DESIGN_REQUIREMENTS_NOT_MET"
+  ],
+  "docs": "api.design-checks",
+  "units": {
+    "length": "mm"
+  },
+  "relatedTools": [
+    "measure",
+    "inspectThickness",
+    "planeSection",
+    "inspectFit"
+  ],
+  "argumentKeys": [
+    "context",
+    "requirements",
+    "requirePass"
+  ],
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "context": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "documentId": {
+            "type": "string"
+          },
+          "documentInstanceId": {
+            "type": "string"
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ],
+        "additionalProperties": false
+      },
+      "requirePass": {
+        "type": "boolean",
+        "default": false
+      },
+      "requirements": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 64,
+        "items": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z][a-zA-Z0-9_-]{0,39}$"
+                },
+                "bodyId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 150
+                },
+                "kind": {
+                  "const": "bounds"
+                },
+                "evidence": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "drawing",
+                        "user",
+                        "assumption"
+                      ]
+                    },
+                    "reference": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "reference"
+                  ],
+                  "additionalProperties": false
+                },
+                "sizeMm": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "toleranceMm": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 1
+                }
+              },
+              "required": [
+                "id",
+                "bodyId",
+                "kind",
+                "evidence",
+                "sizeMm",
+                "toleranceMm"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z][a-zA-Z0-9_-]{0,39}$"
+                },
+                "bodyId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 150
+                },
+                "kind": {
+                  "const": "solidCount"
+                },
+                "evidence": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "drawing",
+                        "user",
+                        "assumption"
+                      ]
+                    },
+                    "reference": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "reference"
+                  ],
+                  "additionalProperties": false
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 1000
+                }
+              },
+              "required": [
+                "id",
+                "bodyId",
+                "kind",
+                "evidence",
+                "count"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z][a-zA-Z0-9_-]{0,39}$"
+                },
+                "bodyId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 150
+                },
+                "kind": {
+                  "const": "material"
+                },
+                "evidence": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "drawing",
+                        "user",
+                        "assumption"
+                      ]
+                    },
+                    "reference": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "reference"
+                  ],
+                  "additionalProperties": false
+                },
+                "points": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                  },
+                  "minItems": 1,
+                  "maxItems": 128
+                },
+                "expected": {
+                  "enum": [
+                    "inside",
+                    "outside"
+                  ]
+                },
+                "toleranceMm": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 0.01,
+                  "default": 0.00001
+                }
+              },
+              "required": [
+                "id",
+                "bodyId",
+                "kind",
+                "evidence",
+                "points",
+                "expected"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      }
+    },
+    "required": [
+      "context",
+      "requirements"
+    ],
+    "additionalProperties": false
+  },
+  "crossItemLimits": {
+    "uniqueRequirementIds": true,
+    "maxMaterialPoints": 128
+  },
+  "unknownFields": "rejected",
+  "docsHash": "sha256:1f2f52f84c3874ec4174281704d139aa9de8bd0f5a4e6ddb9bb8fef919100edf"
 }
 ```
 
@@ -44459,7 +46726,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectPrintability",
   "title": "inspectPrintability",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "inspectPrintability({context,bodyId,angleLimitDeg?:45}); angleLimitDeg 在 0 与 90 度之间。",
   "synonyms": [
     "inspectPrintability",
@@ -44482,7 +46749,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.printability",
-  "docsHash": "sha256:ed0fde667fd60882d73bb72659fb85a24e24bf3912671dae1357ca9194268d71"
+  "docsHash": "sha256:792fe0a13074e44ea4d02b8d923624354fbd8e64b535383df3a68777526e91ef"
 }
 ```
 
@@ -44493,7 +46760,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectProfile",
   "title": "inspectProfile",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。界面检查选项按需展开；API 不依赖界面展开状态。",
   "synonyms": [
     "inspectProfile",
@@ -44516,7 +46783,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.interaction",
-  "docsHash": "sha256:c1610224161203b604789a222eccb540f36a943fd956493fd63e64489b560855"
+  "docsHash": "sha256:aa34fea55b843918236cc6e101727e9209a540c2aef204e079ae43a5078db04f"
 }
 ```
 
@@ -44527,7 +46794,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "prepareProfileEdit",
   "title": "prepareProfileEdit",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "prepareProfileEdit({context,bodyId,mode:\"intersections\"|\"trim\"|\"extend\"|\"trimCircle\"|\"fillet\",entityId?,targetId?,edgeIds?,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})。二维圆角可用 edgeIds:[两条当前边索引] 替代 entityId/targetId，支持解析轮廓及其未缩放的移动/旋转副本，选择先后不限；须显式 radiusMm 与新 arcId。",
   "synonyms": [
     "prepareProfileEdit",
@@ -44552,7 +46819,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "GEOMETRY_INVALID"
   ],
   "docs": "api.interaction",
-  "docsHash": "sha256:2fd317c48b225665d676e98941398253c641006f848cf55e0e79323274262325"
+  "docsHash": "sha256:f7d0cf4e989270e06bc92e7b84b9e70cc149c279dd2a6a3b526c22d22796afa2"
 }
 ```
 
@@ -44563,7 +46830,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectConstraints",
   "title": "inspectConstraints",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "inspectConstraints({context,bodyId})；当前保存的 sketchProfile 或 profileConstraints 派生轮廓。只读诊断已有关系；矩形转换为明确四条解析边并保留形状关系。",
   "synonyms": [
     "inspectConstraints",
@@ -44596,7 +46863,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "length": "mm",
     "angle": "degrees"
   },
-  "docsHash": "sha256:a92e91c6541a1a646bc3b0fb7ead7c456d2e5301f64a4d57e135e99f44c1fa8f"
+  "docsHash": "sha256:0aea64e226c254deffbda8288cb7bde7f14dfafca62eccd88fb1eb899348a7db"
 }
 ```
 
@@ -44607,7 +46874,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "projectProfile",
   "title": "projectProfile",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "projectProfile({context,bodyId,edgeIds:[当前边索引],frame?:{origin,quaternion}})；或用 pointWorld:[x,y,z] 投影明确坐标点。",
   "synonyms": [
     "projectProfile",
@@ -44629,7 +46896,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "UNSUPPORTED_CURVE_PROJECTION",
     "DEGENERATE_PROJECTION"
   ],
-  "docsHash": "sha256:e683abf1773cf06cfc992729fd38d2de096dda2f4c0ee8fd7911f23b349e4033"
+  "docsHash": "sha256:7cf8e55b3589baf68b324bfe821e826b20c1761d7fa2514ced8886328464ec65"
 }
 ```
 
@@ -44640,7 +46907,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectFit",
   "title": "inspectFit",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。",
   "synonyms": [
     "inspectFit",
@@ -44663,7 +46930,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:4b9e79be6b277ef8c9d3f9b2d4063025f2df3821e06e18e5080da2b8f79a3eb3"
+  "docsHash": "sha256:b8740c4243a80c5264fef3750cd1a0afe5416c2dc36855431a972f2878916e83"
 }
 ```
 
@@ -44674,7 +46941,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectThickness",
   "title": "inspectThickness",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "inspectThickness({context,bodyId,mode:\"ray\",point:[x,y,z],direction:[dx,dy,dz]})；或 mode:\"faces\",faceAId,faceBId,point；两面须平行且射线穿过连续材料。",
   "synonyms": [
     "inspectThickness",
@@ -44695,7 +46962,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:1820f68cd6c78f8022a9fe32a7b30309da80ee133d740b4cb35485604864bdf3"
+  "docsHash": "sha256:743b5bffec5b95e5ba451603c4c4892e2bd44661a42b4ec6fa3993d8e84ad42b"
 }
 ```
 
@@ -44706,7 +46973,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectDraft",
   "title": "inspectDraft",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "inspectDraft({context,bodyId,pullDirection:[0,0,1],thresholdDeg:2})；用户决定阈值。",
   "synonyms": [
     "inspectDraft",
@@ -44727,7 +46994,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:4ca6a4382ce411d015211efd9121613fa61b1455ea8255a097e3d872f58fefe2"
+  "docsHash": "sha256:6501973067efc5b28118185c1b013a2ec757d59a25f0adb461699418dbc7405e"
 }
 ```
 
@@ -44738,7 +47005,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "readVector",
   "title": "readVector",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "readVector({context,name,resourceId|text,scaleMm?:1,targetWidthMm?,entityIds?,bounds?:[minX,minY,maxX,maxY],layers?,offset?:0,limit?:500}); limit<=10000。文件先 files.register。",
   "synonyms": [
     "readVector",
@@ -44764,7 +47031,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.vector-import",
-  "docsHash": "sha256:4c8edeb50647ce826364029caddd12b7cb850ca1023d6ba673a256fcfc2b09aa"
+  "docsHash": "sha256:6cfbdac876312d8c40ad0614677d6c286fce40d555d101c3fed64ad0641c1b2c"
 }
 ```
 
@@ -44775,7 +47042,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "connectVector",
   "title": "connectVector",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "connectVector({context,entities,toleranceMm?:0.000001,origin?:[0,0],flipY?:false}); 1..500 条解析线。",
   "synonyms": [
     "connectVector",
@@ -44799,7 +47066,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.vector-import",
-  "docsHash": "sha256:f76361c78f1fff1304ca2252b898c267e4075a0b48d26af3510abad4c603895d"
+  "docsHash": "sha256:707c97e80f619e2a0fe29de6145f78ca668f37b660075926738433d7cbb002cd"
 }
 ```
 
@@ -44810,7 +47077,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "fitProfile",
   "title": "fitProfile",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "fitProfile({context,kind:\"circle\"|\"line\",plane?:\"XY\"|\"XZ\"|\"YZ\",points:[[u,v],...],maxResidualMm?}); 3–1000 点。",
   "synonyms": [
     "fitProfile",
@@ -44834,7 +47101,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.profile-fitting",
-  "docsHash": "sha256:6c6acfeb83714858f5de236e3beb67629a3a40163a677dd602005cde645cd98e"
+  "docsHash": "sha256:a8372863a33684b0ac0e0be739918d46189320f15683312732ddea1b470cdc1e"
 }
 ```
 
@@ -44845,7 +47112,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "traceTwinWindow",
   "title": "traceTwinWindow",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBottomY,simplifyToleranceMm?:0..0.2}); 四条上到下 XY 采样曲线，每条3–2000点。",
   "synonyms": [
     "traceTwinWindow",
@@ -44867,7 +47134,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.dwg-spline-twin-window",
-  "docsHash": "sha256:406aac8081a75eb29b12caf7dfced0da62d60e78203a2e65ab503325cc9f239e"
+  "docsHash": "sha256:6e77b9f2a827817e0e6dca476cf96889ef267a1b43d7bb0a591584f96819dd08"
 }
 ```
 
@@ -44878,7 +47145,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "executeText",
   "title": "executeText",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "executeText({context,idempotencyKey,text,dryRun?}); 每行 add <op> key=value 或 measure <bodyId|$last>。",
   "synonyms": [
     "executeText",
@@ -44901,7 +47168,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.text-command",
-  "docsHash": "sha256:bbcbd43b770d12fc3eb3778625469bd95fd1d53ffe7004d39e95b443a69d61c6"
+  "docsHash": "sha256:f68be63e1aee5dab6fc35c4c4691678df267c75d15371a06a5b5943108a587e8"
 }
 ```
 
@@ -44912,7 +47179,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "setDisplayPreferences({context,values}); values 为部分配置，字段及范围见 api.display-preferences。",
   "synonyms": [
     "setDisplayPreferences",
@@ -44937,7 +47204,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.display-preferences",
-  "docsHash": "sha256:7b3a205fb93a8cd227b5926c43aae247d43c635eaf54d5a61c2e45ee78bcfb12"
+  "docsHash": "sha256:ca74829acafef9a259890d6c305de2027e7fec0b622b40cc065419d9d687f0eb"
 }
 ```
 
@@ -44948,7 +47215,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getLogoConverter",
   "title": "getLogoConverter",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "getLogoConverter()；读取当前浏览器 localStorage 的配置。",
   "synonyms": [
     "getLogoConverter",
@@ -44964,7 +47231,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:fc02c1f08f008e2ae7b6a9ed7a426e649bb26eb0772eb2f5297dffe6597126e9"
+  "docsHash": "sha256:32ffb1b61d5bcfe6c5c9bb40d95884ba2fd0a8b220bd8a6bd6adb754009009e0"
 }
 ```
 
@@ -44975,7 +47242,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setLogoConverter",
   "title": "setLogoConverter",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "setLogoConverter({context,url,key?})；URL 必须含 userid，空 key 保留原值。",
   "synonyms": [
     "setLogoConverter",
@@ -44997,7 +47264,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:682b3f2216e73bf7bc12ba939a1abda1458b15944f7f3c9cb2c530b762a3038d"
+  "docsHash": "sha256:7f7de30c497068079bcdb7ac3493898dba65980bef2b7202bcba148d8b3ee262"
 }
 ```
 
@@ -45008,7 +47275,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "convertLogoPdf",
   "title": "convertLogoPdf",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "convertLogoPdf({context,name,data,targetWidthMm?})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。",
   "synonyms": [
     "convertLogoPdf",
@@ -45031,7 +47298,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID"
   ],
-  "docsHash": "sha256:ffadff466723e35d061a5711a9bf43c7080604404831bd4925459f740ef02461"
+  "docsHash": "sha256:598c7306e9cc86163d4278a20c8a9566936ec5076051430ce04b1f6ed74b7a6f"
 }
 ```
 
@@ -45042,7 +47309,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
   "synonyms": [
     "setView",
@@ -45071,7 +47338,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SELECTION_CONFLICT"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:67942cdcbe7e4662ea468ee96b219a28c1a8c3f5d2945573eacfa59c3edf66ef"
+  "docsHash": "sha256:c4ad796dc40fc7c819430b4f7507bad0c17cf769febee5aa8055ce4483e85c2f"
 }
 ```
 
@@ -45082,7 +47349,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "redraw",
   "title": "redraw",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "redraw({context}); 不接受额外字段。",
   "synonyms": [
     "redraw",
@@ -45103,7 +47370,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "DISPLAY_FAILED"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:c6b299b849c1a067ab73cfee827668ede85187df69ab6c442f085b4a4a899108"
+  "docsHash": "sha256:a0a6aa89203164fe51fa9e0a36d4e72ce72136525b921d11adbdc68b30a02b23"
 }
 ```
 
@@ -45114,7 +47381,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "capture({context}); 不接受额外字段。",
   "synonyms": [
     "capture",
@@ -45135,7 +47402,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "DISPLAY_FAILED"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:2c51c8dd484a14e40bc96810a2aa09051d2926038bb95a6eb9f89f2e910dfed3"
+  "docsHash": "sha256:07dd7626cac4e9389415fd4efe97833dc75d9c2284e27e9f9f94152758336fe8"
 }
 ```
 
@@ -45146,8 +47413,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.18.0",
-  "description": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}).",
+  "version": "1.22.0",
+  "description": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}); addMany for one atomic feature plan: api.feature-plan.",
   "synonyms": [
     "run",
     "批量",
@@ -45156,7 +47423,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "指令",
     "无CLI"
   ],
-  "inputContract": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}).",
+  "inputContract": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}); addMany for one atomic feature plan: api.feature-plan.",
   "outputContract": "completed/partial/failed/unknown、逐步回执、progress/recovery、elapsedMs、回执时的 context/requestContext/summary/display；atomic=false。后续操作前核对实时状态。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -45176,7 +47443,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "maxBytes": 20971520,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:afb28deaa77a73647897479990bdaca25d9e8e8992a1281d760f8a7ba3d9ad4d"
+  "docsHash": "sha256:0ff6a3cc9f122e3465b1e92e414c03b8dc4bf200e65101d2c480e170ddc01182"
 }
 ```
 
@@ -45188,7 +47455,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "快速对齐",
   "description": "按世界 X/Y/Z 对齐包围范围的 min/center/max；移动件和基准件显式分开；group=true 保持相对位置。一次原子历史操作。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -45242,7 +47509,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:b31824d24bb44554e8770ed5be21f8534a89e3df7a9e70f596acd61c3390eea9"
+  "docsHash": "sha256:7939b336b6ba84056b917dd4903839266e8d00c6695df3a0822e7a143bc44a46"
 }
 ```
 
@@ -45254,7 +47521,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "退回工程状态",
   "description": "用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -45290,7 +47557,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:0e775ae12da613b958cdbeff417a0ff427d000499457a386a545f43e5260acf2"
+  "docsHash": "sha256:ea0b149ea35fb4788007258f1a98e23163181425df703eb6c1b92983c35a20a6"
 }
 ```
 
@@ -45302,7 +47569,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "工程改名",
   "description": "修改工程名称，保留几何。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -45341,7 +47608,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:ebc6ce603a88920a2bfb64016c508df1605933ebc076e22848764cf51ce0d063"
+  "docsHash": "sha256:ae2fd6ec6a25c8e03a41209976b2fb590acc078dbfdf444ec80dce740d38e57d"
 }
 ```
 
@@ -45353,7 +47620,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "特征改名 实体名称",
   "description": "修改历史步骤及同 ID 实体名称，导入件也可使用。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -45394,7 +47661,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:ec71959d5c7c2790c89e7edb4903f875c88122f6834e3b98a6d92b554899ce77"
+  "docsHash": "sha256:a8797f40627cb34e962b05135ad493eac6cad18194c88a74220602172e48910a"
 }
 ```
 
@@ -45406,7 +47673,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "显示 隐藏实体",
   "description": "显隐指定当前实体，不删除几何。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -45449,7 +47716,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:73304df1ce8609295cb039d8ec51fb4c541737b8e48f483dc5addb068ffdc31f"
+  "docsHash": "sha256:cb8c6f8e2c3e569c4e86fe3583cbf0dabfa8cb38af2b72c839600f9557f8d6b6"
 }
 ```
 
@@ -45461,7 +47728,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "实体原色 颜色 金属 材质",
   "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -45519,7 +47786,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:f8dcb5c89a338408f2268a9eb3abade123837b9fd171bd99b38ca3dc2e59453a"
+  "docsHash": "sha256:969dc83bca7bdcfe0b4e5646b5c12fbdf9de0471bc08e57de9a2d34cde613202"
 }
 ```
 
@@ -45531,7 +47798,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "工程渲染 金属色",
   "description": "设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -45583,7 +47850,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:86324647509c7bd7a2b672af5795425b46aed3743eac14f51ab5a258a34574ba"
+  "docsHash": "sha256:40b2397c3c1ea3b1d2beedf47c4fad0ce6080bbe47f61bbbc9f9f1c1c0d9476b"
 }
 ```
 
@@ -45595,7 +47862,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "组合拆散 多实体分解",
   "description": "将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -45634,7 +47901,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:a35804b60bb7563432c79cc5298c6b5bb1825a6acc65c21f6e476005fb0a456c"
+  "docsHash": "sha256:3de4c4b549612e6c30303f29f1d1d19a25e68079d8e5f0507a35daa3f132a242"
 }
 ```
 
@@ -45646,7 +47913,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "设置参考锚点（工作基准）",
   "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -45676,7 +47943,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:49f9085bdcae170bfcbb8747f20b6a1483f9d8f90f2ea39f750d2a2de9751aa5"
+  "docsHash": "sha256:a6ec2375ec6d11ccaf9d46c76e770b73de42229d4539fd65b6f10a8c54cf0384"
 }
 ```
 
@@ -45688,7 +47955,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重置参考锚点（工作基准）",
   "description": "args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -45718,7 +47985,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:a86d482fd018822a28d8e36eb0528f4f73aeb5a896a967174bf152a70d7c6c07"
+  "docsHash": "sha256:1f02a4b209d0fa802816544fa75fe115aad812fad30256de9fe07df51ffe5677"
 }
 ```
 
@@ -45730,7 +47997,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "锁定参考锚点（工作基准）",
   "description": "args:{locked:boolean}；可撤销的元数据操作。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -45760,7 +48027,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:d97ee85dda90eb1d3ed3b5ed0a2eeae18dc383ec7aa965c81a2084ffb2555df2"
+  "docsHash": "sha256:d5befd4089159264604dfb09618c1df18aaac7e7c83ea17c34afb1bcd18fafc7"
 }
 ```
 
@@ -45772,7 +48039,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "保存具名基准",
   "description": "args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -45802,7 +48069,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:5709f0430fd7ef7bcab34c0e13306e75564d0f0605cf6fc80824575964fc5f57"
+  "docsHash": "sha256:377a97d662664941d5396f6363989a94bc9b4650322455e1c1ac17ff9d4f5664"
 }
 ```
 
@@ -45814,7 +48081,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "激活具名基准",
   "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -45844,7 +48111,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:f48008ee01f867360fd76352f43afa145826c03ec92fc20ea18600dc8c02eb28"
+  "docsHash": "sha256:ce9cd9175d726eb22227140eaade3b2b04147ba44d1bacdd9b36265b84d73071"
 }
 ```
 
@@ -45856,7 +48123,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重命名具名基准",
   "description": "args:{frameId,expectedFrameVersion,name}。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -45886,7 +48153,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:b8cedcb3cd59cb8c0e52622dedaf04f899f7a4d1b2d7be4b4981a781eb6fe3ac"
+  "docsHash": "sha256:4345227151fa55e8b22f2cda2d1f5780dbcdc4438625bd068b07e6115f1483bd"
 }
 ```
 
@@ -45898,7 +48165,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "删除具名基准",
   "description": "args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -45928,7 +48195,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:5df89ebb69f45c65691a08a1d13f799b2d64401c963fd78d9a6f484b5b11040a"
+  "docsHash": "sha256:d27e630ac56aa9b373ea739dcef7416a3514acb34ddd795a7dee62401e74dac5"
 }
 ```
 
@@ -45940,7 +48207,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "对象锚点",
   "description": "args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -45970,7 +48237,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:65e394efe4ce486d117c08cd89c2e9aae2784cdb9930ab10052102ab56d780b8"
+  "docsHash": "sha256:80fec436404a110b70b6e4c969bc743495df5c536a93d750eb76afcb48394251"
 }
 ```
 
@@ -45982,7 +48249,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "删除对象锚点",
   "description": "args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -46012,7 +48279,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:4947f36c3ffdedfa9b25ddc7ef62ab0cf921c9bca5817a4bf90c69220778c0f5"
+  "docsHash": "sha256:d493a44a17ef74e67f307d540e145b5edea76e4933b3c3889f43c7ca327f596a"
 }
 ```
 
@@ -46024,7 +48291,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "新增几何",
   "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -46054,7 +48321,164 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:77d8bcb972daaecb1efa6e3dc690582e58b4342034d6fd3041278a07329391c0"
+  "docsHash": "sha256:a35d804006d3158268865081600818b353d37d562a8ad2671308ed37dd91756f"
+}
+```
+
+## 工具 feature.addMany · 一次提交多特征
+
+```json
+{
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "features"
+    ],
+    "properties": {
+      "features": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 64,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "key",
+            "op",
+            "opVersion",
+            "schemaHash",
+            "params",
+            "refs"
+          ],
+          "properties": {
+            "key": {
+              "type": "string",
+              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]{0,39}$"
+            },
+            "op": {
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "cone",
+                "torus",
+                "extrude",
+                "revolve",
+                "sweep",
+                "loft",
+                "quickModel",
+                "vectorProfile",
+                "arcProfile",
+                "sketchProfile",
+                "curveSweep",
+                "advancedLoft",
+                "transform",
+                "copy",
+                "mirror",
+                "linearPattern",
+                "circularPattern",
+                "union",
+                "cut",
+                "intersect",
+                "group",
+                "fillet",
+                "chamfer",
+                "hole",
+                "multiHole",
+                "multiPocket",
+                "multiBoss"
+              ]
+            },
+            "opVersion": {
+              "type": "string"
+            },
+            "schemaHash": {
+              "type": "string"
+            },
+            "params": {
+              "type": "object",
+              "description": "Complete current selected operation schema applies; no intermediate topology IDs"
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "feature"
+                    ],
+                    "properties": {
+                      "feature": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "placement": {
+              "type": "object",
+              "description": "Same placement contract as feature.add; frozen against transaction-start state"
+            }
+          }
+        }
+      }
+    }
+  },
+  "executionPolicy": {
+    "atomic": true,
+    "revisionCount": 1,
+    "undoSteps": 1,
+    "geometryRebuilds": 1
+  },
+  "docs": "api.feature-plan",
+  "id": "feature.addMany",
+  "title": "一次提交多特征",
+  "description": "args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
+  "category": "command",
+  "version": "1.22.0",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"feature.addMany\",args}); args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
+  "docsHash": "sha256:6a6696f285b52bca4499567084974cb40c87668c21387b159a618720944618ef"
 }
 ```
 
@@ -46066,7 +48490,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "修改参数",
   "description": "args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -46096,7 +48520,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:1ddbd29a0cacb4bbf29967a3fe91eb3dd0216e9a8cea00b023bc8a92a677a94c"
+  "docsHash": "sha256:c873741c49c607e2a7da840e9e51dfdd03c970403b7d0f8d8a92fe3f0c42c740"
 }
 ```
 
@@ -46108,7 +48532,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "删除实体",
   "description": "args:{bodyIds}，不可使用历史已替换 ID。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -46138,7 +48562,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:6844b7d49bab65485dc687c61f0539e4742ba2bae243f75e6384b095067a147e"
+  "docsHash": "sha256:6f8e49ce198c6ea4de748c2cac2669d87c6d5a362f99fc1da9cf09d7d0ea2f2c"
 }
 ```
 
@@ -46150,7 +48574,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "撤销",
   "description": "args:{}；撤销一个已提交步骤。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -46180,7 +48604,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:1e4bad72791e54bbd8a1e367e44ed5ff93fdcb98f168be08d1cc2507267197b1"
+  "docsHash": "sha256:e4d417492aa486d6e49322f6379c4c58b112f7e1c421e4f4a111b247dd0f6484"
 }
 ```
 
@@ -46192,7 +48616,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重做",
   "description": "args:{}；重做一个步骤。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -46222,7 +48646,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:0264c25709e7856c8a2eac4e71d968226d53c720234099528508f6c86ae5799a"
+  "docsHash": "sha256:4143ecbe77fb22474f77f698f48eb13179f5914fec6e56133d23746e1ff9c6f9"
 }
 ```
 
@@ -46234,7 +48658,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重建工程",
   "description": "args:{}；重建当前历史。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -46264,7 +48688,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:543350aed927b9163519d29f197c4d7b5ad853c28b0130ecb2daefe83c391036"
+  "docsHash": "sha256:27c3bf29f3b5183e26e69114984b36428f5e6409995808bd8ada01ce73349bea"
 }
 ```
 
@@ -46276,7 +48700,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "预览模型或文件插入",
   "description": "普通特征 args 同 feature.add；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -46306,7 +48730,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:23018137e7b5c13336a4cb5df2b2ad98ccf05e8163d4fbe726425f36f8757108"
+  "docsHash": "sha256:8e2e9ec980e131fab050101eb1a2e682d3ba180dd02b3557ea5b41a62a7c4cce"
 }
 ```
 
@@ -46318,7 +48742,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "更新预览",
   "description": "args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -46348,7 +48772,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:3115eff7657334c07343f43694254a2203a851361e5822c42fd658e6f400dbdc"
+  "docsHash": "sha256:cafcc0f8c3900ee155b6843ed4dcb378536785f3105d2025e56472e4c7b92ed9"
 }
 ```
 
@@ -46360,7 +48784,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "应用预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -46390,7 +48814,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:a5264a2f2e8de96108408460636ebd674541ac9efac5b6b9ad6eef5d05b08713"
+  "docsHash": "sha256:d3d5a88c9a5c82a5830b1c67b191f6a7991b85f51d6a88ee7df7377cb30143c8"
 }
 ```
 
@@ -46402,7 +48826,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "取消预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -46432,7 +48856,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:9b92909d1267395b49d27275b26ec2a784f81e60e208e06fa7ad7d68dd43c448"
+  "docsHash": "sha256:e51b7654523944645698885abf162e646921fe8b6793f7c624301af07e48c879"
 }
 ```
 
@@ -46443,7 +48867,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。",
   "synonyms": [
     "参数",
@@ -46523,7 +48947,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Indexed face/edge references downstream of a changed feature are rejected when stability cannot be proven."
   ],
   "docs": "api.named-parameters",
-  "docsHash": "sha256:f5374e88158e9c196e66301ba74e00d8bb7054b36f66ee721acc4e7d5d068f5f"
+  "docsHash": "sha256:0ae5355c74662175630374ee30ab25db93a9cd8264dfbd9995694ac04fa0e2d9"
 }
 ```
 
@@ -46534,7 +48958,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.capabilities",
   "title": "files.capabilities",
   "category": "file",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "label": "文件能力",
   "synonyms": [
     "文件能力",
@@ -46568,7 +48992,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
-  "docsHash": "sha256:56d78e6c90380c24ed953d2a33229f3568364e13ef990f6c4e0c3bb75c2cafbc"
+  "docsHash": "sha256:5f3648e0839d7a2f96b065e7c1ffebb760d60273342720da29a4e29585ad33ba"
 }
 ```
 
@@ -46579,7 +49003,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "label": "登记文件资源",
   "synonyms": [
     "登记文件资源",
@@ -46621,7 +49045,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SIZE_LIMIT",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:c820b9a2bc72d4e5e07e11b5ef1191b024b4a4c89097ef7cacc8c6510516d97d"
+  "docsHash": "sha256:871e7577fba17992aac1a3acfd6380d5d77af875a3e1c1ce18bd4772bee7a4a9"
 }
 ```
 
@@ -46632,7 +49056,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "label": "新建工程",
   "synonyms": [
     "新建工程",
@@ -46675,7 +49099,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "FILE_COMMAND_FAILED",
     "SIZE_LIMIT"
   ],
-  "docsHash": "sha256:dbe0d267914591b25c97b4d733c1f911d40f4549e0ba86065bbcf4131d77eabc"
+  "docsHash": "sha256:bfe716f7ba5dd2c54a288728fb1b7ea21ab26bd497172e8ad660e0cedd19e8c7"
 }
 ```
 
@@ -46686,7 +49110,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "label": "打开工程",
   "synonyms": [
     "打开工程",
@@ -46733,7 +49157,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "ASSET_INVALID",
     "FORMAT_UNSUPPORTED"
   ],
-  "docsHash": "sha256:e7245171d52d96d3725a709a443716b47a47fe942e3a1c9f9a8f323ce16ddd44"
+  "docsHash": "sha256:fee4cc7a3ee57889db3a6f334855afeac9bf58bc09ca356e54b23df6fd3b65b6"
 }
 ```
 
@@ -46744,7 +49168,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "label": "导入",
   "synonyms": [
     "导入",
@@ -46808,7 +49232,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "FORMAT_UNSUPPORTED",
     "IDEMPOTENCY_KEY_REUSED"
   ],
-  "docsHash": "sha256:4755214f111fc1175b2734e69e7cacd23745af822f82f147909cd9647aeb979a"
+  "docsHash": "sha256:a686646e87c6e802cc433bc4bbc73ef104ed3613ba39e2b2cb0ae6ad874fc7ae"
 }
 ```
 
@@ -46819,7 +49243,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "label": "保存工程",
   "synonyms": [
     "保存工程",
@@ -46866,7 +49290,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "NAME_INVALID",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:a885d38182111d8e3a09ed2c2f3aa11f06bb04618d26c761a17e398f21930018"
+  "docsHash": "sha256:d6357a3483fc8bae44ec0e210ac689bb226ccc2dcfc925a62220d222eb724d34"
 }
 ```
 
@@ -46877,7 +49301,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "label": "导出文件",
   "synonyms": [
     "导出文件",
@@ -46927,7 +49351,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_LIMIT",
     "FORMAT_UNSUPPORTED"
   ],
-  "docsHash": "sha256:4b8d22f1980bfce241bbfe86d315c8e259cc9afe05e17e9738f66debb37d68d1"
+  "docsHash": "sha256:f7045ca0b9177a3ca1bc2457c9d10453842faa86aa189cbba1648e630512b8dd"
 }
 ```
 
@@ -46938,7 +49362,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "label": "读取文件字节",
   "synonyms": [
     "读取文件字节",
@@ -46976,7 +49400,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_SCHEMA_INVALID",
     "RESOURCE_EXPIRED"
   ],
-  "docsHash": "sha256:8b2678625b160d9f0cb5e99073a5d88b4eaf843375791f27dd7dd111e6268615"
+  "docsHash": "sha256:396f9ae8bf7305f5e70e2d521895031a4a5e9ed19dd9262949f7894097c0d472"
 }
 ```
 
@@ -46987,7 +49411,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "label": "下载文件",
   "synonyms": [
     "下载文件",
@@ -47026,7 +49450,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "ASSET_INVALID",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:b628e510a08c9ca890aaf51a4ebea30d7820474c4214a1b9300d82226bb15355"
+  "docsHash": "sha256:aa8be8f95889ed1093ac01e6c6def7b829d37a49f6ae9cbe5ac5214d6a4c43cd"
 }
 ```
 
@@ -47037,7 +49461,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "label": "写入文件",
   "synonyms": [
     "写入文件",
@@ -47081,7 +49505,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "HASH_MISMATCH",
     "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:46d172cf886a5049710b80280d474b55e212f93afbf5b92e4700df0c4c5e8331"
+  "docsHash": "sha256:f6ecb9a74fbce79c93b6994ed2ac2444150267a3ba1c343f54123755b221931a"
 }
 ```
 
@@ -47092,7 +49516,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "label": "confirmWritten",
   "synonyms": [
     "confirmWritten",
@@ -47136,7 +49560,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:9b5fc69b3e114337f971bdf6a7ead82123009d4c93471eeb9af932d232d44b00"
+  "docsHash": "sha256:1a729eb08350deeb7eef03dcde8e2c092cf01f1f32d8734c915f9c1cf92bf805"
 }
 ```
 
@@ -47147,7 +49571,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "label": "释放文件资源",
   "synonyms": [
     "释放文件资源",
@@ -47185,7 +49609,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "RESOURCE_BUSY"
   ],
-  "docsHash": "sha256:f0aa4ce5aa6df2e28e4ae6bd0b8abfd7dacbd1a6ac6dca33f76cd9eda282e455"
+  "docsHash": "sha256:847ef7256356babe76a1c8fa5d23d5d23070fa555de194f6eadb668039369684"
 }
 ```
 
@@ -47197,14 +49621,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "IGES/IGS 导入",
   "description": "当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。",
   "category": "unavailable",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
   "errorCodes": [
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:7a78abfbac967b4ab741dff4a8a05d8ee9eb5330a400550a67bc510c5561fd8f"
+  "docsHash": "sha256:7ee15995c2b9c3af87ef3c2c08e2998f9e3cd0a6fc2ba2c1e9e6ec79f691e5f2"
 }
 ```
 
@@ -47216,13 +49640,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
   "description": "当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。",
   "category": "unavailable",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
   "errorCodes": [
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:6785d429c49f6072ce836a8ff09ed2ed72527408212b8c7ea1ead84d80dc3a25"
+  "docsHash": "sha256:7112e1827d8ab08a0545fbbf992e53964149e39888d9456c71dc4e0da76b2750"
 }
 ```

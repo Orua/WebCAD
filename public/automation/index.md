@@ -1,10 +1,10 @@
 # WebCAD 页面 API 索引
 
-API 1.18.0 · 操作目录 sha256:7688d6024b500e4f7997355f65c78c3e87f7aa5586cff920238909239d244ffa
+API 1.22.0 · 操作目录 sha256:8169c30117759ceeed2e9348df321dce4744a29f1be40186d88b0a1a4c416c7c
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
-长度 mm、角度 degrees、体积 mm³。严格契约：box、cylinder、sphere、cone、torus、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、faceHole、round、roundEnd、rounding、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude、profileRevolve、profileSweep、profileLoft、offsetSolid、offsetSurface、draftByPlane、helix、coil、thread、profileConstraints、faceGroove、innerTurn、outerTurn、refineShape、relief；其余操作为 advisory。
+长度 mm、角度 degrees、体积 mm³。严格契约：box、cylinder、sphere、cone、torus、mirror、linearPattern、circularPattern、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、faceHole、round、roundEnd、rounding、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude、profileRevolve、profileSweep、profileLoft、offsetSolid、offsetSurface、draftByPlane、helix、coil、thread、profileConstraints、faceGroove、innerTurn、outerTurn、refineShape、relief；其余操作为 advisory。
 
 ## 页面方法
 
@@ -37,6 +37,7 @@ API 1.18.0 · 操作目录 sha256:7688d6024b500e4f7997355f65c78c3e87f7aa5586cff9
 - `execute`
 - `measure`
 - `measureRelation`
+- `inspectDesign`
 - `inspectPrintability`
 - `inspectProfile`
 - `prepareProfileEdit`
@@ -80,8 +81,8 @@ API 1.18.0 · 操作目录 sha256:7688d6024b500e4f7997355f65c78c3e87f7aa5586cff9
 - `arcProfile` · advisory · Extrude exact closed XY LINE/ARC boundaries with optional holes
 - `autoRound` · migrated · 整件圆边 / Round every sharp edge of one solid
 - `box` · migrated · Box from [0,0,0] to [width,depth,height]
-- `chamfer` · migrated · Chamfer sharp edges, shared face edges, face boundaries or the whole solid
-- `circularPattern` · advisory · Rotated copies as one compound
+- `chamfer` · migrated · Equal-distance, two-distance or distance-angle chamfer of sharp edges
+- `circularPattern` · migrated · Rotated copies as a compound or explicitly fused solid
 - `coil` · migrated · Sweep a circular wire section along an exact helix to create a single spring solid
 - `cone` · migrated · Cone/frustum along +Z
 - `copy` · advisory · Copy with scale, rotation and translation
@@ -104,13 +105,13 @@ API 1.18.0 · 操作目录 sha256:7688d6024b500e4f7997355f65c78c3e87f7aa5586cff9
 - `group` · advisory · Group bodies as a compound without fusing
 - `helix` · migrated · Create an exact helical wire in the creation frame
 - `hole` · migrated · Cylindrical cut starting at global coordinates
-- `holeWizard` · migrated · Exact plain, counterbore, or included-angle countersink hole in one feature
+- `holeWizard` · migrated · Exact plain, counterbore, or countersink hole with flat or angled blind drill point
 - `innerTurn` · migrated · Bore inside a selected planar section
 - `intersect` · advisory · Common volume of bodies
-- `linearPattern` · advisory · Linear copies as one compound
+- `linearPattern` · migrated · Linear copies as a compound or explicitly fused solid
 - `loft` · advisory · Ruled loft between parallel XY profiles
 - `logo` · advisory · Unified reviewed LOGO on one exact face; legacy entries remain planar
-- `mirror` · advisory · Mirror across a global origin plane
+- `mirror` · migrated · Mirror across a coordinate plane at an explicit offset
 - `multiBoss` · migrated · Fuse multiple exact solid cylindrical bosses onto one body
 - `multiHole` · migrated · Cut cylindrical holes sequentially at multiple global start points
 - `multiPocket` · migrated · Cut multiple exact rectangular or rounded rectangular pockets
@@ -124,7 +125,7 @@ API 1.18.0 · 操作目录 sha256:7688d6024b500e4f7997355f65c78c3e87f7aa5586cff9
 - `profileOffset` · migrated · Create an exact planar equidistant offset or band from one closed face
 - `profileRepair` · migrated · Derive a repaired analytic profile by moving one explicitly identified endpoint within the stated maximum displacement
 - `profileRevolve` · migrated · Rotate a saved exact planar section around an explicit world axis, with new-body, additive, subtractive or intersection result
-- `profileSweep` · migrated · Sweep a saved exact section along a saved exact open path, with explicit material result
+- `profileSweep` · migrated · Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result
 - `quickModel` · advisory · Parameterized product model; prefer getTool({id:"quickModel"}) then execute(request)
 - `referenceExtrude` · advisory · 选择一个闭合平面线框或单张平面面。直接复用精确圆弧/样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。
 - `referenceLoft` · advisory · 按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。
@@ -194,6 +195,8 @@ API 1.18.0 · 操作目录 sha256:7688d6024b500e4f7997355f65c78c3e87f7aa5586cff9
 - `template.mushroomRivet` · advisory · 参数化的两件式单面蘑菇撞钉：球面盖带空心套筒，配浅腰圆角钉脚和底盘。支持同轴装配或分开展示；孔深与开孔方向可调，不包含 LOGO、文字和装饰纹。
 - `template.nippleStud` · advisory · 两件式奶嘴钉：A件含圆弧头、平顶、圆颈、带R角底座及M2名义光盲孔；Z件含圆拱螺钉头、杆和参数化六瓣槽。螺纹牙及标准槽规格不建模。旧 undersideCollar 参数仅为兼容，必须为0。
 - `template.twoPieceEyelet` · advisory · 参数化两件式薄壁鸡眼，法兰外翻边和内侧圆弯按薄壁截面精确旋转生成。A件为长脚，B件为配套短脚；支持同轴静态套合或分开展示，不模拟压铆变形、LOGO和压字。
+- `template.frameEyelet` · advisory · 圆形或圆角方形面框、恒壁厚短颈口、对称安装柱及普通直孔，一次生成单件。颈口和柱沿本地+Z；面框底面Z=0。孔深0为通孔，正值为从柱顶向下的盲孔。安装柱数量0/2/4，2柱沿Y布置。可将颈口/柱高度设0作背片。不含牙槽、锥孔、压铆、饰面及三维边圆角；按原图再加工。圆形模式内外宽高必须分别相等，角R仅用于方形。
+- `template.uStrapClip` · advisory · 沿X等宽的恒壁厚开口U夹，前后片可不同高，内外弯角为精确相切圆弧；内弯R=内净距/2时为半圆底。底面Z=0，开口朝+Z，后片在+Y。可加后片普通通孔0/1/2个，2孔沿X布置。不是四边封闭的帽套；不含牙槽、前面饰面、片端三维圆角和弹性变形。孔中心须处于后片直段。
 - `readRelief` · page-method · readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded,threshold?:0.5})。先 files.register；只读，本地解码。
 - `getHistory` · page-method · getHistory()。返回已保留状态，不含导入源字节。
 - `planAlignment` · page-method · planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true。
@@ -223,6 +226,7 @@ API 1.18.0 · 操作目录 sha256:7688d6024b500e4f7997355f65c78c3e87f7aa5586cff9
 - `execute` · page-method · execute({context,idempotencyKey,action,args}); action 来自当前命令合同。
 - `measure` · page-method · measure({context,bodyId,kind?:"body"|"face"|"edge",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需当前范围内的非负整数 topologyId；整个实体测量不接受 topologyId，坐标点模式不可混用实体字段。
 - `measureRelation` · page-method · measureRelation({context,mode:"shortest"|"centerDistance"|"axisAlignment"|"pointFace"|"parallelFaces",first?,second?,face?,pointWorld?})；引用形式 {bodyId,kind:"body"|"edge"|"face",topologyId?}。
+- `inspectDesign` · page-method · inspectDesign({context,requirements,requirePass?:false})；1–64项{id,bodyId,kind:bounds|solidCount|material,evidence:{kind:drawing|user|assumption,reference}}。bounds加sizeMm:[X,Y,Z]/明确toleranceMm；solidCount加count；material加points/expected:inside|outside，可选toleranceMm。总计<=128个世界XYZ材料点。完整字段与示例见api.design-checks。
 - `inspectPrintability` · page-method · inspectPrintability({context,bodyId,angleLimitDeg?:45}); angleLimitDeg 在 0 与 90 度之间。
 - `inspectProfile` · page-method · inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。界面检查选项按需展开；API 不依赖界面展开状态。
 - `prepareProfileEdit` · page-method · prepareProfileEdit({context,bodyId,mode:"intersections"|"trim"|"extend"|"trimCircle"|"fillet",entityId?,targetId?,edgeIds?,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})。二维圆角可用 edgeIds:[两条当前边索引] 替代 entityId/targetId，支持解析轮廓及其未缩放的移动/旋转副本，选择先后不限；须显式 radiusMm 与新 arcId。
@@ -243,7 +247,7 @@ API 1.18.0 · 操作目录 sha256:7688d6024b500e4f7997355f65c78c3e87f7aa5586cff9
 - `setView` · page-method · setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:"X"|"Y"|"Z",position:number,enabled:boolean}。
 - `redraw` · page-method · redraw({context}); 不接受额外字段。
 - `capture` · page-method · capture({context}); 不接受额外字段。
-- `run` · page-method · run({context,idempotencyKey,steps}); see readDocs({docId:"api.run"}).
+- `run` · page-method · run({context,idempotencyKey,steps}); see readDocs({docId:"api.run"}); addMany for one atomic feature plan: api.feature-plan.
 - `body.align` · page-command · 按世界 X/Y/Z 对齐包围范围的 min/center/max；移动件和基准件显式分开；group=true 保持相对位置。一次原子历史操作。
 - `history.restore` · page-command · 用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。
 - `document.rename` · page-command · 修改工程名称，保留几何。
@@ -262,6 +266,7 @@ API 1.18.0 · 操作目录 sha256:7688d6024b500e4f7997355f65c78c3e87f7aa5586cff9
 - `reference.setBodyAnchor` · page-command · args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。
 - `reference.deleteBodyAnchor` · page-command · args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。
 - `feature.add` · page-command · args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。
+- `feature.addMany` · page-command · args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。
 - `feature.edit` · page-command · args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。
 - `feature.remove` · page-command · args:{bodyIds}，不可使用历史已替换 ID。
 - `history.undo` · page-command · args:{}；撤销一个已提交步骤。

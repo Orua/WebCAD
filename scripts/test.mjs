@@ -7,6 +7,8 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
   contracts: [
+    'agent-knowledge',
+    'design-inspection-contract',
     'relief-contract',
     'document-capacity',
     'generated-file-write',
@@ -27,6 +29,11 @@ const groups = {
     'tool-state', 'viewport-transform', 'dfam-inspection', 'profile-fitting', 'text-commands',
   ],
   kernel: [
+    'feature-plan',
+    'design-inspection-kernel',
+    'step-export-colors',
+    'freecad-organization',
+    'freecad-machining',
     'relief-kernel',
     'clevis-practice',
     'history-import-kernel',
@@ -39,7 +46,7 @@ const groups = {
     'material-join','quick-hardware','face-machining','quick-hardware-integration',
     'mechanical-tools-integration','profile-solid-features','direct-modeling-tools','helical-tools',
     'arched-bridge','edge-blend','edge-picking','hanging-rod','key-ring','mushroom-rivet',
-    'nipple-stud','pull-core-bar','section-curve-loft','two-piece-eyelet',
+    'nipple-stud','pull-core-bar','section-curve-loft','two-piece-eyelet','quick-installation-models',
     'agent-profile-contract',
     'drag-snap','drag-snap-controller','render-quality','profile-edit','profile-editing','profile-primitives','profile-inspection','fit-inspection','thickness-inspection','relation-measure','boolean-roles','hole-wizard','draft-tools',
     'advanced-integration', 'advanced-kernel', 'advanced-loft', 'align-kernel', 'curve-sweep',

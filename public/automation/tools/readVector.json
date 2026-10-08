@@ -2,7 +2,7 @@
   "id": "readVector",
   "title": "readVector",
   "category": "page-method",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "description": "readVector({context,name,resourceId|text,scaleMm?:1,targetWidthMm?,entityIds?,bounds?:[minX,minY,maxX,maxY],layers?,offset?:0,limit?:500}); limit<=10000。文件先 files.register。",
   "synonyms": [
     "readVector",
@@ -28,5 +28,5 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.vector-import",
-  "docsHash": "sha256:4c8edeb50647ce826364029caddd12b7cb850ca1023d6ba673a256fcfc2b09aa"
+  "docsHash": "sha256:6cfbdac876312d8c40ad0614677d6c286fce40d555d101c3fed64ad0641c1b2c"
 }

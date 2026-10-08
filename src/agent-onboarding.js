@@ -1,3 +1,4 @@
+import {AGENT_KNOWLEDGE} from './agent-knowledge.js';
 // Static connection guidance, never a document snapshot or a host capability claim.
 const freeze = value => {
   if (value && typeof value === 'object') {
@@ -14,6 +15,7 @@ export const AGENT_ONBOARDING = freeze({
   bootstrapUrl: 'automation/agent-start.json',
   connectionDoc: 'api.connection',
   workflowDoc: 'api.workflow',
+  knowledge:AGENT_KNOWLEDGE,
   localKit: {
     manifestUrl: 'automation/agent-kit.json',
     installerUrl: 'automation/install-agent.ps1',
@@ -32,6 +34,7 @@ export const AGENT_ONBOARDING = freeze({
     {id:'list-capabilities',action:'Read tab.capabilities.list() when the current host provides it.',check:'DOM read access alone neither proves nor rules out an authorized page-script channel.'},
     {id:'read-cdp-docs',action:'If cdp is listed and authorized, read (await tab.capabilities.get("cdp")).documentation().',check:'Follow the current host API and permission limits; other hosts use their documented equivalent.'},
     {id:'runtime-evaluate',action:'Use documented Runtime.evaluate to call window.webcad.api.connect({queries:["task capability"],limit:2,includeContracts:true}) with awaitPromise:true and returnByValue:true where supported.',check:'Inspect exceptionDetails/result, then canExecute/blockers/requestContext. ready alone is insufficient; wait or request the required preview decision without changing the document.'},
+    {id:'knowledge-cache',action:'On the first handshake, download automation/agent-knowledge.json and its finite static files to host storage; verify hashes and route with agent-routing.json. Reuse only a verified cache matching source base URL, catalogHash and docsHash.',check:'Load bootstrap docs once, then only matched routes and needed full cards. Report unavailable host storage/download; never put the full library in model context or cache live identity/IDs.'},
     {id:'contracts',action:'Read returned contracts; use getTools({ids,expectedCatalogHash}) only for missing relevant cards.',check:'Use the live page version and hashes. Cache complete static cards only, never state or topology IDs.'},
     {id:'run',action:'Submit the authorized task with api.run({context:requestContext,idempotencyKey,steps}).',check:'Use explicit params/refs and prior-result $ref links; retain the existing bounded, non-atomic batch protocol.'},
     {id:'readback',action:'Read per-step receipts, current getState(), exact measurements and the matching rendered frame.',check:'Distinguish committed geometry from rendered display; unknown results require inspection before any retry.'},

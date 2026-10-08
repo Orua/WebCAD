@@ -16,7 +16,7 @@ export async function generateAgentKit({root,target,metadata,routes}){
   const routeIndex={schemaVersion:1,generatedFrom:'src/ui-api-coverage.js',pageApiVersion:metadata.pageApiVersion,buildId:metadata.buildId,catalogHash:metadata.catalogHash,docsHash:metadata.docsHash,
     routes:Object.fromEntries(Object.entries(routes).sort(([a],[b])=>a.localeCompare(b)).map(([action,route])=>[action,{...route}])),
     labels:Object.fromEntries(Object.entries(routes).map(([action,route])=>[action,[...new Set([TOOL_LABELS[action],UI_LAYOUT.shortLabels[action],...(route.tools||[]).map(id=>{const tool=getTool({id});return tool.label||tool.title;})].filter(Boolean))].join(' / ')]))};
-  const sources=[['SKILL.md','skills/webcad-page-api/SKILL.md'],['references/connection.md','skills/webcad-page-api/references/connection.md'],['scripts/page-client.mjs','skills/webcad-page-api/scripts/page-client.mjs']];
+  const sources=[['SKILL.md','skills/webcad-page-api/SKILL.md'],['references/connection.md','skills/webcad-page-api/references/connection.md'],['scripts/page-client.mjs','skills/webcad-page-api/scripts/page-client.mjs'],['scripts/knowledge-cache.mjs','skills/webcad-page-api/scripts/knowledge-cache.mjs']];
   const outputs=[];
   for(const [relativePath,source]of sources)outputs.push({relativePath,url:`webcad-page-api/${relativePath}`,bytes:await readFile(resolve(rootPath,source))});
   outputs.push({relativePath:'routes.json',url:'routes.json',bytes:json(routeIndex)});

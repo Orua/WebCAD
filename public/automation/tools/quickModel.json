@@ -2503,6 +2503,176 @@
             "description": "Exploded center offset (0=coaxial)"
           }
         }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "One exact circular or rounded rectangular frame with an optional constant-wall collar, symmetric mounting posts and plain straight holes. Collar and posts extend along local +Z from a flange at Z=0. Hole depth 0 means through; positive depth is blind from the post top. 0/2/4 posts; two posts lie on Y. Zero collar/post heights make a backplate. No threads, taper, riveting, decoration or 3D edge blends. Circular mode requires matching width/height pairs; corner radii apply only to rectangular mode.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "frameEyelet"
+          },
+          "shape": {
+            "type": "string",
+            "default": "roundedRect",
+            "description": "Frame shape",
+            "enum": [
+              "round",
+              "roundedRect"
+            ]
+          },
+          "outerWidthMm": {
+            "type": "number",
+            "default": 25.6,
+            "description": "Outer width/diameter"
+          },
+          "outerHeightMm": {
+            "type": "number",
+            "default": 30,
+            "description": "Outer height (circular=width)"
+          },
+          "outerRadiusMm": {
+            "type": "number",
+            "default": 3.5,
+            "description": "Outer rectangular corner R"
+          },
+          "boreWidthMm": {
+            "type": "number",
+            "default": 12,
+            "description": "Bore width/diameter"
+          },
+          "boreHeightMm": {
+            "type": "number",
+            "default": 16.5,
+            "description": "Bore height (circular=width)"
+          },
+          "boreRadiusMm": {
+            "type": "number",
+            "default": 1.2,
+            "description": "Bore rectangular corner R"
+          },
+          "flangeThicknessMm": {
+            "type": "number",
+            "default": 1.5,
+            "description": "Flange thickness"
+          },
+          "collarProjectionMm": {
+            "type": "number",
+            "default": 3,
+            "description": "Collar projection (0=none)"
+          },
+          "collarWallMm": {
+            "type": "number",
+            "default": 0.3,
+            "description": "Collar wall thickness"
+          },
+          "mountingCount": {
+            "type": "number",
+            "default": 4,
+            "description": "Post count (0/2/4)"
+          },
+          "pitchXMm": {
+            "type": "number",
+            "default": 6,
+            "description": "Four-post X pitch"
+          },
+          "pitchYMm": {
+            "type": "number",
+            "default": 22.6,
+            "description": "Y pitch"
+          },
+          "bossDiameterMm": {
+            "type": "number",
+            "default": 4,
+            "description": "Post diameter"
+          },
+          "bossHeightMm": {
+            "type": "number",
+            "default": 3.5,
+            "description": "Post height (0=none)"
+          },
+          "holeDiameterMm": {
+            "type": "number",
+            "default": 2.6,
+            "description": "Plain hole diameter (0=solid)"
+          },
+          "holeDepthMm": {
+            "type": "number",
+            "default": 2,
+            "description": "Hole depth (0=through)"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "Constant-wall open U clip of uniform X width, independent front/back heights and exact tangent bend arcs. An inner radius equal to half the gap makes a semicircular bottom. Bottom Z=0, opening +Z, back wall +Y. Optional 0/1/2 plain back-wall through holes; two holes lie on X. Not a closed cap. No threads, decorations, end blends or elastic deformation. Holes must fit entirely within the straight back wall.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "uStrapClip"
+          },
+          "widthMm": {
+            "type": "number",
+            "default": 20,
+            "description": "Clip width",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "innerGapMm": {
+            "type": "number",
+            "default": 3,
+            "description": "Inner gap"
+          },
+          "wallThicknessMm": {
+            "type": "number",
+            "default": 1.3,
+            "description": "Wall thickness"
+          },
+          "frontHeightMm": {
+            "type": "number",
+            "default": 7,
+            "description": "Front overall height"
+          },
+          "backHeightMm": {
+            "type": "number",
+            "default": 5,
+            "description": "Back overall height"
+          },
+          "innerBendRadiusMm": {
+            "type": "number",
+            "default": 0.2,
+            "description": "Inner bend radius"
+          },
+          "holeCount": {
+            "type": "number",
+            "default": 2,
+            "description": "Back hole count (0/1/2)"
+          },
+          "holeDiameterMm": {
+            "type": "number",
+            "default": 2,
+            "description": "Plain back through-hole diameter"
+          },
+          "holePitchMm": {
+            "type": "number",
+            "default": 14,
+            "description": "Two-hole pitch"
+          },
+          "holeHeightMm": {
+            "type": "number",
+            "default": 3,
+            "description": "Hole center height from bottom"
+          }
+        }
       }
     ]
   },
@@ -2947,6 +3117,37 @@
       "bFlangeDepthMm": 1.2,
       "bBendRadiusMm": 0.8,
       "explodedOffsetMm": 24
+    },
+    "frameEyelet": {
+      "shape": "roundedRect",
+      "outerWidthMm": 25.6,
+      "outerHeightMm": 30,
+      "outerRadiusMm": 3.5,
+      "boreWidthMm": 12,
+      "boreHeightMm": 16.5,
+      "boreRadiusMm": 1.2,
+      "flangeThicknessMm": 1.5,
+      "collarProjectionMm": 3,
+      "collarWallMm": 0.3,
+      "mountingCount": 4,
+      "pitchXMm": 6,
+      "pitchYMm": 22.6,
+      "bossDiameterMm": 4,
+      "bossHeightMm": 3.5,
+      "holeDiameterMm": 2.6,
+      "holeDepthMm": 2
+    },
+    "uStrapClip": {
+      "widthMm": 20,
+      "innerGapMm": 3,
+      "wallThicknessMm": 1.3,
+      "frontHeightMm": 7,
+      "backHeightMm": 5,
+      "innerBendRadiusMm": 0.2,
+      "holeCount": 2,
+      "holeDiameterMm": 2,
+      "holePitchMm": 14,
+      "holeHeightMm": 3
     }
   },
   "selectionTokenSupport": {
@@ -2967,7 +3168,7 @@
     "快捷模型"
   ],
   "description": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-  "schemaHash": "sha256:1c734ea521efd9154a834ddb52aa154fe1a7648ad67482ad207bb3e1e68cbe3a",
+  "schemaHash": "sha256:de9756b418ea854f8469fb9a4f262a1de24d41743a956ef0a3fd4123cca4ed75",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -7434,6 +7635,350 @@
         "bBendRadiusMm": 0.8,
         "explodedOffsetMm": 24
       }
+    },
+    {
+      "kind": "frameEyelet",
+      "title": "Mounting frame eyelet",
+      "description": "One exact circular or rounded rectangular frame with an optional constant-wall collar, symmetric mounting posts and plain straight holes. Collar and posts extend along local +Z from a flange at Z=0. Hole depth 0 means through; positive depth is blind from the post top. 0/2/4 posts; two posts lie on Y. Zero collar/post heights make a backplate. No threads, taper, riveting, decoration or 3D edge blends. Circular mode requires matching width/height pairs; corner radii apply only to rectangular mode.",
+      "defaults": {
+        "shape": "roundedRect",
+        "outerWidthMm": 25.6,
+        "outerHeightMm": 30,
+        "outerRadiusMm": 3.5,
+        "boreWidthMm": 12,
+        "boreHeightMm": 16.5,
+        "boreRadiusMm": 1.2,
+        "flangeThicknessMm": 1.5,
+        "collarProjectionMm": 3,
+        "collarWallMm": 0.3,
+        "mountingCount": 4,
+        "pitchXMm": 6,
+        "pitchYMm": 22.6,
+        "bossDiameterMm": 4,
+        "bossHeightMm": 3.5,
+        "holeDiameterMm": 2.6,
+        "holeDepthMm": 2
+      },
+      "fields": [
+        {
+          "key": "shape",
+          "label": "面框形状",
+          "labelEn": "Frame shape",
+          "type": "select",
+          "options": [
+            {
+              "value": "round",
+              "label": "圆形",
+              "labelEn": "Circular"
+            },
+            {
+              "value": "roundedRect",
+              "label": "圆角方形",
+              "labelEn": "Rounded rectangle"
+            }
+          ]
+        },
+        {
+          "key": "outerWidthMm",
+          "label": "外宽/外径",
+          "labelEn": "Outer width/diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "outerHeightMm",
+          "label": "外高（圆形=外宽）",
+          "labelEn": "Outer height (circular=width)",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "outerRadiusMm",
+          "label": "方形外角R",
+          "labelEn": "Outer rectangular corner R",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "boreWidthMm",
+          "label": "内孔宽/径",
+          "labelEn": "Bore width/diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "boreHeightMm",
+          "label": "内孔高（圆形=内宽）",
+          "labelEn": "Bore height (circular=width)",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "boreRadiusMm",
+          "label": "方形内角R",
+          "labelEn": "Bore rectangular corner R",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "flangeThicknessMm",
+          "label": "面框厚度",
+          "labelEn": "Flange thickness",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "collarProjectionMm",
+          "label": "颈口伸出长（0=无）",
+          "labelEn": "Collar projection (0=none)",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "collarWallMm",
+          "label": "颈口壁厚",
+          "labelEn": "Collar wall thickness",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "mountingCount",
+          "label": "安装柱数量（0/2/4）",
+          "labelEn": "Post count (0/2/4)",
+          "type": "number",
+          "min": 0,
+          "max": 4,
+          "step": 2,
+          "unit": "1"
+        },
+        {
+          "key": "pitchXMm",
+          "label": "四柱横向中心距",
+          "labelEn": "Four-post X pitch",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "pitchYMm",
+          "label": "纵向中心距",
+          "labelEn": "Y pitch",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "bossDiameterMm",
+          "label": "安装柱外径",
+          "labelEn": "Post diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "bossHeightMm",
+          "label": "安装柱伸出长（0=无柱）",
+          "labelEn": "Post height (0=none)",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "holeDiameterMm",
+          "label": "普通孔径（0=实柱）",
+          "labelEn": "Plain hole diameter (0=solid)",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "holeDepthMm",
+          "label": "孔深（0=通孔）",
+          "labelEn": "Hole depth (0=through)",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "frameEyelet"
+      },
+      "normalExample": {
+        "kind": "frameEyelet",
+        "shape": "roundedRect",
+        "outerWidthMm": 25.6,
+        "outerHeightMm": 30,
+        "outerRadiusMm": 3.5,
+        "boreWidthMm": 12,
+        "boreHeightMm": 16.5,
+        "boreRadiusMm": 1.2,
+        "flangeThicknessMm": 1.5,
+        "collarProjectionMm": 3,
+        "collarWallMm": 0.3,
+        "mountingCount": 4,
+        "pitchXMm": 6,
+        "pitchYMm": 22.6,
+        "bossDiameterMm": 4,
+        "bossHeightMm": 3.5,
+        "holeDiameterMm": 2.6,
+        "holeDepthMm": 2
+      }
+    },
+    {
+      "kind": "uStrapClip",
+      "title": "U-shaped strap clip",
+      "description": "Constant-wall open U clip of uniform X width, independent front/back heights and exact tangent bend arcs. An inner radius equal to half the gap makes a semicircular bottom. Bottom Z=0, opening +Z, back wall +Y. Optional 0/1/2 plain back-wall through holes; two holes lie on X. Not a closed cap. No threads, decorations, end blends or elastic deformation. Holes must fit entirely within the straight back wall.",
+      "defaults": {
+        "widthMm": 20,
+        "innerGapMm": 3,
+        "wallThicknessMm": 1.3,
+        "frontHeightMm": 7,
+        "backHeightMm": 5,
+        "innerBendRadiusMm": 0.2,
+        "holeCount": 2,
+        "holeDiameterMm": 2,
+        "holePitchMm": 14,
+        "holeHeightMm": 3
+      },
+      "fields": [
+        {
+          "key": "widthMm",
+          "label": "夹宽",
+          "labelEn": "Clip width",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "innerGapMm",
+          "label": "内净距",
+          "labelEn": "Inner gap",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "wallThicknessMm",
+          "label": "壁厚",
+          "labelEn": "Wall thickness",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "frontHeightMm",
+          "label": "前片总高",
+          "labelEn": "Front overall height",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "backHeightMm",
+          "label": "后片总高",
+          "labelEn": "Back overall height",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "innerBendRadiusMm",
+          "label": "内弯R",
+          "labelEn": "Inner bend radius",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "holeCount",
+          "label": "后孔数（0/1/2）",
+          "labelEn": "Back hole count (0/1/2)",
+          "type": "number",
+          "min": 0,
+          "max": 2,
+          "step": 1,
+          "unit": "1"
+        },
+        {
+          "key": "holeDiameterMm",
+          "label": "后片普通通孔径",
+          "labelEn": "Plain back through-hole diameter",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "holePitchMm",
+          "label": "双孔中心距",
+          "labelEn": "Two-hole pitch",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "holeHeightMm",
+          "label": "孔心距底面",
+          "labelEn": "Hole center height from bottom",
+          "type": "number",
+          "min": 0,
+          "step": 0.1,
+          "unit": "mm"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "uStrapClip"
+      },
+      "normalExample": {
+        "kind": "uStrapClip",
+        "widthMm": 20,
+        "innerGapMm": 3,
+        "wallThicknessMm": 1.3,
+        "frontHeightMm": 7,
+        "backHeightMm": 5,
+        "innerBendRadiusMm": 0.2,
+        "holeCount": 2,
+        "holeDiameterMm": 2,
+        "holePitchMm": 14,
+        "holeHeightMm": 3
+      }
     }
   ],
   "verification": {
@@ -7461,5 +8006,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:825930374a84db7efb9b61069d5936067b859aa26ee8584e40a42399566d48d7"
+  "docsHash": "sha256:6a5b3da03e36f010dabdd6a72d7cd29796f13d7cd162a183c647882cd7d766dc"
 }

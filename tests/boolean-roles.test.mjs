@@ -47,3 +47,28 @@ test('intersection accepts ordinary common and rolls back a valid but oversized 
     assert.ok(Math.abs(cad.measureVolume(kernel.shapes.get('target'))-1000)<1e-6);
   }finally{kernel.dispose();}
 });
+
+test('fusion and cut reject valid wrong material without changing committed bodies',async()=>{
+  const oc=await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))}),kernel=new CadKernel(oc);
+  const base=[{id:'target',op:'box',params:{width:10,depth:10,height:10},refs:[]},{id:'tool',op:'box',params:{width:2,depth:2,height:2},refs:[]}];
+  const joined={id:'result',op:'union',params:{},refs:['target','tool']};
+  try{
+    const accepted=await kernel.rebuild({version:1,features:[...base,joined],imports:{}});
+    assert.ok(Math.abs(accepted.bodies[0].volume-1000)<1e-6,'contained material is a legal union');
+    for(const [op,side] of [['union',5],['union',11],['cut',11]]){
+      await kernel.rebuild({version:1,features:base,imports:{}});
+      const committed=kernel.shapes,signature=[...kernel.historySignature],operation=kernel.operation.bind(kernel);
+      kernel.operation=async(feature,shapes,...rest)=>{
+        if(feature.op===op){
+          const source=shapes.get(feature.refs[0]),clone=source.clone.bind(source);
+          source.clone=()=>{const copy=clone();copy[op==='union'?'fuse':'cut']=()=>cad.makeBox([0,0,0],[side,side,side]);return copy;};
+        }
+        return operation(feature,shapes,...rest);
+      };
+      await assert.rejects(kernel.rebuild({version:1,features:[...base,{...joined,op}],imports:{}}),{code:'GEOMETRY_INVALID',featureId:'result'});
+      assert.equal(kernel.shapes,committed);assert.deepEqual(kernel.historySignature,signature);
+      assert.ok(Math.abs(cad.measureVolume(kernel.shapes.get('target'))-1000)<1e-6);
+      kernel.operation=operation;
+    }
+  }finally{kernel.dispose();}
+});

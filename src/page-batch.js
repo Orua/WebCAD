@@ -4,6 +4,9 @@ const methods = new Set(['add','execute','connect','info','getState','searchTool
   'getQuickModelUsage','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','readVector','connectVector','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.capabilities','files.register',
   'files.import','files.save','files.export','files.release']);
 const contextual = new Set(['execute','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','readVector','connectVector','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.import','files.save','files.export']);
+methods.add('inspectDesign');
+methods.add('addMany');
+contextual.add('inspectDesign');
 const bad = (code,message) => { throw Object.assign(new Error(message),{code}); };
 const plain = x => x && typeof x==='object' && !Array.isArray(x);
 const keys = (x,allowed) => { if(!plain(x)||Object.keys(x).some(k=>!allowed.includes(k)))bad('PARAM_SCHEMA_INVALID','Unexpected object fields'); };
@@ -82,10 +85,20 @@ export function createPageBatch(api){
       };
       started=true;
       for(const step of input.steps){
+        const stepStartedAt=performance.now();
         activeStepId=step.id;let args=resolve(step.args||{}),result;
         const allowPreview=step.method==='execute'&&['preview.update','preview.commit','preview.cancel'].includes(args.action);
         check(allowPreview);attempted.add(step.id);
-        if(step.method==='add'){
+        if(step.method==='addMany'){
+          keys(args,['features']);
+          if(!Array.isArray(args.features))bad('PARAM_SCHEMA_INVALID','features must be an array');
+          const features=args.features.map(feature=>{
+            keys(feature,['key','op','params','refs','name','placement']);
+            const card=api.getTool({id:feature.op});
+            return {...feature,refs:feature.refs||[],opVersion:card.version,schemaHash:card.schemaHash};
+          });
+          result=await api.execute({context:expected,idempotencyKey:`${key}:${step.id}`,action:'feature.addMany',args:{features}});
+        }else if(step.method==='add'){
           keys(args,['op','params','refs','name','placement']);
           const card=api.getTool({id:args.op});
           result=await api.execute({context:expected,idempotencyKey:`${key}:${step.id}`,action:'feature.add',
@@ -101,7 +114,7 @@ export function createPageBatch(api){
           const parts=step.method.split('.');
           result=parts.length===2?await api.files[parts[1]](args):await api[step.method](args);
         }
-        results.push({id:step.id,result});resolved[step.id]=result;
+        results.push({id:step.id,result,elapsedMs:Math.round((performance.now()-stepStartedAt)*100)/100});resolved[step.id]=result;
         if(['failed','unknown'].includes(result?.status)){
           const receipt=finish(result.status==='unknown'?'unknown':results.length>1?'partial':'failed',result.error||new Error('Step failed'));
           receipts.set(key,{fingerprint,result:structuredClone(receipt)});return receipt;

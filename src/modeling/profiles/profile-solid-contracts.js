@@ -28,9 +28,9 @@ export const profileSolidOperations = {
     notes: `refs[0] 是一个闭合平面截面；加料/切除/交集另附 refs[1] 目标。轴须位于截面平面内；原生平面 Face 的内孔按原几何旋转。开轮廓、多区域、非平面或自交结果拒绝。${materialNotes}`,
   },
   profileSweep: {
-    description: 'Sweep a saved exact section along a saved exact open path, with explicit material result', refs: '>=2', refsMin: 2, refsMax: 3,
+    description: 'Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result', refs: '>=2', refsMin: 2, refsMax: 3,
     paramsSchema: schema({ transitionMode: { type: 'string', enum: ['transformed', 'right', 'round'], default: 'transformed' }, frenet: { type: 'boolean', default: false } }),
-    notes: `refs[0] 截面，refs[1] 单一连续开放精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；截面必须已在路径起点平面并垂直其起点切线，不自动居中/定位。首版无内孔截面、无闭合路径、无分叉，不提供变截面、导轨、扭转或自动减小半径。曲线保留为精确圆弧/样条，非离散折线。${materialNotes}`,
+    notes: `refs[0] 截面，refs[1] 单一连续开放或闭合精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；闭合环仍使用保存路径的起点和切线。截面必须已在路径起点平面并垂直其起点切线，不自动居中/定位。支持单一平面 Face 的一个外环和已定义内孔（包括仅含该 Face 的 Compound）；外环与各内孔使用相同路径和过渡设置精确扫掠，再完整扣除内腔。原生 Face 或 sketchProfile 的 regions.holeLoopIds 定义孔，独立多环 Wire/纯边 Compound 不自动推断内外。内孔扫掠超出外部、与其它内孔交叠、无效或分裂结果拒绝。无分叉或多个独立路径，不提供变截面、导轨、扭转或自动减小半径。开放路径端面保留孔，闭环保留内部管腔；结果须通过有效正体积单实体检查，否则原子失败。曲线保留为精确圆弧/样条，非离散折线。${materialNotes}`,
   },
   profileLoft: {
     description: 'Loft 2–12 saved exact sections in explicit order, with new-body or material-operation result', refs: '>=2', refsMin: 2, refsMax: 13,

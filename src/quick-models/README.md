@@ -18,3 +18,5 @@
 现有模型的 `build.js` 大多调用 [legacy-geometry.js](legacy-geometry.js) 或 `hardware-templates.js` 中的共享几何实现，以保持既有工程的形状和参数含义。新增模型可以像 [fourHolePlate/build.js](fourHolePlate/build.js) 一样，在自己的目录中直接实现建模逻辑。不要把运行任意用户上传的 JavaScript 当作插件机制；WebCAD 是静态页面，新增代码需构建后发布。
 
 添加模型时，保持默认参数和字段逐项对应，给每个参数标明毫米、角度或其他单位，并说明几何限制。构建会把同一份定义载入界面、AI 工具卡和 Worker；用一个实际参数实例确认生成实体、尺寸与显示，再发布。不要仅凭目录存在就声称模型可用或代表某个 IGS 产品。
+
+安装结构快捷入口：`twoPieceEyelet` 是双件薄壁翻边鸡眼；`frameEyelet` 是圆/圆角方形安装面框、恒壁厚颈口、对称柱和普通孔，可零颈口/零柱作背片；`uStrapClip` 是恒厚开口U夹、不同高前后片及后片普通孔。后两者一次创建一个可编辑实体，真实螺纹、锥口、三维边圆角和饰面须另按原图加工；封闭帽套不能套U夹。AI读单张 `template.<kind>` 和 `api.quick-installation`，用 `op:quickModel`、`params.kind` 创建。

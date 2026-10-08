@@ -59,7 +59,7 @@ try {
   $manifestBytes = Get-KitBytes ([Uri]::new($automation, 'agent-kit.json')) 65536
   $manifest = $utf8.GetString($manifestBytes) | ConvertFrom-Json
   if ($manifest.schemaVersion -ne 1 -or $manifest.id -ne 'webcad-page-api') { throw 'Unsupported Agent package manifest.' }
-  $allowed = @{'SKILL.md'='webcad-page-api/SKILL.md'; 'references/connection.md'='webcad-page-api/references/connection.md'; 'scripts/page-client.mjs'='webcad-page-api/scripts/page-client.mjs'; 'routes.json'='routes.json'}
+  $allowed = @{'SKILL.md'='webcad-page-api/SKILL.md'; 'references/connection.md'='webcad-page-api/references/connection.md'; 'scripts/page-client.mjs'='webcad-page-api/scripts/page-client.mjs'; 'scripts/knowledge-cache.mjs'='webcad-page-api/scripts/knowledge-cache.mjs'; 'routes.json'='routes.json'}
   if (@($manifest.files).Count -ne $allowed.Count) { throw 'The manifest must contain exactly the supported finite file set.' }
   $seen = @{}
   foreach ($file in $manifest.files) {

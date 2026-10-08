@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "pageApiVersion": "1.22.0",
+  "catalogHash": "sha256:8169c30117759ceeed2e9348df321dce4744a29f1be40186d88b0a1a4c416c7c",
+  "docsHash": "sha256:d6f037b0cbe797b9f6efde2e1fc512c13c3962e6dd7eb91c9928eed7ead4090e",
+  "policy": "required-on-first-handshake",
+  "scope": "static-docs-and-contracts-only",
+  "files": [
+    {
+      "name": "index.json",
+      "url": "index.json",
+      "sizeBytes": 1851030,
+      "sha256": "sha256:18c3e1b2b85c1b9472437d71fcffa93d9ca3bcda36304130521991d0797eb1cb"
+    },
+    {
+      "name": "agent-routing.json",
+      "url": "agent-routing.json",
+      "sizeBytes": 22673,
+      "sha256": "sha256:30e61e543d1d26891d221042aa83bf9c9555a6c62c00b279b200ae63e44b742c"
+    },
+    {
+      "name": "routes.json",
+      "url": "routes.json",
+      "sizeBytes": 44890,
+      "sha256": "sha256:066c5cb5f0884f8ec6db9d7efd9e94dc7667cc3fba6864fbc8afe5d6b7f45956"
+    }
+  ],
+  "totalBytes": 1918593,
+  "routing": "agent-routing.json",
+  "index": "index.json",
+  "uiRoutes": "routes.json",
+  "bootstrapDocIds": [
+    "api.knowledge-cache",
+    "api.connection",
+    "api.workflow",
+    "api.run",
+    "api.reconstruction"
+  ],
+  "contextPolicy": "download-to-host-storage; load only selected routes, docs and complete cards",
+  "cache": "source-base-url + catalogHash + docsHash"
+}

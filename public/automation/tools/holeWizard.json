@@ -1,6 +1,6 @@
 {
   "id": "holeWizard",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -24,7 +24,7 @@
       },
       "depthMm": {
         "type": "number",
-        "description": "Blind hole depth (mm)",
+        "description": "Blind depth according to depthReference (mm)",
         "exclusiveMinimum": 0,
         "unit": "mm",
         "quantityKind": "length",
@@ -32,8 +32,34 @@
       },
       "through": {
         "type": "boolean",
-        "description": "Through first body along drilling axis",
+        "description": "Through body along drilling axis",
         "default": false
+      },
+      "drillPoint": {
+        "type": "string",
+        "description": "Blind bottom shape; omitted means flat",
+        "enum": [
+          "flat",
+          "angled"
+        ]
+      },
+      "drillPointAngleDeg": {
+        "type": "number",
+        "description": "Drill tip included angle; angled default 118 degrees",
+        "exclusiveMinimum": 0,
+        "exclusiveMaximum": 179,
+        "default": 118,
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
+      },
+      "depthReference": {
+        "type": "string",
+        "description": "Angled blind depth: cylindrical segment length or total entrance-to-tip depth",
+        "enum": [
+          "cylindricalLength",
+          "tipDepth"
+        ]
       },
       "recessDiameterMm": {
         "type": "number",
@@ -55,7 +81,10 @@
         "type": "number",
         "description": "Countersink included angle in degrees",
         "exclusiveMinimum": 0,
-        "exclusiveMaximum": 179
+        "exclusiveMaximum": 179,
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "x": {
         "type": "number",
@@ -145,15 +174,15 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. One current solid target. Start point must lie on the boundary and direction enter continuous material. Blind depth must stop before its first exit. Counterbore uses recessDepthMm; countersink derives depth (D-d)/(2*tan(includedAngle/2)). No modeled thread geometry.",
-  "title": "Exact plain, counterbore, or included-angle countersink hole in one feature",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. One current solid target. Start point must lie on the boundary and direction enter continuous material. Blind depth including tip must stop before its first exit. Legacy/omitted drillPoint is flat. Angled blind tip height=diameter/(2*tan(drillPointAngleDeg/2)); default angle 118 deg, depthReference defaults cylindricalLength (tip is additional). tipDepth includes the tip and must leave positive cylinder length. Through holes reject angled tips. Recess must fit within cylindrical segment. Counterbore uses recessDepthMm; countersink derives depth (D-d)/(2*tan(includedAngle/2)). No modeled thread geometry.",
+  "title": "Exact plain, counterbore, or countersink hole with flat or angled blind drill point",
   "category": "modification",
   "synonyms": [
     "holeWizard",
     "孔向导"
   ],
-  "description": "Exact plain, counterbore, or included-angle countersink hole in one feature",
-  "schemaHash": "sha256:058cd0cabfc0688b35cb354529d1adc7cdfac7afe74227527bff5d16365b8fe8",
+  "description": "Exact plain, counterbore, or countersink hole with flat or angled blind drill point",
+  "schemaHash": "sha256:df530ec2084a8f172eccd25604cfc58e23234a1c29cbd8e4156a180f102c928f",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -203,7 +232,7 @@
     "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "One current solid target. Start point must lie on the boundary and direction enter continuous material. Blind depth must stop before its first exit. Counterbore uses recessDepthMm; countersink derives depth (D-d)/(2*tan(includedAngle/2)). No modeled thread geometry."
+    "One current solid target. Start point must lie on the boundary and direction enter continuous material. Blind depth including tip must stop before its first exit. Legacy/omitted drillPoint is flat. Angled blind tip height=diameter/(2*tan(drillPointAngleDeg/2)); default angle 118 deg, depthReference defaults cylindricalLength (tip is additional). tipDepth includes the tip and must leave positive cylinder length. Through holes reject angled tips. Recess must fit within cylindrical segment. Counterbore uses recessDepthMm; countersink derives depth (D-d)/(2*tan(includedAngle/2)). No modeled thread geometry."
   ],
   "minimalExample": {
     "op": "holeWizard",
@@ -318,5 +347,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:a96a1461dd84a330389b01d970beb0bd0cec95df4aaaebedbf3098d3dc3521e0"
+  "docsHash": "sha256:efeaf244d0f59bdd37f4d1802cc533988201d2e0873dd46acf5383292b8c59c7"
 }

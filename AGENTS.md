@@ -2,7 +2,7 @@
 
 Read [PROJECT.md](PROJECT.md) before implementation. It is the canonical product-purpose, architecture and acceptance specification. See [page API](docs/PAGE-API.zh-CN.md) for integration.
 
-For using an open WebCAD page, start with `window.webcad.api.connect({queries:[capability keywords]})`, then batch `getTools({ids})`; use linked docs only as needed. This returns current context and searches all registered tools. The optional versioned offline library is documented in [AI discovery](docs/AI-DISCOVERY.zh-CN.md); cache static contracts, never document state or topology IDs.
+For using an open WebCAD page, start with `window.webcad.api.connect({queries:[capability keywords]})`. On the first handshake, follow `onboarding.knowledge` to download and hash-verify the finite static knowledge package on host storage; route tasks with `agent-routing.json` and exact UI actions with `routes.json`, then load only needed complete docs/cards. Reuse a verified cache keyed by source base URL and live catalog/docs hashes. Report missing host storage/download capability rather than claiming success. Details: [knowledge routing](docs/AGENT-KNOWLEDGE.zh-CN.md). Cache static contracts, never document state or topology IDs.
 
 Known IDs can be read in one handshake with `connect({toolIds:[...]})`. Check `canExecute/blockers`, not `ready` alone. Template discovery cards (`template.*`) use `op:quickModel` and `params.kind` in their executable examples. First-use workflow is `readDocs({docId:'api.workflow'})`; the portable host skill lives in `skills/webcad-page-api/SKILL.md`. Do not reuse legacy top-level `window.webcad.action/execute/ready` instructions against the current page API.
 

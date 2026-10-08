@@ -5,6 +5,40 @@ import init from 'replicad-opencascadejs';
 import {CadKernel} from '../src/cad-kernel.js';
 import {normalizeOperationParams} from '../src/operation-registry.js';
 
+test('GC16818 torus retains its material when fused with a tangent elliptic petal',async()=>{
+  const oc=await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))});
+  const kernel=new CadKernel(oc);kernel.quality='draft';
+  const cy=8.174937185773,r=4.25,d=r/Math.sqrt(2),top=cy+r;
+  const features=[
+    {id:'ring',op:'torus',params:{majorRadius:14,minorRadius:1},refs:[]},
+    {id:'petal',op:'curveSweep',params:{pathType:'segments',section:'ellipse',sectionWidth:1.5,sectionDepth:2,segments:[
+      {type:'line',points:[[-4.75,5.5,0],[-4.75,cy,0]]},
+      {type:'arc',points:[[-4.75,cy,0],[-.5-d,cy+d,0],[-.5,top,0]]},
+      {type:'line',points:[[-.5,top,0],[.5,top,0]]},
+      {type:'arc',points:[[.5,top,0],[.5+d,cy+d,0],[4.75,cy,0]]},
+      {type:'line',points:[[4.75,cy,0],[4.75,5.5,0]]},
+    ]},refs:[]},
+  ];
+  try{
+    await kernel.rebuild({version:1,features,imports:{}});
+    const ring=kernel.measure('ring'),petal=kernel.measure('petal');
+    assert.equal(kernel.shapes.get('ring').faces.length,1);
+    assert.ok(Math.abs(ring.volume-28*Math.PI**2)<1e-5);
+    const common=kernel.shapes.get('ring').intersect(kernel.shapes.get('petal'));
+    let commonVolume;
+    try{commonVolume=(await import('replicad')).measureVolume(common)}finally{common.delete()}
+    assert.ok(commonVolume>.4&&commonVolume<.5,'source-sized bodies overlap at their crown');
+    features.push({id:'fused',op:'union',params:{},refs:['ring','petal']});
+    const result=await kernel.rebuild({version:1,features,imports:{}});
+    assert.equal(result.bodies.length,1);assert.equal(result.bodies[0].solidCount,1);
+    const fused=kernel.measure('fused');
+    assert.ok(Math.abs(fused.volume-(ring.volume+petal.volume-commonVolume))<1e-4,'fusion must retain ring and petal material');
+    assert.ok(Math.abs(fused.bounds.max[0]-fused.bounds.min[0]-30)<1e-5);
+    await kernel.rebuild(JSON.parse(JSON.stringify({version:1,features,imports:{}})));
+    assert.ok(Math.abs(kernel.measure('fused').volume-fused.volume)<1e-6);
+  }finally{kernel.dispose()}
+});
+
 test('strict primitive normalization preserves legacy geometry, cone defaults and equal-radius cylinders',async()=>{
   const oc=await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))});
   const kernel=new CadKernel(oc);kernel.quality='draft';

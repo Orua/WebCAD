@@ -1,0 +1,152 @@
+{
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "features"
+    ],
+    "properties": {
+      "features": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 64,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "key",
+            "op",
+            "opVersion",
+            "schemaHash",
+            "params",
+            "refs"
+          ],
+          "properties": {
+            "key": {
+              "type": "string",
+              "pattern": "^[a-zA-Z][a-zA-Z0-9_-]{0,39}$"
+            },
+            "op": {
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "cone",
+                "torus",
+                "extrude",
+                "revolve",
+                "sweep",
+                "loft",
+                "quickModel",
+                "vectorProfile",
+                "arcProfile",
+                "sketchProfile",
+                "curveSweep",
+                "advancedLoft",
+                "transform",
+                "copy",
+                "mirror",
+                "linearPattern",
+                "circularPattern",
+                "union",
+                "cut",
+                "intersect",
+                "group",
+                "fillet",
+                "chamfer",
+                "hole",
+                "multiHole",
+                "multiPocket",
+                "multiBoss"
+              ]
+            },
+            "opVersion": {
+              "type": "string"
+            },
+            "schemaHash": {
+              "type": "string"
+            },
+            "params": {
+              "type": "object",
+              "description": "Complete current selected operation schema applies; no intermediate topology IDs"
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "feature"
+                    ],
+                    "properties": {
+                      "feature": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "placement": {
+              "type": "object",
+              "description": "Same placement contract as feature.add; frozen against transaction-start state"
+            }
+          }
+        }
+      }
+    }
+  },
+  "executionPolicy": {
+    "atomic": true,
+    "revisionCount": 1,
+    "undoSteps": 1,
+    "geometryRebuilds": 1
+  },
+  "docs": "api.feature-plan",
+  "id": "feature.addMany",
+  "title": "一次提交多特征",
+  "description": "args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
+  "category": "command",
+  "version": "1.22.0",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"feature.addMany\",args}); args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
+  "docsHash": "sha256:6a6696f285b52bca4499567084974cb40c87668c21387b159a618720944618ef"
+}

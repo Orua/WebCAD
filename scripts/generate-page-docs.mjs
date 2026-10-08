@@ -10,6 +10,7 @@ import { UI_LAYOUT } from '../src/ui-layout.js';
 import { CONNECTION_POLICY } from '../src/automation-guidance.js';
 import { generateAgentEntry } from './generate-agent-entry.mjs';
 import { generateAgentKit } from './generate-agent-kit.mjs';
+import {generateAgentKnowledge} from './generate-agent-knowledge.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const target = resolve(root, 'public', 'automation');
@@ -88,7 +89,7 @@ const quickstart = [
   '- 检查逐步 status、partial/unknown 和 displayMatchesContext；批次不是全有全无事务。',
   '- [建模与失败恢复流程](docs/api.workflow.md)：复杂模型分部件规划、每批最多20步、测量关键尺寸并检查画面。失败时按 progress 和 recovery 只规划剩余步骤，不重复创建已经提交的部件。',
   '- 已持有完整卡时传 getTools 的 knownHashes，未变只返回 not_modified。文档可传 knownHash。禁止缓存工程状态、实体/面边编号作为下一次操作依据。',
-  '- 可选离线库：[index.json](index.json) + [tool-library.mjs](tool-library.mjs)。下载由宿主持久保存，按 catalogHash/docsHash 更新，检索后只读取所需内容。不要把全库送入模型上下文。',
+  '- 首次握手必须下载 [Agent知识清单](agent-knowledge.json) 及其有限文件到宿主本地，逐文件验证SHA-256/大小。按页面base URL和catalogHash/docsHash缓存；重连哈希未变时复用。任务路由：[agent-routing.json](agent-routing.json)；精确UI路由：[routes.json](routes.json)。只读取命中的工作流和完整工具卡，不把全库送入模型上下文。详见[本地知识缓存](docs/api.knowledge-cache.md)。',
   '- 完整缓存说明：[api.discovery](docs/api.discovery.md)。无页面脚本能力时，目录：[manifest.json](manifest.json)；执行仍需宿主实际支持的通道。', '',
   '- 可下载 [WebCAD Agent Skill](webcad-page-api/SKILL.md)，由宿主安装一次以便新任务发现；网页不会自动安装技能或服务。', '',
 ].join('\n');
@@ -105,4 +106,5 @@ await copyFile(resolve(root,'docs/examples/clevis-practice.js'),resolve(target,'
 await mkdir(resolve(root,'public','docs'),{recursive:true});
 await copyFile(resolve(root,'docs/USER-GUIDE.zh-CN.md'),resolve(root,'public','docs','USER-GUIDE.zh-CN.md'));
 await generateAgentKit({root,target,metadata,routes:UI_API_ROUTES});
+await generateAgentKnowledge({target,metadata,cards,docs});
 await generateAgentEntry({root,target,metadata});

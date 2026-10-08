@@ -2,7 +2,7 @@
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "label": "登记文件资源",
   "synonyms": [
     "登记文件资源",
@@ -44,5 +44,5 @@
     "SIZE_LIMIT",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:c820b9a2bc72d4e5e07e11b5ef1191b024b4a4c89097ef7cacc8c6510516d97d"
+  "docsHash": "sha256:871e7577fba17992aac1a3acfd6380d5d77af875a3e1c1ce18bd4772bee7a4a9"
 }

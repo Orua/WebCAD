@@ -1,6 +1,6 @@
 {
   "id": "circularPattern",
-  "version": "legacy-1",
+  "version": "1.1.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -9,6 +9,7 @@
         "description": "Count including original",
         "minimum": 2,
         "maximum": 100,
+        "default": 3,
         "unit": "1",
         "quantityKind": "scalar",
         "quantizationPolicy": "none"
@@ -18,6 +19,7 @@
         "description": "Degrees",
         "exclusiveMinimum": 0,
         "maximum": 360,
+        "default": 360,
         "unit": "deg",
         "quantityKind": "angle",
         "quantizationPolicy": "none"
@@ -29,11 +31,13 @@
           "X",
           "Y",
           "Z"
-        ]
+        ],
+        "default": "Z"
       },
       "cx": {
         "type": "number",
         "description": "Axis center X (mm)",
+        "default": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -41,6 +45,7 @@
       "cy": {
         "type": "number",
         "description": "Axis center Y (mm)",
+        "default": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -48,9 +53,19 @@
       "cz": {
         "type": "number",
         "description": "Axis center Z (mm)",
+        "default": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
+      },
+      "outputMode": {
+        "type": "string",
+        "description": "Output type",
+        "enum": [
+          "compound",
+          "fuse"
+        ],
+        "default": "compound"
       }
     },
     "required": [],
@@ -75,7 +90,15 @@
     "displayPreferencesAffectGeometry": false,
     "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
-  "defaults": {},
+  "defaults": {
+    "count": 3,
+    "angle": 360,
+    "axis": "Z",
+    "cx": 0,
+    "cy": 0,
+    "cz": 0,
+    "outputMode": "compound"
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -86,24 +109,24 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults count=3,angle=360,axis=Z,center=origin. Full circle excludes duplicate endpoint; partial angle includes both endpoints.",
-  "title": "Rotated copies as one compound",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults count=3,angle=360,axis=Z,center=origin,outputMode=compound. Full circle excludes duplicate endpoint; partial angle includes both endpoints. Fuse requires one connected solid. Placement transforms local axis and center.",
+  "title": "Rotated copies as a compound or explicitly fused solid",
   "category": "organization",
   "synonyms": [
     "circularPattern",
     "环形阵列"
   ],
-  "description": "Rotated copies as one compound",
-  "schemaHash": "sha256:a7db485040eeaaab68043f7c49d8a0c93673a4509d085e5b8aecdeb98b709f41",
+  "description": "Rotated copies as a compound or explicitly fused solid",
+  "schemaHash": "sha256:cea5a6fb12486d19d1494116475d1579c6a3212b2964ec92bd38ad75e782b95a",
   "apiCompatibility": [
-    "page-advisory"
+    "page-v2"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
-  "strictContract": false,
+  "strictContract": true,
   "v2Executable": true,
-  "contractStatus": "advisory",
+  "contractStatus": "migrated",
   "outputSchema": {
     "type": "object",
     "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
@@ -141,11 +164,10 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "Defaults count=3,angle=360,axis=Z,center=origin. Full circle excludes duplicate endpoint; partial angle includes both endpoints.",
-    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
+    "Defaults count=3,angle=360,axis=Z,center=origin,outputMode=compound. Full circle excludes duplicate endpoint; partial angle includes both endpoints. Fuse requires one connected solid. Placement transforms local axis and center."
   ],
   "minimalExample": {
     "op": "circularPattern",
@@ -158,7 +180,7 @@
       "<current-bodyId-1>"
     ],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "normalExample": {
     "op": "circularPattern",
@@ -171,7 +193,7 @@
       "<current-bodyId-1>"
     ],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "invalidExamples": [
     {
@@ -182,7 +204,7 @@
         "__unknownField": true
       },
       "errorCode": "PARAM_SCHEMA_INVALID",
-      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+      "explanation": "Rejected before kernel execution."
     }
   ],
   "errorCodes": [
@@ -208,13 +230,15 @@
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
   "verification": {
-    "contract": "not_migrated",
+    "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "环形阵列",
-  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -233,6 +257,6 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:2b9b5711e6e303b05e442936901f3f29e8d09b0446bacb7650ca0a1c8780079f"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:c7512b9573a0608947ae60b97ad6fb13d4bf833e30b0ec00e9f9d4dd0ea49e66"
 }

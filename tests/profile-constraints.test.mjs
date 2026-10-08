@@ -123,7 +123,7 @@ test('large translated coordinates retain tight residuals and serializable disco
   const constraints=rectangleConstraints(50,30);constraints[0].positionMm=[900000,900000];
   const result=solveProfileConstraints(source,constraints);assert.equal(result.success,true,JSON.stringify(result));near(result.profile.entities[0].endMm[0],900050);near(result.profile.entities[1].endMm[1],900030);
   assert.deepEqual(JSON.parse(JSON.stringify(constraintsSchema)),constraintsSchema);assert.equal(profileConstraintOperations.profileConstraints.refs,1);
-  assert.equal(new Set(constraintsSchema.items.oneOf.map(item=>item.properties.type.const)).size,15);
+  assert.equal(new Set(constraintsSchema.items.oneOf.map(item=>item.properties.type.const)).size,18);
 });
 
 test('clockwise angles, reversed saved chains and short-line tangency preserve meaningful rank',()=>{

@@ -44,6 +44,8 @@ import archedBridge from './archedBridge/index.js';
 import mushroomRivet from './mushroomRivet/index.js';
 import nippleStud from './nippleStud/index.js';
 import twoPieceEyelet from './twoPieceEyelet/index.js';
+import frameEyelet from './frameEyelet/index.js';
+import uStrapClip from './uStrapClip/index.js';
 
 const entries = [
   ring, washer, tube, domedPin, spring, screw, threadedSleeve,
@@ -72,6 +74,8 @@ const entries = [
   mushroomRivet,
   nippleStud,
   twoPieceEyelet,
+  frameEyelet,
+  uStrapClip,
 ];
 // Hide a model from the picker without breaking projects saved with its kind.
 const hiddenFromPicker = new Set([]);

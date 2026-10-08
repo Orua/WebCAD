@@ -8,6 +8,14 @@ const oc=await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replica
 const dispose=s=>{try{s?.delete?.();}catch{}};
 function valid(s){const checker=new oc.BRepCheck_Analyzer(s.wrapped,true,false,false);try{assert.equal(checker.IsValid(),true);}finally{dispose(checker);}}
 function cylinderFace(shape,internal=false){const faces=shape.faces;try{return faces.findIndex(face=>face.geomType==='CYLINDRE'&&(face.normalAt().toTuple().reduce((n,x,i)=>n+x*face.center.toTuple()[i],0)<0)===internal);}finally{faces.forEach(dispose);}}
+test('sub-millimetre internal cylinder normals are normalized before material-side validation',()=>{
+ const outer=cad.makeCylinder(2,3),hole=cad.makeCylinder(.8,3),source=outer.cut(hole);let faces=[],result;
+ try{
+  faces=source.faces;const faceId=faces.findIndex(face=>face.geomType==='CYLINDRE'&&(()=>{const a=new oc.BRepAdaptor_Surface(face.wrapped,true),c=a.Cylinder();try{return Math.abs(c.Radius()-.8)<1e-9;}finally{dispose(c);dispose(a);}})());
+  const before=source.serialize();result=buildThread(source,{faceId,kind:'internal',pitchMm:.4,depthMm:.2,lengthMm:2,startOffsetMm:.5},oc,cad);valid(result);
+  assert.ok(cad.measureVolume(result)<cad.measureVolume(source));assert.equal(source.serialize(),before);assert.equal(result.threadReport.radiusMm,.8);
+ }finally{[result,...faces,source,hole,outer].forEach(dispose);}
+});
 test('exact helix length, axial rise and handedness',()=>{
  for(const leftHanded of [false,true]){const s=buildHelix({radiusMm:10,pitchMm:3,turns:4,leftHanded},cad);try{valid(s);assert.ok(Math.abs(cad.measureLength(s)-4*Math.hypot(2*Math.PI*10,3))<1e-5);const edges=s.edges;try{const end=edges.at(-1).endPoint.toTuple(),t=edges[0].tangentAt(0).toTuple();assert.ok(Math.abs(end[2]-12)<1e-7);assert.equal(t[1]>0,!leftHanded);}finally{edges.forEach(dispose);}}finally{dispose(s);}}
 });

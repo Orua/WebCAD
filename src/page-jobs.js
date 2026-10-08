@@ -2,6 +2,7 @@
 export function createPageJobs(api) {
   const jobs = new Map();
   const methods = new Set(['run','execute','queryGeometry','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','setView','setRenderQuality','files.save','files.export','files.import']);
+  methods.add('inspectDesign');
   const fail = (code,message) => {throw Object.assign(new Error(message),{code});};
   const snapshot = job => structuredClone(Object.fromEntries(Object.entries(job).filter(([k])=>!['fingerprint','args'].includes(k))));
   function getJob({jobId}={}) {
