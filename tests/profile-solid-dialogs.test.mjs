@@ -85,7 +85,7 @@ export function runProfileSolidDialogDomTests() {
     setValue(sweep.form, 'operation', 'join'); check(equal(sweep.read()._targetRefs, ['section-a', 'path-a', 'body-a']), 'sweep material target is appended after both source refs');
     sweep.state.busy = true; sweep.refreshCallback(); check(!enabled(sweep.form), 'busy state disables both apply and preview');
     sweep.state.busy = false; sweep.state.bodies.find(body => body.id === 'path-a').faceCount = 1; sweep.refreshCallback();
-    check(!enabled(sweep.form) && throws(sweep.read, /开放路径/), 'path type changes invalidate stored path without silently replacing it');
+    check(!enabled(sweep.form) && throws(sweep.read, /连续路径/), 'path type changes invalidate stored path without silently replacing it');
 
     const loft = create('profileLoft', ['section-a', 'section-c', 'section-b', 'body-a']);
     check(equal(loft.read()._targetRefs, ['section-a', 'section-c', 'section-b']), 'loft initializes explicit selected order of three distinct sections');

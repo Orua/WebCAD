@@ -316,7 +316,7 @@ async function exportData(format='step',ids){
   if(!kernelReady)throw new Error('内核尚未就绪，请保存工程后刷新页面。');
   if(!bodies.length)throw new Error('当前工程没有可导出的实体。');
   if(busy)throw new Error('请等待当前计算完成。');setBusy(true,'正在生成导出文件…');
-  try{const result=await request('export',{format,ids});setStatus('导出内容已生成。');return result;}
+  try{const result=await request('export',{format,ids,appearance:{colors:clone(documentModel.colors||{}),defaultColor:viewport.displayPreferences.defaultColor}});setStatus('导出内容已生成。');return result;}
   catch(error){setStatus(`导出失败：${error.message}`,'error');throw error;}
   finally{setBusy(false);}
 }
@@ -669,6 +669,15 @@ async function executeAI(command,args={},options={}){
   }else if(command==='add_feature'){
     if(!Object.hasOwn(labels,args.op)||['import','remove'].includes(args.op))throw new Error('Unsupported feature operation');
     await addFeature(args.op,args.params||{},{...options,refs:args.refs??[],name:args.name,placement:args.placement});
+  }else if(command==='add_features'){
+    const next=clone(documentModel);
+    for(const feature of args.features){
+      if(!Object.hasOwn(labels,feature.op))throw Object.assign(new Error('Unsupported feature operation'),{code:'CAPABILITY_UNAVAILABLE'});
+      next.features.push(clone(feature));
+      if(next.appearance?.[feature.refs[0]])next.appearance[feature.id]=next.appearance[feature.refs[0]];
+      if(next.colors?.[feature.refs[0]])next.colors[feature.id]=next.colors[feature.refs[0]];
+    }
+    await rebuild(next,{...options,select:args.features.at(-1).id,fit:true,historyLabel:'批量创建特征'});
   }else if(command==='apply_template'){
     const template=QUICK_MODELS[args.templateId];if(!template)throw new Error('Unknown template');
     await addFeature('quickModel',{...template.defaults,...args.params,kind:args.templateId},{...options,refs:[]});
@@ -714,6 +723,7 @@ const pageAPI=createPageAPI({
     return {...prepareAnalyticProfileEdit(feature.params,{...input,...(mapped?{entityId:mapped.entityIds[0],targetId:mapped.entityIds[1]}:{})}),sourceFeatureId:feature.id,...(mapped?{entityIds:mapped.entityIds,edgeIds:input.edgeIds}:{})};
   },
   projectProfile:async input=>{const atRevision=revision,atInstance=documentInstanceId,frame=input.frame||{origin:[...documentModel.referenceSystem.workFrame.origin],quaternion:[...documentModel.referenceSystem.workFrame.quaternion]};if(input.pointWorld)return {frameSnapshot:frame,point:projectPointToProfile(input.pointWorld,frame)};const exact=await request('queryGeometry',{bodyId:input.bodyId,kind:'edge',filter:{}});if(revision!==atRevision||documentInstanceId!==atInstance)throw Object.assign(new Error('来源几何在投影期间已变化'),{code:'STALE_REFERENCE'});const entities=input.edgeIds.map(id=>{const edge=exact.items.find(item=>item.edgeId===id);if(!edge)throw Object.assign(new Error(`来源边 ${id} 已失效`),{code:'STALE_REFERENCE'});return {id:crypto.randomUUID(),...projectEdgeToProfile(edge,frame,{bodyId:input.bodyId,geometryFingerprint:exact.geometryFingerprint})};});return {frameSnapshot:frame,entities,sourceBodyId:input.bodyId,sourceGeometryFingerprint:exact.geometryFingerprint,association:'snapshot-only'};},
+  inspectDesign:input=>request('inspectDesign',{input}),
   inspectFit:(bodyAId,bodyBId,toleranceMm,volumeThresholdMm3)=>request('inspectFit',{bodyAId,bodyBId,toleranceMm,volumeThresholdMm3}),
   inspectThickness:input=>request('inspectThickness',{input}),
   inspectDraft:input=>request('inspectDraft',{input}),

@@ -54,10 +54,22 @@ export function blendTargets(shape,{edgeIds,faceIds,allEdges=false,sharedFaces=f
 export function buildEdgeBlend(shape,op,params,{suggestRadius=true}={}) {
   const amount=params[op==='fillet'?'radius':'distance'];
   const {targets,rows,skipped}=blendTargets(shape,params),oc=cad.getOC(),edges=shape.edges;
+  const mode=params.mode||'equalDistance',faces=op==='chamfer'&&mode!=='equalDistance'?shape.faces:[],supportFaces=[];
   let builder,result;
   try {
     builder=op==='fillet'?new oc.BRepFilletAPI_MakeFillet(shape.wrapped,oc.ChFi3d_FilletShape.ChFi3d_Rational):new oc.BRepFilletAPI_MakeChamfer(shape.wrapped);
-    for(const row of targets)builder.Add(amount,edges[row.edgeId].wrapped);
+    for(const row of targets){
+      if(op==='fillet'||mode==='equalDistance'){builder.Add(amount,edges[row.edgeId].wrapped);continue;}
+      if(!['twoDistances','distanceAngle'].includes(mode))throw new Error('未知倒角方式');
+      const adjacent=row.adjacentFaceIds;
+      if(adjacent.length!==2)throw new Error('非对称倒角需要恰好两个相邻支撑面');
+      let faceId=params.referenceFaceId??adjacent[0];
+      if(!adjacent.includes(faceId))throw new Error(`支撑面 ${faceId} 不与边 ${row.edgeId} 相邻`);
+      if(params.flipDirection)faceId=adjacent.find(id=>id!==faceId);
+      supportFaces.push({edgeId:row.edgeId,referenceFaceId:faceId});
+      if(mode==='twoDistances')builder.Add(amount,params.distance2,edges[row.edgeId].wrapped,faces[faceId].wrapped);
+      else builder.AddDA(amount,params.angleDeg*Math.PI/180,edges[row.edgeId].wrapped,faces[faceId].wrapped);
+    }
     // Check completion before asking for the solid. BadShape() is never a result.
     const progress=new oc.Message_ProgressRange();
     try{builder.Build(progress);}finally{dispose(progress);}
@@ -66,7 +78,8 @@ export function buildEdgeBlend(shape,op,params,{suggestRadius=true}={}) {
     const check=new oc.BRepCheck_Analyzer(result.wrapped,true,false,false);
     try{if(!check.IsValid())throw new Error('过渡面自交或实体无效');}finally{dispose(check);}
     result.blendReport={operation:op,amount,scope:params.allEdges?'body':params.faceIds?(params.sharedFaces?'shared-faces':'face-boundaries'):'edges',
-      processedEdgeIds:targets.map(row=>row.edgeId),skippedTangentEdgeIds:skipped};
+      processedEdgeIds:targets.map(row=>row.edgeId),skippedTangentEdgeIds:skipped,
+      ...(op==='chamfer'?{mode,...(mode!=='equalDistance'?{supportFaces,flipDirection:params.flipDirection===true,...(mode==='twoDistances'?{distance2:params.distance2}:{angleDeg:params.angleDeg})}:{})}:{})};
     const output=result;result=null;return output;
   }catch(error){
     let failedIds=[];
@@ -83,5 +96,5 @@ export function buildEdgeBlend(shape,op,params,{suggestRadius=true}={}) {
     let detail=error?.message;
     if(!detail)try{detail=oc.getExceptionMessage(error);}catch{}
     fail(`${op==='fillet'?'圆角 R':'斜角 C'}${amount} mm 无法完成，${failedIds.length?'失败边':'目标边'}：${ids.join(', ')}。${detail||'内核未返回有效实体'}。${continuity}${alternative}请检查接续轮廓是否相切、小面交汇及半径空间；必要时修正来源轮廓后重算。原模型保留。`);
-  }finally{dispose(result);dispose(builder);edges.forEach(dispose);}
+  }finally{dispose(result);dispose(builder);edges.forEach(dispose);faces.forEach(dispose);}
 }

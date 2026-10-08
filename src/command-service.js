@@ -4,6 +4,7 @@ import {REFERENCE_ACTIONS,applyReferenceAction} from './reference-contracts.js';
 import {resolvePlacement,describeResolvedPlacement} from './work-frame.js';
 import { assertHistoryEditSafe } from './history-edit-safety.js';
 import {assertFeatureCapacity} from './document-limits.js';
+import {compileFeaturePlan} from './feature-plan.js';
 
 const clone=structuredClone;
 const uid=()=>crypto.randomUUID();
@@ -97,7 +98,7 @@ export function createCommandService(adapter) {
     }catch(e){return errorResult(e,requestId,s);}
   }
   async function executeOnce(input,options){
-    const requestId=options.requestId??uid();let s,key,fingerprint,revisionBefore;
+    const requestId=options.requestId??uid();let s,key,fingerprint,revisionBefore,featurePlan;
     try{
       s=snapshot();object(input,['context','idempotencyKey','action','args'],'input');context(input.context,s,{revision:false});
       string(input.idempotencyKey,'idempotencyKey',128);key=input.idempotencyKey;
@@ -110,6 +111,11 @@ export function createCommandService(adapter) {
       if(options.signal?.aborted)fail('CANCELLED','context','Cancelled before commit');
       const a=clone(input.args);let command,args,op,refs=[];
       switch(input.action){
+        case 'feature.addMany':{
+          assertFeatureCapacity(s.features,Array.isArray(a?.features)?a.features.length:0);
+          featurePlan=await compileFeaturePlan(a,s,{uid,verifyPlacement:verifyNamedPlacement,validateContract:contract,normalizeParams:parameters});
+          command='add_features';args=featurePlan;break;
+        }
         case 'preview.start':{
           if(a?.fileImport!==undefined){object(a,['fileImport'],'args');object(a.fileImport,['resourceId','name','mime','data','placement'],'args.fileImport');for(const key of ['resourceId','name','data'])string(a.fileImport[key],`args.fileImport.${key}`,key==='data'?28*1024*1024:200);if(!/\.(step|stp|brep|brp)$/i.test(a.fileImport.name))fail('FORMAT_UNSUPPORTED','args.fileImport.name','File preview requires STEP or BREP');if(a.fileImport.placement===undefined)fail('FRAME_INVALID','args.fileImport.placement','Explicit file placement required');command='preview_file';args={fileImport:{...a.fileImport,placement:resolvePlacement(a.fileImport.placement,s.referenceSystem,'import',{})},previewIdentity:{previewId:uid(),generation:1,baseRevision:s.revision,owner:'api'}};break;}
         }
@@ -179,6 +185,7 @@ export function createCommandService(adapter) {
         result={status:'committed',requestId,transactionId:uid(),documentId:after.documentId,documentInstanceId:after.documentInstanceId,revisionBefore,revisionAfter:after.revision,createdFeatureIds,createdBodyIds,replacements,validation:{geometry:'passed',...(args?.placement?{placement:'passed'}:{}),...(['hole','multiHole','multiPocket','faceHole'].includes(op)?{materialRemoved:true}:{}),...(op==='multiBoss'?{materialAdded:true}:{})},persistence:after.persistence,warnings:after.warnings??[]};
       }
       if(command==='editor_action')result.validation={geometry:result.status==='committed'&&['body.explode','body.align','history.restore'].includes(input.action)?'passed':'unchanged',editor:'passed'};
+      if(command==='add_features')result.featurePlan={atomic:true,featureCount:args.features.length,featureIds:clone(args.featureIds)};
       if(command==='reference_action'){result.validation={geometry:'unchanged',reference:'passed'};result.referenceSystem=clone(after.referenceSystem);}
       if(args?.placement)result.resolvedPlacement={...describeResolvedPlacement(op,args.params,args.placement),geometryValidated:result.status==='committed',referenceQuality:'provided-coordinates',binding:'snapshot'};
       if(args?.params&&op){const effective=after.previewDraft?.params&&input.action.startsWith('preview.')?after.previewDraft.params:after.features.find(feature=>feature.id===(args.featureId||result.createdFeatureIds?.[0]))?.params;result.numericInput={policy:'exact',requestedParams:clone(input.args?.params||input.args?.patch?.params||{}),effectiveParams:clone(effective||args.params),quantizationWarnings:[]};}
@@ -187,6 +194,7 @@ export function createCommandService(adapter) {
       receipts.set(key,{fingerprint,result:clone(result)});return result;
     }catch(e){
       const now=snapshot();let result=errorResult(e,requestId,now);
+      if(featurePlan&&e.featureId)result.error.featureKey=Object.keys(featurePlan.featureIds).find(key=>featurePlan.featureIds[key]===e.featureId);
       if(revisionBefore!==undefined&&now.documentInstanceId===s.documentInstanceId&&now.revision!==revisionBefore)result={status:'unknown',requestId,idempotencyKey:key,commitState:'unknown',error:{code:'RESULT_UNKNOWN',path:'result',message:e.message,retryable:false,recoveryAction:'READ_STATE_AND_REPLAN'}};
       // Preserve an existing receipt even on a conflicting reuse.
       if(key&&fingerprint&&!receipts.has(key)&&receipts.size<1000)receipts.set(key,{fingerprint,result:clone(result)});

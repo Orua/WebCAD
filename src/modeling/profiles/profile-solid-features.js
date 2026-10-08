@@ -68,10 +68,10 @@ export function buildProfileRevolve(sources, params = {}, cad) {
   });
 }
 
-function prepareOpenPath(shape, cad) {
+function prepareSweepPath(shape, cad) {
   const resources = [], hold = item => { resources.push(item); return item; };
   try {
-    if (!(shape instanceof cad.Wire || shape instanceof cad.Edge || shape instanceof cad.Compound)) fail('扫掠路径须为单一开放 Wire、Edge 或纯边 Compound');
+    if (!(shape instanceof cad.Wire || shape instanceof cad.Edge || shape instanceof cad.Compound)) fail('扫掠路径须为单一连续 Wire、Edge 或纯边 Compound');
     if (shape instanceof cad.Compound) {
       const faces = shape.faces, solids = shape.solids, wires = shape.wires;
       try { if (faces.length || solids.length || wires.length) fail('路径 Compound 只能含连续原始边，不能含面、实体或多个 Wire'); }
@@ -89,11 +89,13 @@ function prepareOpenPath(shape, cad) {
       const curve = edge.curve;
       try {
         const a = nodeAt(tuple(curve.startPoint)), b = nodeAt(tuple(curve.endPoint));
-        if (a === b || curve.isClosed || edge.length <= 1e-8) fail('路径必须开放且不含闭合或退化边');
+        if (edge.length <= 1e-8 || (a === b && !curve.isClosed)) fail('路径不能含退化边或端点近重合的非闭合边');
         nodes[a].edges.push(index); nodes[b].edges.push(index); return [a, b];
       } finally { dispose(curve); }
     });
-    if (nodes.filter(node => node.edges.length === 1).length !== 2 || nodes.some(node => node.edges.length > 2)) fail('路径必须是一条连续开放链，不能有分叉、闭环或多个路径');
+    const endpoints = nodes.filter(node => node.edges.length === 1).length;
+    const closed = endpoints === 0 && nodes.every(node => node.edges.length === 2);
+    if ((!closed && endpoints !== 2) || nodes.some(node => node.edges.length > 2)) fail('路径必须是单一连续开放链或闭环，不能有分叉或多个路径');
     const seen = new Set(), stack = [0];
     while (stack.length) {
       const index = stack.pop(); if (seen.has(index)) continue; seen.add(index);
@@ -103,11 +105,39 @@ function prepareOpenPath(shape, cad) {
     const wire = hold(shape instanceof cad.Wire ? shape.clone() : cad.assembleWire(edges));
     checkShape(wire, cad, '扫掠路径');
     const curve = wire.curve; let start, tangent;
-    try { start = tuple(curve.startPoint); tangent = tuple(curve.tangentAt(0)); }
+    try {
+      if (closed && !curve.isClosed) fail('闭合路径拓扑与精确曲线不一致');
+      start = tuple(curve.startPoint); tangent = tuple(curve.tangentAt(0));
+    }
     finally { dispose(curve); }
     const length = Math.hypot(...tangent); if (!Number.isFinite(length) || length <= 1e-12) fail('路径起点切线无效');
     return { wire, start, tangent: tangent.map(value => value / length), release: () => resources.reverse().forEach(dispose) };
   } catch (error) { resources.reverse().forEach(dispose); throw error; }
+}
+
+function sweepProfileWithHoles(profile, path, cad, options) {
+  const wires = profile.face.wires;
+  let tool, cavity, hollow;
+  try {
+    tool = cad.genericSweep(profile.wire, path.wire, options);
+    for (const wire of wires) {
+      if (wire.isSame(profile.wire)) continue;
+      const before = validSolid(tool, cad, '外部扫掠');
+      cavity = cad.genericSweep(wire, path.wire, options);
+      const cavityVolume = validSolid(cavity, cad, '内孔扫掠');
+      hollow = tool.cut(cavity);
+      const after = validSolid(hollow, cad, '保留内孔的扫掠');
+      validateMaterialChange('cut', before, cavityVolume, after);
+      // A transported hole must remain wholly inside the outer sweep and
+      // disjoint from earlier holes. Partial subtraction would hide a bad path.
+      const epsilon = Math.max(1e-8, Math.max(before, cavityVolume) * 1e-8);
+      if (Math.abs(before - after - cavityVolume) > epsilon)
+        fail('内孔扫掠超出外部扫掠或与其它内孔交叠，不能完整保留内腔');
+      dispose(tool); tool = hollow; hollow = null;
+      dispose(cavity); cavity = null;
+    }
+    const complete = tool; tool = null; return complete;
+  } finally { [hollow, cavity, tool, ...wires].forEach(dispose); }
 }
 
 export function buildProfileSweep(sources, params = {}, cad) {
@@ -116,14 +146,14 @@ export function buildProfileSweep(sources, params = {}, cad) {
     const transitionMode = params.transitionMode ?? 'transformed';
     if (!['right', 'transformed', 'round'].includes(transitionMode)) fail('transitionMode 须为 right、transformed 或 round');
     if (params.frenet !== undefined && typeof params.frenet !== 'boolean') fail('frenet 须为布尔值');
-    const profile = prepareReferenceProfile(profiles[0], cad);
+    const profile = prepareReferenceProfile(profiles[0], cad, { allowHoles: true });
     let path, tool;
     try {
-      path = prepareOpenPath(profiles[1], cad);
+      path = prepareSweepPath(profiles[1], cad);
       const normal = tuple(profile.face.normalAt()), center = tuple(profile.face.center);
       if (Math.abs(dot(normal, path.tangent)) < 1 - 1e-8 || Math.abs(dot(minus(path.start, center), normal)) > 1e-6)
         fail('保存截面必须位于路径起点平面，且截面法向须与路径起点切线平行；不会自动移动或旋转来源');
-      tool = cad.genericSweep(profile.wire, path.wire, { frenet: params.frenet ?? false, transitionMode });
+      tool = sweepProfileWithHoles(profile, path, cad, { frenet: params.frenet ?? false, transitionMode });
       const ownedTool = tool; tool = null;
       return applyMaterial(ownedTool, target, operation, cad);
     } finally { dispose(tool); path?.release(); profile.release(); }

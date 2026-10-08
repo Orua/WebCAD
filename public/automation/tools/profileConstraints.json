@@ -1,6 +1,6 @@
 {
   "id": "profileConstraints",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -179,6 +179,122 @@
                 }
               },
               "description": "Coincide two line endpoints or circle centers."
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "point",
+                "entityId"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "type": {
+                  "type": "string",
+                  "const": "pointOnLine"
+                },
+                "point": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "entityId",
+                    "point"
+                  ],
+                  "properties": {
+                    "entityId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "point": {
+                      "type": "string",
+                      "enum": [
+                        "start",
+                        "end",
+                        "center"
+                      ],
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    }
+                  },
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
+                },
+                "entityId": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              },
+              "description": "Place an endpoint or circle center on the supporting infinite line, including its extension."
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "point",
+                "entityId"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "type": {
+                  "type": "string",
+                  "const": "pointOnCircle"
+                },
+                "point": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "entityId",
+                    "point"
+                  ],
+                  "properties": {
+                    "entityId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "point": {
+                      "type": "string",
+                      "enum": [
+                        "start",
+                        "end",
+                        "center"
+                      ],
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    }
+                  },
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
+                },
+                "entityId": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              },
+              "description": "Place an endpoint or another circle center on a circle circumference."
             },
             {
               "type": "object",
@@ -578,6 +694,40 @@
               "required": [
                 "type",
                 "firstId",
+                "secondId"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "type": {
+                  "type": "string",
+                  "const": "concentric"
+                },
+                "firstId": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "secondId": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              },
+              "description": "Two distinct circles share a center; radii remain independent."
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "type",
+                "firstId",
                 "secondId",
                 "angleDeg"
               ],
@@ -711,7 +861,7 @@
     "profileConstraints"
   ],
   "description": "Solve common saved line/circle profile constraints and derive a new profile while preserving the source, entity IDs and ordered paths",
-  "schemaHash": "sha256:5fde80d902c88a8fcb5c28b781807e6872529df7f139f2b4b6449956be653a70",
+  "schemaHash": "sha256:a30a7eec08f3b9390f34a9d72ab2181e3c91138653d74f136e9674f0116fdf58",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -886,5 +1036,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:e5bc5282a47ed6f35a39f0cdc4ae8d0bc9f59ad6cc158573855b51841c5c678f"
+  "docsHash": "sha256:17e733607dca58c4f349f00e5b13e5cd89a88db7d589ba5677d8aa19d3e2ce3a"
 }

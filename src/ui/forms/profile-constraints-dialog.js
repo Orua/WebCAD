@@ -1,7 +1,7 @@
 import {resolveProfileRecipe} from '../../modeling/profiles/profile-constraint-history.js';
 import {expandProfilePrimitives} from '../../modeling/profiles/profile-primitives.js';
 
-const types=[['length','线长'],['horizontal','水平'],['vertical','垂直'],['coincident','点重合'],['parallel','平行'],['perpendicular','垂直关系'],['equalLength','等长'],['distance','点间尺寸'],['radius','圆半径'],['diameter','圆直径'],['equalRadius','等半径'],['angle','两线夹角'],['tangent','线圆相切'],['fixPoint','固定点'],['fixEntity','固定图元']];
+const types=[['length','线长'],['horizontal','水平'],['vertical','垂直'],['coincident','点重合'],['pointOnLine','点在线上'],['pointOnCircle','点在圆上'],['parallel','平行'],['perpendicular','垂直关系'],['equalLength','等长'],['distance','点间尺寸'],['radius','圆半径'],['diameter','圆直径'],['equalRadius','等半径'],['concentric','同心圆'],['angle','两线夹角'],['tangent','线圆相切'],['fixPoint','固定点'],['fixEntity','固定图元']];
 const labels=Object.fromEntries(types);
 export function showProfileConstraintsDialog(env) {
  const {state,openDialog,element,button,addField,bindParameterForm,setTaskTargetRefresh}=env;
@@ -21,7 +21,8 @@ export function showProfileConstraintsDialog(env) {
  const line=entity=>entity.type==='line',circle=entity=>entity.type==='circle';
  const render=()=>{
   host.replaceChildren();controls={};const current=type.value;
-  if(['parallel','perpendicular','equalLength','angle','equalRadius'].includes(current)){const filter=current==='equalRadius'?circle:line;selectedEntity('firstId','第一图元',filter);selectedEntity('secondId','第二图元',filter);if(controls.secondId.options.length>1)controls.secondId.selectedIndex=1;if(current==='angle'){numerical('angleDeg','角度 °',90);controls.direction=choice(host,'direction','旋转方向',[['ccw','逆时针'],['cw','顺时针']]);}}
+  if(['parallel','perpendicular','equalLength','angle','equalRadius','concentric'].includes(current)){const filter=['equalRadius','concentric'].includes(current)?circle:line;selectedEntity('firstId','第一图元',filter);selectedEntity('secondId','第二图元',filter);if(controls.secondId.options.length>1)controls.secondId.selectedIndex=1;if(current==='angle'){numerical('angleDeg','角度 °',90);controls.direction=choice(host,'direction','旋转方向',[['ccw','逆时针'],['cw','顺时针']]);}}
+  else if(['pointOnLine','pointOnCircle'].includes(current)){const a=selectedEntity('pointEntityId','点来自图元');pointChoice('pointName','指定点',a);selectedEntity('entityId','目标图元',current==='pointOnLine'?line:circle);}
   else if(['distance','coincident'].includes(current)){const a=selectedEntity('firstEntityId','第一图元'),b=selectedEntity('secondEntityId','第二图元');pointChoice('firstPoint','第一个点',a);pointChoice('secondPoint','第二个点',b);controls.secondPoint.value=pointsFor(b.value).at(-1)[0];if(current==='distance'){controls.axis=choice(host,'axis','尺寸方向',[['euclidean','两点距离'],['x','X 坐标差'],['y','Y 坐标差']]);numerical('distanceMm','尺寸 mm（X/Y可有符号）',10);}}
   else if(current==='tangent'){selectedEntity('lineId','相切直线',line);selectedEntity('circleId','相切圆',circle);controls.side=choice(host,'side','圆在直线哪侧',[['left','左侧'],['right','右侧']]);}
   else {const filter=['radius','diameter'].includes(current)?circle:['horizontal','vertical','length'].includes(current)?line:()=>true;const entity=selectedEntity('entityId','图元',filter);
@@ -30,13 +31,14 @@ export function showProfileConstraintsDialog(env) {
    if(current==='diameter')numerical('diameterMm','直径 mm',10,'positive');
    if(current==='fixPoint'){const point=pointChoice('point','固定哪一点',entity),x=numerical('positionX','来源平面 X mm',0),y=numerical('positionY','来源平面 Y mm',0);const fill=()=>{const item=entities.find(e=>e.id===entity.value),value=item?.[point.value==='center'?'centerMm':`${point.value}Mm`]||[0,0];x.value=String(value[0]);y.value=String(value[1]);};entity.addEventListener('change',fill);point.addEventListener('change',fill);fill();}
   }
-  notice.textContent=current==='tangent'?'相切点可位于直线延长线上；左／右以直线起点到终点为准。':current==='angle'?'夹角以两线起点到终点的方向为准，范围0–180°。':'矩形会在派生结果中转换为四条直线并保留水平／垂直关系。圆弧与样条首版不参与约束求解。';
+  notice.textContent=current==='pointOnLine'?'点可落在直线延长线上；点与目标需来自不同图元。':current==='pointOnCircle'?'约束点到圆周，支持线端点或另一圆的圆心。':current==='concentric'?'两个圆只共享圆心，直径仍可分别修改。':current==='tangent'?'相切点可位于直线延长线上；左／右以直线起点到终点为准。':current==='angle'?'夹角以两线起点到终点的方向为准，范围0–180°。':'矩形会在派生结果中转换为四条直线并保留水平／垂直关系。圆弧与样条首版不参与约束求解。';
   form.dispatchEvent(new Event('input',{bubbles:true}));
  };
  function currentConstraint(){
   const current=type.value,values={type:current};for(const [name,input]of Object.entries(controls)){if(input.tagName==='SELECT'){if(!input.value)throw new Error('请明确选择参与约束的图元。');values[name]=input.value;}else{if(!input.value.trim()||!Number.isFinite(Number(input.value)))throw new Error('请填写有效尺寸。');values[name]=Number(input.value);}}
   if(['coincident','distance'].includes(current)){values.first={entityId:values.firstEntityId,point:values.firstPoint};values.second={entityId:values.secondEntityId,point:values.secondPoint};for(const key of ['firstEntityId','secondEntityId','firstPoint','secondPoint'])delete values[key];}
   if(current==='fixPoint'){values.point={entityId:values.entityId,point:values.point};values.positionMm=[values.positionX,values.positionY];delete values.entityId;delete values.positionX;delete values.positionY;}
+  if(['pointOnLine','pointOnCircle'].includes(current)){values.point={entityId:values.pointEntityId,point:values.pointName};delete values.pointEntityId;delete values.pointName;}
   return values;
  }
  const renderQueue=()=>{list.replaceChildren();queue.forEach((constraint,index)=>{const row=element('div',{class:'profile-editor-toolbar'}),remove=button('移除',()=>{queue.splice(index,1);renderQueue();form.dispatchEvent(new Event('input',{bubbles:true}));},'secondary');remove.type='button';row.append(element('span',{},`${index+1}. ${labels[constraint.type]} · ${constraint.entityId||constraint.firstId||constraint.lineId||constraint.first?.entityId||constraint.point?.entityId||''}${constraint.lengthMm!==undefined?` = ${constraint.lengthMm} mm`:''}`),remove);list.append(row);});};

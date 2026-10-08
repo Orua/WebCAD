@@ -5,6 +5,8 @@ export const CONNECTION_POLICY = 'AI 应通过宿主已授权的页面脚本通�
 
 export const CONNECTION_GUIDE = `${CONNECTION_POLICY}
 
+首次握手后，Agent按connect().onboarding.knowledge下载automation/agent-knowledge.json清单及其静态文件到宿主存储，验证SHA-256和大小；按页面base URL、catalogHash和docsHash缓存，重连时复用匹配的完整缓存。先按agent-routing.json路由任务，再只载入需要的工作流和工具卡；精确UI动作仍查routes.json。宿主没有下载/存储能力时明确报告，不能把握手指引当成已经写盘。完整说明见api.knowledge-cache。
+
 首次入口为 ${AGENT_ONBOARDING.startUrl}，机器可读引导为 ${AGENT_ONBOARDING.bootstrapUrl}。connect().onboarding 返回同一 version=1 静态连接步骤，不包含工程状态或实体身份。需要可选本地技能/客户端时，先读 ${AGENT_ONBOARDING.localKit.manifestUrl}；安装脚本 ${AGENT_ONBOARDING.localKit.installerUrl} 仅供宿主或用户明确选择安装，installation=host-opt-in，不会增加浏览器权限，也不是页面建模的必需服务。
 
 先确认宿主实际提供的能力。只读 DOM evaluate 不能据此推断公开 API 不可调用，也不能用于绕过宿主限制。
@@ -26,8 +28,8 @@ export const MODELING_WORKFLOW = `先连接当前页面，而不是读取另一�
 1. 通过宿主实际允许的脚本通道调用 api.connect({queries:['任务中的具体能力'],limit:2,includeContracts:true})；已知工具改用 toolIds（最多20个）。canExecute=false 时按 blockers 等待计算或处理预览，不自动提交/取消用户预览。契约已有则不重复读；缓存失配就更新。
 2. 先判断目标几何。圆圈可能指二维圆线或有线径的实体圆环；圆形拉伸是实体，不能冒充二维曲线。模板名命中 template.* 时读取该模板卡；若上下文无法区分影响几何的含义，简短澄清。不支持的目标应说明，不能用相近工具冒充。
 3. 复杂模型按部件和依赖规划：外形/主体、附属件、细节。模型名称（如飞机）不是工具 ID；按放样、曲线扫掠、多边形拉伸、变换等能力检索。先确定尺寸/坐标和关键截面，读这些完整契约，再分阶段执行。模板只在形状确实匹配时使用。概念模型可说明合理尺寸假设；复刻源图时不猜尺寸。
-4. 用 api.run 执行1–20步的有界批次；每步有明确 name/params/refs。创建用 method:add；修改/删除/撤销用 method:execute。后续步骤用 {$ref:'part.createdBodyIds.0'} 读取真实结果，变换后使用变换回执的新 ID，不沿用被替换的旧实体。跨批次重新读状态。所有修改共用页面 Worker/历史；不是修改产品源码或注入任意内核代码。
-5. 在批次中测量关键部件，必要时设轴测/适配视图；最后核对每步 status、实际实体、尺寸/体积、displayMatchesContext，并检查画面。有形状或尺寸要求时，实体数量增加不能单独证明完成。不要对每个参数往返一次，也不要默认导出保存。
+4. 已明确参数且无需中间拓扑的主体/刀具/布尔优先读 api.feature-plan，用 run method:addMany 一次提交1–64个特征；保留各项历史、一个撤销步骤。需要面/边、Logo或读回时在提交后分段。用 api.run 执行1–20步的有界批次；每步有明确 name/params/refs。创建用 method:add；修改/删除/撤销用 method:execute。后续步骤用 {$ref:'part.createdBodyIds.0'} 读取真实结果，变换后使用变换回执的新 ID，不沿用被替换的旧实体。跨批次重新读状态。所有修改共用页面 Worker/历史；不是修改产品源码或注入任意内核代码。
+5. 在批次中测量关键部件，必要时设轴测/适配视图；最后核对每步 status、实际实体、尺寸/体积、displayMatchesContext，并检查画面。有形状或尺寸要求时，实体数量增加不能单独证明完成。源图重建先读 api.reconstruction，使用 inspectDesign 一次核对带来源的尺寸、实体数、关键材料/留空点；检查结果不代表完整产品验收。不要对每个参数往返一次，也不要默认导出保存。
 6. partial/failed：查看 progress.failedStepId、completedStepIds、unattemptedStepIds 和原始 error。前面已提交步骤保留；读当前状态后只规划剩余步骤，并给修改后的请求新 key。unknown/宿主超时：先查状态，不能盲目再次创建。相同请求/key只返回原回执，不会继续未完成步骤；回执 context 是当时快照，重连后核对。
 
 示例（通过授权脚本通道；已阅读 template.ring/measure/setView 卡并确认要实体圆环）：

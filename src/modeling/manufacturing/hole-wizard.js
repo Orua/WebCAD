@@ -10,7 +10,7 @@ function exactCenterMaterialDepth(shape,cad,start,axis){
   const box=shape.boundingBox;let line,common;
   try{const [min,max]=box.bounds,length=Math.hypot(...max.map((v,i)=>v-min[i]))*2+10;line=cad.makeLine(start,pointOnRay(start,axis,length));common=shape.intersect(line);const edges=common.edges,intervals=[];try{for(const edge of edges){const a=edge.startPoint,b=edge.endPoint;try{const ta=dot(a.toTuple().map((v,i)=>v-start[i]),axis),tb=dot(b.toTuple().map((v,i)=>v-start[i]),axis);intervals.push([Math.min(ta,tb),Math.max(ta,tb)]);}finally{dispose(a);dispose(b);}}}finally{edges.forEach(dispose);}const entry=intervals.find(([lo,hi])=>Math.abs(lo)<1e-5&&hi>1e-5);if(!entry)throw new Error('孔中心未从选定位置进入连续材料');return {firstDepth:entry[1],throughDepth:Math.max(...intervals.map(([,hi])=>hi))};}finally{[box,line,common].forEach(dispose);}
 }
-function frustum(cad,point,axis,largeRadius,smallRadius,depth){const r=radial(axis),at=(radius,z)=>pointOnRay(pointOnRay(point,axis,z),r,radius),face=cad.makePolygon([point,at(largeRadius,0),at(smallRadius,depth),pointOnRay(point,axis,depth)]);try{return cad.revolution(face,point,axis,360);}finally{dispose(face);}}
+function frustum(cad,point,axis,largeRadius,smallRadius,depth){const r=radial(axis),at=(radius,z)=>pointOnRay(pointOnRay(point,axis,z),r,radius),points=[point,at(largeRadius,0),at(smallRadius,depth)];if(smallRadius>0)points.push(pointOnRay(point,axis,depth));const face=cad.makePolygon(points);try{return cad.revolution(face,point,axis,360);}finally{dispose(face);}}
 export function buildHoleWizard(shape,p,cad,frame){
   const kind=p.kind||'plain';if(!['plain','counterbore','countersink'].includes(kind))throw new Error('未知孔型');
   const diameter=valid(p.diameterMm,'小孔直径'),axisName=p.axis||'Z',direction=p.direction??1;
@@ -18,16 +18,25 @@ export function buildHoleWizard(shape,p,cad,frame){
   if(![p.x,p.y,p.z].every(Number.isFinite))throw new Error('钻孔起点必须为有限世界/基准坐标');
   const localAxis=axisByName[axisName].map(v=>v*direction),axis=frame?rotateVector(frame.quaternion,localAxis):localAxis,start=frame?worldPoint(frame,[p.x,p.y,p.z]):[p.x,p.y,p.z];
   const material=exactCenterMaterialDepth(shape,cad,start,axis),interval=material.firstDepth,through=p.through===true,depth=through?material.throughDepth+1:valid(p.depthMm,'孔深');
-  if(!through&&depth>=interval-1e-5)throw new Error('盲孔深度到达或穿过材料边界；请缩短孔深或明确选贯穿');
+  const drillPoint=p.drillPoint||'flat',depthReference=p.depthReference||'cylindricalLength';
+  if(!['flat','angled'].includes(drillPoint)||!['cylindricalLength','tipDepth'].includes(depthReference))throw new Error('钻尖或孔深基准无效');
+  if(through&&drillPoint==='angled')throw new Error('贯穿孔不支持盲孔钻尖');
+  let tipLength=0;
+  if(drillPoint==='angled'){const angle=valid(p.drillPointAngleDeg??118,'钻尖包含角');if(angle>=179)throw new Error('钻尖包含角须小于 179°');tipLength=diameter/(2*Math.tan(angle*Math.PI/360));}
+  const cylinderDepth=depth-(depthReference==='tipDepth'?tipLength:0),totalDepth=cylinderDepth+tipLength;
+  if(cylinderDepth<=1e-7)throw new Error('孔深必须大于钻尖高度，保留正的圆柱段');
+  if(!through&&totalDepth>=interval-1e-5)throw new Error('盲孔深度（含钻尖）到达或穿过材料边界；请缩短孔深或明确选贯穿');
   const largeDiameter=kind==='plain'?null:valid(p.recessDiameterMm,'大孔直径');
   if(largeDiameter!==null&&largeDiameter<=diameter)throw new Error('沉孔/沉头大直径必须大于小孔直径');
   let recessDepth=0;
   if(kind==='counterbore')recessDepth=valid(p.recessDepthMm,'沉孔深度');
   if(kind==='countersink'){const angle=valid(p.includedAngleDeg,'锥体包含角');if(angle>=179)throw new Error('锥体包含角须小于 179°');recessDepth=(largeDiameter-diameter)/(2*Math.tan(angle*Math.PI/360));}
-  if(recessDepth&&recessDepth>=Math.min(depth,interval)-1e-5)throw new Error('沉孔/沉头深度超过小孔深度或局部材料厚度');
-  let small,large,first,result;
+  if(recessDepth&&recessDepth>=Math.min(cylinderDepth,interval)-1e-5)throw new Error('沉孔/沉头深度超过小孔圆柱段深度或局部材料厚度');
+  let small,tip,cutter,large,first,result;
   try{
-    small=cad.makeCylinder(diameter/2,depth,start,axis);first=shape.cut(small);
+    small=cad.makeCylinder(diameter/2,cylinderDepth,start,axis);
+    if(tipLength){tip=frustum(cad,pointOnRay(start,axis,cylinderDepth),axis,diameter/2,0,tipLength);cutter=small.fuse(tip);}
+    first=shape.cut(cutter||small);
     const before=Math.abs(cad.measureVolume(shape)),afterSmall=first.isNull?0:Math.abs(cad.measureVolume(first));
     if(before-afterSmall<=Math.max(1e-8,before*1e-12))throw new Error('小孔未切入材料');
     if(kind==='plain'){result=first;first=null;return result;}
@@ -35,5 +44,5 @@ export function buildHoleWizard(shape,p,cad,frame){
     result=first.cut(large);const after=result.isNull?0:Math.abs(cad.measureVolume(result));
     if(afterSmall-after<=Math.max(1e-8,before*1e-12))throw new Error('沉孔/沉头没有去除额外材料');
     return result;
-  }catch(error){dispose(result);throw error;}finally{[small,large,first].forEach(dispose);}
+  }catch(error){dispose(result);throw error;}finally{[small,tip,cutter,large,first].forEach(dispose);}
 }

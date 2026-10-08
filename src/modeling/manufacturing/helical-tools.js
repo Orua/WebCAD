@@ -60,7 +60,9 @@ export function buildThread(source,p,oc,cad) {
     if(p.kind==='external'&&depth>=radius)fail('外螺纹牙深须小于圆柱半径');
     const u=(adaptor.FirstUParameter()+adaptor.LastUParameter())/2,v=(v0+v1)/2;
     point=adaptor.Value(u,v);const surfacePoint=xyz(point),axisPoint=origin.map((x,i)=>x+dir[i]*v),radial=unit(surfacePoint.map((x,i)=>x-axisPoint[i]));
-    normal=face.normalAt(surfacePoint);const n=normal.toTuple(),outward=n.reduce((sum,x,i)=>sum+x*radial[i],0);
+    // Differential normals have length equal to the cylinder radius in OCCT.
+    // Compare directions after normalizing, including small tapped bores.
+    normal=face.normalAt(surfacePoint);const n=unit(normal.toTuple()),outward=n.reduce((sum,x,i)=>sum+x*radial[i],0);
     if(p.kind==='external'?outward<0.9:outward>-.9)fail('内／外螺纹类型与圆柱面的材料侧不匹配');
     const base=origin.map((x,i)=>x+dir[i]*(v0+start));
     // Normalize the full cylinder frame, including its angular seam. Building

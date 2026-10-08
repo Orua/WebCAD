@@ -8,7 +8,7 @@ test('static onboarding is compact JSON, ordered by actual host discovery, and c
   const json=JSON.stringify(AGENT_ONBOARDING),copy=JSON.parse(json);
   assert.deepEqual(copy,AGENT_ONBOARDING);
   assert.equal(copy.version,1);assert.equal(copy.entrypoint,'window.webcad.api.connect');
-  assert.deepEqual(copy.steps.map(step=>step.id),['bind-tab','list-capabilities','read-cdp-docs','runtime-evaluate','contracts','run','readback']);
+  assert.deepEqual(copy.steps.map(step=>step.id),['bind-tab','list-capabilities','read-cdp-docs','runtime-evaluate','knowledge-cache','contracts','run','readback']);
   assert.ok(copy.steps[3].check.includes('canExecute/blockers/requestContext'));
   assert.ok(copy.steps[3].check.includes('exceptionDetails/result'));
   assert.equal(copy.host.documentation,'current-host-first');

@@ -1,0 +1,294 @@
+{
+  "id": "inspectDesign",
+  "title": "inspectDesign",
+  "category": "page-method",
+  "version": "1.22.0",
+  "description": "inspectDesign({context,requirements,requirePass?:false})；1–64项{id,bodyId,kind:bounds|solidCount|material,evidence:{kind:drawing|user|assumption,reference}}。bounds加sizeMm:[X,Y,Z]/明确toleranceMm；solidCount加count；material加points/expected:inside|outside，可选toleranceMm。总计<=128个世界XYZ材料点。完整字段与示例见api.design-checks。",
+  "synonyms": [
+    "inspectDesign",
+    "源图",
+    "要求",
+    "核对",
+    "尺寸",
+    "材料",
+    "漏接",
+    "横杆",
+    "保留孔",
+    "验收",
+    "假设"
+  ],
+  "inputContract": "inspectDesign({context,requirements,requirePass?:false})；1–64项{id,bodyId,kind:bounds|solidCount|material,evidence:{kind:drawing|user|assumption,reference}}。bounds加sizeMm:[X,Y,Z]/明确toleranceMm；solidCount加count；material加points/expected:inside|outside，可选toleranceMm。总计<=128个世界XYZ材料点。完整字段与示例见api.design-checks。",
+  "outputContract": "只读精确BRep，逐项matches、expected/actual、verdict:pass|fail|unverified；假设和边界点不放行，sourceEvidenceVerified=false；requirePass:true在不通过时返回failed并保留诊断，可阻止批次后续导出。点采样不证明完整连接、截面或圆角。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "RESOURCE_LIMIT",
+    "STALE_REFERENCE",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE",
+    "DESIGN_CHECK_UNSUPPORTED",
+    "DESIGN_CHECK_INCONCLUSIVE",
+    "DESIGN_REQUIREMENTS_NOT_MET"
+  ],
+  "docs": "api.design-checks",
+  "units": {
+    "length": "mm"
+  },
+  "relatedTools": [
+    "measure",
+    "inspectThickness",
+    "planeSection",
+    "inspectFit"
+  ],
+  "argumentKeys": [
+    "context",
+    "requirements",
+    "requirePass"
+  ],
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "context": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "documentId": {
+            "type": "string"
+          },
+          "documentInstanceId": {
+            "type": "string"
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ],
+        "additionalProperties": false
+      },
+      "requirePass": {
+        "type": "boolean",
+        "default": false
+      },
+      "requirements": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 64,
+        "items": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z][a-zA-Z0-9_-]{0,39}$"
+                },
+                "bodyId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 150
+                },
+                "kind": {
+                  "const": "bounds"
+                },
+                "evidence": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "drawing",
+                        "user",
+                        "assumption"
+                      ]
+                    },
+                    "reference": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "reference"
+                  ],
+                  "additionalProperties": false
+                },
+                "sizeMm": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "toleranceMm": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 1
+                }
+              },
+              "required": [
+                "id",
+                "bodyId",
+                "kind",
+                "evidence",
+                "sizeMm",
+                "toleranceMm"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z][a-zA-Z0-9_-]{0,39}$"
+                },
+                "bodyId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 150
+                },
+                "kind": {
+                  "const": "solidCount"
+                },
+                "evidence": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "drawing",
+                        "user",
+                        "assumption"
+                      ]
+                    },
+                    "reference": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "reference"
+                  ],
+                  "additionalProperties": false
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 1000
+                }
+              },
+              "required": [
+                "id",
+                "bodyId",
+                "kind",
+                "evidence",
+                "count"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z][a-zA-Z0-9_-]{0,39}$"
+                },
+                "bodyId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 150
+                },
+                "kind": {
+                  "const": "material"
+                },
+                "evidence": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "drawing",
+                        "user",
+                        "assumption"
+                      ]
+                    },
+                    "reference": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "reference"
+                  ],
+                  "additionalProperties": false
+                },
+                "points": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                  },
+                  "minItems": 1,
+                  "maxItems": 128
+                },
+                "expected": {
+                  "enum": [
+                    "inside",
+                    "outside"
+                  ]
+                },
+                "toleranceMm": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 0.01,
+                  "default": 0.00001
+                }
+              },
+              "required": [
+                "id",
+                "bodyId",
+                "kind",
+                "evidence",
+                "points",
+                "expected"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      }
+    },
+    "required": [
+      "context",
+      "requirements"
+    ],
+    "additionalProperties": false
+  },
+  "crossItemLimits": {
+    "uniqueRequirementIds": true,
+    "maxMaterialPoints": 128
+  },
+  "unknownFields": "rejected",
+  "docsHash": "sha256:1f2f52f84c3874ec4174281704d139aa9de8bd0f5a4e6ddb9bb8fef919100edf"
+}

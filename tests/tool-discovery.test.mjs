@@ -145,7 +145,7 @@ test('generated manifest supports per-item invalidation and offline module match
 });
 
 test('page advisory cards describe the actual browser execution and validation path',()=>{
-  for(const id of ['union','quickModel','transform','linearPattern']){
+  for(const id of ['union','quickModel','transform','extrude']){
     const card=getTool({id});assert.equal(card.v2Executable,true);assert.equal(card.strictContract,false);
     assert.equal(card.validationMode,'schema-validation-with-kernel-prerequisites');
     assert(card.invalidExamples.every(e=>e.errorCode!=='NOT_A_STRICT_V2_OPERATION'));

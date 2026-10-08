@@ -3,7 +3,7 @@
   "title": "取消预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:9b92909d1267395b49d27275b26ec2a784f81e60e208e06fa7ad7d68dd43c448"
+  "docsHash": "sha256:e51b7654523944645698885abf162e646921fe8b6793f7c624301af07e48c879"
 }

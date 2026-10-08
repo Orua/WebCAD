@@ -7,7 +7,7 @@ const point=p=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite);
 const distance=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
 
 function checkedPath(segments,label){
-  if(!Array.isArray(segments)||segments.length<2||segments.length>128)fail(`${label}须有 2–128 段`);
+  if(!Array.isArray(segments)||segments.length<2||segments.length>256)fail(`${label}须有 2–256 段`);
   for(let i=0;i<segments.length;i++){
     const segment=segments[i],count=segment?.type==='line'?2:segment?.type==='arc'?3:0;
     if(!count||!Array.isArray(segment.points)||segment.points.length!==count||!segment.points.every(point))fail(`${label}第${i+1}段必须是二维 line 两点或 arc 三点`);

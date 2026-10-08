@@ -82,10 +82,10 @@ export function showProfileSolidDialog(op, env) {
       form.append(directionHost); numberField(form, ['angleDeg', '旋转角度 °', 360, 'angle']);
       form.append(element('p', { class: 'property-footnote wide' }, '轴上一点使用世界坐标；旋转轴须位于保存的截面平面内。原生面内孔会一起保留。'));
     } else {
-      path = sourceChoice('pathSourceId', '开放路径', paths, initial(paths()));
+      path = sourceChoice('pathSourceId', '单一连续路径（开放或闭合）', paths, initial(paths()));
       choice(form, 'transitionMode', '路径拐角过渡', [['transformed', '随路径变换'], ['right', '直角过渡'], ['round', '圆角过渡']], 'transformed');
       numberField(form, ['frenet', '沿曲率标架转向', false, 'boolean']);
-      form.append(element('p', { class: 'property-callout wide' }, '截面与路径使用保存的世界位置。截面须先放在路径起点平面，并垂直起点切线；工具不会自动移动或旋转来源。首版不支持截面内孔、闭合或分叉路径。'));
+      form.append(element('p', { class: 'property-callout wide' }, '截面与路径使用保存的世界位置。截面须先放在路径起点平面，并垂直起点切线；工具不会自动移动或旋转来源。平面截面的已定义内孔沿路径保留；独立多环不自动推断内外。不支持分叉或多个独立路径。内腔越界、交叠或无效结果失败，闭合路径也须通过有效单实体检查。'));
     }
   }
   const target = choice(form, 'targetBodyId', '加工目标', [], '');
@@ -96,7 +96,7 @@ export function showProfileSolidDialog(op, env) {
     const refs = op === 'profileLoft' ? loftRows.map(row => row.select.value) : op === 'profileSweep' ? [section.value, path.value] : [section.value];
     const sectionIds = op === 'profileSweep' ? refs.slice(0, 1) : refs;
     if (sectionIds.some(id => !profiles().some(body => body.id === id))) throw new Error('请选择当前有效的保存轮廓截面');
-    if (op === 'profileSweep' && !paths().some(body => body.id === path.value)) throw new Error('请选择当前有效的单一开放路径');
+    if (op === 'profileSweep' && !paths().some(body => body.id === path.value)) throw new Error('请选择当前有效的单一连续路径（开放或闭合）');
     if (result.select.value !== 'newBody') {
       if (!targets().some(body => body.id === target.select.value)) throw new Error('请选择当前有效的单实体加工目标');
       refs.push(target.select.value);

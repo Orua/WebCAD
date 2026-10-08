@@ -3,7 +3,7 @@
   "title": "删除具名基准",
   "description": "args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
   "category": "command",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:5df89ebb69f45c65691a08a1d13f799b2d64401c963fd78d9a6f484b5b11040a"
+  "docsHash": "sha256:d27e630ac56aa9b373ea739dcef7416a3514acb34ddd795a7dee62401e74dac5"
 }

@@ -14,9 +14,9 @@
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install-agent.ps1 -BaseUrl 'http://localhost:17674/'
 ```
 
-默认目录为 `$env:USERPROFILE/.codex/skills/webcad-page-api`。安装器只下载有限清单中的四个文件（skill、连接说明、客户端脚本、实际操作路由），逐个验证 SHA-256 后才更换目录。既有包先保存到父目录的 `.agent-backups/webcad-page-api-时间戳-唯一编号` 容器内，不在 skills 根目录直接创建另一份同名技能；重复安装安全，下载或哈希失败不改变既有包。`.agent-kit.json` 记录安装来源、版本和哈希。安装器不修改执行策略、不自动安装浏览器扩展、不启动后台进程；网页不会自动运行它。新安装的技能在宿主重新发现本地技能后可用。
+默认目录为 `$env:USERPROFILE/.codex/skills/webcad-page-api`。安装器只下载有限清单中的五个文件（skill、连接说明、客户端脚本、知识缓存脚本、实际操作路由），逐个验证 SHA-256 后才更换目录。既有包先保存到父目录的 `.agent-backups/webcad-page-api-时间戳-唯一编号` 容器内，不在 skills 根目录直接创建另一份同名技能；重复安装安全，下载或哈希失败不改变既有包。`.agent-kit.json` 记录安装来源、版本和哈希。安装器不修改执行策略、不自动安装浏览器扩展、不启动后台进程；网页不会自动运行它。新安装的技能在宿主重新发现本地技能后可用。
 
-保留需要的个人文件应在安装前放到包外；更新按清单替换整个包，旧包的完整内容仍在备份目录。四个文件中仅按需读取路由/引用，不把完整知识库放进模型上下文。需要离线静态契约缓存时另下载 `automation/index.json` 与 `automation/tool-library.mjs`；不缓存实体编号、会话或拓扑快照。
+保留需要的个人文件应在安装前放到包外；更新按清单替换整个包，旧包的完整内容仍在备份目录。五个文件中仅按需读取路由/引用，不把完整知识库放进模型上下文。首次握手按 `automation/agent-knowledge.json` 下载有限知识文件并验证；按 `agent-routing.json` 先路由任务，再按需读工作流/工具卡；不缓存实体编号、会话或拓扑快照。
 
 ## 核实执行通道
 
@@ -26,7 +26,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install-agent.ps1 -Bas
 
 ```javascript
 import { createPageClient, findLocalRoutes } from './scripts/page-client.mjs';
-const client = createPageClient({send:(method,params)=>tab.cdp.send(method,params)});
+const cdp = await tab.capabilities.get("cdp"); // 先读取当前宿主CDP文档
+const client = createPageClient({send:(method,params)=>cdp.send(method,params),knowledge:{baseUrl:await tab.url()}});
 const matchingRoutes = await findLocalRoutes('移动');
 const connection = await client.connect({queries:['移动'],limit:2,includeContracts:true});
 const workflow = await client.readDocs('api.workflow');

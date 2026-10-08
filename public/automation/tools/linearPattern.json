@@ -1,6 +1,6 @@
 {
   "id": "linearPattern",
-  "version": "legacy-1",
+  "version": "1.1.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -9,6 +9,7 @@
         "description": "Count including original",
         "minimum": 2,
         "maximum": 100,
+        "default": 3,
         "unit": "1",
         "quantityKind": "scalar",
         "quantizationPolicy": "none"
@@ -16,6 +17,7 @@
       "dx": {
         "type": "number",
         "description": "Per-copy X step (mm)",
+        "default": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -23,6 +25,7 @@
       "dy": {
         "type": "number",
         "description": "Per-copy Y step (mm)",
+        "default": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -30,9 +33,19 @@
       "dz": {
         "type": "number",
         "description": "Per-copy Z step (mm)",
+        "default": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
+      },
+      "outputMode": {
+        "type": "string",
+        "description": "Output type",
+        "enum": [
+          "compound",
+          "fuse"
+        ],
+        "default": "compound"
       }
     },
     "required": [],
@@ -57,7 +70,13 @@
     "displayPreferencesAffectGeometry": false,
     "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
-  "defaults": {},
+  "defaults": {
+    "count": 3,
+    "dx": 0,
+    "dy": 0,
+    "dz": 0,
+    "outputMode": "compound"
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -68,24 +87,24 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults count=3; at least one step nonzero.",
-  "title": "Linear copies as one compound",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults count=3, dx=dy=dz=0, outputMode=compound; at least one step must be nonzero. Fuse requires all copies to form one solid and fails without committing if disconnected. Placement transforms local step vectors.",
+  "title": "Linear copies as a compound or explicitly fused solid",
   "category": "organization",
   "synonyms": [
     "linearPattern",
     "直线阵列"
   ],
-  "description": "Linear copies as one compound",
-  "schemaHash": "sha256:71207ed41b292dc76bdc7082c5d972c07ccf97c13101e90b8d14857a397a687a",
+  "description": "Linear copies as a compound or explicitly fused solid",
+  "schemaHash": "sha256:5635e1346b3ed2f78820350d44d2be713c0275b76414b743e9f8118ae850a590",
   "apiCompatibility": [
-    "page-advisory"
+    "page-v2"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
-  "strictContract": false,
+  "strictContract": true,
   "v2Executable": true,
-  "contractStatus": "advisory",
+  "contractStatus": "migrated",
   "outputSchema": {
     "type": "object",
     "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
@@ -123,11 +142,10 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "Defaults count=3; at least one step nonzero.",
-    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
+    "Defaults count=3, dx=dy=dz=0, outputMode=compound; at least one step must be nonzero. Fuse requires all copies to form one solid and fails without committing if disconnected. Placement transforms local step vectors."
   ],
   "minimalExample": {
     "op": "linearPattern",
@@ -139,7 +157,7 @@
       "<current-bodyId-1>"
     ],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "normalExample": {
     "op": "linearPattern",
@@ -151,7 +169,7 @@
       "<current-bodyId-1>"
     ],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "invalidExamples": [
     {
@@ -161,7 +179,7 @@
         "__unknownField": true
       },
       "errorCode": "PARAM_SCHEMA_INVALID",
-      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+      "explanation": "Rejected before kernel execution."
     }
   ],
   "errorCodes": [
@@ -187,13 +205,15 @@
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
   "verification": {
-    "contract": "not_migrated",
+    "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "直线阵列",
-  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -212,6 +232,6 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:c7e239a8afe2bc7414670c6dbca1b0eb3096d6f47b4423cd73bdda919a02c78b"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:2d2607d46817fe9a25bb353e14bba1195afadaab48d2ec532f361e19cea1522d"
 }

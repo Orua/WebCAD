@@ -1,15 +1,31 @@
 {
   "product": "WebCAD",
-  "pageApiVersion": "1.18.0",
-  "buildId": "7a84a99c3a37fb092b3ba1b5d882cdf66484f0ae-src-abc9da7283cdf248-working",
-  "catalogHash": "sha256:7688d6024b500e4f7997355f65c78c3e87f7aa5586cff920238909239d244ffa",
-  "docsHash": "sha256:49e016649b3830dfba6eaaa825bcc74fbb16660bad23c16f2a2d7793a46c84ff",
+  "pageApiVersion": "1.22.0",
+  "buildId": "33b747d11fb0889aa371fa3dee87c8f61cab2f7f-src-8aa37ad38cd9e722-working",
+  "catalogHash": "sha256:8169c30117759ceeed2e9348df321dce4744a29f1be40186d88b0a1a4c416c7c",
+  "docsHash": "sha256:d6f037b0cbe797b9f6efde2e1fc512c13c3962e6dd7eb91c9928eed7ead4090e",
   "version": 1,
   "entrypoint": "window.webcad.api.connect",
   "startUrl": "automation/agent-start.html",
   "bootstrapUrl": "automation/agent-start.json",
   "connectionDoc": "api.connection",
   "workflowDoc": "api.workflow",
+  "knowledge": {
+    "version": 1,
+    "manifestUrl": "automation/agent-knowledge.json",
+    "routingUrl": "automation/agent-routing.json",
+    "policy": "required-on-first-handshake",
+    "cache": "source-base-url + catalogHash + docsHash",
+    "contextPolicy": "download-to-host-storage; load only selected routes, docs and complete cards",
+    "unavailableHostAction": "report-storage-or-download-limitation; never claim a local cache was created",
+    "bootstrapDocIds": [
+      "api.knowledge-cache",
+      "api.connection",
+      "api.workflow",
+      "api.run",
+      "api.reconstruction"
+    ]
+  },
   "localKit": {
     "manifestUrl": "automation/agent-kit.json",
     "installerUrl": "automation/install-agent.ps1",
@@ -43,6 +59,11 @@
       "id": "runtime-evaluate",
       "action": "Use documented Runtime.evaluate to call window.webcad.api.connect({queries:[\"task capability\"],limit:2,includeContracts:true}) with awaitPromise:true and returnByValue:true where supported.",
       "check": "Inspect exceptionDetails/result, then canExecute/blockers/requestContext. ready alone is insufficient; wait or request the required preview decision without changing the document."
+    },
+    {
+      "id": "knowledge-cache",
+      "action": "On the first handshake, download automation/agent-knowledge.json and its finite static files to host storage; verify hashes and route with agent-routing.json. Reuse only a verified cache matching source base URL, catalogHash and docsHash.",
+      "check": "Load bootstrap docs once, then only matched routes and needed full cards. Report unavailable host storage/download; never put the full library in model context or cache live identity/IDs."
     },
     {
       "id": "contracts",

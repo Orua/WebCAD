@@ -2,6 +2,8 @@
 
 AI 应通过宿主已授权的页面脚本通道在后台调用 window.webcad.api。不要为查工具或执行建模打开 JSON 调试面板、填输入框或点击执行按钮。没有可用脚本通道时，明确报告通道不可用；不要自动退回界面操作。
 
+首次握手后，Agent按connect().onboarding.knowledge下载automation/agent-knowledge.json清单及其静态文件到宿主存储，验证SHA-256和大小；按页面base URL、catalogHash和docsHash缓存，重连时复用匹配的完整缓存。先按agent-routing.json路由任务，再只载入需要的工作流和工具卡；精确UI动作仍查routes.json。宿主没有下载/存储能力时明确报告，不能把握手指引当成已经写盘。完整说明见api.knowledge-cache。
+
 首次入口为 automation/agent-start.html，机器可读引导为 automation/agent-start.json。connect().onboarding 返回同一 version=1 静态连接步骤，不包含工程状态或实体身份。需要可选本地技能/客户端时，先读 automation/agent-kit.json；安装脚本 automation/install-agent.ps1 仅供宿主或用户明确选择安装，installation=host-opt-in，不会增加浏览器权限，也不是页面建模的必需服务。
 
 先确认宿主实际提供的能力。只读 DOM evaluate 不能据此推断公开 API 不可调用，也不能用于绕过宿主限制。

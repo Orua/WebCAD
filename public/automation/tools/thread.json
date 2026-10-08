@@ -53,7 +53,10 @@
         "type": "number",
         "minimum": 20,
         "maximum": 120,
-        "default": 60
+        "default": 60,
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
       },
       "leftHanded": {
         "type": "boolean",
@@ -103,7 +106,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 先选真实圆柱面；工具从所选面的轴向下界开始，按明确螺距、径向牙深和V槽包含角实际切除材料。支持内／外、左／右旋，起止处按长度裁切。周向起点沿所选圆柱面的U=0母线，随该面的轴坐标旋转。它不提供ISO/GB规格、配合公差、端部退刀槽或多头螺纹；不是标准螺纹认证。",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 先选真实圆柱面；内外材料方向按单位法向判断，支持小半径内孔。工具从所选面的轴向下界开始，按明确螺距、径向牙深和V槽包含角实际切除材料。支持内／外、左／右旋，起止处按长度裁切。周向起点沿所选圆柱面的U=0母线，随该面的轴坐标旋转。它不提供ISO/GB规格、配合公差、端部退刀槽或多头螺纹；不是标准螺纹认证。",
   "title": "Cut an explicit symmetric helical V groove on a selected cylindrical material face",
   "category": "modification",
   "synonyms": [
@@ -111,7 +114,7 @@
     "thread"
   ],
   "description": "Cut an explicit symmetric helical V groove on a selected cylindrical material face",
-  "schemaHash": "sha256:bada844cec90cdc984895bea22b6ad4b2f60cd0f97fc4823e398f5056171c8ff",
+  "schemaHash": "sha256:9fc594ea1a850e55bb7a206d346b38499cb543f3dcb39f207526a6e2a53048e2",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -160,7 +163,7 @@
     "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "先选真实圆柱面；工具从所选面的轴向下界开始，按明确螺距、径向牙深和V槽包含角实际切除材料。支持内／外、左／右旋，起止处按长度裁切。周向起点沿所选圆柱面的U=0母线，随该面的轴坐标旋转。它不提供ISO/GB规格、配合公差、端部退刀槽或多头螺纹；不是标准螺纹认证。"
+    "先选真实圆柱面；内外材料方向按单位法向判断，支持小半径内孔。工具从所选面的轴向下界开始，按明确螺距、径向牙深和V槽包含角实际切除材料。支持内／外、左／右旋，起止处按长度裁切。周向起点沿所选圆柱面的U=0母线，随该面的轴坐标旋转。它不提供ISO/GB规格、配合公差、端部退刀槽或多头螺纹；不是标准螺纹认证。"
   ],
   "minimalExample": {
     "op": "thread",
@@ -269,5 +272,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:5537c0a8776df389843b8075252f6238a0d0a1c7b47684e854ca997d5c8848d6"
+  "docsHash": "sha256:bbe25808fc3984b6d529a73887caeac7faae1cf615bc134aa8bd94c180b7619e"
 }

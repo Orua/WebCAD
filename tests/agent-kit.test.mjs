@@ -22,7 +22,7 @@ async function fixture(){
 }
 test('portable kit hashes every finite payload and exports the real operation routes',async()=>{
   const f=await fixture();
-  assert.equal(f.manifest.files.length,4);
+  assert.equal(f.manifest.files.length,5);
   assert.equal(f.manifest.installation.backgroundService,false);
   for(const file of [...f.manifest.files,f.manifest.installer]){
     const bytes=await readFile(resolve(f.target,file.url));

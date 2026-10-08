@@ -2,7 +2,7 @@
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.18.0",
+  "version": "1.22.0",
   "label": "导入",
   "synonyms": [
     "导入",
@@ -66,5 +66,5 @@
     "FORMAT_UNSUPPORTED",
     "IDEMPOTENCY_KEY_REUSED"
   ],
-  "docsHash": "sha256:4755214f111fc1175b2734e69e7cacd23745af822f82f147909cd9647aeb979a"
+  "docsHash": "sha256:a686646e87c6e802cc433bc4bbc73ef104ed3613ba39e2b2cb0ae6ad874fc7ae"
 }

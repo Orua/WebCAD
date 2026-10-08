@@ -1,7 +1,11 @@
 // Optional host helper. The caller supplies an already authorized CDP adapter.
 // No browser discovery, socket, service, CLI process or automatic retry lives here.
 const methods=new Set(['copySelection','pasteSelection','createRequestContext','getUILayout','setRenderQuality','invoke','submit','getJob','cancelJob','connect','info','getState','searchTools','getTools','getTool','readDocs','queryGeometry','queryReferences','resolvePlacement','execute','measure','measureRelation','inspectPrintability','inspectProfile','prepareProfileEdit','projectProfile','inspectFit','inspectThickness','inspectDraft','fitProfile','traceTwinWindow','executeText','setDisplayPreferences','getLogoConverter','setLogoConverter','convertLogoPdf','setView','redraw','capture','run']);
+for(const name of ['inspectDesign','inspectConstraints','readRelief','readVector','connectVector','getHistory','planAlignment','selectRectangle','createDrawing','exportDrawing','getQuickModelUsage'])methods.add(name);
 const files=new Set(['capabilities','register','new','open','import','save','export','read','download','write','release']);
+files.add('confirmWritten');
+export const PAGE_CLIENT_METHODS=Object.freeze([...methods]);
+export const PAGE_CLIENT_FILE_METHODS=Object.freeze([...files]);
 function failure(code,message,details={}){return Object.assign(new Error(message),{code,...details});}
 function encode(value){const text=JSON.stringify(value);if(text===undefined)throw failure('INPUT_INVALID','Arguments must be JSON values.');return text.replaceAll('\u2028','\\u2028').replaceAll('\u2029','\\u2029');}
 function pageExpression(method,args){
@@ -10,9 +14,9 @@ function pageExpression(method,args){
   return `(async()=>{const api=window.webcad?.api;if(!api?.connect)throw new Error('Current WebCAD page API is unavailable');const owner=${isFile?'api.files':'api'};const method=${encode(name)};if(typeof owner?.[method]!=='function')throw new Error('Page method is unavailable: '+method);return await owner[method](${encode(args)});})()`;
 }
 
-export function createPageClient({send,keyFactory=()=>{if(!globalThis.crypto?.randomUUID)throw failure('KEY_GENERATOR_REQUIRED','Supply a unique keyFactory for a host without crypto.randomUUID.');return `agent-${globalThis.crypto.randomUUID()}`;}}={}){
+export function createPageClient({send,knowledge,keyFactory=()=>{if(!globalThis.crypto?.randomUUID)throw failure('KEY_GENERATOR_REQUIRED','Supply a unique keyFactory for a host without crypto.randomUUID.');return `agent-${globalThis.crypto.randomUUID()}`;}}={}){
   if(typeof send!=='function')throw failure('CHANNEL_REQUIRED','Supply the host\'s already authorized CDP send adapter.');
-  let catalogHash;
+  let catalogHash,knowledgeCache;
   async function call(method,args={}){
     const expression=pageExpression(method,args);
     let response;
@@ -22,12 +26,20 @@ export function createPageClient({send,keyFactory=()=>{if(!globalThis.crypto?.ra
     if(!response?.result||!Object.hasOwn(response.result,'value'))throw failure('PAGE_RESULT_UNAVAILABLE','CDP returned no serializable page value.');
     return response.result.value;
   }
-  async function connect(input={}){const connection=await call('connect',input);catalogHash=connection.catalogHash;return connection;}
+  async function connect(input={}){
+    const connection=await call('connect',input);catalogHash=connection.catalogHash;
+    if(connection.onboarding?.knowledge?.policy==='required-on-first-handshake'){
+      if(knowledge){const {syncKnowledge}=await import('./knowledge-cache.mjs');knowledgeCache=await syncKnowledge(connection,knowledge);connection.knowledgeStatus=knowledgeCache;}
+      else connection.knowledgeStatus={status:'download_required',manifestUrl:connection.onboarding.knowledge.manifestUrl,reason:'Supply knowledge:{baseUrl,directory?} or use an authorized host storage adapter; no cache has been created.'};
+    }
+    return connection;
+  }
   async function run(steps,{context,idempotencyKey}={}){
     if(!Array.isArray(steps)||steps.length<1||steps.length>20)throw failure('INPUT_INVALID','A batch needs 1 to 20 explicit steps.');
     if(!context||!['sessionId','documentId','documentInstanceId'].every(field=>typeof context[field]==='string'&&context[field])||!Number.isInteger(context.expectedRevision))throw failure('CONTEXT_REQUIRED','Supply the requestContext used to plan these steps.');
     const connection=await connect();
     if(connection.canExecute!==true)throw failure('PAGE_BLOCKED','The current page cannot execute this batch.',{blockers:connection.blockers||[]});
+    if(connection.knowledgeStatus&&connection.knowledgeStatus.status!=='ready')throw failure('KNOWLEDGE_CACHE_REQUIRED','Download and verify the first-handshake static knowledge package before running this host helper.');
     const current=connection.requestContext;
     if(!current||!['sessionId','documentId','documentInstanceId','expectedRevision'].every(field=>current[field]===context[field]))throw failure('STALE_CONTEXT','The page changed after planning. Read state and replan; the helper will not silently adopt the new revision.',{plannedContext:context,currentContext:current});
     const key=idempotencyKey??keyFactory();
@@ -36,7 +48,10 @@ export function createPageClient({send,keyFactory=()=>{if(!globalThis.crypto?.ra
     try{return await call('run',request);}
     catch(cause){throw failure('UNKNOWN_OUTCOME','The batch may have committed. Read current state and the original receipt before any retry.',{cause,outcome:'unknown',request,idempotencyKey:key,recovery:'READ_STATE_AND_REPLAN'});}
   }
-  return Object.freeze({call,connect,run,getState:()=>call('getState'),readDocs:(docId,options={})=>call('readDocs',{docId,...options}),getTools:(ids,options={})=>call('getTools',{ids,...(catalogHash?{expectedCatalogHash:catalogHash}:{}),...options})});
+  return Object.freeze({call,connect,run,getState:()=>call('getState'),readDocs:(docId,options={})=>call('readDocs',{docId,...options}),getTools:(ids,options={})=>call('getTools',{ids,...(catalogHash?{expectedCatalogHash:catalogHash}:{}),...options}),
+    route:async(query,options)=>{const {routeKnowledge}=await import('./knowledge-cache.mjs');return routeKnowledge(knowledgeCache,query,options);},
+    planSource:async(brief,options)=>{const {routeProductSource}=await import('./knowledge-cache.mjs');return routeProductSource(knowledgeCache,brief,options);},
+    readLocal:async options=>{const {readLocalKnowledge}=await import('./knowledge-cache.mjs');return readLocalKnowledge(knowledgeCache,options);}});
 }
 
 export function findRoutes(index,query,{limit=10}={}){

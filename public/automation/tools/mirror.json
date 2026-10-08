@@ -1,6 +1,6 @@
 {
   "id": "mirror",
-  "version": "legacy-1",
+  "version": "1.1.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -11,11 +11,21 @@
           "XY",
           "XZ",
           "YZ"
-        ]
+        ],
+        "default": "XY"
+      },
+      "offsetMm": {
+        "type": "number",
+        "description": "Signed plane coordinate; XY=Z, XZ=Y, YZ=X (mm)",
+        "default": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
       },
       "keepOriginal": {
         "type": "boolean",
-        "description": "Preserve original; default true"
+        "description": "Preserve original; default true",
+        "default": true
       }
     },
     "required": [],
@@ -40,7 +50,11 @@
     "displayPreferencesAffectGeometry": false,
     "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
-  "defaults": {},
+  "defaults": {
+    "plane": "XY",
+    "offsetMm": 0,
+    "keepOriginal": true
+  },
   "selectionTokenSupport": {
     "supported": false
   },
@@ -51,24 +65,24 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Default plane XY.",
-  "title": "Mirror across a global origin plane",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults plane=XY, offsetMm=0, keepOriginal=true. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates.",
+  "title": "Mirror across a coordinate plane at an explicit offset",
   "category": "organization",
   "synonyms": [
     "mirror",
     "镜像"
   ],
-  "description": "Mirror across a global origin plane",
-  "schemaHash": "sha256:c01050bdd1e24b5d662c3760c4cce7114f5035297b338610857be45655eedbb8",
+  "description": "Mirror across a coordinate plane at an explicit offset",
+  "schemaHash": "sha256:c2c206cc3c1513cfb0d739b1adfcbb672ae89c93f08fb6981225163b4fde99cc",
   "apiCompatibility": [
-    "page-advisory"
+    "page-v2"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
-  "strictContract": false,
+  "strictContract": true,
   "v2Executable": true,
-  "contractStatus": "advisory",
+  "contractStatus": "migrated",
   "outputSchema": {
     "type": "object",
     "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
@@ -106,11 +120,10 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "Default plane XY.",
-    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
+    "Defaults plane=XY, offsetMm=0, keepOriginal=true. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates."
   ],
   "minimalExample": {
     "op": "mirror",
@@ -121,7 +134,7 @@
       "<current-bodyId-1>"
     ],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "normalExample": {
     "op": "mirror",
@@ -132,7 +145,7 @@
       "<current-bodyId-1>"
     ],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "invalidExamples": [
     {
@@ -141,7 +154,7 @@
         "__unknownField": true
       },
       "errorCode": "PARAM_SCHEMA_INVALID",
-      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+      "explanation": "Rejected before kernel execution."
     }
   ],
   "errorCodes": [
@@ -167,13 +180,15 @@
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
   "verification": {
-    "contract": "not_migrated",
+    "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "label": "镜像",
-  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -192,6 +207,6 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:a2839316e657f44c8f24bd28f404a0c19813c642937b7b55ebec272ee42648e9"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:5b9af818e341400c0468647ab98aa8ce823ae94396ab077e0c3ba09bcf8978b0"
 }

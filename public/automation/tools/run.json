@@ -2,8 +2,8 @@
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.18.0",
-  "description": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}).",
+  "version": "1.22.0",
+  "description": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}); addMany for one atomic feature plan: api.feature-plan.",
   "synonyms": [
     "run",
     "批量",
@@ -12,7 +12,7 @@
     "指令",
     "无CLI"
   ],
-  "inputContract": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}).",
+  "inputContract": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}); addMany for one atomic feature plan: api.feature-plan.",
   "outputContract": "completed/partial/failed/unknown、逐步回执、progress/recovery、elapsedMs、回执时的 context/requestContext/summary/display；atomic=false。后续操作前核对实时状态。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -32,5 +32,5 @@
     "maxBytes": 20971520,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:afb28deaa77a73647897479990bdaca25d9e8e8992a1281d760f8a7ba3d9ad4d"
+  "docsHash": "sha256:0ff6a3cc9f122e3465b1e92e414c03b8dc4bf200e65101d2c480e170ddc01182"
 }

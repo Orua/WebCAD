@@ -53,7 +53,7 @@
           }
         },
         "minItems": 2,
-        "maxItems": 128
+        "maxItems": 256
       },
       "holes": {
         "type": "array",
@@ -101,7 +101,7 @@
             }
           },
           "minItems": 2,
-          "maxItems": 128
+          "maxItems": 256
         },
         "maxItems": 16
       },
@@ -147,7 +147,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Ordered line start/end or arc start/middle/end XY points. Each adjacent endpoint and closure must agree within 0.000001 mm. Output is one exact BRep solid; holes must remove material. Supports XY only, constant Z depth, no spline, variable thickness or source-DXF auto selection. Invalid topology rejects the step.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Ordered line start/end or arc start/middle/end XY points. Each boundary accepts 2–256 segments; up to16 holes. Each adjacent endpoint and closure must agree within 0.000001 mm. Output is one exact BRep solid; holes must remove material. Supports XY only, constant Z depth, no spline, variable thickness or source-DXF auto selection. Invalid topology rejects the step.",
   "title": "Extrude exact closed XY LINE/ARC boundaries with optional holes",
   "category": "creation",
   "synonyms": [
@@ -155,7 +155,7 @@
     "解析线弧轮廓"
   ],
   "description": "Extrude exact closed XY LINE/ARC boundaries with optional holes",
-  "schemaHash": "sha256:ae720d288338ed859ee8e2ec0abd429e54388b02e2ff0330bbc48905a08acff1",
+  "schemaHash": "sha256:4b96a136ad60e9c6926e8ce26b9cb51263bfc04aee98e794c2e0e0a005593859",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -205,7 +205,7 @@
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Ordered line start/end or arc start/middle/end XY points. Each adjacent endpoint and closure must agree within 0.000001 mm. Output is one exact BRep solid; holes must remove material. Supports XY only, constant Z depth, no spline, variable thickness or source-DXF auto selection. Invalid topology rejects the step.",
+    "Ordered line start/end or arc start/middle/end XY points. Each boundary accepts 2–256 segments; up to16 holes. Each adjacent endpoint and closure must agree within 0.000001 mm. Output is one exact BRep solid; holes must remove material. Supports XY only, constant Z depth, no spline, variable thickness or source-DXF auto selection. Invalid topology rejects the step.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
@@ -447,5 +447,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:447c0a3afdfeae52783d0411798fcf52435ed5796c49acf4c0b34160b2f57e80"
+  "docsHash": "sha256:aec5feffbfc6460efed86d25f5aa9b336f55ca7d24db6d5a1ba92daa4d73c307"
 }

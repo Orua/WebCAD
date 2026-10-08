@@ -1,5 +1,23 @@
 # WebCAD 页面 API
 
+## 源图要求核对（页面 API 1.19.0）
+
+`inspectDesign({context,requirements,requirePass?:false})` 在一次只读调用中比较精确 BRep 的世界XYZ包围尺寸、实体数和指定材料/留空点。每项要求携带 `evidence:{kind:'drawing'|'user'|'assumption',reference}`，期望来自最新图纸或用户要求，不从生成模型反推。假设及边界样点返回 `unverified`；`requirePass:true` 在未通过时返回失败及完整诊断，可停止批次后续导出。它只证明列出的检查，来源标签由调用者提供，`sourceEvidenceVerified=false`，不能代替完整连接、截面、圆角或产品验收。
+
+完整字段、限制及批次示例：`readDocs({docId:'api.design-checks'})`。快速重建流程：`readDocs({docId:'api.reconstruction'})`，按一次取证、来源简表、主体/加工/圆角、关键核对、Logo的顺序执行。`inspectDesign` 可通过直接方法、`invoke`、`run` 与 `submit` 调用；当前上下文及读前读后修订校验一致。
+
+### 常用工具补强（契约 1.1.0）
+
+`mirror`、`linearPattern`、`circularPattern` 已迁移到严格参数契约；它们与 `chamfer`、`holeWizard`、`profileConstraints` 的当前工具版本均为 `1.1.0`。执行前从当前页面读取版本和哈希；`api.run` 的 `add` 自动携带当前契约。旧工程省略新增字段时保留原有几何语义。
+
+- `mirror`: 新增 `offsetMm`，XY 为 Z 坐标、XZ 为 Y 坐标、YZ 为 X 坐标，可正可负。默认 0；`keepOriginal` 默认 true。显式 placement 使用保存的局部平面。
+- 两种阵列：`outputMode:'compound'|'fuse'`，默认 compound。fuse 精确融合副本，结果必须为单实体；不连通则 `GEOMETRY_INVALID`，不提交。线性步进至少一个分量非零；数量 2–100 且包含原件。
+- `chamfer`: `mode:'equalDistance'|'twoDistances'|'distanceAngle'`，省略为等距离。双距离要求 `distance2`；距离加角度要求 `angleDeg` 在 (0,90) 内。`distance` 是支撑面上的距离。非对称模式可用 `referenceFaceId` 指定与所有目标边相邻的当前面，省略时按当前拓扑选择第一个邻面；`flipDirection:true` 交换两侧。`bodies[].blendReport.supportFaces` 返回实际支撑面。换模式的 `feature.edit` 自动清理旧模式字段，显式提交互相矛盾的字段仍拒绝。
+- `holeWizard`: `drillPoint:'flat'|'angled'`，省略为平底。angled 的 `drillPointAngleDeg` 默认 118°；`depthReference:'cylindricalLength'|'tipDepth'` 默认圆柱段长度。钻尖高度为 `diameterMm/(2*tan(angle/2))`；tipDepth 包含钻尖并须留下正的圆柱段。检查完整钻尖不穿透第一段连续材料；沉孔/沉头须落在圆柱段内。贯穿孔拒绝 angled。切换为 flat/through 时自动清理旧钻尖字段。
+- `profileConstraints.constraints`: 新增 `{type:'concentric',firstId,secondId}`、`{type:'pointOnLine',point:{entityId,point:'start'|'end'|'center'},entityId}` 和 pointOnCircle 同型。目标分别为不同的圆、直线或圆；pointOnLine 包含延长线，同心不绑定半径。仍为有界局部求解，圆弧/样条不参与。
+
+所有失败保持最后有效历史和 revision；单位、未知字段、选择范围和模式参数由界面与公开 API 共用校验。圆角自动打磨及旧 variable-radius 限制不因本轮升级而扩大。
+
 ### 数值输入与历史修改保护
 
 显式人工/API/表达式数值按原值建模，预览与提交不因显示或鼠标步长隐式舍入。工具卡 `numericInputPolicy` 和已标注字段的 `unit/quantityKind/quantizationPolicy` 是带哈希的数值契约；`numericInput` 回执返回请求参数及实际使用值。`dimensionPrecisionMm/anglePrecisionDeg` 只控制鼠标交互步长，内核容差独立。
@@ -1001,3 +1019,20 @@ getHistory 返回状态 ID、名称、时间、数量、字节数、合并数量
 图片最多 8 MiB、1600 万像素，长宽比不超过 64:1；高度网格 4–65 行/列，值域 0–1，按下到上、左到右排列。尺寸不超过 1000 mm，起伏高度 0.01–20 mm，目标最多 1000 个面。采样值是三次曲面的控制网格，结果是平滑近似，不保证穿过每个样点或达到设置的最大高度。凹雕过深可能穿透，须核对预览与壁厚。
 
 错误包含 RELIEF_IMAGE_INVALID、RELIEF_LIMIT、RELIEF_UNSUPPORTED、RELIEF_OUTSIDE_FACE、RELIEF_NO_CHANGE、RELIEF_INVALID；失败不提交，来源保持。公开发现文档为 `readDocs({docId:'api.relief'})`。
+
+
+## 保留内腔的轮廓扫掠
+
+`profileSweep` 接受单一平面 Face 的已定义内孔，或仅包含该 Face 的 Compound。`sketchProfile` 以 `regions.holeLoopIds` 声明孔；纯边或 Wire 中的多个独立环不自动推断内外。参数和引用顺序不变：`refs:[截面,路径]`，加工时最后再附目标，`params:{operation:'newBody',transitionMode:'transformed',frenet:false}`。
+
+外环与各内孔沿相同精确路径、相同标架和拐角设置扫掠，再完整扣除内腔。开放路径端面保留通孔，闭环保留内部管腔。截面仍须位于路径起点平面且垂直起点切线。内腔越界、孔道交叠、无效或分裂实体以 `PROFILE_SWEEP_INVALID` 失败且不提交；不自动缩小孔径、改路径或放宽源端点公差。`newBody/join/cut/intersect` 继续保留截面与路径，仅加工模式替换明确目标。
+
+读取当前工具卡与 `api.mechanical`，从 `measure` 检查尺寸、实体数和体积，必要时用 `inspectDesign` 检查孔道空点与管壁材料点。界面入口仍为创建→扫掠→保存来源模式；内孔随截面一起保留，无需新增开关。此能力不代表变截面放样、一般圆角或全部空心产品已通过。
+
+## 一次提交多个特征（页面 API 1.21）
+
+读取工具卡 feature.addMany 与 api.feature-plan。run 的 addMany 步骤接受1–64个有序特征，每项 key/op/params/refs；当前工具卡自动补版本与 schemaHash。前序特征用 {feature:"key"} 引用，当前实体用真实bodyId。主体、刀具、定位、布尔可一次重建，保留每个参数特征、一个revision与一个撤销步骤。单个计划失败全部不提交，run整体仍按步骤提交。
+
+仅支持卡中列出的整实体操作；fillet/chamfer仅allEdges:true。中间面/边编号、Logo、导入和测量需要另一步。定位冻结到事务开始的参考锚点，独立创建建议显式world placement。完成后从回执featurePlan.featureIds取实际ID，检查尺寸、材料与显示修订。每步结果新增elapsedMs，标明该步骤页面内部耗时，不包含Agent读图/推理或宿主通信。
+
+inspectDesign对同实体的材料点合并一次精确common，边界距离仍逐点核对；近邻不同点保留独立判定，假设与边界仍不能放行。检查前后来源BREP保持不变。

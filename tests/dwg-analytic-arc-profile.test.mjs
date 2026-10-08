@@ -20,6 +20,17 @@ const size=result.bodies[0].bounds.max.map((v,i)=>v-result.bodies[0].bounds.min[
 assert.ok((await kernel.export('step')).data.byteLength>0);
 assert.ok(getOperation('arcProfile').inputSchema.properties.outer);
 assert.match(readDocs({docId:'recipes.analytic-arc-profile'}).text,/api\.run/);
+// Complex source logos need more than 128 segments without loosening closure.
+const polygon=n=>Array.from({length:n},(_,i)=>{
+  const xy=k=>[10*Math.cos(2*Math.PI*k/n),10*Math.sin(2*Math.PI*k/n)];
+  return line(xy(i),xy((i+1)%n));
+});
+const large=await rebuild({outer:polygon(256),height:2});
+assert.equal(large.stats.solids,1);
+assert.ok(Math.abs(large.stats.volume-256*100*Math.sin(2*Math.PI/256))<1e-5);
+assert.equal(getOperation('arcProfile').inputSchema.properties.outer.maxItems,256);
+assert.equal(getOperation('arcProfile').inputSchema.properties.holes.items.maxItems,256);
+await assert.rejects(rebuild({outer:polygon(257),height:2}),/2–256/);
 for(const bad of [
   {...params,outer:[...outer.slice(0,-1),line([0,5],[0,0.1])]},
   {...params,outer:[...outer.slice(0,1),arc([10,0],[11,0],[12,0]),...outer.slice(2)]},
