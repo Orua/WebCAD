@@ -10,6 +10,7 @@ self.onmessage = ({ data }) => {
     const { requestId, type } = data;
     try {
       const engine = await kernel;
+      engine.onProgress=progress=>self.postMessage({requestId,kind:'progress',progress});
       let result;
       if(type==='ready')result={ready:true};
       else if(type==='rebuild')result=await engine.rebuild(data.document);

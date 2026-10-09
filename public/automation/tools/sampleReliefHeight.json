@@ -1,0 +1,35 @@
+{
+  "id": "sampleReliefHeight",
+  "title": "sampleReliefHeight",
+  "category": "page-method",
+  "version": "1.22.0",
+  "description": "sampleReliefHeight({context,featureId,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。",
+  "synonyms": [
+    "sampleReliefHeight",
+    "浮雕",
+    "吸管",
+    "吸取高度",
+    "采样",
+    "深度",
+    "定高"
+  ],
+  "inputContract": "sampleReliefHeight({context,featureId,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。",
+  "outputContract": "只读返回status:read、featureId、point、targetMm、quantity:height或depth、units:mm、source:bilinear-height-controls及context。targetMm可直接给prepareReliefSculpt的flatten笔刷，凹雕为正深度。与界面Alt吸管共用双线性控制高度采样，非精确BRep表面测量。轮廓外/孔内失败RELIEF_SAMPLE_OUTSIDE；越界或非有限坐标失败PARAM_RANGE_INVALID。不会更改工程、历史、界面笔刷或草稿。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "RELIEF_INVALID",
+    "RELIEF_LIMIT",
+    "RELIEF_SAMPLE_OUTSIDE",
+    "STALE_REFERENCE",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docs": "api.relief",
+  "docsHash": "sha256:bfddea2dacb6d0a725a6018c86f63966ca68717855cf0b51a553425513f7b732"
+}

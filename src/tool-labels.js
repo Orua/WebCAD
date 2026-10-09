@@ -6,7 +6,7 @@ import { referenceProfileNames } from './reference-profile-tools.js';
 import { mechanicalNames } from './mechanical-tool-contracts.js';
 
 export const TOOL_LABELS = Object.freeze({quickDrawing:'快速出图',alignTool:'快速对齐',round:'圆润',
-  quickModelFavorites:'常用模型',
+  quickModelFavorites:'常用模型',reliefSculpt:'浮雕精修',
   box:'长方体',cylinder:'圆柱',sphere:'球体',cone:'圆锥',torus:'圆环',extrude:'拉伸',revolve:'旋转成型',
   transform:'移动 / 旋转',copy:'复制',mirror:'镜像',union:'合并',cut:'相减',intersect:'相交',
   roundEnd:'端头圆润',rounding:'自动打磨',fillet:'圆角',chamfer:'倒角',shell:'抽壳',hole:'打孔',holeWizard:'孔向导',draftFaces:'受限拔模',linearPattern:'直线阵列',circularPattern:'环形阵列',remove:'删除',import:'导入',

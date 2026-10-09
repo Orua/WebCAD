@@ -75,7 +75,7 @@
       "feature.edit"
     ],
     "method": "execute",
-    "usage": "统一圆润：edgeIds 必填，mode 默认 auto。边缘用 strength 或 radiusMm；端头用自动推荐或 depthMm。鼠标拖动截面手柄等价 preview.update 修改 depthMm（世界范围见 roundReport.scope）；拖动中只改变草稿，松手预览一次。查看原形等价 preview.cancel，返回预览用 preview.start。必须核对范围后提交。"
+    "usage": "统一圆润：edgeIds 或 faceIds 二选一。界面可选择边缘或平面边界；faceIds 解析完整外边及孔边，最多1000条边，scope读回实际范围，只支持边缘模式。边缘用 strength 或原值 radiusMm；按面自动大小参考侧壁深度，不用最短碎边。端头用自动推荐或 depthMm。鼠标拖动截面手柄等价 preview.update 修改 depthMm；松手预览一次。查看原形等价 preview.cancel，返回预览用 preview.start。必须核对范围后提交；不自动填孔或修来源轮廓。"
   },
   "fillet": {
     "tools": [
@@ -648,7 +648,7 @@
       "history.undo"
     ],
     "method": "execute",
-    "usage": "面加工→浮雕。files.register 图像资源，readRelief 本地生成高度网格；run add relief 显式 faceId/refs/尺寸/高度/位置和values。平面或外凸圆柱；柱面还须point/baseMm基底层，角宽≤90°且angleDeg=0，整张矩形形成基底再叠加起伏。预览后提交；getState.bodies[].reliefReport 回读实际材料变化与曲面限制。"
+    "usage": "面加工→浮雕。files.register图像，readRelief生成独立轮廓regions与高度values；run add relief显式faceId/refs/尺寸/高度/位置、values/regions/surfaceMode/source。surfaceMode=flat为精确平顶，smooth为轮廓内平滑起伏，背景保留原面。支持分层.relief.json及layers显式高度、strokes开放刻线和curveToleranceMm曲线公差；UI逐层编辑高度和方向，API feature.edit修改layers。柱面须point、角宽≤90°、angleDeg=0。旧无regions工程保留原基底层语义。预览后提交，getState.bodies[].reliefReport回读背景、表面方式与实际材料变化。"
   },
   "remove": {
     "tools": [
@@ -770,6 +770,16 @@
     ],
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
+  "reliefSculpt": {
+    "tools": [
+      "sampleReliefHeight",
+      "prepareReliefSculpt",
+      "feature.edit",
+      "history.undo"
+    ],
+    "method": "prepareReliefSculpt",
+    "usage": "浮雕历史属性→浮雕精修。prepareReliefSculpt({context,featureId,strokes,draft?})只读返回params.sculpt；检查canCommit/blockers后feature.edit提交。笔刷raise/lower/smooth/flatten/fill/scrape/sharpen/restore/mask/unmask，hardness为0–1、symmetry为none/x/y/xy，局部points为[-.5,.5]，radiusMm/amountMm/targetMm为毫米，strength为0–1。工程保存原始高度及deltaMm/mask；关闭/切层暂存草稿、应用当前层一次撤销；Alt吸取对应sampleReliefHeight({context,featureId,point,draft?})，返回targetMm可给flatten，quantity区分height/depth，与UI共用采样；轮廓外或孔内失败RELIEF_SAMPLE_OUTSIDE；预览旋转缩放不改模型。"
   },
   "precisionSettings": {
     "tools": [

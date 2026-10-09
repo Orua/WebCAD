@@ -18,7 +18,7 @@ function setup(preview,commit=true){
  const d=element('dialog');
  showRoundTool({getState:()=>state,openDialog:()=>d,element,button,close:()=>{closed=true;d._onClose();},setTaskTargetRefresh:f=>refresh=f,setGuide:(report,h)=>{guide=h;},emit:async(action,p)=>{calls.push({action,p});if(action==='preview')return preview(p);if(action==='commitPreview')return commit;}});
  const byName=n=>elements.find(e=>e.textContent===n),range=elements.find(e=>e.type==='range');
- return {d,calls,byName,range,get guide(){return guide;},get closed(){return closed;},pick:ids=>{state={...state,selectedTopology:{bodyId:'source',type:'edge',ids}};refresh();}};
+ return {d,calls,byName,range,get guide(){return guide;},get closed(){return closed;},pick:(ids,type='edge')=>{state={...state,selectedTopology:{bodyId:'source',type,ids}};refresh();}};
 }
 const report={roundReport:{mode:'end',control:{kind:'depth',min:1.5,max:3,value:1.5,step:.01},scope:{axis:'Y',direction:1,end:20,center:[0,18.5,0],crossAxes:['X','Z'],sectionSize:[3,1.5],depthMm:1.5},endRoundingReport:{residualSeams:[]}}};
 test('picking source after opening and Shift additions coalesce; drag only previews on release',async()=>{
@@ -53,5 +53,15 @@ test('failed commit keeps task open and does not claim completion',async()=>{
   s.pick([1]);await pause();await s.byName('应用').click();
   assert.equal(s.closed,false);assert(s.byName('应用').disabled);
   assert(s.byName('应用未完成，请重新预览后再应用。'));
+ }finally{s.d._onClose();}
+});
+test('planar face selection sends full-face scope and keeps exact radius controls',async()=>{
+ const r={roundReport:{mode:'edge',control:{kind:'strength',min:.1,max:1,value:.5},radiusMm:.2,scope:{kind:'face-boundaries',faceIds:[12],edgeIds:[1,2,3]}}};
+ const s=setup(()=>r);try{
+  s.pick([12],'face');await pause();
+  const p=s.calls.find(c=>c.action==='preview').p.params;
+  assert.deepEqual(p.faceIds,[12]);assert.equal(p.edgeIds,undefined);assert.equal(p.mode,'edge');
+  assert(s.byName('已圆润平面完整边界（含孔边），实际 R 0.200 mm。'));
+  await s.byName('更换位置').click();assert.equal(s.calls.at(-1).p.mode,'face');
  }finally{s.d._onClose();}
 });

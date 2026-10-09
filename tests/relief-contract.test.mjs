@@ -6,6 +6,15 @@ import {heightValuesFromRgba,rasterDimensions} from '../src/relief-image.js';
 import fs from 'node:fs';
 import {UI_LAYOUT} from '../src/ui/config/ui-layout.js';
 import {toolDisabledReason} from '../src/tool-state.js';
+import {reliefContours} from '../src/relief-contours.js';
+import {validateRegions} from '../src/logo-model.js';
+
+test('image contours preserve a hole and diagonal silhouettes independently of height resolution',()=>{
+ const grid=Array.from({length:65},(_,y)=>Array.from({length:65},(_,x)=>Math.hypot(x-32,y-32)<25&&Math.hypot(x-32,y-32)>9?1:0));
+ const regions=reliefContours(grid);assert.equal(regions.length,1);assert.equal(regions[0].holes.length,1);validateRegions({regions});
+ const full=reliefContours(Array.from({length:17},()=>Array(17).fill(1)));validateRegions({regions:full});
+ assert.equal(full.length,1);
+});
 
 test('relief has a strict bounded heightfield contract and unique menu ownership',()=>{
  const card=getOperation('relief');assert.ok(card.strictContract);assert.ok(card.errorCodes.includes('RELIEF_OUTSIDE_FACE'));

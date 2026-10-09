@@ -241,7 +241,7 @@ export class CadKernel {
       case 'faceGroove': case 'innerTurn': case 'outerTurn': return buildFaceMachining(source(),p,feature.op,this.oc,cad);
       case 'curvedLogo': return buildCurvedLogo(source(),p,cad);
       case 'fittedSurface': return buildFittedSurface(p,cad);
-      case 'relief': return buildRelief(source(),p,this.oc,cad);
+      case 'relief': return buildRelief(source(),p,this.oc,cad,{onProgress:this.onProgress});
       case 'thickenFace': return buildFaceThickness(source(),p,cad);
       case 'planeSection': return extractPlaneSection(source(),{plane:p.plane||'XY',offset:p.offset??0,frame},cad);
       case 'faceBoundary': return extractFaceBoundary(source(),p.faceId,cad,{boundary:p.boundary??'all'});

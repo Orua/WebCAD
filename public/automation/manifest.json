@@ -1,10 +1,12 @@
 {
   "version": "1.22.0",
-  "buildId": "33b747d11fb0889aa371fa3dee87c8f61cab2f7f-src-8aa37ad38cd9e722-working",
+  "buildId": "93fc573cd7fa83aa8ad9ab24732d9e21776f3f6b-src-b3b45b83dd8f3dcd-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:8169c30117759ceeed2e9348df321dce4744a29f1be40186d88b0a1a4c416c7c",
-  "docsHash": "sha256:d6f037b0cbe797b9f6efde2e1fc512c13c3962e6dd7eb91c9928eed7ead4090e",
+  "catalogHash": "sha256:7015c10d70e2ec94e27c97a98b8512d8b70a78968e500440967e3e2a0b617722",
+  "docsHash": "sha256:fd249a15d44a531b845f92ba640ab634a904412525f98c74926c1e86a03d453f",
   "apiMethods": [
+    "sampleReliefHeight",
+    "prepareReliefSculpt",
     "readRelief",
     "getHistory",
     "planAlignment",
@@ -537,11 +539,11 @@
     },
     {
       "id": "relief",
-      "title": "浮雕：从图片高度场生成有层次的平滑 B 样条曲面 / Surface relief",
+      "title": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
       "label": "浮雕",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:383c38f0a01afa542dc6c3a5b9b4d0583cb6385f4bdcd0584df7574a41880ad4",
+      "docsHash": "sha256:42763cc1f404bb6de6bd888027a48f568b3a1321b58bab45ce1183808474ab16",
       "url": "tools/relief.json"
     },
     {
@@ -559,7 +561,7 @@
       "label": "圆润",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:a6ed8a1c6380c0b680280f931c12f5bd4dca789e36ae218f45080e1747544e28",
+      "docsHash": "sha256:0ece5abddd3167e86a274ebaf44cd3f66cf899597a24359ce27616805986c854",
       "url": "tools/round.json"
     },
     {
@@ -1139,11 +1141,27 @@
       "url": "tools/template.uStrapClip.json"
     },
     {
+      "id": "sampleReliefHeight",
+      "title": "sampleReliefHeight",
+      "category": "page-method",
+      "version": "1.22.0",
+      "docsHash": "sha256:bfddea2dacb6d0a725a6018c86f63966ca68717855cf0b51a553425513f7b732",
+      "url": "tools/sampleReliefHeight.json"
+    },
+    {
+      "id": "prepareReliefSculpt",
+      "title": "prepareReliefSculpt",
+      "category": "page-method",
+      "version": "1.22.0",
+      "docsHash": "sha256:eeef30fbeec5c481da7913041a2765fd1d7de5e5833d5df2075ce1a18739f886",
+      "url": "tools/prepareReliefSculpt.json"
+    },
+    {
       "id": "readRelief",
       "title": "readRelief",
       "category": "page-method",
       "version": "1.22.0",
-      "docsHash": "sha256:77ba4a121096b5a239c4e11a5e74becc5767fd303f758573e117a770316050ed",
+      "docsHash": "sha256:0eede210ac4ccd40b92160f927257cad01900e9344e27f87efff10c0b45ab11c",
       "url": "tools/readRelief.json"
     },
     {
@@ -2021,12 +2039,12 @@
     },
     {
       "id": "api.reliability",
-      "docsHash": "sha256:4dffa06a40eb809071248203b59eae08b7cb62ae8e2396c4841e23901fe10c3c",
+      "docsHash": "sha256:ba3885a336f28c5ad0f4b239e5f5579edae5285d98d34333c90fa3593d64c859",
       "url": "docs/api.reliability.md"
     },
     {
       "id": "api.relief",
-      "docsHash": "sha256:d3e41298b1643c45ad72fca1ac2461968da79ca30859dd88743971da16c1d68e",
+      "docsHash": "sha256:b77d994f326e9bdef2386406b4707f77fe579a98bab665cad05b94d51ee4fa6b",
       "url": "docs/api.relief.md"
     },
     {
@@ -2046,7 +2064,7 @@
     },
     {
       "id": "api.ui-coverage",
-      "docsHash": "sha256:31bfbf58db8f91dd5399c8faef7cf4317686ddc2d289709a90c0aa64dca90728",
+      "docsHash": "sha256:824ec7795a042c55475954b4ef9574c4a076a6f2b0b67a1e0777f801d01361cf",
       "url": "docs/api.ui-coverage.md"
     },
     {

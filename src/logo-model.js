@@ -90,9 +90,9 @@ function boundariesMeet(ringA, ringB, budget) {
   return false;
 }
 function ringContainsRing(parent, child) { return pointInRing(child[0], parent); }
-export function validateRegions(params) {
+export function validateRegions(params,{maxRegions=150,maxVertices=12000}={}) {
   const raw = params.regions;
-  if (!Array.isArray(raw) || raw.length < 1 || raw.length > 150) throw new Error('regions must contain 1..150 regions');
+  if (!Array.isArray(raw) || raw.length < 1 || raw.length > maxRegions) throw new Error(`regions must contain 1..${maxRegions} regions`);
   let declaredPoints = 0;
   for (const [ri, region] of raw.entries()) {
     if (!region || typeof region !== 'object' || !Array.isArray(region.outer)) throw new Error(`region ${ri} is invalid`);
@@ -103,7 +103,7 @@ export function validateRegions(params) {
       if (!Array.isArray(hole)) throw new Error(`region ${ri} has an invalid hole`);
       declaredPoints += hole.length;
     }
-    if (declaredPoints > 12000) throw new Error('total contour vertices exceed 12000');
+    if (declaredPoints > maxVertices) throw new Error(`total contour vertices exceed ${maxVertices}`);
   }
   let total = 0;
   const regions = raw.map((region, ri) => {
@@ -112,7 +112,7 @@ export function validateRegions(params) {
     if (!Array.isArray(holesRaw)) throw new Error(`regions[${ri}].holes must be an array`);
     const holes = holesRaw.map((h, hi) => readRing(h, `regions[${ri}].holes[${hi}]`));
     total += outer.length + holes.reduce((s, h) => s + h.length, 0);
-    if (total > 12000) throw new Error('total contour vertices exceed 12000');
+    if (total > maxVertices) throw new Error(`total contour vertices exceed ${maxVertices}`);
     return { outer, holes };
   });
   const budget = { tol: EPS, maxCandidates: 2_000_000 };
@@ -129,7 +129,9 @@ export function validateRegions(params) {
       if (boundariesMeet(region.holes[i], region.holes[j], budget) || ringContainsRing(region.holes[i], region.holes[j]) || ringContainsRing(region.holes[j], region.holes[i])) throw new Error('holes overlap, touch, or contain one another');
     }
   }
+  const bounds=regions.map(r=>r.outer.reduce((b,p)=>[Math.min(b[0],p[0]),Math.min(b[1],p[1]),Math.max(b[2],p[0]),Math.max(b[3],p[1])],[Infinity,Infinity,-Infinity,-Infinity]));
   for (let i = 0; i < regions.length; i++) for (let j = i + 1; j < regions.length; j++) {
+    const u=bounds[i],v=bounds[j];if(u[2]<v[0]-EPS||v[2]<u[0]-EPS||u[3]<v[1]-EPS||v[3]<u[1]-EPS)continue;
     const a = regions[i], b = regions[j];
     for (const ra of [a.outer, ...a.holes]) for (const rb of [b.outer, ...b.holes]) if (boundariesMeet(ra, rb, budget)) throw new Error(`regions ${i} and ${j} touch or overlap`);
     const aInB = ringContainsRing(b.outer, a.outer) && !b.holes.some(h => pointInRing(a.outer[0], h));

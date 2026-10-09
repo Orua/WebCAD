@@ -9,7 +9,7 @@ const groups = {
   contracts: [
     'agent-knowledge',
     'design-inspection-contract',
-    'relief-contract',
+    'relief-contract', 'relief-sculpt',
     'document-capacity',
     'generated-file-write',
     'rectangle-selection',
@@ -34,7 +34,7 @@ const groups = {
     'step-export-colors',
     'freecad-organization',
     'freecad-machining',
-    'relief-kernel',
+    'relief-kernel', 'relief-sculpt-kernel',
     'clevis-practice',
     'history-import-kernel',
     'primitive-contract-kernel',

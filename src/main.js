@@ -58,16 +58,33 @@ Object.assign(labels,referenceNames);
 Object.assign(labels,mechanicalNames);
 Object.assign(labels,{sketchProfile:'绘制轮廓',profileOffset:'等距偏移 / 边框',profileRepair:'修复轮廓',profileExtrude:'轮廓拉伸 / 加工',holeWizard:'孔向导',draftFaces:'受限拔模'});
 const pending=new Map();
-let worker,recoveryPromise=null;
+let worker,recoveryPromise=null,kernelProgress=null;
 function rejectPending(error){for(const job of pending.values()){clearTimeout(job.timer);job.reject(error);}pending.clear();}
 function createWorker(){
   const instance=new Worker(new URL('./cad-worker.js',import.meta.url),{type:'module'});
-  instance.onmessage=event=>{if(instance!==worker)return;const result=event.data,job=pending.get(result.requestId);if(!job)return;clearTimeout(job.timer);pending.delete(result.requestId);if(result.ok)job.resolve(result);else job.reject(Object.assign(new Error(result.error||'建模操作失败'),{code:result.code,path:result.path,recoveryAction:result.recoveryAction,featureId:result.featureId,report:result.report}));};
+  instance.onmessage=event=>{if(instance!==worker)return;const result=event.data,job=pending.get(result.requestId);if(!job)return;if(result.kind==='progress'){
+    kernelProgress={...result.progress,requestId:result.requestId,updatedAt:Date.now()};job.pulse();
+    const p=result.progress,label=p.phase==='relief-contour'?`轮廓 ${p.completed}/${p.total}`:p.phase==='relief-boolean'?'合成实体':`层 ${p.completed}/${p.total}`;
+    setStatus(`浮雕 ${p.layer??1}/${p.layerCount??1} · ${p.name??''} · ${label}`);return;
+  }clearTimeout(job.timer);pending.delete(result.requestId);kernelProgress=null;if(result.ok)job.resolve(result);else job.reject(Object.assign(new Error(result.error||'建模操作失败'),{code:result.code,path:result.path,recoveryAction:result.recoveryAction,featureId:result.featureId,report:result.report}));};
   instance.onerror=event=>{if(instance!==worker)return;const error=new Error(event.message||'CAD 内核异常，请保存工程后刷新页面。');rejectPending(error);kernelReady=false;ui?.showError(error.message);};
   return instance;
 }
 worker=createWorker();
-function request(type,payload={}){return new Promise((resolve,reject)=>{const requestId=++requestSequence,instance=worker;const timer=setTimeout(()=>{if(instance!==worker)return;const error=Object.assign(new Error('计算超过三分钟，已停止内核。当前工程仍保留，请保存工程后刷新页面。'),{code:'KERNEL_TIMEOUT'});if(recoveryPromise){worker.terminate();rejectPending(error);kernelReady=false;reportError(error);}else restartWorker(error).catch(reportError);},180000);pending.set(requestId,{resolve,reject,timer});instance.postMessage({requestId,type,...payload});});}
+function request(type,payload={}){return new Promise((resolve,reject)=>{
+  const requestId=++requestSequence,instance=worker,started=Date.now();kernelProgress=null;
+  const job={resolve,reject,timer:null,pulse:()=>{
+    clearTimeout(job.timer);
+    job.timer=setTimeout(()=>{
+      if(instance!==worker)return;
+      const reason=Date.now()-started>=600000?'总计算时间超过十分钟':'三分钟没有新的计算进度';
+      const error=Object.assign(new Error(`${reason}，已停止内核。当前工程仍保留。`),{code:'KERNEL_TIMEOUT'});
+      kernelProgress=null;
+      if(recoveryPromise){worker.terminate();rejectPending(error);kernelReady=false;reportError(error);}else restartWorker(error).catch(reportError);
+    },Math.max(0,Math.min(180000,started+600000-Date.now())));
+  }};
+  pending.set(requestId,job);job.pulse();instance.postMessage({requestId,type,...payload});
+});}
 function restartWorker(error){
   if(recoveryPromise)return recoveryPromise;
   worker.terminate();rejectPending(error);kernelReady=false;worker=createWorker();
@@ -705,7 +722,7 @@ const pageAPI=createPageAPI({
   quickModelUsage:getQuickModelUsage,
   clipboard:async(action,ids)=>{if(ui.hasActiveTask())throw Object.assign(new Error('请先应用或取消人工任务'),{code:'UI_TASK_ACTIVE'});if(action==='copy'){modelClipboard={documentInstanceId,ids:[...ids],pasteCount:0};return;}return pasteModelClipboard();},
   buildId:__WEBCAD_BUILD__,
-  state:(input={})=>({...commandService.getState({sessionId:pageSessionId,include:['summary','features','bodies','selection','capabilities','references'],...input}),referenceSystem:clone(documentModel.referenceSystem),previewInfo:previewIdentity?clone(previewIdentity):null,previewScope:previewScopeReport?clone(previewScopeReport):null,renderQuality:qualityState(),parameters:clone(documentModel.parameters||{}),parameterValues:evaluateNamedParameters(documentModel.parameters||{}),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),colors:clone(documentModel.colors||{}),renderFinish:documentModel.renderFinish??null,displayPreferences:clone(viewport.displayPreferences),view:{anchorVisible:viewport.anchorVisible,panels:ui.getPanels(),clipboard:{available:modelClipboard?.documentInstanceId===documentInstanceId,bodyIds:modelClipboard?.documentInstanceId===documentInstanceId?[...modelClipboard.ids]:[]},display:viewport.mode,projection:viewport.camera.isOrthographicCamera?'orthographic':'perspective',grid:viewport.grid.visible,snap:viewport.snapEnabled,gizmo:viewport.gizmoMode,transform:viewport.getTransformState(),selectionMode:viewport.selectionMode,language:getLanguage(),camera:{position:viewport.camera.position.toArray(),target:viewport.controls.target.toArray()},section:clone(viewport.sectionState||{axis:'Z',position:0,enabled:false}),temporaryDisplay:viewport.temporaryDisplay}}),
+  state:(input={})=>({kernelProgress:clone(kernelProgress),...commandService.getState({sessionId:pageSessionId,include:['summary','features','bodies','selection','capabilities','references'],...input}),referenceSystem:clone(documentModel.referenceSystem),previewInfo:previewIdentity?clone(previewIdentity):null,previewScope:previewScopeReport?clone(previewScopeReport):null,renderQuality:qualityState(),parameters:clone(documentModel.parameters||{}),parameterValues:evaluateNamedParameters(documentModel.parameters||{}),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),colors:clone(documentModel.colors||{}),renderFinish:documentModel.renderFinish??null,displayPreferences:clone(viewport.displayPreferences),view:{anchorVisible:viewport.anchorVisible,panels:ui.getPanels(),clipboard:{available:modelClipboard?.documentInstanceId===documentInstanceId,bodyIds:modelClipboard?.documentInstanceId===documentInstanceId?[...modelClipboard.ids]:[]},display:viewport.mode,projection:viewport.camera.isOrthographicCamera?'orthographic':'perspective',grid:viewport.grid.visible,snap:viewport.snapEnabled,gizmo:viewport.gizmoMode,transform:viewport.getTransformState(),selectionMode:viewport.selectionMode,language:getLanguage(),camera:{position:viewport.camera.position.toArray(),target:viewport.controls.target.toArray()},section:clone(viewport.sectionState||{axis:'Z',position:0,enabled:false}),temporaryDisplay:viewport.temporaryDisplay}}),
   quality:async quality=>{setBusy(true,'更新显示网格…');try{const result=await request('remesh',{quality});bodies=result.bodies;qualityKey=quality;viewport.setBodies(bodies,documentModel.hidden);applyAppearance();viewport.setSelection(selectedIds,selectedTopology);viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});await viewport.frame();setStatus('显示网格已更新 · '+RENDER_QUALITIES[quality].label+' · '+qualityState().triangleCount.toLocaleString()+' 三角面');}finally{setBusy(false);}},
   preferences:values=>{viewport.displayPreferences={...viewport.displayPreferences,...validateDisplayPreferences(values)};viewport.setModelingPrecision();applyAppearance();const persisted=saveDisplayPreferences(viewport.displayPreferences);refresh();return {persisted,storage:'cookie',values:clone(viewport.displayPreferences)};},
   execute:input=>commandService.execute(input),query:input=>commandService.queryGeometry(input),files:input=>commandService.fileCommand(input),

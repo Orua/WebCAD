@@ -7,6 +7,27 @@ import {prepareAnalyticProfileEdit} from '../src/profile-editing.js';
 
 const context = () => ({ sessionId: 'page-1', documentId: 'doc-1', documentInstanceId: 'instance-1', expectedRevision: 7 });
 
+test('relief height eyedropper is discoverable, read-only, draft-aware and callable through invoke and run',async()=>{
+ const {api,host,calls}=fixture(),base=host.state;
+ const params={widthMm:12,heightMm:12,depthMm:2,surfaceMode:'smooth',mode:'engrave',values:Array.from({length:5},()=>Array(5).fill(.5)),regions:[{outer:[[-.4,-.4],[.4,-.4],[.4,.4],[-.4,.4]]}]};
+ host.state=()=>({...base(),features:[{id:'relief-1',op:'relief',params,refs:[]}]});
+ const input={context:context(),featureId:'relief-1',point:[0,0]},copy=structuredClone(params);
+ const direct=await api.sampleReliefHeight(input);assert.equal(direct.status,'read');assert.equal(direct.targetMm,1);assert.equal(direct.quantity,'depth');assert.equal(direct.context.revision,7);
+ const prepared=await api.prepareReliefSculpt({context:context(),featureId:'relief-1',strokes:[{mode:'lower',radiusMm:3,amountMm:.25,points:[[0,0]]}]});
+ const sampled=await api.invoke({method:'sampleReliefHeight',args:{...input,draft:prepared.params.sculpt}});assert.equal(sampled.targetMm,1.25);
+ const batch=await api.run({context:context(),idempotencyKey:'height-read',steps:[{id:'pick',method:'sampleReliefHeight',args:{featureId:'relief-1',point:[0,0]}},{id:'flatten',method:'prepareReliefSculpt',args:{featureId:'relief-1',strokes:[{mode:'flatten',radiusMm:3,targetMm:{$ref:'pick.targetMm'},points:[[0,0]]}]}}]});
+ assert.equal(batch.status,'completed');assert.equal(batch.results[1].result.report.changedControls,0);
+ assert.equal(getTool({id:'sampleReliefHeight'}).implementationStatus,'implemented');
+ assert.ok(UI_API_ROUTES.reliefSculpt.tools.includes('sampleReliefHeight'));
+ assert.equal((await api.sampleReliefHeight({...input,context:{...context(),expectedRevision:6}})).error.code,'REVISION_CONFLICT');
+ assert.equal((await api.sampleReliefHeight({...input,featureId:'missing'})).error.code,'STALE_REFERENCE');
+ assert.equal((await api.sampleReliefHeight({...input,point:[.45,0]})).error.code,'RELIEF_SAMPLE_OUTSIDE');
+ assert.equal((await api.sampleReliefHeight({...input,point:[2,0]})).error.code,'PARAM_RANGE_INVALID');
+ assert.equal((await api.sampleReliefHeight({...input,draft:null})).error.code,'PARAM_SCHEMA_INVALID');
+ assert.equal((await api.sampleReliefHeight({...input,draft:{deltaMm:[[0]],mask:[[0]]}})).error.code,'RELIEF_INVALID');
+ assert.deepEqual(params,copy);assert.equal(calls.execute,0);assert.equal(api.getState().context.revision,7);
+});
+
 test('clipboard calls enforce explicit references and retry-safe paste receipts',async()=>{
  const f=fixture();let pasted=0;f.host.clipboard=async action=>{if(action==='paste'){pasted++;return ['new-body'];}};
  assert.equal((await f.api.copySelection({context:context(),bodyIds:['missing']})).status,'failed');
