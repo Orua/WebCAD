@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
   contracts: [
+    'remote-agent-adapter',
     'agent-knowledge',
     'design-inspection-contract',
     'relief-contract',
