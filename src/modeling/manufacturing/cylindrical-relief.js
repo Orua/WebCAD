@@ -35,7 +35,7 @@ function side(top,bottom,alongU,index,oc,cad){
   const s=hold(new oc.Geom_BSplineSurface(poles,weights,knots,linear,mults,ends,alongU?top.UDegree():top.VDegree(),1,false,false));return faceOf(s,oc,cad);
  }finally{owned.reverse().forEach(dispose);}
 }
-export function cylindricalReliefTool(face,p,oc,cad){
+export function cylindricalReliefTool(face,p,oc,cad,{sculptFlat=false,startHeightMm=0}={}){
  if(face.geomType!=='CYLINDRE')fail('RELIEF_UNSUPPORTED','浮雕目前支持平面和外凸圆柱面');
  if(!Array.isArray(p.point)||p.point.length!==3||p.point.some(v=>!Number.isFinite(v)))fail('RELIEF_UNSUPPORTED','柱面浮雕需要在目标面点击放置点');
  if(!(p.baseMm>=.005&&p.baseMm<=1))fail('RELIEF_LIMIT','柱面需要明确的 0.005–1 mm 基底层厚度');
@@ -50,21 +50,39 @@ export function cylindricalReliefTool(face,p,oc,cad){
   if(query.distanceTo(anchor)>.1)fail('RELIEF_OUTSIDE_FACE','放置点不在目标柱面内（允许0.1 mm显示网格吸附）');
   const snapped=tuple(query.wrapped.PointOnShape1(1)),local=snapped.map((v,i)=>v-origin[i]),theta=Math.atan2(dot(local,y),dot(local,x))+(p.offsetX??0)/radius,heightCenter=dot(local,z)+(p.offsetY??0);
   const radial=x.map((v,i)=>v*Math.cos(theta)+y[i]*Math.sin(theta)),center=origin.map((v,i)=>v+heightCenter*z[i]),point=center.map((v,i)=>v+radius*radial[i]);
-  const shifted=hold(cad.makeVertex(point));if(cad.measureDistanceBetween(face,shifted)>1e-5)fail('RELIEF_OUTSIDE_FACE','偏移后的图案中心超出有限柱面');
+  const shifted=hold(cad.makeVertex(point));if(!p.regions&&!p.strokes&&cad.measureDistanceBetween(face,shifted)>1e-5)fail('RELIEF_OUTSIDE_FACE','偏移后的图案中心超出有限柱面');
   const normal=hold(face.normalAt(point)).toTuple();if(dot(normal,radial)/Math.hypot(...normal)<.999)fail('RELIEF_UNSUPPORTED','当前仅支持外凸柱面，不支持内孔柱面');
+  const tangent=[z[1]*radial[2]-z[2]*radial[1],z[2]*radial[0]-z[0]*radial[2],z[0]*radial[1]-z[1]*radial[0]];
+  const frame={normal:radial,radius,point:(u,v,h)=>point.map((n,i)=>n+radius*Math.sin(u/radius)*tangent[i]+v*z[i]+h*radial[i])};
+  const report={kind:'cylindrical-bspline-heightfield',radiusMm:radius,baseMm:p.baseMm,totalControlHeightMm:p.baseMm+p.depthMm,origin:point,normal:radial,axis:z,limitations:['outer-cylinder-only','full-rectangle-base-layer','maximum-angle-90-degrees','no-image-rotation','image-brightness-is-not-photo-depth']};
+  // A uniform vector layer has an exact cylindrical crest. Avoid converting it
+  // into a spline before every small letter/ornament boolean.
+  if((p.regions||p.strokes)&&p.surfaceMode!=='flat'&&!sculptFlat&&p.values.every(row=>row.every(v=>v===p.values[0][0]))){
+   const h=p.baseMm+p.depthMm*p.values[0][0],positive=p.mode!=='engrave',start=center.map((v,i)=>v-p.heightMm*.5*z[i]);
+   const location=hold(new oc.gp_Pnt(...start)),axis=hold(new oc.gp_Dir(...z)),back=hold(new oc.gp_Dir(...radial.map(v=>-v))),placement=hold(new oc.gp_Ax2(location,axis,back));
+   const cylinder=r=>{const builder=hold(new oc.BRepPrimAPI_MakeCylinder(placement,r,p.heightMm));return hold(new cad.Solid(builder.Shape()));};
+   const outer=cylinder(radius+(positive?h:-startHeightMm+.001));
+   const inner=cylinder(radius+(positive?startHeightMm-.001:-h));
+   const shell=hold(outer.cut(inner)),solids=shell.solids;owned.push(...solids);
+   if(solids.length!==1)fail('RELIEF_INVALID','等高柱面层未形成单个刀具体');
+   return{tool:solids[0].clone(),frame,report:{...report,kind:'cylindrical-analytic-relief'}};
+  }
   const rows=p.values.length,cols=p.values[0].length,base=hold(circularPatch(radius,p.widthMm,p.heightMm,cols,rows,oc));
   const mapping=hold(new cad.Transformation().coordSystemChange({origin:center,xDir:radial,zDir:z},'reference'));
   const baseFace=hold(faceOf(base,oc,cad)),footprint=hold(cad.cast(mapping.transform(baseFace.wrapped))),edges=face.edges;owned.push(...edges);
-  for(const edge of edges)if(cad.measureDistanceBetween(footprint,edge)<=1e-5)fail('RELIEF_OUTSIDE_FACE','图案跨越柱面边界、接缝或孔，请缩小或移动');
+  if(!p.regions&&!p.strokes)for(const edge of edges)if(cad.measureDistanceBetween(footprint,edge)<=1e-5)fail('RELIEF_OUTSIDE_FACE','图案跨越柱面边界、接缝或孔，请缩小或移动');
   const top=hold(new oc.Geom_BSplineSurface(base)),bottom=hold(new oc.Geom_BSplineSurface(base)),sign=p.mode==='engrave'?-1:1,half=p.widthMm/radius/2;
   for(let i=1;i<=base.NbUPoles();i++)for(let j=1;j<=base.NbVPoles();j++){
-   const q=base.Pole(i,j),a=q.X(),b=q.Y(),c=q.Z(),h=p.baseMm+p.depthMm*sample(p.values,(Math.atan2(b,a)+half)/(2*half),c/p.heightMm+.5);
-   const t=new oc.gp_Pnt(a*(1+sign*h/radius),b*(1+sign*h/radius),c),floor=new oc.gp_Pnt(a*(1-sign*.001/radius),b*(1-sign*.001/radius),c);
+   const q=base.Pole(i,j),a=q.X(),b=q.Y(),c=q.Z(),h=p.surfaceMode==='flat'?p.depthMm+radius*(1-Math.cos(half))+.01:p.baseMm+p.depthMm*sample(p.values,(Math.atan2(b,a)+half)/(2*half),c/p.heightMm+.5);
+   // A flat crest is measured from the tangent plane, not from the cylindrical
+   // host. Preserve that plane outside edited controls during local sculpting.
+   const flatH=sculptFlat?p.depthMm*sample(p.values,(Math.atan2(b,a)+half)/(2*half),c/p.heightMm+.5):0;
+   const t=sculptFlat?new oc.gp_Pnt(radius+sign*flatH,b,c):new oc.gp_Pnt(a*(1+sign*h/radius),b*(1+sign*h/radius),c),floor=new oc.gp_Pnt(a*(1+sign*(startHeightMm-.001)/radius),b*(1+sign*(startHeightMm-.001)/radius),c);
    try{top.SetPole(i,j,t);bottom.SetPole(i,j,floor);}finally{[q,t,floor].forEach(dispose);}
   }
   const faces=[hold(faceOf(top,oc,cad)),hold(faceOf(bottom,oc,cad)),hold(side(top,bottom,true,1,oc,cad)),hold(side(top,bottom,true,rows,oc,cad)),hold(side(top,bottom,false,1,oc,cad)),hold(side(top,bottom,false,cols,oc,cad))];
   const localTool=hold(cad.makeSolid(faces));tool=cad.cast(mapping.transform(localTool.wrapped));
   if(!(tool instanceof cad.Solid)||!oc.BRepLib.OrientClosedSolid(tool.wrapped))fail('RELIEF_INVALID','柱面浮雕刀具未闭合');
-  const out=tool;tool=null;return {tool:out,report:{kind:'cylindrical-bspline-heightfield',radiusMm:radius,baseMm:p.baseMm,totalControlHeightMm:p.baseMm+p.depthMm,origin:point,normal:radial,axis:z,limitations:['outer-cylinder-only','full-rectangle-base-layer','maximum-angle-90-degrees','no-image-rotation','image-brightness-is-not-photo-depth']}};
+  const out=tool;tool=null;return {tool:out,frame,report};
  }finally{dispose(tool);owned.reverse().forEach(dispose);}
 }

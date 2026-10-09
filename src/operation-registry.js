@@ -71,6 +71,7 @@ function schemaFor(id, source) {
   }
   if (!migrated.has(id)) return schema;
   for (const [key, value] of Object.entries(defaults[id])) schema.properties[key].default = value;
+  if(id==='round')schema.oneOf=[{required:['edgeIds']},{required:['faceIds']}];
   if (id === 'fillet' || id === 'chamfer') {
     schema.properties.edgeIds.minItems = 1;
     schema.properties.edgeIds.uniqueItems = true;
@@ -283,6 +284,11 @@ export function normalizeOperationPatch(op, previousParams, patch) {
   assertJsonValue(patch);
   if (!patch || typeof patch !== 'object' || Array.isArray(patch)) contractError('PARAM_SCHEMA_INVALID', 'params', 'Expected a parameter patch object.');
   const merged = { ...previousParams, ...patch };
+  if(op==='round'){
+    if(Object.hasOwn(patch,'edgeIds')&&Object.hasOwn(patch,'faceIds'))contractError('SELECTION_CONFLICT','params','Choose edges or face boundaries, not both.');
+    if(Object.hasOwn(patch,'edgeIds'))delete merged.faceIds;
+    if(Object.hasOwn(patch,'faceIds'))delete merged.edgeIds;
+  }
   if(op==='chamfer'&&patch.mode&&patch.mode!==previousParams.mode){
     if(patch.mode!=='twoDistances'&&!Object.hasOwn(patch,'distance2'))delete merged.distance2;
     if(patch.mode!=='distanceAngle'&&!Object.hasOwn(patch,'angleDeg'))delete merged.angleDeg;

@@ -1,5 +1,7 @@
 // Local image preparation shared by the UI and public readRelief API.
 // No network requests or model mutation. Only normalized height samples persist.
+import {reliefContours} from './relief-contours.js';
+import {readVectorRelief} from './relief-vector.js';
 const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
 const maxPixels=16777216;
 function checkDimensions(width,height){
@@ -32,8 +34,8 @@ export function rasterDimensions(bytes,format){
  fail('RELIEF_IMAGE_INVALID','JPG 缺少有效尺寸帧');
 }
 export function heightValuesFromRgba(data,width,height,{whiteHigh=false,style='grayscale',threshold=.5}={}){
- if(!Number.isInteger(width)||!Number.isInteger(height)||width<4||height<4||width>65||height>65||data.length!==width*height*4)fail('RELIEF_IMAGE_INVALID','采样网格必须为 4–65 行/列');
- if(typeof whiteHigh!=='boolean'||!['grayscale','rounded'].includes(style)||!Number.isFinite(threshold)||threshold<0||threshold>1)fail('PARAM_SCHEMA_INVALID','图片处理参数无效');
+ if(!Number.isInteger(width)||!Number.isInteger(height)||width<4||height<4||width>257||height>257||data.length!==width*height*4)fail('RELIEF_IMAGE_INVALID','采样网格必须为 4–257 行/列');
+ if(typeof whiteHigh!=='boolean'||!['grayscale','rounded','flat'].includes(style)||!Number.isFinite(threshold)||threshold<0||threshold>1)fail('PARAM_SCHEMA_INVALID','图片处理参数无效');
  const values=Array.from({length:height},(_,j)=>Array.from({length:width},(_,i)=>{
   const k=((height-1-j)*width+i)*4;const l=(.2126*data[k]+.7152*data[k+1]+.0722*data[k+2])/255;
   return Math.max(0,Math.min(1,(whiteHigh?l:1-l)*data[k+3]/255));
@@ -48,7 +50,7 @@ export function heightValuesFromRgba(data,width,height,{whiteHigh=false,style='g
   let max=0;for(let j=0;j<height;j++)for(let i=0;i<width;i++)max=Math.max(max,d[j+1][i+1]);
   for(let j=0;j<height;j++)for(let i=0;i<width;i++)values[j][i]=max?Math.sin(d[j+1][i+1]/max*Math.PI/2):0;
  }
- return values.map(r=>r.map(v=>Math.round(v*1e6)/1e6));
+ return values.map(r=>r.map(v=>style==='flat'?(v>threshold?1:0):Math.round(v*1e6)/1e6));
 }
 
 function prepareReliefSvg(text){
@@ -82,11 +84,12 @@ function prepareReliefSvg(text){
 export function validateReliefSvg(text){return prepareReliefSvg(text).text;}
 
 export async function readReliefImage(blob,{name='image.jpg',samples=33,whiteHigh=false,style='grayscale',threshold=.5}={}){
- if(typeof name!=='string'||name.length>255||!Number.isInteger(samples)||samples<4||samples>65||typeof whiteHigh!=='boolean'||!['grayscale','rounded'].includes(style)||!Number.isFinite(threshold)||threshold<0||threshold>1)fail('PARAM_SCHEMA_INVALID','图片名称、采样或明暗参数无效');
+ if(typeof name!=='string'||name.length>255||!Number.isInteger(samples)||samples<4||samples>65||typeof whiteHigh!=='boolean'||!['grayscale','rounded','flat'].includes(style)||!Number.isFinite(threshold)||threshold<=0||threshold>=1)fail('PARAM_SCHEMA_INVALID','图片名称、采样或明暗参数无效（阈值须在0与1之间）');
  if(!(blob instanceof Blob)||!blob.size||blob.size>8*1024*1024)fail('RELIEF_LIMIT','图片须为非空文件且不超过 8 MiB');
- const format=/\.jpe?g$/i.test(name)?'jpg':/\.png$/i.test(name)?'png':/\.svg$/i.test(name)?'svg':null;
- if(!format)fail('FORMAT_UNSUPPORTED','浮雕支持 JPG、PNG 和 SVG');
+ const format=/\.relief\.json$/i.test(name)?'vector':/\.jpe?g$/i.test(name)?'jpg':/\.png$/i.test(name)?'png':/\.svg$/i.test(name)?'svg':null;
+ if(!format)fail('FORMAT_UNSUPPORTED','浮雕支持 JPG、PNG、SVG 和分层 .relief.json');
  const bytes=await blob.arrayBuffer(),sha256=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),v=>v.toString(16).padStart(2,'0')).join('');
+ if(format==='vector')return {...readVectorRelief(new TextDecoder().decode(bytes)),source:{name,sha256,format:'grid',style:'rounded'}};
  if(format!=='svg')rasterDimensions(bytes,format);
  const svg=format==='svg'?prepareReliefSvg(new TextDecoder().decode(bytes)):null;
  const imageBlob=svg?new Blob([svg.text],{type:'image/svg+xml'}):new Blob([bytes],{type:format==='jpg'?'image/jpeg':'image/png'});
@@ -102,6 +105,10 @@ export async function readReliefImage(blob,{name='image.jpg',samples=33,whiteHig
   ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(bitmap,0,0,width,height);
   const values=heightValuesFromRgba(ctx.getImageData(0,0,width,height).data,width,height,{whiteHigh,style,threshold});
   if(!values.some(r=>r.some(v=>v>0)))fail('RELIEF_NO_CHANGE','图像没有可用高度，请反转明暗或调整阈值');
-  return {values,aspectRatio:ratio,rows:height,columns:width,source:{name,sha256,format,style,whiteHigh,threshold,originalWidth,originalHeight},interpretation:style==='rounded'?'图形按到背景的距离逐渐鼓起；不是平顶凸字':'亮度映射为高度并平滑；不是照片的真实三维深度'};
+  canvas.width=Math.max(4,Math.round(257*Math.min(1,ratio)));canvas.height=Math.max(4,Math.round(257*Math.min(1,1/ratio)));
+  ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
+  const maskValues=heightValuesFromRgba(ctx.getImageData(0,0,canvas.width,canvas.height).data,canvas.width,canvas.height,{whiteHigh});
+  const regions=reliefContours(maskValues,style==='grayscale'?1/255:threshold);
+  return {values,regions,surfaceMode:style==='flat'?'flat':'smooth',contourSamples:257,aspectRatio:ratio,rows:height,columns:width,source:{name,sha256,format,style,whiteHigh,threshold,originalWidth,originalHeight},interpretation:style==='flat'?'轮廓内生成精确平顶，轮廓外保留原表面':style==='rounded'?'图形按到背景的距离逐渐鼓起；轮廓外保留原表面':'轮廓内亮度映射为平滑高度；空白保留原表面，不代表照片真实深度'};
  }finally{bitmap?.close?.();if(url)URL.revokeObjectURL(url);}
 }

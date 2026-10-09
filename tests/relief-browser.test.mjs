@@ -44,8 +44,8 @@ export async function runReliefBrowserTests(){
   await until(()=>!preview.disabled);check(apply.disabled,'decoded image still requires an explicit geometry preview');
   preview.click();await until(()=>!apply.disabled);
   check(lastParams._targetRefs[0]==='explicit-target'&&lastParams.faceId===5,'preview retains the explicitly selected source and face');
-  check(JSON.stringify(lastParams.point)==='[0,-20,20]'&&lastParams.baseMm===.02,'cylinder preview retains clicked point and explicit base thickness');
-  check(dialog.textContent.includes('总高度=基底+起伏'),'cylinder rectangular base layer is disclosed before application');
+  check(JSON.stringify(lastParams.point)==='[0,-20,20]'&&lastParams.regions.length>0&&lastParams.surfaceMode==='flat','preview retains clicked point and independent contours with exact flat default');
+  check(dialog.textContent.includes('空白区域保持原表面'),'unchanged background is disclosed before application');
   const depth=dialog.querySelector('[aria-label="起伏高度 mm"]');depth.value='2';depth.dispatchEvent(new Event('input'));
   check(apply.disabled,'editing after preview blocks application of stale geometry');
   preview.click();await until(()=>!apply.disabled);apply.click();await until(()=>!preview.disabled);

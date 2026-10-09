@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
   "pageApiVersion": "1.22.0",
-  "buildId": "33b747d11fb0889aa371fa3dee87c8f61cab2f7f-src-8aa37ad38cd9e722-working",
-  "catalogHash": "sha256:8169c30117759ceeed2e9348df321dce4744a29f1be40186d88b0a1a4c416c7c",
-  "docsHash": "sha256:d6f037b0cbe797b9f6efde2e1fc512c13c3962e6dd7eb91c9928eed7ead4090e",
+  "buildId": "93fc573cd7fa83aa8ad9ab24732d9e21776f3f6b-src-b3b45b83dd8f3dcd-working",
+  "catalogHash": "sha256:7015c10d70e2ec94e27c97a98b8512d8b70a78968e500440967e3e2a0b617722",
+  "docsHash": "sha256:fd249a15d44a531b845f92ba640ab634a904412525f98c74926c1e86a03d453f",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -875,7 +875,17 @@
         "history.undo"
       ],
       "method": "execute",
-      "usage": "面加工→浮雕。files.register 图像资源，readRelief 本地生成高度网格；run add relief 显式 faceId/refs/尺寸/高度/位置和values。平面或外凸圆柱；柱面还须point/baseMm基底层，角宽≤90°且angleDeg=0，整张矩形形成基底再叠加起伏。预览后提交；getState.bodies[].reliefReport 回读实际材料变化与曲面限制。"
+      "usage": "面加工→浮雕。files.register图像，readRelief生成独立轮廓regions与高度values；run add relief显式faceId/refs/尺寸/高度/位置、values/regions/surfaceMode/source。surfaceMode=flat为精确平顶，smooth为轮廓内平滑起伏，背景保留原面。支持分层.relief.json及layers显式高度、strokes开放刻线和curveToleranceMm曲线公差；UI逐层编辑高度和方向，API feature.edit修改layers。柱面须point、角宽≤90°、angleDeg=0。旧无regions工程保留原基底层语义。预览后提交，getState.bodies[].reliefReport回读背景、表面方式与实际材料变化。"
+    },
+    "reliefSculpt": {
+      "tools": [
+        "sampleReliefHeight",
+        "prepareReliefSculpt",
+        "feature.edit",
+        "history.undo"
+      ],
+      "method": "prepareReliefSculpt",
+      "usage": "浮雕历史属性→浮雕精修。prepareReliefSculpt({context,featureId,strokes,draft?})只读返回params.sculpt；检查canCommit/blockers后feature.edit提交。笔刷raise/lower/smooth/flatten/fill/scrape/sharpen/restore/mask/unmask，hardness为0–1、symmetry为none/x/y/xy，局部points为[-.5,.5]，radiusMm/amountMm/targetMm为毫米，strength为0–1。工程保存原始高度及deltaMm/mask；关闭/切层暂存草稿、应用当前层一次撤销；Alt吸取对应sampleReliefHeight({context,featureId,point,draft?})，返回targetMm可给flatten，quantity区分height/depth，与UI共用采样；轮廓外或孔内失败RELIEF_SAMPLE_OUTSIDE；预览旋转缩放不改模型。"
     },
     "remove": {
       "tools": [
@@ -931,7 +941,7 @@
         "feature.edit"
       ],
       "method": "execute",
-      "usage": "统一圆润：edgeIds 必填，mode 默认 auto。边缘用 strength 或 radiusMm；端头用自动推荐或 depthMm。鼠标拖动截面手柄等价 preview.update 修改 depthMm（世界范围见 roundReport.scope）；拖动中只改变草稿，松手预览一次。查看原形等价 preview.cancel，返回预览用 preview.start。必须核对范围后提交。"
+      "usage": "统一圆润：edgeIds 或 faceIds 二选一。界面可选择边缘或平面边界；faceIds 解析完整外边及孔边，最多1000条边，scope读回实际范围，只支持边缘模式。边缘用 strength 或原值 radiusMm；按面自动大小参考侧壁深度，不用最短碎边。端头用自动推荐或 depthMm。鼠标拖动截面手柄等价 preview.update 修改 depthMm；松手预览一次。查看原形等价 preview.cancel，返回预览用 preview.start。必须核对范围后提交；不自动填孔或修来源轮廓。"
     },
     "roundEnd": {
       "tools": [
@@ -1281,6 +1291,7 @@
     "transform": "移动 / 旋转",
     "union": "合并",
     "vectorProfile": "导入路径",
+    "reliefSculpt": "浮雕精修 / sampleReliefHeight / prepareReliefSculpt / 修改参数 / 撤销",
     "precisionSettings": "精度 / setDisplayPreferences",
     "themeSettings": "风格 / setDisplayPreferences",
     "snapSettings": "吸附 / setDisplayPreferences",

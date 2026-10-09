@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.22.0 · 操作目录 sha256:8169c30117759ceeed2e9348df321dce4744a29f1be40186d88b0a1a4c416c7c
+API 1.22.0 · 操作目录 sha256:7015c10d70e2ec94e27c97a98b8512d8b70a78968e500440967e3e2a0b617722
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -8,6 +8,8 @@ API 1.22.0 · 操作目录 sha256:8169c30117759ceeed2e9348df321dce4744a29f1be401
 
 ## 页面方法
 
+- `sampleReliefHeight`
+- `prepareReliefSculpt`
 - `readRelief`
 - `getHistory`
 - `planAlignment`
@@ -130,7 +132,7 @@ API 1.22.0 · 操作目录 sha256:8169c30117759ceeed2e9348df321dce4744a29f1be401
 - `referenceExtrude` · advisory · 选择一个闭合平面线框或单张平面面。直接复用精确圆弧/样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。
 - `referenceLoft` · advisory · 按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。
 - `refineShape` · migrated · Refine same-domain faces and remove redundant splitter edges
-- `relief` · migrated · 浮雕：从图片高度场生成有层次的平滑 B 样条曲面 / Surface relief
+- `relief` · migrated · 浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief
 - `revolve` · advisory · Revolve a closed profile
 - `round` · migrated · 圆润 / Round
 - `roundEnd` · migrated · 端头圆润 / Round free end
@@ -197,7 +199,9 @@ API 1.22.0 · 操作目录 sha256:8169c30117759ceeed2e9348df321dce4744a29f1be401
 - `template.twoPieceEyelet` · advisory · 参数化两件式薄壁鸡眼，法兰外翻边和内侧圆弯按薄壁截面精确旋转生成。A件为长脚，B件为配套短脚；支持同轴静态套合或分开展示，不模拟压铆变形、LOGO和压字。
 - `template.frameEyelet` · advisory · 圆形或圆角方形面框、恒壁厚短颈口、对称安装柱及普通直孔，一次生成单件。颈口和柱沿本地+Z；面框底面Z=0。孔深0为通孔，正值为从柱顶向下的盲孔。安装柱数量0/2/4，2柱沿Y布置。可将颈口/柱高度设0作背片。不含牙槽、锥孔、压铆、饰面及三维边圆角；按原图再加工。圆形模式内外宽高必须分别相等，角R仅用于方形。
 - `template.uStrapClip` · advisory · 沿X等宽的恒壁厚开口U夹，前后片可不同高，内外弯角为精确相切圆弧；内弯R=内净距/2时为半圆底。底面Z=0，开口朝+Z，后片在+Y。可加后片普通通孔0/1/2个，2孔沿X布置。不是四边封闭的帽套；不含牙槽、前面饰面、片端三维圆角和弹性变形。孔中心须处于后片直段。
-- `readRelief` · page-method · readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded,threshold?:0.5})。先 files.register；只读，本地解码。
+- `sampleReliefHeight` · page-method · sampleReliefHeight({context,featureId,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。
+- `prepareReliefSculpt` · page-method · prepareReliefSculpt({context,featureId,draft?:{deltaMm,mask},strokes:[{mode:"raise"|"lower"|"smooth"|"flatten"|"restore"|"mask"|"unmask"|"fill"|"scrape"|"sharpen",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:"none"|"x"|"y"|"xy",points:[[x,y],...]},...]})。所有现有浮雕类型使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。
+- `readRelief` · page-method · readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5})。先 files.register；只读，本地解码。
 - `getHistory` · page-method · getHistory()。返回已保留状态，不含导入源字节。
 - `planAlignment` · page-method · planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true。
 - `selectRectangle` · page-method · selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。

@@ -1,5 +1,13 @@
 # WebCAD 页面 API
 
+## 分层浮雕与轮廓清理
+
+`relief.params.layers` 按原始底面保存各层的 `heightMm`、可选 `startHeightMm`、`mode`、`regions`/`strokes`。浅细节使用完整低层加带细节孔的高层；空白区域保持原面。UI 图案文件入口接受 `.relief.json`，各层参数可在属性面板修改；AI 用同一 `relief` 和 `feature.edit`。
+
+`contourSnapMm` 是显式二维清理网格，默认 0 关闭，每轴最多移动半个网格。小于精度的缝隙或孔可能合并，应先对照原图选取精度；复杂 DWG 微小碎边可从 0.005 mm 试起。`curveToleranceMm` 单独控制线弧拟合。相交开放刻线先二维合并，再生成实体刀具。
+
+`getJob.progress` / `getState.kernelProgress` 返回实际层号、轮廓完成数及合成阶段，不是时间百分比。真实进度刷新三分钟停滞时限，总计算最多十分钟。分层回执的材料增减体积为 null，避免对每层反复积分整件；最终实体仍提供正常测量。
+
 ## 源图要求核对（页面 API 1.19.0）
 
 `inspectDesign({context,requirements,requirePass?:false})` 在一次只读调用中比较精确 BRep 的世界XYZ包围尺寸、实体数和指定材料/留空点。每项要求携带 `evidence:{kind:'drawing'|'user'|'assumption',reference}`，期望来自最新图纸或用户要求，不从生成模型反推。假设及边界样点返回 `unverified`；`requirePass:true` 在未通过时返回失败及完整诊断，可停止批次后续导出。它只证明列出的检查，来源标签由调用者提供，`sourceEvidenceVerified=false`，不能代替完整连接、截面、圆角或产品验收。
@@ -959,6 +967,8 @@ if (picture.status !== 'read') throw new Error(picture.error?.code || 'capture f
 
 `connect({toolIds:['round','preview.start','preview.update','preview.commit'],includeContracts:true})` 后，以当前 body ID 和真实 edge IDs 执行 `op:'round',refs:[bodyId],params:{edgeIds:[...]}`。默认 `mode:'auto',strength:0.5`。几何分析选择一次端头重建或普通边圆角，不做失败后兜底或半径扫描。端头分析仅量测一次实际截面，默认深度向上取到 0.01 mm；显式 depthMm/radiusMm 保留原数值。
 
+文字、标志的平顶可用 `params:{faceIds:[当前顶面ID],radiusMm:0.2}` 一次圆润完整外边及孔边。`edgeIds` 与 `faceIds` 二选一；面最多16个，解析后的边最多1000条，只支持真实平面和边缘模式。自动大小由实测侧壁深度与实体尺寸推荐，不再受最短轮廓碎边压到近零；显式半径仍保留原值。`roundReport.scope` 返回来源 `faceIds/edgeIds`。界面“选取范围”可切换选边或选平面完整边界。工具不自动填孔、删轮廓点或扩大几何公差；来源折返或微孔应明确修正上游，失败保留原件。
+
 覆盖参数：`mode:'edge'|'end'`，边缘 `strength:0.1..1` 或精确 `radiusMm`，端头 `depthMm`、`axis`、`direction`、`profileAxis`，以及同一来源轴向直边 `directionEdgeId`。世界主轴以外方向、复杂截面仍明确拒绝。预览回执 `preview.scope`、`getState().previewScope` 和提交后的 `bodies[].roundReport` 返回 `mode/resolved/control/scope/attemptCount/endRoundingReport/blendReport`。scope 给出世界轴、方向、端部坐标、截面中心和尺寸；control 的范围是操作建议，不保证区间内每个值均可构造。
 
 UI 拖动范围手柄等价于 `preview.update` 修改 `params.depthMm`；必须使用当前预览身份和 generation。拖动中只更新草稿，松手后计算一次，最新预览成功才可提交。查看原形等价 `preview.cancel`，返回预览是新的 `preview.start`；所有操作维持同一来源 body/edge 引用。ROUND_SELECTION_AMBIGUOUS 表示需指定方式或方向；END_ROUNDING_UNSUPPORTED 表示截面/范围不适用；失败不提交。原 fillet/roundEnd/rounding API 与历史仍然可用。
@@ -1005,21 +1015,32 @@ getHistory 返回状态 ID、名称、时间、数量、字节数、合并数量
 
 `body.align`、`body.explode`、`history.restore` 经 Worker 重建后成功提交，回执为 `validation.geometry:'passed'`；没有提交的 `no_change` 则为 `unchanged`。外观、显隐、改名保持几何 `unchanged`。该字段不代替渲染修订或文件写入确认。
 
-## 曲面浮雕 relief（2026-10-02）
+## 轮廓浮雕 relief（2026-10-08）
 
-在当前平面或外凸圆柱面上生成有高低层次的连续三次 B 样条曲面，支持浮雕加料和凹雕减料。不是平顶凸字，也不把照片明暗推断成真实物体深度。
+### 通用浮雕精修（2026-10-09）
 
-圆柱面需要额外显式参数 `point:[x,y,z]`、`baseMm:0.02`。point 是所选有限面上的三维放置点（最多 0.1 mm 显示网格吸附）；整张矩形首先加工 baseMm 基底层，再叠加图案起伏，总高度是 baseMm+depthMm。baseMm 范围 0.005–1 mm。widthMm/offsetX 为圆周弧长，heightMm/offsetY 沿解析圆柱轴；angleDeg 必须 0。当前仅外凸圆柱：半径 1–10000 mm、图案角宽≤90°、总高度≤半径20%，足迹不可跨边界/接缝/孔。内孔、球面与其他自由曲面浮雕明确拒绝。`reliefReport.kind='cylindrical-bspline-heightfield'`，增加 radiusMm/baseMm/totalControlHeightMm/axis 回读。原有平面参数语义不变。
+人工入口为 **面加工 → 浮雕精修**，或历史浮雕步骤属性中的 **浮雕精修…**。先选图层，用展开画布涂刷，右侧显示高度草稿；笔画可撤销/重做、对照原形，点击应用才重建并提交一次历史事务。关闭不改变工程；未应用草稿按图层暂存在当前标签页，切层、关闭面板后可继续。应用当前图层后面板保持打开，其他图层草稿保留；重新打开来源已改变的图层时丢弃过期草稿。正式保存仍需先应用再保存工程。`.webcad` 保留原始 `values/depthMm/regions` 与独立 `sculpt:{deltaMm,mask}`，重开仍能继续修改或局部恢复来源。
 
-1. `files.register` 登记 JPG/PNG/SVG 真实字节，调用 `readRelief({context,resourceId,name,samples:33,whiteHigh:false,style:'grayscale'})`。图片只在本地解码；返回 `values`、`aspectRatio`、`source`。单色图形可用 `style:'rounded'` 和 `threshold:0.5`，按到背景距离逐渐鼓起。SVG 支持灰度、渐变和路径，不支持文字、外部图像、滤镜、脚本及 CSS 类。
-2. 查询当前平面，用 `run` 的 add：`op:'relief', refs:[bodyId], params:{faceId,widthMm:20,heightMm:20/aspectRatio,depthMm:1,mode:'emboss',values,source,offsetX:0,offsetY:0,angleDeg:0}`。凹雕用 `mode:'engrave'`。面号是当前修订的真实面号，不能照抄示例。
-3. 平面中心为面积质心加面内偏移；X 是世界 X 在面上的投影（近共线时改用世界 Y），Y=外法向叉乘 X，角度绕外法向。柱面使用上文点击点与圆周/轴向坐标。完整图案矩形必须在有限面内且避开孔；不自动裁剪。
-4. `preview.start/commit/cancel`、`feature.edit`、`history.undo` 共用同一操作。工程保存高度网格与来源哈希，后续重建不依赖原图。`getState().bodies[].reliefReport` 返回网格、尺寸、来源、实际增减体积及验证结果。
+AI 调用 `prepareReliefSculpt({context,featureId,strokes,draft?})`，每笔为 `{mode,radiusMm,strength:0.5,amountMm:0.15,targetMm:1,hardness:0,symmetry:"none",points:[[0,0],[0.1,0.1]]}`。`mode` 为 `raise/lower/smooth/flatten/fill/scrape/sharpen/restore/mask/unmask`；点坐标是图案局部归一化 `[-0.5,0.5]`、Y向上。每笔沿整条折线一次生效，不因鼠标采样密度累积。每次≤128笔/4096点，强度0–1，半径至少一个网格间距，最终控制高度/深度0–20mm。凸雕抬高增加高度；凹雕抬高变浅、压低加深，`targetMm` 表示深度。
 
-图片最多 8 MiB、1600 万像素，长宽比不超过 64:1；高度网格 4–65 行/列，值域 0–1，按下到上、左到右排列。尺寸不超过 1000 mm，起伏高度 0.01–20 mm，目标最多 1000 个面。采样值是三次曲面的控制网格，结果是平滑近似，不保证穿过每个样点或达到设置的最大高度。凹雕过深可能穿透，须核对预览与壁厚。
+填洼 `fill` 只向邻域均值抬高低处，削峰 `scrape` 只压低高处，凹雕中同样遵循物理表面方向；锐化 `sharpen` 增强局部高度对比，三者都保留保护区与轮廓。`hardness` 为0–1，控制软边到硬边；`symmetry` 为 `none/x/y/xy`，分别关闭、左右、上下、双向对称。可选 `draft:{deltaMm,mask}` 接续上一次只读准备结果；不传则从当前工程开始。
 
-错误包含 RELIEF_IMAGE_INVALID、RELIEF_LIMIT、RELIEF_UNSUPPORTED、RELIEF_OUTSIDE_FACE、RELIEF_NO_CHANGE、RELIEF_INVALID；失败不提交，来源保持。公开发现文档为 `readDocs({docId:'api.relief'})`。
+界面支持 Shift 临时平滑、Ctrl 临时反向抬高/压低或涂/擦保护区、Alt 点击吸取控制高度（凹雕为深度）并切换定高、`[ ]` 调半径、Ctrl+Z/Y 撤销重做。高度吸取使用独立接口 `sampleReliefHeight({context,featureId,point:[x,y],draft?})`，与 UI Alt 吸管共用函数。返回 `{status:"read",featureId,point,targetMm,quantity:"height"|"depth",units:"mm",source:"bilinear-height-controls",context}`，把 `targetMm` 直接传给 `flatten` 即可。坐标为图案局部归一化[-0.5,0.5]，Y向上；省略draft读取工程高度，传入 `{deltaMm,mask}` 则采样草稿。轮廓外/孔内返回 `RELIEF_SAMPLE_OUTSIDE`，越界/非有限坐标返回 `PARAM_RANGE_INVALID`。这是控制高度的双线性采样，非精确BRep测量；接口不修改工程或当前笔刷。支持直接调用、invoke及run步骤。拖笔增量处理新增线段，每帧最多更新一次；右侧三维草稿可旋转、缩放和归位。
 
+返回 `status:'prepared'`、`params:{sculpt}`、`report`、`canCommit`、`blockers`。该方法只生成草稿；读取当前 relief 工具卡后，通过 `feature.edit` 提交返回的参数。存在下游面/边索引依赖时，先解决对应步骤，禁止忽略 blockers。UI 与 AI 使用同一笔刷算法、历史提交及几何内核。修改轮廓/孔边形状仍通过 `regions`，不会被平滑笔刷重新描边。
+
+适用于所有现有 relief 模式：平面/外凸圆柱面、平顶/起伏、凸雕/凹雕、旧矩形高度场。不是任意 STEP 面的直接雕刻；无浮雕来源的导入件会明确提示。现有4–65控制网格限定最小笔刷，遮罩保护控制点而非曲面上的绝对硬边，B样条过渡影响邻域。高度草稿不代表完整主体曲率及精确 BRep。
+
+新浮雕把轮廓与表面分开。轮廓外及内部孔洞保留原主体，结果必须融合为一个有效实体。`surfaceMode:'flat'` 产生解析平顶面，`smooth` 保留轮廓内的平滑三次 B 样条起伏。高度图不是照片真实深度。
+
+1. `files.register` 登记图像，`readRelief({context,resourceId,name,style:'flat',samples:33,threshold:0.5})` 返回 `values/regions/surfaceMode/source/aspectRatio`。`flat` 适合文字标志，`rounded` 按到背景距离鼓起，`grayscale` 映射亮度。flat/rounded阈值须在0和1之间；grayscale轮廓阈值1/255。
+2. `run` add 使用 `op:'relief', refs:[bodyId], params:{faceId,point:[x,y,z],widthMm:20,heightMm:20/aspectRatio,depthMm:1,mode:'emboss',values,regions,surfaceMode,source}`。平面可省point。必须把regions一起传入，避免恢复旧矩形模式。
+3. `regions:[{outer:[[x,y],...],holes:[...]}]` 使用图像中心归一化坐标[-0.5,0.5]，Y朝上，按宽高缩放。最多1024区、每环2000点、合计64000点，拒绝自交、相触。图像轮廓独立按257采样，约0.2像素简化；精度仍受原图限制。准确CAD轮廓可直接提供。
+4. 平面中心为面质心加偏移，X为世界X投影（近共线改Y），Y=外法向叉X，支持angleDeg。柱面须point，X为圆周弧长、Y沿轴，轮廓沿放置法向投影，angleDeg=0；仅外凸柱面，半径1–10000mm、角宽≤90°、总高度≤半径20%。提供regions时只有实际雕刻区域必须落在有限面内，背景和轮廓孔可跨主体孔洞；无regions旧模式仍检查完整矩形。球面及其他曲面不支持。
+5. 平顶depthMm从放置中心的切平面计算，生成真正的平面；柱面平顶凹雕深度须超过图案范围弓高。smooth的values是4–65行列、0–1的控制网格，从下到上、左到右；平滑近似不保证穿过样点。新柱面轮廓模式内侧肩部默认0.005mm，外部背景不加工。旧工程无regions时保留原矩形高度场与显式baseMm=0.005–1mm，保证旧历史重建语义。
+6. `preview.start/commit/cancel`、`feature.edit`、`history.undo` 与UI同路。工程保存轮廓、高度网格、来源哈希，不依赖原图。`reliefReport`返回surfaceMode、background、regionCount、smoothing、实际材料变化及限制。失败保留原件，不退回多实体贴层。连续雕刻目标可至20000面；等高或未精修平顶网格使用4×4内核控制点，原始控制数据保留，report.kernelGrid回读实际内核网格，rows/columns仍代表来源。
+
+图片最多8MiB/1600万像素，长宽比≤64:1；SVG支持基本形状、路径与渐变，文字需转路径，拒绝外部资源。凹雕可能穿透，须核对预览。错误为RELIEF_IMAGE_INVALID、RELIEF_LIMIT、RELIEF_UNSUPPORTED、RELIEF_OUTSIDE_FACE、RELIEF_NO_CHANGE、RELIEF_INVALID；公开文档`api.relief`。
 
 ## 保留内腔的轮廓扫掠
 
@@ -1036,3 +1057,65 @@ getHistory 返回状态 ID、名称、时间、数量、字节数、合并数量
 仅支持卡中列出的整实体操作；fillet/chamfer仅allEdges:true。中间面/边编号、Logo、导入和测量需要另一步。定位冻结到事务开始的参考锚点，独立创建建议显式world placement。完成后从回执featurePlan.featureIds取实际ID，检查尺寸、材料与显示修订。每步结果新增elapsedMs，标明该步骤页面内部耗时，不包含Agent读图/推理或宿主通信。
 
 inspectDesign对同实体的材料点合并一次精确common，边界距离仍逐点核对；近邻不同点保留独立判定，假设与边界仍不能放行。检查前后来源BREP保持不变。
+
+### 分层矢量浮雕与开放刻线
+
+分层矢量：layers最多32层，明确name、heightMm、mode及regions或strokes，各层以原始选面为共同基准，整个操作一次预览、提交和撤销。凸层按实体并集合成（重叠处取更高层）；凹层从原主体面向内刻。浅层肌理用完整低凸层加带细节孔的高凸层，不能把肌理内线全部当穿到底的孔。每层可选values，否则为等高4×4网格。strokes包含points（归一化局部坐标，至少2点）与widthMm，形成圆端开放刻线，方向与深度由mode/heightMm决定。curveToleranceMm为显式曲线拟合公差0–0.05mm，0保留折线，推荐0.005mm；不推断CAD内线用途。UI和readRelief均可读取version:1、widthMm、heightMm、layers的.relief.json文件，UI逐层编辑高度和方向；AI也可直接传layers，getState及reliefReport.layers回读。分层工程通过feature.edit修改各层，不套用单层灰度笔刷。
+
+文件示例：
+```json
+{
+  "version": 1,
+  "widthMm": 20,
+  "heightMm": 10,
+  "curveToleranceMm": 0.005,
+  "layers": [
+    {
+      "name": "轮廓凸起",
+      "heightMm": 0.6,
+      "regions": [
+        {
+          "outer": [
+            [
+              -0.4,
+              -0.4
+            ],
+            [
+              0.4,
+              -0.4
+            ],
+            [
+              0.4,
+              0.4
+            ],
+            [
+              -0.4,
+              0.4
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "独立细刻线",
+      "heightMm": 0.2,
+      "mode": "engrave",
+      "strokes": [
+        {
+          "points": [
+            [
+              -0.3,
+              0
+            ],
+            [
+              0.3,
+              0
+            ]
+          ],
+          "widthMm": 0.2
+        }
+      ]
+    }
+  ]
+}
+```

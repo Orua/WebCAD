@@ -8,7 +8,13 @@ export function createPageJobs(api) {
   function getJob({jobId}={}) {
     const job=jobs.get(jobId);
     if(!job)fail('JOB_NOT_FOUND','Job is unknown in this page; read current state before retrying');
-    return snapshot(job);
+    const result=snapshot(job);
+    if(job.status==='running'){
+      const state=api.getState(),progress=state.kernelProgress;
+      if(progress&&progress.updatedAt>=job.startedAt&&state.context?.documentInstanceId===job.context.documentInstanceId){result.progress=progress;result.phase=progress.phase;}
+      result.elapsedMs=Date.now()-job.startedAt;
+    }
+    return result;
   }
   function submit(input={}) {
     if(Object.keys(input).some(k=>!['method','args','jobId'].includes(k))||!methods.has(input.method)||!input.args||typeof input.args!=='object')fail('PARAM_SCHEMA_INVALID','Provide method, args and a unique jobId');

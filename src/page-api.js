@@ -18,6 +18,8 @@ import {validateReferenceQuery} from './reference-query.js';
 import {readVectorInput,selectVector} from './browser-vector-input.js';
 import {connectVector} from './vector-import.js';
 import {readReliefImage} from './relief-image.js';
+import {prepareReliefSculpt,sampleReliefHeight} from './relief-sculpt.js';
+import {assertHistoryEditSafe} from './history-edit-safety.js';
 import {validateDesignRequirements} from './design-inspection.js';
 
 // Only structured, bounded commands cross this boundary. No mutable app objects escape.
@@ -228,6 +230,23 @@ export function createPageAPI(host){
       else if(!validRef(input.first)||!validRef(input.second))fail('STALE_REFERENCE','需要两个当前有效的实体或拓扑引用');
       const result=await host.measureRelation(input);check(input,['context','mode','first','second','face','pointWorld']);
       return {status:'read',source:'exact-brep',units:{length:'mm',angle:'degrees'},context:current().context,...result};
+    }),
+    sampleReliefHeight:guarded(async input=>{
+      const s=check(input,['context','featureId','point','draft']);
+      const feature=s.features.find(f=>f.id===input.featureId);
+      if(!feature||feature.op!=='relief')fail('STALE_REFERENCE','请选择本工程中的浮雕历史步骤');
+      if(input.draft!==undefined&&(!input.draft||typeof input.draft!=='object'||Array.isArray(input.draft)))fail('PARAM_SCHEMA_INVALID','draft 必须为 {deltaMm,mask} 精修网格');
+      const result=sampleReliefHeight(input.draft===undefined?feature.params:{...feature.params,sculpt:input.draft},input.point);
+      return {status:'read',featureId:feature.id,...result,context:current().context};
+    }),
+    prepareReliefSculpt:guarded(async input=>{
+      const s=check(input,['context','featureId','strokes','draft']);
+      const feature=s.features.find(f=>f.id===input.featureId);
+      if(!feature||feature.op!=='relief')fail('STALE_REFERENCE','请选择本工程中的浮雕历史步骤');
+      const result=prepareReliefSculpt(input.draft===undefined?feature.params:{...feature.params,sculpt:input.draft},input.strokes);
+      let blockers=[];
+      try{assertHistoryEditSafe(s,{features:s.features.map(f=>f.id===feature.id?{...f,params:{...f.params,...result.params}}:f)});}catch(e){if(e.code!=='UNSAFE_LEGACY_REFERENCE')throw e;blockers=[{code:e.code,message:e.message,affectedFeatureIds:e.affectedFeatureIds}];}
+      return {status:'prepared',featureId:feature.id,...result,canCommit:!blockers.length,blockers,context:current().context};
     }),
     readRelief:guarded(async input=>{
       const keys=['context','resourceId','name','samples','whiteHigh','style','threshold'];check(input,keys);

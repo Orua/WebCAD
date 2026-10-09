@@ -1,5 +1,7 @@
 # WebCAD agent rules
 
+Current parallel work: remote Agent integration is isolated in `agent/temp/remote-agent-worktree-20261009/` on `codex/remote-webcad-agent-20261009`. Read [the coordination record](agent/notes/REMOTE-AGENT-COORDINATION-20261009.md) before integrating it. The user explicitly reserves existing CAD tools, kernel, registry, UI and public page-API files for the other tool-development task; this integration task owns only its new adapter modules until a coordinated merge.
+
 Read [PROJECT.md](PROJECT.md) before implementation. It is the canonical product-purpose, architecture and acceptance specification. See [page API](docs/PAGE-API.zh-CN.md) for integration.
 
 For using an open WebCAD page, start with `window.webcad.api.connect({queries:[capability keywords]})`. On the first handshake, follow `onboarding.knowledge` to download and hash-verify the finite static knowledge package on host storage; route tasks with `agent-routing.json` and exact UI actions with `routes.json`, then load only needed complete docs/cards. Reuse a verified cache keyed by source base URL and live catalog/docs hashes. Report missing host storage/download capability rather than claiming success. Details: [knowledge routing](docs/AGENT-KNOWLEDGE.zh-CN.md). Cache static contracts, never document state or topology IDs.

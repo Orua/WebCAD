@@ -68,6 +68,10 @@ The local MCP server additionally uses these installed packages. Package names, 
 
 The SDK implements MCP transport and tool registration, ws provides the local browser session bridge, and zod validates MCP tool arguments. They run in the local Node service; CAD geometry still executes in the browser's existing kernel.
 
+## Relief contour union
+
+The browser relief tool uses [polygon-clipping](https://github.com/mfogel/polygon-clipping) 0.15.7 to merge crossing and overlapping stroke outlines before constructing CAD cutters. Its dependencies are robust-predicates 3.0.3 and splaytree 3.2.3. Unmodified installed notices are retained at [polygon-clipping MIT](LICENSES/polygon-clipping-0.15.7-MIT.txt), [robust-predicates Unlicense](LICENSES/robust-predicates-3.0.3-Unlicense.txt), and [splaytree README including MIT license](LICENSES/splaytree-3.2.3-README-MIT.txt).
+
 ## Optional local vector-import dependencies
 
 Vector-logo file parsing runs in an installed local Python environment, separate from the browser bundle. tools/requirements-logo.txt records versions: ezdxf 1.4.4 (MIT), svgelements 1.9.6 (MIT), Shapely 2.1.2 (BSD-3-Clause), and PyMuPDF 1.26.4 (GNU AGPL-3.0 or Artifex commercial license, as declared by its installed metadata). PyMuPDF's unchanged notice is retained in LICENSES/PyMuPDF-1.26.4-COPYING.txt. These Python packages are not copied into dist. DWG parsing invokes a separately installed GNU LibreDWG executable; it is not bundled by this change. Existing viewer licenses and corresponding-source records remain applicable.

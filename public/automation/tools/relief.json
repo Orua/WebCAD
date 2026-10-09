@@ -8,10 +8,290 @@
       "faceId",
       "widthMm",
       "heightMm",
-      "depthMm",
-      "values"
+      "depthMm"
+    ],
+    "anyOf": [
+      {
+        "required": [
+          "values"
+        ]
+      },
+      {
+        "required": [
+          "layers"
+        ]
+      }
     ],
     "properties": {
+      "layers": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 32,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "heightMm"
+          ],
+          "anyOf": [
+            {
+              "required": [
+                "regions"
+              ]
+            },
+            {
+              "required": [
+                "strokes"
+              ]
+            }
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "maxLength": 120
+            },
+            "startHeightMm": {
+              "type": "number",
+              "description": "Start height/depth from original host; requires supporting previous layer below this start",
+              "minimum": 0,
+              "maximum": 20
+            },
+            "heightMm": {
+              "type": "number",
+              "description": "Absolute height/depth from the original host surface (mm)",
+              "minimum": 0.01,
+              "maximum": 20,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "emboss",
+                "engrave"
+              ]
+            },
+            "regions": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 1024,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "outer"
+                ],
+                "properties": {
+                  "outer": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 2000,
+                    "items": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "number",
+                        "description": "Normalized contour coordinate",
+                        "minimum": -0.5,
+                        "maximum": 0.5
+                      }
+                    }
+                  },
+                  "holes": {
+                    "type": "array",
+                    "maxItems": 1024,
+                    "items": {
+                      "type": "array",
+                      "minItems": 3,
+                      "maxItems": 2000,
+                      "items": {
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "items": {
+                          "type": "number",
+                          "description": "Normalized contour coordinate",
+                          "minimum": -0.5,
+                          "maximum": 0.5
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "strokes": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 256,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "points",
+                  "widthMm"
+                ],
+                "properties": {
+                  "points": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2000,
+                    "items": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "number",
+                        "description": "Normalized contour coordinate",
+                        "minimum": -0.5,
+                        "maximum": 0.5,
+                        "unit": "mm",
+                        "quantityKind": "length",
+                        "quantizationPolicy": "none"
+                      },
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    },
+                    "unit": "mm",
+                    "quantityKind": "length",
+                    "quantizationPolicy": "none"
+                  },
+                  "widthMm": {
+                    "type": "number",
+                    "description": "Full width of a round-ended open stroke (mm)",
+                    "exclusiveMinimum": 0,
+                    "maximum": 20,
+                    "unit": "mm",
+                    "quantityKind": "length",
+                    "quantizationPolicy": "none"
+                  }
+                }
+              }
+            },
+            "values": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 65,
+              "items": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 65,
+                "items": {
+                  "type": "number",
+                  "description": "Normalized height",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              }
+            }
+          }
+        },
+        "description": "Ordered layers referencing the ORIGINAL host face. Emboss heights combine by union; engraving cuts below the host. Use explicit lower fill layers for shallow internal details. All layers commit as one undo step."
+      },
+      "strokes": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 256,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "points",
+            "widthMm"
+          ],
+          "properties": {
+            "points": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2000,
+              "items": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "number",
+                  "description": "Normalized contour coordinate",
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
+                },
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            "widthMm": {
+              "type": "number",
+              "description": "Full width of a round-ended open stroke (mm)",
+              "exclusiveMinimum": 0,
+              "maximum": 20,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            }
+          }
+        }
+      },
+      "contourSnapMm": {
+        "type": "number",
+        "description": "Explicit 2D cleanup grid in mm; 0 preserves source points. Small gaps/holes below this resolution may merge. Each coordinate moves at most half a grid step.",
+        "minimum": 0,
+        "maximum": 0.05
+      },
+      "curveToleranceMm": {
+        "type": "number",
+        "description": "Explicit maximum source-vertex arc-fit deviation (mm); 0 keeps every polygon segment",
+        "minimum": 0,
+        "maximum": 0.05
+      },
+      "sculpt": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "deltaMm",
+          "mask"
+        ],
+        "properties": {
+          "deltaMm": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 65,
+            "items": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 65,
+              "items": {
+                "type": "number",
+                "minimum": -20,
+                "maximum": 20
+              }
+            }
+          },
+          "mask": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 65,
+            "items": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 65,
+              "items": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            }
+          }
+        }
+      },
       "faceId": {
         "type": "integer",
         "minimum": 0,
@@ -19,6 +299,65 @@
         "unit": "1",
         "quantityKind": "index",
         "quantizationPolicy": "none"
+      },
+      "surfaceMode": {
+        "type": "string",
+        "enum": [
+          "smooth",
+          "flat"
+        ],
+        "description": "With regions: smooth heightfield or an exact planar crest at depthMm from the placement tangent plane. Legacy projects without regions keep their original rectangular heightfield."
+      },
+      "regions": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 1024,
+        "description": "Independent silhouette, coordinates -0.5..0.5 in the image rectangle; outer contours and holes. Outside stays on the original host. Cylindrical X is developed arc length, projected along the placement normal.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "outer"
+          ],
+          "properties": {
+            "outer": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 2000,
+              "items": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "number",
+                  "description": "Normalized contour coordinate",
+                  "minimum": -0.5,
+                  "maximum": 0.5
+                }
+              }
+            },
+            "holes": {
+              "type": "array",
+              "maxItems": 1024,
+              "items": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 2000,
+                "items": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": {
+                    "type": "number",
+                    "description": "Normalized contour coordinate",
+                    "minimum": -0.5,
+                    "maximum": 0.5
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "point": {
         "type": "array",
@@ -133,7 +472,8 @@
             "type": "string",
             "enum": [
               "grayscale",
-              "rounded"
+              "rounded",
+              "flat"
             ]
           },
           "whiteHigh": {
@@ -141,7 +481,7 @@
           },
           "threshold": {
             "type": "number",
-            "description": "Rounded silhouette threshold",
+            "description": "Silhouette threshold",
             "minimum": 0,
             "maximum": 1
           },
@@ -187,15 +527,15 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 在一个有效封闭实体的平面或外凸圆柱面上生成连续 B 样条浮雕。values 是自下至上、每行从左至右排列的4–65行列矩形高度控制网格，值域0–1；平滑近似，不逐点插值。depthMm 是图案控制高度上限。平面：完整矩形须在有限面内且避开孔，中心为面质心加offsetX/Y；局部X为世界X投影（近共线时用世界Y），Y=外法向叉X，angleDeg绕法向。柱面：必须明确point三维点击点及baseMm基底层（0.005–1 mm，UI默认0.02）；整张矩形先形成基底层，总高度=baseMm+depthMm。局部X沿圆周弧长，Y沿解析圆柱轴；offsetX/Y相对点击点，angleDeg必须0。仅外凸圆柱，半径1–10000 mm、角宽≤90°、总高度≤半径20%；完整足迹须避开边界、接缝和孔，内孔与其他曲面拒绝。mode=emboss加料/engrave减料，保持一个有效实体；来源隔离，失败不提交，凹雕过深可穿透。灰度不是照片真实深度。readRelief本地读取JPG/PNG/SVG；工程保存网格与来源哈希，重建无需原图。预览/历史改参/撤销共用操作；reliefReport回读实际材料体积、网格、柱面半径/轴/基底层和限制。",
-  "title": "浮雕：从图片高度场生成有层次的平滑 B 样条曲面 / Surface relief",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 浮雕在单个有效实体的平面或外凸圆柱面上加工。新流程 readRelief 返回 values、regions、surfaceMode、source，全部传给 relief。regions 为独立图案轮廓，outer/holes 坐标归一化到图像中心的[-0.5,0.5]，按widthMm/heightMm缩放；孔和轮廓外保持原主体表面，不生成矩形底层。轮廓最多1024区、每环2000点、合计64000点，拒绝自交/相触。surfaceMode=flat 生成真正的解析平顶面，depthMm 从放置中心切平面计算；smooth 使用4–65行列的0–1高度控制网格拟合三次B样条，轮廓独立裁切，内部起伏仍为平滑近似。readRelief 的独立轮廓采样为257，约0.2像素简化，位图边界精度受原图限制；准确CAD轮廓可直接提供regions。平面以面质心加offsetX/Y放置，局部X为世界X投影（近共线改Y），Y=外法向叉X，可angleDeg旋转。柱面须point，局部X沿圆周弧长、Y沿轴；轮廓沿放置法向投影，angleDeg=0，半径1–10000mm、角宽≤90°、总起伏≤半径20%。平顶凹雕depthMm须超过图案范围弓高。有regions时检查实际图案，允许空白区跨孔；无regions的旧高度场仍检查完整矩形。mode=emboss/engrave，结果必须融合为一个有效实体；失败保留原件。旧工程不含regions时保持原矩形高度场语义，柱面仍须显式baseMm=0.005–1mm；新轮廓模式平滑肩部内部默认0.005mm，平顶忽略baseMm，外部背景不加工。图像亮度不是照片深度。参数与来源哈希存入历史，可改参、重建、预览、撤销。reliefReport回读surfaceMode、background、regionCount、smoothing、材料体积和限制。 分层矢量：layers最多32层，明确name、heightMm、mode及regions或strokes，各层以原始选面为共同基准，整个操作一次预览、提交和撤销。凸层按实体并集合成（重叠处取更高层）；凹层从原主体面向内刻。浅层肌理用完整低凸层加带细节孔的高凸层，不能把肌理内线全部当穿到底的孔。每层可选startHeightMm（默认0，须低于heightMm），用于从已存在的下层表面附近开始加工，避免复杂层完整重叠；须确保下层实际承托，否则拒绝不连续实体。每层可选values，否则为等高4×4网格。strokes包含points（归一化局部坐标，至少2点）与widthMm，形成圆端开放刻线，相交或重叠部分先在二维合并，再生成统一刀具；方向与深度由mode/heightMm决定。contourSnapMm为显式轮廓清理网格（mm，0关闭）；每轴最多移动半个网格，小于该精度的缝隙/孔可能合并。建议先对照原图选择0.005mm，保留原始参数可撤销。curveToleranceMm为显式曲线拟合公差0–0.05mm，0保留折线，推荐0.005mm；不推断CAD内线用途。UI和readRelief均可读取version:1、widthMm、heightMm、layers的.relief.json文件，UI逐层编辑高度和方向；AI也可直接传layers，getState及reliefReport.layers回读。分层回执不重复计算逐层材料体积，addedMm3/removedMm3为null，最终实体的测量仍正常提供。分层工程通过feature.edit修改各层，不套用单层灰度笔刷。",
+  "title": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
   "category": "modification",
   "synonyms": [
     "浮雕",
     "relief"
   ],
-  "description": "浮雕：从图片高度场生成有层次的平滑 B 样条曲面 / Surface relief",
-  "schemaHash": "sha256:a5b71efd30d5dddb73eb3eccccaa4f38bba97c8033fde74788ecb11fb98eca99",
+  "description": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
+  "schemaHash": "sha256:909c45a560d192bc6c2c9c9d855abebabf97a6ac439b46498bc8fbd69bc3c5df",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -244,7 +584,7 @@
     "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "在一个有效封闭实体的平面或外凸圆柱面上生成连续 B 样条浮雕。values 是自下至上、每行从左至右排列的4–65行列矩形高度控制网格，值域0–1；平滑近似，不逐点插值。depthMm 是图案控制高度上限。平面：完整矩形须在有限面内且避开孔，中心为面质心加offsetX/Y；局部X为世界X投影（近共线时用世界Y），Y=外法向叉X，angleDeg绕法向。柱面：必须明确point三维点击点及baseMm基底层（0.005–1 mm，UI默认0.02）；整张矩形先形成基底层，总高度=baseMm+depthMm。局部X沿圆周弧长，Y沿解析圆柱轴；offsetX/Y相对点击点，angleDeg必须0。仅外凸圆柱，半径1–10000 mm、角宽≤90°、总高度≤半径20%；完整足迹须避开边界、接缝和孔，内孔与其他曲面拒绝。mode=emboss加料/engrave减料，保持一个有效实体；来源隔离，失败不提交，凹雕过深可穿透。灰度不是照片真实深度。readRelief本地读取JPG/PNG/SVG；工程保存网格与来源哈希，重建无需原图。预览/历史改参/撤销共用操作；reliefReport回读实际材料体积、网格、柱面半径/轴/基底层和限制。"
+    "浮雕在单个有效实体的平面或外凸圆柱面上加工。新流程 readRelief 返回 values、regions、surfaceMode、source，全部传给 relief。regions 为独立图案轮廓，outer/holes 坐标归一化到图像中心的[-0.5,0.5]，按widthMm/heightMm缩放；孔和轮廓外保持原主体表面，不生成矩形底层。轮廓最多1024区、每环2000点、合计64000点，拒绝自交/相触。surfaceMode=flat 生成真正的解析平顶面，depthMm 从放置中心切平面计算；smooth 使用4–65行列的0–1高度控制网格拟合三次B样条，轮廓独立裁切，内部起伏仍为平滑近似。readRelief 的独立轮廓采样为257，约0.2像素简化，位图边界精度受原图限制；准确CAD轮廓可直接提供regions。平面以面质心加offsetX/Y放置，局部X为世界X投影（近共线改Y），Y=外法向叉X，可angleDeg旋转。柱面须point，局部X沿圆周弧长、Y沿轴；轮廓沿放置法向投影，angleDeg=0，半径1–10000mm、角宽≤90°、总起伏≤半径20%。平顶凹雕depthMm须超过图案范围弓高。有regions时检查实际图案，允许空白区跨孔；无regions的旧高度场仍检查完整矩形。mode=emboss/engrave，结果必须融合为一个有效实体；失败保留原件。旧工程不含regions时保持原矩形高度场语义，柱面仍须显式baseMm=0.005–1mm；新轮廓模式平滑肩部内部默认0.005mm，平顶忽略baseMm，外部背景不加工。图像亮度不是照片深度。参数与来源哈希存入历史，可改参、重建、预览、撤销。reliefReport回读surfaceMode、background、regionCount、smoothing、材料体积和限制。 分层矢量：layers最多32层，明确name、heightMm、mode及regions或strokes，各层以原始选面为共同基准，整个操作一次预览、提交和撤销。凸层按实体并集合成（重叠处取更高层）；凹层从原主体面向内刻。浅层肌理用完整低凸层加带细节孔的高凸层，不能把肌理内线全部当穿到底的孔。每层可选startHeightMm（默认0，须低于heightMm），用于从已存在的下层表面附近开始加工，避免复杂层完整重叠；须确保下层实际承托，否则拒绝不连续实体。每层可选values，否则为等高4×4网格。strokes包含points（归一化局部坐标，至少2点）与widthMm，形成圆端开放刻线，相交或重叠部分先在二维合并，再生成统一刀具；方向与深度由mode/heightMm决定。contourSnapMm为显式轮廓清理网格（mm，0关闭）；每轴最多移动半个网格，小于该精度的缝隙/孔可能合并。建议先对照原图选择0.005mm，保留原始参数可撤销。curveToleranceMm为显式曲线拟合公差0–0.05mm，0保留折线，推荐0.005mm；不推断CAD内线用途。UI和readRelief均可读取version:1、widthMm、heightMm、layers的.relief.json文件，UI逐层编辑高度和方向；AI也可直接传layers，getState及reliefReport.layers回读。分层回执不重复计算逐层材料体积，addedMm3/removedMm3为null，最终实体的测量仍正常提供。分层工程通过feature.edit修改各层，不套用单层灰度笔刷。"
   ],
   "minimalExample": {
     "op": "relief",
@@ -457,5 +797,5 @@
   "docs": "api.relief",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:383c38f0a01afa542dc6c3a5b9b4d0583cb6385f4bdcd0584df7574a41880ad4"
+  "docsHash": "sha256:42763cc1f404bb6de6bd888027a48f568b3a1321b58bab45ce1183808474ab16"
 }

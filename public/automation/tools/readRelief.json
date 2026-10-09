@@ -3,10 +3,13 @@
   "title": "readRelief",
   "category": "page-method",
   "version": "1.22.0",
-  "description": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded,threshold?:0.5})。先 files.register；只读，本地解码。",
+  "description": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5})。先 files.register；只读，本地解码。",
   "synonyms": [
     "readRelief",
     "浮雕",
+    "分层",
+    "开放刻线",
+    "relief.json",
     "图片",
     "JPG",
     "PNG",
@@ -14,10 +17,12 @@
     "高度场",
     "灰度",
     "渐变",
+    "平顶",
+    "轮廓",
     "凹凸曲面"
   ],
-  "inputContract": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded,threshold?:0.5})。先 files.register；只读，本地解码。",
-  "outputContract": "status=read、values、rows、columns、aspectRatio、source{sha256,name,format,style}、interpretation；交给 relief params，不依赖 UI 选择。",
+  "inputContract": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5})。先 files.register；只读，本地解码。",
+  "outputContract": "status=read；分层文件返回layers、widthMm、heightMm、curveToleranceMm；图片返回values、regions、surfaceMode、contourSamples、rows、columns、aspectRatio、source{sha256,name,format,style}、interpretation；values/regions/surfaceMode/source一起交给relief params，不依赖UI选择。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -32,5 +37,5 @@
     "PARAM_SCHEMA_INVALID"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:77ba4a121096b5a239c4e11a5e74becc5767fd303f758573e117a770316050ed"
+  "docsHash": "sha256:0eede210ac4ccd40b92160f927257cad01900e9344e27f87efff10c0b45ab11c"
 }

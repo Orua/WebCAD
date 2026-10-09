@@ -5,6 +5,10 @@ const methods = new Set(['add','execute','connect','info','getState','searchTool
   'files.import','files.save','files.export','files.release']);
 const contextual = new Set(['execute','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','readVector','connectVector','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.import','files.save','files.export']);
 methods.add('inspectDesign');
+methods.add('prepareReliefSculpt');
+contextual.add('prepareReliefSculpt');
+methods.add('sampleReliefHeight');
+contextual.add('sampleReliefHeight');
 methods.add('addMany');
 contextual.add('inspectDesign');
 const bad = (code,message) => { throw Object.assign(new Error(message),{code}); };
