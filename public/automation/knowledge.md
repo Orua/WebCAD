@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.22.0 · sha256:7015c10d70e2ec94e27c97a98b8512d8b70a78968e500440967e3e2a0b617722
+API 1.22.0 · sha256:5f9aed91f6295bd4243c0f7003ee9586e2f4e71c538c146fb941d33d0fae75ca
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -88,7 +88,7 @@ execute action feature.addMany 的 args 为 {features:[{key,op,opVersion,schemaH
 
 ## api.file-errors
 
-页面建模、测量、视图与截图方法的失败通常返回 {status:"failed",commitState:"not_committed",error:{code,message},context}；execute 和 queryGeometry 使用 CommandService 的更完整结果。files 方法抛出带 code 的 Error，调用方应捕获，不能把异常解释为已保存。文件状态分别为 registered、generated、download_initiated、write_verified；generated 不证明磁盘写入。输入资源、导入和输出每项最多 20 MiB，最多 32 个资源、合计 64 MiB、30 分钟有效。自包含 .webcad 使用紧凑 UTF-8 JSON，最多 2000 个历史特征、20 MiB（含全部保留历史和共享导入源）。2000 是建模特征数，不是撤销步数。新增、预览、导入、粘贴、批量对齐和拆散均受限；批量按实际新增特征数计数，编辑或删除仍可使用。计算前在无 timeline 的工程大小上预留 4 KiB，提交前按含锚点和裁剪后历史的完整文件再次校验。超限返回 SIZE_LIMIT，已运行的内核恢复原工程，revision、撤销/重做和当前工程不提交变化；不要重复重试，应减少特征或拆分工程。读取 files.capabilities() 获得当前实际上限。
+页面建模、测量、视图与截图方法的失败通常返回 {status:"failed",commitState:"not_committed",error:{code,message},context}；execute 和 queryGeometry 使用 CommandService 的更完整结果。普通 fillet/chamfer 失败的 error.report 包含 operation/stage/attemptCount/elapsedMs、confirmedFailedEdgeIds 与 candidateEdgeIds、supportGeometry；仅 confirmedFailedEdgeIds 是内核确认，候选不能当作确认原因。默认只尝试请求参数一次，不自动扫描或应用较小 R；stage=selection 时 attemptCount=0。报告过大时显式返回 truncated/omittedPaths 摘要。files 方法抛出带 code 的 Error，调用方应捕获，不能把异常解释为已保存。文件状态分别为 registered、generated、download_initiated、write_verified；generated 不证明磁盘写入。输入资源、导入和输出每项最多 20 MiB，最多 32 个资源、合计 64 MiB、30 分钟有效。自包含 .webcad 使用紧凑 UTF-8 JSON，最多 2000 个历史特征、20 MiB（含全部保留历史和共享导入源）。2000 是建模特征数，不是撤销步数。新增、预览、导入、粘贴、批量对齐和拆散均受限；批量按实际新增特征数计数，编辑或删除仍可使用。计算前在无 timeline 的工程大小上预留 4 KiB，提交前按含锚点和裁剪后历史的完整文件再次校验。超限返回 SIZE_LIMIT，已运行的内核恢复原工程，revision、撤销/重做和当前工程不提交变化；不要重复重试，应减少特征或拆分工程。读取 files.capabilities() 获得当前实际上限。
 
 ## api.interaction
 
@@ -144,7 +144,7 @@ fitProfile({context,kind:"circle"|"line",plane?:"XY"|"XZ"|"YZ",points:[[u,v],...
 
 ## api.query-geometry
 
-queryGeometry({context,bodyId,kind:"face"|"edge",filter:{},requireUnique:false,limit:20}) 返回精确 BRep 候选、总数、分页及快照绑定令牌。face.surfaceType 筛选支持 plane/cylinder/cone/sphere/torus/bspline/bezier/revolution/extrusion/offset/other；edge.curveType 支持 line/circle/ellipse/hyperbola/parabola/bspline/bezier/offset/other，也兼容内核原始小写类型（cylindre、bspline_surface、bspline_curve 等）。返回 geomType/surfaceType/curveType 保留实际内核编码。plane 另包含已证实共面的 BSpline（planar=true）。normal 和 atExtreme 仍仅适用于可识别平面；非平面不能伪造统一法向。BSpline 返回 spline 次数、控制点数量与节点数量，尚不返回完整控制网或 G0/G1/G2 认证。圆边返回 radiusMm/center/axis；radiusRangeMm 不适用于椭圆。拓扑编号和 selectionToken 只属于返回的工程实例与 revision。改模型后重新查询。
+queryGeometry({context,bodyId,kind:"face"|"edge",filter:{},requireUnique:false,limit:20}) 返回精确 BRep 候选、总数、分页及快照绑定令牌。face.surfaceType 筛选支持 plane/cylinder/cone/sphere/torus/bspline/bezier/revolution/extrusion/offset/other；edge.curveType 支持 line/circle/ellipse/hyperbola/parabola/bspline/bezier/offset/other，也兼容内核原始小写类型（cylindre、bspline_surface、bspline_curve 等）。返回 geomType/surfaceType/curveType 保留实际内核编码。plane 另包含已证实共面的 BSpline（planar=true）。normal 和 atExtreme 仍仅适用于可识别平面；非平面不能伪造统一法向。BSpline 返回 spline 次数、控制点数量与节点数量，尚不返回完整控制网或 G0/G1/G2 认证。圆边返回 radiusMm/center/axis；radiusRangeMm 不适用于椭圆。拓扑编号和 selectionToken 只属于返回的工程实例与 revision。改模型后重新查询。 新筛选 bounds:{min:[x,y,z],max:[x,y,z],mode:"contained"|"intersects",toleranceMm?:0.000001} 使用世界坐标 BRep 包围盒；默认完整包含，不是实体体积相交证明。边支持 adjacentSurfaceTypes:["plane","cylinder"]，按实际相邻曲面类型匹配（两项要求两个邻面）。onFaceToken 限定当前面后可用 loopIndex，边返回 boundaryLoopIndices；环索引仅当前修订有效，不猜内外环。解析柱面返回 cylinder:{radiusMm,origin,axis}。expectedCount 为正整数，与匹配数量不符返回 SELECTION_COUNT_CHANGED（0 匹配为 NO_MATCH），报告 matchCount/expectedCount，且不创建选择令牌、不进入加工。
 
 ## api.quick-hardware
 
@@ -175,11 +175,15 @@ queryGeometry({context,bodyId,kind:"face"|"edge",filter:{},requireUnique:false,l
 
 ## api.reliability
 
-所有带 context 的页面入口接受 getState().context（revision）或 connect().requestContext（expectedRevision）。createRequestContext(context?) 可显式转换；两字段同时出现且不一致时报错，绝不自动采用新版本。大文件使用 files.register/read，禁止塞进批次或反复回传模型上下文。files.save 生成资源，files.download 只发起下载；files.write 返回 verified 才证明句柄文件写入校验。单资源仍限 20 MiB，总资源 64 MiB。统一异常入口 await api.invoke({method,args}) 支持当前页面方法及 files.*；原同步发现和 files 方法保持兼容，可抛带 code 的异常。后台计算回执：submit({jobId,method,args}) 立即返回 queued，轮询 getJob({jobId})，完全相同 jobId/参数只取原任务；不得换 key 重复提交超时任务。状态 queued/running/committed/completed/partial/failed/unknown/cancelled，result 保留原回执与 context。分层浮雕通过 getJob.progress 或 getState.kernelProgress 提供实际层/轮廓计数及合成阶段，不是时间百分比；其他操作 progress:null。每次有真实进度刷新3分钟停滞看门狗，总计算最多10分钟。cancelJob 只能取消尚未运行任务，运行中的内核不承诺中断。仅当前页面内存中保留最多100任务，刷新后先检查模型，不自动重放；无额外服务。
+所有带 context 的页面入口接受 getState().context（revision）或 connect().requestContext（expectedRevision）。createRequestContext(context?) 可显式转换；两字段同时出现且不一致时报错，绝不自动采用新版本。大文件使用 files.register/read，禁止塞进批次或反复回传模型上下文。files.save 生成资源，files.download 只发起下载；files.write 返回 verified 才证明句柄文件写入校验。单资源仍限 20 MiB，总资源 64 MiB。统一异常入口 await api.invoke({method,args}) 支持当前页面方法及 files.*；原同步发现和 files 方法保持兼容，可抛带 code 的异常。后台计算回执：submit({jobId,method,args}) 立即返回 queued，轮询 getJob({jobId})，完全相同 jobId/参数只取原任务；不得换 key 重复提交超时任务。状态 queued/running/committed/completed/partial/failed/unknown/cancelled，result 保留原回执与 context。分层浮雕通过 getJob.progress 或 getState.kernelProgress 提供实际层/轮廓计数及合成阶段，不是时间百分比；其他操作 progress:null。每次有真实进度刷新3分钟停滞看门狗，总计算最多10分钟。cancelJob 可取消尚未运行任务；运行中的 run 请求会返回 STOP_REQUESTED_AFTER_CURRENT_STAGE，并在当前步骤回执后停止后续步骤，已提交结果保留。运行中的单次同步内核不承诺中断。run 的每步可提供 stage 描述，getJob.progress 返回当前 stepId、stage、completedSteps、totalSteps 及实际 kernel 子进度。仅当前页面内存中保留最多100任务，刷新后先检查模型，不自动重放；无额外服务。
 
 ## api.relief
 
-sampleReliefHeight({context,featureId,point:[x,y],draft?}) 只读吸取控制高度，与 UI Alt 吸管共用算法；返回 targetMm、quantity:height/depth、units:mm，可直接用于 flatten。点为图案局部[-.5,.5]，Y向上；轮廓外/孔洞内返回RELIEF_SAMPLE_OUTSIDE。draft不传读取工程，传入则采样该精修草稿；采样不修改工程。浮雕精修：prepareReliefSculpt 接收 featureId、strokes 与可选 draft，返回独立 deltaMm/mask 草稿；canCommit 为 true 后 feature.edit 提交。原始 values/轮廓保留。抬高、压低、平滑、定高、填洼、削峰、锐化、恢复、遮罩共用局部坐标笔刷，支持 hardness 和 symmetry；凹雕抬高变浅、压低加深；定高字段 targetMm 在凹雕中表示深度。所有现有浮雕模式适用，STEP无来源数据不适用。后续面边编号可能失效，提前返回 blockers，不删除下游特征。 浮雕在单个有效实体的平面或外凸圆柱面上加工。新流程 readRelief 返回 values、regions、surfaceMode、source，全部传给 relief。regions 为独立图案轮廓，outer/holes 坐标归一化到图像中心的[-0.5,0.5]，按widthMm/heightMm缩放；孔和轮廓外保持原主体表面，不生成矩形底层。轮廓最多1024区、每环2000点、合计64000点，拒绝自交/相触。surfaceMode=flat 生成真正的解析平顶面，depthMm 从放置中心切平面计算；smooth 使用4–65行列的0–1高度控制网格拟合三次B样条，轮廓独立裁切，内部起伏仍为平滑近似。readRelief 的独立轮廓采样为257，约0.2像素简化，位图边界精度受原图限制；准确CAD轮廓可直接提供regions。平面以面质心加offsetX/Y放置，局部X为世界X投影（近共线改Y），Y=外法向叉X，可angleDeg旋转。柱面须point，局部X沿圆周弧长、Y沿轴；轮廓沿放置法向投影，angleDeg=0，半径1–10000mm、角宽≤90°、总起伏≤半径20%。平顶凹雕depthMm须超过图案范围弓高。有regions时检查实际图案，允许空白区跨孔；无regions的旧高度场仍检查完整矩形。mode=emboss/engrave，结果必须融合为一个有效实体；失败保留原件。旧工程不含regions时保持原矩形高度场语义，柱面仍须显式baseMm=0.005–1mm；新轮廓模式平滑肩部内部默认0.005mm，平顶忽略baseMm，外部背景不加工。图像亮度不是照片深度。参数与来源哈希存入历史，可改参、重建、预览、撤销。reliefReport回读surfaceMode、background、regionCount、smoothing、材料体积和限制。 分层矢量：layers最多32层，明确name、heightMm、mode及regions或strokes，各层以原始选面为共同基准，整个操作一次预览、提交和撤销。凸层按实体并集合成（重叠处取更高层）；凹层从原主体面向内刻。浅层肌理用完整低凸层加带细节孔的高凸层，不能把肌理内线全部当穿到底的孔。每层可选startHeightMm（默认0，须低于heightMm），用于从已存在的下层表面附近开始加工，避免复杂层完整重叠；须确保下层实际承托，否则拒绝不连续实体。每层可选values，否则为等高4×4网格。strokes包含points（归一化局部坐标，至少2点）与widthMm，形成圆端开放刻线，相交或重叠部分先在二维合并，再生成统一刀具；方向与深度由mode/heightMm决定。contourSnapMm为显式轮廓清理网格（mm，0关闭）；每轴最多移动半个网格，小于该精度的缝隙/孔可能合并。建议先对照原图选择0.005mm，保留原始参数可撤销。curveToleranceMm为显式曲线拟合公差0–0.05mm，0保留折线，推荐0.005mm；不推断CAD内线用途。UI和readRelief均可读取version:1、widthMm、heightMm、layers的.relief.json文件，UI逐层编辑高度和方向；AI也可直接传layers，getState及reliefReport.layers回读。分层回执不重复计算逐层材料体积，addedMm3/removedMm3为null，最终实体的测量仍正常提供。分层工程通过feature.edit修改各层，不套用单层灰度笔刷。 files.register登记图像后readRelief({context,resourceId,name,samples:33,whiteHigh:false,style:"flat"})返回values/regions/surfaceMode/aspectRatio/source。style:"rounded"按背景距离鼓起，style:"grayscale"保留灰度层次。flat/rounded的threshold默认0.5且须在0和1之间；grayscale轮廓阈值为1/255。透明像素属于背景。图片最多8 MiB/1600万像素；SVG支持基本形状、路径与渐变，文字需转路径，拒绝外部资源。run add op:relief，refs:[bodyId]，params:{faceId,widthMm,heightMm,depthMm,values,regions,surfaceMode,source,mode:"emboss",point:[x,y,z]}；平面可省point。不要丢弃regions而恢复矩形旧模式。preview.start/commit/cancel、feature.edit、history.undo与UI同路。
+sampleReliefHeight({context,featureId,point:[x,y],draft?}) 只读吸取控制高度，与 UI Alt 吸管共用算法；返回 targetMm、quantity:height/depth、units:mm，可直接用于 flatten。点为图案局部[-.5,.5]，Y向上；轮廓外/孔洞内返回RELIEF_SAMPLE_OUTSIDE。draft不传读取工程，传入则采样该精修草稿；采样不修改工程。浮雕精修：prepareReliefSculpt 接收 featureId、strokes 与可选 draft，返回独立 deltaMm/mask 草稿；canCommit 为 true 后 feature.edit 提交。原始 values/轮廓保留。抬高、压低、平滑、定高、填洼、削峰、锐化、恢复、遮罩共用局部坐标笔刷，支持 hardness 和 symmetry；凹雕抬高变浅、压低加深；定高字段 targetMm 在凹雕中表示深度。所有现有浮雕模式适用，STEP无来源数据不适用。后续面边编号可能失效，提前返回 blockers，不删除下游特征。 浮雕在单个有效实体的平面或外凸圆柱面上加工。新流程 readRelief 返回 values、regions、surfaceMode、source，全部传给 relief。regions 为独立图案轮廓，outer/holes 坐标归一化到图像中心的[-0.5,0.5]，按widthMm/heightMm缩放；孔和轮廓外保持原主体表面，不生成矩形底层。轮廓最多1024区、每环2000点、合计64000点，拒绝自交/相触。surfaceMode=flat 生成真正的解析平顶面，depthMm 从放置中心切平面计算；smooth 使用4–65行列的0–1高度控制网格拟合三次B样条，轮廓独立裁切，内部起伏仍为平滑近似。readRelief 的独立轮廓采样为257，约0.2像素简化，位图边界精度受原图限制；准确CAD轮廓可直接提供regions。平面以面质心加offsetX/Y放置，局部X为世界X投影（近共线改Y），Y=外法向叉X，可angleDeg旋转。柱面须point，局部X沿圆周弧长、Y沿轴；轮廓沿放置法向投影，angleDeg=0，半径1–10000mm、角宽≤90°、总起伏≤半径20%。平顶凹雕depthMm须超过图案范围弓高。有regions时检查实际图案，允许空白区跨孔；无regions的旧高度场仍检查完整矩形。mode=emboss/engrave，结果必须融合为一个有效实体；失败保留原件。旧工程不含regions时保持原矩形高度场语义，柱面仍须显式baseMm=0.005–1mm；新轮廓模式平滑肩部内部默认0.005mm，平顶忽略baseMm，外部背景不加工。图像亮度不是照片深度。参数与来源哈希存入历史，可改参、重建、预览、撤销。reliefReport回读surfaceMode、background、regionCount、smoothing、材料体积和限制。 分层矢量：layers最多32层，明确name、heightMm、mode及regions或strokes，各层以原始选面为共同基准，整个操作一次预览、提交和撤销。凸层按实体并集合成（重叠处取更高层）；凹层从原主体面向内刻。浅层肌理用完整低凸层加带细节孔的高凸层，不能把肌理内线全部当穿到底的孔。每层可选startHeightMm（默认0，须低于heightMm），用于从已存在的下层表面附近开始加工，避免复杂层完整重叠；须确保下层实际承托，否则拒绝不连续实体。每层可选values，否则为等高4×4网格。strokes包含points（归一化局部坐标，至少2点）与widthMm，形成圆端开放刻线，相交或重叠部分先在二维合并，再生成统一刀具；方向与深度由mode/heightMm决定。contourSnapMm为显式轮廓清理网格（mm，0关闭）；每轴最多移动半个网格，小于该精度的缝隙/孔可能合并。建议先对照原图选择0.005mm，保留原始参数可撤销。curveToleranceMm为显式曲线拟合公差0–0.05mm，0保留折线，推荐0.005mm；不推断CAD内线用途。UI和readRelief均可读取version:1、widthMm、heightMm、layers的.relief.json文件，UI逐层编辑高度和方向；AI也可直接传layers，getState及reliefReport.layers回读。分层回执不重复计算逐层材料体积，addedMm3/removedMm3为null，最终实体的测量仍正常提供。分层工程通过prepareReliefSculpt({context,featureId,layerIndex,strokes})选择单层，返回params.layers供feature.edit一次提交；各层sculpt独立保存。未有values/sculpt的等高层可显式samples=4–65初始化网格，已有网格不隐式重采样。精修保留轮廓和孔，仅改变该层高度，不保证消除相邻层台阶。timingsMs区分源复制、刀具、轮廓裁切、边界检查、精确布尔和最终有效性检查；最终仍须为有效单实体。 files.register登记图像后readRelief({context,resourceId,name,samples:33,whiteHigh:false,style:"flat"})返回values/regions/surfaceMode/aspectRatio/source。style:"rounded"按背景距离鼓起，style:"grayscale"保留灰度层次。flat/rounded的threshold默认0.5且须在0和1之间；grayscale轮廓阈值为1/255。透明像素属于背景。图片最多8 MiB/1600万像素；SVG支持基本形状、路径与渐变，文字需转路径，拒绝外部资源。run add op:relief，refs:[bodyId]，params:{faceId,widthMm,heightMm,depthMm,values,regions,surfaceMode,source,mode:"emboss",point:[x,y,z]}；平面可省point。不要丢弃regions而恢复矩形旧模式。preview.start/commit/cancel、feature.edit、history.undo与UI同路。
+
+## api.round-preflight
+
+inspectRound({context,bodyId,params:{edgeIds:[当前边号],mode:"edge",radiusMm:0.3}}) 复用 round 内部规划，只读独立 BRep 副本。params 按 getTool({id:"round"}) 完整契约；恰选 edgeIds 或 faceIds，faceIds 仅解析平面边界。返回实际 resolved/scope、targetCount、targets[].supportSurfaceTypes、constructionCategories、限制和 attemptCount:0。自动端头模式会测量一个真实截面；没有构造圆角、没有多半径扫描，不保证 R 或推荐深度可行。来源与历史不改。失败报告 stage=planning，不误报成半径失败。加工后须新 context 与 queryGeometry 重新选边；旧预检不跨 revision 生效。
 
 ## api.run
 
@@ -187,12 +191,16 @@ AI 应通过宿主已授权的页面脚本通道在后台调用 window.webcad.ap
 请求 {context:{sessionId,documentId,documentInstanceId,expectedRevision},idempotencyKey:"唯一键",steps:[{id:"ring",method:"add",args:{op:"torus",params:{majorRadius:15,minorRadius:2.5}}},{id:"size",method:"measure",args:{bodyId:{"$ref":"ring.createdBodyIds.0"}}}]}。context 必须来自本页 getState()；revision 转为 expectedRevision。线径5、内径25：minorRadius=2.5，majorRadius=15，外径35。
 add 是 feature.add 的适配器，自动读取当前工具版本/schemaHash，接受 op/params/refs/name；几何参数、来源与实体引用仍须先读工具卡。advisory 操作并未因此升级为严格契约。refs 可用已有 body ID 或先前成功回执的 {$ref:"stepId.createdBodyIds"}。
 可用方法：add、execute、info、getState、getQuickModelUsage、searchTools、getTool、readDocs、queryGeometry、queryReferences、resolvePlacement、measure、measureRelation、inspectProfile、prepareProfileEdit、projectProfile、inspectFit、inspectThickness、inspectDraft、fitProfile、inspectPrintability、setView、setRenderQuality、setDisplayPreferences、redraw、files.capabilities/register/import/save/export/release。execute 接受 action/args；context 和每步幂等键由批次提供。已有就绪预览时允许显式 preview.update/commit/cancel，仍须核对 previewId/generation；忙碌或计算中继续拒绝。preview.start 单步批次 completed 表示该预览步骤完成，内部回执 previewing 不代表建模已提交。files.register 使用 {name,base64,mime?}；输入大小受批次 3 MiB 限制。LOGO 轮廓可直接放入建模 params.regions，无需点文件选择器；PDF/SVG 字节不是闭合轮廓。
-步骤可省略 args。id 使用字母开头的 1..40 位字母数字下划线连字符；批次 key 最多80字符，当前文档实例最多保留100份回执。失败立即停止，completed/partial/failed/unknown 必须区分，atomic=false 表示先前成功步骤保留，可用 history.undo 逐步撤销。重新提交完全相同 key/请求返回原回执而不重复建模；更改请求需新 key；幂等仅本页面文档实例有效，重载后先读状态。
+每步可添加 stage（1..80字符的阶段名，例如来源确认/主面/浮雕/收边/检查），回执保留输入 SHA256、选择条件、耗时及原始结果。未请求项不加入步骤；检查阶段用 inspectDesign 等返回实际证据。相同文档 revision、方法和解析后的参数已失败时，换 key 仍返回 PREVIOUS_ATTEMPT_FAILED，结果未知则返回 PREVIOUS_ATTEMPT_UNKNOWN；先读取原任务/当前状态，真正改变几何、选择或策略后再提交。中间阶段失败或取消，completedStepIds 与 unattemptedStepIds 指导仅续接剩余步骤，不重复创建已成功的主面。步骤可省略 args。id 使用字母开头的 1..40 位字母数字下划线连字符；批次 key 最多80字符，当前文档实例最多保留100份回执。失败立即停止，completed/partial/failed/unknown 必须区分，atomic=false 表示先前成功步骤保留，可用 history.undo 逐步撤销。重新提交完全相同 key/请求返回原回执而不重复建模；更改请求需新 key；幂等仅本页面文档实例有效，重载后先读状态。
 files.save/export 返回 generated 资源，未证明磁盘保存；脚本客户端再 files.read/download/write，面板使用“下载”按钮只证明发起下载。新建/打开工程和截图使用专用页面 API，不属于批次。几何修改由旧有命令队列执行，其他 UI/客户端插入修改后批次停止，不自动接受新 revision。
 
 ## api.smooth-transition
 
 autoRound 是严格 v2 整件圆边：params:{radius:0.1}，refs:[bodyId]，所有尖锐边统一处理，失败不部分提交。smoothTransition 是严格 v2 面组过渡：params:{radius:0.1,faceIds:[当前相邻面序号,...]}，refs:[bodyId]。选至少两个相邻面，仅对其公共尖缝联动倒圆。queryGeometry 边含 startPoint/endPoint/midpoint/bounds/adjacentFaceIds/normalAngleDeg/sharp/degenerate，面含 edgeIds；按位置和邻接找交线。getState().bodies[].transitionReport 含 processedEdgeIds/processedSeams/remainingSharpEdges/remainingSharpEdgeCount。过大半径、自交、未消除目标尖缝或抽样发现非边界新尖缝时拒绝，原模型保留。局部过渡与未选面的结束边界可能锐利，boundarySharpEdges 单独报告。检查法向为边上20/50/80%三点与1度阈值，不是曲率连续证明或全部顶点认证。未选原有锐边（如文字边）保留，不能宣称整件无利角。UI 加工→曲面处理→整件圆边/平滑过渡，选实体或 Ctrl 多选面，预览再确认。完成后用 feature.edit 修改原特征 params.radius，会从源几何重建并重算后续步骤；不是在结果上再倒一次圆角。
+
+## api.source-curves
+
+readVector 对当前不能直接建模的 SPLINE 返回 unsupported[].sourceSpline，保留次数、控制点/节点/权重/周期性，或独立拟合点、拟合公差、端切向和源 handle；representation 区分 nurbs-parameters、fit-points、incomplete-spline。geometryCreated=false：保留参数不等于实现原始 NURBS 构造；fit-points 不能证明原始样条。DXF 源组码及 DWG 解码器实际提供的字段分别保留，不把不同源图元闭合插值成一条曲线。reliefReport.curveConversion（分层在 layers[]）记录实际使用的清理后点列/拟合边数、采样偏差、精确线圆弧面积、环孔数与核验类型；偏差参考 supplied-polyline-after-explicit-cleanup，sourceSplineDeviation=unknown，不是对源样条的全域误差界。报告最多保留16个环详情，truncated/ringCount明确表示摘要。采样偏差超过显式 curveToleranceMm 或面积改变量超过公差面积预算时拒绝转换；这也不替代源图尖角与区域用途的核对。完整原样条实体入口尚未开放。
 
 ## api.text-command
 
@@ -1694,6 +1702,10 @@ U槽尾夹
 ## recipes.analytic-arc-profile
 
 解析线弧轮廓：先 getTool({id:'arcProfile'})。outer 是顺序相接且闭合的数组，每环2–256段，holes最多16环；每段 {type:'line',points:[[起点X,Y],[终点X,Y]]} 或 {type:'arc',points:[[起点X,Y],[弧中X,Y],[终点X,Y]]}。holes 是同样轮廓的数组，height 为非零有符号 Z 拉伸深度（mm）。相邻端点及首尾端点须在0.000001 mm内重合；孔必须切除材料，输出必须是拓扑有效单实体，失败不提交。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const outer=[{type:'line',points:[[0,0],[10,0]]},{type:'arc',points:[[10,0],[12,2.5],[10,5]]},{type:'line',points:[[10,5],[0,5]]},{type:'line',points:[[0,5],[0,0]]}];const r=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'part',method:'add',args:{op:'arcProfile',refs:[],params:{outer,holes:[],height:3}}},{id:'size',method:'measure',args:{bodyId:{$ref:'part.createdBodyIds.0'}}}]});检查逐步 status、solidCount、精确测量和 getState().display.rendered.revision；历史可 feature.edit 修改原段列表及高度。该工具保留 CAD 中的解析圆弧与侧面圆柱面；不读取本地 DXF、不猜轮廓归属、不支持样条、变厚或曲面投影。PG11419 原 DXF 的12个明确 LINE/ARC handle 可经 text-to-cad/agent/tools/cad-learning/export_dxf_arc_profile.py 转为此操作参数，详见 recipes.pg11419-analytic-profile。
+
+## recipes.analytic-root-revolve
+
+局部圆柱/平面凹根补料配方（GC14785 原销耳案例，不属于当前主面/浮雕要求）：自动 analytic-planar-arc 族要求无孔支撑平面与明确径向端面，本例因支撑面含孔而拒绝，不能放宽此保护。复用 sketchProfile 精确三边截面 + profileRevolve 的 join。源轴点 O=[-0.374944080737,0,-218.283357828157]、轴 Y、源圆柱半径 r=220.229963736933；经原圆弧端点确定起角 a 和正旋转范围 Δ，不沿用旧边号。局部 XY 截面为 corner=[r,y]→side=[r-R,y]，三点圆弧 side→top=[r,y+sR]，mid=[r-R+R/√2,y+sR(1-1/√2)]，再直线 top→corner。R=0.3，s 由材料方向明确指定。用 sketchProfile 的 line/arc3 与一个 loop/region 成面；placement:{version:1,frame:{kind:"snapshot",origin:O,quaternion:[0,-sin(a/2),0,cos(a/2)]},sourceAnchor:{kind:"model-origin"}}。随后 profileRevolve refs:[截面ID,目标实体ID]，params:{operation:"join",axisPoint:O,axisDirection:[0,1,0],angleDeg:Δ}。本次真实局部 y=18.15、s=-1、Δ=1.9749106718885936°。回读两端截面圆弧 R0.3、沿程20/50/80%两侧法向接续、孔壁和局部材料；端部三维收口仍未认证。只证明此指定凹根局部，不代表一般曲面圆角，也不授权给主面工程补背部结构。
 
 ## recipes.arc-band-plate
 
@@ -15660,7 +15672,9 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "run",
     "feature.edit"
   ],
-  "recipes": [],
+  "recipes": [
+    "recipes.analytic-root-revolve"
+  ],
   "testIds": [
     "tests/operation-registry.test.mjs"
   ],
@@ -15691,7 +15705,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:2e90bae2e6488101fdf156a44249e25f14629492e69c1c7b9178e414fe282930"
+  "docsHash": "sha256:37ac6645557ea0ed9a8ca18627fcf0b4335d27a14deacb4d6b07237ace25c8ef"
 }
 ```
 
@@ -24623,6 +24637,46 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
               "type": "string",
               "maxLength": 120
             },
+            "sculpt": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "deltaMm",
+                "mask"
+              ],
+              "properties": {
+                "deltaMm": {
+                  "type": "array",
+                  "minItems": 4,
+                  "maxItems": 65,
+                  "items": {
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 65,
+                    "items": {
+                      "type": "number",
+                      "minimum": -20,
+                      "maximum": 20
+                    }
+                  }
+                },
+                "mask": {
+                  "type": "array",
+                  "minItems": 4,
+                  "maxItems": 65,
+                  "items": {
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 65,
+                    "items": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    }
+                  }
+                }
+              }
+            },
             "startHeightMm": {
               "type": "number",
               "description": "Start height/depth from original host; requires supporting previous layer below this start",
@@ -25100,7 +25154,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 浮雕在单个有效实体的平面或外凸圆柱面上加工。新流程 readRelief 返回 values、regions、surfaceMode、source，全部传给 relief。regions 为独立图案轮廓，outer/holes 坐标归一化到图像中心的[-0.5,0.5]，按widthMm/heightMm缩放；孔和轮廓外保持原主体表面，不生成矩形底层。轮廓最多1024区、每环2000点、合计64000点，拒绝自交/相触。surfaceMode=flat 生成真正的解析平顶面，depthMm 从放置中心切平面计算；smooth 使用4–65行列的0–1高度控制网格拟合三次B样条，轮廓独立裁切，内部起伏仍为平滑近似。readRelief 的独立轮廓采样为257，约0.2像素简化，位图边界精度受原图限制；准确CAD轮廓可直接提供regions。平面以面质心加offsetX/Y放置，局部X为世界X投影（近共线改Y），Y=外法向叉X，可angleDeg旋转。柱面须point，局部X沿圆周弧长、Y沿轴；轮廓沿放置法向投影，angleDeg=0，半径1–10000mm、角宽≤90°、总起伏≤半径20%。平顶凹雕depthMm须超过图案范围弓高。有regions时检查实际图案，允许空白区跨孔；无regions的旧高度场仍检查完整矩形。mode=emboss/engrave，结果必须融合为一个有效实体；失败保留原件。旧工程不含regions时保持原矩形高度场语义，柱面仍须显式baseMm=0.005–1mm；新轮廓模式平滑肩部内部默认0.005mm，平顶忽略baseMm，外部背景不加工。图像亮度不是照片深度。参数与来源哈希存入历史，可改参、重建、预览、撤销。reliefReport回读surfaceMode、background、regionCount、smoothing、材料体积和限制。 分层矢量：layers最多32层，明确name、heightMm、mode及regions或strokes，各层以原始选面为共同基准，整个操作一次预览、提交和撤销。凸层按实体并集合成（重叠处取更高层）；凹层从原主体面向内刻。浅层肌理用完整低凸层加带细节孔的高凸层，不能把肌理内线全部当穿到底的孔。每层可选startHeightMm（默认0，须低于heightMm），用于从已存在的下层表面附近开始加工，避免复杂层完整重叠；须确保下层实际承托，否则拒绝不连续实体。每层可选values，否则为等高4×4网格。strokes包含points（归一化局部坐标，至少2点）与widthMm，形成圆端开放刻线，相交或重叠部分先在二维合并，再生成统一刀具；方向与深度由mode/heightMm决定。contourSnapMm为显式轮廓清理网格（mm，0关闭）；每轴最多移动半个网格，小于该精度的缝隙/孔可能合并。建议先对照原图选择0.005mm，保留原始参数可撤销。curveToleranceMm为显式曲线拟合公差0–0.05mm，0保留折线，推荐0.005mm；不推断CAD内线用途。UI和readRelief均可读取version:1、widthMm、heightMm、layers的.relief.json文件，UI逐层编辑高度和方向；AI也可直接传layers，getState及reliefReport.layers回读。分层回执不重复计算逐层材料体积，addedMm3/removedMm3为null，最终实体的测量仍正常提供。分层工程通过feature.edit修改各层，不套用单层灰度笔刷。",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 浮雕在单个有效实体的平面或外凸圆柱面上加工。新流程 readRelief 返回 values、regions、surfaceMode、source，全部传给 relief。regions 为独立图案轮廓，outer/holes 坐标归一化到图像中心的[-0.5,0.5]，按widthMm/heightMm缩放；孔和轮廓外保持原主体表面，不生成矩形底层。轮廓最多1024区、每环2000点、合计64000点，拒绝自交/相触。surfaceMode=flat 生成真正的解析平顶面，depthMm 从放置中心切平面计算；smooth 使用4–65行列的0–1高度控制网格拟合三次B样条，轮廓独立裁切，内部起伏仍为平滑近似。readRelief 的独立轮廓采样为257，约0.2像素简化，位图边界精度受原图限制；准确CAD轮廓可直接提供regions。平面以面质心加offsetX/Y放置，局部X为世界X投影（近共线改Y），Y=外法向叉X，可angleDeg旋转。柱面须point，局部X沿圆周弧长、Y沿轴；轮廓沿放置法向投影，angleDeg=0，半径1–10000mm、角宽≤90°、总起伏≤半径20%。平顶凹雕depthMm须超过图案范围弓高。有regions时检查实际图案，允许空白区跨孔；无regions的旧高度场仍检查完整矩形。mode=emboss/engrave，结果必须融合为一个有效实体；失败保留原件。旧工程不含regions时保持原矩形高度场语义，柱面仍须显式baseMm=0.005–1mm；新轮廓模式平滑肩部内部默认0.005mm，平顶忽略baseMm，外部背景不加工。图像亮度不是照片深度。参数与来源哈希存入历史，可改参、重建、预览、撤销。reliefReport回读surfaceMode、background、regionCount、smoothing、材料体积和限制。 分层矢量：layers最多32层，明确name、heightMm、mode及regions或strokes，各层以原始选面为共同基准，整个操作一次预览、提交和撤销。凸层按实体并集合成（重叠处取更高层）；凹层从原主体面向内刻。浅层肌理用完整低凸层加带细节孔的高凸层，不能把肌理内线全部当穿到底的孔。每层可选startHeightMm（默认0，须低于heightMm），用于从已存在的下层表面附近开始加工，避免复杂层完整重叠；须确保下层实际承托，否则拒绝不连续实体。每层可选values，否则为等高4×4网格。strokes包含points（归一化局部坐标，至少2点）与widthMm，形成圆端开放刻线，相交或重叠部分先在二维合并，再生成统一刀具；方向与深度由mode/heightMm决定。contourSnapMm为显式轮廓清理网格（mm，0关闭）；每轴最多移动半个网格，小于该精度的缝隙/孔可能合并。建议先对照原图选择0.005mm，保留原始参数可撤销。curveToleranceMm为显式曲线拟合公差0–0.05mm，0保留折线，推荐0.005mm；不推断CAD内线用途。UI和readRelief均可读取version:1、widthMm、heightMm、layers的.relief.json文件，UI逐层编辑高度和方向；AI也可直接传layers，getState及reliefReport.layers回读。分层回执不重复计算逐层材料体积，addedMm3/removedMm3为null，最终实体的测量仍正常提供。分层工程通过prepareReliefSculpt({context,featureId,layerIndex,strokes})选择单层，返回params.layers供feature.edit一次提交；各层sculpt独立保存。未有values/sculpt的等高层可显式samples=4–65初始化网格，已有网格不隐式重采样。精修保留轮廓和孔，仅改变该层高度，不保证消除相邻层台阶。timingsMs区分源复制、刀具、轮廓裁切、边界检查、精确布尔和最终有效性检查；最终仍须为有效单实体。 curveConversion回执记录清理后点列与结果边数、采样偏差、线圆弧面积及环孔数；参考对象不是未提供的原始样条。采样误差不是全域严格误差界，sourceSplineDeviation=unknown。环详情最多16项，超出用truncated/ringCount明确标记；偏差或面积变化越界返回RELIEF_CURVE_DEVIATION。详见api.source-curves。分层UI支持逐层笔刷、独立草稿和应用；初始无网格层显式选择4–65网格（默认33），已有网格不重采样。",
   "title": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
   "category": "modification",
   "synonyms": [
@@ -25108,7 +25162,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "relief"
   ],
   "description": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
-  "schemaHash": "sha256:909c45a560d192bc6c2c9c9d855abebabf97a6ac439b46498bc8fbd69bc3c5df",
+  "schemaHash": "sha256:4db332aebb1c8187ad2f4cb1a7a64be83c6e3829d3f1f9aee236606b39ed1af3",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -25157,7 +25211,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "浮雕在单个有效实体的平面或外凸圆柱面上加工。新流程 readRelief 返回 values、regions、surfaceMode、source，全部传给 relief。regions 为独立图案轮廓，outer/holes 坐标归一化到图像中心的[-0.5,0.5]，按widthMm/heightMm缩放；孔和轮廓外保持原主体表面，不生成矩形底层。轮廓最多1024区、每环2000点、合计64000点，拒绝自交/相触。surfaceMode=flat 生成真正的解析平顶面，depthMm 从放置中心切平面计算；smooth 使用4–65行列的0–1高度控制网格拟合三次B样条，轮廓独立裁切，内部起伏仍为平滑近似。readRelief 的独立轮廓采样为257，约0.2像素简化，位图边界精度受原图限制；准确CAD轮廓可直接提供regions。平面以面质心加offsetX/Y放置，局部X为世界X投影（近共线改Y），Y=外法向叉X，可angleDeg旋转。柱面须point，局部X沿圆周弧长、Y沿轴；轮廓沿放置法向投影，angleDeg=0，半径1–10000mm、角宽≤90°、总起伏≤半径20%。平顶凹雕depthMm须超过图案范围弓高。有regions时检查实际图案，允许空白区跨孔；无regions的旧高度场仍检查完整矩形。mode=emboss/engrave，结果必须融合为一个有效实体；失败保留原件。旧工程不含regions时保持原矩形高度场语义，柱面仍须显式baseMm=0.005–1mm；新轮廓模式平滑肩部内部默认0.005mm，平顶忽略baseMm，外部背景不加工。图像亮度不是照片深度。参数与来源哈希存入历史，可改参、重建、预览、撤销。reliefReport回读surfaceMode、background、regionCount、smoothing、材料体积和限制。 分层矢量：layers最多32层，明确name、heightMm、mode及regions或strokes，各层以原始选面为共同基准，整个操作一次预览、提交和撤销。凸层按实体并集合成（重叠处取更高层）；凹层从原主体面向内刻。浅层肌理用完整低凸层加带细节孔的高凸层，不能把肌理内线全部当穿到底的孔。每层可选startHeightMm（默认0，须低于heightMm），用于从已存在的下层表面附近开始加工，避免复杂层完整重叠；须确保下层实际承托，否则拒绝不连续实体。每层可选values，否则为等高4×4网格。strokes包含points（归一化局部坐标，至少2点）与widthMm，形成圆端开放刻线，相交或重叠部分先在二维合并，再生成统一刀具；方向与深度由mode/heightMm决定。contourSnapMm为显式轮廓清理网格（mm，0关闭）；每轴最多移动半个网格，小于该精度的缝隙/孔可能合并。建议先对照原图选择0.005mm，保留原始参数可撤销。curveToleranceMm为显式曲线拟合公差0–0.05mm，0保留折线，推荐0.005mm；不推断CAD内线用途。UI和readRelief均可读取version:1、widthMm、heightMm、layers的.relief.json文件，UI逐层编辑高度和方向；AI也可直接传layers，getState及reliefReport.layers回读。分层回执不重复计算逐层材料体积，addedMm3/removedMm3为null，最终实体的测量仍正常提供。分层工程通过feature.edit修改各层，不套用单层灰度笔刷。"
+    "浮雕在单个有效实体的平面或外凸圆柱面上加工。新流程 readRelief 返回 values、regions、surfaceMode、source，全部传给 relief。regions 为独立图案轮廓，outer/holes 坐标归一化到图像中心的[-0.5,0.5]，按widthMm/heightMm缩放；孔和轮廓外保持原主体表面，不生成矩形底层。轮廓最多1024区、每环2000点、合计64000点，拒绝自交/相触。surfaceMode=flat 生成真正的解析平顶面，depthMm 从放置中心切平面计算；smooth 使用4–65行列的0–1高度控制网格拟合三次B样条，轮廓独立裁切，内部起伏仍为平滑近似。readRelief 的独立轮廓采样为257，约0.2像素简化，位图边界精度受原图限制；准确CAD轮廓可直接提供regions。平面以面质心加offsetX/Y放置，局部X为世界X投影（近共线改Y），Y=外法向叉X，可angleDeg旋转。柱面须point，局部X沿圆周弧长、Y沿轴；轮廓沿放置法向投影，angleDeg=0，半径1–10000mm、角宽≤90°、总起伏≤半径20%。平顶凹雕depthMm须超过图案范围弓高。有regions时检查实际图案，允许空白区跨孔；无regions的旧高度场仍检查完整矩形。mode=emboss/engrave，结果必须融合为一个有效实体；失败保留原件。旧工程不含regions时保持原矩形高度场语义，柱面仍须显式baseMm=0.005–1mm；新轮廓模式平滑肩部内部默认0.005mm，平顶忽略baseMm，外部背景不加工。图像亮度不是照片深度。参数与来源哈希存入历史，可改参、重建、预览、撤销。reliefReport回读surfaceMode、background、regionCount、smoothing、材料体积和限制。 分层矢量：layers最多32层，明确name、heightMm、mode及regions或strokes，各层以原始选面为共同基准，整个操作一次预览、提交和撤销。凸层按实体并集合成（重叠处取更高层）；凹层从原主体面向内刻。浅层肌理用完整低凸层加带细节孔的高凸层，不能把肌理内线全部当穿到底的孔。每层可选startHeightMm（默认0，须低于heightMm），用于从已存在的下层表面附近开始加工，避免复杂层完整重叠；须确保下层实际承托，否则拒绝不连续实体。每层可选values，否则为等高4×4网格。strokes包含points（归一化局部坐标，至少2点）与widthMm，形成圆端开放刻线，相交或重叠部分先在二维合并，再生成统一刀具；方向与深度由mode/heightMm决定。contourSnapMm为显式轮廓清理网格（mm，0关闭）；每轴最多移动半个网格，小于该精度的缝隙/孔可能合并。建议先对照原图选择0.005mm，保留原始参数可撤销。curveToleranceMm为显式曲线拟合公差0–0.05mm，0保留折线，推荐0.005mm；不推断CAD内线用途。UI和readRelief均可读取version:1、widthMm、heightMm、layers的.relief.json文件，UI逐层编辑高度和方向；AI也可直接传layers，getState及reliefReport.layers回读。分层回执不重复计算逐层材料体积，addedMm3/removedMm3为null，最终实体的测量仍正常提供。分层工程通过prepareReliefSculpt({context,featureId,layerIndex,strokes})选择单层，返回params.layers供feature.edit一次提交；各层sculpt独立保存。未有values/sculpt的等高层可显式samples=4–65初始化网格，已有网格不隐式重采样。精修保留轮廓和孔，仅改变该层高度，不保证消除相邻层台阶。timingsMs区分源复制、刀具、轮廓裁切、边界检查、精确布尔和最终有效性检查；最终仍须为有效单实体。 curveConversion回执记录清理后点列与结果边数、采样偏差、线圆弧面积及环孔数；参考对象不是未提供的原始样条。采样误差不是全域严格误差界，sourceSplineDeviation=unknown。环详情最多16项，超出用truncated/ringCount明确标记；偏差或面积变化越界返回RELIEF_CURVE_DEVIATION。详见api.source-curves。分层UI支持逐层笔刷、独立草稿和应用；初始无网格层显式选择4–65网格（默认33），已有网格不重采样。"
   ],
   "minimalExample": {
     "op": "relief",
@@ -25324,7 +25378,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RELIEF_LIMIT",
     "RELIEF_OUTSIDE_FACE",
     "RELIEF_NO_CHANGE",
-    "RELIEF_INVALID"
+    "RELIEF_INVALID",
+    "RELIEF_CURVE_DEVIATION"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -25370,7 +25425,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.relief",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:42763cc1f404bb6de6bd888027a48f568b3a1321b58bab45ce1183808474ab16"
+  "docsHash": "sha256:159a3fb0792aeba6bbf4fafcfb4e98258feff364dc71955e1686275396a7acbb"
 }
 ```
 
@@ -45866,7 +45921,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "sampleReliefHeight",
   "category": "page-method",
   "version": "1.22.0",
-  "description": "sampleReliefHeight({context,featureId,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。",
+  "description": "sampleReliefHeight({context,featureId,layerIndex?,samples?,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。分层必须明确 layerIndex；samples 仅用于读初始等高层的新草稿，约束同 prepareReliefSculpt。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。",
   "synonyms": [
     "sampleReliefHeight",
     "浮雕",
@@ -45876,7 +45931,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "深度",
     "定高"
   ],
-  "inputContract": "sampleReliefHeight({context,featureId,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。",
+  "inputContract": "sampleReliefHeight({context,featureId,layerIndex?,samples?,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。分层必须明确 layerIndex；samples 仅用于读初始等高层的新草稿，约束同 prepareReliefSculpt。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。",
   "outputContract": "只读返回status:read、featureId、point、targetMm、quantity:height或depth、units:mm、source:bilinear-height-controls及context。targetMm可直接给prepareReliefSculpt的flatten笔刷，凹雕为正深度。与界面Alt吸管共用双线性控制高度采样，非精确BRep表面测量。轮廓外/孔内失败RELIEF_SAMPLE_OUTSIDE；越界或非有限坐标失败PARAM_RANGE_INVALID。不会更改工程、历史、界面笔刷或草稿。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -45894,7 +45949,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:bfddea2dacb6d0a725a6018c86f63966ca68717855cf0b51a553425513f7b732"
+  "docsHash": "sha256:7c30a466ffd5d7c7f3ac466a9ea30c7586005ebd274e8bee44f72b9724ff9fab"
 }
 ```
 
@@ -45906,7 +45961,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "prepareReliefSculpt",
   "category": "page-method",
   "version": "1.22.0",
-  "description": "prepareReliefSculpt({context,featureId,draft?:{deltaMm,mask},strokes:[{mode:\"raise\"|\"lower\"|\"smooth\"|\"flatten\"|\"restore\"|\"mask\"|\"unmask\"|\"fill\"|\"scrape\"|\"sharpen\",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:\"none\"|\"x\"|\"y\"|\"xy\",points:[[x,y],...]},...]})。所有现有浮雕类型使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。",
+  "description": "prepareReliefSculpt({context,featureId,layerIndex?,samples?,draft?:{deltaMm,mask},strokes:[{mode:\"raise\"|\"lower\"|\"smooth\"|\"flatten\"|\"restore\"|\"mask\"|\"unmask\"|\"fill\"|\"scrape\"|\"sharpen\",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:\"none\"|\"x\"|\"y\"|\"xy\",points:[[x,y],...]},...]})。单层与显式选层使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。",
   "synonyms": [
     "prepareReliefSculpt",
     "浮雕精修",
@@ -45923,8 +45978,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "对称",
     "硬度"
   ],
-  "inputContract": "prepareReliefSculpt({context,featureId,draft?:{deltaMm,mask},strokes:[{mode:\"raise\"|\"lower\"|\"smooth\"|\"flatten\"|\"restore\"|\"mask\"|\"unmask\"|\"fill\"|\"scrape\"|\"sharpen\",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:\"none\"|\"x\"|\"y\"|\"xy\",points:[[x,y],...]},...]})。所有现有浮雕类型使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。",
-  "outputContract": "只读返回status=prepared、params:{sculpt:{deltaMm,mask}}、report、canCommit及下游拓扑blockers。canCommit为true后用feature.edit提交params。原始values/depthMm/regions不变，精修控制高度限制0–20mm。mask保护控制点，B样条过渡会影响邻域；不改变轮廓/孔，预览不是精确CAD。平顶、起伏、凸雕、凹雕及平面/外凸柱面；凹雕抬高变浅、压低加深，targetMm 表示控制深度。旧矩形浮雕仍保留矩形语义。STEP无高度来源不适用。",
+  "inputContract": "prepareReliefSculpt({context,featureId,layerIndex?,samples?,draft?:{deltaMm,mask},strokes:[{mode:\"raise\"|\"lower\"|\"smooth\"|\"flatten\"|\"restore\"|\"mask\"|\"unmask\"|\"fill\"|\"scrape\"|\"sharpen\",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:\"none\"|\"x\"|\"y\"|\"xy\",points:[[x,y],...]},...]})。单层与显式选层使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。",
+  "outputContract": "只读返回status=prepared、params:{sculpt:{deltaMm,mask}}、report、canCommit及下游拓扑blockers。canCommit为true后用feature.edit提交params。分层须指定当前零起始 layerIndex，返回 params:{layers} 并仅修改该层独立 sculpt，其他层和轮廓/孔保持；可选 samples=4–65 仅用于尚无 values/sculpt 的等高层，显式建立等高控制网格，不重采样已有曲面。草稿继续使用同一个 samples 或提交后的 layers。层间台阶不会自动消失；小于 startHeightMm 的控制高度拒绝。单层原始values/depthMm/regions不变，精修控制高度限制0–20mm。mask保护控制点，B样条过渡会影响邻域；不改变轮廓/孔，预览不是精确CAD。平顶、起伏、凸雕、凹雕及平面/外凸柱面；凹雕抬高变浅、压低加深，targetMm 表示控制深度。旧矩形浮雕仍保留矩形语义。STEP无高度来源不适用。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -45940,7 +45995,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:eeef30fbeec5c481da7913041a2765fd1d7de5e5833d5df2075ce1a18739f886"
+  "docsHash": "sha256:e3f66a49f05659d3bbc6126b0ad9ff46b4d95eaefc18849dc766ce0854cffe59"
 }
 ```
 
@@ -46690,7 +46745,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "queryGeometry",
   "category": "page-method",
   "version": "1.22.0",
-  "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,limit?,cursor?})。",
+  "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry；多选仍须 requireUnique:false。",
   "synonyms": [
     "queryGeometry",
     "几何查询",
@@ -46698,8 +46753,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "边",
     "选择令牌"
   ],
-  "inputContract": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,limit?,cursor?})。",
-  "outputContract": "精确 B-Rep 候选项、歧义信息、快照绑定的 selectionToken 与当前 context。",
+  "inputContract": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry；多选仍须 requireUnique:false。",
+  "outputContract": "精确 B-Rep 候选项、歧义信息、快照绑定的 selectionToken 与当前 context；expectedCount 不符时不生成令牌。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -46708,10 +46763,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "INSTANCE_MISMATCH",
     "REVISION_CONFLICT",
     "STALE_REFERENCE",
+    "SELECTION_COUNT_CHANGED",
     "NO_MATCH",
     "AMBIGUOUS_SELECTION"
   ],
-  "docsHash": "sha256:182eb3c532030c86453879de39f9b56709faa4cf29dbbebb9f62d4f3a8851ee2"
+  "docs": "api.query-geometry",
+  "docsHash": "sha256:0b75b8b3655f060cf379e114c5b4c74e955cd8b05a25be72f0a2546a531b89fa"
 }
 ```
 
@@ -47466,6 +47523,49 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 }
 ```
 
+## 工具 inspectRound · inspectRound
+
+```json
+{
+  "id": "inspectRound",
+  "title": "inspectRound",
+  "category": "page-method",
+  "version": "1.22.0",
+  "description": "inspectRound({context,bodyId,params:{edgeIds:[0],mode:\"edge\",radiusMm:0.3}})；params 同 round 工具卡，亦可 faceIds 解析平面边界。",
+  "synonyms": [
+    "inspectRound",
+    "圆角预检",
+    "圆润规划",
+    "选边",
+    "支撑面"
+  ],
+  "inputContract": "inspectRound({context,bodyId,params:{edgeIds:[0],mode:\"edge\",radiusMm:0.3}})；params 同 round 工具卡，亦可 faceIds 解析平面边界。",
+  "outputContract": "只读实际选区、目标数、支撑面类型、构造类别和限制；attemptCount=0，不构造几何、不扫描半径、不保证加工成功。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "STALE_REFERENCE",
+    "SELECTION_CONFLICT",
+    "ROUND_SELECTION_AMBIGUOUS",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docs": "api.round-preflight",
+  "relatedTools": [
+    "round",
+    "queryGeometry"
+  ],
+  "units": {
+    "length": "mm"
+  },
+  "docsHash": "sha256:df88d4104595a6f500dc77bed4caf93ff349d8ae8d7176029624ea8ffee7e9c6"
+}
+```
+
 ## 工具 readVector · readVector
 
 ```json
@@ -47499,7 +47599,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.vector-import",
-  "docsHash": "sha256:6cfbdac876312d8c40ad0614677d6c286fce40d555d101c3fed64ad0641c1b2c"
+  "additionalDocs": [
+    "api.source-curves"
+  ],
+  "sourceCurvePolicy": "Unsupported splines preserve sourceSpline metadata; no original NURBS construction or automatic fit-point closure.",
+  "docsHash": "sha256:1460508ee1aca440ce15daa18351cfd8bfb0d125556499ab837bd49a5f0c1c16"
 }
 ```
 
@@ -47921,13 +48025,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 {
   "id": "body.align",
   "title": "快速对齐",
-  "description": "按世界 X/Y/Z 对齐包围范围的 min/center/max；移动件和基准件显式分开；group=true 保持相对位置。一次原子历史操作。",
+  "description": "按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:\"body\",bodyId:基准实体ID},axes:[\"Y\"],sourceSide:\"center\",targetSide:\"center\",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。",
   "category": "command",
   "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"body.align\",args}); 按世界 X/Y/Z 对齐包围范围的 min/center/max；移动件和基准件显式分开；group=true 保持相对位置。一次原子历史操作。",
+  "inputContract": "execute({context,idempotencyKey,action:\"body.align\",args}); 按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:\"body\",bodyId:基准实体ID},axes:[\"Y\"],sourceSide:\"center\",targetSide:\"center\",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。",
   "fields": [
     "bodyIds",
     "target",
@@ -47960,24 +48064,28 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "action": "body.align",
     "args": {
       "bodyIds": [
-        "<bodyId>"
+        "<movingBodyId>"
       ],
       "target": {
-        "kind": "origin"
+        "kind": "body",
+        "bodyId": "<referenceBodyId>"
       },
       "axes": [
-        "X",
-        "Y",
-        "Z"
+        "Y"
       ],
       "sourceSide": "center",
       "targetSide": "center",
-      "group": true
+      "group": true,
+      "gapMm": [
+        0,
+        0,
+        0
+      ]
     }
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:7939b336b6ba84056b917dd4903839266e8d00c6695df3a0822e7a143bc44a46"
+  "docsHash": "sha256:f5483d1846cfa9e080d75b4b1cf834705775eec8590e5deda99d7fabb2bb713e"
 }
 ```
 

@@ -43,9 +43,32 @@ export function fitContour(points,normal,tolerance=0,closed=true){
  }
  return segments;
 }
-export function contourWire(points,normal,cad,tolerance=0,closed=true){
+// Metrics refer to the supplied polyline, never to an unavailable source spline.
+export function contourConversionReport(points,normal,segments,tolerance=0,closed=true){
+ const origin=points[0],x=unit(sub(points[1],origin)),y=unit(cross(normal,x)),xy=p=>[dot(sub(p,origin),x),dot(sub(p,origin),y)],source=points.map(xy),indices=new Map(points.map((p,i)=>[p,i]));
+ const det=(a,b)=>a[0]*b[1]-a[1]*b[0],distance=(p,a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],n=dx*dx+dy*dy,t=n?Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/n)):0;return Math.hypot(p[0]-a[0]-t*dx,p[1]-a[1]-t*dy);};
+ let sourceArea=0,resultArea=0,perimeter=0,maxDeviationMm=0,sampleCount=0;
+ for(let i=0;i<source.length-(closed?0:1);i++){const a=source[i],b=source[(i+1)%source.length];sourceArea+=det(a,b)/2;perimeter+=Math.hypot(b[0]-a[0],b[1]-a[1]);}
+ for(const s of segments){
+  const a=xy(s.start),b=xy(s.end),start=indices.get(s.start),end=indices.get(s.end)===0&&closed?points.length:indices.get(s.end),path=Array.from({length:end-start+1},(_,k)=>source[(start+k)%source.length]);
+  resultArea+=det(a,b)/2;let at,pointDistance;
+  if(s.type==='line'){at=t=>a.map((v,i)=>v+(b[i]-v)*t);pointDistance=p=>distance(p,a,b);}
+  else{
+   const m=xy(s.mid),u=sub(m,a),v=sub(b,a),d=2*det(u,v),U=dot(u,u),V=dot(v,v),c=[a[0]+(U*v[1]-V*u[1])/d,a[1]+(u[0]*V-v[0]*U)/d],r=Math.hypot(...sub(a,c)),angle=p=>Math.atan2(p[1]-c[1],p[0]-c[0]),tau=2*Math.PI,from=angle(a),to=angle(b),mid=angle(m);
+   let sweep=((to-from)%tau+tau)%tau;if(((mid-from)%tau+tau)%tau>sweep)sweep-=tau;
+   resultArea+=r*r*(sweep-Math.sin(sweep))/2;at=t=>[c[0]+r*Math.cos(from+sweep*t),c[1]+r*Math.sin(from+sweep*t)];
+   pointDistance=p=>{const phase=((Math.sign(sweep)*(angle(p)-from))%tau+tau)%tau;return phase<=Math.abs(sweep)+1e-10?Math.abs(Math.hypot(...sub(p,c))-r):Math.min(Math.hypot(...sub(p,a)),Math.hypot(...sub(p,b)));};
+  }
+  for(const p of path){maxDeviationMm=Math.max(maxDeviationMm,pointDistance(p));sampleCount++;}
+  for(let k=1;k<8;k++){const p=at(k/8);maxDeviationMm=Math.max(maxDeviationMm,Math.min(...path.slice(1).map((b,i)=>distance(p,path[i],b))));sampleCount++;}
+ }
+ const areaChangeMm2=closed?Math.abs(resultArea)-Math.abs(sourceArea):null,areaLimitMm2=tolerance*(perimeter+Math.PI*tolerance)+1e-9;
+ const accepted=maxDeviationMm<=tolerance+1e-8&&(!closed||sourceArea*resultArea>0&&Math.abs(areaChangeMm2)<=areaLimitMm2);
+ return {reference:'supplied-polyline-after-explicit-cleanup',sourceEdgeCount:points.length-(closed?0:1),resultEdgeCount:segments.length,toleranceMm:tolerance,maxSampledDeviationMm:maxDeviationMm,sampleCount,sourceAreaMm2:closed?Math.abs(sourceArea):null,resultAreaMm2:closed?Math.abs(resultArea):null,areaChangeMm2,areaLimitMm2,accepted,errorBound:'sampled-not-global',closed};
+}
+export function contourWire(points,normal,cad,tolerance=0,closed=true,onConversion){
  const edges=[];
- try{for(const s of fitContour(points,normal,tolerance,closed))edges.push(s.type==='arc'?cad.makeThreePointArc(s.start,s.mid,s.end):cad.makeLine(s.start,s.end));return cad.assembleWire(edges);}
+ try{const segments=fitContour(points,normal,tolerance,closed),report=contourConversionReport(points,normal,segments,tolerance,closed);if(!report.accepted)throw Object.assign(new Error('轮廓转换偏差或面积变化超过显式公差；请降低拟合公差或使用原始折线'),{code:'RELIEF_CURVE_DEVIATION',report});onConversion?.(report);for(const s of segments)edges.push(s.type==='arc'?cad.makeThreePointArc(s.start,s.mid,s.end):cad.makeLine(s.start,s.end));return cad.assembleWire(edges);}
  finally{edges.forEach(dispose);}
 }
 export function strokeOutline(points,normal,width){

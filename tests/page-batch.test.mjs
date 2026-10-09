@@ -1,6 +1,29 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createPageBatch} from '../src/page-batch.js';
+import {createPageJobs} from '../src/page-jobs.js';
+
+test('new receipt keys cannot repeat a known failed mutation at unchanged geometry',async()=>{
+  const f=fixture(),req=f.request();req.steps=[{id:'bad',stage:'收边',method:'add',args:{op:'round',params:{bad:true}}}];
+  const first=await f.run(req);assert.equal(first.status,'failed');assert.match(first.results[0].inputFingerprint,/^[a-f0-9]{64}$/);
+  const duplicate=await f.run({...req,idempotencyKey:'new-key'});
+  assert.equal(duplicate.error.code,'PREVIOUS_ATTEMPT_FAILED');assert.equal(f.count,1);
+  req.steps[0].args.params.radius=0.3;
+  await f.run({...req,idempotencyKey:'changed'});assert.equal(f.count,2);
+});
+
+test('running batch exposes its real stage and stops only after the current commit',async()=>{
+  const f=fixture();let release,entered;const active=new Promise(resolve=>entered=resolve),gate=new Promise(resolve=>release=resolve);
+  const execute=f.api.execute;f.api.execute=async req=>{entered();await gate;return execute(req);};
+  const jobs=createPageJobs(f.api,{runBatch:f.run});
+  jobs.submit({jobId:'staged',method:'run',args:f.request()});await active;
+  assert.equal(jobs.getJob({jobId:'staged'}).progress.stepId,'ring');
+  assert.equal(jobs.cancelJob({jobId:'staged'}).reason,'STOP_REQUESTED_AFTER_CURRENT_STAGE');release();
+  await new Promise(resolve=>setImmediate(resolve));
+  const result=jobs.getJob({jobId:'staged'}).result;
+  assert.equal(result.status,'partial');assert.equal(result.error.code,'BATCH_CANCELLED');
+  assert.deepEqual(result.progress.completedStepIds,['ring']);assert.deepEqual(result.progress.unattemptedStepIds,['size','export']);assert.equal(f.count,1);
+});
 
 test('partial receipts identify committed, failed and remaining steps without redoing commits',async()=>{
   const f=fixture(),req=f.request();

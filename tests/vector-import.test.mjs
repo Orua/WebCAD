@@ -1,7 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {connectVector,convertVectorEntities,parseDxf,curveData} from '../src/vector-import.js';
+import {connectVector,convertVectorEntities,parseDxf,curveData,sourceSplineDescriptor} from '../src/vector-import.js';
 const line=(id,a,b)=>({id,type:'line',startMm:a,endMm:b});
+test('source splines preserve parameters separately from fit point evidence',()=>{
+ const fit={type:'SPLINE',handle:'A1',degree:3,fit_pts:[[0,0,0],[1,2,0],[3,0,0]],fit_tol:.001,beg_tan_vec:[1,0,0],end_tan_vec:[1,-1,0]},original=structuredClone(fit);
+ const converted=convertVectorEntities([fit],{scaleMm:2});assert.equal(converted.entities.length,0);const descriptor=converted.unsupported[0].sourceSpline;assert.equal(descriptor.representation,'fit-points');assert.equal(descriptor.geometryCreated,false);assert.equal(descriptor.fitToleranceMm,.002);assert.deepEqual(descriptor.fitPoints[1],[2,4,0]);assert.deepEqual(fit,original);
+ const nurbs=sourceSplineDescriptor({degree:2,controlPoints:[[0,0],[1,2],[3,0]],knots:[0,0,0,1,1,1],weights:[1,2,1],periodic:false});assert.equal(nurbs.representation,'nurbs-parameters');assert.deepEqual(nurbs.weights,[1,2,1]);assert.equal(nurbs.periodic,false);
+ assert.equal(descriptor.periodic,null);const dxf=['0','SECTION','2','ENTITIES','0','SPLINE','5','B2','70','0','71','2','40','0','40','0','40','0','40','1','40','1','40','1','10','0','20','0','10','1','20','2','10','3','20','0','0','ENDSEC','0','EOF'].join('\n');const parsed=convertVectorEntities(parseDxf(dxf)).unsupported[0].sourceSpline;assert.equal(parsed.representation,'nurbs-parameters');assert.deepEqual(parsed.controlPoints,[[0,0,0],[1,2,0],[3,0,0]]);assert.deepEqual(parsed.knots,[0,0,0,1,1,1]);
+});
 const square=()=>[line('a',[0,0],[4,0]),line('b',[4,0],[4,3]),line('c',[4,3],[0,3]),line('d',[0,3],[0,0])];
 test('unordered and reversed lines close without altering source',()=>{const e=square();[e[1].startMm,e[1].endMm]=[e[1].endMm,e[1].startMm];e.reverse();const original=JSON.stringify(e),r=connectVector({entities:e});assert.equal(r.canCreateFace,true);assert.equal(r.profile.loops.length,1);assert.deepEqual(r.receipt.bounds,[0,0,4,3]);assert.equal(JSON.stringify(e),original);});
 test('gaps obey explicit tolerance; movement is reported',()=>{const e=square();e[0].startMm=[0.001,0];assert.equal(connectVector({entities:e}).canCreateFace,false);const r=connectVector({entities:e,toleranceMm:0.002});assert.equal(r.canCreateFace,true);assert.equal(r.receipt.moves[0].endpointMoveMm,0.0005);});

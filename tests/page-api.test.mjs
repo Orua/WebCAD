@@ -6,6 +6,27 @@ import { UI_API_ROUTES } from '../src/ui-api-coverage.js';
 import {prepareAnalyticProfileEdit} from '../src/profile-editing.js';
 
 const context = () => ({ sessionId: 'page-1', documentId: 'doc-1', documentInstanceId: 'instance-1', expectedRevision: 7 });
+test('round preflight is discoverable and rejects stale context before host planning',async()=>{
+ const {api,host}=fixture(),state=host.state;host.state=()=>({...state(),bodies:[{id:'body-1',solidCount:1}]});let calls=0;
+ host.inspectRound=async input=>{calls++;assert.equal(input.params.radiusMm,.3);return {attemptCount:0,feasibility:'not-proven'};};
+ const request={context:context(),bodyId:'body-1',params:{edgeIds:[0],mode:'edge',radiusMm:.3}};
+ assert.equal((await api.inspectRound(request)).attemptCount,0);assert.equal(calls,1);assert.equal(getTool({id:'inspectRound'}).docs,'api.round-preflight');
+ assert.equal((await api.inspectRound({...request,context:{...context(),expectedRevision:6}})).error.code,'REVISION_CONFLICT');assert.equal(calls,1);
+ assert.equal((await api.inspectRound({...request,params:{edgeIds:[0],surprise:true}})).status,'failed');assert.equal(calls,1);
+});
+
+test('layered sculpt preparation and draft sampling share explicit layer and grid selection',async()=>{
+ const {api,host}=fixture(),base=host.state;
+ const layer={name:'horse',heightMm:.5,regions:[{outer:[[-.4,-.4],[.4,-.4],[.4,.4],[-.4,.4]]}]};
+ const params={faceId:0,widthMm:12,heightMm:12,depthMm:1,layers:[layer,{...layer,name:'protected'}]},copy=structuredClone(params);
+ host.state=()=>({...base(),features:[{id:'layered',op:'relief',params,refs:[]}]});
+ const request={context:context(),featureId:'layered',layerIndex:0,samples:17,strokes:[{mode:'raise',radiusMm:2,amountMm:.1,points:[[0,0]]}]};
+ const result=await api.prepareReliefSculpt(request);assert.equal(result.status,'prepared');assert.ok(result.report.changedControls>0);assert.deepEqual(result.params.layers[1],params.layers[1]);
+ const sample=await api.sampleReliefHeight({context:context(),featureId:'layered',layerIndex:0,samples:17,draft:result.params.layers[0].sculpt,point:[0,0]});
+ assert.equal(sample.status,'read');assert.equal(sample.targetMm,.6);assert.deepEqual(params,copy);
+ assert.equal((await api.prepareReliefSculpt({...request,layerIndex:undefined})).error.code,'PARAM_SCHEMA_INVALID');
+ assert.equal((await api.prepareReliefSculpt({...request,context:{...context(),expectedRevision:6}})).error.code,'REVISION_CONFLICT');
+});
 
 test('relief height eyedropper is discoverable, read-only, draft-aware and callable through invoke and run',async()=>{
  const {api,host,calls}=fixture(),base=host.state;

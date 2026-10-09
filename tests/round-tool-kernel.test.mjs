@@ -3,10 +3,14 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import init from 'replicad-opencascadejs';
 import * as cad from 'replicad';
-import {buildRoundTool} from '../src/modeling/rounding/round-tool.js';
+import {buildRoundTool,inspectRoundTool} from '../src/modeling/rounding/round-tool.js';
 import {CadKernel} from '../src/cad-kernel.js';
 cad.setOC(await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))}));
 const results=[];
+test('round preflight measures support without constructing or changing source',()=>{
+ const source=cad.makeBox([0,0,0],[10,10,10]),before=source.serialize();
+ try{const result=inspectRoundTool(source,{edgeIds:[0],mode:'edge',radiusMm:20});assert.equal(result.attemptCount,0);assert.equal(result.radiusMm,20);assert.equal(result.targetCount,1);assert.deepEqual(result.targets[0].supportSurfaceTypes,['PLANE','PLANE']);assert.equal(result.targets[0].curveType,'LINE');assert.equal(result.feasibility,'not-proven');assert.equal(source.serialize(),before);assert.throws(()=>inspectRoundTool(source,{edgeIds:[999]}),error=>error.report.stage==='planning'&&error.report.attemptCount===0);assert.equal(source.serialize(),before);}finally{source.delete();}
+});
 function check(name,shape,params,expected){const before=shape.serialize();let out;try{out=buildRoundTool(shape,params);assert.equal(out.roundReport.mode,expected);assert.equal(shape.serialize(),before);assert.equal(out.roundReport.attemptCount,1);const solids=out.solids;assert.equal(solids.length,1);solids.forEach(s=>s.delete());results.push({name,...out.roundReport});return out.roundReport;}finally{out?.delete();shape.delete();}}
 function endEdge(s,i,d=1){const edges=s.edges;try{return edges.map((e,id)=>{const p=e.pointAt(.5);try{return{id,v:p.toTuple()[i]};}finally{p.delete();}}).sort((a,b)=>d*(b.v-a.v))[0].id;}finally{edges.forEach(e=>e.delete());}}
 test('automatic edge radius and exact override on a cube',()=>{const r=check('cube',cad.makeBox([0,0,0],[10,10,10]),{edgeIds:[0]},'edge');assert.equal(r.radiusMm,.5);assert.equal(check('exact radius',cad.makeBox([0,0,0],[10,10,10]),{edgeIds:[0],radiusMm:.3},'edge').radiusMm,.3);});

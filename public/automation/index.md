@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.22.0 · 操作目录 sha256:7015c10d70e2ec94e27c97a98b8512d8b70a78968e500440967e3e2a0b617722
+API 1.22.0 · 操作目录 sha256:5f9aed91f6295bd4243c0f7003ee9586e2f4e71c538c146fb941d33d0fae75ca
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -48,6 +48,7 @@ API 1.22.0 · 操作目录 sha256:7015c10d70e2ec94e27c97a98b8512d8b70a78968e5004
 - `inspectFit`
 - `inspectThickness`
 - `inspectDraft`
+- `inspectRound`
 - `readVector`
 - `connectVector`
 - `fitProfile`
@@ -199,8 +200,8 @@ API 1.22.0 · 操作目录 sha256:7015c10d70e2ec94e27c97a98b8512d8b70a78968e5004
 - `template.twoPieceEyelet` · advisory · 参数化两件式薄壁鸡眼，法兰外翻边和内侧圆弯按薄壁截面精确旋转生成。A件为长脚，B件为配套短脚；支持同轴静态套合或分开展示，不模拟压铆变形、LOGO和压字。
 - `template.frameEyelet` · advisory · 圆形或圆角方形面框、恒壁厚短颈口、对称安装柱及普通直孔，一次生成单件。颈口和柱沿本地+Z；面框底面Z=0。孔深0为通孔，正值为从柱顶向下的盲孔。安装柱数量0/2/4，2柱沿Y布置。可将颈口/柱高度设0作背片。不含牙槽、锥孔、压铆、饰面及三维边圆角；按原图再加工。圆形模式内外宽高必须分别相等，角R仅用于方形。
 - `template.uStrapClip` · advisory · 沿X等宽的恒壁厚开口U夹，前后片可不同高，内外弯角为精确相切圆弧；内弯R=内净距/2时为半圆底。底面Z=0，开口朝+Z，后片在+Y。可加后片普通通孔0/1/2个，2孔沿X布置。不是四边封闭的帽套；不含牙槽、前面饰面、片端三维圆角和弹性变形。孔中心须处于后片直段。
-- `sampleReliefHeight` · page-method · sampleReliefHeight({context,featureId,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。
-- `prepareReliefSculpt` · page-method · prepareReliefSculpt({context,featureId,draft?:{deltaMm,mask},strokes:[{mode:"raise"|"lower"|"smooth"|"flatten"|"restore"|"mask"|"unmask"|"fill"|"scrape"|"sharpen",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:"none"|"x"|"y"|"xy",points:[[x,y],...]},...]})。所有现有浮雕类型使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。
+- `sampleReliefHeight` · page-method · sampleReliefHeight({context,featureId,layerIndex?,samples?,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。分层必须明确 layerIndex；samples 仅用于读初始等高层的新草稿，约束同 prepareReliefSculpt。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。
+- `prepareReliefSculpt` · page-method · prepareReliefSculpt({context,featureId,layerIndex?,samples?,draft?:{deltaMm,mask},strokes:[{mode:"raise"|"lower"|"smooth"|"flatten"|"restore"|"mask"|"unmask"|"fill"|"scrape"|"sharpen",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:"none"|"x"|"y"|"xy",points:[[x,y],...]},...]})。单层与显式选层使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。
 - `readRelief` · page-method · readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5})。先 files.register；只读，本地解码。
 - `getHistory` · page-method · getHistory()。返回已保留状态，不含导入源字节。
 - `planAlignment` · page-method · planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true。
@@ -224,7 +225,7 @@ API 1.22.0 · 操作目录 sha256:7015c10d70e2ec94e27c97a98b8512d8b70a78968e5004
 - `getTools` · page-method · getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.
 - `getTool` · page-method · getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。
 - `readDocs` · page-method · readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。
-- `queryGeometry` · page-method · queryGeometry({context,bodyId,kind:"face"|"edge",filter,requireUnique?,limit?,cursor?})。
+- `queryGeometry` · page-method · queryGeometry({context,bodyId,kind:"face"|"edge",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry；多选仍须 requireUnique:false。
 - `queryReferences` · page-method · queryReferences({context,bodyIds:[],kind:"point"|"axis"|"frame",filter?:{types?:["cad-vertex","edge-midpoint","circle-center","edge-nearest","trimmed-face-point",...],near?:{point:[x,y,z],radiusMm}},limit?,offset?,requireUnique?})。
 - `resolvePlacement` · page-method · resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。
 - `execute` · page-method · execute({context,idempotencyKey,action,args}); action 来自当前命令合同。
@@ -239,6 +240,7 @@ API 1.22.0 · 操作目录 sha256:7015c10d70e2ec94e27c97a98b8512d8b70a78968e5004
 - `inspectFit` · page-method · inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。
 - `inspectThickness` · page-method · inspectThickness({context,bodyId,mode:"ray",point:[x,y,z],direction:[dx,dy,dz]})；或 mode:"faces",faceAId,faceBId,point；两面须平行且射线穿过连续材料。
 - `inspectDraft` · page-method · inspectDraft({context,bodyId,pullDirection:[0,0,1],thresholdDeg:2})；用户决定阈值。
+- `inspectRound` · page-method · inspectRound({context,bodyId,params:{edgeIds:[0],mode:"edge",radiusMm:0.3}})；params 同 round 工具卡，亦可 faceIds 解析平面边界。
 - `readVector` · page-method · readVector({context,name,resourceId|text,scaleMm?:1,targetWidthMm?,entityIds?,bounds?:[minX,minY,maxX,maxY],layers?,offset?:0,limit?:500}); limit<=10000。文件先 files.register。
 - `connectVector` · page-method · connectVector({context,entities,toleranceMm?:0.000001,origin?:[0,0],flipY?:false}); 1..500 条解析线。
 - `fitProfile` · page-method · fitProfile({context,kind:"circle"|"line",plane?:"XY"|"XZ"|"YZ",points:[[u,v],...],maxResidualMm?}); 3–1000 点。
@@ -252,7 +254,7 @@ API 1.22.0 · 操作目录 sha256:7015c10d70e2ec94e27c97a98b8512d8b70a78968e5004
 - `redraw` · page-method · redraw({context}); 不接受额外字段。
 - `capture` · page-method · capture({context}); 不接受额外字段。
 - `run` · page-method · run({context,idempotencyKey,steps}); see readDocs({docId:"api.run"}); addMany for one atomic feature plan: api.feature-plan.
-- `body.align` · page-command · 按世界 X/Y/Z 对齐包围范围的 min/center/max；移动件和基准件显式分开；group=true 保持相对位置。一次原子历史操作。
+- `body.align` · page-command · 按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:"body",bodyId:基准实体ID},axes:["Y"],sourceSide:"center",targetSide:"center",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。
 - `history.restore` · page-command · 用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。
 - `document.rename` · page-command · 修改工程名称，保留几何。
 - `feature.rename` · page-command · 修改历史步骤及同 ID 实体名称，导入件也可使用。

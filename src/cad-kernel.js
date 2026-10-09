@@ -22,7 +22,7 @@ import { buildReferenceLoft } from './reference-profile-loft.js';
 import { buildSmoothTransition } from './smooth-transition.js';
 import { buildEdgeBlend } from './edge-blend.js';
 import {patternOutput} from './modeling/organization/pattern-output.js';
-import {buildRoundTool} from './modeling/rounding/round-tool.js';
+import {buildRoundTool,inspectRoundTool} from './modeling/rounding/round-tool.js';
 import {buildEndRounding} from './modeling/rounding/end-rounding.js';
 import {buildRounding} from './modeling/rounding/index.js';
 import {rotateVector,worldPoint} from './work-frame.js';
@@ -883,6 +883,7 @@ export class CadKernel {
   }
   measureRelation(input){return measureRelationExact(input,id=>this.activeShape(id),this.oc,cad);}
   inspectDraft(input){return inspectDraftExact(this.activeShape(input.bodyId),input);}
+  inspectRound(input){return {bodyId:input.bodyId,...inspectRoundTool(this.activeShape(input.bodyId),input.params)};}
   async export(format, ids, {colors = {}, defaultColor = '#aac4d9'} = {}) {
     const selected = ids === undefined ? [...this.active.keys()] : ids;
     if (!Array.isArray(selected) || !selected.length) throw new Error('没有可导出的实体');

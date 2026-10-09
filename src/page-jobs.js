@@ -1,8 +1,10 @@
 // Page-local receipts survive a host call timeout, not a page reload. No server.
-export function createPageJobs(api) {
+export function createPageJobs(api,{runBatch}={}) {
   const jobs = new Map();
   const methods = new Set(['run','execute','queryGeometry','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','setView','setRenderQuality','files.save','files.export','files.import']);
   methods.add('inspectDesign');
+  methods.add('inspectRound');
+  for(const name of ['createDrawing','exportDrawing','copySelection','pasteSelection'])methods.add(name);
   const fail = (code,message) => {throw Object.assign(new Error(message),{code});};
   const snapshot = job => structuredClone(Object.fromEntries(Object.entries(job).filter(([k])=>!['fingerprint','args'].includes(k))));
   function getJob({jobId}={}) {
@@ -11,7 +13,7 @@ export function createPageJobs(api) {
     const result=snapshot(job);
     if(job.status==='running'){
       const state=api.getState(),progress=state.kernelProgress;
-      if(progress&&progress.updatedAt>=job.startedAt&&state.context?.documentInstanceId===job.context.documentInstanceId){result.progress=progress;result.phase=progress.phase;}
+      if(progress&&progress.updatedAt>=job.startedAt&&state.context?.documentInstanceId===job.context.documentInstanceId){result.progress=job.progress?{...job.progress,kernel:progress}:progress;result.phase=job.progress?'stage':progress.phase;}
       result.elapsedMs=Date.now()-job.startedAt;
     }
     return result;
@@ -32,7 +34,9 @@ export function createPageJobs(api) {
     setTimeout(async()=>{
       if(job.status==='cancelled')return;
       job.status='running';job.phase='executing';job.startedAt=Date.now();
-      const result=await api.invoke({method,args:job.args});
+      let result;
+      try { result=method==='run'&&runBatch?await runBatch(job.args,{cancelled:()=>job.cancelRequested===true,progress:progress=>{job.progress={...progress,updatedAt:Date.now()};job.phase='stage';}}):await api.invoke({method,args:job.args}); }
+      catch(error) { result={status:'unknown',commitState:'unknown',error:{code:error.code||'JOB_EXECUTION_FAILED',message:error.message},context:api.getState().context}; }
       job.result=result;
       job.status=['failed','unknown','partial'].includes(result?.status)?result.status:result?.status==='committed'||result?.status==='completed'?'committed':'completed';
       job.phase='finished';job.finishedAt=Date.now();job.elapsedMs=job.finishedAt-job.startedAt;
@@ -41,7 +45,10 @@ export function createPageJobs(api) {
   }
   function cancelJob({jobId}={}) {
     const job=jobs.get(jobId);if(!job)fail('JOB_NOT_FOUND','Unknown job');
-    if(job.status==='running')return {...snapshot(job),cancelled:false,reason:'RUNNING_KERNEL_NOT_INTERRUPTIBLE'};
+    if(job.status==='running'){
+      if(job.method==='run'&&runBatch){job.cancelRequested=true;return {...snapshot(job),cancelled:false,reason:'STOP_REQUESTED_AFTER_CURRENT_STAGE'};}
+      return {...snapshot(job),cancelled:false,reason:'RUNNING_KERNEL_NOT_INTERRUPTIBLE'};
+    }
     if(job.status==='queued'){job.status='cancelled';job.phase='finished';job.finishedAt=Date.now();}
     return {...snapshot(job),cancelled:job.status==='cancelled'};
   }

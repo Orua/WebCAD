@@ -1,6 +1,12 @@
 # WebCAD agent rules
 
-Current parallel work: remote Agent integration is isolated in `agent/temp/remote-agent-worktree-20261009/` on `codex/remote-webcad-agent-20261009`. Read [the coordination record](agent/notes/REMOTE-AGENT-COORDINATION-20261009.md) before integrating it. The user explicitly reserves existing CAD tools, kernel, registry, UI and public page-API files for the other tool-development task; this integration task owns only its new adapter modules until a coordinated merge.
+## Local storage restriction (user instruction, 2026-10-09)
+
+F: contains necessary source, program/runtime files, Git metadata and lightweight entry/router files. Write all other transferable data directly to G:, including agent scratch scripts, downloads, CAD investigation data, exported models, screenshots, reports, notes, logs, caches and backups. New non-program work uses `G:/CAD-Workspace/WebCAD/`; existing migrated agent data stays under `G:/AgentStorage/F/Project/WebCAD/agent/` with original-path compatibility links. Transferable dependencies use G: with compatible configuration/junctions.
+
+Read `G:/AgentStorage/agent/notes/CAD-STORAGE-POLICY.md` before generating or organizing files. Older `agent/temp`, `agent/output` and backup examples below apply only when their actual storage is G:. For an occupied F: directory that cannot be linked, write new data to the explicit G: location and record retained F: paths. Generated investigation data is never required program source by default. These local links are not part of the public page or deployment package.
+
+Remote Agent integration and the tool upgrade are now integrated in the primary checkout under the user's 2026-10-09 authorization. The adapter in `src/agent/` delegates to the same public page API, CommandService and Worker as the UI. Historical worktrees and coordination records are not separate product versions; continue from the canonical branch and preserve unrelated work.
 
 Read [PROJECT.md](PROJECT.md) before implementation. It is the canonical product-purpose, architecture and acceptance specification. See [page API](docs/PAGE-API.zh-CN.md) for integration.
 

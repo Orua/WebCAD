@@ -7,7 +7,15 @@ import {buildEdgeBlend,blendTargets} from '../src/edge-blend.js';
 import {topologyDetails} from '../src/smooth-transition.js';
 import {adaptUISelection} from '../src/ui-selection-adapter.js';
 import {normalizeOperationParams,normalizeOperationPatch} from '../src/operation-registry.js';
+import {boundedDiagnosticReport} from '../src/modeling/diagnostic-report.js';
 const oc=await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))});cad.setOC(oc);
+
+test('large failure diagnostics keep an explicit bounded summary',()=>{
+ const report={operation:'fillet',stage:'construction',attemptCount:1,confirmedFailedEdgeIds:Array.from({length:3000},(_,i)=>i)};
+ const bounded=boundedDiagnosticReport(report);
+ assert.equal(bounded.truncated,true);assert.equal(bounded.operation,'fillet');assert.equal(bounded.attemptCount,1);assert.ok(JSON.stringify(bounded).length<=4096);assert.equal(report.confirmedFailedEdgeIds.length,3000);
+ const shape=cad.makeBox([0,0,0],[1,1,1]);try{assert.throws(()=>buildEdgeBlend(shape,'fillet',{radius:.1,edgeIds:[]}),e=>e.report.stage==='selection'&&e.report.attemptCount===0);}finally{shape.delete();}
+});
 
 test('UI multi-face scope selects common edge; old face-boundary recipes remain explicit',()=>{
   for(const op of ['fillet','chamfer']){
@@ -60,7 +68,8 @@ test('failed large fillet reports a sampled valid radius without changing the so
     const edge=topologyDetails(s).find(e=>Math.abs(e.startPoint[0]-e.endPoint[0])>9);
     assert(edge);
     const before=cad.measureVolume(s);
-    assert.throws(()=>buildEdgeBlend(s,'fillet',{radius:2,edgeIds:[edge.edgeId]}),/较小半径 R[\d.]+ mm 已单独试算为有效单实体/);
+    assert.throws(()=>buildEdgeBlend(s,'fillet',{radius:2,edgeIds:[edge.edgeId]}),error=>error.report.stage==='construction'&&error.report.attemptCount===1&&error.report.radiusProbe.requested===false);
+    assert.throws(()=>buildEdgeBlend(s,'fillet',{radius:2,edgeIds:[edge.edgeId]},{suggestRadius:true}),/较小半径 R[\d.]+ mm 已单独试算为有效单实体/);
     assert.equal(cad.measureVolume(s),before);
   }finally{s.delete();}
 });

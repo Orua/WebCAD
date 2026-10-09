@@ -3,6 +3,12 @@
 const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const zero=values=>values.map(row=>row.map(()=>0));
+export function reliefLayerParams(params,layerIndex,{samples}={}){
+ if(!Array.isArray(params.layers)||!Number.isInteger(layerIndex)||layerIndex<0||layerIndex>=params.layers.length)fail('PARAM_SCHEMA_INVALID','分层浮雕需要明确的当前 layerIndex（从 0 开始）');
+ const {layers,regions,strokes,sculpt,values,...common}=params,layer=layers[layerIndex];
+ if(samples!==undefined&&(!Number.isInteger(samples)||samples<4||samples>65||layer.values||layer.sculpt))fail('PARAM_SCHEMA_INVALID','samples 仅用于尚无 values/sculpt 的等高层，范围 4–65');
+ return {...common,depthMm:layer.heightMm,mode:layer.mode??'emboss',surfaceMode:'smooth',regions:layer.regions,strokes:layer.strokes,values:layer.values??Array.from({length:samples??4},()=>Array(samples??4).fill(1)),...(layer.sculpt?{sculpt:layer.sculpt}:{})};
+}
 export const sculptSchema={type:'object',additionalProperties:false,required:['deltaMm','mask'],properties:{
  deltaMm:{type:'array',minItems:4,maxItems:65,items:{type:'array',minItems:4,maxItems:65,items:{type:'number',minimum:-20,maximum:20}}},
  mask:{type:'array',minItems:4,maxItems:65,items:{type:'array',minItems:4,maxItems:65,items:{type:'number',minimum:0,maximum:1}}}
@@ -28,7 +34,9 @@ export function insideRelief(params,x,y){
 export function reliefHeights(params){const s=sculptState(params);return params.values.map((r,j)=>r.map((v,i)=>(params.surfaceMode==='flat'?1:v)*params.depthMm+s.deltaMm[j][i]));}
 // Eyedropper for the flatten brush: interpolate editable control heights,
 // not world-space BRep coordinates or the display surface's spline sample.
-export function sampleReliefHeight(params,point){
+export function sampleReliefHeight(params,point,{layerIndex}={}){
+ if(params.layers)return {...sampleReliefHeight(reliefLayerParams(params,layerIndex),point),layerIndex};
+ if(layerIndex!==undefined)fail('PARAM_SCHEMA_INVALID','单层浮雕不接受 layerIndex');
  if(!Array.isArray(point)||point.length!==2||point.some(n=>!Number.isFinite(n)||n<-.5||n>.5))fail('PARAM_RANGE_INVALID','吸取点须为 [-0.5,0.5] 的局部坐标 [x,y]');
  const heights=reliefHeights(params);
  if(!insideRelief(params,...point))fail('RELIEF_SAMPLE_OUTSIDE','吸取点在浮雕轮廓外或孔洞内，请选择图案内部');
@@ -89,7 +97,12 @@ export function createReliefStroke(params,options){
  },get stats(){return {pointCount:count,visitedControls:visited};}};
 }
 
-export function prepareReliefSculpt(params,strokes){
+export function prepareReliefSculpt(params,strokes,{layerIndex,samples}={}){
+ if(params.layers){
+  const selected=reliefLayerParams(params,layerIndex,{samples}),result=prepareReliefSculpt(selected,strokes),{layers}=reliefSculptPatch(params,result.params.sculpt,{layerIndex,samples});
+  return {params:{layers},report:{...result.report,layerIndex,layerName:layers[layerIndex].name??null,transition:'selected-layer-heightfield; adjacent layer steps are not removed',unmodifiedLayerCount:layers.length-1}};
+ }
+ if(layerIndex!==undefined||samples!==undefined)fail('PARAM_SCHEMA_INVALID','单层浮雕不接受 layerIndex/samples');
  if(!Array.isArray(strokes)||strokes.length>128)fail('RELIEF_LIMIT','每次最多 128 个笔画');
  let state=sculptState(params),total=0;
  for(const stroke of strokes){
@@ -100,4 +113,13 @@ export function prepareReliefSculpt(params,strokes){
  }
  const prior=sculptState(params),rows=params.values.length,columns=params.values[0].length;
  return {params:{sculpt:state},report:{changedControls:state.deltaMm.flat().filter((v,k)=>Math.abs(v-prior.deltaMm[Math.floor(k/columns)][k%columns])>1e-12).length,rows,columns,minRadiusMm:Math.max(params.widthMm/(columns-1),params.heightMm/(rows-1)),background:'unchanged-contours',preview:'height-control-approximation'}};
+}
+
+// UI drafts and page API strokes commit the same layer-aware parameter patch.
+export function reliefSculptPatch(params,draft,{layerIndex,samples}={}){
+ if(!params.layers){if(layerIndex!==undefined||samples!==undefined)fail('PARAM_SCHEMA_INVALID','单层浮雕不接受 layerIndex/samples');return {sculpt:sculptState({...params,sculpt:draft})};}
+ const selected=reliefLayerParams(params,layerIndex,{samples}),sculpt=sculptState({...selected,sculpt:draft}),layers=structuredClone(params.layers);
+ if(samples!==undefined)layers[layerIndex].values=selected.values;
+ if(Math.min(...reliefHeights({...selected,sculpt}).flat())<(layers[layerIndex].startHeightMm??0))fail('RELIEF_LIMIT','精修高度不能低于本层起点；请先明确调整 startHeightMm');
+ layers[layerIndex].sculpt=sculpt;return {layers};
 }

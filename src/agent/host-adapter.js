@@ -16,7 +16,15 @@ export function createHostAdapter({api, session, report, artifact, now=()=>Date.
     if (artifact && result?.status==='generated' && result.resourceId) {
       try {
         const bytes=await api.files.read({resourceId:result.resourceId,as:'bytes'});
-        result={...result,attachment:await artifact(entry.command,result,bytes)};
+        const attachment=await artifact(entry.command,result,bytes);
+        result={...result,attachment};
+        if(entry.command.payload.method==='files.save' && attachment?.status==='agent_write_verified' && attachment.size===result.size && attachment.sha256===result.sha256){
+          try {
+            result.saveConfirmation=await api.files.confirmWritten({resourceId:result.resourceId,size:attachment.size,sha256:attachment.sha256});
+          } catch(error) {
+            result.saveConfirmation={status:'failed',error:{code:error.code||'SAVE_CONFIRMATION_FAILED',message:error.message}};
+          }
+        }
       } catch(error) {
         result={...result,attachment:{status:'failed',error:{code:error.code||'ARTIFACT_TRANSFER_FAILED',message:error.message}}};
       }

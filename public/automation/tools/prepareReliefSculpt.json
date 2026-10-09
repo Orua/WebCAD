@@ -3,7 +3,7 @@
   "title": "prepareReliefSculpt",
   "category": "page-method",
   "version": "1.22.0",
-  "description": "prepareReliefSculpt({context,featureId,draft?:{deltaMm,mask},strokes:[{mode:\"raise\"|\"lower\"|\"smooth\"|\"flatten\"|\"restore\"|\"mask\"|\"unmask\"|\"fill\"|\"scrape\"|\"sharpen\",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:\"none\"|\"x\"|\"y\"|\"xy\",points:[[x,y],...]},...]})。所有现有浮雕类型使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。",
+  "description": "prepareReliefSculpt({context,featureId,layerIndex?,samples?,draft?:{deltaMm,mask},strokes:[{mode:\"raise\"|\"lower\"|\"smooth\"|\"flatten\"|\"restore\"|\"mask\"|\"unmask\"|\"fill\"|\"scrape\"|\"sharpen\",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:\"none\"|\"x\"|\"y\"|\"xy\",points:[[x,y],...]},...]})。单层与显式选层使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。",
   "synonyms": [
     "prepareReliefSculpt",
     "浮雕精修",
@@ -20,8 +20,8 @@
     "对称",
     "硬度"
   ],
-  "inputContract": "prepareReliefSculpt({context,featureId,draft?:{deltaMm,mask},strokes:[{mode:\"raise\"|\"lower\"|\"smooth\"|\"flatten\"|\"restore\"|\"mask\"|\"unmask\"|\"fill\"|\"scrape\"|\"sharpen\",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:\"none\"|\"x\"|\"y\"|\"xy\",points:[[x,y],...]},...]})。所有现有浮雕类型使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。",
-  "outputContract": "只读返回status=prepared、params:{sculpt:{deltaMm,mask}}、report、canCommit及下游拓扑blockers。canCommit为true后用feature.edit提交params。原始values/depthMm/regions不变，精修控制高度限制0–20mm。mask保护控制点，B样条过渡会影响邻域；不改变轮廓/孔，预览不是精确CAD。平顶、起伏、凸雕、凹雕及平面/外凸柱面；凹雕抬高变浅、压低加深，targetMm 表示控制深度。旧矩形浮雕仍保留矩形语义。STEP无高度来源不适用。",
+  "inputContract": "prepareReliefSculpt({context,featureId,layerIndex?,samples?,draft?:{deltaMm,mask},strokes:[{mode:\"raise\"|\"lower\"|\"smooth\"|\"flatten\"|\"restore\"|\"mask\"|\"unmask\"|\"fill\"|\"scrape\"|\"sharpen\",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:\"none\"|\"x\"|\"y\"|\"xy\",points:[[x,y],...]},...]})。单层与显式选层使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。",
+  "outputContract": "只读返回status=prepared、params:{sculpt:{deltaMm,mask}}、report、canCommit及下游拓扑blockers。canCommit为true后用feature.edit提交params。分层须指定当前零起始 layerIndex，返回 params:{layers} 并仅修改该层独立 sculpt，其他层和轮廓/孔保持；可选 samples=4–65 仅用于尚无 values/sculpt 的等高层，显式建立等高控制网格，不重采样已有曲面。草稿继续使用同一个 samples 或提交后的 layers。层间台阶不会自动消失；小于 startHeightMm 的控制高度拒绝。单层原始values/depthMm/regions不变，精修控制高度限制0–20mm。mask保护控制点，B样条过渡会影响邻域；不改变轮廓/孔，预览不是精确CAD。平顶、起伏、凸雕、凹雕及平面/外凸柱面；凹雕抬高变浅、压低加深，targetMm 表示控制深度。旧矩形浮雕仍保留矩形语义。STEP无高度来源不适用。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -37,5 +37,5 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:eeef30fbeec5c481da7913041a2765fd1d7de5e5833d5df2075ce1a18739f886"
+  "docsHash": "sha256:e3f66a49f05659d3bbc6126b0ad9ff46b4d95eaefc18849dc766ce0854cffe59"
 }

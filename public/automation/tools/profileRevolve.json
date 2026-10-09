@@ -255,7 +255,9 @@
     "run",
     "feature.edit"
   ],
-  "recipes": [],
+  "recipes": [
+    "recipes.analytic-root-revolve"
+  ],
   "testIds": [
     "tests/operation-registry.test.mjs"
   ],
@@ -286,5 +288,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:2e90bae2e6488101fdf156a44249e25f14629492e69c1c7b9178e414fe282930"
+  "docsHash": "sha256:37ac6645557ea0ed9a8ca18627fcf0b4335d27a14deacb4d6b07237ace25c8ef"
 }

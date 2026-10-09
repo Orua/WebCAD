@@ -88,6 +88,8 @@ test('concurrent duplicate commands produce one edit',async()=>{
 test('query ambiguity, pagination, stale reference and preview isolation',async()=>{
  const t=setup();await t.service.execute(t.add());const q={context:t.context(),bodyId:'f1',kind:'edge',filter:{}};
  assert.equal((await t.service.queryGeometry({...q,limit:1})).error.code,'AMBIGUOUS_SELECTION');
+ const changed=await t.service.queryGeometry({...q,requireUnique:false,expectedCount:3});assert.equal(changed.error.code,'SELECTION_COUNT_CHANGED');assert.equal(changed.error.report.matchCount,2);assert.equal(changed.error.report.attemptCount,0);assert.equal(changed.selectionToken,undefined);
+ assert.equal((await t.service.queryGeometry({...q,requireUnique:false,expectedCount:2})).status,'read');
  const page=await t.service.queryGeometry({...q,requireUnique:false,limit:1});assert.equal(page.matchCount,2);assert.equal(page.items.length,1);assert(page.nextCursor);
  const second=await t.service.queryGeometry({...q,requireUnique:false,limit:1,cursor:page.nextCursor});assert.equal(second.items[0].topologyId,1);
  t.state.preview=true;assert.equal((await t.service.queryGeometry(q)).error.code,'PREVIEW_ACTIVE');t.state.preview=false;t.state.revision++;

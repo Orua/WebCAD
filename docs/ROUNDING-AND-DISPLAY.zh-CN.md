@@ -6,7 +6,7 @@
 
 在「修饰」中使用圆角或倒角：选中实体的一条或多条边，输入 R 半径或 C 距离；也可 Ctrl 选择同一实体上两个相邻面，直接处理它们的公共锐边。选择一个面时处理该面的边界，包括孔边。勾选整件时处理所有锐边，自动排除相切缝、周期接缝和退化边。凸角向实体内切除，凹角在凹处形成过渡；半径受局部壁厚、短边和相邻过渡限制，不能保证任意半径都成功。
 
-API 对应 `fillet {radius,faceIds:[a,b],sharedFaces:true}` 或 `chamfer {distance,faceIds:[a,b],sharedFaces:true}`。`edgeIds` 为选边、`allEdges:true` 为整件。旧工程及省略 `sharedFaces` 的 API 保留所选面的全部边界语义。报告 `bodies[].blendReport` 返回处理边与排除的平滑边；失败给出边编号并保留模型，不自动减小参数或跳过失败锐边。圆角失败且目标边不超过 8 条时，工具会只读试算至多 11 个较小半径；找到有效单实体时在错误信息中给出一个实际试算成功的 R 值，供用户自行决定是否重新提交。该值不是最大可用半径，也不会被自动应用。
+API 对应 `fillet {radius,faceIds:[a,b],sharedFaces:true}` 或 `chamfer {distance,faceIds:[a,b],sharedFaces:true}`。`edgeIds` 为选边、`allEdges:true` 为整件。旧工程及省略 `sharedFaces` 的 API 保留所选面的全部边界语义。报告 `bodies[].blendReport` 返回处理边与排除的平滑边；失败保留模型，不自动减小参数或跳过失败锐边。普通圆角与倒角默认只尝试请求参数一次，不扫描较小半径；`error.report` 区分失败阶段、内核确认的失败边与仅供排查的候选边，并提供尝试次数、耗时与支撑曲面。内部诊断代码可显式启用只读半径试算，试算结果不自动应用，也不代表最大可用半径；页面 API 尚未开放该诊断选项。超过传输上限的报告明确标记 `truncated` 与 `omittedPaths`。
 
 曲面法向优先沿原始 BRep 面内参数曲线计算，避免扫掠曲面上的三维投影失败被误报为「无法判定的边」。这修复了分类错误，并不消除原模型中真实的折缝或过渡面碰撞。
 
