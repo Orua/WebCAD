@@ -5,6 +5,7 @@ import {resolvePlacement,describeResolvedPlacement} from './work-frame.js';
 import { assertHistoryEditSafe } from './history-edit-safety.js';
 import {assertFeatureCapacity} from './document-limits.js';
 import {compileFeaturePlan} from './feature-plan.js';
+import {boundedDiagnosticReport} from './modeling/diagnostic-report.js';
 
 const clone=structuredClone;
 const uid=()=>crypto.randomUUID();
@@ -22,7 +23,7 @@ function finiteTree(v,path='args'){if(typeof v==='number'&&!Number.isFinite(v))f
 function integer(v,path,min=0,max=Number.MAX_SAFE_INTEGER){if(!Number.isSafeInteger(v)||v<min||v>max)fail('PARAM_RANGE_INVALID',path,`Expected integer ${min}..${max}`);}
 function ids(v,path,nonempty=false){if(!Array.isArray(v)||v.length>200||(nonempty&&!v.length))fail('PARAM_SCHEMA_INVALID',path,'Expected bounded ID array');v.forEach(x=>string(x,path));if(new Set(v).size!==v.length)fail('PARAM_SCHEMA_INVALID',path,'Duplicate references');}
 const contextOf=s=>({sessionId:s.sessionId,documentId:s.documentId,documentInstanceId:s.documentInstanceId,revision:s.revision});
-function errorResult(e,requestId,s){return {status:'failed',requestId,error:{code:e.code||(/no material|remove material|无.*材料|未.*材料/i.test(e.message)?'NO_MATERIAL_REMOVED':'GEOMETRY_INVALID'),path:e.path||'args',message:e.message||String(e),retryable:false,recoveryAction:e.recoveryAction||'NONE',...(e.featureId?{featureId:e.featureId}:{}),...(e.report&&JSON.stringify(e.report).length<=4096?{report:e.report}:{}),...(e.affectedFeatureIds?{affectedFeatureIds:e.affectedFeatureIds,changedFeatureIds:e.changedFeatureIds}:{})},commitState:'not_committed',currentRevision:s?.revision};}
+function errorResult(e,requestId,s){return {status:'failed',requestId,error:{code:e.code||(/no material|remove material|无.*材料|未.*材料/i.test(e.message)?'NO_MATERIAL_REMOVED':'GEOMETRY_INVALID'),path:e.path||'args',message:e.message||String(e),retryable:false,recoveryAction:e.recoveryAction||'NONE',...(e.featureId?{featureId:e.featureId}:{}),...(e.report?{report:boundedDiagnosticReport(e.report)}:{}),...(e.affectedFeatureIds?{affectedFeatureIds:e.affectedFeatureIds,changedFeatureIds:e.changedFeatureIds}:{})},commitState:'not_committed',currentRevision:s?.revision};}
 
 // A single browser document remains authoritative. No DOM, UI selection or kernel copy.
 export function createCommandService(adapter) {
@@ -70,25 +71,26 @@ export function createCommandService(adapter) {
       if(include.includes('bodies'))r.bodies=clone(s.bodies);
       if(include.includes('selection'))r.selection={bodyIds:clone(s.selectedIds),topology:clone(s.selectedTopology)};
       if(include.includes('references'))r.references=clone(s.referenceSystem);
-      if(include.includes('capabilities'))r.capabilities={runtimeAvailability:s.kernelReady&&!s.busy&&!s.preview&&!s.previewComputing?'available':'not_ready',executeV2Operations:[...migratedOperationIds],geometryQuery:{faces:['plane'],edges:['line','circle'],loopRole:false},idempotencyGuarantee:'same document runtime instance; memory only; no cross-reload guarantee'};
+      if(include.includes('capabilities'))r.capabilities={runtimeAvailability:s.kernelReady&&!s.busy&&!s.preview&&!s.previewComputing?'available':'not_ready',executeV2Operations:[...migratedOperationIds],geometryQuery:{faces:['plane'],edges:['line','circle'],loopRole:false,bounds:true,adjacentSurfaceTypes:true,boundaryLoopIndices:true,expectedCount:true},idempotencyGuarantee:'same document runtime instance; memory only; no cross-reload guarantee'};
       return r;
     }catch(e){return errorResult(e,requestId,s);}
   }
   async function queryGeometry(input){
     const requestId=uid();let s;
-    try{s=snapshot();object(input,['context','bodyId','kind','filter','requireUnique','limit','cursor'],'input');context(input.context,s);available(s);
+    try{s=snapshot();object(input,['context','bodyId','kind','filter','requireUnique','expectedCount','limit','cursor'],'input');context(input.context,s);available(s);
       string(input.bodyId,'bodyId');if(!s.bodies.some(b=>b.id===input.bodyId))fail('STALE_REFERENCE','bodyId','Body is not current');
       if(!['face','edge'].includes(input.kind))fail('PARAM_SCHEMA_INVALID','kind','Expected face or edge');
       if(input.requireUnique!==undefined&&typeof input.requireUnique!=='boolean')fail('PARAM_SCHEMA_INVALID','requireUnique','Expected boolean');
+      if(input.expectedCount!==undefined)integer(input.expectedCount,'expectedCount',1,100000);
       const limit=input.limit??20;integer(limit,'limit',1,100);
       const filter=clone(input.filter??{});finiteTree(filter,'filter');
-      object(filter,input.kind==='face'?['surfaceType','normal','atExtreme']:['curveType','lengthRangeMm','radiusRangeMm','onFaceToken'],'filter');
+      object(filter,input.kind==='face'?['surfaceType','normal','atExtreme','bounds']:['curveType','lengthRangeMm','radiusRangeMm','onFaceToken','bounds','adjacentSurfaceTypes','loopIndex'],'filter');
       if(filter.onFaceToken!==undefined){const t=token(filter.onFaceToken,s,input.bodyId,'face');if(t.ids.length!==1)fail('AMBIGUOUS_SELECTION','filter.onFaceToken','One face is required');await verifyToken(t);filter.onFaceId=t.ids[0];delete filter.onFaceToken;}
       const result=await adapter.query({bodyId:input.bodyId,kind:input.kind,filter});
       context(input.context,snapshot());available(snapshot());
-      if(result.matchCount===0)fail('NO_MATCH','filter','No geometry matches','QUERY_GEOMETRY_AGAIN');
+      if(result.matchCount===0||input.expectedCount!==undefined&&input.expectedCount!==result.matchCount){const e=domainError(result.matchCount===0?'NO_MATCH':'SELECTION_COUNT_CHANGED','filter',result.matchCount===0?'No geometry matches':'Geometry match count differs from expectedCount','QUERY_GEOMETRY_AGAIN');e.report={stage:'selection',attemptCount:0,matchCount:result.matchCount,expectedCount:input.expectedCount??null,filter:clone(input.filter??{})};throw e;}
       if((input.requireUnique??true)&&result.matchCount>1){const r=errorResult(domainError('AMBIGUOUS_SELECTION','filter','More than one match','REFINE_QUERY'),requestId,s);return {...r,matchCount:result.matchCount,items:result.items.slice(0,limit),ambiguous:true,context:contextOf(s)};}
-      const fingerprint=canonical({context:input.context,bodyId:input.bodyId,kind:input.kind,filter,requireUnique:input.requireUnique??true,limit});
+      const fingerprint=canonical({context:input.context,bodyId:input.bodyId,kind:input.kind,filter,requireUnique:input.requireUnique??true,expectedCount:input.expectedCount,limit});
       let offset=0;
       if(input.cursor!==undefined){string(input.cursor,'cursor',2048);const c=cursors.get(input.cursor);if(!c||c.fingerprint!==fingerprint)fail('STALE_REFERENCE','cursor','Cursor does not match this snapshot/query');offset=c.offset;}
       if(tokens.size>=1000||cursors.size>=1000)fail('RESOURCE_LIMIT','query','Selection cache is full; reload to start a new instance');

@@ -1,13 +1,13 @@
 {
   "id": "body.align",
   "title": "快速对齐",
-  "description": "按世界 X/Y/Z 对齐包围范围的 min/center/max；移动件和基准件显式分开；group=true 保持相对位置。一次原子历史操作。",
+  "description": "按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:\"body\",bodyId:基准实体ID},axes:[\"Y\"],sourceSide:\"center\",targetSide:\"center\",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。",
   "category": "command",
   "version": "1.22.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"body.align\",args}); 按世界 X/Y/Z 对齐包围范围的 min/center/max；移动件和基准件显式分开；group=true 保持相对位置。一次原子历史操作。",
+  "inputContract": "execute({context,idempotencyKey,action:\"body.align\",args}); 按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:\"body\",bodyId:基准实体ID},axes:[\"Y\"],sourceSide:\"center\",targetSide:\"center\",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。",
   "fields": [
     "bodyIds",
     "target",
@@ -40,22 +40,26 @@
     "action": "body.align",
     "args": {
       "bodyIds": [
-        "<bodyId>"
+        "<movingBodyId>"
       ],
       "target": {
-        "kind": "origin"
+        "kind": "body",
+        "bodyId": "<referenceBodyId>"
       },
       "axes": [
-        "X",
-        "Y",
-        "Z"
+        "Y"
       ],
       "sourceSide": "center",
       "targetSide": "center",
-      "group": true
+      "group": true,
+      "gapMm": [
+        0,
+        0,
+        0
+      ]
     }
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:7939b336b6ba84056b917dd4903839266e8d00c6695df3a0822e7a143bc44a46"
+  "docsHash": "sha256:f5483d1846cfa9e080d75b4b1cf834705775eec8590e5deda99d7fabb2bb713e"
 }

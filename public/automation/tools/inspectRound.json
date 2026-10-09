@@ -1,0 +1,38 @@
+{
+  "id": "inspectRound",
+  "title": "inspectRound",
+  "category": "page-method",
+  "version": "1.22.0",
+  "description": "inspectRound({context,bodyId,params:{edgeIds:[0],mode:\"edge\",radiusMm:0.3}})；params 同 round 工具卡，亦可 faceIds 解析平面边界。",
+  "synonyms": [
+    "inspectRound",
+    "圆角预检",
+    "圆润规划",
+    "选边",
+    "支撑面"
+  ],
+  "inputContract": "inspectRound({context,bodyId,params:{edgeIds:[0],mode:\"edge\",radiusMm:0.3}})；params 同 round 工具卡，亦可 faceIds 解析平面边界。",
+  "outputContract": "只读实际选区、目标数、支撑面类型、构造类别和限制；attemptCount=0，不构造几何、不扫描半径、不保证加工成功。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "STALE_REFERENCE",
+    "SELECTION_CONFLICT",
+    "ROUND_SELECTION_AMBIGUOUS",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docs": "api.round-preflight",
+  "relatedTools": [
+    "round",
+    "queryGeometry"
+  ],
+  "units": {
+    "length": "mm"
+  },
+  "docsHash": "sha256:df88d4104595a6f500dc77bed4caf93ff349d8ae8d7176029624ea8ffee7e9c6"
+}

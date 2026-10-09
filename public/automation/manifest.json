@@ -1,9 +1,9 @@
 {
   "version": "1.22.0",
-  "buildId": "93fc573cd7fa83aa8ad9ab24732d9e21776f3f6b-src-b3b45b83dd8f3dcd-working",
+  "buildId": "5f47dc47deb13496575a9ed8615042a52e310d3b-src-e79bf849c96c99c7-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:7015c10d70e2ec94e27c97a98b8512d8b70a78968e500440967e3e2a0b617722",
-  "docsHash": "sha256:fd249a15d44a531b845f92ba640ab634a904412525f98c74926c1e86a03d453f",
+  "catalogHash": "sha256:5f9aed91f6295bd4243c0f7003ee9586e2f4e71c538c146fb941d33d0fae75ca",
+  "docsHash": "sha256:813749a430b3d1de3b9c9bdae0d09d7fbc97b617514b24080fefb1cad6d57498",
   "apiMethods": [
     "sampleReliefHeight",
     "prepareReliefSculpt",
@@ -45,6 +45,7 @@
     "inspectFit",
     "inspectThickness",
     "inspectDraft",
+    "inspectRound",
     "readVector",
     "connectVector",
     "fitProfile",
@@ -489,7 +490,7 @@
       "label": "轮廓旋转",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:2e90bae2e6488101fdf156a44249e25f14629492e69c1c7b9178e414fe282930",
+      "docsHash": "sha256:37ac6645557ea0ed9a8ca18627fcf0b4335d27a14deacb4d6b07237ace25c8ef",
       "url": "tools/profileRevolve.json"
     },
     {
@@ -543,7 +544,7 @@
       "label": "浮雕",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:42763cc1f404bb6de6bd888027a48f568b3a1321b58bab45ce1183808474ab16",
+      "docsHash": "sha256:159a3fb0792aeba6bbf4fafcfb4e98258feff364dc71955e1686275396a7acbb",
       "url": "tools/relief.json"
     },
     {
@@ -1145,7 +1146,7 @@
       "title": "sampleReliefHeight",
       "category": "page-method",
       "version": "1.22.0",
-      "docsHash": "sha256:bfddea2dacb6d0a725a6018c86f63966ca68717855cf0b51a553425513f7b732",
+      "docsHash": "sha256:7c30a466ffd5d7c7f3ac466a9ea30c7586005ebd274e8bee44f72b9724ff9fab",
       "url": "tools/sampleReliefHeight.json"
     },
     {
@@ -1153,7 +1154,7 @@
       "title": "prepareReliefSculpt",
       "category": "page-method",
       "version": "1.22.0",
-      "docsHash": "sha256:eeef30fbeec5c481da7913041a2765fd1d7de5e5833d5df2075ce1a18739f886",
+      "docsHash": "sha256:e3f66a49f05659d3bbc6126b0ad9ff46b4d95eaefc18849dc766ce0854cffe59",
       "url": "tools/prepareReliefSculpt.json"
     },
     {
@@ -1345,7 +1346,7 @@
       "title": "queryGeometry",
       "category": "page-method",
       "version": "1.22.0",
-      "docsHash": "sha256:182eb3c532030c86453879de39f9b56709faa4cf29dbbebb9f62d4f3a8851ee2",
+      "docsHash": "sha256:0b75b8b3655f060cf379e114c5b4c74e955cd8b05a25be72f0a2546a531b89fa",
       "url": "tools/queryGeometry.json"
     },
     {
@@ -1461,11 +1462,19 @@
       "url": "tools/inspectDraft.json"
     },
     {
+      "id": "inspectRound",
+      "title": "inspectRound",
+      "category": "page-method",
+      "version": "1.22.0",
+      "docsHash": "sha256:df88d4104595a6f500dc77bed4caf93ff349d8ae8d7176029624ea8ffee7e9c6",
+      "url": "tools/inspectRound.json"
+    },
+    {
       "id": "readVector",
       "title": "readVector",
       "category": "page-method",
       "version": "1.22.0",
-      "docsHash": "sha256:6cfbdac876312d8c40ad0614677d6c286fce40d555d101c3fed64ad0641c1b2c",
+      "docsHash": "sha256:1460508ee1aca440ce15daa18351cfd8bfb0d125556499ab837bd49a5f0c1c16",
       "url": "tools/readVector.json"
     },
     {
@@ -1569,7 +1578,7 @@
       "title": "快速对齐",
       "category": "command",
       "version": "1.22.0",
-      "docsHash": "sha256:7939b336b6ba84056b917dd4903839266e8d00c6695df3a0822e7a143bc44a46",
+      "docsHash": "sha256:f5483d1846cfa9e080d75b4b1cf834705775eec8590e5deda99d7fabb2bb713e",
       "url": "tools/body.align.json"
     },
     {
@@ -1964,7 +1973,7 @@
     },
     {
       "id": "api.file-errors",
-      "docsHash": "sha256:4289c6018743ec6ff6da7c278d93b0b5d7c99e73095bb87c889fe42c3b46f7a2",
+      "docsHash": "sha256:e9a10970cd0c4201b1b946dec691dd42c4327db6690ed97a5e405cc33916ebf4",
       "url": "docs/api.file-errors.md"
     },
     {
@@ -2009,7 +2018,7 @@
     },
     {
       "id": "api.query-geometry",
-      "docsHash": "sha256:c0d8333c90bb898b41079518c24cf816bef15b3ca99cef86cf015f7eac46581b",
+      "docsHash": "sha256:1b663577c61290b364cf112ac5a19c2b8e309a4cb0af9d0cad2373f2669a1e8f",
       "url": "docs/api.query-geometry.md"
     },
     {
@@ -2039,23 +2048,33 @@
     },
     {
       "id": "api.reliability",
-      "docsHash": "sha256:ba3885a336f28c5ad0f4b239e5f5579edae5285d98d34333c90fa3593d64c859",
+      "docsHash": "sha256:2a5a4ace66ed86804f72bb26a2caf8c74ca383444b91278ec85d7d4ee93070d8",
       "url": "docs/api.reliability.md"
     },
     {
       "id": "api.relief",
-      "docsHash": "sha256:b77d994f326e9bdef2386406b4707f77fe579a98bab665cad05b94d51ee4fa6b",
+      "docsHash": "sha256:ccc6d2e74c8d9ab763ac885ff0d0dcdffe046c47b052c58ac7fbeb54f34eacd9",
       "url": "docs/api.relief.md"
     },
     {
+      "id": "api.round-preflight",
+      "docsHash": "sha256:c7fbb7b1206cd7663f13f60abf3085df69d09954cea051f63002e529bff52c0a",
+      "url": "docs/api.round-preflight.md"
+    },
+    {
       "id": "api.run",
-      "docsHash": "sha256:36f39e9d9cac7e0a5f222ed11fe80ec8678c269d368b1b6c040a6c8302456c42",
+      "docsHash": "sha256:7c04719554a68cb9d94922ca5963dad04c806acf898c9547cc472a6f00529dc6",
       "url": "docs/api.run.md"
     },
     {
       "id": "api.smooth-transition",
       "docsHash": "sha256:727ea849c792b573723bf8e5bea2e505efbe2ed9eda05f0e8a1f39f09c7f9611",
       "url": "docs/api.smooth-transition.md"
+    },
+    {
+      "id": "api.source-curves",
+      "docsHash": "sha256:a3c472c5b113ebb6afb5e3504c0edb65f634a31c404992f03eba92bf71cbda45",
+      "url": "docs/api.source-curves.md"
     },
     {
       "id": "api.text-command",
@@ -2261,6 +2280,11 @@
       "id": "recipes.analytic-arc-profile",
       "docsHash": "sha256:0b6573eee3f4e3e7ed39d7507390b9e2fde24eda4e89e95f60e8a1fe0f98d993",
       "url": "docs/recipes.analytic-arc-profile.md"
+    },
+    {
+      "id": "recipes.analytic-root-revolve",
+      "docsHash": "sha256:693bdada0c5eb966a24cebbe52b4209f24471fcf873d19f2f01d4daba3179637",
+      "url": "docs/recipes.analytic-root-revolve.md"
     },
     {
       "id": "recipes.arc-band-plate",

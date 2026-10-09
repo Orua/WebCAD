@@ -1,5 +1,36 @@
 # WebCAD 页面 API
 
+`inspectRound({context,bodyId,params})` 只读复用 `round` 规划器；参数、选区与限制见 `readDocs({topic:'api.round-preflight'})`。返回 `attemptCount:0`、实际范围与支撑面，推荐值不代表圆角可行。
+
+源曲线与转换回执见 `api.source-curves`；局部精确截面旋转配方见 `recipes.analytic-root-revolve`。前者明确区分完整样条参数和拟合点，当前没有原始 NURBS 构造入口；后者仅证明已核对的圆柱/平面凹根局部，不是一般曲面圆角。
+
+分层工程的属性面板可点击“选择图层并精修…”，或使用现有浮雕精修入口。初次无高度网格的层明确选择 4–65 控制网格，默认 33；已有网格不隐式重采样。各层草稿独立，应用只修改当前层，工程保存保留层 `values/sculpt`。预览只显示当前层控制高度，不表示全部层间台阶已经消失。
+
+## 局部选边、失败诊断与分层精修
+
+`queryGeometry` 可传 `expectedCount`（正整数）保护宿主的选择预期；0 匹配返回 `NO_MATCH`，数量改变返回 `SELECTION_COUNT_CHANGED`，不生成选择令牌。`filter.bounds:{min:[x,y,z],max:[x,y,z],mode:'contained'|'intersects',toleranceMm:0.000001}` 筛选世界坐标 BRep 包围盒，不能作为材料相交证明。边的 `adjacentSurfaceTypes:['plane','cylinder']` 匹配实际邻面类型；`onFaceToken` 绑定当前面后可用 `loopIndex`，结果给出当前 `boundaryLoopIndices`。改模型后重新查询，环号和旧令牌不复用。柱面候选返回 `cylinder:{radiusMm,origin,axis}`。
+
+普通 `fillet/chamfer` 的失败 `error.report` 区分 `selection/construction/validation`，含 `attemptCount/elapsedMs/requestedAmountMm`、确认失败边与候选边、支撑面类型及附近小折角。没有确证时 `cause:'unknown'`。默认只尝试请求尺寸，不扫描较小半径。超过 4096 字符的报告提供明确 `truncated/originalChars/omittedPaths`，不静默丢弃；该报告不等于一般曲面圆角可行性证明。
+
+分层精修示例：
+
+```js
+const draft = await api.prepareReliefSculpt({
+  context, featureId, layerIndex: 1, samples: 33,
+  strokes: [{mode:'raise',radiusMm:3,amountMm:0.1,points:[[0.06,-0.03]]}]
+});
+// samples 仅用于还没有 values/sculpt 的等高层，已有网格不重采样。
+// 先检查 changedControls、canCommit、blockers，再用当前契约提交 draft.params。
+await api.execute({context,idempotencyKey:crypto.randomUUID(),action:'feature.edit',
+  args:{featureId,opVersion:card.version,schemaHash:card.schemaHash,params:draft.params}});
+```
+
+`layerIndex` 为当前历史参数的零起始层索引。返回完整 `params.layers`，仅所选层增加独立 `sculpt`；其他层、源轮廓与孔保持。采样 `sampleReliefHeight` 也须指定该索引。草稿增加网格时，未提交采样须给同一 `samples`；提交后直接沿保存网格读取。精修低于本层 `startHeightMm` 时拒绝。笔刷是局部高度曲面，不能作为精确 R 或全部层间接缝已消失的证明。
+
+浮雕 `timingsMs` 与实时进度区分刀具/轮廓裁切、边界检查、`relief-boolean-build`、`relief-result-validation`；后两者现在独立计时。分层只复用刚刚验证通过的中间体，保留每层最终单实体有效性检查。柱面布尔使用锁定内核的 OBB 候选剪枝，公差仍为 `1e-7 mm`，不改变轮廓精度。
+
+`body.align` 的完整参数例为 `{bodyIds:[movingId],target:{kind:'body',bodyId:referenceId},axes:['Y'],sourceSide:'center',targetSide:'center',group:true,gapMm:[0,0,0]}`。`gapMm` 是 XYZ 数组。成功后用 `replacements:[{before,after}]` 或 `createdBodyIds` 绑定测量；旧移动实体 ID 可能已失效。
+
 ## 分层浮雕与轮廓清理
 
 `relief.params.layers` 按原始底面保存各层的 `heightMm`、可选 `startHeightMm`、`mode`、`regions`/`strokes`。浅细节使用完整低层加带细节孔的高层；空白区域保持原面。UI 图案文件入口接受 `.relief.json`，各层参数可在属性面板修改；AI 用同一 `relief` 和 `feature.edit`。

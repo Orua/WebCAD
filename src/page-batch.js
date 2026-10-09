@@ -1,10 +1,13 @@
 // Structured batches over an authorized page script channel (or explicit manual debugging).
 // Every mutation still goes through the existing page API / CommandService.
+import {contractHash} from './contracts/operation-schema.js';
 const methods = new Set(['add','execute','connect','info','getState','searchTools','getTools','getTool','readDocs',
   'getQuickModelUsage','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','readVector','connectVector','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.capabilities','files.register',
   'files.import','files.save','files.export','files.release']);
 const contextual = new Set(['execute','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','readVector','connectVector','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.import','files.save','files.export']);
 methods.add('inspectDesign');
+methods.add('inspectRound');
+contextual.add('inspectRound');
 methods.add('prepareReliefSculpt');
 contextual.add('prepareReliefSculpt');
 methods.add('sampleReliefHeight');
@@ -24,15 +27,18 @@ function safe(value,depth=0){
   }
 }
 export function createPageBatch(api){
-  const receipts=new Map();let tail=Promise.resolve(),instance;
-  async function run(input){
+  const receipts=new Map(),failedAttempts=new Map();let tail=Promise.resolve(),instance;
+  const canonical=value=>JSON.stringify(value,(_,v)=>plain(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);
+  const digest=value=>contractHash(JSON.parse(value)).slice(7);
+  async function run(input,control){
     let results=[],key,fingerprint,started=false,activeStepId=null;
     const attempted=new Set();
     const startedAt=performance.now();
     const finish=(status,error)=>{const s=api.getState();return {status,idempotencyKey:key,atomic:false,results,
       requestContext:context(s.context),
       progress:{completedStepIds:results.filter(item=>!['failed','unknown'].includes(item.result?.status)).map(item=>item.id),
-        failedStepId:status==='completed'?null:activeStepId,
+        failedStepId:status==='completed'||error?.code==='BATCH_CANCELLED'?null:activeStepId,
+        stoppedBeforeStepId:error?.code==='BATCH_CANCELLED'?activeStepId:null,
         unattemptedStepIds:(Array.isArray(input?.steps)?input.steps:[]).filter(step=>typeof step?.id==='string'&&!attempted.has(step.id)).map(step=>step.id)},
       recovery:status==='completed'?null:{action:status==='unknown'?'INSPECT_STATE_BEFORE_RETRY':'READ_STATE_AND_REPLAN_REMAINING',
         message:'Earlier committed steps remain. Read current state; do not recreate them. Use a new key for a revised remainder. An identical request/key only retrieves the original receipt.'},
@@ -44,7 +50,7 @@ export function createPageBatch(api){
       safe(input);keys(input,['context','idempotencyKey','steps']);
       fingerprint=JSON.stringify(input);if(fingerprint.length>3*1024*1024)bad('RESOURCE_LIMIT','Batch exceeds 3 MiB');
       const now=api.getState();
-      if(instance!==now.context.documentInstanceId){receipts.clear();instance=now.context.documentInstanceId;}
+      if(instance!==now.context.documentInstanceId){receipts.clear();failedAttempts.clear();instance=now.context.documentInstanceId;}
       key=input.idempotencyKey;
       if(typeof key!=='string'||!key.length||key.length>80)bad('PARAM_SCHEMA_INVALID','idempotencyKey: 1..80 characters');
       if(receipts.has(key)){
@@ -65,7 +71,8 @@ export function createPageBatch(api){
       if(!Array.isArray(input.steps)||!input.steps.length||input.steps.length>20)bad('RESOURCE_LIMIT','Expected 1..20 steps');
       const names=new Set();
       for(const step of input.steps){
-        keys(step,['id','method','args']);
+        keys(step,['id','stage','method','args']);
+        if(step.stage!==undefined&&(typeof step.stage!=='string'||!step.stage.trim()||step.stage.length>80))bad('PARAM_SCHEMA_INVALID','stage must be a short descriptive name');
         if(typeof step.id!=='string'||!/^[a-zA-Z][a-zA-Z0-9_-]{0,39}$/.test(step.id)||names.has(step.id))bad('PARAM_SCHEMA_INVALID','Step IDs must be unique short names');
         if(!methods.has(step.method))bad('CAPABILITY_UNAVAILABLE',`Unsupported batch method: ${step.method}`);
         if(step.args!==undefined&&!plain(step.args))bad('PARAM_SCHEMA_INVALID','args must be an object');
@@ -89,10 +96,18 @@ export function createPageBatch(api){
       };
       started=true;
       for(const step of input.steps){
+        activeStepId=step.id;
+        if(control.cancelled?.())bad('BATCH_CANCELLED','Stopped between stages; earlier committed steps remain');
         const stepStartedAt=performance.now();
         activeStepId=step.id;let args=resolve(step.args||{}),result;
         const allowPreview=step.method==='execute'&&['preview.update','preview.commit','preview.cancel'].includes(args.action);
-        check(allowPreview);attempted.add(step.id);
+        check(allowPreview);
+        const attempt=canonical({context:expected,method:step.method,args});
+        const inputFingerprint=await digest(attempt);
+        const prior=failedAttempts.get(inputFingerprint);
+        if(prior)bad(prior.status==='unknown'?'PREVIOUS_ATTEMPT_UNKNOWN':'PREVIOUS_ATTEMPT_FAILED',`Identical input already returned ${prior.status} in ${prior.key}:${prior.stepId} (${prior.code}); inspect its receipt and current state before replanning`);
+        attempted.add(step.id);
+        control.progress?.({phase:'stage',stepId:step.id,stage:step.stage||step.id,completedSteps:results.length,totalSteps:input.steps.length,inputFingerprint});
         if(step.method==='addMany'){
           keys(args,['features']);
           if(!Array.isArray(args.features))bad('PARAM_SCHEMA_INVALID','features must be an array');
@@ -118,8 +133,12 @@ export function createPageBatch(api){
           const parts=step.method.split('.');
           result=parts.length===2?await api.files[parts[1]](args):await api[step.method](args);
         }
-        results.push({id:step.id,result,elapsedMs:Math.round((performance.now()-stepStartedAt)*100)/100});resolved[step.id]=result;
+        results.push({id:step.id,stage:step.stage||step.id,inputFingerprint,selection:args.selection||args.args?.selection||null,result,elapsedMs:Math.round((performance.now()-stepStartedAt)*100)/100});resolved[step.id]=result;
         if(['failed','unknown'].includes(result?.status)){
+          if(['add','addMany','execute'].includes(step.method)){
+            if(failedAttempts.size>=100)failedAttempts.delete(failedAttempts.keys().next().value);
+            failedAttempts.set(inputFingerprint,{key,stepId:step.id,status:result.status,code:result.error?.code||'BATCH_FAILED'});
+          }
           const receipt=finish(result.status==='unknown'?'unknown':results.length>1?'partial':'failed',result.error||new Error('Step failed'));
           receipts.set(key,{fingerprint,result:structuredClone(receipt)});return receipt;
         }
@@ -133,5 +152,5 @@ export function createPageBatch(api){
       return result;
     }
   }
-  return input=>{let snapshot;try{snapshot=structuredClone(input);}catch(e){return Promise.resolve({status:'failed',error:{code:'PARAM_SCHEMA_INVALID',message:e.message}});}const job=tail.then(()=>run(snapshot));tail=job.catch(()=>{});return job;};
+  return (input,control={})=>{let snapshot;try{snapshot=structuredClone(input);}catch(e){return Promise.resolve({status:'failed',error:{code:'PARAM_SCHEMA_INVALID',message:e.message}});}const job=tail.then(()=>run(snapshot,control));tail=job.catch(()=>{});return job;};
 }

@@ -18,14 +18,16 @@ import {validateReferenceQuery} from './reference-query.js';
 import {readVectorInput,selectVector} from './browser-vector-input.js';
 import {connectVector} from './vector-import.js';
 import {readReliefImage} from './relief-image.js';
-import {prepareReliefSculpt,sampleReliefHeight} from './relief-sculpt.js';
+import {prepareReliefSculpt,sampleReliefHeight,reliefLayerParams} from './relief-sculpt.js';
+import {boundedDiagnosticReport} from './modeling/diagnostic-report.js';
 import {assertHistoryEditSafe} from './history-edit-safety.js';
 import {validateDesignRequirements} from './design-inspection.js';
+import {normalizeOperationParams} from './operation-registry.js';
 
 // Only structured, bounded commands cross this boundary. No mutable app objects escape.
 export function createPageAPI(host){
   const current=()=>host.state();
-  const failure=e=>({status:'failed',commitState:'not_committed',error:{code:e.code||'PARAM_SCHEMA_INVALID',message:e.message,path:e.path??null,retryable:false,recoveryAction:e.recoveryAction||(e.code==='REVISION_CONFLICT'?'READ_STATE_AND_REPLAN':'READ_TOOL_AND_CORRECT_PARAMS')},context:current().context});
+  const failure=e=>({status:'failed',commitState:'not_committed',error:{...(e.report?{report:boundedDiagnosticReport(e.report)}:{}),code:e.code||'PARAM_SCHEMA_INVALID',message:e.message,path:e.path??null,retryable:false,recoveryAction:e.recoveryAction||(e.code==='REVISION_CONFLICT'?'READ_STATE_AND_REPLAN':'READ_TOOL_AND_CORRECT_PARAMS')},context:current().context});
   const fail=(code,message,path)=>{throw Object.assign(new Error(message),{code,...(path?{path}:{})});};
   function check(input,keys,requiredContext=true){
     if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!keys.includes(k)))fail('PARAM_SCHEMA_INVALID','Unexpected request fields');
@@ -214,6 +216,13 @@ export function createPageAPI(host){
       const result=await host.inspectThickness({...input,mode,toleranceMm});check(input,['context','bodyId','mode','point','direction','faceAId','faceBId','toleranceMm']);
       return {status:'read',source:'exact-brep-intersection',units:{length:'mm'},context:current().context,...result};
     }),
+    inspectRound:guarded(async input=>{
+      check(input,['context','bodyId','params']);
+      if(typeof input.bodyId!=='string'||!current().bodies.some(body=>body.id===input.bodyId&&body.solidCount===1))fail('STALE_REFERENCE','选择一个当前单一封闭实体');
+      const params=normalizeOperationParams('round',input.params);
+      const result=await host.inspectRound({...input,params});check(input,['context','bodyId','params']);
+      return {status:'read',source:'exact-brep-plan',units:{length:'mm'},context:current().context,...result};
+    }),
     inspectDraft:guarded(async input=>{
       check(input,['context','bodyId','pullDirection','thresholdDeg']);
       if(typeof input.bodyId!=='string'||!current().bodies.some(body=>body.id===input.bodyId&&body.solidCount===1))fail('STALE_REFERENCE','选择一个当前单一封闭实体');
@@ -232,18 +241,27 @@ export function createPageAPI(host){
       return {status:'read',source:'exact-brep',units:{length:'mm',angle:'degrees'},context:current().context,...result};
     }),
     sampleReliefHeight:guarded(async input=>{
-      const s=check(input,['context','featureId','point','draft']);
+      const s=check(input,['context','featureId','point','draft','layerIndex','samples']);
       const feature=s.features.find(f=>f.id===input.featureId);
       if(!feature||feature.op!=='relief')fail('STALE_REFERENCE','请选择本工程中的浮雕历史步骤');
       if(input.draft!==undefined&&(!input.draft||typeof input.draft!=='object'||Array.isArray(input.draft)))fail('PARAM_SCHEMA_INVALID','draft 必须为 {deltaMm,mask} 精修网格');
-      const result=sampleReliefHeight(input.draft===undefined?feature.params:{...feature.params,sculpt:input.draft},input.point);
-      return {status:'read',featureId:feature.id,...result,context:current().context};
+      const selected=feature.params.layers?reliefLayerParams(feature.params,input.layerIndex,{samples:input.samples}):feature.params;
+      if(!feature.params.layers&&(input.layerIndex!==undefined||input.samples!==undefined))fail('PARAM_SCHEMA_INVALID','单层浮雕不接受 layerIndex/samples');
+      const result=sampleReliefHeight(input.draft===undefined?selected:{...selected,sculpt:input.draft},input.point);
+      return {status:'read',featureId:feature.id,...(feature.params.layers?{layerIndex:input.layerIndex}:{}),...result,context:current().context};
     }),
     prepareReliefSculpt:guarded(async input=>{
-      const s=check(input,['context','featureId','strokes','draft']);
+      const s=check(input,['context','featureId','strokes','draft','layerIndex','samples']);
       const feature=s.features.find(f=>f.id===input.featureId);
       if(!feature||feature.op!=='relief')fail('STALE_REFERENCE','请选择本工程中的浮雕历史步骤');
-      const result=prepareReliefSculpt(input.draft===undefined?feature.params:{...feature.params,sculpt:input.draft},input.strokes);
+      let params=feature.params;
+      if(input.samples!==undefined){const selected=reliefLayerParams(params,input.layerIndex,{samples:input.samples});params={...params,layers:params.layers.map((layer,index)=>index===input.layerIndex?{...layer,values:selected.values}:layer)};}
+      if(input.draft!==undefined){
+        if(!input.draft||typeof input.draft!=='object'||Array.isArray(input.draft))fail('PARAM_SCHEMA_INVALID','draft 必须为 {deltaMm,mask} 精修网格');
+        if(params.layers){reliefLayerParams(params,input.layerIndex);params={...params,layers:params.layers.map((layer,index)=>index===input.layerIndex?{...layer,sculpt:input.draft}:layer)};}
+        else params={...params,sculpt:input.draft};
+      }
+      const result=prepareReliefSculpt(params,input.strokes,{layerIndex:input.layerIndex});
       let blockers=[];
       try{assertHistoryEditSafe(s,{features:s.features.map(f=>f.id===feature.id?{...f,params:{...f.params,...result.params}}:f)});}catch(e){if(e.code!=='UNSAFE_LEGACY_REFERENCE')throw e;blockers=[{code:e.code,message:e.message,affectedFeatureIds:e.affectedFeatureIds}];}
       return {status:'prepared',featureId:feature.id,...result,canCommit:!blockers.length,blockers,context:current().context};
@@ -339,7 +357,7 @@ export function createPageAPI(host){
       return await (member?api[name][member](input.args):api[name](input.args));
     }catch(e){return e.result||failure(e);}
   };
-  Object.assign(api,createPageJobs(api));
+  Object.assign(api,createPageJobs(api,{runBatch:(args,control)=>run(args,control)}));
   for(const name of ['submit','getJob','cancelJob'])callable.add(name);
   return Object.freeze(api);
 }

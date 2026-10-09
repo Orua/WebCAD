@@ -71,6 +71,12 @@ try {
   assert.equal(allTopEdges.matchCount, 8, 'onFace includes inner hole boundaries; no false outer-loop claim');
   const holeTopEdges = await kernel.queryGeometry('holes', 'edge', { onFaceId: drilledTop.items[0].faceId, curveType: 'circle' });
   assert.equal(holeTopEdges.matchCount, 4);
+  const located=await kernel.queryGeometry('holes','edge',{bounds:{min:[0,0,3],max:[50,30,3]},adjacentSurfaceTypes:['plane','cylinder']});
+  assert.equal(located.matchCount,4);assert.ok(located.items.every(item=>item.adjacentSurfaceTypes.includes('cylindre')));
+  const loop=await kernel.queryGeometry('holes','edge',{onFaceId:drilledTop.items[0].faceId,loopIndex:1});
+  assert.equal(loop.matchCount,1);assert.deepEqual(loop.items[0].boundaryLoopIndices,[1]);
+  const cylindricalFaces=await kernel.queryGeometry('holes','face',{surfaceType:'cylinder'});
+  assert.equal(cylindricalFaces.matchCount,4);assert.ok(cylindricalFaces.items.every(face=>Math.abs(face.cylinder.radiusMm-2)<1e-8));
   assert.ok(holeTopEdges.items.every(item => Math.abs(item.center[2] - 3) < 1e-9));
   assert.notEqual(circles.geometryFingerprint, top.geometryFingerprint);
   const beforeFailure = circles.geometryFingerprint;

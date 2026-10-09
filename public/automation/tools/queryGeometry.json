@@ -3,7 +3,7 @@
   "title": "queryGeometry",
   "category": "page-method",
   "version": "1.22.0",
-  "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,limit?,cursor?})。",
+  "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry；多选仍须 requireUnique:false。",
   "synonyms": [
     "queryGeometry",
     "几何查询",
@@ -11,8 +11,8 @@
     "边",
     "选择令牌"
   ],
-  "inputContract": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,limit?,cursor?})。",
-  "outputContract": "精确 B-Rep 候选项、歧义信息、快照绑定的 selectionToken 与当前 context。",
+  "inputContract": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry；多选仍须 requireUnique:false。",
+  "outputContract": "精确 B-Rep 候选项、歧义信息、快照绑定的 selectionToken 与当前 context；expectedCount 不符时不生成令牌。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -21,8 +21,10 @@
     "INSTANCE_MISMATCH",
     "REVISION_CONFLICT",
     "STALE_REFERENCE",
+    "SELECTION_COUNT_CHANGED",
     "NO_MATCH",
     "AMBIGUOUS_SELECTION"
   ],
-  "docsHash": "sha256:182eb3c532030c86453879de39f9b56709faa4cf29dbbebb9f62d4f3a8851ee2"
+  "docs": "api.query-geometry",
+  "docsHash": "sha256:0b75b8b3655f060cf379e114c5b4c74e955cd8b05a25be72f0a2546a531b89fa"
 }

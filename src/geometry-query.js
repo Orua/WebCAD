@@ -30,8 +30,15 @@ function range(value, path) {
 // onFaceId is internal only: the command boundary resolves a current face token.
 export function normalizeGeometryFilter(kind, filter = {}) {
   if (!['face', 'edge'].includes(kind)) invalid('kind', 'kind 必须为 face 或 edge');
-  object(filter, kind === 'face' ? ['surfaceType', 'normal', 'atExtreme'] : ['curveType', 'lengthRangeMm', 'radiusRangeMm', 'onFaceId'], 'filter');
+  object(filter, kind === 'face' ? ['surfaceType', 'normal', 'atExtreme','bounds'] : ['curveType', 'lengthRangeMm', 'radiusRangeMm', 'onFaceId','bounds','adjacentSurfaceTypes','loopIndex'], 'filter');
   const result = { ...filter };
+  if(filter.bounds!==undefined){
+    object(filter.bounds,['min','max','mode','toleranceMm'],'filter.bounds');
+    for(const key of ['min','max'])if(!Array.isArray(filter.bounds[key])||filter.bounds[key].length!==3||filter.bounds[key].some(n=>typeof n!=='number'||!Number.isFinite(n)))invalid('filter.bounds.'+key,'边界需要三个有限世界坐标');
+    if(filter.bounds.min.some((n,i)=>n>filter.bounds.max[i]))invalid('filter.bounds','min 不得大于 max');
+    if(filter.bounds.mode!==undefined&&!['contained','intersects'].includes(filter.bounds.mode))invalid('filter.bounds.mode','选择 contained 或 intersects');
+    result.bounds={...filter.bounds,mode:filter.bounds.mode??'contained',toleranceMm:number(filter.bounds.toleranceMm??1e-6,'filter.bounds.toleranceMm')};
+  }
   if (kind === 'face') {
     if (filter.surfaceType !== undefined && !knownType(surfaceTypes,filter.surfaceType)) invalid('filter.surfaceType', 'Unknown surface type; read api.query-geometry');
     if (filter.surfaceType !== undefined) result.surfaceType=surfaceTypes[filter.surfaceType]||filter.surfaceType;
@@ -56,6 +63,11 @@ export function normalizeGeometryFilter(kind, filter = {}) {
     if (filter.curveType !== undefined) result.curveType=curveTypes[filter.curveType]||filter.curveType;
     for (const key of ['lengthRangeMm', 'radiusRangeMm']) if (filter[key] !== undefined) result[key] = range(filter[key], `filter.${key}`);
     if (filter.onFaceId !== undefined && (!Number.isInteger(filter.onFaceId) || filter.onFaceId < 0)) invalid('filter.onFaceId', '需要已解析的有效面索引');
+    if(filter.loopIndex!==undefined&&(!Number.isInteger(filter.loopIndex)||filter.loopIndex<0||filter.onFaceId===undefined))invalid('filter.loopIndex','边界环序号需要当前面选择，且为非负整数');
+    if(filter.adjacentSurfaceTypes!==undefined){
+      if(!Array.isArray(filter.adjacentSurfaceTypes)||!filter.adjacentSurfaceTypes.length||filter.adjacentSurfaceTypes.length>2||filter.adjacentSurfaceTypes.some(t=>!knownType(surfaceTypes,t)))invalid('filter.adjacentSurfaceTypes','提供一到两个相邻曲面类型');
+      result.adjacentSurfaceTypes=filter.adjacentSurfaceTypes.map(t=>surfaceTypes[t]||t);
+    }
   }
   return result;
 }
@@ -83,6 +95,11 @@ function faceSummary(face, id, oc) {
     try {adaptor=new oc.BRepAdaptor_Surface(face.wrapped,false);spline=adaptor.BSpline();
       item.spline={degreeU:spline.UDegree(),degreeV:spline.VDegree(),poleCountU:spline.NbUPoles(),poleCountV:spline.NbVPoles(),knotCountU:spline.NbUKnots(),knotCountV:spline.NbVKnots(),continuityAssessment:'not_computed'};
     }finally{[spline,adaptor].forEach(dispose);}
+  }
+  if(item.geomType==='CYLINDRE'){
+    let adaptor,cylinder,location,axis,direction;
+    try{adaptor=new oc.BRepAdaptor_Surface(face.wrapped,false);cylinder=adaptor.Cylinder();location=cylinder.Location();axis=cylinder.Axis();direction=axis.Direction();item.cylinder={radiusMm:cylinder.Radius(),origin:[location.X(),location.Y(),location.Z()],axis:[direction.X(),direction.Y(),direction.Z()]};}
+    finally{[direction,axis,location,cylinder,adaptor].forEach(dispose);}
   }
   return item;
 }
@@ -137,21 +154,35 @@ export function queryShapeGeometry(shape, oc, kind, filter = {}) {
   const normalized = normalizeGeometryFilter(kind, filter);
   const topology=topologyDetails(shape,{connectivityOnly:kind==='face'});
   const parts = shape[kind === 'face' ? 'faces' : 'edges'];
-  let box, faces, boundary;
+  let box, faces, boundary,wires,loopEdges=[];
   try {
     let bounds;
     if (normalized.atExtreme) { box = shape.boundingBox; bounds = box.bounds; }
     if (normalized.onFaceId !== undefined) {
       faces = shape.faces;
       if (normalized.onFaceId >= faces.length) invalid('filter.onFaceId', '面索引不属于当前实体');
-      boundary = faces[normalized.onFaceId].edges;
+      wires=faces[normalized.onFaceId].wires;
+      loopEdges=wires.map(wire=>wire.edges);
+      if(normalized.loopIndex!==undefined&&normalized.loopIndex>=wires.length)invalid('filter.loopIndex','边界环序号不属于当前面');
+      boundary = normalized.loopIndex===undefined?faces[normalized.onFaceId].edges:wires[normalized.loopIndex].edges;
     }
+    if(kind==='edge'&&!faces)faces=shape.faces;
     const items = [];
     parts.forEach((part, id) => {
       if (boundary && !boundary.some(edge => edge.isSame(part))) return;
       const item = kind === 'face' ? faceSummary(part, id, oc) : edgeSummary(part, id, oc);
-      if(kind==='edge'){Object.assign(item,topology[id]);item.midpoint=item.lengthMidpoint;}
+      if(kind==='edge'){
+        Object.assign(item,topology[id]);item.midpoint=item.lengthMidpoint;
+        item.adjacentSurfaceTypes=item.adjacentFaceIds.map(faceId=>faces[faceId].geomType.toLowerCase());
+        if(normalized.adjacentSurfaceTypes){const remaining=[...item.adjacentSurfaceTypes];for(const type of normalized.adjacentSurfaceTypes){const index=remaining.indexOf(type);if(index<0)return;remaining.splice(index,1);}}
+        if(wires)item.boundaryLoopIndices=loopEdges.flatMap((edges,index)=>edges.some(e=>e.isSame(part))?[index]:[]);
+      }
       else item.edgeIds=topology.filter(edge=>edge.adjacentFaceIds.includes(id)).map(edge=>edge.edgeId);
+      if(normalized.bounds){
+        let bb;try{bb=part.boundingBox;item.bounds=bb.bounds;}finally{dispose(bb);}
+        const b=normalized.bounds,t=b.toleranceMm;
+        if(![0,1,2].every(i=>b.mode==='contained'?item.bounds[0][i]>=b.min[i]-t&&item.bounds[1][i]<=b.max[i]+t:item.bounds[1][i]>=b.min[i]-t&&item.bounds[0][i]<=b.max[i]+t))return;
+      }
       if (kind === 'face') {
         if (!matchesFace(item, normalized, bounds)) return;
       } else {
@@ -161,5 +192,5 @@ export function queryShapeGeometry(shape, oc, kind, filter = {}) {
       items.push(item);
     });
     return { kind, matchCount: items.length, items };
-  } finally { [...parts, ...(faces || []), ...(boundary || []), box].forEach(dispose); }
+  } finally { [...parts, ...(faces || []), ...(boundary || []),...loopEdges.flat(),...(wires||[]), box].forEach(dispose); }
 }

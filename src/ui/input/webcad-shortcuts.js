@@ -16,5 +16,6 @@ export function webcadShortcut(event, { editing = false, dialogOpen = false } = 
   }
   if (key === 'delete') return 'remove';
   if (key === 'f') return 'fit';
+  if (key === 'v' && !event.shiftKey) return 'selectTool';
   return null;
 }

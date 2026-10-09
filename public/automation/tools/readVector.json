@@ -28,5 +28,9 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.vector-import",
-  "docsHash": "sha256:6cfbdac876312d8c40ad0614677d6c286fce40d555d101c3fed64ad0641c1b2c"
+  "additionalDocs": [
+    "api.source-curves"
+  ],
+  "sourceCurvePolicy": "Unsupported splines preserve sourceSpline metadata; no original NURBS construction or automatic fit-point closure.",
+  "docsHash": "sha256:1460508ee1aca440ce15daa18351cfd8bfb0d125556499ab837bd49a5f0c1c16"
 }

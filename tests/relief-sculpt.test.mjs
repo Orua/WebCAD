@@ -5,8 +5,45 @@ import {cubicBasis,sampleReliefSurface} from '../src/relief-sculpt-surface.js';
 import {validateSchema} from '../src/contracts/operation-schema.js';
 import {reliefOperations} from '../src/modeling/manufacturing/relief-contracts.js';
 import {validateRegions} from '../src/logo-model.js';
+import {showReliefSculptDialog} from '../src/ui/forms/relief-sculpt-dialog.js';
+test('layered sculpt dialog switches independent drafts and commits only the chosen layer',async()=>{
+ const oldStorage=globalThis.sessionStorage,oldRAF=globalThis.requestAnimationFrame,oldCancel=globalThis.cancelAnimationFrame;
+ const storage=new Map();globalThis.sessionStorage={getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)};globalThis.requestAnimationFrame=()=>1;globalThis.cancelAnimationFrame=()=>{};
+ class E{
+  constructor(tag,attrs={},text=''){Object.assign(this,attrs);this.tag=tag;this.style={};this.children=[];this.listeners={};this.textContent=text;this.value=attrs.value??'';}
+  append(...items){for(const item of items){item.previousElementSibling=this.children.at(-1);item.parentElement=this;this.children.push(item);if(this.tag==='select'&&!this.value)this.value=item.value;}}
+  get options(){return this.children;}
+  querySelector(){return null;}
+  querySelectorAll(){return this.children.flatMap(c=>[...(['input','select'].includes(c.tag)?[c]:[]),...c.querySelectorAll()]);}
+  addEventListener(k,f){(this.listeners[k]??=[]).push(f);}
+  async fire(k,event={}){for(const f of this.listeners[k]??[])await f({preventDefault(){},stopPropagation(){},...event});}
+  focus(){} setPointerCapture(){}
+ }
+ const elements=[],element=(...a)=>{const e=new E(...a);elements.push(e);return e;},button=(text,click)=>{const e=element('button',{},text);e.click=click;return e;};
+ const layer={heightMm:.5,regions:[{outer:[[-.4,-.4],[.4,-.4],[.4,.4],[-.4,.4]]}]},params={faceId:0,widthMm:12,heightMm:12,depthMm:1,layers:[{...layer,name:'first'},{...layer,name:'second'}]};
+ let state={revision:1,document:{documentId:'sculpt-ui-test',features:[{id:'relief',op:'relief',name:'source',params,refs:[]}]}},viewDraft,edited;
+ const dialog=element('dialog');
+ try{
+  showReliefSculptDialog({featureId:'relief',getState:()=>state,openDialog:()=>dialog,element,button,close(){},createView:()=>({update(p,d){viewDraft=structuredClone(d);},cursor(){},fit(){},dispose(){},point:()=>[0,0],sample:()=>.5}),onEdit:async(id,patch)=>{edited=patch;state={...state,revision:state.revision+1,document:{...state.document,features:state.document.features.map(f=>({...f,params:{...f.params,...patch}}))}};return true;}});
+  const select=elements.find(e=>e['aria-label']==='浮雕图层'),canvas=elements.find(e=>e['aria-label']==='浮雕精修画布'),apply=elements.find(e=>e.textContent==='应用当前图层');
+  assert.equal(select.options.length,2);await canvas.fire('pointerdown',{button:0,pointerId:1});await canvas.fire('pointerup',{pointerId:1});const first=structuredClone(viewDraft);assert(first.deltaMm.flat().some(v=>v>0));
+  select.value='relief|layer:1';await select.fire('change');assert(viewDraft.deltaMm.flat().every(v=>v===0));await canvas.fire('pointerdown',{button:0,pointerId:1});await canvas.fire('pointerup',{pointerId:1});await apply.click();
+  assert.deepEqual(edited.layers[0],params.layers[0]);assert.equal(edited.layers[1].values.length,33);assert(edited.layers[1].sculpt.deltaMm.flat().some(v=>v>0));assert.equal(state.revision,2);
+  select.value='relief|layer:0';await select.fire('change');assert.deepEqual(viewDraft,first);dialog._onClose();
+ }finally{globalThis.sessionStorage=oldStorage;globalThis.requestAnimationFrame=oldRAF;globalThis.cancelAnimationFrame=oldCancel;}
+});
 const source=()=>({faceId:0,widthMm:16,heightMm:16,depthMm:1,surfaceMode:'smooth',values:Array.from({length:17},()=>Array(17).fill(.5)),regions:[{outer:[[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]],holes:[[[-.4,-.4],[-.2,-.4],[-.2,-.2],[-.4,-.2]]]}]});
 const brush=(mode,extra={})=>({mode,radiusMm:3,amountMm:.4,points:[[0,0]],...extra});
+test('explicit layer sculpt preserves other layers, contours, holes and serialized increments',()=>{
+ const base=source(),params={faceId:0,widthMm:16,heightMm:16,depthMm:1,layers:[{name:'base',heightMm:.2,regions:base.regions},{name:'detail',heightMm:1,regions:base.regions}]},before=structuredClone(params);
+ assert.throws(()=>prepareReliefSculpt(params,[brush('raise')]),{code:'PARAM_SCHEMA_INVALID'});
+ const result=prepareReliefSculpt(params,[brush('raise')],{layerIndex:1,samples:17});
+ assert.ok(result.report.changedControls>0);assert.equal(result.report.layerIndex,1);assert.deepEqual(result.params.layers[0],params.layers[0]);assert.deepEqual(result.params.layers[1].regions,params.layers[1].regions);assert.deepEqual(params,before);
+ const reopened=JSON.parse(JSON.stringify({...params,...result.params}));validateSchema(reliefOperations.relief.paramsSchema,reopened);
+ assert.equal(sampleReliefHeight(reopened,[0,0],{layerIndex:1}).targetMm,1.4);
+ assert.throws(()=>sampleReliefHeight(reopened,[-.3,-.3],{layerIndex:1}),{code:'RELIEF_SAMPLE_OUTSIDE'});
+ assert.throws(()=>prepareReliefSculpt(reopened,[],{layerIndex:1,samples:33}),{code:'PARAM_SCHEMA_INVALID'});
+});
 test('relief accepts independent ornament collections above the old 150-region cap while logo retains its own limit',()=>{
  const regions=Array.from({length:165},(_,i)=>{const x=-.45+(i%15)*.06,y=-.4+Math.floor(i/15)*.07;return {outer:[[x,y],[x+.025,y],[x+.025,y+.025],[x,y+.025]]};});
  validateSchema(reliefOperations.relief.paramsSchema,{...source(),regions});

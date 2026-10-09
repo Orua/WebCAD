@@ -94,3 +94,17 @@ export function buildRoundTool(input,p){
   return result;
  }finally{source.delete();}
 }
+
+// The section operation can update OCCT flags/p-curves; inspect an owned BRep.
+export function inspectRoundTool(input,p){
+ const started=performance.now(),source=cad.deserializeShape(input.serialize()).asShape3D();
+ try{
+  const plan=planRoundTool(source,p),ids=plan.scope?.edgeIds??plan.resolved.edgeIds;
+  const selected=new Set(ids),faces=source.faces,edges=source.edges;
+  try{
+   const targets=topologyDetails(source,{connectivityOnly:true}).filter(row=>selected.has(row.edgeId)).map(row=>({edgeId:row.edgeId,curveType:edges[row.edgeId].geomType,normalContinuity:'not-assessed',adjacentFaceIds:row.adjacentFaceIds,supportSurfaceTypes:row.adjacentFaceIds.map(id=>faces[id].geomType)}));
+   return {version:1,operation:'round',stage:'planning',attemptCount:0,elapsedMs:performance.now()-started,...plan,targetCount:ids.length,targets,constructionCategories:[plan.mode==='end'?'principal-axis-end-reconstruction':'native-constant-radius-edge-blend'],feasibility:'not-proven',limitations:['planning-does-not-construct-a-blend','no-radius-search','face-scope-requires-analytic-planes','analytic-fallback-not-selected-by-round']};
+  }finally{[...faces,...edges].forEach(dispose);}
+ }catch(error){error.report={operation:'round',stage:'planning',attemptCount:0,elapsedMs:performance.now()-started,sourcePreserved:true};throw error;}
+ finally{dispose(source);}
+}

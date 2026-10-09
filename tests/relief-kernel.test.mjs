@@ -5,9 +5,14 @@ import init from 'replicad-opencascadejs';
 import * as cad from 'replicad';
 import {buildRelief} from '../src/modeling/manufacturing/relief.js';
 import {CadKernel} from '../src/cad-kernel.js';
-import {fitContour} from '../src/modeling/manufacturing/relief-curves.js';
+import {fitContour,contourConversionReport} from '../src/modeling/manufacturing/relief-curves.js';
 const oc=await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))});cad.setOC(oc);
 const dispose=x=>{try{x?.delete?.();}catch{}};
+test('contour conversion receipt rejects area loss and reports sampled reference',()=>{
+ const points=Array.from({length:64},(_,i)=>[10*Math.cos(i*Math.PI/32),10*Math.sin(i*Math.PI/32),0]),normal=[0,0,1],segments=fitContour(points,normal,.02),report=contourConversionReport(points,normal,segments,.02);
+ assert(report.accepted);assert(report.resultEdgeCount<report.sourceEdgeCount);assert.equal(report.errorBound,'sampled-not-global');assert(report.maxSampledDeviationMm<=.02);assert(Math.abs(report.areaChangeMm2)<report.areaLimitMm2);
+ const bad=[{type:'line',start:points[0],end:points[16]},{type:'line',start:points[16],end:points[32]},{type:'line',start:points[32],end:points[0]}];assert.equal(contourConversionReport(points,normal,bad,.02).accepted,false);
+});
 const values=Array.from({length:9},(_,y)=>Array.from({length:9},(_,x)=>Math.max(0,1-Math.hypot(x-4,y-4)/4)));
 const mask=[{outer:[[-.3,-.3],[.3,-.3],[.3,.3],[-.3,.3]],holes:[[[-.1,-.1],[-.1,.1],[.1,.1],[.1,-.1]]]}];
 test('contour fitting preserves source corners between sparse vertices',()=>{

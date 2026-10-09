@@ -1,5 +1,6 @@
-export function layeredReliefProperties({feature,element,button,onEdit,getBusy=()=>false}){
+export function layeredReliefProperties({feature,element,button,onEdit,onSculpt,getBusy=()=>false}){
  const form=element('form',{class:'property-form'}),inputs=[];
+ if(onSculpt)form.append(button('选择图层并精修…',onSculpt,'secondary'));
  function number(label,value,key,layer=-1){const row=element('label',{class:'form-field'}),input=element('input',{type:'number',step:'any',value,'aria-label':label});row.append(element('span',{},label),input);form.append(row);inputs.push({input,key,layer});}
  for(const [key,label]of [['widthMm','图案宽 mm'],['heightMm','图案高 mm'],['offsetX','水平偏移 mm'],['offsetY','垂直偏移 mm'],['curveToleranceMm','曲线公差 mm'],['contourSnapMm','轮廓清理精度 mm（0 关闭）']])number(label,feature.params[key]??0,key);
  const modes=[];

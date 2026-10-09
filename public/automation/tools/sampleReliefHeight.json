@@ -3,7 +3,7 @@
   "title": "sampleReliefHeight",
   "category": "page-method",
   "version": "1.22.0",
-  "description": "sampleReliefHeight({context,featureId,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。",
+  "description": "sampleReliefHeight({context,featureId,layerIndex?,samples?,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。分层必须明确 layerIndex；samples 仅用于读初始等高层的新草稿，约束同 prepareReliefSculpt。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。",
   "synonyms": [
     "sampleReliefHeight",
     "浮雕",
@@ -13,7 +13,7 @@
     "深度",
     "定高"
   ],
-  "inputContract": "sampleReliefHeight({context,featureId,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。",
+  "inputContract": "sampleReliefHeight({context,featureId,layerIndex?,samples?,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。分层必须明确 layerIndex；samples 仅用于读初始等高层的新草稿，约束同 prepareReliefSculpt。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。",
   "outputContract": "只读返回status:read、featureId、point、targetMm、quantity:height或depth、units:mm、source:bilinear-height-controls及context。targetMm可直接给prepareReliefSculpt的flatten笔刷，凹雕为正深度。与界面Alt吸管共用双线性控制高度采样，非精确BRep表面测量。轮廓外/孔内失败RELIEF_SAMPLE_OUTSIDE；越界或非有限坐标失败PARAM_RANGE_INVALID。不会更改工程、历史、界面笔刷或草稿。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -31,5 +31,5 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:bfddea2dacb6d0a725a6018c86f63966ca68717855cf0b51a553425513f7b732"
+  "docsHash": "sha256:7c30a466ffd5d7c7f3ac466a9ea30c7586005ebd274e8bee44f72b9724ff9fab"
 }

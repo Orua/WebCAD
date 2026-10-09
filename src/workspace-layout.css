@@ -15,17 +15,16 @@
 .app-header .header-actions{margin-left:auto;gap:6px;flex-shrink:0}.header-actions button{font-size:12px;padding:6px 10px;border-radius:6px}
 .header-actions .primary{background:var(--accent);border-color:var(--accent)}
 .app-header .local-badge{display:none}.app-header .language-select{width:52px;font-size:11px}
-.webcad-app .ribbon{height:84px;min-height:84px;overflow-x:auto;overflow-y:hidden;display:flex;align-items:stretch;gap:0;background:#fafcfc;padding:5px 10px 3px;border-bottom:1px solid #dcdfe3;scrollbar-width:thin}
+.webcad-app .ribbon{overflow-x:auto;overflow-y:hidden;display:flex;align-items:stretch;gap:0;background:#fafcfc;border-bottom:1px solid #dcdfe3;scrollbar-width:thin}
 .ribbon .ribbon-group{flex-shrink:0;border-right:1px solid #e0e3e7;padding:0 12px;margin:0;position:relative}
-.ribbon .tool-button{min-width:52px;height:57px;border-radius:7px}.ribbon .tool-button:hover:not(:disabled){background:var(--accent-soft)}
+.ribbon .tool-button{border-radius:5px}.ribbon .tool-button:hover:not(:disabled){background:var(--accent-soft)}
 .ribbon .tool-icon{color:#354b6c}.ribbon .view-grid{max-width:310px}
 .webcad-app .selection-context{min-height:27px;background:#fff;border-bottom:1px solid #e1e3e7;font-size:11px;color:#616771}
 .webcad-app .workspace{grid-template-columns:var(--panel-left,210px) minmax(280px,1fr) var(--panel-right,270px)}
 .workspace .panel-heading{height:39px;background:#f9fbfa;color:#353f4d;font-size:12px}
 .workspace .left-panel,.workspace .right-panel{background:#fff}.workspace .tree-title{letter-spacing:.04em;color:#7b818b;font-size:10px;margin-top:14px}
 .workspace .tree-row.selected{background:var(--accent-soft);border-color:#a4b3c9}
-.workspace .viewport-topbar{height:38px;background:#ffffffed;border-bottom:1px solid #e3e5e8}
-.workspace .viewport-topbar{height:auto;min-height:42px;align-items:center;gap:8px;padding:4px 8px;flex-wrap:wrap}
+.workspace .viewport-topbar{height:auto;align-items:center}
 .work-frame-bar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;color:#354256;font-size:11px;pointer-events:auto}
 .work-frame-bar strong{font-size:11px;margin-right:3px;white-space:nowrap}
 .work-frame-bar label{display:inline-flex;align-items:center;gap:2px}
@@ -38,7 +37,7 @@
 .workspace .sidebar-note{font-size:10px;line-height:1.7;background:#f5f7f9;color:#717984;padding:12px}
 .webcad-app .statusbar{height:27px;min-height:27px;background:#f7faf8;border-top:1px solid #dcdfe4;font-size:11px}
 .ribbon-tab:focus-visible,.tool-button:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
-.tool-icon svg{display:block;width:22px;height:22px}
+.tool-icon svg{display:block;width:17px;height:17px}
 .project-card{padding:14px 12px 12px;background:#f0f2f6;border-bottom:1px solid #dcdfe4}
 .project-caption{display:block;color:#7c838d;font-size:10px;letter-spacing:.06em;margin-bottom:6px}
 .project-card .document-title{display:flex;max-width:100%;width:100%;padding:0;gap:6px;text-align:left;font-size:12px;color:#23354f;line-height:1.6}
@@ -47,9 +46,9 @@
 @media(max-width:1200px){.webcad-app .app-header{gap:8px;padding:0 8px}.app-header .brand>div{display:none}.app-header .ribbon-tab{padding:0 8px;min-width:43px}.app-header .quick-history{display:none}.app-header .document-title{max-width:135px}.webcad-app .workspace{grid-template-columns:180px minmax(240px,1fr) 240px}}
 @media(max-width:850px){.app-header .document-title{max-width:105px;min-width:55px}.app-header .header-actions button{padding:6px}.app-header .language-select{display:none}.webcad-app .workspace{grid-template-columns:150px minmax(200px,1fr) 210px}.app-header .header-actions [data-action="open"]{display:none}.app-header .ribbon-tab{min-width:40px;padding:0 7px}}
 
-/* 2026 workspace: a compact global bar, stable six-tab ribbon, and one task dock. */
+/* Compact global bar, categorized tools, and one task dock. */
 .webcad-app{container-type:inline-size;font-size:14px;color:#293343}
-.webcad-app .app-header{height:48px;min-height:48px;gap:8px;padding:0 12px}
+.webcad-app .app-header{height:42px;min-height:42px;gap:8px;padding:0 12px}
 .app-header .brand{min-width:auto;font-size:15px;margin-right:3px}
 .app-header .file-menu{position:relative;z-index:25;flex:none}
 .file-menu summary{list-style:none;cursor:pointer;border-radius:6px;padding:7px 10px;min-width:48px;text-align:center}
@@ -58,24 +57,28 @@
 .file-menu-items{position:absolute;top:100%;left:0;width:210px;padding:6px;display:grid;background:white;border:1px solid #ccd1d9;border-radius:8px;box-shadow:0 10px 30px #17273e26}
 .file-menu-items button{text-align:left;min-height:34px;font-size:13px;white-space:normal}
 .ribbon-more{align-self:center;flex:none}
-.ribbon-more summary{list-style:none;cursor:pointer;min-height:32px;display:grid;place-items:center;padding:4px 8px;border-radius:5px;color:#3b4b62;font-size:12px}
+.ribbon-more summary{list-style:none;cursor:pointer;min-height:30px;display:grid;place-items:center;padding:4px 8px;border-radius:5px;color:#3b4b62;font-size:12px}
 .ribbon-more summary::-webkit-details-marker{display:none}
 .ribbon-more summary:hover,.ribbon-more[open] summary{background:#e8ecf3}
-.ribbon-more-items{position:fixed;z-index:24;display:grid;grid-template-columns:repeat(2,minmax(72px,1fr));gap:4px;width:min(210px,calc(100vw - 24px));padding:7px;background:#fff;border:1px solid #cbd1da;border-radius:7px;box-shadow:0 9px 26px #17273e26}
-.ribbon-more-items .tool-button{width:100%;min-width:0;height:58px}
+.ribbon-more-items{position:fixed;z-index:24;display:grid;grid-template-columns:minmax(0,1fr);gap:2px;width:min(210px,calc(100vw - 24px));padding:5px;overflow-y:auto;background:#fff;border:1px solid #cbd1da;border-radius:7px;box-shadow:0 9px 26px #17273e26}
+.ribbon .ribbon-more-items .tool-button{width:100%;min-width:0;max-width:none;justify-content:flex-start;min-height:30px;height:auto;text-align:left;white-space:normal}
 .app-header .quick-history{display:flex;flex:none}
 .app-header .quick-history button{min-width:32px;min-height:32px;font-size:13px}
 .app-header .document-title{flex:1 1 auto;max-width:none;min-width:82px;border:0;text-align:left;font-size:13px}
 .app-header .header-actions{margin-left:auto;flex:none}
 .app-header .header-actions button{font-size:13px;min-height:32px}
 .app-header .language-select{font-size:12px;width:72px}
-.webcad-app .ribbon-tabs{height:32px;min-height:32px;padding:0 12px}
-.ribbon-tabs .tab-list{height:32px;gap:2px}
-.ribbon-tabs .ribbon-tab{height:32px;min-width:56px;padding:0 12px;font-size:13px}
-.webcad-app .ribbon{height:66px;min-height:66px;padding:3px 8px;gap:0}
-.ribbon .ribbon-group{padding:0 10px}
-.ribbon .tool-button{height:51px;min-width:54px;font-size:12px;gap:1px;padding:3px 5px}
-.ribbon .tool-icon{font-size:19px;line-height:22px}
+.webcad-app .ribbon-tabs{height:30px;min-height:30px;padding:0 10px}
+.ribbon-tabs .tab-list{height:30px;gap:2px}
+.ribbon-tabs .ribbon-tab{height:30px;min-height:28px;min-width:48px;padding:0 10px;font-size:12px}
+.webcad-app .ribbon{height:40px;min-height:40px;padding:4px 6px;gap:0}
+.webcad-app .ribbon:has(.view-grid){height:66px;min-height:66px}
+.ribbon .ribbon-group{padding:0 7px;justify-content:center}
+.ribbon .ribbon-tools{align-items:center;gap:2px}
+.ribbon .tool-button{display:inline-flex;flex-direction:row;align-items:center;height:30px;min-height:28px;min-width:28px;max-width:none;font-size:12px;gap:5px;padding:4px 7px;white-space:nowrap}
+.ribbon .tool-icon{font-size:17px;line-height:17px;flex-shrink:0}
+.ribbon .selection-arrow,.ribbon .quick-model-icon{width:17px;height:17px;flex:0 0 17px}
+.ribbon .view-grid{grid-template-rows:repeat(2,28px);gap:2px 4px}
 .ribbon .ribbon-group-label{font-size:11px;line-height:12px;letter-spacing:0}
 .webcad-app .selection-context{display:none}
 .occlusion-candidates{position:absolute;z-index:45;right:12px;top:78px;display:flex;flex-direction:column;gap:6px;max-height:55%;max-width:280px;overflow:auto;padding:12px;background:#fff;border:1px solid #cbd1d9;border-radius:9px;box-shadow:0 6px 24px #202a3a26}
@@ -105,9 +108,9 @@
 .left-collapsed .left-panel .panel-heading,.right-collapsed .right-panel .panel-heading{padding:2px;writing-mode:vertical-rl;justify-content:flex-start}
 .left-collapsed .left-panel .panel-heading>*:not(.panel-toggle),.right-collapsed .right-panel .panel-heading>*:not(.panel-toggle){display:none}
 .left-collapsed .left-toggle,.right-collapsed .right-toggle{writing-mode:vertical-rl;width:32px;height:auto}
-.workspace .viewport-topbar{min-height:40px;top:8px;left:8px;right:8px;padding:3px 5px;gap:5px;background:#ffffffec;border:1px solid #dadee5;border-radius:7px;flex-wrap:nowrap}
+.workspace .viewport-topbar{min-height:34px;top:8px;left:8px;right:8px;padding:2px 4px;gap:5px;background:#ffffffec;border:1px solid #dadee5;border-radius:7px;flex-wrap:wrap}
 .workspace .selection-modes,.workspace .view-actions{border:0;box-shadow:none;padding:0}
-.workspace .selection-modes button,.workspace .view-actions button{font-size:12px;min-height:32px;padding:4px 7px}
+.workspace .selection-modes button,.workspace .view-actions button{font-size:12px;min-height:28px;min-width:28px;padding:3px 6px}
 .webcad-app .statusbar{height:28px;min-height:28px;font-size:12px}
 .statusbar .ai-status,.statusbar [data-build-id],.statusbar .kernel-state,.statusbar a.ai-status,.statusbar button{display:none}
 .cad-anchor-orb{position:absolute;left:0;top:0;width:9px;height:9px;border:1px solid #edf1f8;border-radius:50%;background:radial-gradient(circle at 35% 30%,#d9e8ff 0,#7995bf 42%,#36527d 100%);box-shadow:0 0 0 2px #f5f9ffa6,0 0 8px 3px #5b80b87c;pointer-events:none;z-index:2;translate:-50% -50%;animation:anchor-breathe 2.8s ease-in-out infinite}
@@ -120,8 +123,8 @@
 .canvas-panel .empty-state small{margin-top:10px;font-size:12px;color:#575f6c}
 .canvas-panel .empty-actions{display:flex;gap:8px;justify-content:center}
 .canvas-panel .empty-actions button{min-height:36px;padding:7px 12px;font-size:13px}
-.viewport-nav{position:absolute;top:56px;right:12px;z-index:3;display:flex;gap:3px;padding:3px;background:#ffffffea;border:1px solid #cfd5dd;border-radius:7px;box-shadow:0 2px 8px #17273e1c}
-.viewport-nav button{min-width:32px;min-height:32px;padding:3px 6px;font-size:13px;font-weight:650}
+.viewport-nav{position:absolute;bottom:54px;right:12px;z-index:3;display:flex;gap:2px;padding:2px;background:#ffffffea;border:1px solid #cfd5dd;border-radius:7px;box-shadow:0 2px 8px #17273e1c}
+.viewport-nav button{min-width:28px;min-height:28px;padding:3px 6px;font-size:12px;font-weight:650}
 .workspace .tree-title{font-size:12px;color:#535b67}
 .workspace .tree-pick{min-height:32px;font-size:13px}
 .workspace .tree-empty{font-size:12px;color:#656d7a}

@@ -2,6 +2,18 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHostAdapter} from '../src/agent/host-adapter.js';
 import {validatePayload} from '../src/agent/protocol.js';
+import {READ_METHODS, VIEW_METHODS, JOB_METHODS, EDIT_ACTIONS, HOST_ONLY_METHODS} from '../src/agent/protocol.js';
+import {infoMetadata} from '../src/page-api-docs.js';
+import {EDITOR_ACTIONS} from '../src/editor-actions.js';
+import {REFERENCE_ACTIONS} from '../src/reference-contracts.js';
+import {PAGE_CLIENT_METHODS} from '../skills/webcad-page-api/scripts/page-client.mjs';
+
+test('every public method is remotely supported or has an explicit host-only reason',()=>{
+  const info=infoMetadata(), supported=new Set([...READ_METHODS,...VIEW_METHODS,...JOB_METHODS]);
+  for(const method of [...info.methods,...info.filesMethods.map(name=>'files.'+name)])assert.ok(supported.has(method)||HOST_ONLY_METHODS[method],method);
+  for(const method of info.methods)assert.ok(PAGE_CLIENT_METHODS.includes(method),`helper missing ${method}`);
+  for(const action of [...Object.keys(EDITOR_ACTIONS),...REFERENCE_ACTIONS])assert.ok(EDIT_ACTIONS.has(action),action);
+});
 
 const context={sessionId:'page',documentId:'document',documentInstanceId:'instance',revision:0};
 const requestContext={...context,expectedRevision:0};delete requestContext.revision;
@@ -27,6 +39,16 @@ test('uses the public job and uploads its original receipt once',async()=>{
   const result=await adapter.receive(envelope(payload));
   assert.equal(result.status,'completed');assert.equal(counts().submits,1);
   assert.deepEqual(reports.map(item=>item.kind),['ack','result']);
+});
+
+test('verified native project attachment confirms save only with matching bytes',async()=>{
+  let confirmed=0;
+  const descriptor={status:'generated',resourceId:'output',size:3,sha256:'abc'};
+  const api={connect(){},getState:()=>({context}),invoke:async()=>descriptor,submit(){},getJob:()=>({status:'completed',result:descriptor}),
+    files:{read:async()=>new Uint8Array(3),confirmWritten:async()=>{confirmed++;return {status:'write_verified'};}}};
+  const adapter=createHostAdapter({api,session,report:async()=>{},artifact:async()=>({status:'agent_write_verified',size:3,sha256:'abc'})});
+  const result=await adapter.receive(envelope({method:'files.save',args:{context:requestContext}}));
+  assert.equal(confirmed,1);assert.equal(result.saveConfirmation.status,'write_verified');
 });
 test('lost result can be resent without geometry replay',async()=>{
   const {adapter,counts}=setup({loseResult:true});

@@ -7,11 +7,12 @@ const fail=message=>{throw Object.assign(new Error(message),{code:'GEOMETRY_INVA
 // A failed requested radius must never be silently reduced. Probe a few smaller
 // values only to give the operator one verified alternative. Fillet feasibility
 // is not globally monotone, so this is a sampled success, not a maximum radius.
-function sampledFilletRadius(shape,amount,targets,edges,oc){
+function sampledFilletRadius(shape,amount,targets,edges,oc,onAttempt){
   if(targets.length>8||amount<=0.02)return null;
   // Feasibility can have disconnected intervals on trimmed surfaces. Search
   // discrete radii from large to small instead of assuming binary monotonicity.
   for(let step=11;step>=1;step--){
+    onAttempt();
     const radius=amount*step/12;
     let builder,progress,result,check,solids;
     try{
@@ -51,11 +52,13 @@ export function blendTargets(shape,{edgeIds,faceIds,allEdges=false,sharedFaces=f
   return {targets,rows,skipped:candidates.filter(row=>!row.sharp).map(row=>row.edgeId)};
 }
 
-export function buildEdgeBlend(shape,op,params,{suggestRadius=true}={}) {
+export function buildEdgeBlend(shape,op,params,{suggestRadius=false}={}) {
+  const started=performance.now();let selected;
+  try{selected=blendTargets(shape,params);}catch(error){error.report={version:1,operation:op,stage:'selection',strategy:'native',attemptCount:0,elapsedMs:performance.now()-started,cause:'selection-rejected',targetCount:0};throw error;}
   const amount=params[op==='fillet'?'radius':'distance'];
-  const {targets,rows,skipped}=blendTargets(shape,params),oc=cad.getOC(),edges=shape.edges;
-  const mode=params.mode||'equalDistance',faces=op==='chamfer'&&mode!=='equalDistance'?shape.faces:[],supportFaces=[];
-  let builder,result;
+  const {targets,rows,skipped}=selected,oc=cad.getOC(),edges=shape.edges;
+  const mode=params.mode||'equalDistance',faces=shape.faces,supportFaces=[];
+  let builder,result,stage='construction';
   try {
     builder=op==='fillet'?new oc.BRepFilletAPI_MakeFillet(shape.wrapped,oc.ChFi3d_FilletShape.ChFi3d_Rational):new oc.BRepFilletAPI_MakeChamfer(shape.wrapped);
     for(const row of targets){
@@ -75,9 +78,10 @@ export function buildEdgeBlend(shape,op,params,{suggestRadius=true}={}) {
     try{builder.Build(progress);}finally{dispose(progress);}
     if(!builder.IsDone())throw new Error('内核未完成过渡面连接');
     result=cad.cast(builder.Shape());
+    stage='validation';
     const check=new oc.BRepCheck_Analyzer(result.wrapped,true,false,false);
     try{if(!check.IsValid())throw new Error('过渡面自交或实体无效');}finally{dispose(check);}
-    result.blendReport={operation:op,amount,scope:params.allEdges?'body':params.faceIds?(params.sharedFaces?'shared-faces':'face-boundaries'):'edges',
+    result.blendReport={version:1,operation:op,stage:'completed',strategy:'native',attemptCount:1,elapsedMs:performance.now()-started,dimensionKind:op==='fillet'?'radius':'support-distance',requestedAmountMm:amount,amount,scope:params.allEdges?'body':params.faceIds?(params.sharedFaces?'shared-faces':'face-boundaries'):'edges',
       processedEdgeIds:targets.map(row=>row.edgeId),skippedTangentEdgeIds:skipped,
       ...(op==='chamfer'?{mode,...(mode!=='equalDistance'?{supportFaces,flipDirection:params.flipDirection===true,...(mode==='twoDistances'?{distance2:params.distance2}:{angleDeg:params.angleDeg})}:{})}:{})};
     const output=result;result=null;return output;
@@ -91,10 +95,12 @@ export function buildEdgeBlend(shape,op,params,{suggestRadius=true}={}) {
     const nearKinks=rows.filter(row=>row.normalAngleDeg>.05&&row.normalAngleDeg<5&&targets.some(target=>
       [row.startPoint,row.endPoint].some(a=>[target.startPoint,target.endPoint].some(b=>Math.hypot(...a.map((v,i)=>v-b[i]))<1e-5))));
     const continuity=nearKinks.length?`相连边存在小折角：${nearKinks.slice(0,8).map(row=>`${row.edgeId} (${row.normalAngleDeg.toFixed(3)}°)`).join(', ')}；视觉接近平滑不等于精确相切。`:'';
-    const sampled=op==='fillet'&&suggestRadius?sampledFilletRadius(shape,amount,targets,edges,oc):null;
+    let probeAttempts=0;
+    const sampled=op==='fillet'&&suggestRadius?sampledFilletRadius(shape,amount,targets,edges,oc,()=>probeAttempts++):null;
     const alternative=sampled===null?'':`较小半径 R${sampled.toFixed(6)} mm 已单独试算为有效单实体，仅供参考，未应用；这不是最大可用半径。`;
     let detail=error?.message;
     if(!detail)try{detail=oc.getExceptionMessage(error);}catch{}
-    fail(`${op==='fillet'?'圆角 R':'斜角 C'}${amount} mm 无法完成，${failedIds.length?'失败边':'目标边'}：${ids.join(', ')}。${detail||'内核未返回有效实体'}。${continuity}${alternative}请检查接续轮廓是否相切、小面交汇及半径空间；必要时修正来源轮廓后重算。原模型保留。`);
+    const report={version:1,operation:op,stage,strategy:'native',attemptCount:1+probeAttempts,elapsedMs:performance.now()-started,dimensionKind:op==='fillet'?'radius':'support-distance',requestedAmountMm:amount,targetCount:targets.length,confirmedFailureCount:failedIds.length,confirmedFailedEdgeIds:failedIds,candidateCount:failedIds.length?0:targets.length,candidateEdgeIds:failedIds.length?[]:ids,cause:'unknown',kernelMessage:detail||null,supportGeometry:targets.map(row=>({edgeId:row.edgeId,faceIds:row.adjacentFaceIds,surfaceTypes:row.adjacentFaceIds.map(id=>faces[id].geomType)})),smallAngleConnections:nearKinks.map(row=>({edgeId:row.edgeId,angleDeg:row.normalAngleDeg,adjacentFaceIds:row.adjacentFaceIds})),radiusProbe:{requested:suggestRadius,attemptCount:probeAttempts,applied:false,sampledRadiusMm:sampled}};
+    throw Object.assign(new Error(`${op==='fillet'?'圆角 R':'斜角 C'}${amount} mm 无法完成，${failedIds.length?'失败边':'目标边'}：${ids.join(', ')}。${detail||'内核未返回有效实体'}。${continuity}${alternative}原模型保留。`),{code:'GEOMETRY_INVALID',recoveryAction:'CORRECT_PARAMETERS',report});
   }finally{dispose(result);dispose(builder);edges.forEach(dispose);faces.forEach(dispose);}
 }
