@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "webcad-page-api",
   "version": "1.22.0",
-  "buildId": "5f47dc47deb13496575a9ed8615042a52e310d3b-src-e79bf849c96c99c7-working",
+  "buildId": "161bbc221acf025fad94200b0fb9ad928ef7e1e7-src-1373df1722b053c3",
   "catalogHash": "sha256:5f9aed91f6295bd4243c0f7003ee9586e2f4e71c538c146fb941d33d0fae75ca",
   "docsHash": "sha256:813749a430b3d1de3b9c9bdae0d09d7fbc97b617514b24080fefb1cad6d57498",
   "entrypoints": {
@@ -17,8 +17,8 @@
     {
       "relativePath": "SKILL.md",
       "url": "webcad-page-api/SKILL.md",
-      "sizeBytes": 7859,
-      "sha256": "sha256:12fcb3c49a08e4f1c6fb9c59204cb9fd1a601c8b721346fef36da05db23bd031"
+      "sizeBytes": 7863,
+      "sha256": "sha256:9cc4d9c7a0372d2243a7c0da60ab2c17c6c74adb5037034b8e7b92e379209345"
     },
     {
       "relativePath": "references/connection.md",
@@ -35,14 +35,14 @@
     {
       "relativePath": "scripts/knowledge-cache.mjs",
       "url": "webcad-page-api/scripts/knowledge-cache.mjs",
-      "sizeBytes": 12215,
-      "sha256": "sha256:28329704aabf80611e2d998037c7e877e60c0030c4915f1a11822e33e819016e"
+      "sizeBytes": 12340,
+      "sha256": "sha256:c826bf66110cdf2995516f7133ad7d92c316528a16d36ff5dcee2be7edd8e7f8"
     },
     {
       "relativePath": "routes.json",
       "url": "routes.json",
-      "sizeBytes": 46344,
-      "sha256": "sha256:afa682967bf90c2ca27af3e88da61871a663ad06eac94373028fad4bf307c54b"
+      "sizeBytes": 46336,
+      "sha256": "sha256:fea7922ad5313b54d72daff627f68ad1c207f3aef0b0251eff24ba76e7597fa9"
     }
   ],
   "installer": {
