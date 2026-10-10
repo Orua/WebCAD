@@ -13,6 +13,8 @@ contextual.add('prepareReliefSculpt');
 methods.add('sampleReliefHeight');
 contextual.add('sampleReliefHeight');
 methods.add('addMany');
+for(const name of ['getServices','setServices','getServicesCapabilities','getServicesRequest','clearServicesCredential','getServicesJob','cancelServicesJob'])methods.add(name);
+for(const name of ['setServices','clearServicesCredential','cancelServicesJob'])contextual.add(name);
 contextual.add('inspectDesign');
 const bad = (code,message) => { throw Object.assign(new Error(message),{code}); };
 const plain = x => x && typeof x==='object' && !Array.isArray(x);

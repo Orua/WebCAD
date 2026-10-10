@@ -2,6 +2,32 @@
 
 界面动作与 AI 等价接口（手势以坐标和显式参数代替）：
 {
+  "servicesWaitDecision": {
+    "tools": [
+      "decideServicesWait",
+      "getServicesRouting",
+      "getServicesJob"
+    ],
+    "method": "decideServicesWait",
+    "usage": "服务器达到可配置等待时间时，选择 continue 续查同任务，或 stop 终止受控任务；不创建新计算。"
+  },
+  "reliefTopologyUpgrade": {
+    "tools": [
+      "prepareReliefTopologyUpgrade",
+      "feature.edit",
+      "getState"
+    ],
+    "method": "execute",
+    "usage": "只读预览策略差异后按同修订明确应用；不改设计尺寸、不静默迁移旧工程。"
+  },
+  "servicesJobRecovery": {
+    "tools": [
+      "getServicesJob",
+      "recoverServicesJob"
+    ],
+    "method": "recoverServicesJob",
+    "usage": "先核对 interrupted 旧任务，再明确授权一次环境恢复；几何失败、未知或仍运行任务不会重算。"
+  },
   "selectTool": {
     "tools": [
       "setView",
@@ -776,10 +802,13 @@
       "sampleReliefHeight",
       "prepareReliefSculpt",
       "feature.edit",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel",
       "history.undo"
     ],
     "method": "prepareReliefSculpt",
-    "usage": "浮雕历史属性→浮雕精修。prepareReliefSculpt({context,featureId,strokes,draft?})只读返回params.sculpt；检查canCommit/blockers后feature.edit提交。笔刷raise/lower/smooth/flatten/fill/scrape/sharpen/restore/mask/unmask，hardness为0–1、symmetry为none/x/y/xy，局部points为[-.5,.5]，radiusMm/amountMm/targetMm为毫米，strength为0–1。工程保存原始高度及deltaMm/mask；关闭/切层暂存草稿、应用当前层一次撤销；Alt吸取对应sampleReliefHeight({context,featureId,point,draft?})，返回targetMm可给flatten，quantity区分height/depth，与UI共用采样；轮廓外或孔内失败RELIEF_SAMPLE_OUTSIDE；预览旋转缩放不改模型。"
+    "usage": "浮雕历史属性→浮雕精修；独立毫米域用 patch:{id,domainMm,samples,protectionMm}，域内增量独立保存，边界两排固定；实际柱面及邻层预览用 preview.start args:{featureEdit:{featureId,params}}，再 preview.commit/cancel；patchId 对应独立域吸取。prepareReliefSculpt({context,featureId,strokes,draft?})只读返回params.sculpt；检查canCommit/blockers后feature.edit提交。笔刷raise/lower/smooth/flatten/fill/scrape/sharpen/restore/mask/unmask，hardness为0–1、symmetry为none/x/y/xy，局部points为[-.5,.5]，radiusMm/amountMm/targetMm为毫米，strength为0–1。工程保存原始高度及deltaMm/mask；关闭/切层暂存草稿、应用当前层一次撤销；Alt吸取对应sampleReliefHeight({context,featureId,point,draft?})，返回targetMm可给flatten，quantity区分height/depth，与UI共用采样；轮廓外或孔内失败RELIEF_SAMPLE_OUTSIDE；预览旋转缩放不改模型。"
   },
   "precisionSettings": {
     "tools": [
@@ -818,13 +847,27 @@
     "method": "connect",
     "usage": "connect({queries,includeContracts:true}) 返回当前 canExecute/blockers、requestContext 与完整卡；onboarding 提供首次连接步骤、本地安装包和真实操作路由；readDocs({docId:\"api.connection\"}) 说明宿主能力检查。knownHashes 只缓存完整工具卡，不缓存实体身份。"
   },
-  "logoConverterSettings": {
+  "servicesSettings": {
     "tools": [
-      "getLogoConverter",
-      "setLogoConverter"
+      "getServices",
+      "setServices",
+      "getServicesCapabilities",
+      "getServicesRouting",
+      "clearServicesCredential"
     ],
-    "method": "setLogoConverter",
-    "usage": "context、url、key；getLogoConverter 读回配置状态。"
+    "method": "setServices",
+    "usage": "context、url、credential、enabled、localTimeoutMs、serverWaitMs；配置 Services 后复杂运算使用服务。超时配置从下一次运算生效；getServicesRouting 读取选择原因和等待状态，不回显授权。"
+  },
+  "servicesFeatureCompile": {
+    "tools": [
+      "feature.compileServices",
+      "getServicesCapabilities",
+      "getServicesRouting",
+      "getState",
+      "getServicesRequest"
+    ],
+    "method": "execute",
+    "usage": "原特征属性→Services 精确计算为每次显式远程；普通新建/编辑在 setServices 设 allowGeometryUploads:true 后按同一 ExecutionRouter 选择。getServicesRouting 读取原因。失败保留工程，未知任务先核对，不自动重算。"
   },
   "displayPreferences": {
     "tools": [

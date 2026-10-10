@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "operations": [
+    {"operation":"relief.continuous-shoulder","label":"连续肩部","status":"TBD","enabled":false,"reason":"连续边界、裁剪拓扑与接缝连续性尚未通过验收"},
+    {"operation":"relief.interweave","label":"三维交织","status":"TBD","enabled":false,"reason":"真实上下关系及完整交织几何尚未验收"},
+    {"operation":"relief","semanticVersion":"relief.compiled-contours-strokes-1.2","label":"密集刻线","status":"TBD","enabled":false,"reason":"通用样本通过，真实密集加工场景尚未验收；暂不开放计算"}
+  ]
+}

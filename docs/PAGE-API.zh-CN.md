@@ -1,5 +1,15 @@
 # WebCAD 页面 API
 
+## 宿主控制与默认新建定位（2026-10-10）
+
+同源宿主调用 `iframe.contentWindow.webcad.hostControl.set({locked:true,connected:true})`；部分字段可省略。`get()` 与 `set()` 同步返回 `{version:1,locked,connected,mouseMode:'view'|'editable',pageApiWritable:true}`，重复设置相同值不触发 UI 变化。释放控制用 `set({locked:false})`。此状态不写工程、不改变 revision；页面重载后宿主须重新设置，跨源页面不能直接调用。
+
+控制期间人工操作仅保留视口鼠标旋转、缩放、平移。菜单、属性、快捷键、文件拖入、锚点和实体手柄暂停，顶栏右侧显示连接/控制状态。`window.webcad.api` 的工程写入和查询继续工作；`getState().hostControl` 读回状态。启动默认编辑菜单、查看鼠标模式、透视投影；释放后保持查看模式。
+
+新追加的独立创建特征（工具卡 `placementPolicy.mode='creation-frame'`）省略 `placement` 时冻结当前工作锚点，包括单项创建、创建预览、`addMany` 和模型导入。`addMany` 共用事务开始的工作锚点。长方体以底面中心插入，其余默认模型原点；需要源世界坐标时显式传 `placement:{version:1,frame:{kind:'world'},sourceAnchor:{kind:'model-origin'}}`。既有无定位历史、旧工程重建及编辑不会应用新默认值，已定位历史使用原快照。
+
+金属显示新默认与 CADViewer 使用同一 HDR、线性颜色、参考输出曲线及基色补光；已保存的个人渲染设置优先。Three PMREM、BRDF 和 CAD 相机仍独立，因此不保证逐像素相同。此改动只影响显示，不改变精确几何。
+
 `inspectRound({context,bodyId,params})` 只读复用 `round` 规划器；参数、选区与限制见 `readDocs({topic:'api.round-preflight'})`。返回 `attemptCount:0`、实际范围与支撑面，推荐值不代表圆角可行。
 
 源曲线与转换回执见 `api.source-curves`；局部精确截面旋转配方见 `recipes.analytic-root-revolve`。前者明确区分完整样条参数和拟合点，当前没有原始 NURBS 构造入口；后者仅证明已核对的圆柱/平面凹根局部，不是一般曲面圆角。

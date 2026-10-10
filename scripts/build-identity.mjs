@@ -5,7 +5,7 @@ import {resolve} from 'node:path';
 
 // Source inputs only. Generated discovery snapshots, reports, test outputs and
 // timestamps must not change identity when the same source is rebuilt.
-const inputs=['src','scripts','docs','skills','LICENSES','public',
+const inputs=['src','scripts','docs','skills','LICENSES','public','contracts','services',
   'cad-viewer/bindings','cad-viewer/wasm','cad-viewer/open-source-notices.html',
   'index.html','package.json','package-lock.json','vite.config.mjs','PROJECT.md'];
 const generated=['public/automation','public/docs','public/llms.txt'];

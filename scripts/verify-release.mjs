@@ -11,7 +11,7 @@ import {AGENT_ONBOARDING} from '../src/agent-onboarding.js';
 
 const root = resolve(import.meta.dirname, '..');
 const json = async path => JSON.parse(await readFile(resolve(root, path), 'utf8'));
-const outputDirectory=resolve(root,process.argv[2]||'dist');
+const outputDirectory=resolve(root,process.argv[2]||process.env.WEBCAD_DIST_DIR||'dist');
 const outputJson=path=>json(resolve(outputDirectory,path));
 const metadata = infoMetadata();
 const {buildId}=readBuildIdentity(root);

@@ -2,12 +2,24 @@ import * as THREE from 'three';
 import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
+// CadViewer's reference uses linear RGB, unit exposure, and a +0.15 turn
+// longitude offset in its HDR sampler. Keep finish data separate from sRGB UI colours.
+export const CADVIEWER_METAL_REFERENCE = Object.freeze({environmentMode:'hdr',exposure:1,environmentIntensity:1,roughnessOffset:0,hdrLongitudeOffsetDeg:54,metalBodyTint:0.055,keyIntensity:1.3,fillIntensity:0.6,ambientIntensity:0.7,lightAzimuth:-60,lightElevation:55});
+
+export function prepareReferenceHdr(texture){
+  texture.colorSpace=THREE.LinearSRGBColorSpace;
+  // CadViewer uploads the Radiance scanline atlas with UNPACK_FLIP_Y=false;
+  // HDRLoader's default true would reverse the matching reflection bands.
+  texture.flipY=false;
+  return texture;
+}
+
 // Finish values and reference atlas are carried over from the original CadViewer.
 export const METAL_FINISHES = Object.freeze({
   design: { label: '设计原色', metalness: 0.15, roughness: 0.42, reflectionStrength: 0 },
   'light-gold': { label: '浅金', color: [0.82, 0.58, 0.24], roughness: 0.105, reflectionStrength: 1.28 },
   nickel: { label: '亮镍', color: [0.72, 0.74, 0.76], roughness: 0.12, reflectionStrength: 1.22 },
-  '24k-gold': { label: '24K 金', color: [0.88, 0.49, 0.10], roughness: 0.14, reflectionStrength: 1.08 },
+  '24k-gold': { label: '24K 金', color: [0.88, 0.49, 0.10], roughness: 0.14, reflectionStrength: 1.08, metalBodyTint: 0.13 },
   gunmetal: { label: '枪色', color: [0.18, 0.21, 0.24], roughness: 0.15, reflectionStrength: 1.18 },
   'matt-nickel': { label: '哑镍', color: [0.62, 0.64, 0.66], roughness: 0.60, reflectionStrength: 0.48 },
   'matt-light-gold': { label: '哑浅金', color: [0.70, 0.48, 0.21], roughness: 0.59, reflectionStrength: 0.50 },
@@ -29,6 +41,14 @@ uniform float webcadRadius;
 uniform vec3 webcadCenter;
 uniform vec3 webcadPatina;
 uniform float webcadSatin;
+uniform float webcadFinishMetal;
+uniform float webcadMetalBodyTint;
+uniform float webcadExposure;
+uniform float webcadSuppressDirect;
+vec3 webcadReferenceToneMap(vec3 color) {
+  color=max(color,vec3(0.0));
+  return clamp((color*(2.51*color+0.03))/(color*(2.43*color+0.59)+0.14),0.0,1.0);
+}
 float webcadHash(vec3 p) { return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }
 float webcadNoise(vec3 p) {
   vec3 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
@@ -88,6 +108,7 @@ export class MetalMaterials {
       (async()=>{
         const hdr=await new HDRLoader().loadAsync(`${base}render-assets/studio-small-09.bin`);
         if(this.disposed){hdr.dispose();return false;}
+        prepareReferenceHdr(hdr);
         const generator=new THREE.PMREMGenerator(this.renderer);
         try {this.environmentTarget=generator.fromEquirectangular(hdr);this.environment=this.environmentTarget.texture;}
         finally {hdr.dispose();generator.dispose();}
@@ -119,6 +140,7 @@ export class MetalMaterials {
         webcadAntiqueAtlas:{value:this.atlas||this.fallback},webcadAntiqueStrength:{value:0},
         webcadAtlasOffset:{value:0},webcadTextureScale:{value:1.35},webcadPitStrength:{value:0.82},
         webcadRadius:{value:1},webcadCenter:{value:new THREE.Vector3()},webcadPatina:{value:new THREE.Color()},webcadSatin:{value:0},
+        webcadFinishMetal:{value:0},webcadMetalBodyTint:{value:0},webcadExposure:{value:1},webcadSuppressDirect:{value:0},
       };
       state={uniforms,key,options:{bounds,baseColor}};this.materials.set(material,state);
       state.onDispose=()=>this.materials.delete(material);material.addEventListener('dispose',state.onDispose);
@@ -126,28 +148,44 @@ export class MetalMaterials {
         Object.assign(shader.uniforms,uniforms);
         shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 webcadObjectPosition;\nvarying vec3 webcadObjectNormal;').replace('#include <begin_vertex>','#include <begin_vertex>\nwebcadObjectPosition=position; webcadObjectNormal=normal;');
         shader.fragmentShader=shader.fragmentShader.replace('#include <common>',`#include <common>\n${declarations}`).replace('#include <color_fragment>',`#include <color_fragment>\n${surface}`).replace('#include <roughnessmap_fragment>',`#include <roughnessmap_fragment>\nroughnessFactor=clamp(roughnessFactor+webcadAntiqueStrength*(webcadPits*0.20+webcadCloud*0.12)+webcadSatin*(webcadGrain-0.5)*0.06,0.06,1.0);`).replace('#include <metalnessmap_fragment>','#include <metalnessmap_fragment>\nmetalnessFactor*=1.0-webcadAntiqueStrength*webcadPits*0.25;');
+        // The reference uses the scalar ACES approximation and gamma 2.2.
+        // Three's ACESFilmic has AP1 matrices and a /0.6 scale; using it here
+        // changes the same gold RGB. Design colours retain the host pipeline.
+        shader.fragmentShader=shader.fragmentShader
+          .replace('#include <opaque_fragment>','outgoingLight-=reflectedLight.directSpecular*webcadSuppressDirect;\noutgoingLight+=diffuseColor.rgb*webcadMetalBodyTint;\n#include <opaque_fragment>')
+          .replace('#include <tonemapping_fragment>','if(webcadFinishMetal>0.5){gl_FragColor.rgb=webcadReferenceToneMap(gl_FragColor.rgb*webcadExposure);}else{\n#include <tonemapping_fragment>\n}')
+          .replace('#include <colorspace_fragment>','if(webcadFinishMetal>0.5){gl_FragColor.rgb=pow(gl_FragColor.rgb,vec3(1.0/2.2));}else{\n#include <colorspace_fragment>\n}');
       };
-      material.customProgramCacheKey=()=> 'webcad-metal-atlas-v1';
+      material.customProgramCacheKey=()=> 'webcad-metal-atlas-reference-v2';
       material.needsUpdate=true;
     }
     state.key=key;state.options={bounds,baseColor,displayPreferences};
     const u=state.uniforms;
+    const preferences={...CADVIEWER_METAL_REFERENCE,...displayPreferences};
+    u.webcadFinishMetal.value=key==='design'?0:1;
+    u.webcadMetalBodyTint.value=key==='design'?0:(finish.metalBodyTint??CADVIEWER_METAL_REFERENCE.metalBodyTint);
+    u.webcadExposure.value=preferences.exposure;
+    // CadViewer disables its extra direct highlight once HDR is available.
+    // Keep custom light controls and the RoomEnvironment/loading fallback useful.
+    const defaultLights=['keyIntensity','fillIntensity','ambientIntensity','lightAzimuth','lightElevation'].every(name=>preferences[name]===CADVIEWER_METAL_REFERENCE[name]);
+    u.webcadSuppressDirect.value=key!=='design'&&preferences.environmentMode==='hdr'&&this.environment&&defaultLights?1:0;
     u.webcadAntiqueAtlas.value=this.atlas||this.fallback;
     u.webcadAntiqueStrength.value=this.atlas?(finish.antiqueStrength||0):0;
     u.webcadAtlasOffset.value=finish.antiqueAtlasOffset||0;
     u.webcadTextureScale.value=finish.antiqueTextureScale||1.35;
     u.webcadPitStrength.value=finish.antiquePitStrength??0.82;
-    u.webcadPatina.value.setRGB(...(finish.patinaColor||[0.03,0.025,0.02]));
+    u.webcadPatina.value.setRGB(...(finish.patinaColor||[0.03,0.025,0.02]),THREE.LinearSRGBColorSpace);
     u.webcadSatin.value=key.startsWith('matt-')?1:0;
     if(bounds?.min&&bounds?.max){
       u.webcadCenter.value.fromArray(bounds.min).add(new THREE.Vector3().fromArray(bounds.max)).multiplyScalar(0.5);
       u.webcadRadius.value=Math.max(0.001,new THREE.Vector3().fromArray(bounds.max).distanceTo(new THREE.Vector3().fromArray(bounds.min))*0.5);
     }
-    if(key==='design')material.color.set(baseColor); else material.color.setRGB(...finish.color);
-    material.metalness=finish.metalness??1;material.roughness=Math.min(1,finish.roughness+(key==='design'?0:(displayPreferences.roughnessOffset??0)));
-    material.envMapIntensity=finish.reflectionStrength*(displayPreferences.environmentIntensity??1);
-    material.envMapRotation.set(Math.PI/2,0,(displayPreferences.environmentRotation??0)*Math.PI/180);
-    const map=key==='design'?null:(displayPreferences.environmentMode==='hdr'?(this.environment||this.studioTarget.texture):this.studioTarget.texture);
+    if(key==='design')material.color.set(baseColor); else material.color.setRGB(...finish.color,THREE.LinearSRGBColorSpace);
+    material.metalness=finish.metalness??1;material.roughness=Math.min(1,finish.roughness+(key==='design'?0:preferences.roughnessOffset));
+    material.envMapIntensity=finish.reflectionStrength*preferences.environmentIntensity;
+    const longitude=preferences.environmentMode==='hdr'?CADVIEWER_METAL_REFERENCE.hdrLongitudeOffsetDeg:0;
+    material.envMapRotation.set(Math.PI/2,0,((preferences.environmentRotation??0)+longitude)*Math.PI/180);
+    const map=key==='design'?null:(preferences.environmentMode==='hdr'?(this.environment||this.studioTarget.texture):this.studioTarget.texture);
     if(material.envMap!==map){material.envMap=map;material.needsUpdate=true;}
     material.userData.metalFinish=key;
     return material;

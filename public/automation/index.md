@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.22.0 · 操作目录 sha256:5f9aed91f6295bd4243c0f7003ee9586e2f4e71c538c146fb941d33d0fae75ca
+API 1.28.3 · 操作目录 sha256:608a728ca1d49c88129a14b8f6073a20239a485d558b0cec467e72911ada847a
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -8,6 +8,9 @@ API 1.22.0 · 操作目录 sha256:5f9aed91f6295bd4243c0f7003ee9586e2f4e71c538c14
 
 ## 页面方法
 
+- `decideServicesWait`
+- `recoverServicesJob`
+- `prepareReliefTopologyUpgrade`
 - `sampleReliefHeight`
 - `prepareReliefSculpt`
 - `readRelief`
@@ -55,6 +58,14 @@ API 1.22.0 · 操作目录 sha256:5f9aed91f6295bd4243c0f7003ee9586e2f4e71c538c14
 - `traceTwinWindow`
 - `executeText`
 - `setDisplayPreferences`
+- `getServices`
+- `setServices`
+- `getServicesCapabilities`
+- `getServicesRouting`
+- `clearServicesCredential`
+- `getServicesJob`
+- `getServicesRequest`
+- `cancelServicesJob`
 - `getLogoConverter`
 - `setLogoConverter`
 - `convertLogoPdf`
@@ -200,8 +211,11 @@ API 1.22.0 · 操作目录 sha256:5f9aed91f6295bd4243c0f7003ee9586e2f4e71c538c14
 - `template.twoPieceEyelet` · advisory · 参数化两件式薄壁鸡眼，法兰外翻边和内侧圆弯按薄壁截面精确旋转生成。A件为长脚，B件为配套短脚；支持同轴静态套合或分开展示，不模拟压铆变形、LOGO和压字。
 - `template.frameEyelet` · advisory · 圆形或圆角方形面框、恒壁厚短颈口、对称安装柱及普通直孔，一次生成单件。颈口和柱沿本地+Z；面框底面Z=0。孔深0为通孔，正值为从柱顶向下的盲孔。安装柱数量0/2/4，2柱沿Y布置。可将颈口/柱高度设0作背片。不含牙槽、锥孔、压铆、饰面及三维边圆角；按原图再加工。圆形模式内外宽高必须分别相等，角R仅用于方形。
 - `template.uStrapClip` · advisory · 沿X等宽的恒壁厚开口U夹，前后片可不同高，内外弯角为精确相切圆弧；内弯R=内净距/2时为半圆底。底面Z=0，开口朝+Z，后片在+Y。可加后片普通通孔0/1/2个，2孔沿X布置。不是四边封闭的帽套；不含牙槽、前面饰面、片端三维圆角和弹性变形。孔中心须处于后片直段。
+- `decideServicesWait` · page-method · decideServicesWait({jobId,decision:"continue"|"stop"})，可在工程忙碌时调用；jobId必须是getServicesRouting().pendingWait中的当前任务。
+- `recoverServicesJob` · page-method · recoverServicesJob({jobId,reason,approved:true,acknowledgedState:"interrupted",idempotencyKey})。必须先用 getServicesJob 核对已停止旧任务。
+- `prepareReliefTopologyUpgrade` · page-method · prepareReliefTopologyUpgrade({context,featureId,maskStrategy?:"faceWithHolesExtrude"|"cutHoleSolids"})。只读规划，不计算几何；原参数没有策略时必须明确选定。
 - `sampleReliefHeight` · page-method · sampleReliefHeight({context,featureId,layerIndex?,samples?,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。分层必须明确 layerIndex；samples 仅用于读初始等高层的新草稿，约束同 prepareReliefSculpt。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。
-- `prepareReliefSculpt` · page-method · prepareReliefSculpt({context,featureId,layerIndex?,samples?,draft?:{deltaMm,mask},strokes:[{mode:"raise"|"lower"|"smooth"|"flatten"|"restore"|"mask"|"unmask"|"fill"|"scrape"|"sharpen",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:"none"|"x"|"y"|"xy",points:[[x,y],...]},...]})。单层与显式选层使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。
+- `prepareReliefSculpt` · page-method · prepareReliefSculpt({context,featureId,layerIndex?,patch?:{id,domainMm:[uMin,vMin,uMax,vMax],samples:7–65,protectionMm},samples?,draft?:{deltaMm,mask},strokes:[{mode:"raise"|"lower"|"smooth"|"flatten"|"restore"|"mask"|"unmask"|"fill"|"scrape"|"sharpen",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:"none"|"x"|"y"|"xy",points:[[x,y],...]},...]})。单层与显式选层使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。
 - `readRelief` · page-method · readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5})。先 files.register；只读，本地解码。
 - `getHistory` · page-method · getHistory()。返回已保留状态，不含导入源字节。
 - `planAlignment` · page-method · planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true。
@@ -247,13 +261,22 @@ API 1.22.0 · 操作目录 sha256:5f9aed91f6295bd4243c0f7003ee9586e2f4e71c538c14
 - `traceTwinWindow` · page-method · traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBottomY,simplifyToleranceMm?:0..0.2}); 四条上到下 XY 采样曲线，每条3–2000点。
 - `executeText` · page-method · executeText({context,idempotencyKey,text,dryRun?}); 每行 add <op> key=value 或 measure <bodyId|$last>。
 - `setDisplayPreferences` · page-method · setDisplayPreferences({context,values}); values 为部分配置，字段及范围见 api.display-preferences。
-- `getLogoConverter` · page-method · getLogoConverter()；读取当前浏览器 localStorage 的配置。
-- `setLogoConverter` · page-method · setLogoConverter({context,url,key?})；URL 必须含 userid，空 key 保留原值。
-- `convertLogoPdf` · page-method · convertLogoPdf({context,name,data,targetWidthMm?})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。
+- `getServices` · page-method · getServices()；地址与模式存本地，专用授权仅存本标签会话，不进入工程。
+- `setServices` · page-method · setServices({context,url,credential?,enabled?,computeMode?:"local"|"auto"|"serverPreferred",allowGeometryUploads?,localTimeoutMs?:60000,serverWaitMs?:180000})；本地超时1–600秒、服务器提醒1–900秒，均用整数毫秒，设置保存并在下一操作生效。启用已配置Services即授权复杂运算发送到该端；简单运算本地。旧computeMode/allowGeometryUploads仅兼容读取，不覆盖此政策。支持 HTTPS 或内网 HTTP；HTTPS 页面不能直接调用内网 HTTP。服务由 ASHX 引用 DLL，沿用 LOGO 部署方式，不安装 Host。启用前验证协议。
+- `getServicesCapabilities` · page-method · getServicesCapabilities()；读取已配置服务。
+- `getServicesRouting` · page-method · getServicesRouting()；读取同一 ExecutionRouter 的最近决策。
+- `clearServicesCredential` · page-method · clearServicesCredential({context})
+- `getServicesJob` · page-method · getServicesJob({jobId})
+- `getServicesRequest` · page-method · getServicesRequest({idempotencyKey})；连接未知时先查既有接收记录。
+- `cancelServicesJob` · page-method · cancelServicesJob({context,jobId})
+- `getLogoConverter` · page-method · getLogoConverter() 委托 getServices；旧 URL/Key 不自动授权统一服务。
+- `setLogoConverter` · page-method · 改用 setServices，旧 setter 拒绝存影子配置。
+- `convertLogoPdf` · page-method · convertLogoPdf({context,name,data,targetWidthMm?,page?,sizeConfirmed:true,allowUpload:true})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。
 - `setView` · page-method · setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:"X"|"Y"|"Z",position:number,enabled:boolean}。
 - `redraw` · page-method · redraw({context}); 不接受额外字段。
 - `capture` · page-method · capture({context}); 不接受额外字段。
 - `run` · page-method · run({context,idempotencyKey,steps}); see readDocs({docId:"api.run"}); addMany for one atomic feature plan: api.feature-plan.
+- `feature.compileServices` · page-command · 按服务能力执行世界坐标纯平移或均匀柱面凸雕层；浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。每项上传资源限 20 MiB。
 - `body.align` · page-command · 按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:"body",bodyId:基准实体ID},axes:["Y"],sourceSide:"center",targetSide:"center",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。
 - `history.restore` · page-command · 用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。
 - `document.rename` · page-command · 修改工程名称，保留几何。
@@ -278,7 +301,7 @@ API 1.22.0 · 操作目录 sha256:5f9aed91f6295bd4243c0f7003ee9586e2f4e71c538c14
 - `history.undo` · page-command · args:{}；撤销一个已提交步骤。
 - `history.redo` · page-command · args:{}；重做一个步骤。
 - `document.refresh` · page-command · args:{}；重建当前历史。
-- `preview.start` · page-command · 普通特征 args 同 feature.add；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision。
+- `preview.start` · page-command · 普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision，提交前工程 revision 不变。
 - `preview.update` · page-command · args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。
 - `preview.commit` · page-command · 新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。
 - `preview.cancel` · page-command · 新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。

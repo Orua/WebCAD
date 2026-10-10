@@ -1,0 +1,21 @@
+{
+  "id": "decideServicesWait",
+  "title": "decideServicesWait",
+  "category": "page-method",
+  "version": "1.28.3",
+  "description": "decideServicesWait({jobId,decision:\"continue\"|\"stop\"})，可在工程忙碌时调用；jobId必须是getServicesRouting().pendingWait中的当前任务。",
+  "synonyms": [
+    "decideServicesWait",
+    "服务器",
+    "等待提醒",
+    "继续等待",
+    "停止运算"
+  ],
+  "inputContract": "decideServicesWait({jobId,decision:\"continue\"|\"stop\"})，可在工程忙碌时调用；jobId必须是getServicesRouting().pendingWait中的当前任务。",
+  "outputContract": "continue仅继续查询同一个任务，不重新提交；stop取消该受控任务并核对实际终态，当前工程保持。没有待决任务或jobId过期则拒绝SERVICES_WAIT_NOT_PENDING。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:060e6ef050459bebe6243952b6c9db7e99ab1c8d711663bbdb8d3f9de79ff780"
+}

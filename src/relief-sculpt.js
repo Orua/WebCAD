@@ -1,5 +1,6 @@
 // Relief edits stay separate from the source height controls. Both the UI and
 // the public preparation API use this deterministic, millimetre-based brush.
+import {validateLocalPatch,localPatchBrushParams} from './relief-local-patch.js';
 const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const zero=values=>values.map(row=>row.map(()=>0));
@@ -34,7 +35,9 @@ export function insideRelief(params,x,y){
 export function reliefHeights(params){const s=sculptState(params);return params.values.map((r,j)=>r.map((v,i)=>(params.surfaceMode==='flat'?1:v)*params.depthMm+s.deltaMm[j][i]));}
 // Eyedropper for the flatten brush: interpolate editable control heights,
 // not world-space BRep coordinates or the display surface's spline sample.
-export function sampleReliefHeight(params,point,{layerIndex}={}){
+export function sampleReliefHeight(params,point,{layerIndex,patchId}={}){
+ if(!Array.isArray(point)||point.length!==2||point.some(n=>!Number.isFinite(n)||n<-.5||n>.5))fail('PARAM_RANGE_INVALID','吸取点须为 [-0.5,0.5] 的局部坐标 [x,y]');
+ if(patchId!==undefined){const layer=params.layers?params.layers[layerIndex]:params,selected=params.layers?reliefLayerParams(params,layerIndex):params,patch=layer?.localPatches?.find(p=>p.id===patchId);if(!patch)fail('STALE_REFERENCE','局部精修 ID 不存在');const [a,b,c,d]=patch.domainMm,result=sampleReliefHeight(localPatchBrushParams(selected,patch),[(point[0]*params.widthMm-(a+c)/2)/(c-a),(point[1]*params.heightMm-(b+d)/2)/(d-b)]);return {...result,point,patchId,layerIndex,source:'local-patch-control-grid'};}
  if(params.layers)return {...sampleReliefHeight(reliefLayerParams(params,layerIndex),point),layerIndex};
  if(layerIndex!==undefined)fail('PARAM_SCHEMA_INVALID','单层浮雕不接受 layerIndex');
  if(!Array.isArray(point)||point.length!==2||point.some(n=>!Number.isFinite(n)||n<-.5||n>.5))fail('PARAM_RANGE_INVALID','吸取点须为 [-0.5,0.5] 的局部坐标 [x,y]');
@@ -97,7 +100,18 @@ export function createReliefStroke(params,options){
  },get stats(){return {pointCount:count,visitedControls:visited};}};
 }
 
-export function prepareReliefSculpt(params,strokes,{layerIndex,samples}={}){
+export function prepareReliefSculpt(params,strokes,{layerIndex,samples,patch}={}){
+ if(patch!==undefined){
+  if(samples!==undefined||!patch||Object.keys(patch).some(k=>!['id','domainMm','samples','protectionMm'].includes(k)))fail('PARAM_SCHEMA_INVALID','独立域使用 patch:{id,domainMm,samples,protectionMm}，不能同时改全局 samples');
+  const selected=params.layers?reliefLayerParams(params,layerIndex):params,layer=params.layers?params.layers[layerIndex]:params,n=patch.samples??17;
+  if(!Number.isInteger(n)||n<7||n>65||selected.sculpt||selected.strokes||selected.mode==='engrave'||selected.values.some(row=>row.some(v=>v!==1)))fail('RELIEF_PATCH_UNSUPPORTED','独立域需要等高凸雕层和 7–65 局部控制网格');
+  const prior=layer.localPatches?.[0];if(prior&&(prior.id!==patch.id||JSON.stringify(prior.domainMm)!==JSON.stringify(patch.domainMm)||prior.deltaMm.length!==n))fail('RELIEF_PATCH_INVALID','已有 patch 的 ID、域和分辨率保持稳定，不能隐式重采样');
+  const draft=prior??{id:patch.id,domainMm:patch.domainMm,protectionMm:patch.protectionMm??Math.max(.02,2*(params.curveToleranceMm??0)),deltaMm:Array.from({length:n},()=>Array(n).fill(0))};validateLocalPatch(draft,selected);
+  const [a,b,c,d]=draft.domainMm,local=localPatchBrushParams(selected,draft),mapped=strokes?.map(stroke=>({...stroke,points:stroke.points.map(([x,y])=>[(x*params.widthMm-(a+c)/2)/(c-a),(y*params.heightMm-(b+d)/2)/(d-b)])}));
+  const result=prepareReliefSculpt(local,mapped),next={...draft,deltaMm:result.params.sculpt.deltaMm,mask:result.params.sculpt.mask};validateLocalPatch(next,selected);
+  if(Math.min(...next.deltaMm.flat())+selected.depthMm<(layer.startHeightMm??0))fail('RELIEF_LIMIT','局部精修不得低于本层起点');
+  return {params:params.layers?{layers:params.layers.map((l,i)=>i===layerIndex?{...l,localPatches:[next]}:l)}:{localPatches:[next]},report:{...result.report,kind:'independent-local-patch',patchId:next.id,domainMm:next.domainMm,layerIndex,globalGridUnchanged:true,boundary:'two protected zero control rows',preview:'local-control-draft; exact BRep evaluated on apply'}};
+ }
  if(params.layers){
   const selected=reliefLayerParams(params,layerIndex,{samples}),result=prepareReliefSculpt(selected,strokes),{layers}=reliefSculptPatch(params,result.params.sculpt,{layerIndex,samples});
   return {params:{layers},report:{...result.report,layerIndex,layerName:layers[layerIndex].name??null,transition:'selected-layer-heightfield; adjacent layer steps are not removed',unmodifiedLayerCount:layers.length-1}};
@@ -116,7 +130,8 @@ export function prepareReliefSculpt(params,strokes,{layerIndex,samples}={}){
 }
 
 // UI drafts and page API strokes commit the same layer-aware parameter patch.
-export function reliefSculptPatch(params,draft,{layerIndex,samples}={}){
+export function reliefSculptPatch(params,draft,{layerIndex,samples,patch}={}){
+ if(patch){const selected=params.layers?reliefLayerParams(params,layerIndex):params,next={...patch,deltaMm:structuredClone(draft.deltaMm),mask:structuredClone(draft.mask)};validateLocalPatch(next,selected);if(Math.min(...next.deltaMm.flat())+selected.depthMm<(params.layers?.[layerIndex]?.startHeightMm??0))fail('RELIEF_LIMIT','局部精修不得低于本层起点');return params.layers?{layers:params.layers.map((l,i)=>i===layerIndex?{...l,localPatches:[next]}:l)}:{localPatches:[next]};}
  if(!params.layers){if(layerIndex!==undefined||samples!==undefined)fail('PARAM_SCHEMA_INVALID','单层浮雕不接受 layerIndex/samples');return {sculpt:sculptState({...params,sculpt:draft})};}
  const selected=reliefLayerParams(params,layerIndex,{samples}),sculpt=sculptState({...selected,sculpt:draft}),layers=structuredClone(params.layers);
  if(samples!==undefined)layers[layerIndex].values=selected.values;

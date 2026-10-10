@@ -592,6 +592,7 @@
     "notApplicableReason": "Operation acts on existing topology without relocating it",
     "originUsage": "target-topology-unchanged",
     "orientationUsage": "none",
+    "omittedPlacement": "legacy-world",
     "legacyCoordinates": "world",
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
@@ -601,5 +602,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:e78e10ab9ac5f8fe6124cba169b8f00b808e6a840a241719eb65b3647f8c72d5"
+  "docsHash": "sha256:edffeeff3ad492d84e75e42652d86d67a925e689ea9ef06a6288d078f9b31dbd"
 }

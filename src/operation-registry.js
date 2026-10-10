@@ -11,7 +11,7 @@ const clone = value => JSON.parse(JSON.stringify(value));
 const topology = new Set(['faceHole', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition']);
 const topologyConvention = operationCatalog.topology;
 const defaults = { cylinder:{},sphere:{},cone:{radius1:10,radius2:0},torus:{},round:{mode:'auto',strength:.5}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z'}, rounding:{strength:1}, autoRound:{}, smoothTransition: {}, box: {}, hole: { x: 0, y: 0, z: 0, axis: 'Z', direction: 1 },holeWizard:{kind:'plain',axis:'Z',direction:1,through:false},
-  mirror:{plane:'XY',offsetMm:0,keepOriginal:true},linearPattern:{count:3,dx:0,dy:0,dz:0,outputMode:'compound'},circularPattern:{count:3,angle:360,axis:'Z',cx:0,cy:0,cz:0,outputMode:'compound'},
+  mirror:{plane:'XY',offsetMm:0,keepOriginal:false},linearPattern:{count:3,dx:0,dy:0,dz:0,outputMode:'compound'},circularPattern:{count:3,angle:360,axis:'Z',cx:0,cy:0,cz:0,outputMode:'compound'},
   multiHole: { axis: 'Z', direction: 1 }, multiPocket:{axis:'Z',direction:-1}, multiBoss:{axis:'Z',direction:1}, faceHole: { through: false }, fillet: {}, chamfer: {}, shell: {}, draftFaces:{}, extractFaces:{}, extractShell:{}, sketchProfile:{}, profileOffset:{}, profileRepair:{}, profileExtrude:{},...mechanicalDefaults };
 const triangle = [[-1, -1], [1, -1], [0, 1]];
 const regions = [{ outer: triangle }];
@@ -108,7 +108,7 @@ const names = { round:['圆润','自动圆润','磨边','圆头','round','smooth
 
 function buildCard(id, source) {
   const strict = migrated.has(id), special = source.mcpAddFeature === false;
-  const version = id==='rounding'?'3.0.0':['mirror','linearPattern','circularPattern','chamfer','holeWizard','profileConstraints'].includes(id)?'1.1.0':strict ? '1.0.0' : 'legacy-1';
+  const version = id==='rounding'?'3.0.0':id==='mirror'?'1.2.0':['mirror','linearPattern','circularPattern','chamfer','holeWizard','profileConstraints'].includes(id)?'1.1.0':strict ? '1.0.0' : 'legacy-1';
   const inputSchema = schemaFor(id, source), refsSchema = refsFor(source.refs);
   if (id === 'profileExtrude') refsSchema.maxItems = 2;
   if (id === 'referenceLoft') refsSchema.maxItems = 12;

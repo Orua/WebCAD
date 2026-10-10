@@ -1,0 +1,85 @@
+## Usable release scope (2026-10-10)
+
+The shared contracts/services/v1/tbd-capabilities.json is the current disabled-capability list: continuous shoulder, 3D interweave and dense open-stroke production machining are TBD. Native semantic strokes-1.2 cannot be submitted in this release. Previously saved exact checkpoints remain readable without re-running the operation. Standard contour layers, accepted local patches and translation retain their accepted scope; no full-product completion is claimed. This release only closes DLL Logo conversion, project write/readback and cold offline reopen.
+
+# Current deployment: original LogoVector DLL + ASHX pattern
+
+User correction (2026-10-10) supersedes the older Host/IIS-pipe deployment described below. The deployed api.ashx loads WebCADServices.Gateway.IisHandler from compiled DLLs in the child application's bin. That DLL owns persistent job coordination and calls controlled Logo/OCCT worker processes. No installed Windows Host service or named pipe is required. IIS application recycle stops its controlled work; interrupted work is reconciled from SQLite, never silently retried. Keep operational data private and outside the web root when configured; default App_Data is for a self-contained IIS application. Use scripts/package-iis-dll.ps1 for the FTP-ready frontend/cadservices package, with no credentials or live data. Existing Host installers and packages are legacy rollback tools, not the current deployment route.
+
+Local HTTP service address: http://10.121.11.223/cadservices/api.ashx. The WebCAD page remains http://127.0.0.1:17674/. Public HTTPS pages must use an HTTPS service endpoint; browsers prohibit direct HTTPS-to-LAN-HTTP active requests.
+
+# Unified Services
+
+The browser remains the sole document authority. Optional Services computes immutable snapshots; the UI and Agent share one Services setting, client, public page API and existing CommandService. Supported local modeling continues without Services.
+
+## Configuration and migration
+
+Use Settings → Services. Configure one HTTPS or private-LAN HTTP `api.ashx` address and dedicated authorization. Address/mode are in `webcad.services.v1`; credentials are only in the tab's `sessionStorage`, never in a project or API readback. Change address, disable Services or clear authorization to remove credentials.
+
+The old `webcad.logoConverter.v1` is preserved only as migration backup. Its endpoint and Key are never guessed/promoted. Old API getters delegate to Services without secrets; old setters reject with `SERVICES_MIGRATION_REQUIRED`.
+
+Logical routes use `?route=/v1/...`. Gateway forwards through an ACL-restricted local named pipe to an independent net48/x64 Host. Host uses SQLite and controlled per-job Logo/native processes. Console acceptance HTTP listens on `127.0.0.1` only. Tested code supports world-coordinate pure translation and gated uniform cylindrical emboss plans. The accepted local package additionally advertises protected independent local patches (1.1). Open strokes and engraving (1.2) remain behind a separate isolated prototype proof; their small dual-depth and support-binding tests do not establish real-product acceptance. General sculpt and 3D weaving are not advertised. The real six-hole double-layer local comparison passed; the single full-product attempt failed at an invalid fitted outer ring. The corrected plan passed all 105 contour-face preflights, which does not establish full material acceptance.
+
+`feature.compileServices` compiles an existing eligible feature through CommandService. Upload requires explicit authorization. The result preserves its ID, operation, parameters and dependencies, validates the document instance/revision, source and result hashes, and installs an exact BRep checkpoint atomically. v3 ZIP projects contain the raw content-addressed BRep and reopen without Services. Changing upstream geometry invalidates the checkpoint. Legacy numeric downstream topology indices are rejected across kernels rather than guessed.
+
+`curvePolicy: preserveTopology` checks the shared line/arc plan before material computation. It records near-contact and self-intersection decisions and retains exact supplied segments on dangerous rings, without moving source points, filling holes or relaxing the fit tolerance. Missing policy retains the legacy recipe. New UI recipes explicitly select this policy and `faceWithHolesExtrude`; no failed-solid strategy loop occurs. Native executes the same compiled primitives. Source-spline error remains unknown; sampled contour deviation is not a global error certificate.
+
+`compileLayers: groupCompatible` groups contiguous uniform compatible layers while retaining every original member ID and history layer. Different modes, heights, starts or sculpt fields do not merge. Per-session local layer caches own bounded serialized BRep bytes (20 MiB), not shared builders/wrappers. Later layer changes reuse the unchanged prefix. Naming/appearance and display remeshing retain physical geometry; exact measurements are cached separately from display meshes. Native exact intermediate-layer persistence is implemented and tested across Host restart (64 entries / 256 MiB per owner/kernel).
+
+Persistent computation reuse is separate from installation identity. `/v1/requests/<key>/result` returns the accepted request's stored document/instance/revision/recipe binding over the existing immutable artifact. It does not rerun the kernel or rewrite an execution result locally. Same-key payload conflicts and known failed physical fingerprints remain blocked.
+
+## Logo flow
+
+Local `.logo.json` and restricted SVG continue locally. For PDF/PDF-compatible AI, restricted DXF or supported raster, explicitly confirm upload, dimensions and page. Services uploads/inspects/converts through persistent jobs. The client verifies source SHA, manifest fingerprint and artifact SHA and consumes the standard regions directly. Conversion reports/review reasons remain attached; source contour confirmation precedes 3D modeling.
+
+## Local build and acceptance
+
+```powershell
+./scripts/build-services.ps1 -BuildRoot F:/WebCADServices-local/build
+./scripts/test-services.ps1 -BuildRoot F:/WebCADServices-local/build -DataRoot G:/CAD-Workspace/WebCAD/services/tests -RealLogoPdf <private-source.pdf>
+```
+
+Add `-NativeWorker <actual-exe> -NativeAcceptance <kernel-pair-proof.json>` for actual native bridge and original-feature/offline-save tests. Missing binaries or evidence fail the gate; they never count as skipped successes. Native builds use `scripts/build-occt.ps1` and `scripts/build-native-worker.ps1`, with source/SDK/toolchain/build/runtime under fixed F:/WebCADServices-local.
+
+The independent Host uses `--service --config <absolute host.json>`. Installer-generated Host JSON and the Gateway's external, token-free appSettings share one pipe name, exact Origin and bounded deadlines. Service mode ignores DEV_HTTP and environment credentials. Explicit console development keeps the existing environment/CurrentUser DPAPI path. See [R1 infrastructure installation](R1-INFRASTRUCTURE.md) for identity provisioning, verified site inputs and acceptance boundaries.
+
+Services runtime, required dependencies and persistent jobs use fixed F:/WebCADServices-local. Private test evidence and backups remain on G:. Start locally using scripts/start-services-local.ps1; it uses a dedicated session token or per-user DPAPI authorization created by scripts/initialize-services-local.ps1 and does not install a Windows Service. Current stage evidence: `G:/CAD-Workspace/WebCAD/reports/unified-upgrade/STAGE-STATUS.md`. This entry is documentation, not a deployment or complete native/relief acceptance claim.
+
+Layer caching uses exact intermediate BRep checkpoints keyed by owner, engine, original source SHA, semantic version, mask strategy, geometric support intent and the complete ordered physical prefix. Receipts are published only after successful native completion, hash verified before reuse, and retained across Host restart; 64 entries / 256 MiB per owner/kernel. No wrappers or half-completed Boolean builders are cached.
+Source upload and saved checkpoint hashes use the precise source snapshot frozen before display triangulation. Pre-snapshot v3 checkpoints may reuse only after reconstructing the original source representation and matching its exact original SHA; no geometric hash check is waived.
+Protected local patch semantics are separately advertised as relief.compiled-contours-local-patch-1.1. Local millimetre domains retain source contours/holes/global controls, stable ID, two zero boundary control rows and a required contour protection band. The typed plan supplies the exact spline BRep tool; both executors preserve the same mask and original host binding. The real nine-support scene passed original-feature raise/lower, neighboring material protection, UI undo/redo and offline project reopening. Full sculpture and continuous shoulder geometry remain pending.
+
+## Local use and independent package
+
+Run initialize-services-local.ps1 once, then start-services-local.ps1. copy-services-local-credential.ps1 copies the dedicated authorization for pasting into the single Services setting (no credential is printed). The current accepted native slot is native-a06 with separately scoped kernel-pair-a06-local.json proof.
+
+For an existing supported transform/relief feature, use Properties → Services 精确计算, explicitly authorize upload, and compute/apply at the original feature. This is a per-operation Services override through the same CommandService as feature.compileServices. Automatic geometry routing remains conservative and is not claimed as calibrated.
+Failed operations retain the real error code, jobId, stage, diagnosticsRef and commit state in the UI/API. An observation disconnect retains the accepted task identity for querying and never resubmits computation. Each current IIS upload resource is limited to 20 MiB. The auto label explicitly says that routing currently remains conservative and local.
+
+build-all.ps1 builds the actual frontend and net48 modules. package-all.ps1 creates a hash-inventoried package on G:, excluding credentials and job data. install-services.ps1 defaults to dry-run and distinguishes Preflight, LocalIntegration and Production. Actual installation requires explicit `-Apply`, verified site inputs, a dedicated virtual service account and an isolated net48/x64 cadservices pool. `-ApplyLocal` is rejected because its former copy-only behavior did not install IIS/SCM. start-package.ps1 reports the installed service and recorded IIS URL by default; its former console/Node startup requires `-DevelopmentConsole` and is labelled development only. Installer rollback restores the product child application, service command, ACLs and pointer without copying a live SQLite database. The canonical rollback-all.ps1 now defaults to verified read-only R0 preflight and supports bounded rollback of the existing local cadservices gateway, independent service, external configuration selection and pointer to current.previousReleaseId. Historical scripts inside immutable packages retain their old behavior; use the reviewed canonical source and [R0 rollback guide](R0-ROLLBACK.md). Real native switch/restore acceptance remains separate. See the R1 guide before native installation.
+
+Cold startup, interrupted jobs, idempotency conflicts, owner isolation, cancelled queues, corrupt artifacts, orphan cache recovery and interrupted uploads have focused actual net48 tests. A second Host cannot own the same data root or mark an active Host's jobs interrupted. Production restricted identity/network/IIS gates and continuous shoulder geometry remain pending.
+
+## Training acceptance boundaries
+
+Product numbers identify read-only fixtures and experiment ledgers; they never select a business implementation branch. GC15169 passed one actual complete two-hole glyph with its own 0.30/0.65 mm levels and 0.29 mm start: 507 material samples, retained openings and offline raw-checkpoint reuse. This is a partial fixture, not full product acceptance. GC15432 first native attempt failed during source support binding before Boolean; the generic compiler now binds the original clicked trimmed face rather than the image center, proven by a small actual dual-kernel opening fixture. The user deferred an additional GC15432 attempt, so its real stage remains pending.
+
+Continuous shoulders remain blocked by an invalid trimmed planar face after exact Boolean; the exported Pro reproduction contains synthetic baseline/cutter/failure geometry, not an accepted tool. Failed geometry is not enabled in the frontend or service capabilities. No tolerance, source contour, hole or radius is relaxed to pass a gate.
+
+## R1 next-stage local implementation (2026-10-10)
+
+Settings preserves one Services URL and tab-only authorization. `allowGeometryUploads` defaults false. New/edited eligible exact features and explicit `feature.compileServices` use the same `chooseExecutor`; feedback and previews remain local. Auto routing requires accepted semantics and geometry bridge, one source solid, supported world placement and matching policy. It compares successful same-scale session timings plus transfer and current queue, requires at least 500 ms/20% saving and uses local when evidence is absent. `getServicesRouting` gives the latest decision and its document/revision identity. Network or remote execution failure never starts an implicit second local computation.
+
+`prepareReliefTopologyUpgrade` is a read-only plan. Missing mask strategy must be explicitly selected. The UI shows strategy differences and unchanged design/tolerance before revision-checked `feature.edit`; original feature/refs/placement remain. Successful contour reports retain every ring under existing 64000-primitive/1024-region bounds, with supplied-polyline sampled errors and unknown original-spline deviation. Current params fingerprint rejects stale compiled plans. Old native checkpoints on the edited feature and its dependents are cleared in the candidate transaction; undo preserves the original.
+
+Native support-binding diagnostics are separate from physical layer stages. The fixed 16-sample whitelist records candidate/rejection counts and tolerances, without transferring numerical face IDs or private paths. New binary hashes isolate old native result and prefix caches. Generic 1.0/1.1/1.2 evidence does not approve GC15346 full geometry, GC15432 paused calculations, continuous shoulder or undefined 3D weaving.
+
+`recoverServicesJob` requires a readback, explicit interrupted-state approval, a reason and an idempotency key. It allows one reviewed environment interruption under unchanged engine/physical input, only after prior processes are stopped and no unpublished result remains. Original failure and linked supersedes/reason are retained. Known geometry failures, unknown/running state and a second recovery remain blocked. No active real task was recovered by this construction run.
+
+## Production execution policy — supersedes earlier timing/parity policy
+
+The user (2026-10-10) chose one deterministic split: no configured/enabled Services => local; configured Services => simple local, complex Native OCCT. Existing computeMode/upload-toggle fields remain readable for compatibility but do not override this split. Configuration authorizes processing at that one endpoint. Missing authorization, Native semantic or placement support stops a complex request without local fallback. The browser still owns the document, and valid compiled checkpoints reuse without recomputation.
+
+Settings/API setServices exposes localTimeoutMs (1000–600000, default60000) and serverWaitMs (1000–900000, default180000), saved in existing browser settings and applied to the next operation. Local deadline is absolute despite progress, and terminates its Worker while retaining committed state. After server reminder, UI and decideServicesWait share continue/stop: continue observes the same job; stop sends cancellation and checks actual terminal status. Agent callers without a wait-decision handler receive SERVICES_WAIT_DECISION_REQUIRED with job identity. Native hard limits are CPU600 seconds, wall900 seconds and1GiB process memory.
+
+Native algorithms are maintained independently from the local simple path. No dual-kernel geometry equality release gate; validate the executing end against declared geometry/design requirements and retain actual codec/import, source/recipe/revision binding, original-history installation and offline-save compatibility. Continuous shoulder and unspecified 3D weaving remain unavailable.

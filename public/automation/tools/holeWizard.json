@@ -338,6 +338,7 @@
     "placementSupported": true,
     "originUsage": "cutter-start-reference",
     "orientationUsage": "cutter-direction-and-cross-section",
+    "omittedPlacement": "legacy-world",
     "legacyCoordinates": "world",
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": false,
@@ -347,5 +348,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:efeaf244d0f59bdd37f4d1802cc533988201d2e0873dd46acf5383292b8c59c7"
+  "docsHash": "sha256:16b2a27cc92833f01dddf4b64d94b464f7203e5dec90217801eb28075e9ee408"
 }

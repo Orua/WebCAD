@@ -2,7 +2,7 @@
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.22.0",
+  "version": "1.28.3",
   "label": "导入",
   "synonyms": [
     "导入",
@@ -10,7 +10,7 @@
   ],
   "description": "import({context,resourceId,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP resource. When placement is present, idempotencyKey is required; run batch injects its own step key.",
   "inputContract": "import({context,resourceId,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP resource. When placement is present, idempotencyKey is required; run batch injects its own step key.",
-  "outputContract": "Imported source-backed feature in current project; omitted placement retains legacy source coordinates.",
+  "outputContract": "Imported source-backed feature in current project; omitted placement freezes the current work frame with model-origin source anchor. Explicit world retains source coordinates.",
   "units": {
     "length": "mm",
     "angle": "degrees"
@@ -42,6 +42,7 @@
     "placementSupported": true,
     "originUsage": "new-object-insertion",
     "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
     "legacyCoordinates": "world",
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
@@ -66,5 +67,5 @@
     "FORMAT_UNSUPPORTED",
     "IDEMPOTENCY_KEY_REUSED"
   ],
-  "docsHash": "sha256:a686646e87c6e802cc433bc4bbc73ef104ed3613ba39e2b2cb0ae6ad874fc7ae"
+  "docsHash": "sha256:6cf46c66f61af0d02a7c262a31e21c755ca0f43e83c4dce7aa9418bbdf2ec56a"
 }

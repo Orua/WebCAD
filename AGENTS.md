@@ -1,3 +1,7 @@
+## Current user deployment override (2026-10-10)
+
+Follow the existing LogoVector deployment pattern: ASHX references compiled DLLs and the DLL invokes controlled Logo/OCCT workers. Do not require or reinstall the independent Windows Host service, named-pipe transport or Host installer. Older Host-only rules below are superseded for the current deployment. The canonical IIS entry is Gateway.IisHandler; package with scripts/package-iis-dll.ps1. Preserve authorization, persistent jobs, cancellation, artifact identity, timeouts and source geometry; no server deployment to 10.121.11.8 is authorized in the current scope.
+
 # WebCAD agent rules
 
 ## Local storage restriction (user instruction, 2026-10-09)
@@ -30,3 +34,24 @@ Known IDs can be read in one handshake with `connect({toolIds:[...]})`. Check `c
 - Preserve unrelated changes and third-party licenses. Do not overwrite via git reset/checkout/pull.
 - No production deployment, external source upload or Git push without session authorization.
 - Use targeted tests and one relevant browser check when authorized. Stop exploration after two rounds without new mechanism evidence, or when the shared experiment budget is exhausted. Do not extend it by changing parameters, routes, tools, kernels or agents; retain the minimal repro and report the unresolved core problem.
+
+## Services fixed-disk exception (user instruction, 2026-10-10)
+
+G: is frequently unmounted. Services runtime, required native/build dependencies and persistent operational data use F:/WebCADServices-local outside the repository. No runtime junction may depend on G:. Research packages, acceptance reports and edit backups retain the existing G: policy.
+
+## Unified WebCAD / Services maintenance
+
+WebCAD browser code, `services/WebCADServices`, imported LogoVector, native Worker, shared contracts and joint scripts are one product. Future WebCAD changes must check related Services/Logo/Native impact without a separate reminder. This repository is the unique active maintenance source; never add an absolute external-checkout build dependency.
+
+- Keep one Services configuration and authorization entrance. Old LOGO methods are deprecated adapters, never a shadow URL/Key or implicit conversion of old authorization.
+- For every affected change record localImpact, servicesImpact, logoImpact, contractImpact, documentImpact, cacheImpact and requiredTests. Genuine UI-only changes may say none with a reason.
+- User policy (2026-10-10): simple accurate/fast geometry belongs to the local WASM; complex geometry belongs to server Native OCCT when Services is configured. No Services means all supported operations run locally. Use shared deterministic complexity rules, not successful-timing or cross-kernel equality gates. An unsupported complex server operation fails explicitly without local fallback.
+- Local timeout and server wait reminder are independently configurable (defaults 60/180 seconds). Local timeout terminates its Worker and preserves the committed document. Server reminder offers continue on the same job or controlled stop, never automatic resubmission.
+- Maintain input meaning, units, source/revision/recipe binding, codec and independent geometric correctness for the executing end; do not duplicate a Native algorithm in WASM or demand identical dual-end geometry. Native-only versions still require actual capability and correct BRep import/installation/save acceptance.
+- Services computes snapshots; current page, CommandService, history and Worker remain document authority. Server success is not page commit. Verify fingerprint/revision/semantic/codec/artifact/geometry and atomically install at the original feature, retaining recipe/dependencies and rollback.
+- Never reuse topology indices/pointers across revisions or kernels, or guess ambiguous selections. Never alter source glyphs, holes, depth, radius, placement or unrequested supports for success/speed. Smooth surfaces are not fixed-R fillets.
+- Saved projects must carry required compiled artifacts. Hot Maps/expiring URLs are insufficient; upstream changes invalidate dependent checkpoints. Large remote results still require a real client BRep import capacity gate.
+- Persist before accept; same idempotency key/payload returns the existing job and conflicting payload rejects. Unknown/disconnected tasks are reconciled before new compute. Cancellation is not kernel pause.
+- The shared heavy-geometry budget is one baseline plus one mechanism-backed alternative per real candidate across all executors/Agents; local acceptance unlocks at most one related full-product trial. No repeat under another jobId.
+- Maintain `contracts/operation-impact-map.json`, joint build/compatibility manifest, public API routes/docs and necessary tests. Compile, execution, page commit, save and production deployment are reported separately.
+- Read `services/WebCADServices/AGENTS.md` for process/ownership/storage/safety rules. Local implementation does not authorize administrator installation, IIS changes, production deployment or Git push.

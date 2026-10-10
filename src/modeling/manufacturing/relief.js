@@ -1,5 +1,6 @@
 import {planarFace} from '../../reference-profile-wires.js';
-import {validateSchema,contractError} from '../../contracts/operation-schema.js';
+import {validateSchema,contractError,contractHash,binaryHash} from '../../contracts/operation-schema.js';
+import {planReliefLayers} from './relief-layer-plan.js';
 import {reliefOperations} from './relief-contracts.js';
 import {cylindricalReliefTool} from './cylindrical-relief.js';
 import {maskReliefTool} from './relief-mask.js';
@@ -43,33 +44,37 @@ function splineFace(grid,oc,cad){
  }finally{owned.reverse().forEach(dispose);}
 }
 
-function buildLayers(source,p,oc,cad,onProgress){
- if(p.sculpt)fail('RELIEF_INVALID','分层矢量浮雕请编辑各层高度或轮廓，不能套用单层高度笔刷');
+function buildLayers(source,p,oc,cad,onProgress,layerCache,sourceFingerprint){
+ if(p.sculpt||p.localPatches)fail('RELIEF_INVALID','分层矢量浮雕请明确编辑选中层，不能套用全局笔刷或局部域');
  const faces=source.faces,anchor=faces[p.faceId];let current=null;
  try{
   if(!anchor)fail('STALE_REFERENCE','目标面已失效，请重新选择');
-  const reports=[];
-  for(const [index,layer] of p.layers.entries()){
+  const reports=[],groupReports=[],planning=planReliefLayers(p.layers,p.compileLayers??'logical');let chain=sourceFingerprint??binaryHash(new TextEncoder().encode(source.serialize()));
+  for(const [groupIndex,group] of planning.groups.entries()){
+   const {layer}=group,index=group.memberIndices[0];
    const progress=detail=>onProgress?.({layer:index+1,layerCount:p.layers.length,name:layer.name??`Layer ${index+1}`,...detail});
    progress({phase:'relief-layer',completed:index,total:p.layers.length});
    if((layer.startHeightMm??0)>=layer.heightMm)fail('RELIEF_INVALID',`第 ${index+1} 层起点必须低于层高度`);
    const {layers,regions,strokes,values,sculpt,...common}=p;
-   const params={...common,depthMm:layer.heightMm,mode:layer.mode??'emboss',surfaceMode:'smooth',...(layer.regions?{regions:layer.regions}:{}),...(layer.strokes?{strokes:layer.strokes}:{}),...(layer.sculpt?{sculpt:layer.sculpt}:{}),values:layer.values??Array.from({length:4},()=>Array(4).fill(1))};
+   const params={...common,depthMm:layer.heightMm,mode:layer.mode??'emboss',surfaceMode:'smooth',...(layer.regions?{regions:layer.regions}:{}),...(layer.strokes?{strokes:layer.strokes}:{}),...(layer.sculpt?{sculpt:layer.sculpt}:{}),...(layer.localPatches?{localPatches:layer.localPatches}:{}),values:layer.values??Array.from({length:4},()=>Array(4).fill(1))};
    if(layer.sculpt&&Math.min(...reliefHeights(params).flat())<(layer.startHeightMm??0))fail('RELIEF_LIMIT',`第 ${index+1} 层精修高度低于起点，请明确调整 startHeightMm`);
    let next;
-   try{next=buildRelief(current??source,params,oc,cad,{supportFace:anchor,startHeightMm:layer.startHeightMm??0,measureMaterial:false,sourceValidated:!!current,onProgress:progress});}
+   const {source:provenance,...physicalParams}=params,cacheKey=contractHash({version:'relief-layer-cache-v1',sourceChainFingerprint:chain,params:physicalParams,startHeightMm:layer.startHeightMm??0,memberLayerIds:group.memberLayerIds}),cached=layerCache?.get(cacheKey);
+   try{if(cached){next=cad.deserializeShape(cached.brep);next.reliefReport=cached.report;progress({phase:'relief-layer-cache',completed:1,total:1,cacheHit:true,memberLayerIds:group.memberLayerIds});}else{next=buildRelief(current??source,params,oc,cad,{supportFace:anchor,startHeightMm:layer.startHeightMm??0,measureMaterial:false,sourceValidated:!!current,onProgress:progress,regionGroups:group.regionGroups});layerCache?.set(cacheKey,next.serialize(),next.reliefReport);}}
    catch(error){error.message=`第 ${index+1} 层（${layer.name??'未命名'}）：${error.message}`;throw error;}
-   reports.push({...next.reliefReport,index,name:layer.name??`Layer ${index+1}`,layerHeightMm:layer.heightMm});
+   groupReports.push({groupIndex,memberLayerIds:group.memberLayerIds,cacheHit:!!cached,inputFingerprint:cacheKey});
+   for(const member of group.memberIndices)reports.push({...next.reliefReport,index:member,name:p.layers[member].name??`Layer ${member+1}`,layerHeightMm:p.layers[member].heightMm,compiledGroupIndex:groupIndex,memberLayerIds:group.memberLayerIds});
+   chain=cacheKey;
    dispose(current);current=next;
-   progress({phase:'relief-layer',completed:index+1,total:p.layers.length});
+   progress({phase:'relief-layer',completed:group.memberIndices.at(-1)+1,total:p.layers.length});
   }
-  current.reliefReport={kind:'layered-vector-relief',faceId:p.faceId,layerCount:reports.length,layers:reports,background:'unchanged-host',curveToleranceMm:p.curveToleranceMm??0,contourSnapMm:p.contourSnapMm??0,addedMm3:null,removedMm3:null,materialMetrics:'not-computed-per-layer',solidCount:1,valid:true,rows:4,columns:4};
+  current.reliefReport={kind:'layered-vector-relief',faceId:p.faceId,layerCount:reports.length,compiledGroupCount:planning.groups.length,compileLayers:planning.mode,groupReports,layers:reports,background:'unchanged-host',curveToleranceMm:p.curveToleranceMm??0,contourSnapMm:p.contourSnapMm??0,addedMm3:null,removedMm3:null,materialMetrics:'not-computed-per-layer',solidCount:1,valid:true,rows:4,columns:4};
   const out=current;current=null;return out;
  }finally{dispose(current);faces.forEach(dispose);}
 }
-export function buildRelief(source,p,oc,cad,{supportFace:anchorFace=null,startHeightMm=0,measureMaterial=true,sourceValidated=false,onProgress}={}){
+export function buildRelief(source,p,oc,cad,{supportFace:anchorFace=null,startHeightMm=0,measureMaterial=true,sourceValidated=false,onProgress,layerCache,sourceFingerprint,regionGroups}={}){
  validateSchema(reliefOperations.relief.paramsSchema,p);
- if(p.layers)return buildLayers(source,p,oc,cad,onProgress);
+ if(p.layers)return buildLayers(source,p,oc,cad,onProgress,layerCache,sourceFingerprint);
  const sculptFlat=p.surfaceMode==='flat'&&p.sculpt?.deltaMm?.some(row=>row.some(v=>v!==0));
  if(p.sculpt){sculptState(p);if(p.sculpt.deltaMm.some(row=>row.some(v=>v!==0)))p=effectiveReliefParams(p);}
  if(p.surfaceMode==='flat'&&!p.regions&&!p.strokes)fail('RELIEF_INVALID','平顶浮雕需要明确图案轮廓');
@@ -89,10 +94,11 @@ export function buildRelief(source,p,oc,cad,{supportFace:anchorFace=null,startHe
   const faces=copy.faces;owned.push(...faces);
   if(faces.length>20000)fail('RELIEF_LIMIT','目标超过 20000 个面，请分开处理');
   const face=anchorFace??faces[p.faceId];if(!face)fail('STALE_REFERENCE','目标面已失效，请重新选择','params.faceId');
-  if(!planarFace(face,cad)){
+  const plane=planarFace(face,cad);if(p.localPatches&&plane)fail('RELIEF_PATCH_UNSUPPORTED','独立毫米域目前仅支持等高外凸柱面凸雕层；平面仍可使用原控制网格笔刷');
+  if(!plane){
    const built=timed('relief-tool-build',()=>cylindricalReliefTool(face,p,oc,cad,{sculptFlat,startHeightMm})),rawTool=hold(built.tool);
    if(!timed('relief-tool-validation',()=>valid(rawTool,oc)))fail('RELIEF_INVALID','柱面浮雕刀具不是有效实体');
-   const tool=p.regions||p.strokes?timed('relief-mask',()=>hold(maskReliefTool(rawTool,p,built.frame,oc,cad,onProgress))):rawTool;
+   const tool=p.regions||p.strokes?timed('relief-mask',()=>hold(maskReliefTool(rawTool,p,built.frame,oc,cad,onProgress,{regionGroups}))):rawTool;
    // The cutter floor overlaps the host by 0.001 mm. Its distance to an edge
    // lying inside the cutter can therefore be 0.001 rather than zero.
    if(p.regions||p.strokes){

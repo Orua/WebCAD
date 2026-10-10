@@ -210,6 +210,7 @@
     "placementSupported": true,
     "originUsage": "new-object-insertion",
     "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
     "legacyCoordinates": "world",
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
@@ -220,5 +221,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:0c0b80b483caddad1eafbc683a446b709d1ca68056b88ad8777936a6d5693653"
+  "docsHash": "sha256:4f3a783ba66f8023063f576d086516c1e12b440dc2e3ef5aac031700794c9d3a"
 }

@@ -1,0 +1,103 @@
+{
+  "mode": "one-time source import; module is now canonical for WebCAD",
+  "files": [
+    {
+      "sha256": "3ece15b27210bbc07a2094277966fd1228d7e23928cae073f357a24c40885245",
+      "path": "FORMAT_MATRIX.md"
+    },
+    {
+      "sha256": "ace7beecc91e3ea2a9beace919d5ed6a9c4203e138e9a642cf99b2b58cb0bf52",
+      "path": "KNOWN_LIMITATIONS.md"
+    },
+    {
+      "sha256": "ef0cb6b1782eaf1cb784a370131a5901d02ec89a193199e5cbe5d7978225d1fe",
+      "path": "LogoVector.sln"
+    },
+    {
+      "sha256": "b0ee4d431f7fec8243a43165f510fb6ee12806df281f4166526b8e28fe551ffa",
+      "path": "THIRD_PARTY_NOTICES.md"
+    },
+    {
+      "sha256": "34c7b6c6314b0610b1f7d729a7622093426a3e5ab8fb4e3d5a50ee8ba5080e82",
+      "path": "contracts/webcad-logo-v1.schema.json"
+    },
+    {
+      "sha256": "68408fbb7c8d9a5735750bad5bcb79caee904fa48813c0765ee9904316790e88",
+      "path": "samples/FrameworkConsole/FrameworkConsole.csproj"
+    },
+    {
+      "sha256": "d73454e6d6284d0de11b8bbb98a3ec0f5bf66306bcd925d48c1119b3a7f084f8",
+      "path": "samples/FrameworkConsole/Program.cs"
+    },
+    {
+      "sha256": "79f7acfda3b9c0bd7bc28970c680e8ae619c494c81177cc42bb24d1ba3a18392",
+      "path": "src/LogoVector.Contracts/LogoVector.Contracts.csproj"
+    },
+    {
+      "sha256": "8cba04574a98fbb469434e94bb73ebd6a9b6dfe96a126daddc803a0203dac458",
+      "path": "src/LogoVector.Contracts/Models.cs"
+    },
+    {
+      "sha256": "5572762b2792fc5988975319941dad556529452e8aab6bf7bbb6c396cbed1703",
+      "path": "src/LogoVector.Converter/LogoVector.Converter.csproj"
+    },
+    {
+      "sha256": "9a92aa4e2f2cdf54c9475cf4442d2de5bd3f7d9fb10431be817aa87c78150c19",
+      "path": "src/LogoVector.Converter/LogoVectorConverter.cs"
+    },
+    {
+      "sha256": "722875de1348cfda5151e28b2b43e53916bc707b6b889d43dd1c8c4868b9858d",
+      "path": "src/LogoVector.Geometry/LogoGeometry.cs"
+    },
+    {
+      "sha256": "9b261221b53b67a31b568f57c5cc552701426758bcece9388cf981e07e41e399",
+      "path": "src/LogoVector.Geometry/LogoVector.Geometry.csproj"
+    },
+    {
+      "sha256": "6e6ec96c2f0fc0fd4af77f1428498746de8cb0955a2c05de47837004bce7e422",
+      "path": "src/LogoVector.Worker/DxfAdapter.cs"
+    },
+    {
+      "sha256": "2cac699ff58f71e7a85558c4c1aa84549f08f8d4633755e10cd3c562a99ff1de",
+      "path": "src/LogoVector.Worker/LineworkJoiner.cs"
+    },
+    {
+      "sha256": "ca34089e1ace472b777dcbfb002ea705ac960a12744aa91b441a492825637192",
+      "path": "src/LogoVector.Worker/LogoVector.Worker.csproj"
+    },
+    {
+      "sha256": "bcc59d63bfd3a5941e26e1219a40a2f1c6d0a1a822fc6cd119079c0e26205aef",
+      "path": "src/LogoVector.Worker/PdfAdapter.cs"
+    },
+    {
+      "sha256": "ea56a1e82c32e122055235afa747b39b87b920a3a741c48f74c3f09a2a199060",
+      "path": "src/LogoVector.Worker/Program.cs"
+    },
+    {
+      "sha256": "26339c6b6e795496a31637a06b3de28a9343307c8e58784cdacd1c606a7108e8",
+      "path": "src/LogoVector.Worker/RasterTracer.cs"
+    },
+    {
+      "sha256": "79b95c5f371975382a39d292007e95310c656a411e494f14b43634066e0f03dc",
+      "path": "tests/Smoke/Program.cs"
+    },
+    {
+      "sha256": "17960da081101823fdc4c214c40510b603dc82c3f1f6fc90dc942288672b35e5",
+      "path": "tests/Smoke/Smoke.csproj"
+    },
+    {
+      "sha256": "4e40d215f776ee8a802db345369d565385c6b558ff1e772f5bf007557a455add",
+      "path": "tests/sample-compound.svg"
+    },
+    {
+      "sha256": "21624c46de8129d8b63f796c0402ea45196175f88181c03d5c963b459a244c18",
+      "path": "tests/sample-rect.svg"
+    },
+    {
+      "sha256": "886ae68414c22aae3eb8f99b4c0069ad61878bf6367e15008740580f854afe05",
+      "path": "tests/sample-ring.logo.json"
+    }
+  ],
+  "repository": "https://github.com/Orua/LogoVector",
+  "commit": "ac869fda93854a19c4b1e00ef69aa4de4d9535aa"
+}

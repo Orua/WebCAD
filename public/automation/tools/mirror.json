@@ -1,6 +1,6 @@
 {
   "id": "mirror",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -24,8 +24,8 @@
       },
       "keepOriginal": {
         "type": "boolean",
-        "description": "Preserve original; default true",
-        "default": true
+        "description": "Preserve original as a mirror copy; default false",
+        "default": false
       }
     },
     "required": [],
@@ -53,7 +53,7 @@
   "defaults": {
     "plane": "XY",
     "offsetMm": 0,
-    "keepOriginal": true
+    "keepOriginal": false
   },
   "selectionTokenSupport": {
     "supported": false
@@ -65,7 +65,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults plane=XY, offsetMm=0, keepOriginal=true. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults plane=XY, offsetMm=0, keepOriginal=false. The mirror replaces its input by default; explicitly set keepOriginal=true to create a mirror copy. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates.",
   "title": "Mirror across a coordinate plane at an explicit offset",
   "category": "organization",
   "synonyms": [
@@ -73,7 +73,7 @@
     "镜像"
   ],
   "description": "Mirror across a coordinate plane at an explicit offset",
-  "schemaHash": "sha256:c2c206cc3c1513cfb0d739b1adfcbb672ae89c93f08fb6981225163b4fde99cc",
+  "schemaHash": "sha256:9ab8be88aea3ce216586b63770528145e62d72fe9fc0036ab14a9620c6048f05",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -123,7 +123,7 @@
     "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "Defaults plane=XY, offsetMm=0, keepOriginal=true. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates."
+    "Defaults plane=XY, offsetMm=0, keepOriginal=false. The mirror replaces its input by default; explicitly set keepOriginal=true to create a mirror copy. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates."
   ],
   "minimalExample": {
     "op": "mirror",
@@ -199,6 +199,7 @@
     "placementSupported": true,
     "originUsage": "axis-plane-pivot-or-vector",
     "orientationUsage": "declared-transform-or-direction",
+    "omittedPlacement": "legacy-world",
     "legacyCoordinates": "world",
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": false,
@@ -208,5 +209,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:5b9af818e341400c0468647ab98aa8ce823ae94396ab077e0c3ba09bcf8978b0"
+  "docsHash": "sha256:c3f2387ac733090c9bff6541b910bf344d58547fc175805137289352cf509cb5"
 }

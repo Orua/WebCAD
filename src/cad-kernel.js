@@ -7,6 +7,10 @@ import {renderQuality} from './render-quality.js';
 import { buildQuickModel } from './quick-models.js';
 import { buildLogoOnPlane, buildVectorProfile } from './logo-model.js';
 import {buildRelief} from './modeling/manufacturing/relief.js';
+import {prepareCompiledReliefPlan} from './services/relief-plan.js';
+import {geometryFeatureSignature} from './services/geometry-signature.js';
+import {ReliefLayerCache} from './modeling/manufacturing/relief-layer-cache.js';
+import {binaryHash} from './contracts/operation-schema.js';
 import { buildAdvancedLoft } from './advanced-loft.js';
 import { buildCurveSweep } from './curve-sweep.js';
 import { buildArcProfile } from './arc-profile.js';
@@ -193,9 +197,10 @@ function faceBoundaryEdges(shape, faceIds) {
     edges.forEach(edge=>{if(!success||!selected.includes(edge))dispose(edge);});
   }
 }
+import {compiledCheckpointBytes,geometryRecipeFingerprint} from './services/geometry-exchange.js';
 export class CadKernel {
-  constructor(oc) { cad.setOC(oc); this.oc = oc; this.shapes = new Map(); this.active = new Map(); this.renderCache = new Map(); this.historySignature = []; this.importsSignature = ''; this.renderVersion = 0; }
-  async operation(feature, shapes, imports, historyFeatures=[]) {
+  constructor(oc) { cad.setOC(oc); this.oc = oc; this.shapes = new Map(); this.active = new Map(); this.renderCache = new Map();this.geometryMetrics=new WeakMap();this.geometrySourceSnapshots=new WeakMap();this.reliefLayerCache=new ReliefLayerCache(); this.historySignature = []; this.importsSignature = ''; this.renderVersion = 0; }
+  async operation(feature, shapes, imports, historyFeatures=[],execution={}) {
     const original=feature.params||{},targetFrame=feature.placement?.frameSnapshot;
     const p=targetFrame&&['faceHole','logo'].includes(feature.op)?{...original,point:worldPoint(targetFrame,original.point),frameX:rotateVector(targetFrame.quaternion,[1,0,0]),frameNormal:rotateVector(targetFrame.quaternion,[0,0,1])}:original;
     const refs = feature.refs || [];
@@ -241,7 +246,7 @@ export class CadKernel {
       case 'faceGroove': case 'innerTurn': case 'outerTurn': return buildFaceMachining(source(),p,feature.op,this.oc,cad);
       case 'curvedLogo': return buildCurvedLogo(source(),p,cad);
       case 'fittedSurface': return buildFittedSurface(p,cad);
-      case 'relief': return buildRelief(source(),p,this.oc,cad,{onProgress:this.onProgress});
+      case 'relief': return buildRelief(source(),p,this.oc,cad,{onProgress:this.onProgress,layerCache:this.reliefLayerCache,sourceFingerprint:execution.sourceFingerprint});
       case 'thickenFace': return buildFaceThickness(source(),p,cad);
       case 'planeSection': return extractPlaneSection(source(),{plane:p.plane||'XY',offset:p.offset??0,frame},cad);
       case 'faceBoundary': return extractFaceBoundary(source(),p.faceId,cad,{boundary:p.boundary??'all'});
@@ -605,6 +610,29 @@ export class CadKernel {
       default: throw new Error(`不支持的操作：${feature.op}`);
     }
   }
+  geometrySourceSnapshot(shape){
+    let snapshot=this.geometrySourceSnapshots.get(shape);
+    if(snapshot===undefined){snapshot=shape.serialize();this.geometrySourceSnapshots.set(shape,snapshot);}
+    return snapshot;
+  }
+  serializeFeatureShape(featureId){
+    const shape=this.shapes.get(featureId);if(!shape)throw Object.assign(new Error('来源特征几何已失效'),{code:'STALE_REFERENCE'});
+    return {data:new TextEncoder().encode(this.geometrySourceSnapshot(shape))};
+  }
+  sourceComplexity(featureId,faceId){
+    const shape=this.shapes.get(featureId);if(!shape)throw Object.assign(new Error('来源特征几何已失效'),{code:'STALE_REFERENCE'});
+    // Freeze the same authoritative bytes before topology/surface adapters.
+    const data=new TextEncoder().encode(this.geometrySourceSnapshot(shape)),faces=shape.faces,edges=shape.edges,solids=shape.solids;
+    try{
+      const selected=faces[faceId];let holes=null;
+      if(selected?.geomType==='PLANE'){const wires=Array.from(cad.iterTopo(selected.wrapped,'wire'));try{holes=Math.max(0,wires.length-1);}finally{wires.forEach(wire=>wire.delete());}}
+      return {bytes:data.length,faces:faces.length,edges:edges.length,solids:solids.length,holes,sourceSha256:binaryHash(data).slice(7),holeCountStatus:holes===null?'unknown-not-inferred-from-cylindrical-wires':'selected-planar-face-inner-wires'};
+    }finally{faces.forEach(face=>face.delete());edges.forEach(edge=>edge.delete());solids.forEach(solid=>solid.delete());}
+  }
+  prepareReliefPlan(sourceFeatureId,params){
+    const shape=this.shapes.get(sourceFeatureId);if(!shape)throw Object.assign(new Error('浮雕来源特征几何已失效'),{code:'STALE_REFERENCE'});
+    return {plan:prepareCompiledReliefPlan(shape,params,this.oc,cad,{sourceBrep:this.geometrySourceSnapshot(shape)})};
+  }
   remesh(quality) {
     renderQuality(quality);
     const previous=this.quality;
@@ -619,41 +647,50 @@ export class CadKernel {
       return {bodies,quality};
     } catch(error) {this.quality=previous;throw error;}
   }
-  describe(shape, feature) {
-    const quality=this.quality||'standard', settings=renderQuality(quality);
-    const mesh = shape.mesh(settings);
-    const wire = shape.meshEdges({ tolerance: settings.tolerance*0.75, angularTolerance: settings.angularTolerance*0.8 });
-    const faces = shape.faces, edges = shape.edges, solids = shape.solids, shells=Array.from(cad.iterTopo(shape.wrapped,'shell'),item=>cad.cast(item)), bbox = shape.boundingBox;
-    try {
-      const faceMap = new Map(faces.map((v, i) => [v.hashCode, i])), edgeMap = new Map(edges.map((v, i) => [v.hashCode, i]));
-      const [min, max] = bbox.bounds;
-      const mappedFaces = mesh.faceGroups.map(g => ({ ...g, faceId: faceMap.get(g.faceId) }));
-      const mappedEdges = wire.edgeGroups.map(g => ({ edgeId: edgeMap.get(g.edgeId), positions: Array.from(wire.lines.slice(g.start * 3, (g.start + g.count) * 3)) }));
-      const snapPoints=[];
+  measureBodyGeometry(shape,faces,edges){
+    const cached=this.geometryMetrics.get(shape);if(cached)return cached;
+    const solids=shape.solids,shells=Array.from(cad.iterTopo(shape.wrapped,'shell'),item=>cad.cast(item)),bbox=shape.boundingBox;
+    try{
+      const [min,max]=bbox.bounds,snapPoints=[];
       edges.forEach((edge,edgeId)=>{
-        for(const [type,get] of [['endpoint',()=>edge.startPoint],['endpoint',()=>edge.endPoint]]) {
+        for(const [type,get] of [['endpoint',()=>edge.startPoint],['endpoint',()=>edge.endPoint]]){
           const vector=get();try{snapPoints.push({point:vector.toTuple(),type,edgeId});}finally{dispose(vector);}
         }
         snapPoints.push({point:halfLengthPoint(edge,this.oc,cad.measureLength(edge)),type:'midpoint',edgeId});
-        if(edge.geomType==='CIRCLE') {
+        if(edge.geomType==='CIRCLE'){
           const adaptor=new this.oc.BRepAdaptor_Curve(edge.wrapped);let circle,center;
           try{circle=adaptor.Circle();center=circle.Location();snapPoints.push({point:[center.X(),center.Y(),center.Z()],type:'center',edgeId});}finally{[center,circle,adaptor].forEach(dispose);}
         }
       });
+      const measured={faceCount:faces.length,edgeCount:edges.length,snapPoints,bounds:{min,max},volume:solids.length?preciseVolume(shape,this.oc):null,area:surfaceArea(shape,this.oc),solidCount:solids.length,shellCount:shells.length};
+      this.geometryMetrics.set(shape,measured);return measured;
+    }finally{[...solids,...shells,bbox].forEach(dispose);}
+  }
+  describe(shape, feature) {
+    const quality=this.quality||'standard', settings=renderQuality(quality);
+    const mesh = shape.mesh(settings);
+    const wire = shape.meshEdges({ tolerance: settings.tolerance*0.75, angularTolerance: settings.angularTolerance*0.8 });
+    const faces = shape.faces, edges = shape.edges;
+    try {
+      const faceMap = new Map(faces.map((v, i) => [v.hashCode, i])), edgeMap = new Map(edges.map((v, i) => [v.hashCode, i]));
+      const measured=this.geometryMetrics.get(shape)||this.measureBodyGeometry(shape,faces,edges);
+      const mappedFaces = mesh.faceGroups.map(g => ({ ...g, faceId: faceMap.get(g.faceId) }));
+      const mappedEdges = wire.edgeGroups.map(g => ({ edgeId: edgeMap.get(g.edgeId), positions: Array.from(wire.lines.slice(g.start * 3, (g.start + g.count) * 3)) }));
       if (mappedFaces.some(g => g.faceId === undefined) || mappedEdges.some(g => g.edgeId === undefined)) throw new Error('拓扑索引映射失败');
-      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges, faceCount:faces.length,edgeCount:edges.length,snapPoints, bounds: { min, max }, volume: solids.length ? preciseVolume(shape,this.oc) : null, area:surfaceArea(shape,this.oc), solidCount: solids.length, shellCount:shells.length, reliefReport:shape.reliefReport, refineReport:shape.refineReport, roundReport:shape.roundReport,endRoundingReport:shape.endRoundingReport,roundingReport:shape.roundingReport, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
-    } finally { [...faces, ...edges, ...solids, ...shells, bbox].forEach(dispose); }
+      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges,...measured,reliefReport:shape.reliefReport, refineReport:shape.refineReport, roundReport:shape.roundReport,endRoundingReport:shape.endRoundingReport,roundingReport:shape.roundingReport, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
+    } finally { [...faces, ...edges].forEach(dispose); }
   }
   async rebuild(document) {
-    if (!document || ![1,2].includes(document.version) || !Array.isArray(document.features)) throw new Error('无效的 WebCAD 工程');
+    if (!document || ![1,2,3].includes(document.version) || !Array.isArray(document.features)) throw new Error('无效的 WebCAD 工程');
     const next = new Map(), active = new Map(), ids = new Set(); let current;
     const importsSignature = JSON.stringify(document.imports || {});
     const features = document.features;
-    const signatures = features.map(feature => JSON.stringify(feature));
+    const signatures = features.map(geometryFeatureSignature);
     let prefix = 0;
     while (prefix < signatures.length && prefix < this.historySignature.length && signatures[prefix] === this.historySignature[prefix] && importsSignature === this.importsSignature) prefix++;
     const reused = new Set();
     const nextRenderCache = new Map();
+    const compiledReuse=[],compiledInvalidated=[];
     try {
       for (let index = 0; index < features.length; index++) {
         const feature = features[index];
@@ -667,13 +704,26 @@ export class CadKernel {
           // A cheap wrapper clone shares that topology. Isolate only committed
           // references; otherwise an unsuccessful edit corrupts the cached BRep.
           const inputs=new Map(next),copies=[];
+          const sourceFingerprint=feature.op==='relief'&&feature.refs?.length===1?binaryHash(new TextEncoder().encode(this.geometrySourceSnapshot(next.get(feature.refs[0])))):undefined;
           try {
             for(const id of new Set(feature.refs||[]))if(reused.has(id)){
               const copy=cad.deserializeShape(next.get(id).serialize());
               copies.push(copy);inputs.set(id,copy);
             }
-            shape=await this.operation(feature,inputs,document.imports||{},document.features);
-            if(shape&&feature.placement&&placementPolicy(feature.op)==='C'){const placed=placeCreation(shape,feature.placement);dispose(shape);shape=placed;}
+            // Bind the same authoritative cached source bytes that were
+            // uploaded. Reading a defensive BRep copy can rewrite serialization
+            // flags without changing geometry; that copy is for computation.
+            let checkpoint=compiledCheckpointBytes(document,feature,feature.compiledCheckpoint&&feature.refs?.length===1?new TextEncoder().encode(this.geometrySourceSnapshot(next.get(feature.refs[0]))):undefined);
+            // Pre-snapshot v3 artifacts could include display triangulations.
+            // Recreate that source representation once and require its exact
+            // original hash. This is source mesh work, never relief recompute.
+            if(!checkpoint&&feature.compiledCheckpoint&&!feature.compiledCheckpoint.sourceSnapshotVersion&&feature.refs?.length===1&&feature.compiledCheckpoint.recipeFingerprint===geometryRecipeFingerprint(document,feature.id)){
+              const legacySource=next.get(feature.refs[0]);this.describe(legacySource,{id:feature.refs[0],op:'legacy-source'});
+              checkpoint=compiledCheckpointBytes(document,feature,new TextEncoder().encode(legacySource.serialize()));
+            }
+            if(checkpoint){shape=cad.deserializeShape(new TextDecoder().decode(checkpoint));compiledReuse.push(current);}
+            else {if(feature.compiledCheckpoint)compiledInvalidated.push(current);shape=await this.operation(feature,inputs,document.imports||{},document.features,{sourceFingerprint});}
+            if(shape&&!checkpoint&&feature.placement&&placementPolicy(feature.op)==='C'){const placed=placeCreation(shape,feature.placement);dispose(shape);shape=placed;}
           } finally {copies.forEach(dispose);}
         }
         if (shape) {
@@ -699,7 +749,12 @@ export class CadKernel {
       const bodies = [...active].map(([id, feature]) => {
         current = id;
         const cached = reused.has(id) ? this.renderCache.get(id) : null;
-        const body = cached ? cached.body : this.describe(next.get(id), feature);
+        // Meshing and metadata queries can rewrite OCCT TShape flags. Freeze the
+        // precise source before display work; uploads and cold checkpoint gates
+        // then bind the same bytes without normalizing or weakening the hash.
+        this.geometrySourceSnapshot(next.get(id));
+        const body = cached ? {...cached.body,name:feature.name||feature.id} : this.describe(next.get(id), feature);
+        if(cached&&feature.op==='relief'&&body.reliefReport?.layers&&feature.params.layers)body.reliefReport={...body.reliefReport,layers:body.reliefReport.layers.map((layer,i)=>({...layer,name:feature.params.layers[layer.index??i]?.name??layer.name}))};
         if (!cached) body.renderVersion = String(++this.renderVersion);
         nextRenderCache.set(id, { body });
         return body;
@@ -707,7 +762,7 @@ export class CadKernel {
       this.shapes.forEach((shape, id) => { if (!reused.has(id) && !next.has(id)) dispose(shape); });
       this.shapes.forEach((shape, id) => { if (next.has(id) && next.get(id) !== shape && !reused.has(id)) dispose(shape); });
       this.shapes = next; this.active = active; this.historySignature = signatures; this.importsSignature = importsSignature; this.renderCache = nextRenderCache;
-      return { bodies, renderVersion: String(this.renderVersion), stats: { bodies: bodies.length, solids: bodies.reduce((n, b) => n + b.solidCount, 0), volume: bodies.reduce((n, b) => n + (b.volume || 0), 0) } };
+      return { bodies, renderVersion: String(this.renderVersion), compiledReuse,compiledInvalidated,stats: { bodies: bodies.length, solids: bodies.reduce((n, b) => n + b.solidCount, 0), volume: bodies.reduce((n, b) => n + (b.volume || 0), 0) } };
     } catch (error) {
       next.forEach((shape, id) => { if (!reused.has(id)) dispose(shape); });
       const raw=String(error?.message||error||'');
@@ -907,6 +962,6 @@ export class CadKernel {
       throw new Error('不支持的导出格式');
     } finally { if (owned.length) {dispose(combined);owned.forEach(dispose);} }
   }
-  dispose() { this.shapes.forEach(dispose); this.shapes.clear(); this.active.clear(); this.renderCache.clear(); this.historySignature = []; this.importsSignature = ''; }
+  dispose() { this.shapes.forEach(dispose); this.shapes.clear(); this.active.clear(); this.renderCache.clear();this.reliefLayerCache.clear();this.geometryMetrics=new WeakMap(); this.historySignature = []; this.importsSignature = ''; }
 }
 

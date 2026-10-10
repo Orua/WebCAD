@@ -427,6 +427,7 @@
     "placementSupported": true,
     "originUsage": "new-object-insertion",
     "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
     "legacyCoordinates": "world",
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
@@ -468,5 +469,5 @@
     "refs": []
   },
   "docs": "api.quick-installation",
-  "docsHash": "sha256:3e4d192d8d507e94b1b578aa1b86a8fe17d36c172716c376fae6ce4307cfd182"
+  "docsHash": "sha256:62d93558e076c1f3e8fb793c8ef101817ff18ffd883fd51b647d7dc12ee19688"
 }

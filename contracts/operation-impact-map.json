@@ -1,0 +1,332 @@
+{
+  "version": 1,
+  "operations": [
+    {
+      "operation": "services.configuration",
+      "semanticVersion": "1.0",
+      "sourcePaths": [
+        "src/services",
+        "src/ui/settings/services-dialog.js",
+        "src/logo-converter-settings.js",
+        "src/page-api",
+        "services/WebCADServices/src",
+        "src/ui.js",
+        "src/ui/config/ui-layout.js",
+        "src/ui-api-coverage.js",
+        "skills/webcad-page-api/scripts/page-client.mjs",
+        "scripts/start-package.ps1",
+        "scripts/install-services.ps1",
+        "scripts/package-all.ps1",
+        "scripts/build-all.ps1",
+        "scripts/rollback-all.ps1",
+        "scripts/verify-package.mjs",
+        "scripts/initialize-services-local.ps1"
+      ],
+      "schemaFiles": [
+        "contracts/services/v1/job.schema.json"
+      ],
+      "cacheVersion": "services-v1",
+      "documentVersion": 2,
+      "localSupported": true,
+      "remoteSupported": true,
+      "acceptanceStatus": "local protocol, durable fault gates, local IIS and dedicated service identity passed; full geometry and public production gates pending",
+      "targetedTests": [
+        "tests/services-settings.test.mjs",
+        "tests/services-runtime.test.mjs",
+        "tests/services-infrastructure.mjs",
+        "tests/rollback-all.test.ps1",
+        "tests/page-api.test.mjs",
+        "tests/page-batch.test.mjs",
+        "tests/mechanical-tools-contracts.test.mjs",
+        "tests/build-identity.test.mjs",
+        "tests/services-store-faults.test.mjs",
+        "tests/services-routing.test.mjs",
+        "tests/services-wait-policy.test.mjs"
+      ],
+      "publicToolIds": [
+        "getServices",
+        "setServices",
+        "getServicesCapabilities",
+        "clearServicesCredential",
+        "getServicesJob",
+        "cancelServicesJob",
+        "getServicesRequest",
+        "getServicesRouting",
+        "decideServicesWait"
+      ]
+    },
+    {
+      "operation": "logo.convert",
+      "semanticVersion": "logo-1.0",
+      "sourcePaths": [
+        "src/browser-logo-input.js",
+        "src/logo-model.js",
+        "src/services",
+        "services/WebCADServices/modules/LogoVector",
+        "services/WebCADServices/src/WebCADServices.Logo"
+      ],
+      "schemaFiles": [
+        "contracts/logo/webcad-logo-v1.schema.json",
+        "contracts/services/v1/logo-result.schema.json"
+      ],
+      "cacheVersion": "logovector-ac869fda-services1",
+      "documentVersion": 2,
+      "localSupported": "logo-json/svg-restricted",
+      "remoteSupported": "explicit-upload; inspect/convert; documented parser restrictions",
+      "acceptanceStatus": "real JSON and FURLA PDF local protocol/UI/API passed; IIS and account gates pending",
+      "targetedTests": [
+        "tests/browser-logo-input.test.mjs",
+        "tests/services-runtime.test.mjs"
+      ],
+      "publicToolIds": [
+        "convertLogoPdf"
+      ]
+    },
+    {
+      "operation": "relief",
+      "semanticVersion": "relief.compiled-contours-1.0",
+      "sourcePaths": [
+        "src/modeling/manufacturing/relief",
+        "src/modeling/manufacturing/cylindrical-relief.js",
+        "src/relief-",
+        "services/WebCADServices/native",
+        "src/cad-kernel.js",
+        "src/services/relief-plan.js",
+        "src/ui/forms/relief-dialog.js",
+        "src/relief-local-patch.js",
+        "services/WebCADServices/src/WebCADServices.Runtime/LayerCheckpointCache.cs"
+      ],
+      "schemaFiles": [
+        "src/modeling/manufacturing/relief-contracts.js",
+        "contracts/geometry/geometry-exchange-v1.json"
+      ],
+      "cacheVersion": "relief-layer-cache-v1 + native-layer-cache-1 + frozen-source-1",
+      "documentVersion": 3,
+      "localSupported": true,
+      "remoteSupported": "gated uniform cylindrical emboss; strokes/engraving require separate 1.2 prototype proof",
+      "acceptanceStatus": "GC15346 six-hole local passed/full failed; GC14785 nine supports passed; GC15169 source-specific two-layer two-hole glyph passed/material/offline, full product pending",
+      "targetedTests": [
+        "tests/relief-contract.test.mjs",
+        "tests/relief-kernel.test.mjs",
+        "tests/relief-sculpt.test.mjs",
+        "tests/relief-sculpt-kernel.test.mjs",
+        "tests/services-relief.test.mjs",
+        "tests/geometry-cache.test.mjs",
+        "tests/relief-local-patch.test.mjs",
+        "tests/services-support-intent.test.mjs"
+      ],
+      "publicToolIds": [
+        "relief",
+        "prepareReliefSculpt",
+        "sampleReliefHeight"
+      ]
+    },
+    {
+      "operation": "feature.compileServices",
+      "semanticVersion": "transform.translation-1.0",
+      "sourcePaths": [
+        "src/services/geometry-exchange.js",
+        "src/services/remote-executor.js",
+        "src/project-container.js",
+        "src/cad-kernel.js",
+        "src/cad-worker.js",
+        "src/main.js",
+        "src/document-timeline.js",
+        "src/document-limits.js",
+        "services/WebCADServices/native",
+        "services/WebCADServices/src/WebCADServices.Runtime/NativeAdapter.cs",
+        "src/services/geometry-signature.js"
+      ],
+      "schemaFiles": [
+        "contracts/geometry/geometry-exchange-v1.json"
+      ],
+      "cacheVersion": "exact-brep-recipe-source-v1",
+      "documentVersion": 3,
+      "localSupported": true,
+      "remoteSupported": "world pure translation only",
+      "acceptanceStatus": "persistent exact translation/relief and accepted cache binding core passed; full relief/page gates pending",
+      "targetedTests": [
+        "tests/services-native-bridge.test.mjs",
+        "tests/services-compute.test.mjs",
+        "tests/project-container.test.mjs",
+        "tests/command-service.test.mjs",
+        "tests/services-relief.test.mjs",
+        "tests/geometry-cache.test.mjs"
+      ],
+      "publicToolIds": [
+        "feature.compileServices",
+        "files.save",
+        "files.open"
+      ]
+    },
+    {
+      "operation": "relief",
+      "semanticVersion": "relief.compiled-contours-local-patch-1.1",
+      "sourcePaths": [
+        "src/modeling/manufacturing/relief",
+        "src/modeling/manufacturing/cylindrical-relief.js",
+        "src/relief-",
+        "services/WebCADServices/native",
+        "src/cad-kernel.js",
+        "src/services/relief-plan.js",
+        "src/ui/forms/relief-dialog.js",
+        "src/relief-local-patch.js",
+        "services/WebCADServices/src/WebCADServices.Runtime/LayerCheckpointCache.cs"
+      ],
+      "schemaFiles": [
+        "src/modeling/manufacturing/relief-contracts.js",
+        "contracts/geometry/geometry-exchange-v1.json"
+      ],
+      "cacheVersion": "relief-layer-cache-v1 + native-layer-cache-1 + frozen-source-1",
+      "documentVersion": 3,
+      "localSupported": true,
+      "remoteSupported": "uniform outer-cylinder emboss with one protected independent local patch per logical layer",
+      "acceptanceStatus": "real nine-support scene original-feature raise/lower, UI, undo/redo, offline source/native/project passed; full sculpture and continuous shoulders pending",
+      "targetedTests": [
+        "tests/relief-contract.test.mjs",
+        "tests/relief-kernel.test.mjs",
+        "tests/relief-sculpt.test.mjs",
+        "tests/relief-sculpt-kernel.test.mjs",
+        "tests/services-relief.test.mjs",
+        "tests/geometry-cache.test.mjs",
+        "tests/relief-local-patch.test.mjs"
+      ],
+      "publicToolIds": [
+        "relief",
+        "prepareReliefSculpt",
+        "sampleReliefHeight"
+      ]
+    },
+    {
+      "operation": "relief",
+      "semanticVersion": "relief.compiled-contours-strokes-1.2",
+      "sourcePaths": [
+        "src/modeling/manufacturing/relief",
+        "src/modeling/manufacturing/cylindrical-relief.js",
+        "src/relief-",
+        "services/WebCADServices/native",
+        "src/cad-kernel.js",
+        "src/services/relief-plan.js",
+        "src/ui/forms/relief-dialog.js",
+        "src/relief-local-patch.js",
+        "services/WebCADServices/src/WebCADServices.Runtime/LayerCheckpointCache.cs"
+      ],
+      "schemaFiles": [
+        "src/modeling/manufacturing/relief-contracts.js",
+        "contracts/geometry/geometry-exchange-v1.json"
+      ],
+      "cacheVersion": "relief-layer-cache-v1 + native-layer-cache-1 + frozen-source-1",
+      "documentVersion": 3,
+      "localSupported": true,
+      "remoteSupported": "isolated prototype proof only; uniform cylindrical exact open-stroke masks and engraving; no 3D weaving substitute",
+      "acceptanceStatus": "small dual-depth native/core and original-click support binding regression passed; GC15432 first native binding failed before Boolean; additional real attempt deferred by user; real project acceptance pending",
+      "targetedTests": [
+        "tests/relief-contract.test.mjs",
+        "tests/relief-kernel.test.mjs",
+        "tests/relief-sculpt.test.mjs",
+        "tests/relief-sculpt-kernel.test.mjs",
+        "tests/services-relief.test.mjs",
+        "tests/geometry-cache.test.mjs",
+        "tests/relief-local-patch.test.mjs",
+        "tests/services-support-intent.test.mjs"
+      ],
+      "publicToolIds": [
+        "relief",
+        "prepareReliefSculpt",
+        "sampleReliefHeight"
+      ]
+    },
+    {
+      "operation": "viewport.interaction",
+      "semanticVersion": "1.0",
+      "sourcePaths": [
+        "src/viewport.js",
+        "src/viewport/rectangle-selection.js",
+        "src/ui.js",
+        "src/ui/config/ui-layout.js",
+        "src/ui/ribbon/render-ribbon.js",
+        "src/main.js",
+        "src/page-api.js",
+        "src/page-api-docs.js"
+      ],
+      "localImpact": "Default view navigation; explicit selection modes; default edit tab",
+      "servicesImpact": "none: viewport interaction only, no geometry request or protocol change",
+      "logoImpact": "none: explicit face picking retained",
+      "contractImpact": "setView.selectionMode adds view; getState reports view",
+      "documentImpact": "none: transient view state only",
+      "cacheImpact": "none: geometry and Services fingerprints unchanged",
+      "targetedTests": [
+        "tests/page-api.test.mjs",
+        "tests/rectangle-selection.test.mjs"
+      ],
+      "requiredTests": [
+        "targeted API/layout tests",
+        "frontend build",
+        "one live browser view/selection check"
+      ],
+      "schemaFiles": [],
+      "publicToolIds": []
+    },
+    {
+      "operation": "mirror",
+      "semanticVersion": "1.2.0",
+      "localImpact": "New UI/API mirrors default keepOriginal=false; explicit true retains a copy",
+      "servicesImpact": "none: mirror executes in browser, no remote mirror operation",
+      "logoImpact": "none: logo mirrorX is unchanged",
+      "contractImpact": "mirror card version/defaults updated",
+      "documentImpact": "New features persist explicit false; old recipes keep their saved behavior",
+      "cacheImpact": "Geometry inputs include the explicit keepOriginal field; no Services cache change",
+      "requiredTests": [
+        "operation-registry",
+        "existing kernel mirror consumed-body test",
+        "live mirror checkbox"
+      ],
+      "schemaFiles": [],
+      "targetedTests": [],
+      "publicToolIds": []
+    }
+  ],
+  "executionRouting": {
+    "policyVersion": "complexity-routing-1.0",
+    "sharedPolicy": "contracts/services/v1/execution-routing.json",
+    "localTimeoutMsDefault": 60000,
+    "serverWaitMsDefault": 180000,
+    "timeoutSettings": [
+      "localTimeoutMs",
+      "serverWaitMs"
+    ],
+    "noService": "local",
+    "simple": "local",
+    "complex": "Native OCCT",
+    "unsupportedComplex": "blocked",
+    "failureFallback": "none",
+    "crossKernelEqualityGate": false
+  },
+  "reliefTopologyUpgrade": {
+    "publicMethod": "prepareReliefTopologyUpgrade",
+    "apply": "feature.edit",
+    "geometryComputedDuringPlanning": false,
+    "oldDocuments": "no automatic migration",
+    "onlyChangedFields": [
+      "curvePolicy",
+      "maskStrategy"
+    ],
+    "invalidates": [
+      "recipe",
+      "native-checkpoints-and-dependents",
+      "compiled-plan",
+      "local-native-prefixes"
+    ],
+    "sourceSplineDeviation": "unknown"
+  },
+  "reviewedRecovery": {
+    "publicMethod": "recoverServicesJob",
+    "onlyState": "interrupted",
+    "maximumRecoveryExecutions": 1,
+    "metadata": [
+      "supersedesJobId",
+      "reason"
+    ],
+    "geometryFailureRetry": false
+  }
+}

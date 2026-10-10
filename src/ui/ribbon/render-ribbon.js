@@ -1,7 +1,7 @@
 import {ribbonGroupPolicy} from '../config/ribbon-policy.js';
 
 function describeViewport({q,button,emit}){
-  const hints={body:'选择实体 · Ctrl / Shift 多选',face:'选择面 · 点击模型表面',edge:'选择边 · 点击模型边线'};
+  const hints={view:'查看：左键旋转 · 右键平移 · 滚轮缩放',body:'选择实体 · Ctrl / Shift 多选',face:'选择面 · 点击模型表面',edge:'选择边 · 点击模型边线'};
   for(const control of q('.selection-modes')?.querySelectorAll('[data-mode]')||[]){
     control.title=hints[control.dataset.mode];control.setAttribute('aria-label',hints[control.dataset.mode]);
   }
@@ -12,7 +12,7 @@ function describeViewport({q,button,emit}){
     if(control){control.title=hint;control.setAttribute('aria-label',hint);}
   }
   const hint=q('.viewport-hint');
-  if(hint){hint.textContent='V 选择 · 左键框选 · Alt＋左键旋转视角 · 右键平移 · 滚轮缩放 · F 适合';hint.title=hint.textContent;}
+  if(hint){hint.textContent='默认查看：左键旋转 · 右键平移 · 滚轮缩放 · V 进入选择 · Esc 返回查看';hint.title=hint.textContent;}
   const nav=q('.viewport-nav');
   if(nav&&!nav.querySelector('[data-direction="iso"]')){
     const iso=button('等轴',()=>emit('view',{direction:'iso'}),'secondary');

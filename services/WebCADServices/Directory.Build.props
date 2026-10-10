@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework Condition="'$(TargetFramework)' == ''">net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <PlatformTarget>x64</PlatformTarget>
+    <BuildRoot Condition="'$(BuildRoot)' == ''">$(WEBCAD_BUILD_ROOT)</BuildRoot>
+    <BuildRoot Condition="'$(BuildRoot)' == ''">F:/WebCADServices-local/build</BuildRoot>
+    <BaseIntermediateOutputPath Condition="'$(BuildRoot)' != ''">$(BuildRoot)/obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
+    <BaseOutputPath Condition="'$(BuildRoot)' != ''">$(BuildRoot)/bin/$(MSBuildProjectName)/</BaseOutputPath>
+  </PropertyGroup>
+  <Target Name="RequireExternalBuildRoot" BeforeTargets="PrepareForBuild" Condition="'$(BuildRoot)' == ''">
+    <Error Text="Set WEBCAD_BUILD_ROOT or -p:BuildRoot to a local Services build directory before building Services." />
+  </Target>
+</Project>

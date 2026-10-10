@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <EmbeddedResource Include="../../../../contracts/services/v1/execution-routing.json" LogicalName="WebCADServices.ExecutionRouting.json" />
+    <EmbeddedResource Include="../../../../contracts/services/v1/tbd-capabilities.json" LogicalName="WebCADServices.TbdCapabilities.json" />
+    <ProjectReference Include="../WebCADServices.Contracts/WebCADServices.Contracts.csproj" />
+    <ProjectReference Include="../WebCADServices.Logo/WebCADServices.Logo.csproj" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

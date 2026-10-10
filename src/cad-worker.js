@@ -29,6 +29,9 @@ self.onmessage = ({ data }) => {
       else if(type==='inspectThickness')result=engine.inspectThickness(data.input);
       else if(type==='inspectDraft')result=engine.inspectDraft(data.input);
       else if(type==='inspectRound')result=engine.inspectRound(data.input);
+      else if(type==='serializeFeature')result=engine.serializeFeatureShape(data.featureId);
+      else if(type==='sourceComplexity')result=engine.sourceComplexity(data.featureId,data.faceId);
+      else if(type==='prepareReliefPlan')result=engine.prepareReliefPlan(data.sourceFeatureId,data.params);
       else if(type==='measureRelation')result=engine.measureRelation(data.input);
       else if(type==='measure'){
         if(Array.isArray(data.ids)){

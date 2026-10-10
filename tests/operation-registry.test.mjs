@@ -233,3 +233,9 @@ test('supported string patterns validate stable IDs with useful error paths and 
   fails(() => validateSchema({ pattern: '^base$' }, 'prefix_base_0'), 'PARAM_SCHEMA_INVALID');
   assert.deepEqual(input, { entityId: 'rectangle-1_0' });
 });
+
+test('new mirrors replace their input by default and copy only when requested',()=>{
+ assert.equal(normalizeOperationParams('mirror',{plane:'YZ'}).keepOriginal,false);
+ assert.equal(normalizeOperationParams('mirror',{plane:'YZ',keepOriginal:true}).keepOriginal,true);
+ assert.equal(getOperation('mirror').version,'1.2.0');
+});

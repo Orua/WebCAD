@@ -3,7 +3,7 @@
   "title": "应用预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
   "category": "command",
-  "version": "1.22.0",
+  "version": "1.28.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:d3d5a88c9a5c82a5830b1c67b191f6a7991b85f51d6a88ee7df7377cb30143c8"
+  "docsHash": "sha256:e03ce886a9a9e5a4bd9dcc826ccc7c56ebb07b0fa95ca608378aba06425b0fac"
 }

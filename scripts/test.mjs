@@ -7,8 +7,9 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
   contracts: [
+    'metal-materials',
     'remote-agent-adapter',
-    'agent-knowledge',
+    'agent-knowledge', 'services-settings', 'project-container', 'geometry-cache',
     'design-inspection-contract',
     'relief-contract', 'relief-sculpt',
     'document-capacity',
@@ -35,7 +36,7 @@ const groups = {
     'step-export-colors',
     'freecad-organization',
     'freecad-machining',
-    'relief-kernel', 'relief-sculpt-kernel',
+    'relief-kernel', 'relief-sculpt-kernel', 'relief-local-patch', 'relief-shoulder',
     'clevis-practice',
     'history-import-kernel',
     'primitive-contract-kernel',
@@ -58,6 +59,7 @@ const groups = {
     'surface-repair', 'vector-profile', 'extract-shell-kernel', 'query-planar-spline',
     'planar-thickness-invariant', 'round-edit-preferences', 'rounding-modes', 'rounding-history', 'rounding-kernel', 'rounding-unified', 'rounding-spline', 'rounding-section-metrics', 'smooth-transition',
   ],
+  services: ['services-store-faults','services-runtime', 'services-compute', 'services-native-bridge', 'services-relief', 'services-support-intent'],
   mcp: ['bridge-cancellation', 'mcp-bridge', 'mcp-v2', 'document-assets', 'agent-cli'],
   'local-fixtures': ['iges-import', 'iges-roundtrip'],
   'browser-dom-modules':['relief-browser','profile-solid-dialogs','direct-modeling-dialogs','profile-constraints-dialog'],

@@ -1,0 +1,21 @@
+{
+  "id": "getServicesJob",
+  "title": "getServicesJob",
+  "category": "page-method",
+  "version": "1.28.3",
+  "description": "getServicesJob({jobId})",
+  "synonyms": [
+    "getServicesJob",
+    "Services",
+    "作业",
+    "状态",
+    "结果"
+  ],
+  "inputContract": "getServicesJob({jobId})",
+  "outputContract": "服务 execution/observation/commit；succeeded 不代表页面 committed。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:439faf5c62c2e6337f83f409d607fa2154ee9a8f48a439952dff96edd7dd1b6c"
+}

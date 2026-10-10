@@ -1,0 +1,22 @@
+{
+  "id": "getServicesCapabilities",
+  "title": "getServicesCapabilities",
+  "category": "page-method",
+  "version": "1.28.3",
+  "description": "getServicesCapabilities()；读取已配置服务。",
+  "synonyms": [
+    "getServicesCapabilities",
+    "Services",
+    "能力",
+    "原生",
+    "Logo",
+    "协议"
+  ],
+  "inputContract": "getServicesCapabilities()；读取已配置服务。",
+  "outputContract": "协议、引擎、操作语义和验收状态；未过原生桥接的操作不可执行。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:1348d9b27406c694df42a8d9ae2ee1c77d5ece3ffd7d430698dd912162c32c03"
+}

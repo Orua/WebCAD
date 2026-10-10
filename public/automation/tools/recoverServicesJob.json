@@ -1,0 +1,22 @@
+{
+  "id": "recoverServicesJob",
+  "title": "recoverServicesJob",
+  "category": "page-method",
+  "version": "1.28.3",
+  "description": "recoverServicesJob({jobId,reason,approved:true,acknowledgedState:\"interrupted\",idempotencyKey})。必须先用 getServicesJob 核对已停止旧任务。",
+  "synonyms": [
+    "recoverServicesJob",
+    "Services",
+    "任务",
+    "已核对",
+    "环境中断",
+    "有限恢复"
+  ],
+  "inputContract": "recoverServicesJob({jobId,reason,approved:true,acknowledgedState:\"interrupted\",idempotencyKey})。必须先用 getServicesJob 核对已停止旧任务。",
+  "outputContract": "只允许同引擎同物理输入的环境 interrupted 恢复一次；保留原记录并添加 supersedesJobId/reason。几何失败、仍运行、未知状态、已恢复过或存在未核对产物均拒绝。返回新受理任务，不自动安装、不自动回退本地。明确暂停的真实任务不因此获准重算。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:67679cbb964450884e06ee8c1be1225fdceb2bc9cb79d14c5a8f917d63e60923"
+}

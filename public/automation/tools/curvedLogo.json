@@ -369,6 +369,7 @@
     "notApplicableReason": "Existing curved-logo entry retains legacy semantics",
     "originUsage": "legacy-geometry-only",
     "orientationUsage": "legacy-only",
+    "omittedPlacement": "legacy-world",
     "legacyCoordinates": "world",
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
@@ -378,5 +379,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:ec30bf65cbf458c56bdaa370abd44a32d5ac39142204196c0dc3f5cd171ba677"
+  "docsHash": "sha256:6d606bfa1d5d612d2c013da61620edc876c1b885d048ae7d34f1b319a25b1f2e"
 }

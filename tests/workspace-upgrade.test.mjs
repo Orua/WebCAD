@@ -13,7 +13,7 @@ test('face and solid machining preserve all tools once and keep batch tools in o
  const group=solid.groups.find(([name])=>name==='批量加工'),policy=ribbonGroupPolicy(UI_LAYOUT,solid,group[1],group[2]);
  assert.deepEqual(policy.overflowActions,['multiHole','multiPocket','multiBoss']);assert.equal(policy.folded,true);
  const actions=[face,solid].flatMap(t=>t.groups.flatMap(g=>g[1]));assert.equal(new Set(actions).size,actions.length);
- assert.deepEqual([...actions].sort(),['union','cut','intersect','split','hole','holeWizard','multiHole','thread','slot','faceGroove','faceHole','faceExtrude','multiPocket','multiBoss','outerTurn','innerTurn','logo','relief'].sort());
+ assert.deepEqual([...actions].sort(),['union','cut','intersect','split','hole','holeWizard','multiHole','thread','slot','faceGroove','faceHole','faceExtrude','multiPocket','multiBoss','outerTurn','innerTurn','logo','relief','reliefSculpt'].sort());
 });
 
 test('single overflow tools stay visible and ribbon folding follows layout configuration',()=>{
