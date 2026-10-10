@@ -37,7 +37,7 @@ namespace WebCADServices.Gateway
             try
             {
                 if (!request.IsSecureConnection && (!PrivateAddress(request.Url.Host) || !PrivateAddress(request.UserHostAddress))) throw new ServiceError("LAN_ONLY", "HTTP Services is available only on the private LAN", 403);
-                string origin = request.Headers["Origin"],allowed = ConfigurationManager.AppSettings["WebCAD.AllowedOrigin"];
+                string origin = request.Headers["Origin"],allowed = ConfigurationManager.AppSettings["WebCAD.AllowedOrigin"] ?? request.Url.GetLeftPart(UriPartial.Authority);
                 if (!string.IsNullOrEmpty(origin))
                 {
                     if (!string.Equals(origin, allowed, StringComparison.Ordinal)) throw new ServiceError("ORIGIN_FORBIDDEN", "Origin is not allowed", 403);
@@ -66,6 +66,7 @@ namespace WebCADServices.Gateway
                 Write(context, runtime.Handle(new WireRequest { Method = request.HttpMethod,Route = route,Credential = credential,FileName = Uri.UnescapeDataString(request.Headers["X-File-Name"] ?? ""),IdempotencyKey = request.Headers["Idempotency-Key"],AssetKind = request.Headers["X-Asset-Kind"],Body = body }));
             }
             catch (ServiceError error) { Write(context, WireResponse.Json(error.Body("iis-dll"), error.Status)); }
+            catch (UnauthorizedAccessException) { Write(context, WireResponse.Json(new ServiceError("IIS_STORAGE_FORBIDDEN", "Site identity cannot access the private Services data or runtime", 503).Body("iis-dll"), 503)); }
             catch (Exception) { Write(context, WireResponse.Json(new ServiceError("IIS_RUNTIME_UNAVAILABLE", "Services DLL configuration or runtime is unavailable", 503).Body("iis-dll"), 503)); }
         }
         static void Write(HttpContext context, WireResponse result) { context.Response.StatusCode = result.Status;context.Response.ContentType = result.ContentType;context.Response.OutputStream.Write(result.Body, 0, result.Body.Length); }
@@ -76,13 +77,15 @@ namespace WebCADServices.Gateway
         readonly ServiceRuntime runtime;int disposed;
         IisRuntime(string credential)
         {
-            string root = HttpRuntime.AppDomainAppPath;
-            Func<string,string,string> path = (key, fallback) => Path.GetFullPath(ConfigurationManager.AppSettings["WebCAD." + key] ?? Path.Combine(root, fallback));
+            // An ASHX folder can share the ERP application; its runtime lives beside
+            // the handler rather than beside the parent application's bin directory.
+            string root = Path.GetDirectoryName(HttpContext.Current.Request.PhysicalPath);
+            Func<string,string,string> path = (key, fallback) => Path.GetFullPath(Path.Combine(root, ConfigurationManager.AppSettings["WebCAD." + key] ?? fallback));
             string logo = path("LogoWorker", "runtime/logo/LogoVector.Worker.exe"),native = path("NativeWorker", "runtime/occt/WebCADOcctWorker.exe"),proof = path("NativeAcceptance", "runtime/kernel-pair.json");
             if (!File.Exists(logo) || !File.Exists(native) || !File.Exists(proof)) throw new ServiceError("WORKER_UNAVAILABLE", "Required Logo/OCCT runtime files are missing", 503);
             NativeAdapter.Configure(native, proof);
             if (NativeAdapter.Acceptance == null) throw new ServiceError("NATIVE_ACCEPTANCE_INVALID", "Native binary and proof do not match", 503);
-            runtime = new ServiceRuntime(path("DataRoot", "App_Data/WebCADServices"), logo, credential, true, "iis-dll");
+            runtime = new ServiceRuntime(path("DataRoot", "../../WebCADServices-data"), logo, credential, true, "iis-dll");
             HostingEnvironment.RegisterObject(this);
         }
         internal static ServiceRuntime Get(string supplied)
