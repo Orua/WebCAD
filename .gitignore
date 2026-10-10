@@ -59,3 +59,7 @@ test-results/
 .env
 .env.*
 
+
+# Services build intermediates are external; never release local storage links.
+services/**/bin/
+services/**/obj/

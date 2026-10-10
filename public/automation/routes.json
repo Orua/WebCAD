@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.22.0",
-  "buildId": "161bbc221acf025fad94200b0fb9ad928ef7e1e7-src-1373df1722b053c3",
-  "catalogHash": "sha256:5f9aed91f6295bd4243c0f7003ee9586e2f4e71c538c146fb941d33d0fae75ca",
-  "docsHash": "sha256:813749a430b3d1de3b9c9bdae0d09d7fbc97b617514b24080fefb1cad6d57498",
+  "pageApiVersion": "1.28.3",
+  "buildId": "5023980a939b38d7951c183d5db53544b37bd20d-src-6bd28abc9eb69dcf-working",
+  "catalogHash": "sha256:608a728ca1d49c88129a14b8f6073a20239a485d558b0cec467e72911ada847a",
+  "docsHash": "sha256:7419a6900f83b251a96fab14036b04767a65e627f30d2dc87739607ae3632161",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -508,14 +508,6 @@
       "method": "execute",
       "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
     },
-    "logoConverterSettings": {
-      "tools": [
-        "getLogoConverter",
-        "setLogoConverter"
-      ],
-      "method": "setLogoConverter",
-      "usage": "context、url、key；getLogoConverter 读回配置状态。"
-    },
     "mcp": {
       "tools": [
         "run"
@@ -882,10 +874,22 @@
         "sampleReliefHeight",
         "prepareReliefSculpt",
         "feature.edit",
+        "preview.start",
+        "preview.commit",
+        "preview.cancel",
         "history.undo"
       ],
       "method": "prepareReliefSculpt",
-      "usage": "浮雕历史属性→浮雕精修。prepareReliefSculpt({context,featureId,strokes,draft?})只读返回params.sculpt；检查canCommit/blockers后feature.edit提交。笔刷raise/lower/smooth/flatten/fill/scrape/sharpen/restore/mask/unmask，hardness为0–1、symmetry为none/x/y/xy，局部points为[-.5,.5]，radiusMm/amountMm/targetMm为毫米，strength为0–1。工程保存原始高度及deltaMm/mask；关闭/切层暂存草稿、应用当前层一次撤销；Alt吸取对应sampleReliefHeight({context,featureId,point,draft?})，返回targetMm可给flatten，quantity区分height/depth，与UI共用采样；轮廓外或孔内失败RELIEF_SAMPLE_OUTSIDE；预览旋转缩放不改模型。"
+      "usage": "浮雕历史属性→浮雕精修；独立毫米域用 patch:{id,domainMm,samples,protectionMm}，域内增量独立保存，边界两排固定；实际柱面及邻层预览用 preview.start args:{featureEdit:{featureId,params}}，再 preview.commit/cancel；patchId 对应独立域吸取。prepareReliefSculpt({context,featureId,strokes,draft?})只读返回params.sculpt；检查canCommit/blockers后feature.edit提交。笔刷raise/lower/smooth/flatten/fill/scrape/sharpen/restore/mask/unmask，hardness为0–1、symmetry为none/x/y/xy，局部points为[-.5,.5]，radiusMm/amountMm/targetMm为毫米，strength为0–1。工程保存原始高度及deltaMm/mask；关闭/切层暂存草稿、应用当前层一次撤销；Alt吸取对应sampleReliefHeight({context,featureId,point,draft?})，返回targetMm可给flatten，quantity区分height/depth，与UI共用采样；轮廓外或孔内失败RELIEF_SAMPLE_OUTSIDE；预览旋转缩放不改模型。"
+    },
+    "reliefTopologyUpgrade": {
+      "tools": [
+        "prepareReliefTopologyUpgrade",
+        "feature.edit",
+        "getState"
+      ],
+      "method": "execute",
+      "usage": "只读预览策略差异后按同修订明确应用；不改设计尺寸、不静默迁移旧工程。"
     },
     "remove": {
       "tools": [
@@ -1010,6 +1014,45 @@
       ],
       "method": "setView",
       "usage": "实体模式左键拖框选，左向右全包含、右向左相交，Shift/Ctrl追加，Escape取消；Alt+左键保留旋转。selectRectangle显式指定当前视口0..1矩形。相交模式处理近远裁剪面，仍按对象投影包围框判定。"
+    },
+    "servicesFeatureCompile": {
+      "tools": [
+        "feature.compileServices",
+        "getServicesCapabilities",
+        "getServicesRouting",
+        "getState",
+        "getServicesRequest"
+      ],
+      "method": "execute",
+      "usage": "原特征属性→Services 精确计算为每次显式远程；普通新建/编辑在 setServices 设 allowGeometryUploads:true 后按同一 ExecutionRouter 选择。getServicesRouting 读取原因。失败保留工程，未知任务先核对，不自动重算。"
+    },
+    "servicesJobRecovery": {
+      "tools": [
+        "getServicesJob",
+        "recoverServicesJob"
+      ],
+      "method": "recoverServicesJob",
+      "usage": "先核对 interrupted 旧任务，再明确授权一次环境恢复；几何失败、未知或仍运行任务不会重算。"
+    },
+    "servicesSettings": {
+      "tools": [
+        "getServices",
+        "setServices",
+        "getServicesCapabilities",
+        "getServicesRouting",
+        "clearServicesCredential"
+      ],
+      "method": "setServices",
+      "usage": "context、url、credential、enabled、localTimeoutMs、serverWaitMs；配置 Services 后复杂运算使用服务。超时配置从下一次运算生效；getServicesRouting 读取选择原因和等待状态，不回显授权。"
+    },
+    "servicesWaitDecision": {
+      "tools": [
+        "decideServicesWait",
+        "getServicesRouting",
+        "getServicesJob"
+      ],
+      "method": "decideServicesWait",
+      "usage": "服务器达到可配置等待时间时，选择 continue 续查同任务，或 stop 终止受控任务；不创建新计算。"
     },
     "sewFaces": {
       "tools": [
@@ -1189,6 +1232,9 @@
     }
   },
   "labels": {
+    "servicesWaitDecision": "decideServicesWait / getServicesRouting / getServicesJob",
+    "reliefTopologyUpgrade": "prepareReliefTopologyUpgrade / 修改参数 / getState",
+    "servicesJobRecovery": "getServicesJob / recoverServicesJob",
     "selectTool": "选择 / setView / selectRectangle / 取消预览",
     "quickDrawing": "快速出图 / createDrawing / exportDrawing / 下载文件",
     "drawingCreate": "createDrawing",
@@ -1197,10 +1243,10 @@
     "alignBodies": "快速对齐",
     "alignmentPlan": "planAlignment",
     "restoreHistory": "getHistory / 退回工程状态",
-    "round": "圆润 / 预览模型或文件插入 / 更新预览 / 取消预览 / 应用预览 / 修改参数",
-    "fillet": "圆角 / 修改参数 / 预览模型或文件插入 / 更新预览 / 应用预览 / 取消预览",
-    "rounding": "自动打磨 / 修改参数 / 预览模型或文件插入 / 更新预览 / 应用预览 / 取消预览",
-    "roundEnd": "端头圆润 / 预览模型或文件插入 / 应用预览 / 取消预览 / 修改参数",
+    "round": "圆润 / 预览模型、原特征编辑或文件插入 / 更新预览 / 取消预览 / 应用预览 / 修改参数",
+    "fillet": "圆角 / 修改参数 / 预览模型、原特征编辑或文件插入 / 更新预览 / 应用预览 / 取消预览",
+    "rounding": "自动打磨 / 修改参数 / 预览模型、原特征编辑或文件插入 / 更新预览 / 应用预览 / 取消预览",
+    "roundEnd": "端头圆润 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数",
     "pathEdit": "编辑路径 / inspectProfile / 修改参数",
     "pathTrim": "修剪 / prepareProfileEdit / 修改参数",
     "pathExtend": "延伸 / prepareProfileEdit / 修改参数",
@@ -1272,8 +1318,8 @@
     "quickModel": "快捷模型",
     "referenceExtrude": "参考轮廓拉伸 / 轮廓拉伸",
     "referenceLoft": "参考截面放样 / 截面放样",
-    "refineShape": "清理分割线 / getState / queryGeometry / 预览模型或文件插入 / 应用预览 / 取消预览 / 撤销",
-    "relief": "浮雕 / readRelief / 登记文件资源 / getState / 预览模型或文件插入 / 应用预览 / 取消预览 / 修改参数 / 撤销",
+    "refineShape": "清理分割线 / getState / queryGeometry / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销",
+    "relief": "浮雕 / readRelief / 登记文件资源 / getState / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数 / 撤销",
     "remove": "删除 / 删除实体",
     "revolve": "旋转成型 / 轮廓旋转",
     "sewFaces": "曲面缝合",
@@ -1291,13 +1337,14 @@
     "transform": "移动 / 旋转",
     "union": "合并",
     "vectorProfile": "导入路径",
-    "reliefSculpt": "浮雕精修 / sampleReliefHeight / prepareReliefSculpt / 修改参数 / 撤销",
+    "reliefSculpt": "浮雕精修 / sampleReliefHeight / prepareReliefSculpt / 修改参数 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销",
     "precisionSettings": "精度 / setDisplayPreferences",
     "themeSettings": "风格 / setDisplayPreferences",
     "snapSettings": "吸附 / setDisplayPreferences",
     "languageSettings": "语言 / setView",
     "agentGuide": "AGENT / connect / getTools / readDocs",
-    "logoConverterSettings": "LOGO转化 / getLogoConverter / setLogoConverter",
+    "servicesSettings": "Services / getServices / setServices / getServicesCapabilities / getServicesRouting / clearServicesCredential",
+    "servicesFeatureCompile": "Services 原特征编译 / getServicesCapabilities / getServicesRouting / getState / getServicesRequest",
     "displayPreferences": "渲染设置 / setDisplayPreferences",
     "panels": "setView",
     "moveTool": "setView / 移动 / 旋转",
@@ -1319,7 +1366,7 @@
     "parameters": "参数 / 命名参数与尺寸联动",
     "undo": "撤销",
     "redo": "重做",
-    "preview": "预览模型或文件插入 / convertLogoPdf",
+    "preview": "预览模型、原特征编辑或文件插入 / convertLogoPdf",
     "commitPreview": "应用预览",
     "cancelPreview": "取消预览",
     "sketch": "草图拉伸 / 拉伸",

@@ -1,0 +1,20 @@
+{
+  "id": "cancelServicesJob",
+  "title": "cancelServicesJob",
+  "category": "page-method",
+  "version": "1.28.3",
+  "description": "cancelServicesJob({context,jobId})",
+  "synonyms": [
+    "cancelServicesJob",
+    "Services",
+    "取消",
+    "作业"
+  ],
+  "inputContract": "cancelServicesJob({context,jobId})",
+  "outputContract": "取消请求回执；终止须再读取实际作业终态。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:e69b558e86affa6598ebd78caed2799282a67db5ae6315994ecda31ccaddeb03"
+}

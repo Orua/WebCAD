@@ -2,7 +2,7 @@
   "id": "getQuickModelUsage",
   "title": "getQuickModelUsage",
   "category": "page-method",
-  "version": "1.22.0",
+  "version": "1.28.3",
   "description": "getQuickModelUsage({}={})；只读本浏览器累计成功创建次数，不要求几何上下文，预览期间也可读取。",
   "synonyms": [
     "getQuickModelUsage",
@@ -24,5 +24,5 @@
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
-  "docsHash": "sha256:7130a8e523debba4c57a215307283075a1fc091d90e753aee3c794497e8b89ea"
+  "docsHash": "sha256:da5405bb2823b4125dd4e2cd31972e4e0b56d7dd3e70069e0d592413258e82aa"
 }

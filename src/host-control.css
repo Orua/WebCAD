@@ -1,0 +1,7 @@
+.host-control-status{display:inline-flex;align-items:center;gap:6px;margin-left:auto;padding:0 10px;flex:none;color:#64748b;font-size:12px;white-space:nowrap}
+.host-control-status .host-connection{color:#94a3b8}
+.host-control-status[hidden]{display:none}.host-control-status svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}.host-control-status .host-connection svg{width:12px;height:12px;fill:currentColor;stroke:none}
+.host-control-status[data-connected="true"] .host-connection{color:#16a34a}
+.host-control-status[data-locked="true"] .host-lock{color:#d97706}
+.webcad-app.is-host-locked .busy-overlay{display:none}
+.webcad-app.is-host-locked .ribbon button,.webcad-app.is-host-locked .selection-modes button{opacity:.45;cursor:not-allowed}

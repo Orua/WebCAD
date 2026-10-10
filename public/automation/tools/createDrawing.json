@@ -2,7 +2,7 @@
   "id": "createDrawing",
   "title": "createDrawing",
   "category": "page-method",
-  "version": "1.22.0",
+  "version": "1.28.3",
   "description": "createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。",
   "synonyms": [
     "createDrawing",
@@ -24,5 +24,5 @@
     "REVISION_CONFLICT",
     "GEOMETRY_INVALID"
   ],
-  "docsHash": "sha256:4add4c6ac936f83b7876cc18551de76651699c23a33136016c5d2a3c24e95da4"
+  "docsHash": "sha256:74e136e6390f8ab6ea801559521883c7912568dc81736e3c341b0ca4ba83445f"
 }

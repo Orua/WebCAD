@@ -438,6 +438,7 @@
     "placementSupported": true,
     "originUsage": "new-object-insertion",
     "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
     "legacyCoordinates": "world",
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
@@ -447,5 +448,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:aec5feffbfc6460efed86d25f5aa9b336f55ca7d24db6d5a1ba92daa4d73c307"
+  "docsHash": "sha256:a77d3fbc43b50a7a721b282ec4ab4f932d0684f4378d415eed5817ecc807aa3b"
 }

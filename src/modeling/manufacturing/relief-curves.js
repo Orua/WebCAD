@@ -37,7 +37,14 @@ export function fitContour(points,normal,tolerance=0,closed=true){
     if(!ok)break;
     if(!sign)sign=Math.sign(delta);if(delta*sign<=0){ok=false;break;}angle+=delta;last=now;
    }
-   if(ok&&Math.abs(angle)<Math.PI*.95){end=stop;best={type:'arc',start:points[start],mid:points[mid],end:points[stop]};}
+   if(ok&&Math.abs(angle)<Math.PI*.95){
+    const candidate={type:'arc',start:points[start],mid:points[mid],end:points[stop]};
+    // The final conversion report samples each complete candidate arc, while
+    // the preceding checks sample the smaller source-edge angular intervals.
+    // They are different sample locations. Apply the final criterion before
+    // selecting an arc, rather than accepting one that fails during build.
+    if(contourConversionReport(points.slice(start,stop+1),normal,[candidate],tolerance,false).accepted){end=stop;best=candidate;}
+   }
   }
   segments.push(best);start=end;
  }
@@ -66,9 +73,17 @@ export function contourConversionReport(points,normal,segments,tolerance=0,close
  const accepted=maxDeviationMm<=tolerance+1e-8&&(!closed||sourceArea*resultArea>0&&Math.abs(areaChangeMm2)<=areaLimitMm2);
  return {reference:'supplied-polyline-after-explicit-cleanup',sourceEdgeCount:points.length-(closed?0:1),resultEdgeCount:segments.length,toleranceMm:tolerance,maxSampledDeviationMm:maxDeviationMm,sampleCount,sourceAreaMm2:closed?Math.abs(sourceArea):null,resultAreaMm2:closed?Math.abs(resultArea):null,areaChangeMm2,areaLimitMm2,accepted,errorBound:'sampled-not-global',closed};
 }
+export function planContour(points,normal,tolerance=0,closed=true){
+ const segments=fitContour(points,normal,tolerance,closed),report=contourConversionReport(points,normal,segments,tolerance,closed);
+ if(!report.accepted)throw Object.assign(new Error('轮廓转换偏差或面积变化超过显式公差；请降低拟合公差或使用原始折线'),{code:'RELIEF_CURVE_DEVIATION',report});
+ return {segments,report};
+}
 export function contourWire(points,normal,cad,tolerance=0,closed=true,onConversion){
+ return wireFromContourPlan(planContour(points,normal,tolerance,closed),cad,onConversion);
+}
+export function wireFromContourPlan({segments,report},cad,onConversion){
  const edges=[];
- try{const segments=fitContour(points,normal,tolerance,closed),report=contourConversionReport(points,normal,segments,tolerance,closed);if(!report.accepted)throw Object.assign(new Error('轮廓转换偏差或面积变化超过显式公差；请降低拟合公差或使用原始折线'),{code:'RELIEF_CURVE_DEVIATION',report});onConversion?.(report);for(const s of segments)edges.push(s.type==='arc'?cad.makeThreePointArc(s.start,s.mid,s.end):cad.makeLine(s.start,s.end));return cad.assembleWire(edges);}
+ try{onConversion?.(report);for(const s of segments)edges.push(s.type==='arc'?cad.makeThreePointArc(s.start,s.mid,s.end):cad.makeLine(s.start,s.end));return cad.assembleWire(edges);}
  finally{edges.forEach(dispose);}
 }
 export function strokeOutline(points,normal,width){

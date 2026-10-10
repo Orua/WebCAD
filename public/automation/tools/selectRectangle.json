@@ -2,7 +2,7 @@
   "id": "selectRectangle",
   "title": "selectRectangle",
   "category": "page-method",
-  "version": "1.22.0",
+  "version": "1.28.3",
   "description": "selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。",
   "synonyms": [
     "selectRectangle",
@@ -22,5 +22,5 @@
     "UI_TASK_ACTIVE",
     "REVISION_CONFLICT"
   ],
-  "docsHash": "sha256:36b2b98f51b2425320750a46449a1710b6de02a4619b74e14dbb7724c3b531bb"
+  "docsHash": "sha256:6be4e08c07f029f7b7f774d7a71a17afa42ace9a07cda89c8e09bde31a4aa561"
 }

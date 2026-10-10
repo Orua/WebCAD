@@ -108,7 +108,7 @@ const originalGroups = {
   finish: [['边与过渡', ['fillet', 'chamfer', 'autoRound', 'smoothTransition']], ['壳与拆分', ['shell', 'split', 'extractSolid']], ['拔模', ['draftFaces']]],
   surface: [['曲面成型', ['curveSweep', 'advancedLoft', 'fittedSurface']], ['参考提取', ['planeSection', 'faceBoundary', 'extractFaces', 'extractShell']], ['参考成体', ['referenceExtrude', 'referenceLoft', 'thickenFace']], ['曲面处理', ['sewFaces', 'surfaceTrim']]],
   inspect: [['几何检查', ['measure', 'measureRelation', 'inspectFit', 'inspectThickness', 'inspectDraft', 'section', 'inspectPrintability']], ['结果记录', ['screenshot']]],
-  view: [], settings: [['外观', ['themeSettings', 'displayPreferences', 'logoConverterSettings']], ['交互', ['precisionSettings', 'snapSettings', 'languageSettings']], ['工程', ['parameters']], ['AGENT', ['agentGuide']]],
+  view: [], settings: [['外观', ['themeSettings', 'displayPreferences', 'servicesSettings']], ['交互', ['precisionSettings', 'snapSettings', 'languageSettings']], ['工程', ['parameters']], ['AGENT', ['agentGuide']]],
 };
 
 test('workflow tabs preserve the original tool inventory after regrouping', () => {

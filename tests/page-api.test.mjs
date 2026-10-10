@@ -6,6 +6,16 @@ import { UI_API_ROUTES } from '../src/ui-api-coverage.js';
 import {prepareAnalyticProfileEdit} from '../src/profile-editing.js';
 
 const context = () => ({ sessionId: 'page-1', documentId: 'doc-1', documentInstanceId: 'instance-1', expectedRevision: 7 });
+test('explicit topology upgrade previews exact original feature without computing or migrating and checks revision',async()=>{
+ const {api,host}=fixture(),base=host.state;
+ const params={faceId:0,widthMm:12,heightMm:12,depthMm:.5,curveToleranceMm:.01,values:Array.from({length:4},()=>Array(4).fill(1)),regions:[{outer:[[-.4,-.4],[.4,-.4],[.4,.4],[-.4,.4]]}]},original=structuredClone(params);
+ host.state=()=>({...base(),features:[{id:'original-relief',op:'relief',params,refs:[]}]});
+ assert.equal((await api.prepareReliefTopologyUpgrade({context:context(),featureId:'original-relief'})).error.code,'RELIEF_UPGRADE_STRATEGY_REQUIRED');
+ const receipt=await api.prepareReliefTopologyUpgrade({context:context(),featureId:'original-relief',maskStrategy:'faceWithHolesExtrude'});
+ assert.equal(receipt.status,'prepared');assert.equal(receipt.canCommit,true);assert.equal(receipt.receipt.geometryComputed,false);assert.equal(receipt.receipt.toleranceMm,.01);assert.equal(receipt.receipt.featureId,'original-relief');assert.notEqual(receipt.receipt.beforeRecipeFingerprint,receipt.receipt.afterRecipeFingerprint);assert.deepEqual(params,original);
+ assert.equal((await api.prepareReliefTopologyUpgrade({context:{...context(),expectedRevision:6},featureId:'original-relief',maskStrategy:'cutHoleSolids'})).error.code,'REVISION_CONFLICT');
+ assert.equal(getTool({id:'prepareReliefTopologyUpgrade'}).implementationStatus,'implemented');
+});
 test('round preflight is discoverable and rejects stale context before host planning',async()=>{
  const {api,host}=fixture(),state=host.state;host.state=()=>({...state(),bodies:[{id:'body-1',solidCount:1}]});let calls=0;
  host.inspectRound=async input=>{calls++;assert.equal(input.params.radiusMm,.3);return {attemptCount:0,feasibility:'not-proven'};};
@@ -170,6 +180,8 @@ test('explicit view controls validate before host mutation and point measurement
   assert.equal(f.calls.view,0);
   assert.equal((await f.api.setView({context:context(),display:'wire',grid:false,snap:true,gizmo:'off',selectionMode:'face',language:'zh',camera:{position:[30,40,50],target:[0,0,0]}})).status,'read');
   assert.equal(f.calls.view,1);
+  assert.equal((await f.api.setView({context:context(),selectionMode:'view'})).status,'read');
+  assert.equal(f.calls.view,2);
   const d=await f.api.measure({context:context(),points:[[1,2,3],[4,6,3]]});
   assert.equal(d.distance,5);assert.equal(d.source,'provided-coordinates');assert.equal(f.calls.measure,0);
   assert.equal((await f.api.measure({context:context(),points:[[0,0,0],[1,2,3]],bodyId:'body-1'})).status,'failed');

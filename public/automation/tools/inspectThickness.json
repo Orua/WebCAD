@@ -2,7 +2,7 @@
   "id": "inspectThickness",
   "title": "inspectThickness",
   "category": "page-method",
-  "version": "1.22.0",
+  "version": "1.28.3",
   "description": "inspectThickness({context,bodyId,mode:\"ray\",point:[x,y,z],direction:[dx,dy,dz]})；或 mode:\"faces\",faceAId,faceBId,point；两面须平行且射线穿过连续材料。",
   "synonyms": [
     "inspectThickness",
@@ -23,5 +23,5 @@
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:743b5bffec5b95e5ba451603c4c4892e2bd44661a42b4ec6fa3993d8e84ad42b"
+  "docsHash": "sha256:88dbd5d7a8f35985542f716526b0904f800fa88084fc1a3953174529662baa7c"
 }

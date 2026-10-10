@@ -1,7 +1,7 @@
 import { assertOperationContract, normalizeOperationParams, normalizeOperationPatch, validateOperationRefs, migratedOperationIds, getOperation, validateOperationExample } from './operation-registry.js';
 import { EDITOR_ACTIONS, validateEditorAction } from './editor-actions.js';
 import {REFERENCE_ACTIONS,applyReferenceAction} from './reference-contracts.js';
-import {resolvePlacement,describeResolvedPlacement} from './work-frame.js';
+import {resolvePlacement,describeResolvedPlacement,newFeaturePlacement} from './work-frame.js';
 import { assertHistoryEditSafe } from './history-edit-safety.js';
 import {assertFeatureCapacity} from './document-limits.js';
 import {compileFeaturePlan} from './feature-plan.js';
@@ -23,7 +23,7 @@ function finiteTree(v,path='args'){if(typeof v==='number'&&!Number.isFinite(v))f
 function integer(v,path,min=0,max=Number.MAX_SAFE_INTEGER){if(!Number.isSafeInteger(v)||v<min||v>max)fail('PARAM_RANGE_INVALID',path,`Expected integer ${min}..${max}`);}
 function ids(v,path,nonempty=false){if(!Array.isArray(v)||v.length>200||(nonempty&&!v.length))fail('PARAM_SCHEMA_INVALID',path,'Expected bounded ID array');v.forEach(x=>string(x,path));if(new Set(v).size!==v.length)fail('PARAM_SCHEMA_INVALID',path,'Duplicate references');}
 const contextOf=s=>({sessionId:s.sessionId,documentId:s.documentId,documentInstanceId:s.documentInstanceId,revision:s.revision});
-function errorResult(e,requestId,s){return {status:'failed',requestId,error:{code:e.code||(/no material|remove material|无.*材料|未.*材料/i.test(e.message)?'NO_MATERIAL_REMOVED':'GEOMETRY_INVALID'),path:e.path||'args',message:e.message||String(e),retryable:false,recoveryAction:e.recoveryAction||'NONE',...(e.featureId?{featureId:e.featureId}:{}),...(e.report?{report:boundedDiagnosticReport(e.report)}:{}),...(e.affectedFeatureIds?{affectedFeatureIds:e.affectedFeatureIds,changedFeatureIds:e.changedFeatureIds}:{})},commitState:'not_committed',currentRevision:s?.revision};}
+function errorResult(e,requestId,s){return {status:'failed',requestId,error:{code:e.code||(/no material|remove material|无.*材料|未.*材料/i.test(e.message)?'NO_MATERIAL_REMOVED':'GEOMETRY_INVALID'),path:e.path||'args',message:e.message||String(e),retryable:false,recoveryAction:e.recoveryAction||'NONE',...(e.jobId?{jobId:e.jobId}:{}),...(e.idempotencyKey?{idempotencyKey:e.idempotencyKey}:{}),...(e.stage?{stage:e.stage}:{}),...(e.diagnosticsRef?{diagnosticsRef:e.diagnosticsRef}:{}),...(e.supportBinding?{supportBinding:boundedDiagnosticReport(e.supportBinding)}:{}),...(e.routingDecision?{routingDecision:e.routingDecision}:{}),...(e.commitState?{serviceCommitState:e.commitState}:{}),...(e.featureId?{featureId:e.featureId}:{}),...(e.report?{report:boundedDiagnosticReport(e.report)}:{}),...(e.affectedFeatureIds?{affectedFeatureIds:e.affectedFeatureIds,changedFeatureIds:e.changedFeatureIds}:{})},commitState:'not_committed',currentRevision:s?.revision};}
 
 // A single browser document remains authoritative. No DOM, UI selection or kernel copy.
 export function createCommandService(adapter) {
@@ -119,7 +119,11 @@ export function createCommandService(adapter) {
           command='add_features';args=featurePlan;break;
         }
         case 'preview.start':{
-          if(a?.fileImport!==undefined){object(a,['fileImport'],'args');object(a.fileImport,['resourceId','name','mime','data','placement'],'args.fileImport');for(const key of ['resourceId','name','data'])string(a.fileImport[key],`args.fileImport.${key}`,key==='data'?28*1024*1024:200);if(!/\.(step|stp|brep|brp)$/i.test(a.fileImport.name))fail('FORMAT_UNSUPPORTED','args.fileImport.name','File preview requires STEP or BREP');if(a.fileImport.placement===undefined)fail('FRAME_INVALID','args.fileImport.placement','Explicit file placement required');command='preview_file';args={fileImport:{...a.fileImport,placement:resolvePlacement(a.fileImport.placement,s.referenceSystem,'import',{})},previewIdentity:{previewId:uid(),generation:1,baseRevision:s.revision,owner:'api'}};break;}
+          if(a?.featureEdit!==undefined){
+            object(a,['featureEdit'],'args');object(a.featureEdit,['featureId','params','name'],'args.featureEdit');const edit=a.featureEdit;string(edit.featureId,'args.featureEdit.featureId');const feature=s.features.find(f=>f.id===edit.featureId);if(!feature)fail('STALE_REFERENCE','args.featureEdit.featureId','Unknown feature');op=feature.op;const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,feature.params,edit.params):parameters(op,{...feature.params,...edit.params});if(edit.name!==undefined)string(edit.name,'args.featureEdit.name',120);
+            command='preview_feature_edit';args={featureId:feature.id,params,name:edit.name,previewIdentity:{previewId:uid(),generation:1,baseRevision:s.revision,owner:options.fromUI?'ui':'api',featureId:feature.id}};break;
+          }
+          if(a?.fileImport!==undefined){object(a,['fileImport'],'args');object(a.fileImport,['resourceId','name','mime','data','placement'],'args.fileImport');for(const key of ['resourceId','name','data'])string(a.fileImport[key],`args.fileImport.${key}`,key==='data'?28*1024*1024:200);if(!/\.(step|stp|brep|brp)$/i.test(a.fileImport.name))fail('FORMAT_UNSUPPORTED','args.fileImport.name','File preview requires STEP or BREP');if(a.fileImport.placement===undefined)fail('FRAME_INVALID','args.fileImport.placement','Explicit file placement required');command='preview_file';args={fileImport:{...a.fileImport,placement:resolvePlacement(a.fileImport.placement,s.referenceSystem,'import',{})},previewIdentity:{previewId:uid(),generation:1,baseRevision:s.revision,owner:options.fromUI?'ui':'api'}};break;}
         }
         // Ordinary preview and add share the same feature contract.
         case 'feature.add':{
@@ -136,7 +140,7 @@ export function createCommandService(adapter) {
             if(['fillet','chamfer'].includes(op))a.params.edgeIds=t.ids;else if(['shell','smoothTransition'].includes(op))a.params.faceIds=t.ids;else a.params.faceId=t.ids[0];
           }
           a.params=parameters(op,a.params);if(['transform','copy'].includes(op)&&a.params.mode&&a.placement===undefined)fail('FRAME_INVALID','args.placement','Spatial transform mode requires explicit placement');if(a.name!==undefined)string(a.name,'args.name',120);await verifyNamedPlacement(a.placement,s,refs);
-          command=input.action==='preview.start'?'preview_feature':'add_feature';args={op,params:a.params,refs,name:a.name,placement:resolvePlacement(a.placement,s.referenceSystem,op,a.params),...(input.action==='preview.start'?{previewIdentity:{previewId:uid(),generation:1,baseRevision:s.revision,owner:'api'}}:{})};break;
+          command=input.action==='preview.start'?'preview_feature':'add_feature';args={op,params:a.params,refs,name:a.name,placement:resolvePlacement(newFeaturePlacement(a.placement,s.referenceSystem,op),s.referenceSystem,op,a.params),...(input.action==='preview.start'?{previewIdentity:{previewId:uid(),generation:1,baseRevision:s.revision,owner:options.fromUI?'ui':'api'}}:{})};break;
         }
         case 'preview.update':{
           object(a,['previewId','expectedGeneration','patch'],'args');string(a.previewId,'args.previewId',128);integer(a.expectedGeneration,'args.expectedGeneration',1);
@@ -149,7 +153,7 @@ export function createCommandService(adapter) {
           const rawPlacement=a.patch.placement??(draft.placement?{version:1,frame:{kind:'snapshot',origin:draft.placement.frameSnapshot.origin,quaternion:draft.placement.frameSnapshot.quaternion},sourceAnchor:draft.placement.sourceAnchor}:undefined);
           await verifyNamedPlacement(rawPlacement,s,draft.refs||[]);
           const placement=resolvePlacement(rawPlacement,s.referenceSystem,op,params);
-          command='preview_update';args={op,params,refs:draft.refs,name:draft.name,placement,previewIdentity:{...s.previewInfo,generation:s.previewInfo.generation+1}};break;
+          command=s.previewInfo.featureId?'preview_feature_edit_update':'preview_update';args={op,params,refs:draft.refs,name:draft.name,placement,...(s.previewInfo.featureId?{featureId:s.previewInfo.featureId}:{}),previewIdentity:{...s.previewInfo,generation:s.previewInfo.generation+1}};break;
         }
         case 'feature.edit':{
           object(a,['featureId','opVersion','schemaHash','params','name','placement'],'args');string(a.featureId,'args.featureId');
@@ -186,7 +190,7 @@ export function createCommandService(adapter) {
         const replacements=after.features.filter(f=>createdFeatureIds.includes(f.id)&&createdBodyIds.includes(f.id)).flatMap(f=>(f.refs||[]).filter(id=>removedIds.has(id)).map(id=>({before:id,after:f.id})));
         result={status:'committed',requestId,transactionId:uid(),documentId:after.documentId,documentInstanceId:after.documentInstanceId,revisionBefore,revisionAfter:after.revision,createdFeatureIds,createdBodyIds,replacements,validation:{geometry:'passed',...(args?.placement?{placement:'passed'}:{}),...(['hole','multiHole','multiPocket','faceHole'].includes(op)?{materialRemoved:true}:{}),...(op==='multiBoss'?{materialAdded:true}:{})},persistence:after.persistence,warnings:after.warnings??[]};
       }
-      if(command==='editor_action')result.validation={geometry:result.status==='committed'&&['body.explode','body.align','history.restore'].includes(input.action)?'passed':'unchanged',editor:'passed'};
+      if(command==='editor_action')result.validation={geometry:result.status==='committed'&&['body.explode','body.align','history.restore','feature.compileServices'].includes(input.action)?'passed':'unchanged',editor:'passed'};
       if(command==='add_features')result.featurePlan={atomic:true,featureCount:args.features.length,featureIds:clone(args.featureIds)};
       if(command==='reference_action'){result.validation={geometry:'unchanged',reference:'passed'};result.referenceSystem=clone(after.referenceSystem);}
       if(args?.placement)result.resolvedPlacement={...describeResolvedPlacement(op,args.params,args.placement),geometryValidated:result.status==='committed',referenceQuality:'provided-coordinates',binding:'snapshot'};
@@ -219,7 +223,8 @@ export function createCommandService(adapter) {
         }
         context(input.context,before);available(before);
         if(input.action==='import')assertFeatureCapacity(before.features,1);
-        const result=await adapter.execute(`file_${input.action}`,input.args??{},{...options,expectedRevision:before.revision});
+        const args=input.action==='import'?{...input.args,placement:newFeaturePlacement(input.args?.placement,before.referenceSystem,'import')}:input.args??{};
+        const result=await adapter.execute(`file_${input.action}`,args,{...options,expectedRevision:before.revision});
         const after=snapshot(),readOnly=['save','export'].includes(input.action),receipt={status:readOnly?'read':'committed',requestId,context:contextOf(readOnly?before:after),...result};
         if(key)receipts.set(key,{fingerprint,result:clone(receipt)});return receipt;
       }catch(error){

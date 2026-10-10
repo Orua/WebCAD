@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "WebCAD Logo v1 structural envelope",
+  "type": "object",
+  "required": ["type", "version", "units", "name", "sizeMm", "source", "regions"],
+  "properties": {
+    "type": {"const": "webcad-logo"},
+    "version": {"const": 1},
+    "units": {"const": "mm"},
+    "name": {"type": "string", "minLength": 1},
+    "sizeMm": {"type": "array", "items": {"type": "number", "exclusiveMinimum": 0}, "minItems": 2, "maxItems": 2},
+    "source": {"type": "object"},
+    "regions": {
+      "type": "array", "minItems": 1, "maxItems": 150,
+      "items": {
+        "type": "object", "required": ["outer", "holes"],
+        "properties": {
+          "outer": {"$ref": "#/$defs/ring"},
+          "holes": {"type": "array", "items": {"$ref": "#/$defs/ring"}}
+        }
+      }
+    }
+  },
+  "$defs": {"point": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2}, "ring": {"type": "array", "items": {"$ref": "#/$defs/point"}, "minItems": 3, "maxItems": 2000}}
+}

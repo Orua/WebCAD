@@ -101,7 +101,11 @@ export function canonicalJson(value) {
 
 // Synchronous SHA-256 over UTF-8; identical in Node and browsers, no runtime imports.
 export function contractHash(value) {
-  const bytes = new TextEncoder().encode(canonicalJson(value));
+  return binaryHash(new TextEncoder().encode(canonicalJson(value)));
+}
+// Raw-byte integrity uses the same real SHA-256 implementation, without JSON encoding.
+export function binaryHash(bytes) {
+  if(!(bytes instanceof Uint8Array))throw new TypeError('SHA-256 requires Uint8Array');
   const length = Math.ceil((bytes.length + 9) / 64) * 64;
   const buffer = new Uint8Array(length);
   buffer.set(bytes); buffer[bytes.length] = 0x80;

@@ -7,6 +7,8 @@ import {validateDisplayPreferences} from './display-preferences.js';
 import {createPageBatch} from './page-batch.js';
 import {readBrowserLogo} from './browser-logo-input.js';
 import {getLogoConverterConfig,setLogoConverterConfig} from './logo-converter-settings.js';
+import {getServicesConfig,saveServicesConfig,clearServicesCredential} from './services/settings.js';
+import {servicesClient,createServicesClient} from './services/client.js';
 import {compileTextCommands} from './text-commands.js';
 import {fitProfilePoints} from './profile-fitting.js';
 import {traceTwinWindowProfile} from './dwg-spline-twin-window.js';
@@ -19,6 +21,8 @@ import {readVectorInput,selectVector} from './browser-vector-input.js';
 import {connectVector} from './vector-import.js';
 import {readReliefImage} from './relief-image.js';
 import {prepareReliefSculpt,sampleReliefHeight,reliefLayerParams} from './relief-sculpt.js';
+import {planReliefTopologyUpgrade} from './services/relief-plan.js';
+import {geometryRecipeFingerprint} from './services/geometry-exchange.js';
 import {boundedDiagnosticReport} from './modeling/diagnostic-report.js';
 import {assertHistoryEditSafe} from './history-edit-safety.js';
 import {validateDesignRequirements} from './design-inspection.js';
@@ -27,7 +31,7 @@ import {normalizeOperationParams} from './operation-registry.js';
 // Only structured, bounded commands cross this boundary. No mutable app objects escape.
 export function createPageAPI(host){
   const current=()=>host.state();
-  const failure=e=>({status:'failed',commitState:'not_committed',error:{...(e.report?{report:boundedDiagnosticReport(e.report)}:{}),code:e.code||'PARAM_SCHEMA_INVALID',message:e.message,path:e.path??null,retryable:false,recoveryAction:e.recoveryAction||(e.code==='REVISION_CONFLICT'?'READ_STATE_AND_REPLAN':'READ_TOOL_AND_CORRECT_PARAMS')},context:current().context});
+  const failure=e=>({status:'failed',commitState:'not_committed',error:{...(e.jobId?{jobId:e.jobId}:{}),...(e.stage?{stage:e.stage}:{}),...(e.diagnosticsRef?{diagnosticsRef:e.diagnosticsRef}:{}),...(e.supportBinding?{supportBinding:boundedDiagnosticReport(e.supportBinding)}:{}),...(e.report?{report:boundedDiagnosticReport(e.report)}:{}),code:e.code||'PARAM_SCHEMA_INVALID',message:e.message,path:e.path??null,retryable:false,recoveryAction:e.recoveryAction||(e.code==='REVISION_CONFLICT'?'READ_STATE_AND_REPLAN':'READ_TOOL_AND_CORRECT_PARAMS')},context:current().context});
   const fail=(code,message,path)=>{throw Object.assign(new Error(message),{code,...(path?{path}:{})});};
   function check(input,keys,requiredContext=true){
     if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!keys.includes(k)))fail('PARAM_SCHEMA_INVALID','Unexpected request fields');
@@ -241,17 +245,29 @@ export function createPageAPI(host){
       return {status:'read',source:'exact-brep',units:{length:'mm',angle:'degrees'},context:current().context,...result};
     }),
     sampleReliefHeight:guarded(async input=>{
-      const s=check(input,['context','featureId','point','draft','layerIndex','samples']);
+      const s=check(input,['context','featureId','point','draft','layerIndex','samples','patchId']);
       const feature=s.features.find(f=>f.id===input.featureId);
       if(!feature||feature.op!=='relief')fail('STALE_REFERENCE','请选择本工程中的浮雕历史步骤');
       if(input.draft!==undefined&&(!input.draft||typeof input.draft!=='object'||Array.isArray(input.draft)))fail('PARAM_SCHEMA_INVALID','draft 必须为 {deltaMm,mask} 精修网格');
       const selected=feature.params.layers?reliefLayerParams(feature.params,input.layerIndex,{samples:input.samples}):feature.params;
       if(!feature.params.layers&&(input.layerIndex!==undefined||input.samples!==undefined))fail('PARAM_SCHEMA_INVALID','单层浮雕不接受 layerIndex/samples');
-      const result=sampleReliefHeight(input.draft===undefined?selected:{...selected,sculpt:input.draft},input.point);
+      if(input.patchId!==undefined&&(input.draft!==undefined||input.samples!==undefined))fail('PARAM_SCHEMA_INVALID','独立域吸取使用稳定 patchId，不能同时套用全局 draft/samples');
+      const result=input.patchId!==undefined?sampleReliefHeight(feature.params,input.point,{layerIndex:input.layerIndex,patchId:input.patchId}):sampleReliefHeight(input.draft===undefined?selected:{...selected,sculpt:input.draft},input.point);
       return {status:'read',featureId:feature.id,...(feature.params.layers?{layerIndex:input.layerIndex}:{}),...result,context:current().context};
     }),
+    prepareReliefTopologyUpgrade:guarded(async input=>{
+      const s=check(input,['context','featureId','maskStrategy']);
+      const feature=s.features.find(f=>f.id===input.featureId);
+      if(!feature||feature.op!=='relief')fail('STALE_REFERENCE','请选择本工程中的浮雕历史步骤');
+      const result=planReliefTopologyUpgrade(feature.params,{maskStrategy:input.maskStrategy});
+      const candidate={features:s.features.map(f=>f.id===feature.id?{...f,params:result.params}:f),imports:s.imports??{}};
+      let blockers=[];
+      try{assertHistoryEditSafe(s,candidate);}catch(error){if(error.code!=='UNSAFE_LEGACY_REFERENCE')throw error;blockers=[{code:error.code,message:error.message,affectedFeatureIds:error.affectedFeatureIds}];}
+      const document={features:s.features,imports:s.imports??{}};
+      return {status:'prepared',featureId:feature.id,...result,receipt:{...result.receipt,documentId:s.context.documentId,documentInstanceId:s.context.documentInstanceId,revision:s.context.revision,featureId:feature.id,beforeRecipeFingerprint:geometryRecipeFingerprint(document,feature.id),afterRecipeFingerprint:geometryRecipeFingerprint(candidate,feature.id)},canCommit:!blockers.length,blockers,context:current().context};
+    }),
     prepareReliefSculpt:guarded(async input=>{
-      const s=check(input,['context','featureId','strokes','draft','layerIndex','samples']);
+      const s=check(input,['context','featureId','strokes','draft','layerIndex','samples','patch']);
       const feature=s.features.find(f=>f.id===input.featureId);
       if(!feature||feature.op!=='relief')fail('STALE_REFERENCE','请选择本工程中的浮雕历史步骤');
       let params=feature.params;
@@ -261,7 +277,8 @@ export function createPageAPI(host){
         if(params.layers){reliefLayerParams(params,input.layerIndex);params={...params,layers:params.layers.map((layer,index)=>index===input.layerIndex?{...layer,sculpt:input.draft}:layer)};}
         else params={...params,sculpt:input.draft};
       }
-      const result=prepareReliefSculpt(params,input.strokes,{layerIndex:input.layerIndex});
+      if(input.patch!==undefined&&input.draft!==undefined)fail('PARAM_SCHEMA_INVALID','局部域草稿使用返回的 localPatches，不能同时套用全局 draft');
+      const result=prepareReliefSculpt(params,input.strokes,{layerIndex:input.layerIndex,patch:input.patch});
       let blockers=[];
       try{assertHistoryEditSafe(s,{features:s.features.map(f=>f.id===feature.id?{...f,params:{...f.params,...result.params}}:f)});}catch(e){if(e.code!=='UNSAFE_LEGACY_REFERENCE')throw e;blockers=[{code:e.code,message:e.message,affectedFeatureIds:e.affectedFeatureIds}];}
       return {status:'prepared',featureId:feature.id,...result,canCommit:!blockers.length,blockers,context:current().context};
@@ -319,7 +336,7 @@ export function createPageAPI(host){
     }),
     setView:guarded(async input=>{
       check(input,viewKeys);
-      for(const [key,values] of Object.entries({display:['solid','edges','wire','transparentEdges'],gizmo:['off','translate','rotate'],selectionMode:['body','face','edge'],language:['zh','en'],temporaryDisplay:['normal','selectedOnly','transparentOthers']}))if(input[key]!==undefined&&!values.includes(input[key]))fail('PARAM_SCHEMA_INVALID',`Unknown ${key}`);
+      for(const [key,values] of Object.entries({display:['solid','edges','wire','transparentEdges'],gizmo:['off','translate','rotate'],selectionMode:['view','body','face','edge'],language:['zh','en'],temporaryDisplay:['normal','selectedOnly','transparentOthers']}))if(input[key]!==undefined&&!values.includes(input[key]))fail('PARAM_SCHEMA_INVALID',`Unknown ${key}`);
       if(input.gizmo!==undefined&&input.gizmo!=='off'&&input.selectionMode!==undefined&&input.selectionMode!=='body')fail('SELECTION_CONFLICT','Move/rotate handles require body selection; omit selectionMode or use body','selectionMode');
       for(const key of ['grid','snap','anchorVisible'])if(input[key]!==undefined&&typeof input[key]!=='boolean')fail('PARAM_SCHEMA_INVALID',`${key} must be boolean`);
       if(input.panels!==undefined&&(!input.panels||typeof input.panels!=='object'||Array.isArray(input.panels)||Object.entries(input.panels).some(([key,value])=>!['left','right'].includes(key)||typeof value!=='boolean')))fail('PARAM_SCHEMA_INVALID','panels requires left/right booleans');
@@ -336,8 +353,25 @@ export function createPageAPI(host){
     }),
     setDisplayPreferences:guarded(async input=>{check(input,['context','values']);const values=validateDisplayPreferences(input.values);const result=await host.preferences(values);return {status:'applied',context:current().context,...result};}),
     getLogoConverter:async()=>getLogoConverterConfig(),
+    getServices:async()=>getServicesConfig(),
+    getServicesCapabilities:async()=>servicesClient.capabilities(),
+    getServicesRequest:async input=>{if(!input||Object.keys(input).some(k=>k!=='idempotencyKey')||!/^[a-zA-Z0-9_-]{1,160}$/.test(input.idempotencyKey))fail('PARAM_SCHEMA_INVALID','Provide a Services idempotencyKey');return servicesClient.getRequest(input.idempotencyKey);},
+    setServices:guarded(async input=>{check(input,['context','url','credential','enabled','computeMode','allowGeometryUploads','localTimeoutMs','serverWaitMs']);const {context,...config}=input;if(config.enabled!==false)await createServicesClient({config,credential:config.credential}).capabilities();return {status:'applied',context:current().context,...saveServicesConfig(config)};}),
+    getServicesRouting:()=>host.servicesRouting?.()??{lastDecision:null,historyStorage:'bounded-session-memory'},
+    decideServicesWait:guarded(async input=>{
+      if(!input||Object.keys(input).some(key=>!['jobId','decision'].includes(key))||typeof input.jobId!=='string'||!/^[a-f0-9]{32}$/.test(input.jobId)||!['continue','stop'].includes(input.decision))fail('PARAM_SCHEMA_INVALID','选择当前任务的 continue 或 stop');
+      return host.decideServicesWait(input);
+    }),
+    recoverServicesJob:guarded(async input=>{
+      if(!input||Object.keys(input).some(key=>!['jobId','reason','approved','acknowledgedState','idempotencyKey'].includes(key))||typeof input.jobId!=='string'||!/^[a-f0-9]{32}$/.test(input.jobId)||input.approved!==true||input.acknowledgedState!=='interrupted'||typeof input.reason!=='string'||!input.reason.trim()||input.reason.length>240||typeof input.idempotencyKey!=='string'||!input.idempotencyKey||input.idempotencyKey.length>160)fail('RECOVERY_AUTH_REQUIRED','先核对旧 interrupted 任务，再明确授权一次环境恢复');
+      const old=await servicesClient.getJob(input.jobId);if(old.execution!=='interrupted')fail('RECOVERY_NOT_ALLOWED','旧任务不是已停止的环境中断，禁止重算');
+      return servicesClient.recoverJob(input.jobId,{reason:input.reason,approved:true,acknowledgedState:input.acknowledgedState},input.idempotencyKey);
+    }),
+    clearServicesCredential:guarded(async input=>{check(input,['context']);return {status:'applied',context:current().context,...clearServicesCredential()};}),
+    getServicesJob:async input=>{if(!input||Object.keys(input).some(k=>k!=='jobId')||!/^[a-f0-9]{32}$/.test(input.jobId))fail('PARAM_SCHEMA_INVALID','Provide a Services jobId');return servicesClient.getJob(input.jobId);},
+    cancelServicesJob:guarded(async input=>{check(input,['context','jobId']);if(!/^[a-f0-9]{32}$/.test(input.jobId))fail('PARAM_SCHEMA_INVALID','Provide a Services jobId');return servicesClient.cancelJob(input.jobId);}),
     setLogoConverter:guarded(async input=>{check(input,['context','url','key']);const result=setLogoConverterConfig(input);return {status:'applied',context:current().context,...result};}),
-    convertLogoPdf:guarded(async input=>{check(input,['context','name','data','targetWidthMm']);if(typeof input.name!=='string'||!input.name.toLowerCase().endsWith('.pdf')||!(input.data instanceof Uint8Array||input.data instanceof ArrayBuffer||input.data instanceof Blob))fail('PARAM_SCHEMA_INVALID','Provide PDF bytes and filename');const file=new File([input.data],input.name,{type:'application/pdf'});const logo=await readBrowserLogo(file,x=>x,{targetWidthMm:input.targetWidthMm});return {status:'read',context:current().context,logo};}),
+    convertLogoPdf:guarded(async input=>{check(input,['context','name','data','targetWidthMm','page','sizeConfirmed','allowUpload']);if(typeof input.name!=='string'||!input.name.toLowerCase().endsWith('.pdf')||!(input.data instanceof Uint8Array||input.data instanceof ArrayBuffer||input.data instanceof Blob))fail('PARAM_SCHEMA_INVALID','Provide PDF bytes and filename');const file=new File([input.data],input.name,{type:'application/pdf'});const logo=await readBrowserLogo(file,x=>x,{targetWidthMm:input.targetWidthMm,page:input.page,sizeConfirmed:input.sizeConfirmed,allowUpload:input.allowUpload});return {status:'read',context:current().context,logo};}),
     redraw:guarded(async input=>{check(input,['context']);await host.redraw();check(input,['context']);return {status:'read',context:current().context,display:host.display()};}),
     capture:guarded(async input=>{
       check(input,['context']);await host.frame();check(input,['context']);

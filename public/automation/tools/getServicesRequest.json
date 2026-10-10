@@ -1,0 +1,21 @@
+{
+  "id": "getServicesRequest",
+  "title": "getServicesRequest",
+  "category": "page-method",
+  "version": "1.28.3",
+  "description": "getServicesRequest({idempotencyKey})；连接未知时先查既有接收记录。",
+  "synonyms": [
+    "getServicesRequest",
+    "Services",
+    "断线",
+    "按幂等键",
+    "对账"
+  ],
+  "inputContract": "getServicesRequest({idempotencyKey})；连接未知时先查既有接收记录。",
+  "outputContract": "持久化 job；未找到返回 REQUEST_NOT_FOUND，不启动新计算。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:7367704d7719ed3a8095d51ad107d978cb3f553afa5587781e89940f8ab45706"
+}

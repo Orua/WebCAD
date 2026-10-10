@@ -1,0 +1,19 @@
+import {getServicesConfig,saveServicesConfig,clearServicesCredential} from '../../services/settings.js';
+import {createServicesClient,servicesClient} from '../../services/client.js';
+import tbd from '../../../contracts/services/v1/tbd-capabilities.json' with {type:'json'};
+export function showServicesSettings({openDialog,element,button,closeDialog}){
+ const dialog=openDialog('Services'),saved=getServicesConfig(),status=element('p',{class:'property-footnote'});
+ const url=element('input',{type:'url','aria-label':'Services 地址'}),secret=element('input',{type:'password',autocomplete:'new-password','aria-label':'Services 授权'}),enabled=element('input',{type:'checkbox','aria-label':'启用 Services'});
+ url.value=saved.url;enabled.checked=saved.enabled;
+ const localSeconds=element('input',{type:'number',min:1,max:600,step:1,'aria-label':'本地计算超时（秒）'}),serverSeconds=element('input',{type:'number',min:1,max:900,step:1,'aria-label':'服务器等待提醒（秒）'});localSeconds.value=String(saved.localTimeoutMs/1000);serverSeconds.value=String(saved.serverWaitMs/1000);
+ for(const [label,input]of [['启用 Services',enabled],['唯一 Services 地址',url],['专用授权（仅当前标签会话；留空保留同地址授权）',secret],['本地计算超时（秒，1–600）',localSeconds],['服务器等待提醒（秒，1–900）',serverSeconds]]){const row=element('label',{class:'form-field'},label);row.append(input);dialog.append(row);}
+ status.textContent='没有配置 Services 时全部本地；配置后简单运算本地，复杂运算上传服务。本地超时停止，服务器到时可继续等待或停止，不自动回退重算。';
+ dialog.append(element('p',{class:'property-footnote'},'TBD（禁用）：'+tbd.operations.map(value=>value.label).join('、')+'。已有精确检查点仍可打开。'));
+ const save=button('验证并保存',async()=>{save.disabled=true;try{const config={enabled:enabled.checked,url:url.value.trim(),computeMode:'auto',localTimeoutMs:Number(localSeconds.value)*1000,serverWaitMs:Number(serverSeconds.value)*1000};if(config.enabled)await createServicesClient({config,credential:secret.value||undefined}).capabilities();const result=saveServicesConfig({...config,credential:secret.value||undefined});secret.value='';status.textContent=result.enabled?'协议验证通过，配置已保存；复杂运算按服务能力执行。':'已关闭 Services，授权已清理；超时设置仍保存。';}catch(error){status.textContent=error.message;}finally{save.disabled=false;}},'secondary');
+ dialog.append(save,button('清除本会话授权',()=>{clearServicesCredential();secret.value='';status.textContent='已清除授权。';},'secondary'),status,button('关闭',closeDialog,'secondary'));
+ const job=element('input',{'aria-label':'核对 Services 旧任务 ID'}),reason=element('input',{'aria-label':'环境恢复原因',maxLength:240}),approve=element('input',{type:'checkbox','aria-label':'授权一次已核对的环境恢复'});let reviewed=null;
+ const recover=button('授权恢复一次',async()=>{if(!reviewed||!approve.checked||!reason.value.trim())return;recover.disabled=true;try{const old=await servicesClient.getJob(reviewed.jobId);if(old.execution!=='interrupted')throw new Error('旧任务状态已改变，禁止恢复');const result=await servicesClient.recoverJob(old.jobId,{approved:true,acknowledgedState:'interrupted',reason:reason.value.trim()},crypto.randomUUID());status.textContent=`已受理恢复任务 ${result.jobId}，可按原任务查询；尚未安装到工程。`;reviewed=null;approve.checked=false;}catch(error){status.textContent=error.message;}},'secondary');recover.disabled=true;
+ const update=()=>{recover.disabled=!reviewed||!approve.checked||!reason.value.trim();};approve.addEventListener('change',update);reason.addEventListener('input',update);job.addEventListener('input',()=>{reviewed=null;update();});
+ const review=button('核对旧任务',async()=>{reviewed=null;update();try{const value=await servicesClient.getJob(job.value.trim());status.textContent=`旧任务 ${value.jobId}：${value.execution}。几何失败和未知状态禁止重算。`;if(value.execution==='interrupted')reviewed=value;update();}catch(error){status.textContent=error.message;}},'secondary');
+ const row=element('label',{class:'form-field'},'已核对环境中断，明确授权一次恢复（不适用于几何失败）');row.append(approve);dialog.append(job,review,reason,row,recover);
+}

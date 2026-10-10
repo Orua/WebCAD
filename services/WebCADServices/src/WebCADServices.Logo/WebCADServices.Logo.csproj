@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../WebCADServices.Contracts/WebCADServices.Contracts.csproj" />
+    <ProjectReference Include="../../modules/LogoVector/src/LogoVector.Contracts/LogoVector.Contracts.csproj" />
+    <ProjectReference Include="../../modules/LogoVector/src/LogoVector.Geometry/LogoVector.Geometry.csproj" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

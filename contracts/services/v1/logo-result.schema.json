@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:webcad:services:logo-result:1",
+  "type": "object",
+  "required": ["status", "geometryValid", "reviewRequired", "sizeConfirmed", "logoDocument", "previewSvg", "conversionReport", "timings"],
+  "additionalProperties": false,
+  "properties": {
+    "status": {"enum": ["ready", "needsReview"]},
+    "geometryValid": {"const": true},
+    "reviewRequired": {"type": "boolean"},
+    "sizeConfirmed": {"const": true},
+    "logoDocument": {"$ref": "../../logo/webcad-logo-v1.schema.json"},
+    "previewSvg": {"type": "string", "maxLength": 16777216},
+    "conversionReport": {"type": "object", "required": ["method", "requestedToleranceMm", "approximationBoundMm", "sourceReconstructionErrorMm", "geometryHash", "warnings"]},
+    "timings": {"type": "object", "required": ["workerElapsedMs", "peakMemoryBytes"]}
+  }
+}

@@ -7,6 +7,7 @@ const {buildId}=readBuildIdentity(root);
 let outputDirectory;
 export default defineConfig({
   base:'./',
+  build:{outDir:process.env.WEBCAD_DIST_DIR||'dist',...(process.env.WEBCAD_DIST_DIR&&resolve(process.env.WEBCAD_DIST_DIR).replaceAll('\\','/').toLowerCase()==='f:/webcadservices-local/frontend-dist'?{emptyOutDir:true}:{})},
   plugins:[{
     name:'vector-dwg-runtime',
     configResolved(config){outputDirectory=resolve(config.root,config.build.outDir);},

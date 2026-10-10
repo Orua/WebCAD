@@ -1,0 +1,22 @@
+{
+  "id": "getServicesRouting",
+  "title": "getServicesRouting",
+  "category": "page-method",
+  "version": "1.28.3",
+  "description": "getServicesRouting()；读取同一 ExecutionRouter 的最近决策。",
+  "synonyms": [
+    "getServicesRouting",
+    "Services",
+    "自动分流",
+    "耗时",
+    "队列",
+    "原因"
+  ],
+  "inputContract": "getServicesRouting()；读取同一 ExecutionRouter 的最近决策。",
+  "outputContract": "policyVersion、lastDecision{executor,reason,inputs,complexity}、executionTimeouts、pendingWait、unavailableOperations（TBD且enabled=false）。操作类型和源/图案固定规则决定本地/远程，不需要双端耗时或结果一致性；pendingWait.decisionRequired时用decideServicesWait选择同任务continue/stop。服务失败不转本地重算。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:951f9e8b89549897a3a50387fa895dab706a9ab1ebb0e7dafbe869531d4233d9"
+}

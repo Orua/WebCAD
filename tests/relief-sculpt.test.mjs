@@ -21,15 +21,18 @@ test('layered sculpt dialog switches independent drafts and commits only the cho
  }
  const elements=[],element=(...a)=>{const e=new E(...a);elements.push(e);return e;},button=(text,click)=>{const e=element('button',{},text);e.click=click;return e;};
  const layer={heightMm:.5,regions:[{outer:[[-.4,-.4],[.4,-.4],[.4,.4],[-.4,.4]]}]},params={faceId:0,widthMm:12,heightMm:12,depthMm:1,layers:[{...layer,name:'first'},{...layer,name:'second'}]};
- let state={revision:1,document:{documentId:'sculpt-ui-test',features:[{id:'relief',op:'relief',name:'source',params,refs:[]}]}},viewDraft,edited;
+ let state={revision:1,document:{documentId:'sculpt-ui-test',features:[{id:'relief',op:'relief',name:'source',params,refs:[]}]}},viewDraft,edited,previewPatch;
  const dialog=element('dialog');
  try{
-  showReliefSculptDialog({featureId:'relief',getState:()=>state,openDialog:()=>dialog,element,button,close(){},createView:()=>({update(p,d){viewDraft=structuredClone(d);},cursor(){},fit(){},dispose(){},point:()=>[0,0],sample:()=>.5}),onEdit:async(id,patch)=>{edited=patch;state={...state,revision:state.revision+1,document:{...state.document,features:state.document.features.map(f=>({...f,params:{...f.params,...patch}}))}};return true;}});
+  const edit=async(id,patch)=>{edited=patch;state={...state,revision:state.revision+1,document:{...state.document,features:state.document.features.map(f=>({...f,params:{...f.params,...patch}}))}};return true;};
+  showReliefSculptDialog({featureId:'relief',getState:()=>state,openDialog:()=>dialog,element,button,close(){},createView:()=>({update(p,d){viewDraft=structuredClone(d);},cursor(){},fit(){},dispose(){},point:()=>[0,0],sample:()=>.5}),onEdit:edit,onPreview:async(id,patch)=>{previewPatch=patch;state.preview=true;},onCancelPreview:async()=>{previewPatch=null;state.preview=false;},onCommitPreview:async()=>{state.preview=false;return edit('relief',previewPatch);}});
   const select=elements.find(e=>e['aria-label']==='浮雕图层'),canvas=elements.find(e=>e['aria-label']==='浮雕精修画布'),apply=elements.find(e=>e.textContent==='应用当前图层');
   assert.equal(select.options.length,2);await canvas.fire('pointerdown',{button:0,pointerId:1});await canvas.fire('pointerup',{pointerId:1});const first=structuredClone(viewDraft);assert(first.deltaMm.flat().some(v=>v>0));
   select.value='relief|layer:1';await select.fire('change');assert(viewDraft.deltaMm.flat().every(v=>v===0));await canvas.fire('pointerdown',{button:0,pointerId:1});await canvas.fire('pointerup',{pointerId:1});await apply.click();
   assert.deepEqual(edited.layers[0],params.layers[0]);assert.equal(edited.layers[1].values.length,33);assert(edited.layers[1].sculpt.deltaMm.flat().some(v=>v>0));assert.equal(state.revision,2);
-  select.value='relief|layer:0';await select.fire('change');assert.deepEqual(viewDraft,first);dialog._onClose();
+  select.value='relief|layer:0';await select.fire('change');assert.deepEqual(viewDraft,first);
+  await elements.find(e=>e.textContent==='放弃本层修改').click();const scope=elements.find(e=>e['aria-label']==='精修范围');scope.value='local';await scope.fire('change');assert.equal(viewDraft.deltaMm.length,17);
+  await canvas.fire('pointerdown',{button:0,pointerId:1});await canvas.fire('pointerup',{pointerId:1});const actualPreview=elements.find(e=>e.textContent==='在原柱面与邻层中预览');await actualPreview.click();assert.equal(state.revision,2);assert(previewPatch.layers[0].localPatches[0].deltaMm.flat().some(v=>v>0));assert.equal(apply.disabled,false);await apply.click();assert.equal(state.revision,3);assert.equal(state.document.features[0].params.layers[0].values,undefined);assert.equal(state.document.features[0].params.layers[0].localPatches[0].id,'local-0');assert.equal(state.document.features[0].params.layers[1].values.length,33);dialog._onClose();
  }finally{globalThis.sessionStorage=oldStorage;globalThis.requestAnimationFrame=oldRAF;globalThis.cancelAnimationFrame=oldCancel;}
 });
 const source=()=>({faceId:0,widthMm:16,heightMm:16,depthMm:1,surfaceMode:'smooth',values:Array.from({length:17},()=>Array(17).fill(.5)),regions:[{outer:[[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]],holes:[[[-.4,-.4],[-.2,-.4],[-.2,-.2],[-.4,-.2]]]}]});
@@ -122,4 +125,10 @@ test('preview cubic sampling preserves flat surfaces, endpoints and control boun
  for(const count of [4,17,65])for(const t of [0,.01,.3,.99,1]){const b=cubicBasis(count,t);assert.ok(Math.abs(b.reduce((s,v)=>s+v.weight,0)-1)<1e-12);assert.ok(b.every(v=>v.weight>=0&&v.index>=0&&v.index<count));}
  const p=source(),flat=sampleReliefSurface(reliefHeights(p),21);assert.equal(flat.xs[0],-.5);assert.equal(flat.xs.at(-1),.5);assert.ok(flat.values.flat().every(v=>Math.abs(v-.5)<1e-12));
  p.values[8][8]=1;const smooth=sampleReliefSurface(reliefHeights(p),33);assert.ok(smooth.values[16][16]>.5&&smooth.values[16][16]<1);assert.ok(smooth.values.flat().every(v=>v>=.5-1e-12&&v<=1));
+});
+
+test('local-patch eyedropper rejects malformed coordinates before dereferencing the point',()=>{
+ const patch={id:'detail',domainMm:[-2,-2,2,2],deltaMm:Array.from({length:7},()=>Array(7).fill(0)),mask:Array.from({length:7},()=>Array(7).fill(0)),guardMm:.1};
+ const params={widthMm:16,heightMm:16,layers:[{heightMm:.5,localPatches:[patch]}]};
+ for(const point of [null,undefined,[0],[NaN,0],[1,0]])assert.throws(()=>sampleReliefHeight(params,point,{layerIndex:0,patchId:'detail'}),{code:'PARAM_RANGE_INVALID'});
 });

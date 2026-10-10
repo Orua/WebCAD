@@ -2,18 +2,16 @@
   "id": "setLogoConverter",
   "title": "setLogoConverter",
   "category": "page-method",
-  "version": "1.22.0",
-  "description": "setLogoConverter({context,url,key?})；URL 必须含 userid，空 key 保留原值。",
+  "version": "1.28.3",
+  "description": "改用 setServices，旧 setter 拒绝存影子配置。",
   "synonyms": [
     "setLogoConverter",
+    "旧",
     "LOGO",
-    "PDF",
-    "转换",
-    "URL",
-    "Key"
+    "设置（弃用）"
   ],
-  "inputContract": "setLogoConverter({context,url,key?})；URL 必须含 userid，空 key 保留原值。",
-  "outputContract": "status=applied、配置状态；URL/Key 保存在当前浏览器 localStorage，不进入工程。",
+  "inputContract": "改用 setServices，旧 setter 拒绝存影子配置。",
+  "outputContract": "SERVICES_MIGRATION_REQUIRED。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -24,5 +22,5 @@
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:7f7de30c497068079bcdb7ac3493898dba65980bef2b7202bcba148d8b3ee262"
+  "docsHash": "sha256:2e01f26fdeb047764ce2c92b597f2219b66ee2bb0b6367192e3234654addfaa9"
 }

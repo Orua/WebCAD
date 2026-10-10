@@ -361,6 +361,7 @@
     "placementSupported": true,
     "originUsage": "axis-plane-pivot-or-vector",
     "orientationUsage": "declared-transform-or-direction",
+    "omittedPlacement": "legacy-world",
     "legacyCoordinates": "world",
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": false,
@@ -370,5 +371,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:900ef9585a14927fa148f3f20fd84a9264a3abf30170bc841fd5a7449d63cb1b"
+  "docsHash": "sha256:f69a2e3cf735b4ccf911bfcfea30785481a92d9c183f3b4155f39c78f286d745"
 }

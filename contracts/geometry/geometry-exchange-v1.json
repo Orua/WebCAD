@@ -1,0 +1,31 @@
+{
+  "codecId": "occt-text-brep-v1",
+  "status": "accepted-translation-only",
+  "units": "mm",
+  "coordinateSystem": "world-xyz-right-handed",
+  "localSerializer": "replicad.Shape.serialize -> BRepToolsWrapper.Write",
+  "localDeserializer": "replicad.deserializeShape -> BRepToolsWrapper.Read",
+  "browserKernel": "replicad-opencascadejs@1.1.0",
+  "testedKernelPairs": [
+    {
+      "producerKernelBuildId": "native-occt@7.8.1:sha256:156207b5da408b4849c3eae5288566c1268d99c03b7ea1d9d6bad1c25fface4d",
+      "consumerKernelBuildId": "replicad-opencascadejs@1.1.0:sha256:4c9f22e9f3828dca6f3c95405934cdbe624e593c35266f47f392ab337478dbde",
+      "semanticVersion": "transform.translation-1.0",
+      "gates": "core and real page original-feature install, offline v3 reopen and subsequent local operation passed"
+    }
+  ],
+  "requiredGate": [
+    "WASM->native read",
+    "native exact small operation",
+    "native->WASM read",
+    "subsequent local operation",
+    "atomic original-feature install",
+    "v3 offline reopen"
+  ],
+  "blockers": [],
+  "neverUse": [
+    "raw TopoDS pointer",
+    "cross-revision face/edge index",
+    "display mesh as precise result"
+  ]
+}

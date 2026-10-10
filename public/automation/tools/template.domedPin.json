@@ -190,6 +190,7 @@
     "placementSupported": true,
     "originUsage": "new-object-insertion",
     "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
     "legacyCoordinates": "world",
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
@@ -216,5 +217,5 @@
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:4599ed74058c74494919b07157231168ac611096ac9477a51b400d106e40d466"
+  "docsHash": "sha256:3ab204b3e0e8e425e7707908426ebc678ccc7923793dae1e594bf27ff3679a76"
 }

@@ -2,7 +2,7 @@
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.22.0",
+  "version": "1.28.3",
   "description": "getUILayout()",
   "synonyms": [
     "getUILayout",
@@ -19,5 +19,5 @@
   "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
   "errorCodes": [],
   "docs": "api.workspace",
-  "docsHash": "sha256:dd72055432bc09b1820f4a8626cb8455565de3c491785b7f1b9a7e0d6ebf3f3f"
+  "docsHash": "sha256:5a1e485b7e00e1f74f08e930aa140d87bdbac9ce8498433011940b18208e9957"
 }

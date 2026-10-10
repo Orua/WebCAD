@@ -1,5 +1,44 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {createHostControl,installHostInteractionGuard} from '../src/host-control.js';
+
+test('host lock isolates human events, allows canvas orbit, and releases without document state',()=>{
+ let applied,changes=0;const control=createHostControl(state=>{applied=state;changes++;}),listeners=new Map(),canvas={};
+ const surface={addEventListener:(type,handler)=>listeners.set(type,handler),removeEventListener:type=>listeners.delete(type)};
+ const dispose=installHostInteractionGuard(surface,()=>control.get().locked,target=>target===canvas);
+ const dispatch=(type,target,isTrusted=true)=>{let blocked=false;listeners.get(type)({type,target,isTrusted,preventDefault(){blocked=true;},stopImmediatePropagation(){blocked=true;}});return blocked;};
+ assert.equal(dispatch('click',{}),false);
+ assert.equal(control.set({locked:true,connected:true}).pageApiWritable,true);assert.equal(applied.mouseMode,'view');
+ control.set({locked:true,connected:true});assert.equal(changes,1,'polling identical state must preserve Agent previews');
+ for(const type of ['click','pointerdown','input','change','submit','keydown','drop','dragover'])assert.equal(dispatch(type,{}),true,type);
+ assert.equal(dispatch('pointerdown',canvas),false);assert.equal(dispatch('click',canvas),false);assert.equal(dispatch('keydown',canvas),true);assert.equal(dispatch('drop',canvas),true);
+ assert.equal(dispatch('click',{},false),false,'programmatic API download links keep working');
+ assert.throws(()=>control.set({locked:'true'}),{code:'HOST_CONTROL_INVALID'});assert.throws(()=>control.set({unexpected:true}),{code:'HOST_CONTROL_INVALID'});
+ control.set({locked:false});assert.equal(control.get().connected,true);assert.equal(dispatch('click',{}),false);dispose();assert.equal(listeners.size,0);
+});
+
+test('new creation freezes current work anchor while explicit world, old edits and API writes survive the host lock',async()=>{
+ const referenceSystem=createReferenceSystem();referenceSystem.workFrame.origin=[100,50,7];referenceSystem.workFrame.frameVersion=3;
+ const s={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:1,features:[],bodies:[],kernelReady:true,busy:false,referenceSystem,hostControl:{locked:true}};
+ const commands=[];const service=createCommandService({snapshot:()=>structuredClone(s),execute:async(command,args)=>{commands.push({command,args:structuredClone(args)});if(command==='add_feature'){const f={id:'f'+commands.length,op:args.op,params:args.params,refs:args.refs,...(args.placement?{placement:args.placement,semanticsVersion:2}:{})};s.features.push(f);s.bodies.push({id:f.id});s.revision++;}else if(command==='edit_feature'){s.features.find(f=>f.id===args.featureId).params=args.params;s.revision++;}else if(command==='file_import')s.revision++;}});
+ const context=()=>({sessionId:'s',documentId:'d',documentInstanceId:'i',expectedRevision:s.revision});
+ const add=placement=>service.execute({context:context(),idempotencyKey:crypto.randomUUID(),action:'feature.add',args:{op:'box',opVersion:getOperation('box').version,schemaHash:getOperation('box').schemaHash,refs:[],params:{width:10,depth:8,height:4},...(placement?{placement}:{})}});
+ assert.equal((await add()).status,'committed');assert.deepEqual(commands[0].args.placement.frameSnapshot.origin,[100,50,7]);assert.equal(commands[0].args.placement.sourceAnchor.kind,'bottom-center');
+ s.referenceSystem.workFrame.origin=[200,0,0];s.referenceSystem.workFrame.frameVersion++;
+ assert.deepEqual(s.features[0].placement.frameSnapshot.origin,[100,50,7]);
+ assert.equal((await add({version:1,frame:{kind:'world'},sourceAnchor:{kind:'model-origin'}})).status,'committed');assert.deepEqual(commands[1].args.placement.frameSnapshot.origin,[0,0,0]);
+ s.features.push({id:'legacy',op:'box',params:{width:10,depth:8,height:4},refs:[]});s.bodies.push({id:'legacy'});
+ assert.equal((await service.execute({context:context(),idempotencyKey:'edit-legacy',action:'feature.edit',args:{featureId:'legacy',opVersion:getOperation('box').version,schemaHash:getOperation('box').schemaHash,params:{width:12}}})).status,'committed');assert.equal(Object.hasOwn(commands[2].args,'placement'),false);
+ assert.equal((await service.fileCommand({context:context(),action:'import',args:{resourceId:'source'}})).status,'committed');assert.deepEqual(commands[3].args.placement.frame,{kind:'work',expectedFrameVersion:4});
+});
+
+test('preview ownership distinguishes human tasks from Agent tasks for safe host takeover',async()=>{
+ const referenceSystem=createReferenceSystem(),s={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:1,features:[],bodies:[],kernelReady:true,busy:false,referenceSystem};let owner;
+ const service=createCommandService({snapshot:()=>structuredClone(s),execute:async(_command,args)=>{owner=args.previewIdentity.owner;s.preview=true;s.previewInfo=args.previewIdentity;}});
+ const input=key=>({context:{sessionId:'s',documentId:'d',documentInstanceId:'i',expectedRevision:1},idempotencyKey:key,action:'preview.start',args:{op:'box',opVersion:getOperation('box').version,schemaHash:getOperation('box').schemaHash,refs:[],params:{width:4,depth:3,height:2}}});
+ assert.equal((await service.execute(input('human'),{fromUI:true})).status,'previewing');assert.equal(owner,'ui');s.preview=false;s.previewInfo=null;
+ assert.equal((await service.execute(input('agent'))).status,'previewing');assert.equal(owner,'api');
+});
 import { createCommandService } from '../src/command-service.js';
 import { getOperation } from '../src/operation-registry.js';
 import { EDITOR_ACTIONS, validateEditorAction } from '../src/editor-actions.js';
@@ -7,7 +46,7 @@ import { createReferenceSystem } from '../src/work-frame.js';
 
 test('editor contracts reject invalid colors/materials/references and preserve exact intent',()=>{
  const state={bodies:[{id:'b',solidCount:2}],features:[{id:'f'}]};
- const valid={ 'body.align':{bodyIds:['b'],target:{kind:'origin'}},'history.restore':{stateId:'saved-state'},'document.rename':{name:'设计'},'feature.rename':{featureId:'f',name:'导入体'},'body.visibility':{bodyIds:['b'],visible:false},'body.appearance':{bodyIds:['b'],color:'#123abc',finish:'design'},'document.appearance':{finish:'nickel'},'body.explode':{bodyId:'b'}};
+ const valid={ 'feature.compileServices':{featureId:'f',allowUpload:true},'body.align':{bodyIds:['b'],target:{kind:'origin'}},'history.restore':{stateId:'saved-state'},'document.rename':{name:'设计'},'feature.rename':{featureId:'f',name:'导入体'},'body.visibility':{bodyIds:['b'],visible:false},'body.appearance':{bodyIds:['b'],color:'#123abc',finish:'design'},'document.appearance':{finish:'nickel'},'body.explode':{bodyId:'b'}};
  for(const id of Object.keys(EDITOR_ACTIONS))assert.deepEqual(validateEditorAction(id,valid[id],state).args.values,valid[id]);
  for(const a of [{bodyIds:['b'],color:'red'},{bodyIds:['b'],color:'#123456',extra:1},{bodyIds:['wrong'],color:'#123456'},{bodyIds:['b','b'],finish:'design'},{bodyIds:['b'],finish:'fake'},{bodyIds:[]}])assert.throws(()=>validateEditorAction('body.appearance',a,state));
  assert.deepEqual(validateEditorAction('body.appearance',{bodyIds:['b'],color:null,finish:null},state).args.values,{bodyIds:['b'],color:null,finish:null});
@@ -171,4 +210,13 @@ test('named body anchors are verified metadata with versioned update and deletio
 });
 test('state excludes imported file bytes and explicitly reports memory persistence',()=>{
  const t=setup();t.state.imports={key:{data:'secret bytes'}};const result=t.service.getState({sessionId:'s'});assert.equal(result.status,'read');assert(!JSON.stringify(result).includes('secret bytes'));assert.equal(result.persistence.level,'memory');
+});
+
+test('existing-feature previews preserve identity and revision through update, cancel and one commit',async()=>{
+ const original={id:'original',op:'box',params:{width:10,depth:8,height:3},refs:[]},state={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:1,features:[original],bodies:[{id:'original'}],kernelReady:true,busy:false,preview:false,referenceSystem:createReferenceSystem()},calls=[];
+ const service=createCommandService({snapshot:()=>structuredClone(state),execute:async(command,args)=>{calls.push(command);if(command==='preview_feature_edit'||command==='preview_feature_edit_update'){state.preview=true;state.previewInfo=args.previewIdentity;state.previewDraft={...original,params:args.params};}else if(command==='preview.cancel'){state.preview=false;state.previewInfo=null;state.previewDraft=null;}else if(command==='preview.commit'){state.features=[state.previewDraft];state.revision++;state.preview=false;state.previewInfo=null;state.previewDraft=null;}else throw Error('Unexpected preview dispatch');}}),context=()=>({sessionId:'s',documentId:'d',documentInstanceId:'i',expectedRevision:state.revision});
+ const start=await service.execute({context:context(),idempotencyKey:'edit-preview',action:'preview.start',args:{featureEdit:{featureId:'original',params:{width:11}}}});assert.equal(start.status,'previewing',JSON.stringify(start));assert.equal(state.features[0].params.width,10);assert.equal(state.revision,1);assert.equal(state.previewDraft.id,'original');
+ const update=await service.execute({context:context(),idempotencyKey:'edit-update',action:'preview.update',args:{previewId:start.preview.previewId,expectedGeneration:1,patch:{params:{width:12}}}});assert.equal(update.status,'previewing',JSON.stringify(update));assert.equal(state.previewDraft.params.width,12);assert.equal(state.revision,1);
+ await service.execute({context:context(),idempotencyKey:'edit-cancel',action:'preview.cancel',args:{previewId:start.preview.previewId,expectedGeneration:2}});assert.equal(state.features[0].params.width,10);assert.equal(state.revision,1);
+ const again=await service.execute({context:context(),idempotencyKey:'edit-again',action:'preview.start',args:{featureEdit:{featureId:'original',params:{width:13}}}});const commit=await service.execute({context:context(),idempotencyKey:'edit-commit',action:'preview.commit',args:{previewId:again.preview.previewId,expectedGeneration:1}});assert.equal(commit.status,'committed',JSON.stringify(commit));assert.equal(state.revision,2);assert.equal(state.features.length,1);assert.equal(state.features[0].id,'original');assert.equal(state.features[0].params.width,13);assert(calls.includes('preview_feature_edit_update'));
 });

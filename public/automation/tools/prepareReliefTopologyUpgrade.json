@@ -1,0 +1,32 @@
+{
+  "id": "prepareReliefTopologyUpgrade",
+  "title": "prepareReliefTopologyUpgrade",
+  "category": "page-method",
+  "version": "1.28.3",
+  "description": "prepareReliefTopologyUpgrade({context,featureId,maskStrategy?:\"faceWithHolesExtrude\"|\"cutHoleSolids\"})。只读规划，不计算几何；原参数没有策略时必须明确选定。",
+  "synonyms": [
+    "prepareReliefTopologyUpgrade",
+    "浮雕",
+    "轮廓保护",
+    "显式升级",
+    "preserveTopology",
+    "遮罩策略"
+  ],
+  "inputContract": "prepareReliefTopologyUpgrade({context,featureId,maskStrategy?:\"faceWithHolesExtrude\"|\"cutHoleSolids\"})。只读规划，不计算几何；原参数没有策略时必须明确选定。",
+  "outputContract": "返回 params、receipt、canCommit、blockers 和 context。receipt 显示两个策略字段差异、原本两端默认策略、尺寸/公差保持、源 spline 偏差 unknown、原/候选参数和配方指纹及失效要求。仅 canCommit 后用同修订 feature.edit 明确应用完整 params；不得自动迁移或将升级宣称为整件修复。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "RELIEF_UPGRADE_STRATEGY_REQUIRED",
+    "STALE_REFERENCE",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "PARAM_SCHEMA_INVALID",
+    "UNSAFE_LEGACY_REFERENCE",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docs": "api.relief",
+  "docsHash": "sha256:f27d3524ce32d8ccf874d77796c27c835bfe0f5f6704621b3a0b7f839add00af"
+}

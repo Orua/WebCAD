@@ -1,0 +1,21 @@
+{
+  "id": "getServices",
+  "title": "getServices",
+  "category": "page-method",
+  "version": "1.28.3",
+  "description": "getServices()；地址与模式存本地，专用授权仅存本标签会话，不进入工程。",
+  "synonyms": [
+    "getServices",
+    "Services",
+    "唯一服务",
+    "配置",
+    "授权"
+  ],
+  "inputContract": "getServices()；地址与模式存本地，专用授权仅存本标签会话，不进入工程。",
+  "outputContract": "configured、enabled、url、computeMode、hasCredential、migrationRequired；不回显 Token。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:73388568c343611e175404e3c21e097be1b25edff6861562f51177d336c7edf8"
+}

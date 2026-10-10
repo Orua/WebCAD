@@ -1,0 +1,14 @@
+{
+  "type": "webcad-logo",
+  "version": 1,
+  "units": "mm",
+  "name": "sample-ring",
+  "sizeMm": [20, 12],
+  "source": { "kind": "synthetic-fixture" },
+  "regions": [
+    {
+      "outer": [[-10,-6],[10,-6],[10,6],[-10,6]],
+      "holes": [[[-6,-3],[-6,3],[6,3],[6,-3]]]
+    }
+  ]
+}

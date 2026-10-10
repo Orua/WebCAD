@@ -290,6 +290,7 @@
     "placementSupported": true,
     "originUsage": "new-object-insertion",
     "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
     "legacyCoordinates": "world",
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
@@ -322,5 +323,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:e2562ed83d3d7bc7314314f3464d77491ab1fb38211720bbd9719375615b13a1"
+  "docsHash": "sha256:b293967fb960624bbc8f11c6e20626dc5904de1cf21184265ad49548a27977a8"
 }

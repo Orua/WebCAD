@@ -47,6 +47,12 @@ export function rotateVector(q,v){
 }
 export function worldPoint(frame,local){const r=rotateVector(frame.quaternion,local);return r.map((v,i)=>v+frame.origin[i]);}
 export function localPoint(frame,world){return rotateVector(frame.quaternion.slice(0,3).map(v=>-v).concat(frame.quaternion[3]),world.map((v,i)=>v-frame.origin[i]));}
+// Only a newly appended independent feature gets this default. Old recipes and
+// edits continue to resolve their stored placement (or legacy world coordinates).
+export function newFeaturePlacement(placement,system,op){
+  if(placement!==undefined||placementPolicy(op)!=='C'||!system?.workFrame)return placement;
+  return {version:1,frame:{kind:'work',expectedFrameVersion:system.workFrame.frameVersion},sourceAnchor:{kind:op==='box'?'bottom-center':'model-origin'}};
+}
 export function resolvePlacement(placement,system,op,params={}){
   if(placement===undefined)return undefined;
   const policy=placementPolicy(op);

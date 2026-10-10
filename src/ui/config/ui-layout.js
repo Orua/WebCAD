@@ -12,7 +12,7 @@ const tabs = [
   {id:'finish',label:'修饰',groups:[['圆角与过渡',['round','chamfer','autoRound','smoothTransition','fillet','roundEnd','rounding'],{overflowActions:['autoRound','smoothTransition','fillet','roundEnd','rounding']}],['壳与偏置',['shell','offsetSolid']],['实体整理',['refineShape']],['拔模',['draftFaces','draftByPlane']]]},
   {id:'inspect',label:'检查',groups:[['测量',['measure','measureRelation']],['几何检查',['inspectThickness','inspectFit','inspectDraft','inspectPrintability']],['出图与记录',['quickDrawing','screenshot']]]},
   {id:'view',label:'视图',groups:[['剖切查看',['section']]],controls:['directions','projection','display','assists','quality']},
-  {id:'settings',label:'设置',groups:[['交互',['precisionSettings','snapSettings']],['外观',['themeSettings','displayPreferences','languageSettings']],['工程',['parameters']],['导入设置',['logoConverterSettings']],['AGENT',['agentGuide']]]},
+  {id:'settings',label:'设置',groups:[['交互',['precisionSettings','snapSettings']],['外观',['themeSettings','displayPreferences','languageSettings']],['工程',['parameters']],['导入设置',['servicesSettings']],['AGENT',['agentGuide']]]},
 ];
 const controls={
   directions:{label:'标准视角',action:'view',key:'direction',items:[['等轴','iso'],['前视','front'],['后视','back'],['俯视','top'],['仰视','bottom'],['左视','left'],['右视','right']]},
@@ -22,11 +22,11 @@ const controls={
   quality:{label:'显示精度 · 不改变精确几何',action:'renderQuality',key:'quality',setting:'quality',items:[['草稿','draft'],['标准','standard'],['精细','fine'],['高精','ultra']]},
 };
 function freeze(value){if(value&&typeof value==='object'){Object.values(value).forEach(freeze);Object.freeze(value);}return value;}
-export const UI_LAYOUT=freeze({version:5,defaultTab:'create',panels:{left:232,right:320},shortLabels:{pathEdit:'编辑路径',pathTrim:'修剪',pathExtend:'延伸',pathFillet:'二维圆角',pathTrimCircle:'整圆裁剪',vectorImport:'矢量取线成面',themeSettings:'风格',precisionSettings:'精度',snapSettings:'吸附',displayPreferences:'渲染设置',logoConverterSettings:'LOGO转化',languageSettings:'语言',parameters:'参数',agentGuide:'AGENT',revolve:'旋转成型',sketchProfile:'轮廓',sketch:'草图拉伸',arcProfile:'线弧拉伸',profileOffset:'等距偏移',profileRepair:'轮廓修复',profileExtrude:'轮廓加工',multiHole:'多点打孔',multiPocket:'批量凹槽',multiBoss:'批量凸台',smoothTransition:'平滑过渡',autoRound:'整件圆边',draftFaces:'拔模',measureRelation:'关系测量',inspectFit:'干涉间隙',inspectThickness:'壁厚',inspectDraft:'拔模检查',inspectPrintability:'成型检查',planeSection:'提取截面',faceBoundary:'提取边界',referenceExtrude:'轮廓拉伸',referenceLoft:'截面放样',advancedLoft:'高级放样',fittedSurface:'拟合曲面',extractFaces:'提取面',surfaceTrim:'曲面修剪',transparentEdges:'透视边线',edges:'实体边线'},ribbon:{visibleActions:3,minOverflow:2,overflowLabel:'更多 ▾',overflowMenuWidth:210},tabs,controls,
+export const UI_LAYOUT=freeze({version:5,defaultTab:'edit',panels:{left:232,right:320},shortLabels:{pathEdit:'编辑路径',pathTrim:'修剪',pathExtend:'延伸',pathFillet:'二维圆角',pathTrimCircle:'整圆裁剪',vectorImport:'矢量取线成面',themeSettings:'风格',precisionSettings:'精度',snapSettings:'吸附',displayPreferences:'渲染设置',servicesSettings:'Services',languageSettings:'语言',parameters:'参数',agentGuide:'AGENT',revolve:'旋转成型',sketchProfile:'轮廓',sketch:'草图拉伸',arcProfile:'线弧拉伸',profileOffset:'等距偏移',profileRepair:'轮廓修复',profileExtrude:'轮廓加工',multiHole:'多点打孔',multiPocket:'批量凹槽',multiBoss:'批量凸台',smoothTransition:'平滑过渡',autoRound:'整件圆边',draftFaces:'拔模',measureRelation:'关系测量',inspectFit:'干涉间隙',inspectThickness:'壁厚',inspectDraft:'拔模检查',inspectPrintability:'成型检查',planeSection:'提取截面',faceBoundary:'提取边界',referenceExtrude:'轮廓拉伸',referenceLoft:'截面放样',advancedLoft:'高级放样',fittedSurface:'拟合曲面',extractFaces:'提取面',surfaceTrim:'曲面修剪',transparentEdges:'透视边线',edges:'实体边线'},ribbon:{visibleActions:3,minOverflow:2,overflowLabel:'更多 ▾',overflowMenuWidth:210},tabs,controls,
   viewportActions:[{action:'gizmoRotate',label:'鼠标旋转'},{action:'gizmoTranslate',label:'鼠标移动'}],
   icons:{
     relief:['M3 19h18 M3 15c3 0 3-10 6-10s3 8 6 8 3-5 6-5 M3 15v4 M21 8v11 M3 10c3 0 3-7 6-7s3 6 6 6 3-3 6-3'],
-    ...ACTION_ICONS,refineShape:['M4 4h16v16H4Z M9 4v5 M9 15v5 M15 4v5 M15 15v5 M9 12h6'],quickDrawing:['M3 3h18v18H3Z M3 12h18 M12 3v18 M6 6h3v3H6Z M15 6h3v3h-3Z M6 15h3v3H6Z'],alignTool:ACTION_ICONS.gizmoTranslate,round:ACTION_ICONS.fillet,roundEnd:ACTION_ICONS.fillet,rounding:ACTION_ICONS.fillet,logoConverterSettings:ACTION_ICONS.logo,precisionSettings:ACTION_ICONS.measure,
+    ...ACTION_ICONS,refineShape:['M4 4h16v16H4Z M9 4v5 M9 15v5 M15 4v5 M15 15v5 M9 12h6'],quickDrawing:['M3 3h18v18H3Z M3 12h18 M12 3v18 M6 6h3v3H6Z M15 6h3v3h-3Z M6 15h3v3H6Z'],alignTool:ACTION_ICONS.gizmoTranslate,round:ACTION_ICONS.fillet,roundEnd:ACTION_ICONS.fillet,rounding:ACTION_ICONS.fillet,servicesSettings:ACTION_ICONS.logo,precisionSettings:ACTION_ICONS.measure,
     helix:ACTION_ICONS.curveSweep,coil:ACTION_ICONS.curveSweep,thread:ACTION_ICONS.holeWizard,offsetSolid:ACTION_ICONS.box,offsetSurface:ACTION_ICONS.thickenFace,draftByPlane:ACTION_ICONS.draftFaces,profileConstraints:ACTION_ICONS.measure,
     moveTool:ACTION_ICONS.gizmoTranslate,rotateTool:ACTION_ICONS.gizmoRotate,
     copySelection:ACTION_ICONS.copy,pasteSelection:['M9 4H5v18h14V4h-4 M9 2h6v5H9Z M8 11h8 M8 15h8'],
@@ -42,6 +42,7 @@ export const UI_LAYOUT=freeze({version:5,defaultTab:'create',panels:{left:232,ri
     parameters:['M3 4h18v16H3Z M3 10h18 M9 4v16 M15 10v10'],
     help:['M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20 M9 8a3 3 0 1 1 5 2c-2 1-2 2-2 4 M12 17h.01'],
     displayPreferences:['M4 5h16 M4 12h16 M4 19h16 M8 2v6 M16 9v6 M10 16v6'],
+    reliefSculpt:['M3 18h18 M4 14l4-7 4 5 4-8 4 10 M6 18v3 M18 18v3'],
   },
   header:[{action:'save',label:'保存'},{action:'commandSearch',label:'搜索命令'},{action:'help',label:'帮助'}],
   fileMenu:[{action:'new',label:'新建工程'},{action:'open',label:'打开工程或模型'},{action:'importAtFrame',label:'插入模型'},{action:'save',label:'保存工程'},{action:'export',label:'导出模型'}],

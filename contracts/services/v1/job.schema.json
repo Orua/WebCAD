@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:webcad:services:job:1",
+  "type": "object",
+  "required": ["jobId", "execution", "inputFingerprint", "createdAt", "cancelRequested", "observation", "commit", "error"],
+  "additionalProperties": false,
+  "properties": {
+    "jobId": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+    "execution": {"enum": ["queued", "running", "succeeded", "failed", "cancelled", "terminated", "interrupted"]},
+    "inputFingerprint": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "createdAt": {"type": "string"},
+    "cancelRequested": {"type": "boolean"},
+    "observation": {"const": "known"},
+    "commit": {"const": "notCommitted"},
+    "error": {"type": ["object", "null"]},
+    "recovery": {"type":"object","additionalProperties":false,"required":["supersedesJobId","reason","attempt"],"properties":{"supersedesJobId":{"type":"string","pattern":"^[a-f0-9]{32}$"},"reason":{"type":"string","minLength":1,"maxLength":240},"attempt":{"const":1}}},
+    "requestKey": {"type":"string","minLength":1,"maxLength":160},
+    "computeCacheHit": {"type":"boolean"},
+    "requestBinding": {"type":["object","null"],"additionalProperties":false,"required":["requestId","documentId","documentInstanceId","expectedRevision","featureId","operation","semanticVersion","recipeFingerprint","sourceSha256"],"properties":{"requestId":{"type":"string"},"documentId":{"type":"string"},"documentInstanceId":{"type":"string"},"expectedRevision":{"type":"integer","minimum":1},"featureId":{"type":"string"},"operation":{"type":"string"},"semanticVersion":{"type":"string"},"recipeFingerprint":{"type":"string"},"sourceSha256":{"type":"string","pattern":"^[a-f0-9]{64}$"}}}
+  }
+}

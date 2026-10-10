@@ -14,7 +14,7 @@ const say=(zh,en)=>getLanguage()==='en'?en:zh;
 const COLORS = [0xaac4d9, 0xc5b395, 0x91bdb1, 0xb3a6c8, 0x9db5c6, 0xc39e9e];
 export class CADViewport {
   constructor(host, callbacks = {}) {
-    this.host=host; this.callbacks=callbacks; this.objects=new Map(); this.selected=[]; this.selectionMode='body'; this.mode='edges'; this.hidden=[]; this.temporaryDisplay='normal';
+    this.host=host; this.callbacks=callbacks; this.objects=new Map(); this.selected=[]; this.selectionMode='view'; this.mode='edges'; this.hidden=[]; this.temporaryDisplay='normal';
     this.scene=new THREE.Scene(); this.scene.background=new THREE.Color('#eef1f5');
     this.camera=new THREE.PerspectiveCamera(35,1,0.01,100000); this.camera.up.set(0,0,1); this.camera.position.set(90,-110,85);
     this.renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true}); this.renderer.setPixelRatio(Math.min(window.devicePixelRatio,2)); this.renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -76,7 +76,7 @@ export class CADViewport {
   }
   setWorkFrame(frame){if(!frame)return;this.anchorProxy.position.fromArray(frame.origin);this.anchorProxy.quaternion.fromArray(frame.quaternion);this.anchorVisual.position.copy(this.anchorProxy.position);this.anchorVisual.quaternion.copy(this.anchorProxy.quaternion);if(frame.locked)this.setAnchorDrag(false);}
   setAnchorVisible(visible){this.anchorVisible=!!visible;this.anchorMarker.hidden=!this.anchorVisible;localStorage.setItem('webcad.anchorVisible',String(this.anchorVisible));}
-  setAnchorDrag(enabled){this.setModelingPrecision();this.anchorDragEnabled=!!enabled;this.anchorGizmoHelper.visible=this.anchorDragEnabled;if(this.anchorDragEnabled){this.setGizmo('off');this.anchorGizmo.attach(this.anchorProxy);}else{this.anchorGizmo.detach();this.controls.enabled=true;}}
+  setAnchorDrag(enabled){this.setModelingPrecision();this.anchorDragEnabled=!!enabled&&!this.interactionLocked;this.anchorGizmoHelper.visible=this.anchorDragEnabled;if(this.anchorDragEnabled){this.setGizmo('off');this.anchorGizmo.attach(this.anchorProxy);}else{this.anchorGizmo.detach();this.controls.enabled=true;}}
   cancelAnchorDrag(){if(this.anchorStart){this.anchorProxy.position.copy(this.anchorStart);this.anchorVisual.position.copy(this.anchorStart);this.anchorStart=null;}this.snapCandidates=[];this.setAnchorDrag(false);}
   setBodies(bodies,hidden=[]){this.clearRoundGuide();
     this.clearScopeOverlay();
@@ -117,7 +117,12 @@ export class CADViewport {
     if(topology?.type==='face'){const entry=this.objects.get(topology.bodyId);if(entry&&!this.hidden.includes(topology.bodyId)){const indices=[];for(const g of entry.body.faceGroups||[])if(topology.ids.includes(g.faceId))for(let i=g.start;i<g.start+g.count;i++)indices.push(entry.body.indices[i]);if(indices.length){const geo=new THREE.BufferGeometry();geo.setAttribute('position',entry.mesh.geometry.getAttribute('position').clone());geo.setIndex(indices);this.faceOverlay=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xf7ac50,transparent:true,opacity:.48,side:THREE.DoubleSide,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}));this.modelRoot.add(this.faceOverlay);}}}
     this.applyTemporaryDisplay();this.applyClipping();this.syncGizmo();
   }
-  setSelectionMode(mode){this.selectionMode=mode;this.setDisplay(this.mode);this.updateHud();}
+  setSelectionMode(mode){this.selectionMode=this.interactionLocked?'view':mode;this.setDisplay(this.mode);this.updateHud();}
+  setInteractionLocked(locked){
+    const changed=this.interactionLocked!==!!locked;this.interactionLocked=!!locked;
+    if(locked&&changed){this.cancelAnchorDrag();this.setGizmo('off');this.cancelTask();this.setSelectionMode('view');this.disposeRectangleSelection?.();this.disposeRectangleSelection=installRectangleSelection(this);this.down=null;this.controls.enabled=true;}
+    this.gizmo.enabled=!locked&&!this.busy&&!this.transformPending;this.anchorGizmo.enabled=!locked;
+  }
   viewFrame(frame){const previous={position:this.camera.position.toArray(),up:this.camera.up.toArray(),target:this.controls.target.toArray()},q=new THREE.Quaternion(...frame.quaternion),origin=new THREE.Vector3(...frame.origin),normal=new THREE.Vector3(0,0,1).applyQuaternion(q),distance=Math.max(this.camera.position.distanceTo(this.controls.target),20);this.camera.up.copy(new THREE.Vector3(0,1,0).applyQuaternion(q));this.controls.target.copy(origin);this.camera.position.copy(origin).addScaledVector(normal,distance);this.controls.update();return previous;}
   restoreFrameView(previous){this.camera.position.fromArray(previous.position);this.camera.up.fromArray(previous.up);this.controls.target.fromArray(previous.target);this.controls.update();}
   setMetalFinish(key){
@@ -138,9 +143,9 @@ export class CADViewport {
     return METAL_FINISHES[key].label;
   }
   setPartMetal(ids,key){if(!METAL_FINISHES[key])throw new Error('Unknown material');for(const id of ids)this.partFinishes={...this.partFinishes,[id]:key};this.setMetalFinish(this.finishKey);}
-  setBusy(value){this.busy=value;this.gizmo.enabled=!value&&!this.transformPending;}
+  setBusy(value){this.busy=value;this.gizmo.enabled=!this.interactionLocked&&!value&&!this.transformPending;}
   setModelingPrecision(){const mm=this.displayPreferences?.dimensionPrecisionMm??0.01,deg=this.displayPreferences?.anglePrecisionDeg??0.1;this.gizmo.setTranslationSnap(mm);this.gizmo.setRotationSnap(THREE.MathUtils.degToRad(deg));this.anchorGizmo.setTranslationSnap(mm);}
-  setGizmo(mode){this.setModelingPrecision();if(!['off','translate','rotate'].includes(mode))throw new Error('Invalid transform mode');if(mode==='off')this.cancelTransform();this.cancelTask();this.gizmoMode=mode;this.syncGizmo();this.updateHud();}
+  setGizmo(mode){this.setModelingPrecision();if(!['off','translate','rotate'].includes(mode))throw new Error('Invalid transform mode');if(this.interactionLocked)mode='off';if(mode==='off')this.cancelTransform();this.cancelTask();this.gizmoMode=mode;this.syncGizmo();this.updateHud();}
   beginTransform(){
     if(!this.getTransformState().canDrag)return;
     const bodyId=this.selected[0];this.transformGesture={bodyId,context:this.callbacks.onTransformStart?.(bodyId)};
@@ -172,12 +177,12 @@ export class CADViewport {
   }
   async finishAnchorDrag(){
     const start=this.anchorStart,axis=this.anchorAxis;if(!start)return;this.anchorStart=null;this.anchorAxis=null;this.controls.enabled=false;this.anchorGizmo.enabled=false;
-    try{const snap=await snapReleasedDrag(this,{pointWorld:this.anchorProxy.position.toArray(),axis,skip:this.anchorSkipSnap});if(snap){this.anchorProxy.position.add(new THREE.Vector3(...snap.delta));this.anchorVisual.position.copy(this.anchorProxy.position);}if(start.distanceTo(this.anchorProxy.position)>1e-8){await this.callbacks.onWorkFrameMove?.(this.anchorProxy.position.toArray());if(snap)this.skipAnchorSnap=true;}}catch(error){this.anchorProxy.position.copy(start);this.anchorVisual.position.copy(start);this.callbacks.onTransformError?.(error);}finally{this.controls.enabled=true;this.anchorGizmo.enabled=true;}
+    try{const snap=await snapReleasedDrag(this,{pointWorld:this.anchorProxy.position.toArray(),axis,skip:this.anchorSkipSnap});if(snap){this.anchorProxy.position.add(new THREE.Vector3(...snap.delta));this.anchorVisual.position.copy(this.anchorProxy.position);}if(start.distanceTo(this.anchorProxy.position)>1e-8){await this.callbacks.onWorkFrameMove?.(this.anchorProxy.position.toArray());if(snap)this.skipAnchorSnap=true;}}catch(error){this.anchorProxy.position.copy(start);this.anchorVisual.position.copy(start);this.callbacks.onTransformError?.(error);}finally{this.controls.enabled=true;this.anchorGizmo.enabled=!this.interactionLocked;}
   }
   async finishTransform(){
     if(!this.draggingGizmo)return;this.draggingGizmo=false;this.suppressPickUntil=Date.now()+150;
     const gesture=this.transformGesture||{bodyId:this.selected[0]},sourceId=gesture.bodyId,center=this.gizmoOrigin.clone(),position=this.gizmoProxy.position.clone(),quaternion=this.gizmoProxy.quaternion.clone();this.transformPending=true;this.gizmo.enabled=false;let snapped=false;
-    try{if(this.gizmoMode==='translate'){const delta=position.clone().sub(center);if(delta.length()>1e-8){const snap=await snapReleasedDrag(this,{bodyId:sourceId,translation:delta.toArray(),axis:this.dragAxis,skip:this.dragSkipSnap});if(snap){position.add(new THREE.Vector3(...snap.delta));this.gizmoProxy.position.copy(position);snapped=true;}}}}catch(error){this.callbacks.onTransformError?.(error);this.transformPending=false;this.transformGesture=null;this.gizmo.enabled=!this.busy;const failed=this.objects.get(sourceId);if(failed){failed.root.matrixAutoUpdate=true;failed.root.matrix.identity();failed.root.updateMatrix();}this.syncGizmo();return;}
+    try{if(this.gizmoMode==='translate'){const delta=position.clone().sub(center);if(delta.length()>1e-8){const snap=await snapReleasedDrag(this,{bodyId:sourceId,translation:delta.toArray(),axis:this.dragAxis,skip:this.dragSkipSnap});if(snap){position.add(new THREE.Vector3(...snap.delta));this.gizmoProxy.position.copy(position);snapped=true;}}}}catch(error){this.callbacks.onTransformError?.(error);this.transformPending=false;this.transformGesture=null;this.gizmo.enabled=!this.interactionLocked&&!this.busy;const failed=this.objects.get(sourceId);if(failed){failed.root.matrixAutoUpdate=true;failed.root.matrix.identity();failed.root.updateMatrix();}this.syncGizmo();return;}
     const euler=new THREE.Euler().setFromQuaternion(quaternion,'ZYX');
     const shift=position.sub(center.clone().applyQuaternion(quaternion));
     const params={x:shift.x,y:shift.y,z:shift.z,rx:THREE.MathUtils.radToDeg(euler.x),ry:THREE.MathUtils.radToDeg(euler.y),rz:THREE.MathUtils.radToDeg(euler.z)};
@@ -191,7 +196,7 @@ export class CADViewport {
     }catch(error){this.callbacks.onTransformError?.(error);}
     finally{
       if(entry&&this.objects.get(entry.body.id)===entry){entry.root.matrixAutoUpdate=true;entry.root.matrix.identity();entry.root.updateMatrix();}
-      this.transformPending=false;this.transformGesture=null;this.gizmo.enabled=!this.busy;this.syncGizmo();
+      this.transformPending=false;this.transformGesture=null;this.gizmo.enabled=!this.interactionLocked&&!this.busy;this.syncGizmo();
     }
   }
   applyClipping(){this.modelRoot.traverse(object=>{if(object.material){for(const material of [object.material].flat()){material.clippingPlanes=this.clipPlanes;material.needsUpdate=true;}}});}
@@ -237,6 +242,7 @@ export class CADViewport {
   sketchCoordinates(ray){const frame=this.sketch.frameSnapshot,q=new THREE.Quaternion(...frame.quaternion),origin=new THREE.Vector3(...frame.origin),normal=new THREE.Vector3(0,0,1).applyQuaternion(q),world=ray.ray.intersectPlane(new THREE.Plane().setFromNormalAndCoplanarPoint(normal,origin),new THREE.Vector3());if(!world)return null;const local=world.sub(origin).applyQuaternion(q.invert());return [local.x,local.y];}
   sketchWorldPoint(point){const frame=this.sketch.frameSnapshot;return new THREE.Vector3(point[0],point[1],0.04).applyQuaternion(new THREE.Quaternion(...frame.quaternion)).add(new THREE.Vector3(...frame.origin));}
   pick(e){
+    if(this.interactionLocked)return;
     const ray=this.ray(e);
     if(this.sketch){const p=this.sketchCoordinates(ray);if(p){
       const snap=Math.max(.01,Number(this.overlay.querySelector('[name=snap]').value)||1);let point=this.sketch.snap?[Math.round(p[0]/snap)*snap,Math.round(p[1]/snap)*snap]:p;
@@ -246,6 +252,7 @@ export class CADViewport {
     }return;}
     const hits=ray.intersectObjects([...this.objects.values()].filter(v=>v.root.visible).map(v=>v.mesh),false).filter(hit=>this.isVisiblePoint(hit.point));
     if(this.measuring){const point=this.snapPoint(e,hits[0]?.point);if(point)this.addMeasure(point);return;}
+    if(this.selectionMode==='view')return;
     if(e.altKey){const type=this.selectionMode,raw=type==='edge'?ray.intersectObjects([...this.objects.values()].filter(v=>v.root.visible).flatMap(v=>v.edges.children),false).filter(hit=>this.isVisiblePoint(hit.point)):hits,seen=new Set(),candidates=[];for(const hit of raw){const id=hit.object.userData.bodyId,topologyId=type==='edge'?hit.object.userData.edgeId:type==='face'?hit.object.userData.body.faceGroups?.find(group=>hit.faceIndex*3>=group.start&&hit.faceIndex*3<group.start+group.count)?.faceId:undefined,key=`${id}:${type}:${topologyId}`;if(!id||seen.has(key)||type!=='body'&&topologyId===undefined)continue;seen.add(key);candidates.push({id,type,topologyId,point:hit.point.toArray(),distance:hit.distance});if(candidates.length===50)break;}this.callbacks.onPickCandidates?.(candidates);return;}
     let hit=hits[0],type=this.selectionMode,topologyId;
     if(type==='body'){
@@ -276,7 +283,7 @@ export class CADViewport {
   setProjection(mode){const old=this.camera,aspect=old.aspect||1;if((mode==='orthographic')===!!old.isOrthographicCamera)return;const cam=mode==='orthographic'?new THREE.OrthographicCamera(-50,50,50,-50,.01,100000):new THREE.PerspectiveCamera(35,aspect,.01,100000);cam.aspect=aspect;cam.position.copy(old.position);cam.up.copy(old.up);cam.quaternion.copy(old.quaternion);this.camera=cam;this.gizmo.camera=cam;this.anchorGizmo.camera=cam;this.controls.object=cam;this.controls.update();this.fit();}
   view(direction='iso'){const vectors={iso:[1,-1,.85],front:[0,-1,0],back:[0,1,0],top:[0,0,1],bottom:[0,0,-1],left:[-1,0,0],right:[1,0,0]};const distance=this.camera.position.distanceTo(this.controls.target);this.camera.up.set(0,0,1);if(direction==='top'||direction==='bottom')this.camera.up.set(0,1,0);this.camera.position.copy(this.controls.target).addScaledVector(new THREE.Vector3(...(vectors[direction]||vectors.iso)).normalize(),distance);this.controls.update();this.fit();}
   updateLanguage(){this.updateHud();this.renderer.domElement.setAttribute('aria-label',say('三维建模视口','3D modeling viewport'));if(this.measuring)this.startMeasure();if(this.sketch)this.startSketch({...this.sketch});}
-  updateHud(){if(!this.sketch)this.hud.textContent=`${[...this.objects.values()].filter(v=>v.root.visible).length} ${say('个可见实体','visible bodies')} · ${this.selectionMode==='edge'?say('选边','Edge'):this.selectionMode==='face'?say('选面','Face'):say('选实体','Body')}`;}
+  updateHud(){if(!this.sketch)this.hud.textContent=`${[...this.objects.values()].filter(v=>v.root.visible).length} ${say('个可见实体','visible bodies')} · ${this.selectionMode==='view'?say('查看','View'):this.selectionMode==='edge'?say('选边','Edge'):this.selectionMode==='face'?say('选面','Face'):say('选实体','Body')}`;}
   startMeasure(){this.cancelTask();this.measuring=[];this.callbacks.onInteraction?.('measure');this.overlay.style.display='block';this.overlay.innerHTML=`<strong>${say('两点测距','Point distance')}</strong><p>${say('点击两个位置，靠近端点/中点/圆心时吸附。选边或面后点测量可测精确几何。','Click two points. Snap to endpoints, midpoints and circle centers. Select an edge or face for exact geometry measures.')}</p><div data-measure>${say('请选择第一个点','Select first point')}</div><button type="button" data-cancel>${say('结束测量','Finish')}</button>`;this.overlay.querySelector('[data-cancel]').onclick=()=>this.cancelTask();}
   addMeasure(point){if(this.measuring.length===2){this.clearGuides();this.measuring=[];}this.measuring.push(point.clone());const dot=new THREE.Mesh(new THREE.SphereGeometry(this.span*.009,12,8),new THREE.MeshBasicMaterial({color:0xe88423,depthTest:false}));dot.position.copy(point);this.guideRoot.add(dot);if(this.measuring.length===2){const [a,b]=this.measuring,delta=b.clone().sub(a),d=a.distanceTo(b);this.guideRoot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([a,b]),new THREE.LineBasicMaterial({color:0xe88423,depthTest:false})));this.overlay.querySelector('[data-measure]').textContent=`${d.toFixed(3)} mm · ΔX ${delta.x.toFixed(3)} ΔY ${delta.y.toFixed(3)} ΔZ ${delta.z.toFixed(3)}`;this.callbacks.onMeasure?.(d,delta.toArray());}else this.overlay.querySelector('[data-measure]').textContent='请选择第二个点';}
   startSketch(options={}){

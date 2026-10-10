@@ -3,6 +3,20 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import init from 'replicad-opencascadejs';
 import {compileFeaturePlan} from '../src/feature-plan.js';
+import {createReferenceSystem} from '../src/work-frame.js';
+
+test('independent plan creations share the initial work snapshot and explicit world is preserved',async()=>{
+ const referenceSystem=createReferenceSystem();referenceSystem.workFrame.origin=[40,20,5];referenceSystem.workFrame.quaternion=[0,0,Math.SQRT1_2,Math.SQRT1_2];referenceSystem.workFrame.frameVersion=9;
+ const input=(key,placement)=>({key,op:'box',opVersion:getOperation('box').version,schemaHash:getOperation('box').schemaHash,params:{width:4,depth:6,height:2},refs:[],...(placement?{placement}:{})});
+ const plan=await compileFeaturePlan({features:[input('one'),input('two'),input('world',{version:1,frame:{kind:'world'},sourceAnchor:{kind:'model-origin'}})]},{features:[],bodies:[],referenceSystem});
+ assert.deepEqual(plan.features.slice(0,2).map(f=>f.placement.frameSnapshot.origin),[[40,20,5],[40,20,5]]);assert.deepEqual(plan.features[2].placement.frameSnapshot.origin,[0,0,0]);
+ referenceSystem.workFrame.origin[0]=999;assert.equal(plan.features[0].placement.frameSnapshot.origin[0],40);assert.ok(plan.features.every(f=>f.semanticsVersion===2));
+ const oc=await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))}),kernel=new CadKernel(oc);
+ try{const result=await kernel.rebuild({version:2,features:plan.features,imports:{},referenceSystem});const at=key=>result.bodies.find(body=>body.id===plan.featureIds[key]);
+  for(const key of ['one','two']){assert.ok(at(key).bounds.min.every((v,i)=>Math.abs(v-[37,18,5][i])<1e-6));assert.ok(at(key).bounds.max.every((v,i)=>Math.abs(v-[43,22,7][i])<1e-6));}
+  assert.ok(at('world').bounds.min.every(v=>Math.abs(v)<1e-6));assert.ok(at('world').bounds.max.every((v,i)=>Math.abs(v-[4,6,2][i])<1e-6));
+ }finally{kernel.dispose();}
+});
 import {getOperation} from '../src/operation-registry.js';
 import {createCommandService} from '../src/command-service.js';
 import {createPageBatch} from '../src/page-batch.js';
