@@ -109,3 +109,27 @@ test('ended tasks cannot dispatch queued new geometry',async()=>{
   assert.equal((await adapter.receive(envelope(payload))).error.code,'task_ended');
   assert.equal(counts().submits,0);
 });
+
+test('more than 100 commands in one task and later tasks retain replay protection',async()=>{
+  const {adapter,counts}=setup();const first={...envelope(payload),commandId:'0'.repeat(31)+'1'};
+  await adapter.receive(first);
+  for(let i=2;i<=160;i++)await adapter.receive({...envelope({method:'getState',args:{}}),commandId:i.toString(16).padStart(32,'0')});
+  adapter.endTask('task');
+  for(let i=161;i<=320;i++){
+    const taskId='task-'+i;
+    await adapter.receive({...envelope({method:'getState',args:{}}),taskId,commandId:i.toString(16).padStart(32,'0')});
+    adapter.endTask(taskId);
+  }
+  assert.equal((await adapter.receive(first)).status,'already_reported');
+  assert.equal(counts().submits,1);assert.equal(counts().invokes,319);
+  assert.throws(()=>adapter.receive({...first,payload:{method:'getState',args:{}}}),/different payload/);
+  assert.equal(adapter.state().pending.length,0);
+});
+
+test('task retirement preserves unreported results until acknowledged without repeating edits',async()=>{
+  const {adapter,counts,reports}=setup({loseResult:true});
+  await assert.rejects(adapter.receive(envelope(payload)),/network lost/);
+  adapter.endTask('task');await adapter.retryReports();
+  assert.equal((await adapter.receive(envelope(payload))).status,'already_reported');
+  assert.equal(counts().submits,1);assert.equal(reports.filter(x=>x.kind==='result').length,1);
+});

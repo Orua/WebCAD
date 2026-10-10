@@ -6,10 +6,18 @@ export function createHostAdapter({api, session, report, artifact, now=()=>Date.
   const binding={...session.binding}, scopes=[...session.scopes];
   let accepting=true, activeTask=null, tail=Promise.resolve();
   const commands=new Map();
+  const archived=new Map();
   const endedTasks=new Set();
   const pending=entry=>!entry.result || entry.result.status==='unknown';
   const samePage=()=>assertIdentity(api.getState().context,binding);
   samePage();
+
+  function archiveFinished() {
+    for(const [id,entry] of commands)if(endedTasks.has(entry.command.taskId)&&entry.reported&&!pending(entry)){
+      archived.set(id,{requestHash:entry.command.requestHash,payload:JSON.stringify(entry.command.payload),taskId:entry.command.taskId});
+      commands.delete(id);
+    }
+  }
 
   async function finish(entry, result) {
     if(result && typeof result==='object' && !result.status)result={status:'read',...result};
@@ -33,6 +41,7 @@ export function createHostAdapter({api, session, report, artifact, now=()=>Date.
     await report('result',entry.command,{result:entry.result});
     entry.reported=true;
     if (endedTasks.has(entry.command.taskId) && ![...commands.values()].some(item=>item.command.taskId===entry.command.taskId && pending(item))) activeTask=null;
+    archiveFinished();
     return entry.result;
   }
 
@@ -80,12 +89,16 @@ export function createHostAdapter({api, session, report, artifact, now=()=>Date.
   function receive(command) {
     if (command.protocol!==PROTOCOL || command.cadSessionId!==session.cadSessionId || command.leaseEpoch!==session.leaseEpoch || !/^[a-f0-9]{32}$/.test(command.commandId||'') || typeof command.requestHash!=='string') throw failure('INSTANCE_MISMATCH','Invalid command envelope');
     const previous=commands.get(command.commandId);
+    const saved=archived.get(command.commandId);
+    if(saved){
+      if(saved.requestHash!==command.requestHash||saved.payload!==JSON.stringify(command.payload))throw failure('idempotency_conflict','Command ID reused with a different payload');
+      return Promise.resolve({status:'already_reported',commandId:command.commandId});
+    }
     if (previous) {
       if (JSON.stringify(previous.command.payload)!==JSON.stringify(command.payload) || previous.command.requestHash!==command.requestHash) throw failure('idempotency_conflict','Command ID reused with a different payload');
       if (previous.result) return report('result',previous.command,{result:previous.result}).then(()=>{previous.reported=true;return previous.result;});
       return previous.promise;
     }
-    if(commands.size>=100) throw failure('RESOURCE_LIMIT','100 adapter receipts; save and reconnect before more tasks');
     const entry={command:structuredClone(command)};
     commands.set(command.commandId,entry);
     entry.promise=tail.then(()=>execute(entry));
@@ -95,6 +108,7 @@ export function createHostAdapter({api, session, report, artifact, now=()=>Date.
 
   function endTask(taskId) {
     endedTasks.add(taskId);
+    archiveFinished();
     if (taskId!==activeTask) return;
     for(const entry of commands.values()) if (entry.command.taskId===taskId && entry.jobId && pending(entry)) {
       try { api.cancelJob({jobId:entry.jobId}); } catch (_) { /* state readback still required */ }
@@ -111,7 +125,7 @@ export function createHostAdapter({api, session, report, artifact, now=()=>Date.
 
   return Object.freeze({receive,endTask,release(){accepting=false;endTask(activeTask);},
     reconcilePending,
-    async retryReports(){await reconcilePending();for(const entry of commands.values())if(entry.result&&!entry.reported){await report('result',entry.command,{result:entry.result});entry.reported=true;}},
+    async retryReports(){await reconcilePending();for(const entry of commands.values())if(entry.result&&!entry.reported){await report('result',entry.command,{result:entry.result});entry.reported=true;}archiveFinished();},
     state(){return {accepting,activeTask,pending:[...commands.values()].filter(pending).map(entry=>({commandId:entry.command.commandId,pageJobId:entry.jobId||null}))};},
     replay:async commandId=>{const entry=commands.get(commandId);if(!entry?.result)throw failure('receipt_unavailable','Original result not known');await report('result',entry.command,{result:entry.result});return entry.result;}});
 }

@@ -6,7 +6,9 @@ CAD tools, registries and Workers remain owned by the public page API. The modul
 
 `receive(command)` queues a command; `report('ack'|'result',command,body)` sends its original hash and ID to the broker. `artifact(command,descriptor,bytes)` is an optional binary upload capability. Without it, an export remains generated in the page and is not reported as saved on the Agent.
 
-`release/endTask` cancel queued jobs and request a running batch to stop after its current step. A synchronous kernel operation itself remains uninterruptible. Running jobs retain their identity for readback. `reconcilePending()` settles a previously unknown receipt from that original job, without replaying geometry. The Goldenluck container blocks manual pointer/keyboard editing while a task or unresolved command owns the page.
+`release/endTask` cancel queued jobs and request a running batch to stop after its current step. A synchronous kernel operation itself remains uninterruptible. Running jobs retain their identity for readback. `reconcilePending()` settles a previously unknown receipt from that original job, without replaying geometry. The Goldenluck container blocks manual pointer/keyboard editing while an Agent task owns the page; explicit takeover removes that host lock immediately even offline. Native page busy/revision checks still apply. Server release revokes the old grant and frees ownership while preserving its ledger; reconnect uses the current document, never replays an old task.
+
+There is no cumulative 100-command ceiling. Reported terminal receipts of ended tasks are compacted into replay guards; unresolved/unreported entries retain their original result and job. Re-delivery of an archived command cannot submit geometry again. Hosts must catch synchronous receive errors and retain a failure report before advancing their stream cursor.
 
 For a native `files.save`, the adapter calls `files.confirmWritten` only after the host returns `agent_write_verified` with exactly matching size and SHA256. A later page revision cannot be marked saved by an older artifact. Confirmation failure preserves the verified server attachment and is reported separately.
 
