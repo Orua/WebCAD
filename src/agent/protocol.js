@@ -8,6 +8,7 @@ export const READ_METHODS = new Set(['connect','info','getState','getHistory','s
 export const VIEW_METHODS = new Set(['setView','setRenderQuality','setDisplayPreferences','selectRectangle','redraw','capture']);
 export const DISCOVERY_METHODS = new Set(['connect','info','getState','getHistory','searchTools','getTools','getTool','readDocs','files.capabilities','getUILayout','getQuickModelUsage']);
 export const EDIT_ACTIONS = new Set(['feature.add','feature.addMany','feature.edit','feature.rename','document.rename',
+  'feature.compileServices',
   'body.visibility','body.appearance','body.explode','document.appearance','history.undo','history.redo',
   'reference.setWorkFrame','reference.resetWorkFrame','reference.setLocked','reference.setBodyAnchor',
   'reference.saveFrame','reference.activateFrame','reference.renameFrame','reference.deleteFrame','reference.deleteBodyAnchor',
@@ -17,8 +18,18 @@ export const JOB_METHODS = new Set(['run','execute','queryGeometry','measure','m
   'prepareProfileEdit','projectProfile','createDrawing','exportDrawing','copySelection','pasteSelection','inspectRound']);
 const EDIT_METHODS = new Set(['execute','files.import','copySelection','pasteSelection']);
 const EXPORT_METHODS = new Set(['files.save','files.export','createDrawing','exportDrawing']);
+// A task may think/read for minutes; only a command that changes the document
+// needs exclusive manual editing control. Page revision guards remain active.
+export function editsDocument(payload) {
+  if(payload?.method==='run')return (payload.args?.steps||[]).some(editsDocument);
+  return ['add','addMany','execute','files.import','pasteSelection'].includes(payload?.method);
+}
 // Host-managed resources and service credentials never enter model-controlled arguments.
 export const HOST_ONLY_METHODS = Object.freeze({invoke:'dispatch wrapper',submit:'adapter owns job IDs',getJob:'original receipt via webcad_job',cancelJob:'host stop control',
+  getServices:'host service configuration',setServices:'host service credentials and upload consent',clearServicesCredential:'host authorization lifetime',
+  getServicesCapabilities:'host service connection',getServicesRouting:'host execution router',getServicesJob:'host server job ownership',getServicesRequest:'host server request reconciliation',
+  cancelServicesJob:'host server cancellation',decideServicesWait:'host user wait decision',recoverServicesJob:'requires explicit recovery approval',
+  prepareReliefTopologyUpgrade:'host-approved saved topology migration planning',
   createRequestContext:'use live requestContext',executeText:'use explicit run steps',getLogoConverter:'service configuration',setLogoConverter:'service credentials',convertLogoPdf:'host binary conversion',
   'files.register':'host binary upload','files.read':'host artifact transport','files.download':'host download','files.write':'host disk capability',
   'files.confirmWritten':'host write receipt','files.release':'host resource lifetime','files.new':'requires new document binding','files.open':'requires new document binding'});

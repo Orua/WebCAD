@@ -18,5 +18,6 @@
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:951f9e8b89549897a3a50387fa895dab706a9ab1ebb0e7dafbe869531d4233d9"
+  "errorCodes": [],
+  "docsHash": "sha256:c7fef2d56005b71258a9e6ffd09a36c53700380fa7277b135dc097e292b5413a"
 }

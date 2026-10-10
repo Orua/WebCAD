@@ -2,13 +2,13 @@
   "generatedFrom": "src/page-api-docs.js and src/operation-registry.js",
   "metadata": {
     "product": "WebCAD",
-    "buildId": "0ec2b5e7da6883879e762b5a4387d98a49713aaf-src-9b06e71154f64000",
+    "buildId": "531d5d20c639d7b80c67b244fbe85ab81c412455-src-a64789aa51cfff11-working",
     "apiVersion": "2.0",
     "pageApiVersion": "1.28.3",
     "transport": "in-page",
     "entrypoint": "window.webcad.api",
-    "catalogHash": "sha256:608a728ca1d49c88129a14b8f6073a20239a485d558b0cec467e72911ada847a",
-    "docsHash": "sha256:7419a6900f83b251a96fab14036b04767a65e627f30d2dc87739607ae3632161",
+    "catalogHash": "sha256:0c83bedff7012268e2c3a6c0c60ca9c19a00577717500048d87eddfd3031481f",
+    "docsHash": "sha256:2904c7346bc915f342eed9e83c04ae0fad911130b1a5b0199eaf7a1ed4930818",
     "discovery": {
       "searchVersion": "2",
       "pageApiVersion": "1.28.3",
@@ -28,8 +28,8 @@
         "file",
         "unavailable"
       ],
-      "catalogHash": "sha256:608a728ca1d49c88129a14b8f6073a20239a485d558b0cec467e72911ada847a",
-      "docsHash": "sha256:7419a6900f83b251a96fab14036b04767a65e627f30d2dc87739607ae3632161",
+      "catalogHash": "sha256:0c83bedff7012268e2c3a6c0c60ca9c19a00577717500048d87eddfd3031481f",
+      "docsHash": "sha256:2904c7346bc915f342eed9e83c04ae0fad911130b1a5b0199eaf7a1ed4930818",
       "quickstart": "automation/quickstart.md",
       "manifest": "automation/manifest.json",
       "onboarding": {
@@ -44168,7 +44168,11 @@
       "contractStatus": "page-method",
       "runtimeAvailability": "requires_page",
       "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-      "docsHash": "sha256:060e6ef050459bebe6243952b6c9db7e99ab1c8d711663bbdb8d3f9de79ff780"
+      "errorCodes": [
+        "PARAM_SCHEMA_INVALID",
+        "SERVICES_WAIT_NOT_PENDING"
+      ],
+      "docsHash": "sha256:7e0848cadb8cd5796ad1dd7991a400cb43866750d491f49a6fe38449f49756f3"
     },
     {
       "id": "recoverServicesJob",
@@ -44190,7 +44194,15 @@
       "contractStatus": "page-method",
       "runtimeAvailability": "requires_page",
       "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-      "docsHash": "sha256:67679cbb964450884e06ee8c1be1225fdceb2bc9cb79d14c5a8f917d63e60923"
+      "errorCodes": [
+        "RECOVERY_AUTH_REQUIRED",
+        "RECOVERY_NOT_ALLOWED",
+        "CAPABILITY_UNAVAILABLE",
+        "SERVICES_AUTH_REQUIRED",
+        "SERVICES_CONNECTION_UNKNOWN",
+        "SERVICES_REQUEST_FAILED"
+      ],
+      "docsHash": "sha256:7f286d0b2ada1ef5ada08bfd0dcb05c92b6f33fc9b7435dff8b80b9ffe5dbf31"
     },
     {
       "id": "prepareReliefTopologyUpgrade",
@@ -45878,7 +45890,10 @@
       "contractStatus": "page-method",
       "runtimeAvailability": "requires_page",
       "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-      "docsHash": "sha256:73388568c343611e175404e3c21e097be1b25edff6861562f51177d336c7edf8"
+      "errorCodes": [
+        "SERVICES_CONFIG_INVALID"
+      ],
+      "docsHash": "sha256:5107994ee13461987cffdf2ec4b02df941ac1bf5f79aae5429db7f1887374ab7"
     },
     {
       "id": "setServices",
@@ -45898,7 +45913,17 @@
       "contractStatus": "page-method",
       "runtimeAvailability": "requires_page",
       "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-      "docsHash": "sha256:ebc6c1b41dd17d4607dba4ed0cf4f8d46481d30d907ba791aaa1670087e1f125"
+      "errorCodes": [
+        "PARAM_SCHEMA_INVALID",
+        "INSTANCE_MISMATCH",
+        "REVISION_CONFLICT",
+        "SERVICES_CONFIG_INVALID",
+        "CAPABILITY_UNAVAILABLE",
+        "SERVICES_AUTH_REQUIRED",
+        "SERVICES_CONNECTION_UNKNOWN",
+        "SERVICES_PROTOCOL_MISMATCH"
+      ],
+      "docsHash": "sha256:43a3ab364f9c41ad443d34f5d43b4a6c7348ee383a7e8555c15ec5cafebfa2e8"
     },
     {
       "id": "getServicesCapabilities",
@@ -45920,7 +45945,14 @@
       "contractStatus": "page-method",
       "runtimeAvailability": "requires_page",
       "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-      "docsHash": "sha256:1348d9b27406c694df42a8d9ae2ee1c77d5ece3ffd7d430698dd912162c32c03"
+      "errorCodes": [
+        "CAPABILITY_UNAVAILABLE",
+        "SERVICES_AUTH_REQUIRED",
+        "SERVICES_CONNECTION_UNKNOWN",
+        "SERVICES_REQUEST_FAILED",
+        "SERVICES_PROTOCOL_MISMATCH"
+      ],
+      "docsHash": "sha256:be57cfd9ff9436f7c6a387fa6b66d80ae8f4e540c59e239010c0fbfd2645696e"
     },
     {
       "id": "getServicesRouting",
@@ -45942,7 +45974,8 @@
       "contractStatus": "page-method",
       "runtimeAvailability": "requires_page",
       "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-      "docsHash": "sha256:951f9e8b89549897a3a50387fa895dab706a9ab1ebb0e7dafbe869531d4233d9"
+      "errorCodes": [],
+      "docsHash": "sha256:c7fef2d56005b71258a9e6ffd09a36c53700380fa7277b135dc097e292b5413a"
     },
     {
       "id": "clearServicesCredential",
@@ -45962,7 +45995,12 @@
       "contractStatus": "page-method",
       "runtimeAvailability": "requires_page",
       "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-      "docsHash": "sha256:edf6c0e00e7554314f5f981e28de7502e6d5f5d47fb59e94b0e5b204388c64cd"
+      "errorCodes": [
+        "PARAM_SCHEMA_INVALID",
+        "INSTANCE_MISMATCH",
+        "REVISION_CONFLICT"
+      ],
+      "docsHash": "sha256:cf1c93e333eb8b645ab40609f59768328638a5083bb4c7bc4340ab36c96937ad"
     },
     {
       "id": "getServicesJob",
@@ -45983,7 +46021,14 @@
       "contractStatus": "page-method",
       "runtimeAvailability": "requires_page",
       "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-      "docsHash": "sha256:439faf5c62c2e6337f83f409d607fa2154ee9a8f48a439952dff96edd7dd1b6c"
+      "errorCodes": [
+        "PARAM_SCHEMA_INVALID",
+        "CAPABILITY_UNAVAILABLE",
+        "SERVICES_AUTH_REQUIRED",
+        "SERVICES_CONNECTION_UNKNOWN",
+        "SERVICES_REQUEST_FAILED"
+      ],
+      "docsHash": "sha256:27bdfff0336223cb787bca7aa71ca5bf266c3057f3571dcdf2f3ef41a3c1a6eb"
     },
     {
       "id": "getServicesRequest",
@@ -46004,7 +46049,15 @@
       "contractStatus": "page-method",
       "runtimeAvailability": "requires_page",
       "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-      "docsHash": "sha256:7367704d7719ed3a8095d51ad107d978cb3f553afa5587781e89940f8ab45706"
+      "errorCodes": [
+        "PARAM_SCHEMA_INVALID",
+        "REQUEST_NOT_FOUND",
+        "CAPABILITY_UNAVAILABLE",
+        "SERVICES_AUTH_REQUIRED",
+        "SERVICES_CONNECTION_UNKNOWN",
+        "SERVICES_REQUEST_FAILED"
+      ],
+      "docsHash": "sha256:0b367f7383d26dd1ee82b916cec5762bf5272b083fa28799946a72b1f6d921a7"
     },
     {
       "id": "cancelServicesJob",
@@ -46024,7 +46077,16 @@
       "contractStatus": "page-method",
       "runtimeAvailability": "requires_page",
       "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-      "docsHash": "sha256:e69b558e86affa6598ebd78caed2799282a67db5ae6315994ecda31ccaddeb03"
+      "errorCodes": [
+        "PARAM_SCHEMA_INVALID",
+        "INSTANCE_MISMATCH",
+        "REVISION_CONFLICT",
+        "CAPABILITY_UNAVAILABLE",
+        "SERVICES_AUTH_REQUIRED",
+        "SERVICES_CONNECTION_UNKNOWN",
+        "SERVICES_REQUEST_FAILED"
+      ],
+      "docsHash": "sha256:0e042bf981100681d3da7fcd7e9bde92353cdaa7d5860cd5c344f4393cf9f456"
     },
     {
       "id": "getLogoConverter",
@@ -48387,5 +48449,475 @@
     "recipes.twin-window-plate": "平板双窗扣：UI 在“快捷模型”选择“平板双窗扣”；AI 从 getTool({id:\"quickModel\"}) 查 kind=twinWindowPlate 参数。PG6217 图纸名义例：const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:\"plate\",method:\"add\",args:{op:\"quickModel\",refs:[],params:{kind:\"twinWindowPlate\",outerWidth:44.8,outerHeight:26.6,outerRadius:3.5,windowWidth:37.8,totalInnerHeight:19.6,windowRadius:2,barWidth:3.5,thickness:3.5,edgeRadius:0.5}}},{id:\"size\",method:\"measure\",args:{bodyId:{$ref:\"plate.createdBodyIds.0\"}}}]})。两孔等高=(totalInnerHeight-barWidth)/2=8.05，孔中心 Y=±(totalInnerHeight+barWidth)/4；横条是板体，不是圆杆。outerRadius/windowRadius 为 XY 平面角半径，edgeRadius 为前后尖边截面 R。约束：外宽>孔宽，外高>总内高>横条宽>0，平面 R 严格小于相应短边一半，2*edgeRadius 严格小于板厚、横条宽和最窄框壁；R=0 可做未倒边板。任何切孔或倒边失败时整步不提交，不自动缩小半径。成功读步骤回执、精确测量和 rendered revision；feature.edit 可改这一历史特征。只适用平板对称双窗；PG6217 产品照片外角比该 DWG 名义 R3.5 尖，版本仍待确认。鼓侧边、侧向拱弯、偏置孔及独立杆不属于此模板。",
     "recipes.u-end-hole-plate": "半圆冠双端孔 U 板：UI 在快捷模型中选择同名工具；AI 先 getTool({id:\"quickModel\"}) 读取 kind=uEndHolePlate 参数。页面脚本 const api=window.webcad.api; const {revision,...identity}=api.getState().context; const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:\"partA\",method:\"add\",args:{op:\"quickModel\",refs:[],params:{kind:\"uEndHolePlate\",outerWidth:22,innerWidth:10,totalHeight:31.7,thickness:3,holeDiameter:3.3,holeInset:2.7}}},{id:\"size\",method:\"measure\",args:{bodyId:{$ref:\"partA.createdBodyIds.0\"}}}]})。内外冠同心且均为半圆，两条直腿等宽、两端通孔沿 Z 贯穿。孔心 X=±(outerWidth+innerWidth)/4，Y 自端面向冠方向量 holeInset。限制 outerWidth>innerWidth>0、totalHeight>outerWidth/2、thickness>0、0<holeDiameter<(outerWidth-innerWidth)/2，孔与端面、冠保持净距；非法输入失败回滚。PG11804 A 件图面外宽22、内宽10、总高31.7、侧深3、孔位标注2-Ø3.3，另有2-M2标注；holeInset=2.7 是试拟，通孔不能代表真实攻牙。B 件和装配、局部圆润截面未建。读结果 status、精确 measure 和 rendered revision；历史修改用 feature.edit。",
     "start": "首次连接先读 automation/agent-start.html 或机器可读 automation/agent-start.json。connect().onboarding 为 version=1 静态引导：绑定用户选定标签页 → capabilities.list → 当前 CDP 文档 → Runtime.evaluate 调用 connect 并检查 canExecute/blockers → 相关契约 → run → 回执与画面读回。当前宿主实际文档优先；连接传输失败不等于页面 API 不可用，不刷新已有工程或安装服务绕过权限。可选本地技能/客户端由 automation/agent-kit.json 列出，automation/install-agent.ps1 仅 host-opt-in 安装；页面脚本调用不要求先安装。\nWebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键词]})。优先读取精简状态和搜索结果，再 getTools({ids}) 批量读取契约，详见 api.discovery。先读 automation/quickstart.md 或 readDocs({docId:\"api.run\"})，通过页面脚本调用 run 批次；AI 应通过宿主已授权的页面脚本通道在后台调用 window.webcad.api。不要为查工具或执行建模打开 JSON 调试面板、填输入框或点击执行按钮。没有可用脚本通道时，明确报告通道不可用；不要自动退回界面操作。 宿主通道发现见 api.connection。无需终端 CLI。读取当前页面的 info()/getState()，再用 searchTools({query:\"安装板\"})、getTool({id:\"box\"})、readDocs({docId:\"coordinates\"}) 查询契约。当前页面的建模、文件和视图操作由页面 API 调用浏览器 Worker 中的精确内核。\n页面 JS 执行通道必须由调用客户端提供并获用户授权；页面公开函数不证明某个侧边栏已能调用。建模写入须传当前 sessionId、documentId、documentInstanceId、expectedRevision，不能猜 revision。页面方法不接收任意脚本源码、任意 URL 或本地路径。"
+  },
+  "docMetadata": {
+    "api.connection": {
+      "version": "1.28.3",
+      "docsHash": "sha256:325ae0094f79676aa3b48adc1c5b96db14f8a5f24835417d62ab362638db740f"
+    },
+    "api.design-checks": {
+      "version": "1.28.3",
+      "docsHash": "sha256:a2d52601a2ebc9b53218185bb38069580cd2e07de2f43f1324c97ef9b613ad69"
+    },
+    "api.discovery": {
+      "version": "1.28.3",
+      "docsHash": "sha256:c49fb4232b4b9562ebf73fe856716e0a5226d15ec8c7e3dba98ea9126cc0cdfb"
+    },
+    "api.display-preferences": {
+      "version": "1.28.3",
+      "docsHash": "sha256:f492426a26fd9a8222457ee8ff559e9bfc5b4044cc56d307e7809fc0a25b7c87"
+    },
+    "api.dwg-spline-twin-window": {
+      "version": "1.28.3",
+      "docsHash": "sha256:46363a7b23246fed4205ce7c8ba9df64285a42bc9bfda28dbcc552d2aadca41a"
+    },
+    "api.editor": {
+      "version": "1.28.3",
+      "docsHash": "sha256:1398883fdaf0a6cbaab9d18b011dfcf44dfce43fd31d12218c9f016a645f3dd1"
+    },
+    "api.execute": {
+      "version": "1.28.3",
+      "docsHash": "sha256:35c9aae5944d2cf43dcc7e4aab93efd7437008d7cca0af28b8db634b90ac5a93"
+    },
+    "api.feature-plan": {
+      "version": "1.28.3",
+      "docsHash": "sha256:09dfb94a6099d91266c2bacd5573c66d239298e3ea8045902eda2746187eb943"
+    },
+    "api.file-errors": {
+      "version": "1.28.3",
+      "docsHash": "sha256:e9a10970cd0c4201b1b946dec691dd42c4327db6690ed97a5e405cc33916ebf4"
+    },
+    "api.host-control": {
+      "version": "1.28.3",
+      "docsHash": "sha256:b3ee791175a5e749401398f1a1de6a23fe4bfb9218b438a7af4881ed2558019e"
+    },
+    "api.interaction": {
+      "version": "1.28.3",
+      "docsHash": "sha256:c32e96b4260d4371ae0e73b3222c5ced7ad107a978bc26fa5be312d4a19988a7"
+    },
+    "api.knowledge-cache": {
+      "version": "1.28.3",
+      "docsHash": "sha256:85abfdd7d4a64f6b0cd750dce983718bffec21e0008ede753c6837f5f5a54b7a"
+    },
+    "api.logo": {
+      "version": "1.28.3",
+      "docsHash": "sha256:a3b70c167f394f2e4cbc37281eb4a0fd48134544646adeb867f1acec8308ed00"
+    },
+    "api.mechanical": {
+      "version": "1.28.3",
+      "docsHash": "sha256:38551e834001c5e367d4902017a1313b18b4d7a57321313e76de8b12b43a2338"
+    },
+    "api.named-parameters": {
+      "version": "1.28.3",
+      "docsHash": "sha256:f585bf598b42ac4f7f23bfc9216c850da7ec5f4d9352f86981fa53b4c1e58464"
+    },
+    "api.printability": {
+      "version": "1.28.3",
+      "docsHash": "sha256:ce0a69f4a1fc0e0e3584d10d9bb79ccff28d79102c5fc4fe18d861c6874928ae"
+    },
+    "api.product-source": {
+      "version": "1.28.3",
+      "docsHash": "sha256:d1d46eb7e6dbb95828bbc57163d7c535da1f50a68972a41c43196f5cd0235fe7"
+    },
+    "api.profile-fitting": {
+      "version": "1.28.3",
+      "docsHash": "sha256:19f449d06c8e9e1e2a6d9b719b3f74683ddfb2ca6ac2b6a35700f600d90df821"
+    },
+    "api.query-geometry": {
+      "version": "1.28.3",
+      "docsHash": "sha256:1b663577c61290b364cf112ac5a19c2b8e309a4cb0af9d0cad2373f2669a1e8f"
+    },
+    "api.quick-hardware": {
+      "version": "1.28.3",
+      "docsHash": "sha256:7040044529b0acd1edfa0d19b598dd7c79ea1f727b4d305d85280c50a2c0bce9"
+    },
+    "api.quick-installation": {
+      "version": "1.28.3",
+      "docsHash": "sha256:3487de3b7a80894ce6a46a0649e73820376eca332884aa96ab7b215b0ae6c14a"
+    },
+    "api.reconstruction": {
+      "version": "1.28.3",
+      "docsHash": "sha256:b9bc148ccd09265888daee79e1b1bee82c6559fd7187874a938dbaeb39d50513"
+    },
+    "api.references": {
+      "version": "1.28.3",
+      "docsHash": "sha256:0044abd479df64c8684a02ae8d6015c8cd44e8ebc1b63f23c6fbbc4317204d63"
+    },
+    "api.refine": {
+      "version": "1.28.3",
+      "docsHash": "sha256:15a0ef057a8dfa237d84a6fb1f3e00e337b5ee32824080e2964cf58f4f42d335"
+    },
+    "api.reliability": {
+      "version": "1.28.3",
+      "docsHash": "sha256:2a5a4ace66ed86804f72bb26a2caf8c74ca383444b91278ec85d7d4ee93070d8"
+    },
+    "api.relief": {
+      "version": "1.28.3",
+      "docsHash": "sha256:ccc6d2e74c8d9ab763ac885ff0d0dcdffe046c47b052c58ac7fbeb54f34eacd9"
+    },
+    "api.round-preflight": {
+      "version": "1.28.3",
+      "docsHash": "sha256:c7fbb7b1206cd7663f13f60abf3085df69d09954cea051f63002e529bff52c0a"
+    },
+    "api.run": {
+      "version": "1.28.3",
+      "docsHash": "sha256:7c04719554a68cb9d94922ca5963dad04c806acf898c9547cc472a6f00529dc6"
+    },
+    "api.smooth-transition": {
+      "version": "1.28.3",
+      "docsHash": "sha256:727ea849c792b573723bf8e5bea2e505efbe2ed9eda05f0e8a1f39f09c7f9611"
+    },
+    "api.source-curves": {
+      "version": "1.28.3",
+      "docsHash": "sha256:e61025b290c66c8980be9a065d805882d5262f5237b2b4c8f8da85f06aec203d"
+    },
+    "api.text-command": {
+      "version": "1.28.3",
+      "docsHash": "sha256:1174d30d2ce1eb0711d7ebdd8b0417368216199a5feb49670b46a3c67447dd85"
+    },
+    "api.ui-coverage": {
+      "version": "1.28.3",
+      "docsHash": "sha256:aa031d9d3785c77f4ad35a63fe751186eb50c1718065a778c10ad4d4e6e3d206"
+    },
+    "api.vector-import": {
+      "version": "1.28.3",
+      "docsHash": "sha256:13050903f79964cf9d142f8998ba97895c7235e30ea3e243f679cf6c9ca29637"
+    },
+    "api.views": {
+      "version": "1.28.3",
+      "docsHash": "sha256:6e313b8f5c0c96330f4cf5803cb2d85332931c9d49dfca3903b18a945baff08d"
+    },
+    "api.workflow": {
+      "version": "1.28.3",
+      "docsHash": "sha256:aebb7062ca2331a21c1292b2a4896ac5e15577e27095e0dc8bb2549cba4725d6"
+    },
+    "api.workspace": {
+      "version": "1.28.3",
+      "docsHash": "sha256:2ea3ed7a5fcbb07fa259b464e2484fd9b23bf6eec7eb9c68772e75ab28a3c4df"
+    },
+    "coordinates": {
+      "version": "1.0.0",
+      "docsHash": "sha256:33500ba9b526d7fc749b4628cc5b86cd4e6defedb6aa055c780473ba468be5e3"
+    },
+    "errors": {
+      "version": "1.0.0",
+      "docsHash": "sha256:ca4572eff010c1aa692844c901e407010463f846043916e7c5349a3ed65724a6"
+    },
+    "product.bar-heads": {
+      "version": "1.28.3",
+      "docsHash": "sha256:1fdddd855f25ecfc6c49a3ad83158f20fb0ce47cfcb84428bfd2ac42b0435bc5"
+    },
+    "product.bridge": {
+      "version": "1.28.3",
+      "docsHash": "sha256:fcf632f15bcf899841be26de64b5b69d712cc51cadf6bc20dfed2d68f508b632"
+    },
+    "product.chain": {
+      "version": "1.28.3",
+      "docsHash": "sha256:a8baf10e4b3f9c900045c96934abc563c3e78a7948840091f400a8a716d37bb7"
+    },
+    "product.cord-lock": {
+      "version": "1.28.3",
+      "docsHash": "sha256:0713a6ca937c60de0679e38bf50f61d7520268d61fcdbad1dca982d96b4b9815"
+    },
+    "product.end-cap": {
+      "version": "1.28.3",
+      "docsHash": "sha256:7cd700982c72d920e3660015b83b3a170c0f37ee1a9e1edad2d60d7c44c59fd3"
+    },
+    "product.eyelet": {
+      "version": "1.28.3",
+      "docsHash": "sha256:3fae47af759d7fba1526ce2978ead7657b0eb356a29fdbef9fef18fbacaa9dd3"
+    },
+    "product.flap-lock": {
+      "version": "1.28.3",
+      "docsHash": "sha256:600951e0041894f553e53a60c2475415d44c1adc8c12132196e75c4fc58b3b3c"
+    },
+    "product.flat-loop": {
+      "version": "1.28.3",
+      "docsHash": "sha256:0b2d329094f901f9932ae4971b6c46e432977f2052e726c35ee3a14ed51f104f"
+    },
+    "product.gate": {
+      "version": "1.28.3",
+      "docsHash": "sha256:9b299fdb3afb18d1eaf92f02c5391162be74e2275a8d323235e85041a698cbd9"
+    },
+    "product.handle": {
+      "version": "1.28.3",
+      "docsHash": "sha256:39fbad7be57c8ba9abb5d5eb647640a106fc6c838a16aa15a092d3e205c82c13"
+    },
+    "product.headed-fastener": {
+      "version": "1.28.3",
+      "docsHash": "sha256:babbc5aaf57620596b87e7e02f6114970b695047f2c6d80559997d02b931e7a6"
+    },
+    "product.hinge": {
+      "version": "1.28.3",
+      "docsHash": "sha256:a715907603a7dffe5b0af9b5a44552c28b0d1e4dfbd2932e8f10a48317b32187"
+    },
+    "product.hollow-cap": {
+      "version": "1.28.3",
+      "docsHash": "sha256:0bf9d1bcbfc0d323107dfd7ac41aca182e62d049554e1ded41a1310ec16a14ae"
+    },
+    "product.insert-lock": {
+      "version": "1.28.3",
+      "docsHash": "sha256:5d04e3a49590ac85da2a9c41d4496a53b2afb131b407bbd537476468fdb616ad"
+    },
+    "product.keeper": {
+      "version": "1.28.3",
+      "docsHash": "sha256:c22373c2e5f4fbbf494a8f368cd634c6d79fb1e0387ce1b66377159e199fed9d"
+    },
+    "product.magnetic": {
+      "version": "1.28.3",
+      "docsHash": "sha256:95b9cfa4ac393c5716159d7d1fe97472024854b6b8886bedbdf8ea61a86c261d"
+    },
+    "product.multi-window": {
+      "version": "1.28.3",
+      "docsHash": "sha256:e10f1a25b19f387e0c5cac58e158d4a58f36604afdcd303deaa826e747e31833"
+    },
+    "product.plate-mount": {
+      "version": "1.28.3",
+      "docsHash": "sha256:ce6169b7bed7fece01fe457d78105296e2d92f9e53b8896fd6d1157f64c1cebf"
+    },
+    "product.prong": {
+      "version": "1.28.3",
+      "docsHash": "sha256:bf7eab39a0173476a526ccc6a21addfac1b4b4a7b12b526d90562c8351b5ee23"
+    },
+    "product.pull-core": {
+      "version": "1.28.3",
+      "docsHash": "sha256:53eb95c60d51d130aec72fba60c916314c49080d04262a14701dc97960216f0b"
+    },
+    "product.pull-tab": {
+      "version": "1.28.3",
+      "docsHash": "sha256:968e4110f37f48b3c80527954e4e6b9d135bf0523a583e09ba9cecd6a75cf918"
+    },
+    "product.rivet": {
+      "version": "1.28.3",
+      "docsHash": "sha256:bb8e5a7947082736858e3dd36086f791fcffc9bdeb15e881657c308d9ea6d659"
+    },
+    "product.sliding-clasp": {
+      "version": "1.28.3",
+      "docsHash": "sha256:59ff1b60653f16690ff5d5ca66426f550858e9921ee865f5afc33f9c8a73ff1e"
+    },
+    "product.snap": {
+      "version": "1.28.3",
+      "docsHash": "sha256:7715c1153fd7877c776858fb6acd8c0613fb0d195c17d8753eba571e44ebf09a"
+    },
+    "product.split-ring": {
+      "version": "1.28.3",
+      "docsHash": "sha256:6b9ed57474691ea6230414ddac47804f46039a796822fc8454db03abcc3788a7"
+    },
+    "product.stud": {
+      "version": "1.28.3",
+      "docsHash": "sha256:146a3005c97799b5cb767740eb90ce516f06b33435da9e4ff15fece6794f05e4"
+    },
+    "product.tbar": {
+      "version": "1.28.3",
+      "docsHash": "sha256:4e28fe8169d2023720ace1611bafbaccf0a0bbcbd64042c917b36a2e5ccc02ac"
+    },
+    "product.turn-lock": {
+      "version": "1.28.3",
+      "docsHash": "sha256:54c82f1d7c26427a0956428c4952fa71073b74e3329a8b284550fe308f45c8e0"
+    },
+    "product.variable-loop": {
+      "version": "1.28.3",
+      "docsHash": "sha256:c97cacf8b28710f9b3771b5a47b2982cf30341a236b22a5f70097d6c0ba4fbae"
+    },
+    "product.wire-loop": {
+      "version": "1.28.3",
+      "docsHash": "sha256:5475ca05bfd3019720730c1a24e1824352114dfe107240622ac762524dd90dda"
+    },
+    "recipe.examples": {
+      "version": "1.28.3",
+      "docsHash": "sha256:90698846076b317fd4b6db87733a8cd0934c9fac31396e25e826305eecf491e0"
+    },
+    "recipe.file-workflow": {
+      "version": "1.28.3",
+      "docsHash": "sha256:5819d3732406e0176fd029e8f44eb71a889198b13a411196e898cf92750c7395"
+    },
+    "recipes.analytic-arc-profile": {
+      "version": "1.28.3",
+      "docsHash": "sha256:0b6573eee3f4e3e7ed39d7507390b9e2fde24eda4e89e95f60e8a1fe0f98d993"
+    },
+    "recipes.analytic-root-revolve": {
+      "version": "1.28.3",
+      "docsHash": "sha256:693bdada0c5eb966a24cebbe52b4209f24471fcf873d19f2f01d4daba3179637"
+    },
+    "recipes.arc-band-plate": {
+      "version": "1.28.3",
+      "docsHash": "sha256:aafeeb83d5bcad55f567131be0eb5a1e9609ee3c51ca1fdb38d1142075936507"
+    },
+    "recipes.arched-twin-window": {
+      "version": "1.28.3",
+      "docsHash": "sha256:4df3b22cdf25622095d79a7db0dcbda7408e4173cc1dc46938f6c9aac4d93ecb"
+    },
+    "recipes.bowed-twin-window": {
+      "version": "1.28.3",
+      "docsHash": "sha256:2b552948e1f3ff89c30be2090aecaccbbf267c4b058e49830b55f496985cbf02"
+    },
+    "recipes.capsule-wire": {
+      "version": "1.28.3",
+      "docsHash": "sha256:511f6cfc6d41bb9cd8738cbad07866cbeae6695bfce90c55f7c7c63b1e79ddb2"
+    },
+    "recipes.chamfered-wire-frame": {
+      "version": "1.28.3",
+      "docsHash": "sha256:b4d66f9504691206f5e87b765d5f04c1d099e676b31c9fab264fed5fc9c8d979"
+    },
+    "recipes.clevis-practice": {
+      "version": "1.28.3",
+      "docsHash": "sha256:ae0e6b04284adeb9262eea86bba32eeea42ece66f3da532c41aa7ce1814108ae"
+    },
+    "recipes.closed-chamfered-path": {
+      "version": "1.28.3",
+      "docsHash": "sha256:c83ad6e14646fa146b4c3972cb241fc0dfb61698313b53c32a30f515bf696d7a"
+    },
+    "recipes.compact-rect-buckle": {
+      "version": "1.28.3",
+      "docsHash": "sha256:b70236e3ca4926853589c7d10ab898064df5ef06351c1ec79c2ac473d11f9ee4"
+    },
+    "recipes.compact-slider-buckle": {
+      "version": "1.28.3",
+      "docsHash": "sha256:73388f2143dc752c83d73fdc448c69bda9f70b9b51c7007e61422c8e5c9797c4"
+    },
+    "recipes.d-flat-frame": {
+      "version": "1.28.3",
+      "docsHash": "sha256:59c95e2fc34e1c08b193fdc2e77360410c6fd992255358c6727703c350b925c8"
+    },
+    "recipes.dxf-arc-profile": {
+      "version": "1.28.3",
+      "docsHash": "sha256:4d552857d18f28c1b5f6420e03b6d7ff7ea264ce431ece061df6b4d642ea43ef"
+    },
+    "recipes.dxf-bulge-analytic-profile": {
+      "version": "1.28.3",
+      "docsHash": "sha256:92eaadb66a891b484a317509ab2e73159f664f70ac28dc9faa5b87b620b1af8e"
+    },
+    "recipes.dxf-paired-midline": {
+      "version": "1.28.3",
+      "docsHash": "sha256:bf44eeacac1a76e0273efa1601493ac30a00fa5350d354611fa18c62a3baaf85"
+    },
+    "recipes.ellipse-bar": {
+      "version": "1.28.3",
+      "docsHash": "sha256:d6e5483a46f067bbafd3cc0cf6269c45492e7ff9f7c0102f8ce0712a5385cc9e"
+    },
+    "recipes.ellipse-open-wire": {
+      "version": "1.28.3",
+      "docsHash": "sha256:aadc97f882a59449eb8a8097de6f8a578705bd427cd51734cdaf80ed965c50be"
+    },
+    "recipes.ellipse-section-rect": {
+      "version": "1.28.3",
+      "docsHash": "sha256:146bc607c1c8bb66ff19302b909e806fd3f48c13909bb55f178838bcc6ce510e"
+    },
+    "recipes.ellipse-section-ring": {
+      "version": "1.28.3",
+      "docsHash": "sha256:19bb5f8c2011a166c47bedfc2462fa3a36cff3a2b96c1c8479d79844e306a55b"
+    },
+    "recipes.ellipse-u-wire": {
+      "version": "1.28.3",
+      "docsHash": "sha256:281e2e44e2d1823a2a3e86701e81a5f21d6d454978cc22f43fe99f4ffa7ffa5c"
+    },
+    "recipes.figure-eight-capsule": {
+      "version": "1.28.3",
+      "docsHash": "sha256:ac81d600b8a63a8d5cea306a9fa1e82d941598e3de373bcf312534917c9faba5"
+    },
+    "recipes.flat-washer": {
+      "version": "1.28.3",
+      "docsHash": "sha256:83c00c068901946f03fc4b556d7559a3a12b32a94da3cff91628eaa4abdd376a"
+    },
+    "recipes.gable-open-frame": {
+      "version": "1.28.3",
+      "docsHash": "sha256:72bf2b578f3c5ea6b3ffae7a859bc1292a6a26f4fea55040558b6a6e1b90a1ec"
+    },
+    "recipes.hardware-practice": {
+      "version": "1.28.3",
+      "docsHash": "sha256:ea7cf1b4c7b52f0310fa75c49b5f26a63f5df7776a251a8b029ca41bf8bc8797"
+    },
+    "recipes.mounting-plate": {
+      "version": "1.28.3",
+      "docsHash": "sha256:69ab18133d744bd48aad8140a8578e6954cc26feff9a348b559a4afac8721f35"
+    },
+    "recipes.multi-boss": {
+      "version": "1.28.3",
+      "docsHash": "sha256:c560078821ddb0b27b2c7928b649f6f2ac7a27a5ac8c4bfa4017083622accdca"
+    },
+    "recipes.multi-pocket": {
+      "version": "1.28.3",
+      "docsHash": "sha256:494f515c9defe3da18fd5313c29d956092066b8c8b091b64b8decf9a8a741e7c"
+    },
+    "recipes.open-oval": {
+      "version": "1.28.3",
+      "docsHash": "sha256:03a75e1c068bfa3f4e8227c934c83cc959c1ec476fad2aa3f3d87d192e5ab127"
+    },
+    "recipes.pg11419-analytic-profile": {
+      "version": "1.28.3",
+      "docsHash": "sha256:3c8998cd077060169a3b11a16d92c246c7d5089afcfb17b3b05d366de5123b74"
+    },
+    "recipes.pg5752-two-source-parts": {
+      "version": "1.28.3",
+      "docsHash": "sha256:6140cea09cd9bfd7b6738c318bb717a7aed39940852cfdc982752ebfea04af00"
+    },
+    "recipes.pg8091-analytic-profile": {
+      "version": "1.28.3",
+      "docsHash": "sha256:5cca9e1efb75174352c7e17d16dfc7a0df6a959dbcb0d9816c4391e10b63f1fb"
+    },
+    "recipes.polar-hole-ring": {
+      "version": "1.28.3",
+      "docsHash": "sha256:5f5e4871125d5dee24e16357bf9340dd4ba832f9e62e796aa770c6c5480fe411"
+    },
+    "recipes.profile-loop": {
+      "version": "1.28.3",
+      "docsHash": "sha256:bb48b15c9c6f1f4c41c63bdf77bd8dff92dc1547b9ea44bbf2f9b5a6a62670e0"
+    },
+    "recipes.rectangle-profile": {
+      "version": "1.28.3",
+      "docsHash": "sha256:964c36a0a4e3f7b96c3fe29057505d83c2c4435912903a64ccc373f406eed322"
+    },
+    "recipes.reference-reconstruction": {
+      "version": "1.28.3",
+      "docsHash": "sha256:6c271d1c380f75a30d4c029c12dbe02932349b35c93a5bec9795a42456898c65"
+    },
+    "recipes.ring-bar": {
+      "version": "1.28.3",
+      "docsHash": "sha256:a462af220b94c141e6923446e1dd7c8e4dc563ce17289aaddf3a945c1f2a45fe"
+    },
+    "recipes.round-wire-slider": {
+      "version": "1.28.3",
+      "docsHash": "sha256:989763bbd4f292d4edeb16e03439f80c77a2abfe8df537d4a3cf2e008a3d99dc"
+    },
+    "recipes.rounded-flat-frame": {
+      "version": "1.28.3",
+      "docsHash": "sha256:0862ef37c19a25cae7b078bb18735890679bfbf65b0bffee44afd156c84a7369"
+    },
+    "recipes.segmented-curve-sweep": {
+      "version": "1.28.3",
+      "docsHash": "sha256:cfad217a025b629b76e2cab440c434d3d4971da92a26963f22fa6a18948e46ad"
+    },
+    "recipes.small-twin-window": {
+      "version": "1.28.3",
+      "docsHash": "sha256:1183dd5547adcda02c83cbdf2c5588a4246b9c6c4a40defe9bb560b8a845dc3a"
+    },
+    "recipes.source-analytic-round": {
+      "version": "1.28.3",
+      "docsHash": "sha256:aa96cbfbbf381e88c5ec2cc43c5b70e04db6f9424abace36996605687d092ee8"
+    },
+    "recipes.source-arc-band-profile": {
+      "version": "1.28.3",
+      "docsHash": "sha256:d0a567caefb02157ab0733644e23798ca0b2f72065e348d0b752e87c827508aa"
+    },
+    "recipes.source-faces": {
+      "version": "1.28.3",
+      "docsHash": "sha256:75dfd85130f04b4564f8a2578217939adc023d7b1011ff17a5007aa75882b72f"
+    },
+    "recipes.source-round-rect": {
+      "version": "1.28.3",
+      "docsHash": "sha256:b3296148a8b9010e156accd8e1011e3e0a7046fbddb7e7b7fc31e5faeb9ad407"
+    },
+    "recipes.twin-window-plate": {
+      "version": "1.28.3",
+      "docsHash": "sha256:b5813572c0726cf8f4ce9fd846ffd2a015643a305fe643855ad68ec422e3c403"
+    },
+    "recipes.u-end-hole-plate": {
+      "version": "1.28.3",
+      "docsHash": "sha256:44cb78b7ead5f01ded5f2d1f2b45ccb682279284c1740b4c7ada41240e5f2336"
+    },
+    "start": {
+      "version": "1.28.3",
+      "docsHash": "sha256:2c3194f04debb73107a75636d98935d5c53d6ef610382fb3a69ed5a937e96962"
+    }
   }
 }

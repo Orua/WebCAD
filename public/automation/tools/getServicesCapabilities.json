@@ -18,5 +18,12 @@
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:1348d9b27406c694df42a8d9ae2ee1c77d5ece3ffd7d430698dd912162c32c03"
+  "errorCodes": [
+    "CAPABILITY_UNAVAILABLE",
+    "SERVICES_AUTH_REQUIRED",
+    "SERVICES_CONNECTION_UNKNOWN",
+    "SERVICES_REQUEST_FAILED",
+    "SERVICES_PROTOCOL_MISMATCH"
+  ],
+  "docsHash": "sha256:be57cfd9ff9436f7c6a387fa6b66d80ae8f4e540c59e239010c0fbfd2645696e"
 }

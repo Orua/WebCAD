@@ -1,5 +1,6 @@
 // Static contract audit only. Geometry acceptance requires separate receipts.
 import fs from 'node:fs';
+import path from 'node:path';
 import {getTool,searchTools,infoMetadata,readDocs} from '../src/page-api-docs.js';
 import {listOperations,normalizeOperationParams} from '../src/operation-registry.js';
 import {UI_API_ROUTES} from '../src/ui-api-coverage.js';
@@ -34,5 +35,5 @@ for(const [action,route] of Object.entries(UI_API_ROUTES))for(const id of route.
 const actions=[...UI_LAYOUT.header,...UI_LAYOUT.fileMenu,...UI_LAYOUT.viewportActions].map(a=>a.action).concat(UI_LAYOUT.tabs.flatMap(t=>t.groups.flatMap(g=>g[1])),Object.values(UI_LAYOUT.controls).flatMap(c=>c.action?[c.action]:c.items.map(i=>i[1])));
 for(const id of actions)check(!!UI_API_ROUTES[id],`${id}: visible UI lacks route`);
 const meta=infoMetadata(),report={generatedAt:new Date().toISOString(),pageApiVersion:meta.pageApiVersion,catalogHash:meta.catalogHash,docsHash:meta.docsHash,counts:{cards:cards.length,operations:listOperations().length,strictOperations:listOperations().filter(c=>c.strictContract).length,pageMethods:meta.methods.length,fileMethods:meta.filesMethods.length,uiRoutes:Object.keys(UI_API_ROUTES).length},errors,warnings,largestCards:cards.map(c=>({id:c.id,chars:JSON.stringify(c).length})).sort((a,b)=>b.chars-a.chars).slice(0,12),geometryAcceptance:'NOT ESTABLISHED by static inventory or schema checks; see separate kernel and browser receipts.'};
-const out='agent/output/freecad-audit-20261002/contract-audit.json';fs.mkdirSync('agent/output/freecad-audit-20261002',{recursive:true});fs.writeFileSync(out,JSON.stringify(report,null,2)+'\n');
+const out=process.argv[2]||'agent/output/tool-contract-audit.json';fs.mkdirSync(path.dirname(out),{recursive:true});fs.writeFileSync(out,JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify({report:out,...report.counts,errors,warnings}));if(errors.length)process.exitCode=1;

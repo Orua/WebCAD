@@ -27,6 +27,9 @@ const docs = Object.fromEntries(metadata.docs.map(docId => {
   return [docId,text];
 }));
 const docHashes = Object.fromEntries(metadata.docs.map(docId => [docId, readDocs({docId,limitChars:1000}).docsHash]));
+const docMetadata = Object.fromEntries(metadata.docs.map(docId => {
+  const {version,docsHash}=readDocs({docId,limitChars:1000});return [docId,{version,docsHash}];
+}));
 // Refuse a new UI action without a discoverable public interface.
 const uiSource=await readFile(resolve(root,'src/ui.js'),'utf8');
 for(const match of uiSource.matchAll(/\b(?:emit|run)\('([^']+)'/g))requireUIRoute(match[1]);
@@ -37,7 +40,7 @@ for(const [action,route] of Object.entries(UI_API_ROUTES))for(const id of route.
   if(!cards.some(card=>card.id===id))throw new Error(`UI action ${action} lacks public tool documentation: ${id}`);
 }
 const index = { generatedFrom: 'src/page-api-docs.js and src/operation-registry.js',
-  metadata, cards, docs };
+  metadata, cards, docs, docMetadata };
 await mkdir(target, { recursive: true });
 await writeFile(resolve(target, 'index.json'), JSON.stringify(index, null, 2) + '\n', 'utf8');
 await writeFile(resolve(target, 'index.md'), createStaticPageApiIndex(), 'utf8');

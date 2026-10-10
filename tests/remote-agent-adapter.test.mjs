@@ -21,6 +21,36 @@ const session={cadSessionId:'cad',leaseEpoch:1,binding:context,scopes:['cad.read
 const envelope=payload=>({protocol:'goldenluck.webcad/1',cadSessionId:'cad',leaseEpoch:1,taskId:'task',commandId:'a'.repeat(32),requestHash:'hash',deadline:Date.now()/1000+30,payload});
 const payload={method:'run',args:{context:requestContext,idempotencyKey:'first',steps:[{id:'part',method:'add',args:{op:'box',params:{},refs:[]}}]}};
 
+test('only executing edits hold the canvas; terminal geometry unlocks before report transport',async()=>{
+  let resolveReport,resolveReached;
+  const reportHeld=new Promise(resolve=>{resolveReport=resolve;});
+  const reached=new Promise(resolve=>{resolveReached=resolve;});
+  let adapter,submitted=false;
+  const states=[];
+  const api={connect(){},getState:()=>({context}),invoke:async()=>({status:'read'}),
+    submit(){assert.equal(adapter.state().editing,true);submitted=true;},
+    getJob:()=>({status:'completed',result:{status:'completed',context}})};
+  adapter=createHostAdapter({api,session,onStateChange:()=>states.push(adapter.state().editing),report:async kind=>{
+    if(kind==='result'){resolveReached();await reportHeld;}
+  }});
+  assert.equal(adapter.state().editing,false);
+  const executing=adapter.receive(envelope(payload));
+  await reached;
+  assert.ok(submitted);
+  assert.equal(adapter.state().editing,false,'report latency must not reserve editing');
+  assert.deepEqual(states,[true,false]);
+  resolveReport();await executing;
+});
+
+test('read-only run and measured results do not reserve canvas editing',async()=>{
+  const {adapter,api}=setup();
+  api.submit=()=>assert.equal(adapter.state().editing,false);
+  api.getJob=()=>({status:'completed',result:{status:'completed',context}});
+  const reading={method:'run',args:{context:requestContext,idempotencyKey:'read',steps:[{id:'state',method:'getState',args:{}}]}};
+  await adapter.receive(envelope(reading));
+  assert.equal(adapter.state().editing,false);
+});
+
 function setup({loseResult=false,loseAck=false}={}) {
   let invokes=0,submits=0,failed=false;
   const reports=[],jobs=new Map();
