@@ -1,7 +1,7 @@
-import {PROTOCOL, JOB_METHODS, assertIdentity, failure, validatePayload} from './protocol.js';
+import {PROTOCOL, JOB_METHODS, editsDocument, assertIdentity, failure, validatePayload} from './protocol.js?v=command-lock-20261010';
 
 /** Host capability is injected. No model-provided code, origins, URLs or disk paths. */
-export function createHostAdapter({api, session, report, artifact, now=()=>Date.now(), wait=ms=>new Promise(resolve=>setTimeout(resolve,ms))}) {
+export function createHostAdapter({api, session, report, artifact, onStateChange=()=>{}, now=()=>Date.now(), wait=ms=>new Promise(resolve=>setTimeout(resolve,ms))}) {
   if (!api?.connect || !api?.invoke || !api?.getState || typeof report!=='function') throw failure('host_unavailable','Current public page API and an authorized result channel required');
   const binding={...session.binding}, scopes=[...session.scopes];
   let accepting=true, activeTask=null, tail=Promise.resolve();
@@ -38,6 +38,8 @@ export function createHostAdapter({api, session, report, artifact, now=()=>Date.
       }
     }
     entry.result=structuredClone(result);
+    if(result?.status!=='unknown')entry.editing=false;
+    onStateChange();
     await report('result',entry.command,{result:entry.result});
     entry.reported=true;
     if (endedTasks.has(entry.command.taskId) && ![...commands.values()].some(item=>item.command.taskId===entry.command.taskId && pending(item))) activeTask=null;
@@ -65,6 +67,8 @@ export function createHostAdapter({api, session, report, artifact, now=()=>Date.
       validatePayload(command.payload,binding,scopes);
       if (activeTask && command.taskId!==activeTask) throw failure('task_binding_mismatch','A different task still has running commands');
       activeTask=command.taskId;
+      entry.editing=editsDocument(command.payload);
+      onStateChange();
       if (JOB_METHODS.has(command.payload.method)) {
         entry.jobId='wc_'+command.commandId;
         api.submit({jobId:entry.jobId,method:command.payload.method,args:command.payload.args});
@@ -126,7 +130,7 @@ export function createHostAdapter({api, session, report, artifact, now=()=>Date.
   return Object.freeze({receive,endTask,release(){accepting=false;endTask(activeTask);},
     reconcilePending,
     async retryReports(){await reconcilePending();for(const entry of commands.values())if(entry.result&&!entry.reported){await report('result',entry.command,{result:entry.result});entry.reported=true;}archiveFinished();},
-    state(){return {accepting,activeTask,pending:[...commands.values()].filter(pending).map(entry=>({commandId:entry.command.commandId,pageJobId:entry.jobId||null}))};},
+    state(){return {accepting,activeTask,editing:accepting&&[...commands.values()].some(entry=>entry.editing),pending:[...commands.values()].filter(pending).map(entry=>({commandId:entry.command.commandId,pageJobId:entry.jobId||null}))};},
     replay:async commandId=>{const entry=commands.get(commandId);if(!entry?.result)throw failure('receipt_unavailable','Original result not known');await report('result',entry.command,{result:entry.result});return entry.result;}});
 }
 

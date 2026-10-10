@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.28.3 · sha256:608a728ca1d49c88129a14b8f6073a20239a485d558b0cec467e72911ada847a
+API 1.28.3 · sha256:0c83bedff7012268e2c3a6c0c60ca9c19a00577717500048d87eddfd3031481f
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -46268,7 +46268,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:060e6ef050459bebe6243952b6c9db7e99ab1c8d711663bbdb8d3f9de79ff780"
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "SERVICES_WAIT_NOT_PENDING"
+  ],
+  "docsHash": "sha256:7e0848cadb8cd5796ad1dd7991a400cb43866750d491f49a6fe38449f49756f3"
 }
 ```
 
@@ -46295,7 +46299,15 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:67679cbb964450884e06ee8c1be1225fdceb2bc9cb79d14c5a8f917d63e60923"
+  "errorCodes": [
+    "RECOVERY_AUTH_REQUIRED",
+    "RECOVERY_NOT_ALLOWED",
+    "CAPABILITY_UNAVAILABLE",
+    "SERVICES_AUTH_REQUIRED",
+    "SERVICES_CONNECTION_UNKNOWN",
+    "SERVICES_REQUEST_FAILED"
+  ],
+  "docsHash": "sha256:7f286d0b2ada1ef5ada08bfd0dcb05c92b6f33fc9b7435dff8b80b9ffe5dbf31"
 }
 ```
 
@@ -48228,7 +48240,10 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:73388568c343611e175404e3c21e097be1b25edff6861562f51177d336c7edf8"
+  "errorCodes": [
+    "SERVICES_CONFIG_INVALID"
+  ],
+  "docsHash": "sha256:5107994ee13461987cffdf2ec4b02df941ac1bf5f79aae5429db7f1887374ab7"
 }
 ```
 
@@ -48253,7 +48268,17 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:ebc6c1b41dd17d4607dba4ed0cf4f8d46481d30d907ba791aaa1670087e1f125"
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "SERVICES_CONFIG_INVALID",
+    "CAPABILITY_UNAVAILABLE",
+    "SERVICES_AUTH_REQUIRED",
+    "SERVICES_CONNECTION_UNKNOWN",
+    "SERVICES_PROTOCOL_MISMATCH"
+  ],
+  "docsHash": "sha256:43a3ab364f9c41ad443d34f5d43b4a6c7348ee383a7e8555c15ec5cafebfa2e8"
 }
 ```
 
@@ -48280,7 +48305,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:1348d9b27406c694df42a8d9ae2ee1c77d5ece3ffd7d430698dd912162c32c03"
+  "errorCodes": [
+    "CAPABILITY_UNAVAILABLE",
+    "SERVICES_AUTH_REQUIRED",
+    "SERVICES_CONNECTION_UNKNOWN",
+    "SERVICES_REQUEST_FAILED",
+    "SERVICES_PROTOCOL_MISMATCH"
+  ],
+  "docsHash": "sha256:be57cfd9ff9436f7c6a387fa6b66d80ae8f4e540c59e239010c0fbfd2645696e"
 }
 ```
 
@@ -48307,7 +48339,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:951f9e8b89549897a3a50387fa895dab706a9ab1ebb0e7dafbe869531d4233d9"
+  "errorCodes": [],
+  "docsHash": "sha256:c7fef2d56005b71258a9e6ffd09a36c53700380fa7277b135dc097e292b5413a"
 }
 ```
 
@@ -48332,7 +48365,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:edf6c0e00e7554314f5f981e28de7502e6d5f5d47fb59e94b0e5b204388c64cd"
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT"
+  ],
+  "docsHash": "sha256:cf1c93e333eb8b645ab40609f59768328638a5083bb4c7bc4340ab36c96937ad"
 }
 ```
 
@@ -48358,7 +48396,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:439faf5c62c2e6337f83f409d607fa2154ee9a8f48a439952dff96edd7dd1b6c"
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "CAPABILITY_UNAVAILABLE",
+    "SERVICES_AUTH_REQUIRED",
+    "SERVICES_CONNECTION_UNKNOWN",
+    "SERVICES_REQUEST_FAILED"
+  ],
+  "docsHash": "sha256:27bdfff0336223cb787bca7aa71ca5bf266c3057f3571dcdf2f3ef41a3c1a6eb"
 }
 ```
 
@@ -48384,7 +48429,15 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:7367704d7719ed3a8095d51ad107d978cb3f553afa5587781e89940f8ab45706"
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "REQUEST_NOT_FOUND",
+    "CAPABILITY_UNAVAILABLE",
+    "SERVICES_AUTH_REQUIRED",
+    "SERVICES_CONNECTION_UNKNOWN",
+    "SERVICES_REQUEST_FAILED"
+  ],
+  "docsHash": "sha256:0b367f7383d26dd1ee82b916cec5762bf5272b083fa28799946a72b1f6d921a7"
 }
 ```
 
@@ -48409,7 +48462,16 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:e69b558e86affa6598ebd78caed2799282a67db5ae6315994ecda31ccaddeb03"
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE",
+    "SERVICES_AUTH_REQUIRED",
+    "SERVICES_CONNECTION_UNKNOWN",
+    "SERVICES_REQUEST_FAILED"
+  ],
+  "docsHash": "sha256:0e042bf981100681d3da7fcd7e9bde92353cdaa7d5860cd5c344f4393cf9f456"
 }
 ```
 
