@@ -66,7 +66,7 @@ let revision=0,previewNext=null,previewIdentity=null,previewScopeReport=null,pre
 let previewComputingOwner=null;
 const hostControl=createHostControl(state=>{const entering=state.locked&&!viewport.interactionLocked,previewOwner=previewComputing?previewComputingOwner:previewIdentity?.owner??'ui';viewport.setInteractionLocked(state.locked);ui.setHostControl(state);if(entering&&(previewNext||previewComputing)&&previewOwner==='ui')void cancelPreview().catch(reportError);refresh();});
 function assertHumanEditing(){if(hostControl.get().locked)throw Object.assign(new Error('Agent 正在控制工程，释放控制后可编辑。'),{code:'HOST_INTERACTION_LOCKED'});}
-Object.assign(labels,{arcProfile:'解析线弧轮廓',group:'组合',vectorProfile:'矢量路径',quickModel:'快速模型',sweep:'扫掠',loft:'放样',split:'分割',extractSolid:'提取实体',extractShell:'提取壳',faceHole:'面上打孔',faceExtrude:'面拉伸',multiHole:'多位置打孔',multiPocket:'批量矩形凹槽',multiBoss:'批量圆柱凸台',slot:'长圆槽',logo:'LOGO 凹凸字'});
+Object.assign(labels,{reliefShoulder:'浮雕中央肩部',arcProfile:'解析线弧轮廓',group:'组合',vectorProfile:'矢量路径',quickModel:'快速模型',sweep:'扫掠',loft:'放样',split:'分割',extractSolid:'提取实体',extractShell:'提取壳',faceHole:'面上打孔',faceExtrude:'面拉伸',multiHole:'多位置打孔',multiPocket:'批量矩形凹槽',multiBoss:'批量圆柱凸台',slot:'长圆槽',logo:'LOGO 凹凸字'});
 Object.assign(labels,{curveSweep:'曲线扫掠',advancedLoft:'多截面放样',curvedLogo:'曲面等深刻字'});
 Object.assign(labels,{fittedSurface:'点阵拟合曲面',thickenFace:'选面增厚'});
 Object.assign(labels,referenceProfileNames);
@@ -256,7 +256,7 @@ async function routeChangedFeature(next,{signal,expectedRevision,featureId,expli
  try{
   const snapshots=[];for(const id of feature.refs){snapshots.push((await request('serializeFeature',{featureId:id})).data);checkTransaction(signal,expectedRevision);}
   const bytes=feature.op==='cut'?snapshots:snapshots[0];
-  const plan=feature.op==='relief'?(await request('prepareReliefPlan',{sourceFeatureId:feature.refs[0],params:feature.params})).plan:feature.op==='round'?(await request('faceRoundPlan',{sourceFeatureId:feature.refs[0],params:feature.params,prepare:true})).plan:null;
+  const plan=feature.op==='reliefShoulder'?(await request('shoulderPlan',{sourceFeatureId:feature.refs[0],params:feature.params})).plan:feature.op==='relief'?(await request('prepareReliefPlan',{sourceFeatureId:feature.refs[0],params:feature.params})).plan:feature.op==='round'?(await request('faceRoundPlan',{sourceFeatureId:feature.refs[0],params:feature.params,prepare:true})).plan:null;
   const context={documentId:next.documentId,documentInstanceId,expectedRevision};
   const candidate=await compileRemoteFeature(next,feature.id,bytes,context,{allowUpload:true,plan,signal,waitTimeoutMs:config.serverWaitMs,onWaitTimeout:job=>waitForServicesDecision(job,{signal})});checkTransaction(signal,expectedRevision);
   return {next:installCompiledCandidate(next,{manifest:candidate.manifest,bytes:candidate.geometryBytes,context,recipeFingerprint:candidate.recipeFingerprint}),record:{executor:'remote',input,executionKey,measurements:candidate.executionMeasurements}};
@@ -310,7 +310,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
 }
 function featureDocument(op,params={},explicitRefs=[],name,placement){
   const mechanicalRange=mechanicalIds.includes(op)?mechanicalRefRange(op,params):null;
-  const refs=[];const selection=explicitRefs;const single=['round','roundEnd','rounding','autoRound','smoothTransition','transform','copy','mirror','fillet','chamfer','shell','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','split','extractSolid','extractShell','faceHole','faceExtrude','logo','curvedLogo','thickenFace','extractFaces'];
+  const refs=[];const selection=explicitRefs;const single=['reliefShoulder','round','roundEnd','rounding','autoRound','smoothTransition','transform','copy','mirror','fillet','chamfer','shell','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','split','extractSolid','extractShell','faceHole','faceExtrude','logo','curvedLogo','thickenFace','extractFaces'];
   if(mechanicalRange){if(selection.length<mechanicalRange.min||selection.length>mechanicalRange.max)throw new Error(`此操作须明确提供 ${mechanicalRange.min===mechanicalRange.max?mechanicalRange.min:`${mechanicalRange.min}–${mechanicalRange.max}`} 个当前来源／目标对象。`);refs.push(...selection);}
   if([...single,'planeSection','faceBoundary','referenceExtrude','profileOffset','profileRepair'].includes(op)){
     if(selection.length!==1||!bodies.some(b=>b.id===selection[0]))throw new Error('请先选择一个当前实体。');
@@ -415,11 +415,11 @@ async function previewFeature(op,params,explicitRefs,name,placement,identity=nul
   const generation=++previewGeneration;previewComputing=true;previewComputingOwner=identity?.owner??'ui';setBusy(true,'预览 / Preview…');
   try{const routed=await routeChangedFeature(next,{expectedRevision:revision});next=routed.next;const result=await request('rebuild',{document:next});
     if(generation!==previewGeneration){await request('rebuild',{document:documentModel});previewNext=null;viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);return false;}
-    previewNext=next;previewIdentity=identity;const previewBody=result.bodies.find(body=>body.id===(editId??next.features.at(-1)?.id));previewScopeReport=op==='relief'?previewBody?.reliefReport||null:op==='refineShape'?previewBody?.refineReport||null:op==='round'?previewBody?.roundReport||null:op==='rounding'?previewBody?.roundingReport||null:op==='roundEnd'?previewBody?.endRoundingReport||null:null;
+    previewNext=next;previewIdentity=identity;const previewBody=result.bodies.find(body=>body.id===(editId??next.features.at(-1)?.id));previewScopeReport=['relief','reliefShoulder'].includes(op)?previewBody?.reliefReport||null:op==='refineShape'?previewBody?.refineReport||null:op==='round'?previewBody?.roundReport||null:op==='rounding'?previewBody?.roundingReport||null:op==='roundEnd'?previewBody?.endRoundingReport||null:null;
     viewport.setBodies(result.bodies,next.hidden);viewport.setSelection([]);
     if(previewScopeReport&&op==='rounding'){const sourceBody=bodies.find(body=>body.id===refs[0]);viewport.setScopeOverlay(sourceBody?.edges,previewScopeReport.requestedSelection,previewScopeReport.expandedSelection);}
     if(op==='round'&&previewScopeReport){previewScopeReport={...previewScopeReport,previewBodyId:previewBody.id,sourceBodyId:refs[0]};viewport.setRoundGuide(previewScopeReport);if(previewScopeReport.mode==='edge')viewport.setScopeOverlay(bodies.find(b=>b.id===refs[0])?.edges,params.edgeIds||[],params.edgeIds||[]);}
-    if(!bodies.length)viewport.fit();setStatus('预览未保存 · 应用或取消 / Preview: apply or cancel');return previewScopeReport?{[op==='relief'?'reliefReport':op==='refineShape'?'refineReport':op==='round'?'roundReport':op==='roundEnd'?'endRoundingReport':'roundingReport']:clone(previewScopeReport)}:true;}
+    if(!bodies.length)viewport.fit();setStatus('预览未保存 · 应用或取消 / Preview: apply or cancel');return previewScopeReport?{[['relief','reliefShoulder'].includes(op)?'reliefReport':op==='refineShape'?'refineReport':op==='round'?'roundReport':op==='roundEnd'?'endRoundingReport':'roundingReport']:clone(previewScopeReport)}:true;}
   catch(error){if(error.code==='PREVIEW_CANCELLED')return false;previewScopeReport=null;if(previousPreview&&previousIdentity?.previewId===identity?.previewId){const restored=await request('rebuild',{document:previousPreview});previewNext=previousPreview;previewIdentity=previousIdentity;previewScopeReport=previousScopeReport;viewport.setBodies(restored.bodies,previousPreview.hidden);}else{previewNext=null;previewIdentity=null;await request('rebuild',{document:documentModel});viewport.setBodies(bodies,documentModel.hidden);}throw error;}
   finally{previewComputing=false;if(recoveryPromise)await recoveryPromise.catch(()=>{});setBusy(false);}
 }

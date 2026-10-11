@@ -60,6 +60,7 @@ addTranslations({'尺寸沿来源局部 XYZ；启用工作基准时，底面中�
 const names = {...TOOL_LABELS,transform:'变换',moveTool:'移动',rotateTool:'旋转',copy:'克隆',copySelection:'复制',pasteSelection:'黏贴',sketch:'绘制草图',new:'新建',open:'打开',importAtFrame:'定位导入',save:'保存工程',export:'导出',parameters:'命名参数',precisionSettings:'尺寸与角度精度',themeSettings:'风格',snapSettings:'拖动吸附',languageSettings:'语言',agentGuide:'AGENT 接口',help:'使用帮助',displayPreferences:'渲染设置',servicesSettings:'Services',inspectPrintability:'成型检查',inspectFit:'干涉 / 间隙',inspectThickness:'指定位置壁厚',inspectDraft:'拔模检查',measureRelation:'关系测量',section:'剖切',screenshot:'截图',measure:'测量'};
 addTranslations({'面贴合 / 轴对齐':'Face mate / axis align','来源点（世界坐标）':'Source point (world)','来源轴（世界方向）':'Source axis (world)','来源面内方向（世界方向）':'Source in-plane direction (world)','目标点（基准局部）':'Target point (frame local)','目标轴（基准局部）':'Target axis (frame local)','目标面内方向（基准局部）':'Target in-plane direction (frame local)','轴向关系':'Axis relation','同向':'Same direction','反向':'Opposite direction','沿目标轴间隙 mm':'Gap along target axis (mm)','面内扭转角 °':'In-plane twist (degrees)','sourcePoint':'Source point','sourceAxis':'Source axis','sourceUp':'Source in-plane direction','targetPoint':'Target point','targetAxis':'Target axis','targetUp':'Target in-plane direction'});
 const fields = {
+ reliefShoulder:[['widthMm','肩部轴向宽度 mm',.3,'positive'],['endProtectionMm','两端保留长度 mm',.3,'positive'],['endPolicy','端部处理','retained-step-with-planar-caps',['retained-step-with-planar-caps']]],
  round:[['mode','处理方式','auto',['auto','edge','end']],['strength','边缘圆润程度',.5,'positive']],
  roundEnd:[['axis','杆身延伸轴','Y',['X','Y','Z']],['direction','端头朝向','1',['1','-1']],['profileAxis','截面厚度轴','Z',['X','Y','Z']],['depthMm','端部重建深度 mm',1.5,'positive']],
   profileOffset:[['distanceMm','等距偏移 mm',2,'positive'],['side','偏移方向','inside',['inside','outside']],['join','转角连接','intersection',['intersection','round']],['output','结果','band',['band','face','wire']]],
@@ -93,7 +94,7 @@ const fields = {
  copy:[['x','X 位移',50],['y','Y 位移',0],['z','Z 位移',0],['rx','绕 X 轴旋转',0],['ry','绕 Y 轴旋转',0],['rz','绕 Z 轴旋转',0],['scale','等比缩放',1,'positive']],
  mirror:[['plane','镜像平面','YZ',['YZ','XZ','XY']],['offsetMm','平面坐标偏置 mm',0],['keepOriginal','保留原件（创建镜像副本）',false,'boolean']],rounding:[['mode','模式','constant',['constant','variable','width']],['radiusMm','标准 R · mm',0.5,'positive'],['propagateTangent','沿相切锐边链延续（先预览完整范围）',true,'boolean'],['radiusStartMm','变 R 起点 · mm',0.5,'positive'],['radiusEndMm','变 R 终点 · mm',1.5,'positive'],['stationRows','变 R 中间站点 s,R · mm','','stationRows'],['chainDirection','变 R 边方向','forward',['forward','reverse']],['widthAMm','A 侧接合宽度 · mm',1,'positive'],['widthBMm','B 侧接合宽度 · mm',1,'positive'],['allEdges','处理整个实体的全部锐边',false,'boolean'],['excludeEdgeIds','排除的源边序号','','edgeIds']],fillet:[['radius','圆角半径',0.3,'positive'],['allEdges','处理整个实体的全部边',false,'boolean']],chamfer:[['mode','倒角方式','equalDistance',['equalDistance','twoDistances','distanceAngle']],['distance2','另一侧距离 mm',0.5,'positive'],['angleDeg','相对支撑面角度 °',45],['flipDirection','交换两侧支撑方向',false,'boolean'],['distance','倒角距离',0.3,'positive'],['allEdges','处理整个实体的全部边',false,'boolean']],shell:[['thickness','壁厚',1,'positive']]
 };
-const choiceNames={newBody:'新建实体',join:'加料合并',cut:'切除',intersect:'保留交集',distance:'指定距离',throughSelected:'贯穿所选实体',toPlane:'到指定平面',rectangle:'矩形',circle:'圆形',polygon:'多边形',roundedRectangle:'圆角矩形',arc:'圆弧',sector:'扇形',segment:'弓形','1':'轴正方向','-1':'轴负方向'};
+const choiceNames={'retained-step-with-planar-caps':'保留阶梯端帽（G0）',newBody:'新建实体',join:'加料合并',cut:'切除',intersect:'保留交集',distance:'指定距离',throughSelected:'贯穿所选实体',toPlane:'到指定平面',rectangle:'矩形',circle:'圆形',polygon:'多边形',roundedRectangle:'圆角矩形',arc:'圆弧',sector:'扇形',segment:'弓形','1':'轴正方向','-1':'轴负方向'};
  Object.assign(choiceNames,{compound:'独立实体组合',fuse:'融合为单实体',equalDistance:'等距离',twoDistances:'双距离',distanceAngle:'距离加角度',flat:'平底',angled:'钻尖锥底',cylindricalLength:'圆柱段长度（钻尖另加）',tipDepth:'入口到钻尖总深度'});
 const legacyRoundingFields=fields.rounding;
 const legacyUnifiedRoundingFields=[['sizeMm','圆润大小 · mm',0.5,'positive']];
@@ -335,6 +336,7 @@ export function createUI(root,callbacks={}) {
   notes.rounding='选中需要打磨的利角，按来源几何自动生成平滑过渡。无需输入 R；相关边与面可局部跟随，先核对预览中的影响范围，再确认。';
   notes.fillet='选择实体边，或 Ctrl 选择两个相邻面来倒公共边；单选一个面处理其边界。整件模式自动排除相切缝。R 过大或过渡相碰时保留原模型并报告目标边。';
   notes.multiPocket='每个凹槽用全局 XYZ 指定刀具入口中心。切入轴 Z 时宽/高沿 X/Y；轴 X 时沿 Y/Z；轴 Y 时沿 Z/X。cornerRadius 可省略或为 0；每个凹槽都必须实际去除材料。';
+  notes.reliefShoulder='选择圆柱浮雕层下方的水平阶梯面。中央与柱面平顺连接（G1），两端保留阶梯端帽（G0）。需要 Services；支持刚体移动后的单个阶梯（两条圆弧、直侧边）；复杂边界暂不支持。';
   notes.multiBoss='每行一组 X,Y,Z，共 1 至 64 个凸台底面中心；每个凸台必须与主体连成单一实体并增加材料。需要通孔时另用多位置打孔。';
   notes.chamfer='选择边或相邻面的公共边。可用等距离、双距离、距离加角度；非对称模式的第一距离在当前支撑面上，交换方向可改到另一侧。先核对预览；尺寸过大保留原模型。';
   notes.linearPattern='沿每步位移复制，数量包含原件。默认独立组合；融合模式须把副本连成一个实体，否则拒绝。';
@@ -350,7 +352,7 @@ export function createUI(root,callbacks={}) {
   const d=openDialog(names[action],(placed&&!simpleInsert?'默认按当前参考锚点定位。 ':'')+(advancedNotes[action]||notes[action]||'输入尺寸，创建可编辑的精确实体。'),{returnToSelect:true}),form=element('form',{class:'parameter-form'});
   d.dataset.commandId=action;
   let lockedTargetId=null,lockedTopology=null,pickingTarget=false,pickingSelectionKey=null;
-   if(['refineShape','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','faceHole','faceExtrude','round','roundEnd','rounding','fillet','chamfer','shell','split','mirror','linearPattern','circularPattern','smoothTransition','profileOffset','thread','faceGroove','innerTurn','outerTurn'].includes(action)){
+   if(['reliefShoulder','refineShape','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','faceHole','faceExtrude','round','roundEnd','rounding','fillet','chamfer','shell','split','mirror','linearPattern','circularPattern','smoothTransition','profileOffset','thread','faceGroove','innerTurn','outerTurn'].includes(action)){
     const target=element('div',{class:'task-target','data-selection-slot':'target'});
     const selectionKey=()=>JSON.stringify([state.selectedIds[0],state.selectedTopology?.type,state.selectedTopology?.ids]);
     const changeTarget=button('更换目标 / 范围',()=>{pickingTarget=true;pickingSelectionKey=selectionKey();taskTargetRefresh();},'secondary');

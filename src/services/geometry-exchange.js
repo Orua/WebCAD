@@ -3,7 +3,7 @@ import {serviceError} from './settings.js';
 import {geometryFeatureRecord} from './geometry-signature.js';
 import {remotePlacementSupported} from './execution-context.js';
 export const LOCAL_KERNEL_BUILD_ID='replicad-opencascadejs@1.1.0:sha256:4c9f22e9f3828dca6f3c95405934cdbe624e593c35266f47f392ab337478dbde';
-export const VERIFIED_NATIVE_KERNELS=new Set(['native-occt@7.8.1:sha256:49577a9a58330f0277f0b7ef841dad07f525ff19f1f9a8d5f14a7c014eb5de59','native-occt@7.8.1:sha256:d717ef7bebadb247f7115565aa0d4b95b2a61f0a6650a69b21d9bb514d4c7fe9','native-occt@7.8.1:sha256:156207b5da408b4849c3eae5288566c1268d99c03b7ea1d9d6bad1c25fface4d','native-occt@7.8.1:sha256:a06e04a5ec36c8af9264ad2a2a97f3461739fcd7884554d224e9e726d8d63418','native-occt@7.8.1:sha256:09c49d81a7c71ec8be3a1095cc553ed3214e3d6ccd8a66277ea437d6dbe12491','native-occt@7.8.1:sha256:30230a58721f33434fba7e0e7d1841f8c588a999b60fc0993ab35b8790b55daa','native-occt@7.8.1:sha256:e0dbf5c23ad492c44f56e79c936b5bdf2d44205b0caa9dba398d111a17ba242c','native-occt@7.8.1:sha256:1c85cc9526ec6e70991b9a0e0499cb50655564470649d26e54bd4062932a4337','native-occt@7.8.1:sha256:a71e3a8c81e6b268928f9328c024dc61a0d049e8e3923075ca3e713f98a378f2']);
+export const VERIFIED_NATIVE_KERNELS=new Set(['native-occt@7.8.1:sha256:4a462d0f36fc31d5ad86c6ca402a235314b698c192b2aac98e747c353edd20d5','native-occt@7.8.1:sha256:d8bd9fbc2ffdec0722dceff0297b84212df2b1422dae6a240af72fb55de7c452','native-occt@7.8.1:sha256:b128ff1e921fbd444c03f89e8eb5e2acee83afe7d8e171790be7fa37f6b3b824','native-occt@7.8.1:sha256:49577a9a58330f0277f0b7ef841dad07f525ff19f1f9a8d5f14a7c014eb5de59','native-occt@7.8.1:sha256:d717ef7bebadb247f7115565aa0d4b95b2a61f0a6650a69b21d9bb514d4c7fe9','native-occt@7.8.1:sha256:156207b5da408b4849c3eae5288566c1268d99c03b7ea1d9d6bad1c25fface4d','native-occt@7.8.1:sha256:a06e04a5ec36c8af9264ad2a2a97f3461739fcd7884554d224e9e726d8d63418','native-occt@7.8.1:sha256:09c49d81a7c71ec8be3a1095cc553ed3214e3d6ccd8a66277ea437d6dbe12491','native-occt@7.8.1:sha256:30230a58721f33434fba7e0e7d1841f8c588a999b60fc0993ab35b8790b55daa','native-occt@7.8.1:sha256:e0dbf5c23ad492c44f56e79c936b5bdf2d44205b0caa9dba398d111a17ba242c','native-occt@7.8.1:sha256:1c85cc9526ec6e70991b9a0e0499cb50655564470649d26e54bd4062932a4337','native-occt@7.8.1:sha256:a71e3a8c81e6b268928f9328c024dc61a0d049e8e3923075ca3e713f98a378f2']);
 export const GEOMETRY_CODEC='occt-text-brep-v1';
 export const TRANSLATION_SEMANTIC_VERSION='transform.translation-1.0';
 export const BOOLEAN_CUT_SEMANTIC_VERSION='boolean.cut-1.0';
@@ -11,9 +11,13 @@ export const FACE_ROUND_SEMANTIC_VERSION='round.planar-boundary-1.0';
 export const RELIEF_SEMANTIC_VERSION='relief.compiled-contours-1.0';
 export const RELIEF_PATCH_SEMANTIC_VERSION='relief.compiled-contours-local-patch-1.1';
 export const RELIEF_STROKE_SEMANTIC_VERSION='relief.compiled-contours-strokes-1.2';
-export const compiledSemanticVersion=feature=>feature?.op==='round'?FACE_ROUND_SEMANTIC_VERSION:feature?.op==='cut'?BOOLEAN_CUT_SEMANTIC_VERSION:feature?.op==='relief'?(feature.params?.layers?.some(layer=>layer.strokes||layer.mode==='engrave')?RELIEF_STROKE_SEMANTIC_VERSION:feature.params?.layers?.some(layer=>layer.localPatches)?RELIEF_PATCH_SEMANTIC_VERSION:RELIEF_SEMANTIC_VERSION):TRANSLATION_SEMANTIC_VERSION;
+export const SHOULDER_SEMANTIC_VERSION='relief.central-shoulder-1.0';
+export const compiledSemanticVersion=feature=>feature?.op==='reliefShoulder'?SHOULDER_SEMANTIC_VERSION:feature?.op==='round'?FACE_ROUND_SEMANTIC_VERSION:feature?.op==='cut'?BOOLEAN_CUT_SEMANTIC_VERSION:feature?.op==='relief'?(feature.params?.layers?.some(layer=>layer.strokes||layer.mode==='engrave')?RELIEF_STROKE_SEMANTIC_VERSION:feature.params?.layers?.some(layer=>layer.localPatches)?RELIEF_PATCH_SEMANTIC_VERSION:RELIEF_SEMANTIC_VERSION):TRANSLATION_SEMANTIC_VERSION;
 export function assertCompilableFeature(feature){
  if(feature&&!remotePlacementSupported(feature))throw serviceError('OPERATION_UNAVAILABLE','当前远程实现仅验收世界坐标放置；此特征继续使用本地放置语义');
+ if(feature?.op==='reliefShoulder'){
+  const p=feature.params??{};if(feature.refs?.length!==1||!Number.isInteger(p.faceId)||p.faceId<0||!Array.isArray(p.point)||p.point.length!==3||p.point.some(v=>!Number.isFinite(v))||!Number.isFinite(p.widthMm)||p.widthMm<=0||p.widthMm>10000||!Number.isFinite(p.endProtectionMm)||p.endProtectionMm<=0||p.endProtectionMm>10000||p.endPolicy!=='retained-step-with-planar-caps'||Object.keys(p).some(k=>!['faceId','point','widthMm','endProtectionMm','endPolicy'].includes(k)))throw serviceError('OPERATION_UNAVAILABLE','中央肩部需要明确的下阶梯面、面内点、宽度和保留端帽策略');return p;
+ }
  if(feature?.op==='round'){
   const p=feature.params??{};
   if(feature.refs?.length!==1||p.faceIds?.length!==1||!Number.isInteger(p.faceIds[0])||p.faceIds[0]<0||Object.keys(p).some(key=>!['mode','strength','radiusMm','faceIds'].includes(key))||!['auto','edge'].includes(p.mode??'auto')||(p.strength??.5)!==.5||p.radiusMm!==undefined&&(!Number.isFinite(p.radiusMm)||p.radiusMm<=0))throw serviceError('OPERATION_UNAVAILABLE','原生整面圆润只支持单个矩形平面的完整边界，沿用已有 R；不使用强度缩放或端头参数');
@@ -44,9 +48,14 @@ export function installCompiledCandidate(document,{manifest,bytes,context,recipe
  if(context.documentId!==document.documentId||manifest.documentId!==context.documentId||manifest.documentInstanceId!==context.documentInstanceId||manifest.expectedRevision!==context.expectedRevision)throw serviceError('REVISION_CONFLICT','原生结果属于另一个工程修订');
  if(manifest.operation!==feature.op||manifest.semanticVersion!==compiledSemanticVersion(feature)||manifest.codec!==GEOMETRY_CODEC||manifest.units!=='mm'||manifest.coordinateSystem!=='world-xyz-right-handed'||!VERIFIED_NATIVE_KERNELS.has(manifest.kernelBuildId))throw serviceError('GEOMETRY_CODEC_MISMATCH','原生内核/语义/几何 codec 未经验证');
  const binding=manifest.topologyBinding;
- if(binding?.kind!==(feature.op==='round'?'planar-face-geometric-intent':feature.op==='cut'?'whole-sources':feature.op==='relief'?'outer-cylinder-geometric-intent':'whole-source')||binding.matchCount!==(feature.op==='cut'?feature.refs.length:1)||binding.numericIndicesTransferred!==false)throw serviceError('GEOMETRY_INVALID','服务未证明唯一的当前来源几何绑定');
+ if(binding?.kind!==(['round','reliefShoulder'].includes(feature.op)?'planar-face-geometric-intent':feature.op==='cut'?'whole-sources':feature.op==='relief'?'outer-cylinder-geometric-intent':'whole-source')||binding.matchCount!==(feature.op==='cut'?feature.refs.length:1)||binding.numericIndicesTransferred!==false)throw serviceError('GEOMETRY_INVALID','服务未证明唯一的当前来源几何绑定');
  if(feature.op==='cut'&&(manifest.strategy!=='multi-source-boolean'||!validCutHashes(manifest,feature)))throw serviceError('RESULT_MISMATCH','服务未按顺序绑定切除目标和全部刀具');
  let roundReport;
+ if(feature.op==='reliefShoulder'){
+  const r=manifest.shoulderReport,p=feature.params;
+  if(manifest.strategy!=='source-boundary-replacement'||r?.kind!=='central-cylindrical-shoulder'||r.fixedRadius!==false||r.centralContinuity!=='G1'||r.endCapContinuity!=='G0'||r.endPolicy!==p.endPolicy||Math.abs(r.widthMm-p.widthMm)>1e-7||Math.abs(r.endProtectionMm-p.endProtectionMm)>1e-7||!Number.isFinite(r.widthMm)||!Number.isFinite(r.endProtectionMm)||!(r.removedVolumeMm3>0))throw serviceError('RESULT_MISMATCH','肩部结果的宽度、端帽或连续性语义不匹配');
+ }
+
  if(feature.op==='round'){
   const round=manifest.roundBoundary;
   if(manifest.strategy!=='planar-boundary-cutter'||!Number.isFinite(round?.radiusMm)||round.radiusMm<=0||round.cornerSemantics!=='smooth-freeform-patches'||round.isolatedCornerTerminations!==4||feature.params.radiusMm!==undefined&&Math.abs(round.radiusMm-feature.params.radiusMm)>1e-7)throw serviceError('RESULT_MISMATCH','服务未返回约定的整面圆润范围和圆角语义');
@@ -60,7 +69,7 @@ export function installCompiledCandidate(document,{manifest,bytes,context,recipe
  const artifact=manifest.geometryArtifact;if(!(bytes instanceof Uint8Array)||!artifact||bytes.length!==artifact.bytes||binaryHash(bytes).slice(7)!==artifact.sha256||artifact.format!==GEOMETRY_CODEC||artifact.brepVersion!==3)throw serviceError('ARTIFACT_CORRUPT','精确几何产物校验失败');
  if(bytes.length>20*1024*1024)throw serviceError('RESULT_TOO_LARGE_FOR_CLIENT','结果超出当前精确工程导回预算；服务产物保留');
  if(!manifest.validation?.valid||manifest.validation.solidCount!==1)throw serviceError('GEOMETRY_INVALID','服务未返回已校验的单实体');
- const checkpoint={recipeFingerprint,sourceSha256:manifest.sourceSha256,sourceSnapshotVersion:feature.op==='cut'?2:1,...(feature.op==='cut'?{inputSha256:[...manifest.inputSha256]}:{}),...(roundReport?{roundReport}:{}),artifactSha256:artifact.sha256,semanticVersion:manifest.semanticVersion,codec:manifest.codec,brepVersion:3,kernelBuildId:manifest.kernelBuildId,consumerKernelBuildId:LOCAL_KERNEL_BUILD_ID,jobId:manifest.jobId,inputFingerprint:manifest.inputFingerprint};
+ const checkpoint={recipeFingerprint,sourceSha256:manifest.sourceSha256,sourceSnapshotVersion:feature.op==='cut'?2:1,...(feature.op==='cut'?{inputSha256:[...manifest.inputSha256]}:{}),...(roundReport?{roundReport}:{}),...(feature.op==='reliefShoulder'?{reliefReport:manifest.shoulderReport}:{}),artifactSha256:artifact.sha256,semanticVersion:manifest.semanticVersion,codec:manifest.codec,brepVersion:3,kernelBuildId:manifest.kernelBuildId,consumerKernelBuildId:LOCAL_KERNEL_BUILD_ID,jobId:manifest.jobId,inputFingerprint:manifest.inputFingerprint};
  return {...document,version:3,features:document.features.map(f=>f.id===feature.id?{...f,compiledCheckpoint:checkpoint}:f),compiledArtifacts:{...document.compiledArtifacts,[artifact.sha256]:new Uint8Array(bytes)}};
 }
 export function compiledCheckpointBytes(document,feature,sourceBytes){

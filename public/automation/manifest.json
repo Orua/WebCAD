@@ -1,9 +1,9 @@
 {
   "version": "1.28.3",
-  "buildId": "f9fe87e23729244dfd1491004d6eed1ecc4b02d6-src-b00f065410ad61ed",
+  "buildId": "8cdc2cf9a3eabb38e4c2a436a4d10093b7758791-src-443937a89e89b512-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:dd4309eba5212c845484130e16dbb88894e30310aaab34a4a08b6a42062d1df5",
-  "docsHash": "sha256:e98aab90733723be9c30874a70c06b2d5c5842d96d64b2d649d8586744e319bb",
+  "catalogHash": "sha256:0e65474610b30f503e16efe13e6a8fe21a062d5ea27a0e18b2754bb6c001fffe",
+  "docsHash": "sha256:da7f98c6b9c03cdd5bb32dc1ce6cf2c4f7b1f96cd754e53316b7bbb256fb3257",
   "apiMethods": [
     "decideServicesWait",
     "recoverServicesJob",
@@ -557,6 +557,15 @@
       "version": "1.0.0",
       "docsHash": "sha256:3945e5a941b3346048c55362da5795b964b6880c473d14bcf3ef514f7c27f6ac",
       "url": "tools/relief.json"
+    },
+    {
+      "id": "reliefShoulder",
+      "title": "浮雕中央肩部 / Central relief shoulder",
+      "label": "浮雕中央肩部",
+      "category": "modification",
+      "version": "1.0.0",
+      "docsHash": "sha256:b3c32783fbf7373a8fa333e0fe8a6b65a7c808987d64167f11ee33327040d1ee",
+      "url": "tools/reliefShoulder.json"
     },
     {
       "id": "revolve",
@@ -2195,7 +2204,7 @@
     },
     {
       "id": "api.ui-coverage",
-      "docsHash": "sha256:aa031d9d3785c77f4ad35a63fe751186eb50c1718065a778c10ad4d4e6e3d206",
+      "docsHash": "sha256:07b0fe8c968ee3026831ae1cf03ca67d0bf4dae4e517dc9d611ba75af0e548b6",
       "url": "docs/api.ui-coverage.md"
     },
     {
