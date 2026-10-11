@@ -8,6 +8,7 @@ import { buildQuickModel } from './quick-models.js';
 import { buildLogoOnPlane, buildVectorProfile } from './logo-model.js';
 import {buildRelief} from './modeling/manufacturing/relief.js';
 import {prepareCompiledReliefPlan} from './services/relief-plan.js';
+import {inspectFaceRoundSource} from './services/face-round-plan.js';
 import {geometryFeatureSignature} from './services/geometry-signature.js';
 import {ReliefLayerCache} from './modeling/manufacturing/relief-layer-cache.js';
 import {binaryHash} from './contracts/operation-schema.js';
@@ -633,6 +634,10 @@ export class CadKernel {
     const shape=this.shapes.get(sourceFeatureId);if(!shape)throw Object.assign(new Error('浮雕来源特征几何已失效'),{code:'STALE_REFERENCE'});
     return {plan:prepareCompiledReliefPlan(shape,params,this.oc,cad,{sourceBrep:this.geometrySourceSnapshot(shape)})};
   }
+  faceRoundPlan(sourceFeatureId,params,prepare=false){
+    const shape=this.shapes.get(sourceFeatureId);if(!shape)throw Object.assign(new Error('圆润来源特征几何已失效'),{code:'STALE_REFERENCE'});
+    return {plan:inspectFaceRoundSource(shape,params,this.oc,cad,{sourceBrep:this.geometrySourceSnapshot(shape),prepare})};
+  }
   remesh(quality) {
     renderQuality(quality);
     const previous=this.quality;
@@ -701,19 +706,21 @@ export class CadKernel {
         if (index < prefix) { shape = this.shapes.get(current); if(shape){next.set(current, shape); reused.add(current);} }
         else {
           // OCC builders can add p-curves/flags to input TShapes even on failure.
-          // A cheap wrapper clone shares that topology. Isolate only committed
-          // references; otherwise an unsuccessful edit corrupts the cached BRep.
+          // A cheap wrapper clone shares that topology. Every referenced input
+          // uses its frozen pre-display BRep, including a cold history rebuild:
+          // inheriting hot display polygons otherwise changes checkpoint hashes.
           const inputs=new Map(next),copies=[];
           const sourceFingerprint=feature.op==='relief'&&feature.refs?.length===1?binaryHash(new TextEncoder().encode(this.geometrySourceSnapshot(next.get(feature.refs[0])))):undefined;
           try {
-            for(const id of new Set(feature.refs||[]))if(reused.has(id)){
-              const copy=cad.deserializeShape(next.get(id).serialize());
+            for(const id of new Set(feature.refs||[]))if(next.has(id)){
+              const copy=cad.deserializeShape(this.geometrySourceSnapshot(next.get(id)));
               copies.push(copy);inputs.set(id,copy);
             }
             // Bind the same authoritative cached source bytes that were
             // uploaded. Reading a defensive BRep copy can rewrite serialization
             // flags without changing geometry; that copy is for computation.
-            let checkpoint=compiledCheckpointBytes(document,feature,feature.compiledCheckpoint&&feature.refs?.length===1?new TextEncoder().encode(this.geometrySourceSnapshot(next.get(feature.refs[0]))):undefined);
+            const checkpointSources=feature.compiledCheckpoint?feature.refs.map(id=>new TextEncoder().encode(this.geometrySourceSnapshot(next.get(id)))):null;
+            let checkpoint=compiledCheckpointBytes(document,feature,checkpointSources?(feature.op==='cut'?checkpointSources:checkpointSources[0]):undefined);
             // Pre-snapshot v3 artifacts could include display triangulations.
             // Recreate that source representation once and require its exact
             // original hash. This is source mesh work, never relief recompute.
@@ -721,7 +728,7 @@ export class CadKernel {
               const legacySource=next.get(feature.refs[0]);this.describe(legacySource,{id:feature.refs[0],op:'legacy-source'});
               checkpoint=compiledCheckpointBytes(document,feature,new TextEncoder().encode(legacySource.serialize()));
             }
-            if(checkpoint){shape=cad.deserializeShape(new TextDecoder().decode(checkpoint));compiledReuse.push(current);}
+            if(checkpoint){shape=cad.deserializeShape(new TextDecoder().decode(checkpoint));if(feature.op==='round')shape.roundReport=feature.compiledCheckpoint.roundReport;compiledReuse.push(current);}
             else {if(feature.compiledCheckpoint)compiledInvalidated.push(current);shape=await this.operation(feature,inputs,document.imports||{},document.features,{sourceFingerprint});}
             if(shape&&!checkpoint&&feature.placement&&placementPolicy(feature.op)==='C'){const placed=placeCreation(shape,feature.placement);dispose(shape);shape=placed;}
           } finally {copies.forEach(dispose);}

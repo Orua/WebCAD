@@ -36,12 +36,13 @@ export function showRoundTool({getState,openDialog,element,button,emit,close,set
    if(ticket!==generation){queued=true;return;}
    original=false;ready=true;label.hidden=false;const c=report.control;
    range.min=c.min;range.max=c.max;range.step=c.step??.05;range.value=c.value;
-   caption.textContent=report.mode==='end'?'处理范围':'圆润程度';range.setAttribute('aria-label',caption.textContent);
-   value.textContent=report.mode==='end'?c.value.toFixed(2)+' mm':'轻微 ← '+Math.round(c.value*100)+'% → 明显';
+   caption.textContent=c.kind==='fixed-radius'?'沿用已有圆角':report.mode==='end'?'处理范围':'圆润程度';range.setAttribute('aria-label',caption.textContent);
+   value.textContent=c.kind==='fixed-radius'?'R '+report.radiusMm.toFixed(3)+' mm':report.mode==='end'?c.value.toFixed(2)+' mm':'轻微 ← '+Math.round(c.value*100)+'% → 明显';
    const residual=report.endRoundingReport?.residualSeams?.length;
    status.textContent=report.mode==='end'?'已识别端头；蓝色区域整体重建。'+(residual?'保留原截面微折痕 '+report.endRoundingReport.maxHeadAngleDeg.toFixed(3)+'°。':'新接缝检查通过。'):(selectionKind==='face'?'已圆润平面完整边界（含孔边）':'已识别边缘；仅圆润所选边')+'，实际 R '+report.radiusMm.toFixed(3)+' mm。';
+   if(report.construction==='planar-boundary-cutter')status.textContent='已圆润矩形面的完整边界，四侧 R '+report.radiusMm.toFixed(3)+' mm；四角为光滑自由曲面，保留下部竖棱和 4 个孤立终止点。';
    guide(report);compare.disabled=false;
-  }finally{working=false;range.disabled=false;if(live)apply.disabled=!ready||original;if(queued&&live){queued=false;schedule();}}
+  }finally{working=false;range.disabled=report?.control?.kind==='fixed-radius';if(live)apply.disabled=!ready||original;if(queued&&live){queued=false;schedule();}}
  }
  function schedule(){clearTimeout(timer);if(!live)return;ready=false;apply.disabled=true;timer=setTimeout(preview,120);}
  range.addEventListener('input',()=>{dirty();if(report?.mode==='end'){depth.value=range.value;value.textContent=Number(range.value).toFixed(2)+' mm';guide({...report,control:{...report.control,value:Number(range.value)},scope:{...report.scope,depthMm:Number(range.value),center:report.scope.center.map((v,i)=>i==='XYZ'.indexOf(report.scope.axis)?report.scope.end-report.scope.direction*Number(range.value):v)}});}else{strength=Number(range.value);radius.value='';value.textContent=Math.round(strength*100)+'%';}});

@@ -8,6 +8,7 @@
     "sourceFaces": 150,
     "sourceEdges": 400,
     "sourceBytes": 2097152,
+    "booleanInputs": 13,
     "aggregateRegions": 24,
     "patternHoles": 24,
     "layers": 3,
@@ -102,6 +103,8 @@
     "logo",
     "quickModel"
   ],
+  "booleanOperations": ["cut", "union", "intersect"],
+  "unmeasuredSourceOperations": ["cut", "union", "intersect", "round"],
   "denseMachiningOperations": [
     "multiHole",
     "multiPocket",
@@ -129,6 +132,9 @@
     "operation",
     "semanticVersion",
     "sourceBytes",
+    "sourceCount",
+    "preexistingBoundaryRound",
+    "sourceComplexityUnavailable",
     "sourceFaces",
     "sourceEdges",
     "sourceHoles",

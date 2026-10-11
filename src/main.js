@@ -5,7 +5,7 @@ import {servicesClient} from './services/client.js';
 import {getServicesConfig,serviceError} from './services/settings.js';
 import {chooseExecutor,classifyComplexity,tbdForOperation,createExecutionHistory,EXECUTION_POLICY} from './services/execution-router.js';
 import {showServicesWait} from './ui/forms/services-wait.js';
-import {patternComplexity,remotePlacementSupported,physicalExecutionKey} from './services/execution-context.js';
+import {patternComplexity,aggregateSourceComplexity,collectRoutingSources,remotePlacementSupported,physicalExecutionKey} from './services/execution-context.js';
 import {geometryFeatureRecord} from './services/geometry-signature.js';
 import {compileRemoteFeature} from './services/remote-executor.js';
 import {assertCompilableFeature,geometryRecipeFingerprint,installCompiledCandidate,compiledCheckpointBytes,compiledSemanticVersion,VERIFIED_NATIVE_KERNELS,LOCAL_KERNEL_BUILD_ID,GEOMETRY_CODEC,TRANSLATION_SEMANTIC_VERSION} from './services/geometry-exchange.js';
@@ -215,42 +215,52 @@ function applyAppearance(){
 async function routeChangedFeature(next,{signal,expectedRevision,featureId,explicitRemote=false,allowUpload}={}){
  const config=getServicesConfig(),servicesAvailable=config.configured;
  const records=new Map(documentModel.features.map(feature=>[feature.id,JSON.stringify(geometryFeatureRecord(feature))]));
- const changed=next.features.filter(feature=>records.get(feature.id)!==JSON.stringify(geometryFeatureRecord(feature)));
- const sourceSummary=feature=>{const body=bodies.find(row=>row.id===feature?.refs?.[0]);return {faces:body?.faceGroups?.length,edges:body?.edges?.length,solids:body?.solidCount};};
+ const affected=new Set(next.features.filter(feature=>records.get(feature.id)!==JSON.stringify(geometryFeatureRecord(feature))).map(feature=>feature.id));if(featureId)affected.add(featureId);
+ for(const row of next.features)if(row.refs?.some(id=>affected.has(id)))affected.add(row.id);
+ const changed=next.features.filter(feature=>affected.has(feature.id));
+ const authoritative=servicesAvailable?await collectRoutingSources(changed,{hasSource:id=>records.has(id),changedSourceIds:affected,readSource:async id=>{const source=await request('sourceComplexity',{featureId:id});checkTransaction(signal,expectedRevision);return source;}}):new Map();
+ const sourceSummary=feature=>authoritative.get(feature?.id)??aggregateSourceComplexity((feature?.refs??[]).map(id=>{const body=bodies.find(row=>row.id===id);return {faces:body?.faceGroups?.length,edges:body?.edges?.length,solids:body?.solidCount};}));
  const feature=featureId?next.features.find(row=>row.id===featureId):changed.length===1?changed[0]:null;
  const publish=decision=>{lastServicesDecision={...decision,featureId:feature?.id??null,documentInstanceId,revision};setStatus(decision.reason);};
+ if(featureId&&changed.some(row=>row.id!==featureId&&classifyComplexity({operation:row.op,params:row.params,source:sourceSummary(row),pattern:patternComplexity(row)}).complex))throw serviceError('COMPLEX_BATCH_REQUIRES_SEQUENTIAL','此编译会使下游复杂运算失效；请先移除下游步骤，完成来源后重新执行复杂操作。');
  if(!feature){
   const pending=changed.find(row=>!row.compiledCheckpoint&&tbdForOperation({operation:row.op,semanticVersion:compiledSemanticVersion(row),params:row.params,source:sourceSummary(row),pattern:patternComplexity(row)}));
   if(pending)throw serviceError('OPERATION_TBD','TBD：该运算尚未完成验收，已禁用，原工程保留。');
   const complex=changed.find(row=>classifyComplexity({operation:row.op,params:row.params,source:sourceSummary(row),pattern:patternComplexity(row)}).complex);
-  if(servicesAvailable&&complex)throw serviceError('COMPLEX_BATCH_REQUIRES_SEQUENTIAL','复杂多特征事务须分步提交，让服务器计算每一步的精确来源。');
+  if(servicesAvailable&&complex)throw serviceError('COMPLEX_BATCH_REQUIRES_SEQUENTIAL','修改会重建下游复杂运算；请先移除下游步骤，完成来源修改后重新执行复杂操作。原工程保持。');
   return {next};
  }
  const base={servicesAvailable,explicitRemote,allowUpload:servicesAvailable||allowUpload===true,operation:feature.op,semanticVersion:compiledSemanticVersion(feature),params:feature.params,pattern:patternComplexity(feature),source:sourceSummary(feature)};
  const localReady=!!previewNext&&JSON.stringify(previewNext.features)===JSON.stringify(next.features);
  const savedReady=!!feature.compiledCheckpoint&&!!compiledCheckpointBytes(next,feature);
  if(localReady||savedReady){publish(chooseExecutor({...base,cache:{localCheckpoint:true}}));return {next};}
+ if(servicesAvailable&&feature.op==='round'&&feature.refs?.length===1&&feature.params.faceIds?.length===1&&documentModel.features.some(row=>row.id===feature.refs[0])&&geometryRecipeFingerprint(next,feature.refs[0])===geometryRecipeFingerprint(documentModel,feature.refs[0])){
+  const inspected=await request('faceRoundPlan',{sourceFeatureId:feature.refs[0],params:feature.params});checkTransaction(signal,expectedRevision);
+  base.source.preexistingBoundaryRound=inspected.plan.candidate===true;
+ }
  const classification=classifyComplexity(base);
  const pending=tbdForOperation(base);if(pending){publish(chooseExecutor(base));throw serviceError('OPERATION_TBD','TBD：'+pending.label+'尚未完成验收，已禁用，原工程保留。');}
  if(!servicesAvailable||!classification.complex&&!explicitRemote){const decision=chooseExecutor(base);publish(decision);if(explicitRemote&&!servicesAvailable)throw serviceError('SERVICES_CONFIG_REQUIRED','先配置并启用 Services');return {next};}
  if(!remotePlacementSupported(feature))throw serviceError('SERVICES_OPERATION_UNAVAILABLE','此复杂操作的放置尚未由原生服务器支持，请明确使用已支持的世界坐标语义；不会回退本地。');
- if(feature.refs?.length!==1||!documentModel.features.some(row=>row.id===feature.refs[0])||geometryRecipeFingerprint(next,feature.refs[0])!==geometryRecipeFingerprint(documentModel,feature.refs[0]))throw serviceError('SERVICES_SOURCE_UNAVAILABLE','复杂操作需要一个已提交、未变化的来源；请先完成来源步骤。');
+ if(!feature.refs?.length||feature.refs.some(id=>!documentModel.features.some(row=>row.id===id)||geometryRecipeFingerprint(next,id)!==geometryRecipeFingerprint(documentModel,id)))throw serviceError('SERVICES_SOURCE_UNAVAILABLE','复杂操作的目标和全部刀具都必须是已提交、未变化的来源；请先完成来源步骤。');
  try{assertCompilableFeature(feature);}catch(error){throw serviceError('SERVICES_OPERATION_UNAVAILABLE','此复杂操作尚未由原生服务器实现：'+error.message,{operation:feature.op});}
  const capabilities=await servicesClient.capabilities();checkTransaction(signal,expectedRevision);
  const capability=capabilities.operations.find(row=>row.operation===feature.op&&row.semanticVersion===base.semanticVersion&&row.enabled);
- const source=await request('sourceComplexity',{featureId:feature.refs[0],faceId:feature.params.faceId});checkTransaction(signal,expectedRevision);
+ const sources=[];for(const id of feature.refs){sources.push(await request('sourceComplexity',{featureId:id,...(feature.op==='relief'?{faceId:feature.params.faceId}:{})}));checkTransaction(signal,expectedRevision);}
+ const source=feature.op==='cut'?aggregateSourceComplexity(sources):{...sources[0],preexistingBoundaryRound:base.source.preexistingBoundaryRound};
  const pair=capabilities.geometryExchange?.testedKernelPairs?.some(row=>row.producerKernelBuildId===capability?.kernelBuildId&&row.consumerKernelBuildId===LOCAL_KERNEL_BUILD_ID&&row.codec===GEOMETRY_CODEC&&row.brepVersion===3);
- const input={...base,source,endpoint:config.url,kernelBuildId:capability?.kernelBuildId??'unavailable'},executionKey=physicalExecutionKey(feature,source.sourceSha256,input.kernelBuildId,input.endpoint);
+ const input={...base,source,endpoint:config.url,kernelBuildId:capability?.kernelBuildId??'unavailable'},executionKey=physicalExecutionKey(feature,source.inputSha256??source.sourceSha256,input.kernelBuildId,input.endpoint);
  const decision=chooseExecutor({...input,capabilities,clientImportReady:!!pair&&VERIFIED_NATIVE_KERNELS.has(capability?.kernelBuildId),knownTask:servicesExecutionHistory.task(executionKey)});publish(decision);
  if(decision.executor==='blocked')throw serviceError('SERVICES_OPERATION_UNAVAILABLE',decision.reason,{executionKey,routingDecision:decision});
  if(decision.executor==='local')return {next};
  try{
-  const bytes=(await request('serializeFeature',{featureId:feature.refs[0]})).data;
-  const plan=feature.op==='relief'?(await request('prepareReliefPlan',{sourceFeatureId:feature.refs[0],params:feature.params})).plan:null;
+  const snapshots=[];for(const id of feature.refs){snapshots.push((await request('serializeFeature',{featureId:id})).data);checkTransaction(signal,expectedRevision);}
+  const bytes=feature.op==='cut'?snapshots:snapshots[0];
+  const plan=feature.op==='relief'?(await request('prepareReliefPlan',{sourceFeatureId:feature.refs[0],params:feature.params})).plan:feature.op==='round'?(await request('faceRoundPlan',{sourceFeatureId:feature.refs[0],params:feature.params,prepare:true})).plan:null;
   const context={documentId:next.documentId,documentInstanceId,expectedRevision};
   const candidate=await compileRemoteFeature(next,feature.id,bytes,context,{allowUpload:true,plan,signal,waitTimeoutMs:config.serverWaitMs,onWaitTimeout:job=>waitForServicesDecision(job,{signal})});checkTransaction(signal,expectedRevision);
   return {next:installCompiledCandidate(next,{manifest:candidate.manifest,bytes:candidate.geometryBytes,context,recipeFingerprint:candidate.recipeFingerprint}),record:{executor:'remote',input,executionKey,measurements:candidate.executionMeasurements}};
- }catch(error){servicesExecutionHistory.failure(executionKey,error);error.routingDecision=decision;throw error;}
+ }catch(error){if(!(error.code==='CANCELLED'&&error.submitted===false))servicesExecutionHistory.failure(executionKey,error);error.routingDecision=decision;throw error;}
 }
 
 async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,expectedRevision,newInstance=false,restoring=false,historyLabel}={}){
