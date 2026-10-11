@@ -3,18 +3,19 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import net from 'node:net';
-import {spawn} from 'node:child_process';
-import {randomBytes} from 'node:crypto';
+import {spawn,spawnSync} from 'node:child_process';
+import {randomBytes,createHash} from 'node:crypto';
 import init from 'replicad-opencascadejs';
 import * as cad from 'replicad';
 import {CadKernel} from '../src/cad-kernel.js';
 import {createServicesClient} from '../src/services/client.js';
 import {compileRemoteFeature} from '../src/services/remote-executor.js';
-import {installCompiledCandidate} from '../src/services/geometry-exchange.js';
+import {installCompiledCandidate,geometryRecipeFingerprint} from '../src/services/geometry-exchange.js';
 import {encodeProjectV3,decodeProject} from '../src/project-container.js';
 import {prepareReliefSculpt} from '../src/relief-sculpt.js';
 
 test('actual persistent native relief uses geometric intent, retains its original layers and cold-opens offline',async()=>{
+ if(process.env.WEBCAD_RELIEF_DIRECT==='1'){await verifyDirectRelief();return;}
  const host=process.env.WEBCAD_SERVICES_TEST_HOST,logo=process.env.WEBCAD_SERVICES_TEST_LOGO_WORKER,worker=process.env.WEBCAD_NATIVE_WORKER,proof=process.env.WEBCAD_NATIVE_ACCEPTANCE,root=process.env.WEBCAD_NATIVE_TEST_ROOT;assert(host&&logo&&worker&&proof&&root,'Actual binaries and kernel proof required');
  await fs.mkdir(root,{recursive:true});const data=await fs.mkdtemp(path.join(root,'relief-')),reserve=net.createServer();await new Promise(r=>reserve.listen(0,'127.0.0.1',r));const port=reserve.address().port;await new Promise(r=>reserve.close(r));const credential=randomBytes(32).toString('hex');
  let child,diagnostic='';const start=()=>{child=spawn(host,['--console'],{windowsHide:true,stdio:['ignore','ignore','pipe'],env:{...process.env,WEBCAD_SERVICES_DATA_ROOT:data,WEBCAD_SERVICES_LOGO_WORKER:logo,WEBCAD_SERVICES_TOKEN:credential,WEBCAD_SERVICES_DEV_HTTP:`http://127.0.0.1:${port}/`,WEBCAD_SERVICES_OCCT_WORKER:worker,WEBCAD_SERVICES_NATIVE_ACCEPTANCE:proof,WEBCAD_SERVICES_PIPE_NAME:'WebCADServices-relief-test'}});child.stderr.on('data',b=>{diagnostic=(diagnostic+b).slice(-4096);});};start();const stop=async()=>{if(child.exitCode===null&&child.signalCode===null){child.kill();await new Promise(r=>child.once('exit',r));}};
@@ -59,3 +60,33 @@ test('actual persistent native relief uses geometric intent, retains its origina
   await fs.writeFile(path.join(data,'acceptance.json'),JSON.stringify({status:'passed',scope:'small persistent native relief and offline original-layer installation; not a real-product acceptance',receipts,offline:true},null,2));
  }finally{await stop();for(const kernel of kernels)for(const shape of kernel.shapes.values())try{shape.delete();}catch{}}
 });
+
+// New-worker acceptance without starting a Host. Exercise only the established
+// small contour/local-patch semantics, original-feature install and offline v3.
+async function verifyDirectRelief(){
+ const worker=process.env.WEBCAD_NATIVE_WORKER,root=process.env.WEBCAD_NATIVE_TEST_ROOT;assert(worker&&root,'Actual native worker and external evidence root required');
+ await fs.mkdir(root,{recursive:true});const data=await fs.mkdtemp(path.join(root,'relief-direct-')),hash=b=>createHash('sha256').update(b).digest('hex'),workerBytes=await fs.readFile(worker),wasm=await fs.readFile(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url));
+ const kernelBuildId=`native-occt@7.8.1:sha256:${hash(workerBytes)}`,oc=await init({wasmBinary:wasm}),engine=new CadKernel(oc),cold=new CadKernel(oc),receipts=[];
+ const rect=(a,b,c,d)=>[[a,b],[c,b],[c,d],[a,d]],holes=[rect(-.28,-.1,-.16,.1)],base=[{id:'cylinder',op:'cylinder',params:{radius:20,height:10},refs:[]},{id:'source',op:'transform',params:{rx:-90,y:-5,z:-20},refs:['cylinder']}];
+ const params={faceId:0,point:[0,0,0],widthMm:6,heightMm:6,depthMm:.8,baseMm:.005,curveToleranceMm:.005,curvePolicy:'preserveTopology',compileLayers:'groupCompatible',layers:[{name:'support left',heightMm:.3,regions:[{outer:rect(-.4,-.4,0,.4),holes}]},{name:'support right',heightMm:.3,regions:[{outer:rect(.1,-.4,.4,.4)}]},{name:'detail',heightMm:.8,startHeightMm:.29,regions:[{outer:rect(-.35,-.3,-.05,.3),holes}]}]};
+ const context={documentId:'relief-direct-doc',documentInstanceId:'relief-direct-instance',expectedRevision:1};
+ const run=async(name,physicalParams,probes)=>{
+  const dir=path.join(data,name);await fs.mkdir(dir);const doc={version:2,documentId:context.documentId,imports:{},features:[...base,{id:'relief',op:'relief',params:physicalParams,refs:['source']}]};await engine.rebuild({...doc,features:base});
+  const source=engine.serializeFeatureShape('source').data,plan=engine.prepareReliefPlan('source',physicalParams).plan,sourcePath=path.join(dir,'source.brep'),outputPath=path.join(dir,'result.brep'),reportPath=path.join(dir,'report.json'),requestPath=path.join(dir,'request.json');await fs.writeFile(sourcePath,source);
+  const paths=new Map();for(const artifact of plan.artifacts.filter(a=>a.id!=='boundary')){const file=path.join(dir,artifact.id+'.brep');await fs.writeFile(file,artifact.data);paths.set(artifact.id,file);}
+  const nativeParams={supportIntent:plan.supportIntent,layers:plan.layers.map(l=>({toolPath:paths.get(l.toolArtifactId),normal:l.normal,spanMm:l.spanMm,regions:l.regions,memberLayerIds:l.memberLayerIds}))};
+  const inputFingerprint=hash(Buffer.from(JSON.stringify({source:hash(source),params:nativeParams})));await fs.writeFile(requestPath,JSON.stringify({operation:'relief',semanticVersion:plan.semanticVersion,strategy:physicalParams.maskStrategy,params:nativeParams,sourcePath,outputPath,reportPath,inputFingerprint,featureId:'relief',expectedRevision:1}));
+  const process=spawnSync(worker,[requestPath],{windowsHide:true,encoding:'utf8',timeout:30000,maxBuffer:4096}),report=JSON.parse(await fs.readFile(reportPath,'utf8'));assert.equal(process.status,0,JSON.stringify(report));assert.equal(report.topologyBinding.matchCount,1);assert.equal(report.topologyBinding.kind,'outer-cylinder-geometric-intent');
+  const bytes=new Uint8Array(await fs.readFile(outputPath)),recipeFingerprint=geometryRecipeFingerprint(doc,'relief'),manifest={...report,...context,featureId:'relief',jobId:'direct-'+name,recipeFingerprint,kernelBuildId,sourceSha256:hash(source),stages:report.stages.filter(s=>Number.isInteger(s.layer)),geometryArtifact:{artifactId:'direct-'+name,format:'occt-text-brep-v1',brepVersion:3,sha256:hash(bytes),bytes:bytes.length}};
+  const installed=installCompiledCandidate(doc,{manifest,bytes,context,recipeFingerprint});assert.deepEqual(installed.features.at(-1).params,physicalParams);assert.deepEqual(installed.features.at(-1).refs,['source']);const built=await engine.rebuild(installed);assert.deepEqual(built.compiledReuse,['relief']);assert.equal(built.bodies[0].solidCount,1);
+  const solids=engine.shapes.get('relief').solids,query=new cad.DistanceQuery(solids[0]),support=plan.layers[0].support,R=support.radiusMm,n=support.normal,a=support.axis,t=[a[1]*n[2]-a[2]*n[1],a[2]*n[0]-a[0]*n[2],a[0]*n[1]-a[1]*n[0]],center=support.origin.map((v,i)=>v-R*n[i]);
+  try{for(const [x,y,h,present]of probes){const p=cad.makeVertex(center.map((v,i)=>v+a[i]*y+(R+h)*(n[i]*Math.cos(x/R)+t[i]*Math.sin(x/R))));try{assert.equal(query.distanceTo(p)<1e-7,present,JSON.stringify({name,x,y,h,present}));}finally{p.delete();}}}finally{query.delete();solids.forEach(s=>s.delete());}
+  const original=cold.operation.bind(cold);cold.operation=(feature,...args)=>{if(feature.id==='relief')throw Error('Offline saved checkpoint must not recompute relief');return original(feature,...args);};const reopened=await cold.rebuild(await decodeProject(encodeProjectV3(installed)));assert.deepEqual(reopened.compiledReuse,['relief']);assert.equal(reopened.bodies[0].volume,built.bodies[0].volume);cold.operation=original;
+  receipts.push({name,semanticVersion:plan.semanticVersion,strategy:physicalParams.maskStrategy,topologyBinding:report.topologyBinding,sourceVolumeMm3:report.before.volumeMm3,volumeMm3:report.validation.volumeMm3,materialProbes:probes,originalFeatureInstall:true,offlineReopen:true,timings:report.timings,reportPath});
+ };
+ try{
+  for(const maskStrategy of ['cutHoleSolids','faceWithHolesExtrude'])await run(maskStrategy,{...params,maskStrategy},[[-1.8,.6,.2,true],[-1.32,0,.1,false],[-1.8,.6,.9,false],[3,0,.1,false],[3,0,-.1,true]]);
+  for(const mode of ['raise','lower']){const originalParams={...params,layers:[{name:'uniform editable support',heightMm:.5,regions:[{outer:rect(-.4,-.4,.4,.4),holes}]}],maskStrategy:'faceWithHolesExtrude'},patch={id:'local-detail',domainMm:[-.5,-.5,.5,.5],samples:17,protectionMm:.03},patched=prepareReliefSculpt(originalParams,[{mode,radiusMm:.15,amountMm:.1,points:[[0,0]]}],{layerIndex:0,patch});await run('patch-'+mode,{...originalParams,...patched.params},mode==='raise'?[[0,0,.55,true],[0,0,.65,false],[1,0,.45,true],[1,0,.55,false]]:[[0,0,.45,false],[0,0,.35,true],[1,0,.45,true],[1,0,.55,false]]);}
+  await fs.writeFile(path.join(data,'acceptance.json'),JSON.stringify({status:'passed',scope:'current Native contour/local patch kernel, actual WASM installation and offline original recipe; no Host, HTTP or real product acceptance',producerKernelBuildId:kernelBuildId,consumerKernelBuildId:`replicad-opencascadejs@1.1.0:sha256:${hash(wasm)}`,codec:'occt-text-brep-v1',brepVersion:3,availableSemantics:['relief.compiled-contours-1.0','relief.compiled-contours-local-patch-1.1'],receipts},null,2));console.log(JSON.stringify({evidence:path.join(data,'acceptance.json'),kernelBuildId}));
+ }finally{for(const kernel of [engine,cold])for(const shape of kernel.shapes.values())try{shape.delete();}catch{}}
+}

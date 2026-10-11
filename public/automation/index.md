@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.28.3 · 操作目录 sha256:e3a9b1bd68e383c0fce54b99cca6b47c2d050c71ae14636a31a2bbc91a9ae485
+API 1.28.3 · 操作目录 sha256:692fe8ecd98654d97d2c340d0f4e8fa75fb89fc728abb2a044c6a23e5b4cc446
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -276,7 +276,7 @@ API 1.28.3 · 操作目录 sha256:e3a9b1bd68e383c0fce54b99cca6b47c2d050c71ae1463
 - `redraw` · page-method · redraw({context}); 不接受额外字段。
 - `capture` · page-method · capture({context}); 不接受额外字段。
 - `run` · page-method · run({context,idempotencyKey,steps}); see readDocs({docId:"api.run"}); addMany for one atomic feature plan: api.feature-plan.
-- `feature.compileServices` · page-command · 按服务能力执行世界坐标纯平移或均匀柱面凸雕层；浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。每项上传资源限 20 MiB。
+- `feature.compileServices` · page-command · 按服务能力执行世界坐标纯平移、均匀柱面凸雕层、多刀具 cut 或带一边旧R的矩形面完整边界 round。round 仅支持一个无孔矩形面、六个正交支撑面和一条完整同R旧圆角；四侧精确R，四角光滑自由曲面，保留4个孤立终止点。cut 的 refs 首项为目标，其余 1–32 项为刀具，各来源必须是已提交单实体，结果须为非空单实体；keepTools 保持原历史语义。全部来源按顺序校验，单项限 20 MiB、合计 64 MiB。浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。若修改来源会使下游复杂运算失效，先移除下游步骤、完成来源修改后重新执行，禁止转到本地偷算。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。
 - `body.align` · page-command · 按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:"body",bodyId:基准实体ID},axes:["Y"],sourceSide:"center",targetSide:"center",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。
 - `history.restore` · page-command · 用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。
 - `document.rename` · page-command · 修改工程名称，保留几何。
