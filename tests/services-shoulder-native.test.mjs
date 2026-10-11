@@ -84,6 +84,28 @@ test('actual single and nested relief steps preserve tangency, lower layers and 
    for(const point of [[0,R,z],[0,H,z+.3]]){const v=cad.makeVertex(point),n=shoulderFaces[0].normalAt(point);try{assert.ok(cad.measureDistanceBetween(shoulderFaces[0],v)<1e-7);const q=n.toTuple();assert.ok(Math.abs(Math.abs(q[1]/Math.hypot(...q))-1)<1e-8);}finally{v.delete();n.delete();}}
    if(nested){const solids=result.solids;try{for(const [point,inside] of [[[10,0,10],false],[[12.1,0,10],true],[[0,50.25,6.5],true],[[0,50.75,7.5],false]]){const p=cad.makeVertex(point),query=new cad.DistanceQuery(solids[0]);try{assert.equal(query.distanceTo(p)<1e-7,inside,'Existing hole and lower-layer material retained');}finally{query.delete();p.delete();}}}finally{solids.forEach(s=>s.delete());}}
   }finally{resultFaces.forEach(f=>f.delete());result.delete();}
+  if(!nested){
+   const topId=faces.findIndex(f=>{if(f.geomType!=='PLANE')return false;const c=f.center,n=f.normalAt();try{return Math.abs(c.z-13)<1e-7&&n.z>.99;}finally{c.delete();n.delete();}});
+   const topPlan=prepareShoulderPlan(source,{...params,faceId:topId,point:[0,50.2525,13]},oc,cad,{sourceBrep});
+   const topRequest={...request,params:{...topPlan.params,faceIntent:topPlan.selectionIntent},outputPath:path.join(dir,'upper.brep'),reportPath:path.join(dir,'upper.json')};
+   fs.writeFileSync(requestPath,JSON.stringify(topRequest));const run=spawnSync(worker,[requestPath],{windowsHide:true,encoding:'utf8',timeout:30000}),topReport=JSON.parse(fs.readFileSync(topRequest.reportPath));assert.equal(run.status,0,JSON.stringify(topReport));
+   const top=cad.deserializeShape(fs.readFileSync(topRequest.outputPath,'utf8')),tf=top.faces;
+   try{assert.ok(Math.abs(cad.measureVolume(top)-report.validation.volumeMm3)<1e-6);const transition=tf.filter(f=>!['PLANE','CYLINDRE'].includes(f.geomType));assert.equal(transition.length,1);for(const p of [[0,R,13],[0,H,12.7]]){const v=cad.makeVertex(p),n=transition[0].normalAt(p);try{assert.ok(cad.measureDistanceBetween(transition[0],v)<1e-7);const q=n.toTuple();assert.ok(Math.abs(Math.abs(q[1]/Math.hypot(...q))-1)<1e-8);}finally{v.delete();n.delete();}}}finally{tf.forEach(f=>f.delete());top.delete();}
+  }
+  if(!nested)for(const direction of [-1,1]){
+   const sideId=faces.findIndex(f=>{if(f.geomType!=='PLANE')return false;const n=f.normalAt();try{return n.x*direction>.99;}finally{n.delete();}});
+   assert.ok(sideId>=0);const center=faces[sideId].center;const point=center.toTuple();center.delete();
+   const sidePlan=prepareShoulderPlan(source,{...params,faceId:sideId,point},oc,cad,{sourceBrep});
+   const sideRequest={...request,params:{...sidePlan.params,faceIntent:sidePlan.selectionIntent},outputPath:path.join(dir,`side-${direction}.brep`),reportPath:path.join(dir,`side-${direction}.json`)};
+   fs.writeFileSync(requestPath,JSON.stringify(sideRequest));const run=spawnSync(worker,[requestPath],{windowsHide:true,encoding:'utf8',timeout:30000}),sideReport=JSON.parse(fs.readFileSync(sideRequest.reportPath));
+   assert.equal(run.status,0,JSON.stringify(sideReport));assert.equal(sideReport.shoulderReport.mechanism,'native-extruded-side-cutter');assert.equal(sideReport.shoulderReport.widthDirection,'circumferential');
+   const side=cad.deserializeShape(fs.readFileSync(sideRequest.outputPath,'utf8')),sf=side.faces;
+   try{
+    const transition=sf.filter(f=>!['PLANE','CYLINDRE'].includes(f.geomType));assert.equal(transition.length,1);
+    const x=point[0],angle=Math.acos(x/H)+direction*.3/H;
+    for(const p of [[x,Math.sqrt(R*R-x*x),10],[H*Math.cos(angle),H*Math.sin(angle),10]]){const v=cad.makeVertex(p),n=transition[0].normalAt(p);try{assert.ok(cad.measureDistanceBetween(transition[0],v)<1e-7);const q=n.toTuple();assert.ok(Math.abs(Math.abs((q[0]*p[0]+q[1]*p[1])/(Math.hypot(...q)*Math.hypot(p[0],p[1])))-1)<1e-8);}finally{v.delete();n.delete();}}
+   }finally{sf.forEach(f=>f.delete());side.delete();}
+  }
  }finally{faces.forEach(f=>f.delete());source.delete();host.delete();}
  }
 });

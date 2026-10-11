@@ -9,6 +9,7 @@
 #include <BRepBuilderAPI_MakeWire.hxx>
 #include <BRepBuilderAPI_MakeFace.hxx>
 #include <BRepPrimAPI_MakeRevol.hxx>
+#include <BRepPrimAPI_MakePrism.hxx>
 #include <BRepAlgoAPI_Cut.hxx>
 
 // Bounded source operation. Never reconstruct the caller's body from a fixture.
@@ -202,7 +203,56 @@ struct SourceResult {
   std::size_t retainedFaces;
   bool frameNormalized;
   const char* mechanism;
+  double expectedRemovedVolume=0;
+  const char* widthDirection="axial";
 };
+
+inline SourceResult cutVerticalStep(const TopoDS_Solid& source,const TopoDS_Face& selected,
+                                    double width,double protection){
+  rt::require(std::isfinite(width)&&std::isfinite(protection)&&width>=.02&&width<=10&&protection>0,"shoulder: invalid width or end protection");
+  const auto edges=sourceEdges(selected);rt::require(edges.size()==4,"shoulder: one straight four-edge side required");
+  const BRepAdaptor_Surface plane(selected);rt::require(plane.GetType()==GeomAbs_Plane,"shoulder: planar side required");
+  gp_Vec normal(plane.Plane().Axis().Direction());if(selected.Orientation()==TopAbs_REVERSED)normal.Reverse();
+  rt::require(std::abs(normal.Z())<1e-7,"shoulder: axial side required");
+  struct Support{TopoDS_Face face;double radius,z0,z1;gp_Pnt point;};std::vector<Support> supports;
+  for(const auto& edge:edges){
+    BRepAdaptor_Curve curve(edge);rt::require(curve.GetType()==GeomAbs_Line,"shoulder: straight side boundaries required");
+    if(std::abs(curve.Line().Direction().Z())<.999999)continue;
+    std::vector<TopoDS_Face> adjacent;for(const auto& f:sourceFaces(source))if(!f.IsSame(selected)&&hasEdge(f,edge))adjacent.push_back(f);
+    const auto face=uniqueSource(adjacent,"shoulder: ambiguous side support");const BRepAdaptor_Surface s(face);
+    rt::require(s.GetType()==GeomAbs_Cylinder&&face.Orientation()==TopAbs_FORWARD,"shoulder: outward cylindrical side supports required");
+    const auto c=s.Cylinder();rt::require(std::hypot(c.Location().X(),c.Location().Y())<1e-7&&c.Axis().Direction().Z()>.999999,"shoulder: coaxial side supports required");
+    const auto a=curve.Value(curve.FirstParameter()),b=curve.Value(curve.LastParameter());
+    supports.push_back({face,c.Radius(),std::min(a.Z(),b.Z()),std::max(a.Z(),b.Z()),a});
+  }
+  rt::require(supports.size()==2,"shoulder: two axial support edges required");std::sort(supports.begin(),supports.end(),[](const auto& a,const auto& b){return a.radius<b.radius;});
+  const auto& low=supports[0];const auto& high=supports[1];const double R=low.radius,H=high.radius,h=H-R;
+  rt::require(R>=1&&h>0&&h<=R*.2&&width<=2*h&&width/R<=.1,"shoulder: side width must be at most twice the layer height and 10% of radius");
+  rt::require(std::abs(low.z0-high.z0)<1e-7&&std::abs(low.z1-high.z1)<1e-7,"shoulder: aligned side ends required");
+  const double z0=low.z0+protection,z1=low.z1-protection;rt::require(z1>z0,"shoulder: protection consumes axial side");
+  const double a=std::atan2(low.point.Y(),low.point.X()),base=std::atan2(high.point.Y(),high.point.X());
+  gp_Vec positive(-std::sin(a),std::cos(a),0);const double direction=positive.Dot(normal)<0?1:-1;
+  const double b=base+direction*width/H;const gp_Vec t0(-direction*std::sin(a),direction*std::cos(a),0),t3(-direction*std::sin(b),direction*std::cos(b),0);
+  const gp_Pnt p0(R*std::cos(a),R*std::sin(a),z0),p3(H*std::cos(b),H*std::sin(b),z0),p1=p0.Translated(t0*(width/3)),p2=p3.Translated(t3*(-width/3));
+  TColgp_Array1OfPnt poles(1,4);poles.SetValue(1,p0);poles.SetValue(2,p1);poles.SetValue(3,p2);poles.SetValue(4,p3);
+  const Handle(Geom_BezierCurve) profile=new Geom_BezierCurve(poles);
+  BRepBuilderAPI_MakeWire wire;wire.Add(BRepBuilderAPI_MakeEdge(profile).Edge());
+  const auto q0=p0.Translated(t0*(-.1)),q3=p3.Translated(gp_Vec(std::cos(b)*.1,std::sin(b)*.1,0));
+  const auto qtop=q3.Translated(normal*gp_Vec(q3,q0).Dot(normal));
+  const std::vector<gp_Pnt> close={p3,q3,qtop,q0,p0};for(std::size_t i=1;i<close.size();i++)wire.Add(BRepBuilderAPI_MakeEdge(close[i-1],close[i]).Edge());
+  const auto tool=BRepPrimAPI_MakePrism(BRepBuilderAPI_MakeFace(wire.Wire()).Face(),gp_Vec(0,0,z1-z0)).Shape();
+  BRepAlgoAPI_Cut cut;TopTools_ListOfShape args,tools;args.Append(source);tools.Append(tool);cut.SetArguments(args);cut.SetTools(tools);cut.SetNonDestructive(true);cut.Build();
+  rt::require(cut.IsDone()&&BRepCheck_Analyzer(cut.Shape(),true).IsValid(),"shoulder: side cutter failed");
+  int solids=0;for(TopExp_Explorer e(cut.Shape(),TopAbs_SOLID);e.More();e.Next())++solids;rt::require(solids==1,"shoulder: side cutter must retain one solid");
+  // Green's theorem integrates the exact cubic and original crest circle.
+  // The volume gate rejects clipping or unintended material removal.
+  const gp_XYZ c[4]={p0.XYZ(),(p1.XYZ()-p0.XYZ())*3,(p2.XYZ()-p1.XYZ()*2+p0.XYZ())*3,p3.XYZ()-p2.XYZ()*3+p1.XYZ()*3-p0.XYZ()};
+  double integral=0;for(int i=0;i<4;i++)for(int j=1;j<4;j++)integral+=(c[i].X()*c[j].Y()-c[i].Y()*c[j].X())*j/(i+j);
+  const double area=std::abs((p0.X()*high.point.Y()-p0.Y()*high.point.X()+H*direction*width-integral)/2);
+  std::size_t retained=0;const auto resultFaces=sourceFaces(cut.Shape());for(const auto& f:sourceFaces(source))if(std::any_of(resultFaces.begin(),resultFaces.end(),[&](const auto& g){return f.IsSame(g);}))++retained;
+  Spec spec;spec.radiusMm=R;spec.layerHeightMm=h;spec.regionZStartMm=low.z0;spec.regionZEndMm=low.z1;spec.shoulderWidthMm=width;spec.endProtectionMm=protection;
+  return {cut.Shape(),spec,z0,z1,retained,false,"native-extruded-side-cutter",area*(z1-z0),"circumferential"};
+}
 
 // Projected rectangular contours have unequal angular ranges on the low and
 // high cylinders. Cut only their common interior; retain both original ends.
@@ -212,7 +262,7 @@ inline SourceResult cutProjectedStep(const TopoDS_Solid& source,const TopoDS_Fac
     "shoulder: invalid width or end protection");
   BRepAdaptor_Surface plane(selected);rt::require(plane.GetType()==GeomAbs_Plane,"shoulder: planar step required");
   const auto normal=plane.Plane().Axis().Direction();const double sign=selected.Orientation()==TopAbs_REVERSED?-1:1;
-  rt::require(normal.Z()*sign<-.999999,"shoulder: select lower step");
+  rt::require(std::abs(normal.Z())>.999999,"shoulder: axial step required");const double inward=-normal.Z()*sign;
   const auto edges=sourceEdges(selected);rt::require(edges.size()==4,"shoulder: one four-edge step required");
   std::vector<TopoDS_Edge> arcs;for(const auto& e:edges){BRepAdaptor_Curve c(e);if(c.GetType()==GeomAbs_Circle)arcs.push_back(e);else rt::require(c.GetType()==GeomAbs_Line,"shoulder: straight contour sides required");}
   rt::require(arcs.size()==2,"shoulder: two circular boundaries required");
@@ -233,13 +283,13 @@ inline SourceResult cutProjectedStep(const TopoDS_Solid& source,const TopoDS_Fac
     const auto c=s.Cylinder();rt::require(std::abs(c.Radius()-(i?H:R))<1e-7&&std::hypot(c.Location().X(),c.Location().Y())<1e-7&&c.Axis().Direction().Z()>.999999,"shoulder: coaxial support required");
     if(i)high=support;
   }
-  std::vector<double> tops;for(const auto& e:sourceEdges(high)){BRepAdaptor_Curve c(e);if(c.GetType()==GeomAbs_Circle&&c.Circle().Location().Z()>z+1e-7)tops.push_back(c.Circle().Location().Z());}
-  rt::require(tops.size()==1&&width<tops.front()-z,"shoulder: width exceeds crest");upper=tops.front();
+  std::vector<double> tops;for(const auto& e:sourceEdges(high)){BRepAdaptor_Curve c(e);if(c.GetType()==GeomAbs_Circle&&inward*(c.Circle().Location().Z()-z)>1e-7)tops.push_back(c.Circle().Location().Z());}
+  rt::require(tops.size()==1&&width<inward*(tops.front()-z),"shoulder: width exceeds crest");upper=tops.front();
   begin+=protection/R;end-=protection/R;rt::require(end>begin,"shoulder: end protection consumes boundary");
   auto point=[&](double r,double h){return gp_Pnt(r*std::cos(begin),r*std::sin(begin),h);};
-  TColgp_Array1OfPnt poles(1,4);poles.SetValue(1,point(R,z));poles.SetValue(2,point(R,z+width/3));poles.SetValue(3,point(H,z+2*width/3));poles.SetValue(4,point(H,z+width));
+  TColgp_Array1OfPnt poles(1,4);poles.SetValue(1,point(R,z));poles.SetValue(2,point(R,z+inward*width/3));poles.SetValue(3,point(H,z+inward*2*width/3));poles.SetValue(4,point(H,z+inward*width));
   BRepBuilderAPI_MakeWire wire;wire.Add(BRepBuilderAPI_MakeEdge(new Geom_BezierCurve(poles)).Edge());
-  const double margin=.1;const std::vector<gp_Pnt> closing={point(H,z+width),point(H+margin,z+width),point(H+margin,z-margin),point(R,z-margin),point(R,z)};
+  const double margin=.1;const std::vector<gp_Pnt> closing={point(H,z+inward*width),point(H+margin,z+inward*width),point(H+margin,z-inward*margin),point(R,z-inward*margin),point(R,z)};
   for(std::size_t i=1;i<closing.size();i++)wire.Add(BRepBuilderAPI_MakeEdge(closing[i-1],closing[i]).Edge());
   const auto tool=BRepPrimAPI_MakeRevol(BRepBuilderAPI_MakeFace(wire.Wire()).Face(),gp_Ax1(gp_Pnt(),gp_Dir(0,0,1)),end-begin,true).Shape();
   BRepAlgoAPI_Cut cut;TopTools_ListOfShape args,tools;args.Append(source);tools.Append(tool);cut.SetArguments(args);cut.SetTools(tools);cut.SetNonDestructive(true);cut.Build();
@@ -273,7 +323,8 @@ inline SourceResult run(const TopoDS_Solid& source,const TopoDS_Face& selected,d
   const auto edges=sourceEdges(face);bool canonical=horizontalSource(face,BRepAdaptor_Surface(face).Plane().Location().Z());
   for(const auto& f:sourceFaces(local)){BRepAdaptor_Surface s(f);if(s.GetType()==GeomAbs_Cylinder&&std::any_of(edges.begin(),edges.end(),[&](const auto& e){return hasEdge(f,e);}))canonical&=canonicalCylinder(f,s.Cylinder().Radius());}
   SourceResult result;
-  if(canonical){const auto spec=inferSpec(local,face,width,protection);const auto replacement=LocalReplacement(spec).apply(local);result={replacement.geometry.candidate,spec,replacement.geometry.coreStart,replacement.geometry.coreEnd,replacement.retained.size(),transformed,"shared-boundary-replacement"};}
+  if(std::abs(BRepAdaptor_Surface(face).Plane().Axis().Direction().Z())<1e-7)result=cutVerticalStep(local,face,width,protection);
+  else if(canonical&&face.Orientation()==TopAbs_REVERSED){const auto spec=inferSpec(local,face,width,protection);const auto replacement=LocalReplacement(spec).apply(local);result={replacement.geometry.candidate,spec,replacement.geometry.coreStart,replacement.geometry.coreEnd,replacement.retained.size(),transformed,"shared-boundary-replacement"};}
   else result=cutProjectedStep(local,face,width,protection);
   const auto restored=BRepBuilderAPI_Transform(result.shape,normalization.Inverted(),true).Shape();
   rt::require(BRepCheck_Analyzer(restored,true).IsValid(),"shoulder: invalid restored world result");

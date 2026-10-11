@@ -60,7 +60,7 @@ addTranslations({'尺寸沿来源局部 XYZ；启用工作基准时，底面中�
 const names = {...TOOL_LABELS,transform:'变换',moveTool:'移动',rotateTool:'旋转',copy:'克隆',copySelection:'复制',pasteSelection:'黏贴',sketch:'绘制草图',new:'新建',open:'打开',importAtFrame:'定位导入',save:'保存工程',export:'导出',parameters:'命名参数',precisionSettings:'尺寸与角度精度',themeSettings:'风格',snapSettings:'拖动吸附',languageSettings:'语言',agentGuide:'AGENT 接口',help:'使用帮助',displayPreferences:'渲染设置',servicesSettings:'Services',inspectPrintability:'成型检查',inspectFit:'干涉 / 间隙',inspectThickness:'指定位置壁厚',inspectDraft:'拔模检查',measureRelation:'关系测量',section:'剖切',screenshot:'截图',measure:'测量'};
 addTranslations({'面贴合 / 轴对齐':'Face mate / axis align','来源点（世界坐标）':'Source point (world)','来源轴（世界方向）':'Source axis (world)','来源面内方向（世界方向）':'Source in-plane direction (world)','目标点（基准局部）':'Target point (frame local)','目标轴（基准局部）':'Target axis (frame local)','目标面内方向（基准局部）':'Target in-plane direction (frame local)','轴向关系':'Axis relation','同向':'Same direction','反向':'Opposite direction','沿目标轴间隙 mm':'Gap along target axis (mm)','面内扭转角 °':'In-plane twist (degrees)','sourcePoint':'Source point','sourceAxis':'Source axis','sourceUp':'Source in-plane direction','targetPoint':'Target point','targetAxis':'Target axis','targetUp':'Target in-plane direction'});
 const fields = {
- reliefShoulder:[['widthMm','肩部轴向宽度 mm',.3,'positive'],['endProtectionMm','两端保留长度 mm',.3,'positive'],['endPolicy','端部处理','retained-step-with-planar-caps',['retained-step-with-planar-caps']]],
+ reliefShoulder:[['widthMm','肩部过渡宽度 mm',.3,'positive'],['endProtectionMm','两端保留长度 mm',.3,'positive'],['endPolicy','端部处理','retained-step-with-planar-caps',['retained-step-with-planar-caps']]],
  round:[['mode','处理方式','auto',['auto','edge','end']],['strength','边缘圆润程度',.5,'positive']],
  roundEnd:[['axis','杆身延伸轴','Y',['X','Y','Z']],['direction','端头朝向','1',['1','-1']],['profileAxis','截面厚度轴','Z',['X','Y','Z']],['depthMm','端部重建深度 mm',1.5,'positive']],
   profileOffset:[['distanceMm','等距偏移 mm',2,'positive'],['side','偏移方向','inside',['inside','outside']],['join','转角连接','intersection',['intersection','round']],['output','结果','band',['band','face','wire']]],
@@ -336,7 +336,7 @@ export function createUI(root,callbacks={}) {
   notes.rounding='选中需要打磨的利角，按来源几何自动生成平滑过渡。无需输入 R；相关边与面可局部跟随，先核对预览中的影响范围，再确认。';
   notes.fillet='选择实体边，或 Ctrl 选择两个相邻面来倒公共边；单选一个面处理其边界。整件模式自动排除相切缝。R 过大或过渡相碰时保留原模型并报告目标边。';
   notes.multiPocket='每个凹槽用全局 XYZ 指定刀具入口中心。切入轴 Z 时宽/高沿 X/Y；轴 X 时沿 Y/Z；轴 Y 时沿 Z/X。cornerRadius 可省略或为 0；每个凹槽都必须实际去除材料。';
-  notes.reliefShoulder='选择圆柱浮雕层下方的水平阶梯面。中央与柱面平顺连接（G1），两端保留阶梯端帽（G0）。需要 Services；支持刚体移动后的单个阶梯（两条圆弧、直侧边）；复杂边界暂不支持。';
+  notes.reliefShoulder='选择圆柱浮雕层上方、下方或侧方的平面阶梯。中央与柱面平顺连接（G1），两端保留阶梯端帽（G0）。需要 Services；上下面沿轴向过渡；竖直侧面沿圆周过渡，宽度≤2倍层高且≤半径的10%；复杂边界暂不支持。';
   notes.multiBoss='每行一组 X,Y,Z，共 1 至 64 个凸台底面中心；每个凸台必须与主体连成单一实体并增加材料。需要通孔时另用多位置打孔。';
   notes.chamfer='选择边或相邻面的公共边。可用等距离、双距离、距离加角度；非对称模式的第一距离在当前支撑面上，交换方向可改到另一侧。先核对预览；尺寸过大保留原模型。';
   notes.linearPattern='沿每步位移复制，数量包含原件。默认独立组合；融合模式须把副本连成一个实体，否则拒绝。';

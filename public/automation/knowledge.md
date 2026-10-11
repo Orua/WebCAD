@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.28.3 · sha256:4fc6274f4cde9e9b9cfceac37f55eb1bffd110f1618b37d24cc5b62d5d8ed6a1
+API 1.28.3 · sha256:722713f08741279e1445e985611d055d87a1651f5a589aad37e382c240227d93
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -25726,7 +25726,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "properties": {
       "faceId": {
         "type": "integer",
-        "description": "Current lower step face",
+        "description": "Current planar layer step face",
         "minimum": 0,
         "unit": "1",
         "quantityKind": "index",
@@ -25749,7 +25749,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       },
       "widthMm": {
         "type": "number",
-        "description": "Axial transition width (mm)",
+        "description": "Transition band width (mm)",
         "exclusiveMinimum": 0,
         "unit": "mm",
         "quantityKind": "length",
@@ -25757,7 +25757,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       },
       "endProtectionMm": {
         "type": "number",
-        "description": "Retained length at each angular end (mm)",
+        "description": "Retained length at each boundary end (mm)",
         "exclusiveMinimum": 0
       },
       "endPolicy": {
@@ -25807,7 +25807,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Native Services required. Bounded coaxial outward cylindrical layer under rigid pose; select an interior point on its lower four-edge step with circular boundaries and straight sides. Source dimensions are inferred. Removes material only across the central axial transition. Central support seams are G1; protected planar end caps are G0, not a whole-boundary fillet or fixed radius. Holes and all unselected faces are preserved. Fragmented boundaries and ambiguous support reject without approximation. Save includes the compiled result for offline reopen; recomputation requires Services.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Native Services required. Bounded coaxial outward cylindrical layer under rigid pose; select an interior point on its four-edge upper/lower step with circular boundaries, or a vertical side with straight boundaries. Source dimensions are inferred. Side width is at most twice the radial layer height and 10% of the support radius. Removes material only across the central transition; upper/lower steps use axial width and vertical sides use circumferential width. Central support seams are G1; protected planar end caps are G0, not a whole-boundary fillet or fixed radius. Holes and all unselected faces are preserved. Fragmented boundaries and ambiguous support reject without approximation. Save includes the compiled result for offline reopen; recomputation requires Services.",
   "title": "浮雕中央肩部 / Central relief shoulder",
   "category": "modification",
   "synonyms": [
@@ -25817,7 +25817,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "浮雕中央肩部"
   ],
   "description": "浮雕中央肩部 / Central relief shoulder",
-  "schemaHash": "sha256:28100343b4a699e61fc3a0e567c150c6a7f5e02fa13b262a1490aa66f83da691",
+  "schemaHash": "sha256:d4d761a5735773a2042e05a1111d76a7cdcf48e88214ccd98e87ef0ab7c28f5f",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -25871,7 +25871,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "Native Services required. Bounded coaxial outward cylindrical layer under rigid pose; select an interior point on its lower four-edge step with circular boundaries and straight sides. Source dimensions are inferred. Removes material only across the central axial transition. Central support seams are G1; protected planar end caps are G0, not a whole-boundary fillet or fixed radius. Holes and all unselected faces are preserved. Fragmented boundaries and ambiguous support reject without approximation. Save includes the compiled result for offline reopen; recomputation requires Services."
+    "Native Services required. Bounded coaxial outward cylindrical layer under rigid pose; select an interior point on its four-edge upper/lower step with circular boundaries, or a vertical side with straight boundaries. Source dimensions are inferred. Side width is at most twice the radial layer height and 10% of the support radius. Removes material only across the central transition; upper/lower steps use axial width and vertical sides use circumferential width. Central support seams are G1; protected planar end caps are G0, not a whole-boundary fillet or fixed radius. Holes and all unselected faces are preserved. Fragmented boundaries and ambiguous support reject without approximation. Save includes the compiled result for offline reopen; recomputation requires Services."
   ],
   "minimalExample": {
     "op": "reliefShoulder",
@@ -25988,7 +25988,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:b3c32783fbf7373a8fa333e0fe8a6b65a7c808987d64167f11ee33327040d1ee"
+  "docsHash": "sha256:7deabfe852f6e5bacea3bdc84a9783bee55a143396a8dbffc60f47b6b367e400"
 }
 ```
 
