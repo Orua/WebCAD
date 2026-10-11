@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.28.3 · sha256:0e65474610b30f503e16efe13e6a8fe21a062d5ea27a0e18b2754bb6c001fffe
+API 1.28.3 · sha256:4fc6274f4cde9e9b9cfceac37f55eb1bffd110f1618b37d24cc5b62d5d8ed6a1
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -30953,7 +30953,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "移动实体",
     "移动模型",
     "translate",
-    "translation"
+    "translation",
+    "move",
+    "move body",
+    "rotate",
+    "rotation"
   ],
   "description": "Scale, rotate X/Y/Z about origin, then translate",
   "schemaHash": "sha256:2839a269021b344ab8d7ab14c43f0b2ff40575cba29d41f9eec5756202336a05",
@@ -31093,7 +31097,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:4be352661c844307135e82b67d156fb058f89d4b91c358f97a4eeb96804205b1"
+  "docsHash": "sha256:28063260b6df202356856076b9823daf5b03ef9fad57b4019950fb9edbae97c5"
 }
 ```
 
@@ -48890,7 +48894,20 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "显隐",
     "鼠标移动",
     "鼠标旋转",
-    "手柄"
+    "手柄",
+    "视角",
+    "移动视角",
+    "旋转视角",
+    "平移视图",
+    "旋转画面",
+    "移动画面",
+    "调整视角",
+    "隐藏锚点",
+    "显示锚点",
+    "move camera",
+    "rotate camera",
+    "pan view",
+    "orbit view"
   ],
   "inputContract": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
   "outputContract": "status=read、当前 context、display、view；view.transform 的 attached/canDrag/blocker 可读回单对象手柄状态。不修改工程 revision；拖动或数值变换通过 transform 提交。section 仅为显示裁剪，不是精确切割。",
@@ -48906,7 +48923,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SELECTION_CONFLICT"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:6aac383cbc875895d4704814b2f1470f8cc3bd04100cfeff446a72780dffac40"
+  "docsHash": "sha256:8e90c7b85e7bfc9705cfea708537ea22f265ab3d1227bfe2afe8a32a896712b0"
 }
 ```
 
