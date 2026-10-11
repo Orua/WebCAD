@@ -2,13 +2,13 @@
   "generatedFrom": "src/page-api-docs.js and src/operation-registry.js",
   "metadata": {
     "product": "WebCAD",
-    "buildId": "4b2a552676a854c044abd6684bcba60d8b70b6f7-src-c224bec5ec67a238-working",
+    "buildId": "01f01db03fc56a51962ccce588cffe510e281006-src-b00f065410ad61ed-working",
     "apiVersion": "2.0",
     "pageApiVersion": "1.28.3",
     "transport": "in-page",
     "entrypoint": "window.webcad.api",
-    "catalogHash": "sha256:221cad4cec5cc95051f54ee7f0cf0aba5c4b166a36f9f1f9d1ae0c05ea3abd8e",
-    "docsHash": "sha256:2a7ec85f5efbc32192c589529293f389784b4abfaf28a70c306343419a4556a8",
+    "catalogHash": "sha256:dd4309eba5212c845484130e16dbb88894e30310aaab34a4a08b6a42062d1df5",
+    "docsHash": "sha256:e98aab90733723be9c30874a70c06b2d5c5842d96d64b2d649d8586744e319bb",
     "discovery": {
       "searchVersion": "2",
       "pageApiVersion": "1.28.3",
@@ -28,8 +28,8 @@
         "file",
         "unavailable"
       ],
-      "catalogHash": "sha256:221cad4cec5cc95051f54ee7f0cf0aba5c4b166a36f9f1f9d1ae0c05ea3abd8e",
-      "docsHash": "sha256:2a7ec85f5efbc32192c589529293f389784b4abfaf28a70c306343419a4556a8",
+      "catalogHash": "sha256:dd4309eba5212c845484130e16dbb88894e30310aaab34a4a08b6a42062d1df5",
+      "docsHash": "sha256:e98aab90733723be9c30874a70c06b2d5c5842d96d64b2d649d8586744e319bb",
       "quickstart": "automation/quickstart.md",
       "manifest": "automation/manifest.json",
       "onboarding": {
@@ -3942,7 +3942,15 @@
       "category": "modification",
       "synonyms": [
         "cut",
-        "相减"
+        "相减",
+        "差集",
+        "减法",
+        "布尔相减",
+        "布尔差集",
+        "布尔切削",
+        "布尔切除",
+        "boolean cut",
+        "subtract"
       ],
       "description": "Subtract other bodies from first",
       "schemaHash": "sha256:0ebc4016d4fd53a25ac5a903224c2c6d31328db1004daf3a01383076e98e8a2e",
@@ -4078,7 +4086,7 @@
       },
       "runtimeAvailability": "requires_ready_page",
       "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-      "docsHash": "sha256:00367f510e090ac97d201d469af2b846e09b191c25af4085be082ef8fde65af2"
+      "docsHash": "sha256:70a2ab9dd09371ce0d9bdb8386cf2dc294b4b42a42012beb5a834225472db54c"
     },
     {
       "id": "cylinder",
@@ -8666,7 +8674,11 @@
       "category": "modification",
       "synonyms": [
         "intersect",
-        "相交"
+        "相交",
+        "交集",
+        "布尔交集",
+        "布尔相交",
+        "boolean intersection"
       ],
       "description": "Common volume of bodies",
       "schemaHash": "sha256:0e01f8f8e8cff7f9f0fb823d62704b8d48db5e97a5fed4b07e26b3b2c36a1a26",
@@ -8802,7 +8814,7 @@
       },
       "runtimeAvailability": "requires_ready_page",
       "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-      "docsHash": "sha256:df794b8880c60f5e4335dba9093250a3cbb2a79b9c0a8fc51f87f90afc3f02dc"
+      "docsHash": "sha256:8e9600e091872d4c39faa5110486ecb477029749a54cb297dc30af1e75f6db8c"
     },
     {
       "id": "linearPattern",
@@ -28802,7 +28814,12 @@
       "synonyms": [
         "transform",
         "移动",
-        "旋转"
+        "旋转",
+        "平移",
+        "移动实体",
+        "移动模型",
+        "translate",
+        "translation"
       ],
       "description": "Scale, rotate X/Y/Z about origin, then translate",
       "schemaHash": "sha256:2839a269021b344ab8d7ab14c43f0b2ff40575cba29d41f9eec5756202336a05",
@@ -28942,7 +28959,7 @@
       "docs": "api.interaction",
       "runtimeAvailability": "requires_ready_page",
       "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-      "docsHash": "sha256:223e9c4ff7e86fa9e3ff6e43b376685fa13c95a75f8dadd2c3cd11f2ca7b3984"
+      "docsHash": "sha256:4be352661c844307135e82b67d156fb058f89d4b91c358f97a4eeb96804205b1"
     },
     {
       "id": "union",
@@ -28992,7 +29009,11 @@
       "category": "modification",
       "synonyms": [
         "union",
-        "合并"
+        "合并",
+        "并集",
+        "布尔合并",
+        "布尔相加",
+        "boolean union"
       ],
       "description": "Fuse bodies",
       "schemaHash": "sha256:ba47123a373370476944e415c13401a9c8ebd9f394cef166899f3e1d67cbea46",
@@ -29128,7 +29149,7 @@
       },
       "runtimeAvailability": "requires_ready_page",
       "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-      "docsHash": "sha256:412b723333c238f1c78a93f06d199af429fc1cdba30f559342f991a0fcfecac4"
+      "docsHash": "sha256:9e1dc2e8dd5430f10ae39fc5d8d262786ff0174de03719e8f04bbeaf5696b55d"
     },
     {
       "id": "vectorProfile",
@@ -46793,7 +46814,15 @@
       ],
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
       "docs": "api.references",
-      "docsHash": "sha256:714b826120668370c106bf5805111c64cb29e3792e40d762ea6af6325fff7bde"
+      "synonyms": [
+        "锚点",
+        "参考锚点",
+        "插入锚点",
+        "工作锚点",
+        "工作基准",
+        "基准点"
+      ],
+      "docsHash": "sha256:72d50d359a387dba7cf45d15b6220412bb7fb381f901196e765f1910859d43b6"
     },
     {
       "id": "reference.resetWorkFrame",
@@ -47052,7 +47081,11 @@
       ],
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
       "docs": "api.references",
-      "docsHash": "sha256:2d42d5dcdd5fbf97095e0b200b05abb9216bd51855ebd9129cb49c088947effd"
+      "synonyms": [
+        "对象锚点",
+        "实体锚点"
+      ],
+      "docsHash": "sha256:b057727b43a5c9601705e81f6aae723777f82b793b0dfe8498e4a13cc37e3a19"
     },
     {
       "id": "reference.deleteBodyAnchor",
@@ -48343,7 +48376,7 @@
     "api.file-errors": "页面建模、测量、视图与截图方法的失败通常返回 {status:\"failed\",commitState:\"not_committed\",error:{code,message},context}；execute 和 queryGeometry 使用 CommandService 的更完整结果。普通 fillet/chamfer 失败的 error.report 包含 operation/stage/attemptCount/elapsedMs、confirmedFailedEdgeIds 与 candidateEdgeIds、supportGeometry；仅 confirmedFailedEdgeIds 是内核确认，候选不能当作确认原因。默认只尝试请求参数一次，不自动扫描或应用较小 R；stage=selection 时 attemptCount=0。报告过大时显式返回 truncated/omittedPaths 摘要。files 方法抛出带 code 的 Error，调用方应捕获，不能把异常解释为已保存。文件状态分别为 registered、generated、download_initiated、write_verified；generated 不证明磁盘写入。输入资源、导入和输出每项最多 20 MiB，最多 32 个资源、合计 64 MiB、30 分钟有效。自包含 .webcad 使用紧凑 UTF-8 JSON，最多 2000 个历史特征、20 MiB（含全部保留历史和共享导入源）。2000 是建模特征数，不是撤销步数。新增、预览、导入、粘贴、批量对齐和拆散均受限；批量按实际新增特征数计数，编辑或删除仍可使用。计算前在无 timeline 的工程大小上预留 4 KiB，提交前按含锚点和裁剪后历史的完整文件再次校验。超限返回 SIZE_LIMIT，已运行的内核恢复原工程，revision、撤销/重做和当前工程不提交变化；不要重复重试，应减少特征或拆分工程。读取 files.capabilities() 获得当前实际上限。",
     "api.host-control": "同源宿主通过 window.webcad.hostControl.set({locked?:boolean,connected?:boolean}) 同步设置，get() 读取；返回 {version:1,locked,connected,mouseMode:\"view\"|\"editable\",pageApiWritable:true}。不是建模工具，不需要工程context，不增加revision、不存入工程。locked=true 仅允许鼠标在视口旋转、缩放和平移；人工菜单、属性、快捷键、拖入文件、锚点及实体手柄不可用；page API 建模、编辑、文件和查询仍可用。释放 set({locked:false}) 恢复人工编辑并保留查看模式。连接和控制状态显示在已有顶栏右侧；getState().hostControl 同步读取。宿主应在iframe加载后重新设置状态；跨源宿主不授权此直连接口。",
     "api.interaction": "鼠标与数值入口操作同一份工程。启动默认编辑页签、查看模式和透视投影；同源宿主控制见 api.host-control，锁定期间仅鼠标旋转/缩放/平移，page API 可继续建模；选择按钮或 V 进入实体选择，查看按钮或 Esc 返回查看。编辑页移动/旋转默认启用实体手柄，API 用 setView({context,gizmo:\"translate\"|\"rotate\",selectedIds?})；省略 selectionMode 自动转为 body，显式指定 face/edge 与该 gizmo 冲突返回 SELECTION_CONFLICT，host 未被调用。可以先启用模式再选实体；getState().view.transform 返回 {mode,bodyIds,attached,canDrag,blocker}。blocker 为 MODE_OFF、NO_SELECTION、MULTIPLE_SELECTION、HIDDEN_SELECTION、STALE_SELECTION、BUSY 或 null；attached/canDrag 表明当前单个可见对象是否已挂接、是否可拖。启用/取消手柄或更换选择不增加工程 revision，鼠标拖动松手通过 transform 提交一个历史步骤。精确数值变换先读 getTool({id:\"transform\"})；移动可用 params:{x:10,y:0,z:0}。绕指定中心旋转用 params:{mode:\"rotate\",pivot:[0,0,0],axisVector:[0,0,1],angleDeg:90}，并显式传 placement:{version:1,frame:{kind:\"world\"},sourceAnchor:{kind:\"model-origin\"}}；refs 必须是一个当前对象 ID。多个对象分别以 run 的 transform 步骤处理，atomic=false，遇失败前面的成功步骤保留。读回新 body/feature/revision 和 display.rendered。\n绘制轮廓默认按图元点击，不要求用户配置全部选项；API 使用现有严格 sketchProfile 契约，显式传 entities 和 chains/loops/regions，output 为 wire 或 face，工作平面用 placement。先读 getTool({id:\"sketchProfile\"})；minimalExample 是完整可执行参数示例。线、圆、三点圆弧、矩形、折线等图元均保存为解析来源；参数矩形、圆角矩形、长圆的外环可直接引用其原始图元 ID 一次（entityId 为该 id，reversed 为 false），内部会自动展开有序边；不自动生成 loops/regions，也不要求猜派生边 ID。sketchProfile.normalExample 提供完整40×30矩形闭面；详见 recipes.rectangle-profile。二维 heightMm 不表示拉伸厚度，profileExtrude.distanceMm 必须来自用户要求。人工参数和高级编辑按当前任务显示；菜单页签、分组和展开策略保持用户原设计。inspectProfile({context,bodyId}) 只读诊断。prepareProfileEdit 为高级修剪/延伸/圆角提供明确 entityId/targetId 与交点候选，selectionRequired=true 时必须选择候选；不猜测交点。轮廓成体另用 profileExtrude，保持轮廓来源可编辑。",
-    "api.knowledge-cache": "首次握手本地知识库与路由\nconnect().onboarding.knowledge.policy=required-on-first-handshake。Agent首次连接当前WebCAD来源后，下载automation/agent-knowledge.json，再下载清单内index.json、agent-routing.json、routes.json到宿主存储；逐文件验证SHA-256和字节数。只把轻量路由及命中的完整文档/工具卡送进模型上下文，不打印1–2MiB全库。没有宿主下载或存储能力时报告具体限制，不假称已下载，也不为此安装后台服务。\n缓存按当前页面base URL、catalogHash、docsHash隔离。重连时哈希匹配且本地文件验证成功就复用；变更、缺文件或损坏时更新完整包。调用仍读新鲜context，静态库不包含活文档、当前实体编号或拓扑快照。静态库里的示例编号不是当前ID。\n两级路由：agent-routing.json按任务命中源图重建、模板、轮廓、加工、圆角、Logo/浮雕、检查、编辑、文件；routes.json按精确UI动作找公共接口。任务先读工作流→选工具→取完整卡→按需专题。template.*单模板优先，避免读取quickModel总目录。未命中用实时searchTools；当前页面哈希与工具契约优先。\n可选Node宿主helper（不是网页运行依赖）：createPageClient({send:宿主授权CDP适配器,knowledge:{baseUrl:目标页URL,directory:宿主缓存目录}})。connect自动下载/验证，返回knowledgeStatus:{status:ready,cacheHit,directory,downloadedFiles}；已有匹配缓存不发下载请求。未配置knowledge时返回download_required，helper.run在知识包准备前拒绝执行。其他宿主按相同清单实现存储适配。页面不能证明远端Agent已经写盘，不能把handshake描述符当成下载回执。\nawait client.route('DWG图纸重建')返回匹配路由和需要的doc/tool IDs；await client.readLocal({docIds:['api.reconstruction'],toolIds:['inspectDesign']})仅取这两项。默认字符预算32000，不能容纳的整项返回omitted/CHAR_BUDGET，不截断schema；调用方缩小本次读取范围。下载不自动安装技能；安装包仍由宿主选择并执行。",
+    "api.knowledge-cache": "首次握手本地知识库与路由\nconnect().onboarding.knowledge.policy=required-on-first-handshake。Agent首次连接当前WebCAD来源后，下载automation/agent-knowledge.json，再下载清单内index.json、agent-routing.json、routes.json到宿主存储；逐文件验证SHA-256和字节数。只把轻量路由及命中的完整文档/工具卡送进模型上下文，不打印1–2MiB全库。没有宿主下载或存储能力时报告具体限制，不假称已下载，也不为此安装后台服务。\n缓存按当前页面base URL、catalogHash、docsHash隔离。重连时哈希匹配且本地文件验证成功就复用；变更、缺文件或损坏时更新完整包。调用仍读新鲜context，静态库不包含活文档、当前实体编号或拓扑快照。静态库里的示例编号不是当前ID。\n两级路由：agent-routing.json按任务命中源图重建、模板、轮廓、加工、布尔、参考基准、圆角、Logo/浮雕、检查、编辑、文件；routes.json按精确UI动作找公共接口。任务先读工作流→选工具→取完整卡→按需专题。template.*单模板优先，避免读取quickModel总目录。未命中用实时searchTools；当前页面哈希与工具契约优先。\n可选Node宿主helper（不是网页运行依赖）：createPageClient({send:宿主授权CDP适配器,knowledge:{baseUrl:目标页URL,directory:宿主缓存目录}})。connect自动下载/验证，返回knowledgeStatus:{status:ready,cacheHit,directory,downloadedFiles}；已有匹配缓存不发下载请求。未配置knowledge时返回download_required，helper.run在知识包准备前拒绝执行。其他宿主按相同清单实现存储适配。页面不能证明远端Agent已经写盘，不能把handshake描述符当成下载回执。\nawait client.route('DWG图纸重建')返回匹配路由和需要的doc/tool IDs；await client.readLocal({docIds:['api.reconstruction'],toolIds:['inspectDesign']})仅取这两项。默认字符预算32000，不能容纳的整项返回omitted/CHAR_BUDGET，不截断schema；调用方缩小本次读取范围。下载不自动安装技能；安装包仍由宿主选择并执行。",
     "api.logo": "统一 LOGO：工具栏“加工→LOGO”与页面 execute({action:\"feature.add\",args:{op:\"logo\",...}}) 共用建模内核。先 getState() 得到当前 bodyId/revision，queryGeometry({context,bodyId,kind:\"face\",requireUnique:false}) 找精确 BRep 面与 faceId；放置点 point 必须为该面的三维 XYZ。新操作 params 使用 {placementVersion:2,faceId,point:[x,y,z],mode:\"engrave\"|\"emboss\",depth:显式正数,draftAngle:0,scale:1,angle:0,offsetX:0,offsetY:0,mirrorX:false,regions:[{outer:[[x,y],...],holes:[]}],source:{kind:\"reviewed-contours\",reviewed:true,original:{...}}}，refs:[bodyId]。source.reviewed=true 是调用者已复核轮廓来源、尺寸和孔洞的明确声明；新流程不猜深度。平面可凹刻/凸字/拔模，非平面只允许 mode=engrave 且 draftAngle=0，仍受原曲面边界、接缝、薄壁校验。创建时记录源 BRep 哈希作快照审计；历史重建以稳定的面几何签名、类型、面积与中心校验，不能把跨内核不稳定的原始序列化字节误作历史匹配依据。旧 logo 缺少 placementVersion 沿用原平面语义，旧 curvedLogo 只供历史兼容。轮廓单位 mm、局部 X 为全局 X 投影到目标面切平面（X 法向附近改 Y）、局部 Y=法向×局部 X。浏览器 UI 本地读取 .logo.json/受限 SVG/粘贴 SVG 或闭合 d；外部 AI 可直接提供经复核的 regions，不能把 SVG 字符串当 regions。SVG 曲线离散误差源尺度约 0.005 mm，等比放大后误差也按比例增加。静态版没有位图/复杂矢量转换服务。",
     "api.mechanical": "机械 CAD 特征扩展，页面 API 1.12.0。所有新操作经 connect/getTools 发现，run 的 method:add 提供显式 params/refs；feature.edit 编辑已有步骤，完整 requestContext 和唯一 idempotencyKey 按现有规约处理。不要把数值示例当成实际拓扑位置。\nprofileRevolve 用已保存闭合平面截面、固定世界轴点 axisPoint 和轴方向 axisDirection、angleDeg；profileSweep 用已保存截面与单一精确开放或闭合路径，截面必须已在路径起点平面且垂直起点切线。平面Face已定义的内孔沿相同路径精确扫掠并完整扣除，开放端面保留孔、闭环保留管腔；独立多环不自动推断内外，内腔越界/交叠/无效结果拒绝。sketchProfile用regions.holeLoopIds显式定义孔。profileLoft 按次序使用2–12已保存截面，ruled 控制直纹，仍不支持内孔。它们 operation=newBody 时保留全部来源，join/cut/intersect 时最后一个 refs 是明确目标，仅替换该目标。不得把当前锚点再次作用于保存来源；轴也是世界坐标。原旋转成型/扫掠/放样菜单默认进入保存来源模式，基本尺寸模式仍映射原操作。\nprofileConstraints refs=[保存sketchProfile或其约束派生轮廓]，params.constraints 是明确关系/尺寸数组，读卡中 oneOf 定义。直线/圆支持固定、重合、水平/垂直、平行、垂直、等长、线长、点间距离、圆半径/直径、等半径、角度、线圆相切。矩形在派生结果转换为原图元ID_0..3的四边，保留矩形形状关系；原点不暗中固定。先调用 inspectConstraints({context,bodyId})，读取 profile.entities 中的真实派生ID、局部坐标、已有关系和自由度，再建立约束，不猜CAD面/边索引。后续约束继承之前约束，来源保留；几何沿原冻结平面，局部二维mm，source内任何弧或样条首版不参与求解。getState().bodies[].constraintReport 返回真实 maxResidualMm/maxAngularResidualDeg/rank/degreesOfFreedom/underconstrained/redundantEquationCount，rank为局部数值Jacobian，不是全局唯一性证明。feature.edit 原约束的 constraints 数组修改尺寸后会重建下游，冲突或非收敛不提交。\noffsetSolid refs=[单一实体]，distanceMm 有符号，join=intersection/round；它是真等距偏移而非缩放，替换来源，局部曲率塌陷与自交拒绝。offsetSurface refs=[来源]、当前 faceId、distanceMm，生成一张独立偏置面并保留整个来源，面没有实体体积。draftByPlane refs=[单一实体]，当前明确 faceIds、neutralPoint、neutralNormal、pullDirection 和 angleDeg（非零且绝对值小于45）。世界中性平面与拉出方向必须平行/反平行，联动面须全部明确选入；圆锥面的 angleDeg 是目标锥角，不能把它当原角增量或保证总减料。\nhelix 的 radiusMm 是中心线半径，pitchMm 是每圈正轴向进给，turns最多100且可小数，leftHanded 控制旋向；生成精确路径。coil 另给 wireDiameterMm，螺距必须大于线径，生成真实圆线弹簧单实体。两项沿创建基准局部Z，原点是轴心起始高度，可显式 creation placement 冻结位置。\nthread refs=[单一实体]，当前圆柱 faceId、kind=external/internal、pitchMm、depthMm、lengthMm、startOffsetMm、includedAngleDeg、leftHanded。用所选解析圆柱面的实际轴/半径/轴向区间构造并裁切真实V槽，替换来源；区间必须在该面轴向范围内。getState().bodies[].threadReport 读实际轴、半径和尺寸。standard=none：不提供ISO/GB规格、配合公差、多头牙、端部退刀槽或力学认证。失败不得自动减小牙深、扩大公差或改用显示纹理。\n本扩展不把装配配合/工程图、通用草图样条约束、自由曲面G2、变半径圆角、钣金/凸轮/CAM视为已补齐。这些需要各自的数据模型、几何处理与验收；工具数量不表示主流机械CAD全功能覆盖。",
     "api.named-parameters": "读取 getState().parameters 和 parameterValues。execute({context,idempotencyKey,action:\"document.parameters\",args:{parameters:{length:{value:50,unit:\"mm\"},edgeMargin:{value:5,unit:\"mm\"}},bindings:{\"<实际板特征ID>\":{\"width\":\"length\"},\"<实际孔特征ID>\":{\"points.1.0\":\"length-edgeMargin\",\"points.3.0\":\"length-edgeMargin\"}}}}) 在一个撤销步骤内计算受影响特征并重建。后续只传 parameters:{length:{value:63,unit:\"mm\"}} 更新数值，原绑定保持。\n参数定义按名称合并；绑定按特征 ID 和数值路径合并。单位仅 mm/scalar，表达式支持有界四则运算和已注册函数，不执行 JS。未定义参数、循环、单位不符、越界或不安全的后续拓扑索引会拒绝并保留原模型。已绑定字段的直接数值编辑返回 PARAMETER_BOUND；请通过参数表或 document.parameters 修改。",
@@ -48497,7 +48530,7 @@
     },
     "api.knowledge-cache": {
       "version": "1.28.3",
-      "docsHash": "sha256:85abfdd7d4a64f6b0cd750dce983718bffec21e0008ede753c6837f5f5a54b7a"
+      "docsHash": "sha256:613490ac58a6ec23585048bde4d5e6f70d72263aade42d51aa70aff4e4d2c805"
     },
     "api.logo": {
       "version": "1.28.3",
