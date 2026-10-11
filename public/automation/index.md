@@ -1,10 +1,10 @@
 # WebCAD 页面 API 索引
 
-API 1.28.3 · 操作目录 sha256:692fe8ecd98654d97d2c340d0f4e8fa75fb89fc728abb2a044c6a23e5b4cc446
+API 1.28.3 · 操作目录 sha256:722713f08741279e1445e985611d055d87a1651f5a589aad37e382c240227d93
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
-长度 mm、角度 degrees、体积 mm³。严格契约：box、cylinder、sphere、cone、torus、mirror、linearPattern、circularPattern、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、faceHole、round、roundEnd、rounding、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude、profileRevolve、profileSweep、profileLoft、offsetSolid、offsetSurface、draftByPlane、helix、coil、thread、profileConstraints、faceGroove、innerTurn、outerTurn、refineShape、relief；其余操作为 advisory。
+长度 mm、角度 degrees、体积 mm³。严格契约：reliefShoulder、box、cylinder、sphere、cone、torus、mirror、linearPattern、circularPattern、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、faceHole、round、roundEnd、rounding、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude、profileRevolve、profileSweep、profileLoft、offsetSolid、offsetSurface、draftByPlane、helix、coil、thread、profileConstraints、faceGroove、innerTurn、outerTurn、refineShape、relief；其余操作为 advisory。
 
 ## 页面方法
 
@@ -145,6 +145,7 @@ API 1.28.3 · 操作目录 sha256:692fe8ecd98654d97d2c340d0f4e8fa75fb89fc728abb2
 - `referenceLoft` · advisory · 按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。
 - `refineShape` · migrated · Refine same-domain faces and remove redundant splitter edges
 - `relief` · migrated · 浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief
+- `reliefShoulder` · migrated · 浮雕中央肩部 / Central relief shoulder
 - `revolve` · advisory · Revolve a closed profile
 - `round` · migrated · 圆润 / Round
 - `roundEnd` · migrated · 端头圆润 / Round free end

@@ -1,4 +1,4 @@
-﻿param([Parameter(Mandatory=$true)][string]$BuildRoot,[Parameter(Mandatory=$true)][string]$DataRoot,[string]$RealLogoPdf,[int]$Page=1,[string]$NativeWorker,[string]$NativeAcceptance,[switch]$InfrastructureOnly)
+param([Parameter(Mandatory=$true)][string]$BuildRoot,[Parameter(Mandatory=$true)][string]$DataRoot,[string]$RealLogoPdf,[int]$Page=1,[string]$NativeWorker,[string]$NativeAcceptance,[string]$NativeShoulderCheck,[switch]$InfrastructureOnly)
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path $PSScriptRoot
 if([IO.Path]::GetFullPath($DataRoot) -notmatch '^[FG]:[\\/]'){throw 'Services tests require an explicit F: or G: data root'}
@@ -12,9 +12,10 @@ if($InfrastructureOnly -and ($NativeWorker -or $NativeAcceptance -or $RealLogoPd
 if($NativeWorker -or $NativeAcceptance){
  if(!(Test-Path -LiteralPath $NativeWorker) -or !(Test-Path -LiteralPath $NativeAcceptance)){throw 'Actual native binary and kernel-pair evidence are required'}
  $env:WEBCAD_NATIVE_WORKER=[IO.Path]::GetFullPath($NativeWorker)
+ if($NativeShoulderCheck){$env:WEBCAD_NATIVE_SHOULDER_CHECK=[IO.Path]::GetFullPath($NativeShoulderCheck)}
  $env:WEBCAD_NATIVE_ACCEPTANCE=[IO.Path]::GetFullPath($NativeAcceptance)
  $env:WEBCAD_NATIVE_TEST_ROOT=Join-Path $DataRoot 'native'
- $tests+=@('services-native-bridge','services-boolean-native','services-round-native','services-compute','services-relief','services-support-intent')
+ $tests+=@('services-native-bridge','services-boolean-native','services-round-native','services-shoulder-native','services-compute','services-relief','services-support-intent')
 }
 & node --test --test-concurrency=1 ($tests | ForEach-Object {if($_ -eq "services-infrastructure"){Join-Path $repoRoot "tests/services-infrastructure.mjs"}else{Join-Path $repoRoot "tests/$_.test.mjs"}})
 exit $LASTEXITCODE
