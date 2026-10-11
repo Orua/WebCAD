@@ -46,7 +46,15 @@
   "category": "modification",
   "synonyms": [
     "cut",
-    "相减"
+    "相减",
+    "差集",
+    "减法",
+    "布尔相减",
+    "布尔差集",
+    "布尔切削",
+    "布尔切除",
+    "boolean cut",
+    "subtract"
   ],
   "description": "Subtract other bodies from first",
   "schemaHash": "sha256:0ebc4016d4fd53a25ac5a903224c2c6d31328db1004daf3a01383076e98e8a2e",
@@ -182,5 +190,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:00367f510e090ac97d201d469af2b846e09b191c25af4085be082ef8fde65af2"
+  "docsHash": "sha256:70a2ab9dd09371ce0d9bdb8386cf2dc294b4b42a42012beb5a834225472db54c"
 }

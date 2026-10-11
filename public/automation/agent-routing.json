@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:0c83bedff7012268e2c3a6c0c60ca9c19a00577717500048d87eddfd3031481f",
-  "docsHash": "sha256:2904c7346bc915f342eed9e83c04ae0fad911130b1a5b0199eaf7a1ed4930818",
+  "catalogHash": "sha256:e963be69cc0e9de9b5beb259e99e95265645e30d6062bf026939f6c21a29e86b",
+  "docsHash": "sha256:05e996e8b3671375d40b8f7a558d39139aa9e1460f6ae5ef213d6d1bb59d64f8",
   "bootstrapDocIds": [
     "api.knowledge-cache",
     "api.connection",
@@ -162,6 +162,56 @@
         "multiPocket",
         "thread"
       ]
+    },
+    {
+      "id": "booleans",
+      "title": "布尔运算与局部修补",
+      "keywords": [
+        "布尔",
+        "差集",
+        "并集",
+        "交集",
+        "相减",
+        "相交",
+        "刀具体",
+        "局部切除",
+        "boolean",
+        "subtract",
+        "difference",
+        "union",
+        "intersect"
+      ],
+      "docs": [
+        "api.workflow",
+        "api.run"
+      ],
+      "tools": [
+        "cut",
+        "union",
+        "intersect"
+      ],
+      "note": "Inspect existing bodies before a local patch. Use explicit target and cutter bodies; preserve completed geometry and ask before a complex destructive plan."
+    },
+    {
+      "id": "references",
+      "title": "锚点与工作基准",
+      "keywords": [
+        "锚点",
+        "基准",
+        "工作平面",
+        "anchor",
+        "work frame"
+      ],
+      "docs": [
+        "api.references"
+      ],
+      "tools": [
+        "reference.setWorkFrame",
+        "resolvePlacement",
+        "queryReferences",
+        "reference.setBodyAnchor"
+      ],
+      "note": "Distinguish the insertion work frame from a body-owned anchor. Read the current frame before placing new geometry."
     },
     {
       "id": "rounding",

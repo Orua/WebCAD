@@ -11,6 +11,8 @@
 | 常用模板 | api.workflow | 精确 template.* 单模板卡 |
 | 轮廓、截面、约束 | api.mechanical、api.references | sketchProfile / profileSweep / profileLoft / planeSection |
 | 孔槽、螺纹加工 | api.mechanical | holeWizard / multiHole / multiPocket / thread |
+| 布尔运算、局部切削修补 | api.workflow、api.run | cut / union / intersect |
+| 插入锚点、对象锚点与基准 | api.references | reference.setWorkFrame / resolvePlacement / queryReferences / reference.setBodyAnchor |
 | 圆角、端部圆润 | api.smooth-transition及对应工具卡 | round / fillet / rounding / roundEnd / chamfer |
 | Logo、浮雕 | api.logo、api.relief | logo / curvedLogo / relief |
 | 材料、尺寸、配合 | api.design-checks | inspectDesign / measure / inspectThickness / inspectFit |
@@ -18,6 +20,8 @@
 | 保存、导出、文件 | recipe.file-workflow、api.file-errors | files.* |
 
 准确 UI 动作沿 `routes.json` 查；自然语言任务沿 `agent-routing.json` 查。路由只决定先读什么，不替代几何判断。未命中则调用当前页面 `searchTools`，已知 ID 直接 `getTools`。模板优先读单模板卡，避免把全部快捷模型目录塞进上下文。
+
+布尔切削、并集、交集、实体移动及插入锚点的通用同义词由 `src/agent-knowledge.js` 声明并进入完整工具卡。页面与离线库读取同一契约；“移动”优先实体变换，“锚点”优先工作基准，不应默认选择视图移动或删除锚点。具体实体及基准类型仍按当前状态和完整卡片确认。
 
 可选 Node 宿主 helper：
 

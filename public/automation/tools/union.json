@@ -46,7 +46,11 @@
   "category": "modification",
   "synonyms": [
     "union",
-    "合并"
+    "合并",
+    "并集",
+    "布尔合并",
+    "布尔相加",
+    "boolean union"
   ],
   "description": "Fuse bodies",
   "schemaHash": "sha256:ba47123a373370476944e415c13401a9c8ebd9f394cef166899f3e1d67cbea46",
@@ -182,5 +186,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:412b723333c238f1c78a93f06d199af429fc1cdba30f559342f991a0fcfecac4"
+  "docsHash": "sha256:9e1dc2e8dd5430f10ae39fc5d8d262786ff0174de03719e8f04bbeaf5696b55d"
 }
