@@ -15,7 +15,7 @@ import {PLACEMENT_POLICIES,placementContract} from './placement-policy.js';
 import {mechanicalIds} from './mechanical-tool-contracts.js';
 import {reliefNotes,reliefLayerNotes,reliefLocalPatchNotes} from './modeling/manufacturing/relief-contracts.js';
 import {DESIGN_INSPECTION_GUIDE,RECONSTRUCTION_WORKFLOW} from './design-inspection-guidance.js';
-import {KNOWLEDGE_GUIDANCE,KNOWLEDGE_ROUTES} from './agent-knowledge.js';
+import {KNOWLEDGE_GUIDANCE,KNOWLEDGE_ROUTES,KNOWLEDGE_TOOL_SYNONYMS} from './agent-knowledge.js';
 import {PRODUCT_SOURCE_GUIDANCE,PRODUCT_FAMILY_DOCS,PRODUCT_FAMILIES} from './product-source-guidance.js';
 import {DESIGN_INSPECTION_SCHEMA} from './design-inspection.js';
 import {FEATURE_PLAN_GUIDANCE,FEATURE_PLAN_SCHEMA} from './feature-plan.js';
@@ -442,7 +442,8 @@ function pageCards() {
     ...unavailable.map(card => ({ ...card, category: 'unavailable', version: PAGE_DOC_VERSION,
       implementationStatus: 'unavailable', contractStatus: 'unavailable', runtimeAvailability: 'unavailable',
       errorCodes: ['CAPABILITY_UNAVAILABLE'] })),
-  ];
+  ].map(card=>Object.hasOwn(KNOWLEDGE_TOOL_SYNONYMS,card.id)
+    ? {...card,synonyms:[...new Set([...(card.synonyms||[]),...KNOWLEDGE_TOOL_SYNONYMS[card.id]])]} : card);
 }
 export const pageCatalogHash = contractHash({ searchVersion: SEARCH_VERSION, cards: pageCards(), uiRoutes:UI_API_ROUTES, knowledgeRoutes:KNOWLEDGE_ROUTES, productFamilies:PRODUCT_FAMILIES, fileLimits: FILE_LIMITS });
 export const pageDocsHash = contractHash({ pageCatalogHash, pageDocs: PAGE_DOCS, onboarding:AGENT_ONBOARDING, legacyReadable: [...LEGACY_READABLE], legacyDocsHash });

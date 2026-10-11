@@ -46,7 +46,11 @@
   "category": "modification",
   "synonyms": [
     "intersect",
-    "相交"
+    "相交",
+    "交集",
+    "布尔交集",
+    "布尔相交",
+    "boolean intersection"
   ],
   "description": "Common volume of bodies",
   "schemaHash": "sha256:0e01f8f8e8cff7f9f0fb823d62704b8d48db5e97a5fed4b07e26b3b2c36a1a26",
@@ -182,5 +186,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:df794b8880c60f5e4335dba9093250a3cbb2a79b9c0a8fc51f87f90afc3f02dc"
+  "docsHash": "sha256:8e9600e091872d4c39faa5110486ecb477029749a54cb297dc30af1e75f6db8c"
 }

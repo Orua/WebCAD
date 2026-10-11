@@ -33,5 +33,13 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:714b826120668370c106bf5805111c64cb29e3792e40d762ea6af6325fff7bde"
+  "synonyms": [
+    "锚点",
+    "参考锚点",
+    "插入锚点",
+    "工作锚点",
+    "工作基准",
+    "基准点"
+  ],
+  "docsHash": "sha256:72d50d359a387dba7cf45d15b6220412bb7fb381f901196e765f1910859d43b6"
 }
