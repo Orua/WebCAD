@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.28.3 · sha256:dd4309eba5212c845484130e16dbb88894e30310aaab34a4a08b6a42062d1df5
+API 1.28.3 · sha256:0e65474610b30f503e16efe13e6a8fe21a062d5ea27a0e18b2754bb6c001fffe
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -887,6 +887,13 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
     ],
     "method": "execute",
     "usage": "面加工→浮雕。files.register图像，readRelief生成独立轮廓regions与高度values；run add relief显式faceId/refs/尺寸/高度/位置、values/regions/surfaceMode/source。surfaceMode=flat为精确平顶，smooth为轮廓内平滑起伏，背景保留原面。支持分层.relief.json及layers显式高度、strokes开放刻线和curveToleranceMm曲线公差；UI逐层编辑高度和方向，API feature.edit修改layers。柱面须point、角宽≤90°、angleDeg=0。旧无regions工程保留原基底层语义。预览后提交，getState.bodies[].reliefReport回读背景、表面方式与实际材料变化。"
+  },
+  "reliefShoulder": {
+    "tools": [
+      "reliefShoulder"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
   "remove": {
     "tools": [
@@ -25705,6 +25712,283 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
   "docsHash": "sha256:3945e5a941b3346048c55362da5795b964b6880c473d14bcf3ef514f7c27f6ac"
+}
+```
+
+## 工具 reliefShoulder · 浮雕中央肩部 / Central relief shoulder
+
+```json
+{
+  "id": "reliefShoulder",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "faceId": {
+        "type": "integer",
+        "description": "Current lower step face",
+        "minimum": 0,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
+      },
+      "point": {
+        "type": "array",
+        "items": {
+          "type": "number",
+          "unit": "mm",
+          "quantityKind": "length",
+          "quantizationPolicy": "none"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "widthMm": {
+        "type": "number",
+        "description": "Axial transition width (mm)",
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "endProtectionMm": {
+        "type": "number",
+        "description": "Retained length at each angular end (mm)",
+        "exclusiveMinimum": 0
+      },
+      "endPolicy": {
+        "type": "string",
+        "description": "Explicit end treatment",
+        "enum": [
+          "retained-step-with-planar-caps"
+        ]
+      }
+    },
+    "required": [
+      "faceId",
+      "point",
+      "widthMm",
+      "endProtectionMm",
+      "endPolicy"
+    ],
+    "additionalProperties": false,
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Native Services required. Bounded coaxial outward cylindrical layer under rigid pose; select an interior point on its lower four-edge step with circular boundaries and straight sides. Source dimensions are inferred. Removes material only across the central axial transition. Central support seams are G1; protected planar end caps are G0, not a whole-boundary fillet or fixed radius. Holes and all unselected faces are preserved. Fragmented boundaries and ambiguous support reject without approximation. Save includes the compiled result for offline reopen; recomputation requires Services.",
+  "title": "浮雕中央肩部 / Central relief shoulder",
+  "category": "modification",
+  "synonyms": [
+    "浮雕肩部",
+    "中央肩部",
+    "cylindrical shoulder",
+    "浮雕中央肩部"
+  ],
+  "description": "浮雕中央肩部 / Central relief shoulder",
+  "schemaHash": "sha256:28100343b4a699e61fc3a0e567c150c6a7f5e02fa13b262a1490aa66f83da691",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      },
+      "reliefReport": {
+        "type": "object",
+        "description": "Central seams G1; retained end caps G0; fixedRadius false; actual mechanism, width, end protection and material removal."
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Configured Services authorization; sends the selected source BRep to that endpoint."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+  ],
+  "knownUnsupportedCases": [
+    "Native Services required. Bounded coaxial outward cylindrical layer under rigid pose; select an interior point on its lower four-edge step with circular boundaries and straight sides. Source dimensions are inferred. Removes material only across the central axial transition. Central support seams are G1; protected planar end caps are G0, not a whole-boundary fillet or fixed radius. Holes and all unselected faces are preserved. Fragmented boundaries and ambiguous support reject without approximation. Save includes the compiled result for offline reopen; recomputation requires Services."
+  ],
+  "minimalExample": {
+    "op": "reliefShoulder",
+    "params": {
+      "faceId": 0,
+      "point": [
+        0,
+        50.25,
+        7
+      ],
+      "widthMm": 0.3,
+      "endProtectionMm": 0.3,
+      "endPolicy": "retained-step-with-planar-caps"
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "reliefShoulder",
+    "params": {
+      "faceId": 0,
+      "point": [
+        0,
+        50.25,
+        7
+      ],
+      "widthMm": 0.3,
+      "endProtectionMm": 0.3,
+      "endPolicy": "retained-step-with-planar-caps"
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "faceId": 0,
+        "point": [
+          0,
+          50.25,
+          7
+        ],
+        "widthMm": 0.3,
+        "endProtectionMm": 0.3,
+        "endPolicy": "retained-step-with-planar-caps",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "SERVICES_CONFIG_REQUIRED",
+    "SERVICES_CAPABILITY_UNAVAILABLE",
+    "RELIEF_SHOULDER_UNSUPPORTED",
+    "SOURCE_HASH_MISMATCH",
+    "NATIVE_BRIDGE_FAILED"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs",
+    "tests/services-shoulder-native.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "浮雕中央肩部",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:b3c32783fbf7373a8fa333e0fe8a6b65a7c808987d64167f11ee33327040d1ee"
 }
 ```
 

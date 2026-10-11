@@ -1,3 +1,11 @@
+## Central shoulder upgrade (2026-10-11)
+
+`reliefShoulder` / `relief.central-shoulder-1.0` is a separate bounded Native operation. Select an interior point on the lower four-edge planar step between two coaxial outward cylindrical supports. Set an axial transition width and retained length at both ends. The source dimensions are inferred, including a rigidly rotated or translated body. Central support seams are G1; the two retained planar end caps are G0. This is not a fixed-R or full-boundary fillet. Fragmented arcs, multiple supports and unsupported source geometry reject without retry or approximation. Whole-boundary continuous shoulders remain TBD.
+
+Canonical shared-edge source geometry uses direct boundary replacement. Projected rectangular relief uses one native revolved cubic cutter within the common arc interior, retaining the original end regions. Python proof precedes the implementation. Actual single-layer and nested `buildRelief` fixtures verify result validity, central tangency, retained lower layers and an existing through-hole. Page commit, edited preview/cancel, v3 save and zero-request cold offline reopen passed for the projected single-layer case. An exact compiled checkpoint is saved for offline reopening; editing/recomputing requires Services. The isolated upgrade site is `http://127.0.0.1:17686/`; the prior accepted round/cut release remains on 17685.
+
+Run `tests/services-shoulder-native.test.mjs` with `WEBCAD_NATIVE_WORKER` pointing to the actual build output (beside `WebCADShoulderCheck.exe`) and `WEBCAD_NATIVE_TEST_ROOT` on external storage. For an installed worker, set `WEBCAD_NATIVE_SHOULDER_CHECK` to the build helper, or use `test-services.ps1 -NativeShoulderCheck` explicitly. No generated proof artifact is committed.
+
 ## Current upgrade scope (2026-10-11)
 
 Configured Services routes complex cut operations (including a target plus at least 12 tools) to `boolean.cut-1.0`. A job binds every ordered source SHA; up to 32 solid tools are supported, each input at most 20 MiB and total inputs at most 64 MiB. Results must remain one valid solid. Heavy union/intersection and unsupported operations stop explicitly. Editing an upstream source that would invalidate a complex downstream result requires removing/recreating that downstream step; a batch does not silently recompute it locally.

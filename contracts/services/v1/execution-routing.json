@@ -40,7 +40,8 @@
     "shell",
     "thread",
     "coil",
-    "autoRound"
+    "autoRound",
+    "reliefShoulder"
   ],
   "boundedOperations": [
     "box",
@@ -103,8 +104,17 @@
     "logo",
     "quickModel"
   ],
-  "booleanOperations": ["cut", "union", "intersect"],
-  "unmeasuredSourceOperations": ["cut", "union", "intersect", "round"],
+  "booleanOperations": [
+    "cut",
+    "union",
+    "intersect"
+  ],
+  "unmeasuredSourceOperations": [
+    "cut",
+    "union",
+    "intersect",
+    "round"
+  ],
   "denseMachiningOperations": [
     "multiHole",
     "multiPocket",

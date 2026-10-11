@@ -5,17 +5,17 @@ import { assertJsonValue, contractError, contractHash, validateSchema } from './
 import { annotateParameterSchema, numericInputPolicy } from './parameter-metadata.js';
 
 export const apiVersion = '2.0';
-export const migratedOperationIds = Object.freeze(['box', 'cylinder', 'sphere', 'cone', 'torus', 'mirror', 'linearPattern', 'circularPattern', 'hole', 'holeWizard', 'draftFaces', 'multiHole', 'multiPocket', 'multiBoss', 'faceHole', 'round', 'roundEnd', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell','sketchProfile','profileOffset','profileRepair','profileExtrude',...mechanicalIds]);
+export const migratedOperationIds = Object.freeze(['reliefShoulder','box', 'cylinder', 'sphere', 'cone', 'torus', 'mirror', 'linearPattern', 'circularPattern', 'hole', 'holeWizard', 'draftFaces', 'multiHole', 'multiPocket', 'multiBoss', 'faceHole', 'round', 'roundEnd', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell','sketchProfile','profileOffset','profileRepair','profileExtrude',...mechanicalIds]);
 const migrated = new Set(migratedOperationIds);
 const clone = value => JSON.parse(JSON.stringify(value));
 const topology = new Set(['faceHole', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition']);
 const topologyConvention = operationCatalog.topology;
-const defaults = { cylinder:{},sphere:{},cone:{radius1:10,radius2:0},torus:{},round:{mode:'auto',strength:.5}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z'}, rounding:{strength:1}, autoRound:{}, smoothTransition: {}, box: {}, hole: { x: 0, y: 0, z: 0, axis: 'Z', direction: 1 },holeWizard:{kind:'plain',axis:'Z',direction:1,through:false},
+const defaults = {reliefShoulder:{}, cylinder:{},sphere:{},cone:{radius1:10,radius2:0},torus:{},round:{mode:'auto',strength:.5}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z'}, rounding:{strength:1}, autoRound:{}, smoothTransition: {}, box: {}, hole: { x: 0, y: 0, z: 0, axis: 'Z', direction: 1 },holeWizard:{kind:'plain',axis:'Z',direction:1,through:false},
   mirror:{plane:'XY',offsetMm:0,keepOriginal:false},linearPattern:{count:3,dx:0,dy:0,dz:0,outputMode:'compound'},circularPattern:{count:3,angle:360,axis:'Z',cx:0,cy:0,cz:0,outputMode:'compound'},
   multiHole: { axis: 'Z', direction: 1 }, multiPocket:{axis:'Z',direction:-1}, multiBoss:{axis:'Z',direction:1}, faceHole: { through: false }, fillet: {}, chamfer: {}, shell: {}, draftFaces:{}, extractFaces:{}, extractShell:{}, sketchProfile:{}, profileOffset:{}, profileRepair:{}, profileExtrude:{},...mechanicalDefaults };
 const triangle = [[-1, -1], [1, -1], [0, 1]];
 const regions = [{ outer: triangle }];
-const examples = { round:{edgeIds:[0]}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z',depthMm:2,edgeIds:[0]}, rounding:{specVersion:3,scope:{kind:'edges',edgeIds:[0]}}, autoRound:{radius:0.1}, smoothTransition:{radius:0.1,faceIds:[0,1]},
+const examples = { reliefShoulder:{faceId:0,point:[0,50.25,7],widthMm:.3,endProtectionMm:.3,endPolicy:'retained-step-with-planar-caps'}, round:{edgeIds:[0]}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z',depthMm:2,edgeIds:[0]}, rounding:{specVersion:3,scope:{kind:'edges',edgeIds:[0]}}, autoRound:{radius:0.1}, smoothTransition:{radius:0.1,faceIds:[0,1]},
   box: { width: 50, depth: 30, height: 3 }, cylinder: { radius: 10, height: 20 }, sphere: { radius: 10 },
   cone: { radius1: 10, radius2: 0, height: 20 }, torus: { majorRadius: 10, minorRadius: 2 },
   extrude: { profile: 'rectangle', width: 20, depth: 10, height: 5 },
@@ -102,7 +102,7 @@ function categoryFor(id) {
   return operationCatalog.operations[id].refs === 0 ? 'creation' : 'modification';
 }
 
-const names = { round:['圆润','自动圆润','磨边','圆头','round','smooth selected edge'], roundEnd:['端头圆润','针尖','圆头','自由端','round end','revolve cap'], box: ['长方体', '安装板', 'plate'], hole: ['孔', '钻孔', 'radius'], multiHole: ['多孔', '孔位', 'mounting plate'], multiPocket:['多凹槽','批量凹刻','rectangular pocket','recess'], multiBoss:['多凸台','批量圆柱凸台','cylindrical boss'], rounding:['自动打磨','打磨','圆润','去利角','smooth sharp edges'],
+const names = {reliefShoulder:['浮雕肩部','中央肩部','cylindrical shoulder'], round:['圆润','自动圆润','磨边','圆头','round','smooth selected edge'], roundEnd:['端头圆润','针尖','圆头','自由端','round end','revolve cap'], box: ['长方体', '安装板', 'plate'], hole: ['孔', '钻孔', 'radius'], multiHole: ['多孔', '孔位', 'mounting plate'], multiPocket:['多凹槽','批量凹刻','rectangular pocket','recess'], multiBoss:['多凸台','批量圆柱凸台','cylindrical boss'], rounding:['自动打磨','打磨','圆润','去利角','smooth sharp edges'],
   smoothTransition:['平滑过渡','接缝','利角','blend'], faceHole: ['面钻孔', '贯穿'], fillet: ['圆角','标准圆角','倒圆','半径','fillet'], chamfer: ['倒角'], shell: ['抽壳', '壁厚'],
   referenceExtrude: ['参考轮廓', '精确曲线', '拉伸'], referenceLoft: ['参考截面', '精确曲线', '放样'] };
 
@@ -153,6 +153,7 @@ function buildCard(id, source) {
     strictContract: strict, v2Executable: strict, contractStatus: strict ? 'migrated' : 'advisory',
     outputSchema: { type: 'object', description: 'Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.',
       properties: { status: { type: 'string', enum: ['committed', 'no_change', 'failed', 'unknown'] },
+        ...(id==='reliefShoulder'?{reliefReport:{type:'object',description:'Central seams G1; retained end caps G0; fixedRadius false; actual mechanism, width, end protection and material removal.'}}:{}),
         ...(id==='round'?{roundReport:{type:'object',description:'Read preview.scope or bodies[].roundReport: chosen mode, resolved exact parameters, control, world scope, attemptCount:1, endRoundingReport or blendReport.'}}:{}),
         ...(id==='roundEnd'?{endRoundingReport:{type:'object',description:'status rounded or rounded-with-inherited-creases; sourceProfileAngleDeg, maxJoinAngleDeg, maxHeadAngleDeg, residualSeams, depthMm, axis, direction, profileAxis, section dimensions/deviations, separate added/removed volumes, lengthChangeMm and targetDisplacementsMm.'}}:{}),
         ...(id==='rounding'?{roundingReport:{type:'object',description:'Preview receipt, getState().previewScope and committed body roundingReport expose the same report. v3 requires region; historical v1/v2 keep their original fields.',properties:{
@@ -170,7 +171,7 @@ function buildCard(id, source) {
       : ['advancedLoft', 'vectorProfile', 'sewFaces', 'surfaceTrim'].includes(id) ? ['solid', 'shell', 'face (operation-dependent)'] : special ? [] : ['solid', 'compound (operation-dependent)']),
     ...(mechanicalRefCounts[id]?{conditionalRefs:clone(mechanicalRefCounts[id])}:{}),
     consumesInputs: minRefs > 0 && preserves !== true, preservesInputs: preserves, createsResults: id !== 'remove',
-    sideEffects: ['Updates active document history and derived view on commit.'], permissions: ['Authorized local modeling session; no external upload.'],
+    sideEffects: ['Updates active document history and derived view on commit.'], permissions: id==='reliefShoulder'?['Configured Services authorization; sends the selected source BRep to that endpoint.']:['Authorized local modeling session; no external upload.'],
     undoBehavior: 'One successful feature operation is one undo step. Legacy refresh is separately documented.',
     idempotency: strict ? 'v2 same documentInstanceId, at most 1000 in-memory receipts; refuses new commands at capacity without evicting old receipts. No durable or cross-reload guarantee.' : 'Legacy calls do not guarantee idempotency.',
     limits: strict ? ['Finite JSON values; no numeric strings, unknown fields, or implicit UI selection.'] : ['Schema advisory only; existing operation/kernel restrictions apply.'],
@@ -180,6 +181,7 @@ function buildCard(id, source) {
       ...(id==='cone'?[{params:{radius1:0,radius2:0,height:5},errorCode:'PARAM_RANGE_INVALID',explanation:'At least one radius must be positive; validation applies after the existing defaults.'}]:[]),
       ...(id==='torus'?[{params:{majorRadius:2,minorRadius:2},errorCode:'PARAM_RANGE_INVALID',explanation:'The tube radius must be smaller than the centerline radius.'}]:[])],
     errorCodes: ['PARAM_SCHEMA_INVALID', 'PARAM_RANGE_INVALID', 'UNKNOWN_OPERATION', 'OPERATION_VERSION_UNSUPPORTED', 'SCHEMA_MISMATCH', 'CAPABILITY_UNAVAILABLE', 'GEOMETRY_INVALID', 'SIZE_LIMIT',
+      ...(id==='reliefShoulder'?['SERVICES_CONFIG_REQUIRED','SERVICES_CAPABILITY_UNAVAILABLE','RELIEF_SHOULDER_UNSUPPORTED','SOURCE_HASH_MISMATCH','NATIVE_BRIDGE_FAILED']:[]),
       ...(id==='round'?['ROUND_SELECTION_AMBIGUOUS','END_ROUNDING_UNSUPPORTED','KERNEL_BUILD_FAILED','NO_CHANGE','STALE_REFERENCE']:[]),
       ...(id==='roundEnd'?['END_ROUNDING_UNSUPPORTED','KERNEL_BUILD_FAILED','NO_CHANGE']:[]),
       ...(topology.has(id) ? ['SELECTION_CONFLICT', 'STALE_REFERENCE', 'UNSAFE_LEGACY_REFERENCE'] : []),
@@ -189,7 +191,7 @@ function buildCard(id, source) {
     recoveryActions: ['CORRECT_PARAMETERS', 'READ_STATE_AND_REPLAN', 'READ_TOOL_CONTRACT', 'NONE'],
     relatedTools: ['webcad_get_state_v2', 'webcad_query_geometry', strict ? 'webcad_execute_v2' : 'webcad_add_feature'],
     recipes: ['box', 'hole', 'multiHole'].includes(id) ? ['recipes.mounting-plate'] : [],
-    testIds: strict ? ['tests/operation-registry.test.mjs'] : [],
+    testIds: id==='reliefShoulder'?['tests/operation-registry.test.mjs','tests/services-shoulder-native.test.mjs']:strict ? ['tests/operation-registry.test.mjs'] : [],
     ...(id === 'quickModel' ? { templates: Object.entries(QUICK_MODELS).map(([kind, definition]) => ({ kind,
       title: definition.labelEn || definition.label, description: definition.descriptionEn || definition.description,
       defaults: clone(definition.defaults), fields: clone(definition.fields),

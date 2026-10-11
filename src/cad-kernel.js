@@ -8,6 +8,7 @@ import { buildQuickModel } from './quick-models.js';
 import { buildLogoOnPlane, buildVectorProfile } from './logo-model.js';
 import {buildRelief} from './modeling/manufacturing/relief.js';
 import {prepareCompiledReliefPlan} from './services/relief-plan.js';
+import {prepareShoulderPlan} from './services/shoulder-plan.js';
 import {inspectFaceRoundSource} from './services/face-round-plan.js';
 import {geometryFeatureSignature} from './services/geometry-signature.js';
 import {ReliefLayerCache} from './modeling/manufacturing/relief-layer-cache.js';
@@ -247,6 +248,7 @@ export class CadKernel {
       case 'faceGroove': case 'innerTurn': case 'outerTurn': return buildFaceMachining(source(),p,feature.op,this.oc,cad);
       case 'curvedLogo': return buildCurvedLogo(source(),p,cad);
       case 'fittedSurface': return buildFittedSurface(p,cad);
+      case 'reliefShoulder': throw Object.assign(new Error('中央肩部需要已配置的 Services；离线仅能打开已保存结果'),{code:'SERVICES_CONFIG_REQUIRED'});
       case 'relief': return buildRelief(source(),p,this.oc,cad,{onProgress:this.onProgress,layerCache:this.reliefLayerCache,sourceFingerprint:execution.sourceFingerprint});
       case 'thickenFace': return buildFaceThickness(source(),p,cad);
       case 'planeSection': return extractPlaneSection(source(),{plane:p.plane||'XY',offset:p.offset??0,frame},cad);
@@ -634,6 +636,10 @@ export class CadKernel {
     const shape=this.shapes.get(sourceFeatureId);if(!shape)throw Object.assign(new Error('浮雕来源特征几何已失效'),{code:'STALE_REFERENCE'});
     return {plan:prepareCompiledReliefPlan(shape,params,this.oc,cad,{sourceBrep:this.geometrySourceSnapshot(shape)})};
   }
+  shoulderPlan(sourceFeatureId,params){
+    const shape=this.shapes.get(sourceFeatureId);if(!shape)throw new Error('Missing shoulder source');
+    return {plan:prepareShoulderPlan(shape,params,this.oc,cad,{sourceBrep:this.geometrySourceSnapshot(shape)})};
+  }
   faceRoundPlan(sourceFeatureId,params,prepare=false){
     const shape=this.shapes.get(sourceFeatureId);if(!shape)throw Object.assign(new Error('圆润来源特征几何已失效'),{code:'STALE_REFERENCE'});
     return {plan:inspectFaceRoundSource(shape,params,this.oc,cad,{sourceBrep:this.geometrySourceSnapshot(shape),prepare})};
@@ -728,7 +734,7 @@ export class CadKernel {
               const legacySource=next.get(feature.refs[0]);this.describe(legacySource,{id:feature.refs[0],op:'legacy-source'});
               checkpoint=compiledCheckpointBytes(document,feature,new TextEncoder().encode(legacySource.serialize()));
             }
-            if(checkpoint){shape=cad.deserializeShape(new TextDecoder().decode(checkpoint));if(feature.op==='round')shape.roundReport=feature.compiledCheckpoint.roundReport;compiledReuse.push(current);}
+            if(checkpoint){shape=cad.deserializeShape(new TextDecoder().decode(checkpoint));if(feature.op==='round')shape.roundReport=feature.compiledCheckpoint.roundReport;if(feature.op==='reliefShoulder')shape.reliefReport=feature.compiledCheckpoint.reliefReport;compiledReuse.push(current);}
             else {if(feature.compiledCheckpoint)compiledInvalidated.push(current);shape=await this.operation(feature,inputs,document.imports||{},document.features,{sourceFingerprint});}
             if(shape&&!checkpoint&&feature.placement&&placementPolicy(feature.op)==='C'){const placed=placeCreation(shape,feature.placement);dispose(shape);shape=placed;}
           } finally {copies.forEach(dispose);}
