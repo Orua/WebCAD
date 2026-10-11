@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.28.3 · sha256:221cad4cec5cc95051f54ee7f0cf0aba5c4b166a36f9f1f9d1ae0c05ea3abd8e
+API 1.28.3 · sha256:dd4309eba5212c845484130e16dbb88894e30310aaab34a4a08b6a42062d1df5
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -104,7 +104,7 @@ execute action feature.addMany 的 args 为 {features:[{key,op,opVersion,schemaH
 首次握手本地知识库与路由
 connect().onboarding.knowledge.policy=required-on-first-handshake。Agent首次连接当前WebCAD来源后，下载automation/agent-knowledge.json，再下载清单内index.json、agent-routing.json、routes.json到宿主存储；逐文件验证SHA-256和字节数。只把轻量路由及命中的完整文档/工具卡送进模型上下文，不打印1–2MiB全库。没有宿主下载或存储能力时报告具体限制，不假称已下载，也不为此安装后台服务。
 缓存按当前页面base URL、catalogHash、docsHash隔离。重连时哈希匹配且本地文件验证成功就复用；变更、缺文件或损坏时更新完整包。调用仍读新鲜context，静态库不包含活文档、当前实体编号或拓扑快照。静态库里的示例编号不是当前ID。
-两级路由：agent-routing.json按任务命中源图重建、模板、轮廓、加工、圆角、Logo/浮雕、检查、编辑、文件；routes.json按精确UI动作找公共接口。任务先读工作流→选工具→取完整卡→按需专题。template.*单模板优先，避免读取quickModel总目录。未命中用实时searchTools；当前页面哈希与工具契约优先。
+两级路由：agent-routing.json按任务命中源图重建、模板、轮廓、加工、布尔、参考基准、圆角、Logo/浮雕、检查、编辑、文件；routes.json按精确UI动作找公共接口。任务先读工作流→选工具→取完整卡→按需专题。template.*单模板优先，避免读取quickModel总目录。未命中用实时searchTools；当前页面哈希与工具契约优先。
 可选Node宿主helper（不是网页运行依赖）：createPageClient({send:宿主授权CDP适配器,knowledge:{baseUrl:目标页URL,directory:宿主缓存目录}})。connect自动下载/验证，返回knowledgeStatus:{status:ready,cacheHit,directory,downloadedFiles}；已有匹配缓存不发下载请求。未配置knowledge时返回download_required，helper.run在知识包准备前拒绝执行。其他宿主按相同清单实现存储适配。页面不能证明远端Agent已经写盘，不能把handshake描述符当成下载回执。
 await client.route('DWG图纸重建')返回匹配路由和需要的doc/tool IDs；await client.readLocal({docIds:['api.reconstruction'],toolIds:['inspectDesign']})仅取这两项。默认字符预算32000，不能容纳的整项返回omitted/CHAR_BUDGET，不截断schema；调用方缩小本次读取范围。下载不自动安装技能；安装包仍由宿主选择并执行。
 
@@ -5497,7 +5497,15 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "category": "modification",
   "synonyms": [
     "cut",
-    "相减"
+    "相减",
+    "差集",
+    "减法",
+    "布尔相减",
+    "布尔差集",
+    "布尔切削",
+    "布尔切除",
+    "boolean cut",
+    "subtract"
   ],
   "description": "Subtract other bodies from first",
   "schemaHash": "sha256:0ebc4016d4fd53a25ac5a903224c2c6d31328db1004daf3a01383076e98e8a2e",
@@ -5633,7 +5641,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:00367f510e090ac97d201d469af2b846e09b191c25af4085be082ef8fde65af2"
+  "docsHash": "sha256:70a2ab9dd09371ce0d9bdb8386cf2dc294b4b42a42012beb5a834225472db54c"
 }
 ```
 
@@ -10316,7 +10324,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "category": "modification",
   "synonyms": [
     "intersect",
-    "相交"
+    "相交",
+    "交集",
+    "布尔交集",
+    "布尔相交",
+    "boolean intersection"
   ],
   "description": "Common volume of bodies",
   "schemaHash": "sha256:0e01f8f8e8cff7f9f0fb823d62704b8d48db5e97a5fed4b07e26b3b2c36a1a26",
@@ -10452,7 +10464,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:df794b8880c60f5e4335dba9093250a3cbb2a79b9c0a8fc51f87f90afc3f02dc"
+  "docsHash": "sha256:8e9600e091872d4c39faa5110486ecb477029749a54cb297dc30af1e75f6db8c"
 }
 ```
 
@@ -30652,7 +30664,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "synonyms": [
     "transform",
     "移动",
-    "旋转"
+    "旋转",
+    "平移",
+    "移动实体",
+    "移动模型",
+    "translate",
+    "translation"
   ],
   "description": "Scale, rotate X/Y/Z about origin, then translate",
   "schemaHash": "sha256:2839a269021b344ab8d7ab14c43f0b2ff40575cba29d41f9eec5756202336a05",
@@ -30792,7 +30809,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:223e9c4ff7e86fa9e3ff6e43b376685fa13c95a75f8dadd2c3cd11f2ca7b3984"
+  "docsHash": "sha256:4be352661c844307135e82b67d156fb058f89d4b91c358f97a4eeb96804205b1"
 }
 ```
 
@@ -30847,7 +30864,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "category": "modification",
   "synonyms": [
     "union",
-    "合并"
+    "合并",
+    "并集",
+    "布尔合并",
+    "布尔相加",
+    "boolean union"
   ],
   "description": "Fuse bodies",
   "schemaHash": "sha256:ba47123a373370476944e415c13401a9c8ebd9f394cef166899f3e1d67cbea46",
@@ -30983,7 +31004,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:412b723333c238f1c78a93f06d199af429fc1cdba30f559342f991a0fcfecac4"
+  "docsHash": "sha256:9e1dc2e8dd5430f10ae39fc5d8d262786ff0174de03719e8f04bbeaf5696b55d"
 }
 ```
 
@@ -49263,7 +49284,15 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:714b826120668370c106bf5805111c64cb29e3792e40d762ea6af6325fff7bde"
+  "synonyms": [
+    "锚点",
+    "参考锚点",
+    "插入锚点",
+    "工作锚点",
+    "工作基准",
+    "基准点"
+  ],
+  "docsHash": "sha256:72d50d359a387dba7cf45d15b6220412bb7fb381f901196e765f1910859d43b6"
 }
 ```
 
@@ -49557,7 +49586,11 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:2d42d5dcdd5fbf97095e0b200b05abb9216bd51855ebd9129cb49c088947effd"
+  "synonyms": [
+    "对象锚点",
+    "实体锚点"
+  ],
+  "docsHash": "sha256:b057727b43a5c9601705e81f6aae723777f82b793b0dfe8498e4a13cc37e3a19"
 }
 ```
 

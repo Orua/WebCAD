@@ -1,9 +1,9 @@
 {
   "version": "1.28.3",
-  "buildId": "4b2a552676a854c044abd6684bcba60d8b70b6f7-src-c224bec5ec67a238-working",
+  "buildId": "01f01db03fc56a51962ccce588cffe510e281006-src-b00f065410ad61ed-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:221cad4cec5cc95051f54ee7f0cf0aba5c4b166a36f9f1f9d1ae0c05ea3abd8e",
-  "docsHash": "sha256:2a7ec85f5efbc32192c589529293f389784b4abfaf28a70c306343419a4556a8",
+  "catalogHash": "sha256:dd4309eba5212c845484130e16dbb88894e30310aaab34a4a08b6a42062d1df5",
+  "docsHash": "sha256:e98aab90733723be9c30874a70c06b2d5c5842d96d64b2d649d8586744e319bb",
   "apiMethods": [
     "decideServicesWait",
     "recoverServicesJob",
@@ -177,7 +177,7 @@
       "label": "相减",
       "category": "modification",
       "version": "legacy-1",
-      "docsHash": "sha256:00367f510e090ac97d201d469af2b846e09b191c25af4085be082ef8fde65af2",
+      "docsHash": "sha256:70a2ab9dd09371ce0d9bdb8386cf2dc294b4b42a42012beb5a834225472db54c",
       "url": "tools/cut.json"
     },
     {
@@ -348,7 +348,7 @@
       "label": "相交",
       "category": "modification",
       "version": "legacy-1",
-      "docsHash": "sha256:df794b8880c60f5e4335dba9093250a3cbb2a79b9c0a8fc51f87f90afc3f02dc",
+      "docsHash": "sha256:8e9600e091872d4c39faa5110486ecb477029749a54cb297dc30af1e75f6db8c",
       "url": "tools/intersect.json"
     },
     {
@@ -708,7 +708,7 @@
       "label": "移动 / 旋转",
       "category": "organization",
       "version": "legacy-1",
-      "docsHash": "sha256:223e9c4ff7e86fa9e3ff6e43b376685fa13c95a75f8dadd2c3cd11f2ca7b3984",
+      "docsHash": "sha256:4be352661c844307135e82b67d156fb058f89d4b91c358f97a4eeb96804205b1",
       "url": "tools/transform.json"
     },
     {
@@ -717,7 +717,7 @@
       "label": "合并",
       "category": "modification",
       "version": "legacy-1",
-      "docsHash": "sha256:412b723333c238f1c78a93f06d199af429fc1cdba30f559342f991a0fcfecac4",
+      "docsHash": "sha256:9e1dc2e8dd5430f10ae39fc5d8d262786ff0174de03719e8f04bbeaf5696b55d",
       "url": "tools/union.json"
     },
     {
@@ -1749,7 +1749,7 @@
       "title": "设置参考锚点（工作基准）",
       "category": "command",
       "version": "1.28.3",
-      "docsHash": "sha256:714b826120668370c106bf5805111c64cb29e3792e40d762ea6af6325fff7bde",
+      "docsHash": "sha256:72d50d359a387dba7cf45d15b6220412bb7fb381f901196e765f1910859d43b6",
       "url": "tools/reference.setWorkFrame.json"
     },
     {
@@ -1805,7 +1805,7 @@
       "title": "对象锚点",
       "category": "command",
       "version": "1.28.3",
-      "docsHash": "sha256:2d42d5dcdd5fbf97095e0b200b05abb9216bd51855ebd9129cb49c088947effd",
+      "docsHash": "sha256:b057727b43a5c9601705e81f6aae723777f82b793b0dfe8498e4a13cc37e3a19",
       "url": "tools/reference.setBodyAnchor.json"
     },
     {
@@ -2095,7 +2095,7 @@
     },
     {
       "id": "api.knowledge-cache",
-      "docsHash": "sha256:85abfdd7d4a64f6b0cd750dce983718bffec21e0008ede753c6837f5f5a54b7a",
+      "docsHash": "sha256:613490ac58a6ec23585048bde4d5e6f70d72263aade42d51aa70aff4e4d2c805",
       "url": "docs/api.knowledge-cache.md"
     },
     {
