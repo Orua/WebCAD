@@ -32,6 +32,7 @@ self.onmessage = ({ data }) => {
       else if(type==='serializeFeature')result=engine.serializeFeatureShape(data.featureId);
       else if(type==='sourceComplexity')result=engine.sourceComplexity(data.featureId,data.faceId);
       else if(type==='prepareReliefPlan')result=engine.prepareReliefPlan(data.sourceFeatureId,data.params);
+      else if(type==='faceRoundPlan')result=engine.faceRoundPlan(data.sourceFeatureId,data.params,data.prepare);
       else if(type==='measureRelation')result=engine.measureRelation(data.input);
       else if(type==='measure'){
         if(Array.isArray(data.ids)){

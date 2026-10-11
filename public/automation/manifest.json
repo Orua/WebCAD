@@ -1,9 +1,9 @@
 {
   "version": "1.28.3",
-  "buildId": "4b2a552676a854c044abd6684bcba60d8b70b6f7-src-89feef9a4d36d213-working",
+  "buildId": "f9fe87e23729244dfd1491004d6eed1ecc4b02d6-src-b00f065410ad61ed",
   "searchVersion": "2",
-  "catalogHash": "sha256:e963be69cc0e9de9b5beb259e99e95265645e30d6062bf026939f6c21a29e86b",
-  "docsHash": "sha256:05e996e8b3671375d40b8f7a558d39139aa9e1460f6ae5ef213d6d1bb59d64f8",
+  "catalogHash": "sha256:dd4309eba5212c845484130e16dbb88894e30310aaab34a4a08b6a42062d1df5",
+  "docsHash": "sha256:e98aab90733723be9c30874a70c06b2d5c5842d96d64b2d649d8586744e319bb",
   "apiMethods": [
     "decideServicesWait",
     "recoverServicesJob",
@@ -573,7 +573,7 @@
       "label": "圆润",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:29315a6ae7382cdf8fb9d109c27891585b62069c6883fe96c6596b5ea7e576e0",
+      "docsHash": "sha256:8545e8935b76e29f5ce890de5fade6640aee0b5a3d3fd0cec467d35792c9e456",
       "url": "tools/round.json"
     },
     {
@@ -1581,7 +1581,7 @@
       "title": "getServicesRouting",
       "category": "page-method",
       "version": "1.28.3",
-      "docsHash": "sha256:c7fef2d56005b71258a9e6ffd09a36c53700380fa7277b135dc097e292b5413a",
+      "docsHash": "sha256:6bc95ebf0a83e07bf9af448ae89895727bf56d7b5248874bc836d3c45abcb9a0",
       "url": "tools/getServicesRouting.json"
     },
     {
@@ -1677,7 +1677,7 @@
       "title": "Services 原特征编译",
       "category": "command",
       "version": "1.28.3",
-      "docsHash": "sha256:69afbac6dcb0f8902cc76594335c8cbaab5924be733cbba3fbd7b6a58f46899f",
+      "docsHash": "sha256:7b95dfb9ffdecd2b9763019dcbb57433cac2a5be6034234ec8a78f68df05157e",
       "url": "tools/feature.compileServices.json"
     },
     {
