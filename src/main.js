@@ -1,3 +1,4 @@
+import '../public/automation/runtime-uuid.js';
 import tbdCapabilities from '../contracts/services/v1/tbd-capabilities.json' with {type:'json'};
 import {recordTimeline,restoreTimeline,timelineList,validateTimeline} from './document-timeline.js';
 import {decodeProject} from './project-container.js';
