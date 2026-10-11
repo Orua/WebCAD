@@ -239,7 +239,11 @@
     "移动实体",
     "移动模型",
     "translate",
-    "translation"
+    "translation",
+    "move",
+    "move body",
+    "rotate",
+    "rotation"
   ],
   "description": "Scale, rotate X/Y/Z about origin, then translate",
   "schemaHash": "sha256:2839a269021b344ab8d7ab14c43f0b2ff40575cba29d41f9eec5756202336a05",
@@ -379,5 +383,5 @@
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:4be352661c844307135e82b67d156fb058f89d4b91c358f97a4eeb96804205b1"
+  "docsHash": "sha256:28063260b6df202356856076b9823daf5b03ef9fad57b4019950fb9edbae97c5"
 }

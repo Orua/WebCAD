@@ -11,7 +11,7 @@ import { validateSchema } from '../src/contracts/operation-schema.js';
 const ids = query => searchTools({query,limit:5}).items.map(item=>item.id);
 
 test('common boolean, movement and anchor terms select the intended tool first',()=>{
-  for(const [query,expected] of [['布尔切削','cut'],['布尔合并','union'],['布尔交集','intersect'],['移动','transform'],['锚点','reference.setWorkFrame']]){
+  for(const [query,expected] of [['布尔切削','cut'],['布尔合并','union'],['布尔交集','intersect'],['移动','transform'],['锚点','reference.setWorkFrame'],['把物体移动10毫米','transform'],['移动视角','setView'],['move body','transform'],['move camera','setView']]){
     assert.equal(ids(query)[0],expected,query);
   }
 });
