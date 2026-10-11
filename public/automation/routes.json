@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
   "pageApiVersion": "1.28.3",
-  "buildId": "bd6718954249890c36421ec03e0e28fe5ed1a646-src-18761e5aafaec5a5-working",
-  "catalogHash": "sha256:692fe8ecd98654d97d2c340d0f4e8fa75fb89fc728abb2a044c6a23e5b4cc446",
-  "docsHash": "sha256:d7613007ee45231208ae2ba77554e2e16e9ff967445276fe0590632b9199e73b",
+  "buildId": "8240027587a5f5d6439cb56e3eeda5e55b2fc757-src-e047ba2ebd0ef4f0",
+  "catalogHash": "sha256:722713f08741279e1445e985611d055d87a1651f5a589aad37e382c240227d93",
+  "docsHash": "sha256:4c2b79d0cd919ad9a79735496382a39ed5af94e1be03ab5ee760c226369924e5",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -882,6 +882,13 @@
       "method": "prepareReliefSculpt",
       "usage": "浮雕历史属性→浮雕精修；独立毫米域用 patch:{id,domainMm,samples,protectionMm}，域内增量独立保存，边界两排固定；实际柱面及邻层预览用 preview.start args:{featureEdit:{featureId,params}}，再 preview.commit/cancel；patchId 对应独立域吸取。prepareReliefSculpt({context,featureId,strokes,draft?})只读返回params.sculpt；检查canCommit/blockers后feature.edit提交。笔刷raise/lower/smooth/flatten/fill/scrape/sharpen/restore/mask/unmask，hardness为0–1、symmetry为none/x/y/xy，局部points为[-.5,.5]，radiusMm/amountMm/targetMm为毫米，strength为0–1。工程保存原始高度及deltaMm/mask；关闭/切层暂存草稿、应用当前层一次撤销；Alt吸取对应sampleReliefHeight({context,featureId,point,draft?})，返回targetMm可给flatten，quantity区分height/depth，与UI共用采样；轮廓外或孔内失败RELIEF_SAMPLE_OUTSIDE；预览旋转缩放不改模型。"
     },
+    "reliefShoulder": {
+      "tools": [
+        "reliefShoulder"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
     "reliefTopologyUpgrade": {
       "tools": [
         "prepareReliefTopologyUpgrade",
@@ -1320,6 +1327,7 @@
     "referenceLoft": "参考截面放样 / 截面放样",
     "refineShape": "清理分割线 / getState / queryGeometry / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销",
     "relief": "浮雕 / readRelief / 登记文件资源 / getState / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数 / 撤销",
+    "reliefShoulder": "浮雕中央肩部",
     "remove": "删除 / 删除实体",
     "revolve": "旋转成型 / 轮廓旋转",
     "sewFaces": "曲面缝合",
