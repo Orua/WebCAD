@@ -115,9 +115,9 @@ int main(int argc,char** argv) {
      stage="replace-central-shoulder";progress();const auto replacement=webcad::relief_shoulder::run(solid,face,width,protection);
      const auto& spec=replacement.spec;result=replacement.shape;
      const double removed=before.at("volumeMm3").get<double>()-measure(result).at("volumeMm3").get<double>();
-     const double expected=(replacement.coreEnd-replacement.coreStart)*width/2*(spec.radiusMm*spec.layerHeightMm+22*spec.layerHeightMm*spec.layerHeightMm/35);
+     const double expected=replacement.expectedRemovedVolume>0?replacement.expectedRemovedVolume:(replacement.coreEnd-replacement.coreStart)*width/2*(spec.radiusMm*spec.layerHeightMm+22*spec.layerHeightMm*spec.layerHeightMm/35);
      if(removed<=0||std::abs(removed-expected)>std::max(1e-6,expected*1e-6))throw std::runtime_error("Shoulder material removal differs from analytic transition");
-     shoulderReport={{"kind","central-cylindrical-shoulder"},{"mechanism",replacement.mechanism},{"fixedRadius",false},{"centralContinuity","G1"},{"endCapContinuity","G0"},{"endPolicy",params.at("endPolicy")},{"widthMm",width},{"endProtectionMm",protection},{"radiusMm",spec.radiusMm},{"layerHeightMm",spec.layerHeightMm},{"retainedSourceFaces",replacement.retainedFaces},{"frameNormalized",replacement.frameNormalized},{"retentionMeaning","unchanged geometry under rigid world pose"},{"removedVolumeMm3",removed},{"expectedRemovedVolumeMm3",expected}};
+     shoulderReport={{"kind","central-cylindrical-shoulder"},{"mechanism",replacement.mechanism},{"fixedRadius",false},{"centralContinuity","G1"},{"endCapContinuity","G0"},{"endPolicy",params.at("endPolicy")},{"widthMm",width},{"widthDirection",replacement.widthDirection},{"endProtectionMm",protection},{"radiusMm",spec.radiusMm},{"layerHeightMm",spec.layerHeightMm},{"retainedSourceFaces",replacement.retainedFaces},{"frameNormalized",replacement.frameNormalized},{"retentionMeaning","unchanged geometry under rigid world pose"},{"removedVolumeMm3",removed},{"expectedRemovedVolumeMm3",expected}};
     }
     else result=runReliefPlan(input,params,request.at("strategy"),stages,stage,progress,request.at("semanticVersion")=="relief.compiled-contours-strokes-1.2",supportBinding);
     stage="validate-result";const auto after=measure(result);

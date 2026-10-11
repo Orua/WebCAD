@@ -6,7 +6,7 @@ export function prepareShoulderPlan(source,p,oc,cad,{sourceBrep=source.serialize
  const shape=cad.deserializeShape(sourceBrep),faces=shape.faces,owned=[shape,...faces];
  try{
   const face=faces[p.faceId];
-  if(!face||face.geomType!=='PLANE'||!Array.isArray(p.point)||p.point.length!==3)throw serviceError('SELECTION_UNSUPPORTED','选择浮雕层下方的水平阶梯面及其内部点');
+  if(!face||face.geomType!=='PLANE'||!Array.isArray(p.point)||p.point.length!==3)throw serviceError('SELECTION_UNSUPPORTED','选择浮雕层上方、下方或侧方的平面阶梯及其内部点');
   const point=cad.makeVertex(p.point),query=new oc.BRepExtrema_DistShapeShape();owned.push(point,query);
   query.LoadS1(point.wrapped);query.LoadS2(face.wrapped);query.Perform();
   if(!query.IsDone()||query.NbSolution()<1||query.Value()>1e-7)throw serviceError('SELECTION_UNSUPPORTED','肩部选择点必须位于当前阶梯面的内部');
