@@ -14,7 +14,7 @@ if($NativeWorker -or $NativeAcceptance){
  $env:WEBCAD_NATIVE_WORKER=[IO.Path]::GetFullPath($NativeWorker)
  $env:WEBCAD_NATIVE_ACCEPTANCE=[IO.Path]::GetFullPath($NativeAcceptance)
  $env:WEBCAD_NATIVE_TEST_ROOT=Join-Path $DataRoot 'native'
- $tests+=@('services-native-bridge','services-compute','services-relief','services-support-intent')
+ $tests+=@('services-native-bridge','services-boolean-native','services-round-native','services-compute','services-relief','services-support-intent')
 }
 & node --test --test-concurrency=1 ($tests | ForEach-Object {if($_ -eq "services-infrastructure"){Join-Path $repoRoot "tests/services-infrastructure.mjs"}else{Join-Path $repoRoot "tests/$_.test.mjs"}})
 exit $LASTEXITCODE

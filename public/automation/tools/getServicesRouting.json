@@ -13,11 +13,11 @@
     "原因"
   ],
   "inputContract": "getServicesRouting()；读取同一 ExecutionRouter 的最近决策。",
-  "outputContract": "policyVersion、lastDecision{executor,reason,inputs,complexity}、executionTimeouts、pendingWait、unavailableOperations（TBD且enabled=false）。操作类型和源/图案固定规则决定本地/远程，不需要双端耗时或结果一致性；pendingWait.decisionRequired时用decideServicesWait选择同任务continue/stop。服务失败不转本地重算。",
+  "outputContract": "policyVersion、lastDecision{executor,reason,inputs,complexity}、executionTimeouts、pendingWait、unavailableOperations（TBD且enabled=false）。操作类型和全部来源/图案固定规则决定本地/远程，不需要双端耗时或结果一致性；cut 从 13 个来源（目标加 12 刀具）或其它复杂度门槛起走 Services，支持最多 32 个单实体刀具，空/分裂多体结果拒绝。尚未验收的 union/intersect 不冒称远程支持。pendingWait.decisionRequired时用decideServicesWait选择同任务continue/stop。服务失败不转本地重算。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:c7fef2d56005b71258a9e6ffd09a36c53700380fa7277b135dc097e292b5413a"
+  "docsHash": "sha256:6bc95ebf0a83e07bf9af448ae89895727bf56d7b5248874bc836d3c45abcb9a0"
 }

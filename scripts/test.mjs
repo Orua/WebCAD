@@ -9,7 +9,7 @@ const groups = {
   contracts: [
     'metal-materials',
     'remote-agent-adapter',
-    'agent-knowledge', 'services-settings', 'project-container', 'geometry-cache',
+    'agent-knowledge', 'services-settings', 'services-routing', 'services-wait-policy', 'services-boolean-contract', 'project-container', 'geometry-cache',
     'design-inspection-contract',
     'relief-contract', 'relief-sculpt',
     'document-capacity',
@@ -31,6 +31,7 @@ const groups = {
     'tool-state', 'viewport-transform', 'dfam-inspection', 'profile-fitting', 'text-commands',
   ],
   kernel: [
+    'services-round-plan',
     'feature-plan',
     'design-inspection-kernel',
     'step-export-colors',
@@ -59,7 +60,7 @@ const groups = {
     'surface-repair', 'vector-profile', 'extract-shell-kernel', 'query-planar-spline',
     'planar-thickness-invariant', 'round-edit-preferences', 'rounding-modes', 'rounding-history', 'rounding-kernel', 'rounding-unified', 'rounding-spline', 'rounding-section-metrics', 'smooth-transition',
   ],
-  services: ['services-store-faults','services-runtime', 'services-compute', 'services-native-bridge', 'services-relief', 'services-support-intent'],
+  services: ['services-store-faults','services-runtime', 'services-compute', 'services-native-bridge', 'services-boolean-native', 'services-round-native', 'services-relief', 'services-support-intent'],
   mcp: ['bridge-cancellation', 'mcp-bridge', 'mcp-v2', 'document-assets', 'agent-cli'],
   'local-fixtures': ['iges-import', 'iges-roundtrip'],
   'browser-dom-modules':['relief-browser','profile-solid-dialogs','direct-modeling-dialogs','profile-constraints-dialog'],
