@@ -37,7 +37,7 @@ export function tbdForOperation(input={}){
 export function classifyComplexity({operation,source={},pattern={},params={}}={}){
  const observed=patternComplexity({params}),t=policy.thresholds;
  const metric=name=>Math.max(count(pattern[name]),observed[name]);
- const input={operation,sourceBytes:known(source.bytes),sourceFaces:known(source.faces),sourceEdges:known(source.edges),sourceHoles:known(source.holes),
+ const input={operation,sourceComplexityUnavailable:source.complexityUnavailable===true,preexistingBoundaryRound:source.preexistingBoundaryRound===true,sourceCount:known(source.sourceCount),sourceBytes:known(source.bytes),sourceFaces:known(source.faces),sourceEdges:known(source.edges),sourceHoles:known(source.holes),
   aggregateRegions:Math.max(metric('regions'),count(pattern.aggregateRegions)),patternHoles:metric('holes'),layers:metric('layers'),contourVertices:metric('vertices'),strokes:metric('strokes'),gridPoints:metric('gridPoints'),
   machiningItems:Math.max(length(params.points),length(params.pockets)),patternInstances:count(params.count),selectedEdges:length(params.edgeIds),selectedFaces:length(params.faceIds)};
  const reasons=[];let score=0;
@@ -50,6 +50,9 @@ export function classifyComplexity({operation,source={},pattern={},params={}}={}
  threshold(input.contourVertices,t.vertices,'pattern-vertices');
  threshold(input.strokes,t.strokes,'pattern-strokes');
  threshold(input.gridPoints,t.gridPoints,'large-surface-grid');
+ if(policy.booleanOperations.includes(operation))threshold(input.sourceCount,t.booleanInputs,'many-boolean-inputs');
+ if(operation==='round'&&input.preexistingBoundaryRound){reasons.push('preexisting-round-face-boundary');score=Math.max(score,1);}
+ if(policy.unmeasuredSourceOperations.includes(operation)&&input.sourceComplexityUnavailable){reasons.push('changed-or-unmeasured-source');score=Math.max(score,1);}
  if(operation==='relief'){
   const ratio=Math.min(input.layers/t.layers,input.contourVertices/t.layerVertices);score=Math.max(score,ratio);
   if(ratio>=1)reasons.push('relief-layered-contours');
@@ -96,8 +99,9 @@ export function chooseExecutor({servicesAvailable=false,mode='auto',operation,se
   (capabilities.geometryExchange?.supportedFormats&&!capabilities.geometryExchange.supportedFormats.includes(requiredResultFormat))||capabilities.geometryExchange?.blockers?.length)return result('blocked','client-geometry-bridge-not-accepted');
  if(placementSupported!==true)return result('blocked','unsupported-placement');
  if(sourceSnapshotReady!==true)return result('blocked','source-snapshot-unavailable');
- if(finite(source.solids)&&(source.solids<1||source.solids>(matching.limits?.maxSolids??1)))return result('blocked','source-solid-count-unsupported');
- if(finite(source.bytes)&&finite(matching.limits?.maxSourceBytes)&&source.bytes>matching.limits.maxSourceBytes)return result('blocked','source-budget-exceeded');
+ if(finite(source.solids)&&(source.solids<1||source.solids>(matching.limits?.maxSolids??1))||finite(source.maxSolidsPerInput)&&finite(matching.limits?.maxSolidsPerInput)&&source.maxSolidsPerInput>matching.limits.maxSolidsPerInput)return result('blocked','source-solid-count-unsupported');
+ const largestSource=source.maxSourceBytes??source.bytes,totalSourceLimit=matching.limits?.maxInputBytes??matching.limits?.maxTotalSourceBytes;
+ if(finite(largestSource)&&finite(matching.limits?.maxSourceBytes)&&largestSource>matching.limits.maxSourceBytes||finite(source.bytes)&&finite(totalSourceLimit)&&source.bytes>totalSourceLimit||finite(source.sourceCount)&&finite(matching.limits?.maxSources)&&source.sourceCount>matching.limits.maxSources)return result('blocked','source-budget-exceeded');
  if((finite(matching.limits?.maxLayers)&&complexity.input.layers>matching.limits.maxLayers)||(finite(matching.limits?.maxPrimitives)&&complexity.input.contourVertices>matching.limits.maxPrimitives))return result('blocked','pattern-budget-exceeded');
  return result('remote',explicitRemote?'explicit-server':'complex-remote');
 }

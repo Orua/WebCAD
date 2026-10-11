@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.28.3 · sha256:0c83bedff7012268e2c3a6c0c60ca9c19a00577717500048d87eddfd3031481f
+API 1.28.3 · sha256:221cad4cec5cc95051f54ee7f0cf0aba5c4b166a36f9f1f9d1ae0c05ea3abd8e
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -26162,7 +26162,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Unified rounding entrance. Select exactly one scope: edgeIds or faceIds. Planar faceIds resolve all current face boundary edges, including holes, with a 1000-edge budget; this scope uses edge mode and reports scope.faceIds/edgeIds. Automatic face radius uses measured support depth and body dimensions, not the shortest tessellated outline segment. Exact radiusMm is never reduced. Damaged contours must be explicitly corrected upstream; this tool never fills holes or removes profile points. Edge mode auto makes one geometry-based decision: an elongated principal-axis body selected wholly near its extreme end uses measured half-section end reconstruction, otherwise standard edge fillet. No solver fallback or radius search; one candidate per preview. strength defaults .5. End depth is measured and recommended. Optional explicit mode, radiusMm or depthMm, axis/direction/profileAxis and a straight principal-axis directionEdgeId on the same source resolve ambiguity. Only LINE/CIRCLE symmetric stable end sections are supported. End operation replaces the declared end and may add/remove material. Existing profile creases up to 1 degree are reported; new body join must meet sampled 0.1 degrees. A recommendation is not a feasibility guarantee. Read roundReport in preview.scope/getState.previewScope and bodies[].roundReport: mode, resolved parameters, control, scope, endRoundingReport or blendReport, attemptCount. Failure preserves the source.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Unified rounding entrance. Select exactly one scope: edgeIds or faceIds. Planar faceIds resolve all current face boundary edges, including holes, with a 1000-edge budget; this scope uses edge mode and reports scope.faceIds/edgeIds. With configured Services, a rectangular face beside exactly one existing full-span round uses the accepted planar-boundary-cutter: six orthogonal support planes, one equal-radius cylindrical blend, no holes, width and depth greater than 4R, height greater than R. The source radius is retained when radiusMm is omitted; strength must remain .5 and does not scale this fixed-radius path. Four side sections retain R; corners are smooth freeform patches with four isolated termination points and are not constant-radius in every direction. Unsupported geometry is rejected without retry. Other automatic local face radii use measured support depth and body dimensions, not the shortest tessellated outline segment. Exact radiusMm is never reduced. Damaged contours must be explicitly corrected upstream; this tool never fills holes or removes profile points. Edge mode auto makes one geometry-based decision: an elongated principal-axis body selected wholly near its extreme end uses measured half-section end reconstruction, otherwise standard edge fillet. No solver fallback or radius search; one candidate per preview. strength defaults .5. End depth is measured and recommended. Optional explicit mode, radiusMm or depthMm, axis/direction/profileAxis and a straight principal-axis directionEdgeId on the same source resolve ambiguity. Only LINE/CIRCLE symmetric stable end sections are supported. End operation replaces the declared end and may add/remove material. Existing profile creases up to 1 degree are reported; new body join must meet sampled 0.1 degrees. A recommendation is not a feasibility guarantee. Read roundReport in preview.scope/getState.previewScope and bodies[].roundReport: mode, resolved parameters, control, scope, endRoundingReport or blendReport, attemptCount. Failure preserves the source.",
   "title": "圆润 / Round",
   "category": "modification",
   "synonyms": [
@@ -26174,7 +26174,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "smooth selected edge"
   ],
   "description": "圆润 / Round",
-  "schemaHash": "sha256:e0e9134a5e9ef8a2e9bfc8252f8d7a657adb2df23cfef9d4dc704bbff62aa789",
+  "schemaHash": "sha256:c7e51906a7385488759d1c758d806160fc1705b159aca644f45cb2c4e1b5921d",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -26228,7 +26228,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
   ],
   "knownUnsupportedCases": [
-    "Unified rounding entrance. Select exactly one scope: edgeIds or faceIds. Planar faceIds resolve all current face boundary edges, including holes, with a 1000-edge budget; this scope uses edge mode and reports scope.faceIds/edgeIds. Automatic face radius uses measured support depth and body dimensions, not the shortest tessellated outline segment. Exact radiusMm is never reduced. Damaged contours must be explicitly corrected upstream; this tool never fills holes or removes profile points. Edge mode auto makes one geometry-based decision: an elongated principal-axis body selected wholly near its extreme end uses measured half-section end reconstruction, otherwise standard edge fillet. No solver fallback or radius search; one candidate per preview. strength defaults .5. End depth is measured and recommended. Optional explicit mode, radiusMm or depthMm, axis/direction/profileAxis and a straight principal-axis directionEdgeId on the same source resolve ambiguity. Only LINE/CIRCLE symmetric stable end sections are supported. End operation replaces the declared end and may add/remove material. Existing profile creases up to 1 degree are reported; new body join must meet sampled 0.1 degrees. A recommendation is not a feasibility guarantee. Read roundReport in preview.scope/getState.previewScope and bodies[].roundReport: mode, resolved parameters, control, scope, endRoundingReport or blendReport, attemptCount. Failure preserves the source."
+    "Unified rounding entrance. Select exactly one scope: edgeIds or faceIds. Planar faceIds resolve all current face boundary edges, including holes, with a 1000-edge budget; this scope uses edge mode and reports scope.faceIds/edgeIds. With configured Services, a rectangular face beside exactly one existing full-span round uses the accepted planar-boundary-cutter: six orthogonal support planes, one equal-radius cylindrical blend, no holes, width and depth greater than 4R, height greater than R. The source radius is retained when radiusMm is omitted; strength must remain .5 and does not scale this fixed-radius path. Four side sections retain R; corners are smooth freeform patches with four isolated termination points and are not constant-radius in every direction. Unsupported geometry is rejected without retry. Other automatic local face radii use measured support depth and body dimensions, not the shortest tessellated outline segment. Exact radiusMm is never reduced. Damaged contours must be explicitly corrected upstream; this tool never fills holes or removes profile points. Edge mode auto makes one geometry-based decision: an elongated principal-axis body selected wholly near its extreme end uses measured half-section end reconstruction, otherwise standard edge fillet. No solver fallback or radius search; one candidate per preview. strength defaults .5. End depth is measured and recommended. Optional explicit mode, radiusMm or depthMm, axis/direction/profileAxis and a straight principal-axis directionEdgeId on the same source resolve ambiguity. Only LINE/CIRCLE symmetric stable end sections are supported. End operation replaces the declared end and may add/remove material. Existing profile creases up to 1 degree are reported; new body join must meet sampled 0.1 degrees. A recommendation is not a feasibility guarantee. Read roundReport in preview.scope/getState.previewScope and bodies[].roundReport: mode, resolved parameters, control, scope, endRoundingReport or blendReport, attemptCount. Failure preserves the source."
   ],
   "minimalExample": {
     "op": "round",
@@ -26326,7 +26326,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:29315a6ae7382cdf8fb9d109c27891585b62069c6883fe96c6596b5ea7e576e0"
+  "docsHash": "sha256:8545e8935b76e29f5ce890de5fade6640aee0b5a3d3fd0cec467d35792c9e456"
 }
 ```
 
@@ -48334,13 +48334,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "原因"
   ],
   "inputContract": "getServicesRouting()；读取同一 ExecutionRouter 的最近决策。",
-  "outputContract": "policyVersion、lastDecision{executor,reason,inputs,complexity}、executionTimeouts、pendingWait、unavailableOperations（TBD且enabled=false）。操作类型和源/图案固定规则决定本地/远程，不需要双端耗时或结果一致性；pendingWait.decisionRequired时用decideServicesWait选择同任务continue/stop。服务失败不转本地重算。",
+  "outputContract": "policyVersion、lastDecision{executor,reason,inputs,complexity}、executionTimeouts、pendingWait、unavailableOperations（TBD且enabled=false）。操作类型和全部来源/图案固定规则决定本地/远程，不需要双端耗时或结果一致性；cut 从 13 个来源（目标加 12 刀具）或其它复杂度门槛起走 Services，支持最多 32 个单实体刀具，空/分裂多体结果拒绝。尚未验收的 union/intersect 不冒称远程支持。pendingWait.decisionRequired时用decideServicesWait选择同任务continue/stop。服务失败不转本地重算。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:c7fef2d56005b71258a9e6ffd09a36c53700380fa7277b135dc097e292b5413a"
+  "docsHash": "sha256:6bc95ebf0a83e07bf9af448ae89895727bf56d7b5248874bc836d3c45abcb9a0"
 }
 ```
 
@@ -48716,13 +48716,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 {
   "id": "feature.compileServices",
   "title": "Services 原特征编译",
-  "description": "按服务能力执行世界坐标纯平移或均匀柱面凸雕层；浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。每项上传资源限 20 MiB。",
+  "description": "按服务能力执行世界坐标纯平移、均匀柱面凸雕层、多刀具 cut 或带一边旧R的矩形面完整边界 round。round 仅支持一个无孔矩形面、六个正交支撑面和一条完整同R旧圆角；四侧精确R，四角光滑自由曲面，保留4个孤立终止点。cut 的 refs 首项为目标，其余 1–32 项为刀具，各来源必须是已提交单实体，结果须为非空单实体；keepTools 保持原历史语义。全部来源按顺序校验，单项限 20 MiB、合计 64 MiB。浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。若修改来源会使下游复杂运算失效，先移除下游步骤、完成来源修改后重新执行，禁止转到本地偷算。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。",
   "category": "command",
   "version": "1.28.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"feature.compileServices\",args}); 按服务能力执行世界坐标纯平移或均匀柱面凸雕层；浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。每项上传资源限 20 MiB。",
+  "inputContract": "execute({context,idempotencyKey,action:\"feature.compileServices\",args}); 按服务能力执行世界坐标纯平移、均匀柱面凸雕层、多刀具 cut 或带一边旧R的矩形面完整边界 round。round 仅支持一个无孔矩形面、六个正交支撑面和一条完整同R旧圆角；四侧精确R，四角光滑自由曲面，保留4个孤立终止点。cut 的 refs 首项为目标，其余 1–32 项为刀具，各来源必须是已提交单实体，结果须为非空单实体；keepTools 保持原历史语义。全部来源按顺序校验，单项限 20 MiB、合计 64 MiB。浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。若修改来源会使下游复杂运算失效，先移除下游步骤、完成来源修改后重新执行，禁止转到本地偷算。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。",
   "fields": [
     "featureId",
     "allowUpload"
@@ -48759,7 +48759,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:69afbac6dcb0f8902cc76594335c8cbaab5924be733cbba3fbd7b6a58f46899f"
+  "docsHash": "sha256:7b95dfb9ffdecd2b9763019dcbb57433cac2a5be6034234ec8a78f68df05157e"
 }
 ```
 
