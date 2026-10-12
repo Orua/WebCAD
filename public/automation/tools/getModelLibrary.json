@@ -25,5 +25,10 @@
     "LIBRARY_STORAGE_UNAVAILABLE"
   ],
   "docs": "api.model-library",
-  "docsHash": "sha256:422748b347b7fb66dc4921760d862b67021f1cc387a298eb28132d096cc00e92"
+  "remoteCompatibility": {
+    "read": "getUILayout({includeModelLibrary:true}).modelLibrary",
+    "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
+    "create": "Use entries[].execution with run/add; current context and unique key required."
+  },
+  "docsHash": "sha256:89de90a3604f037093e4b555031773c111021b6b9019ce24745c3d1df4514107"
 }

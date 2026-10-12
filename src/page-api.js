@@ -52,7 +52,7 @@ export function createPageAPI(host){
     if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(name=>!keys.includes(name)))fail('PARAM_SCHEMA_INVALID',`Unexpected files.${key} arguments`);
     return rawFiles[key](normalizeRequest(input));
   }]));
-  const viewKeys=['context','direction','projection','fit','selectedIds','section','display','grid','snap','gizmo','selectionMode','camera','language','temporaryDisplay','anchorVisible','panels','toolbar','workspace','libraryMode','focus'];
+  const viewKeys=['context','direction','projection','fit','selectedIds','section','display','grid','snap','gizmo','selectionMode','camera','language','temporaryDisplay','anchorVisible','panels','toolbar','workspace','libraryMode','focus','modelLibraryChange'];
   const pasteReceipts=new Map();
   const vectorCache=new Map();
   const drawingCache=new Map();
@@ -117,7 +117,7 @@ export function createPageAPI(host){
     info:()=>({...infoMetadata({buildId:host.buildId,browserReady:current().summary.kernelReady}),transport:'in-page',context:current().context,page:{url:location.href,topLevel:window===window.top},display:host.display()}),
     getState:(input={})=>{const state=host.state(input);return {...state,requestContext:requestContext(state.context),display:host.display()};},
     getQuickModelUsage:guarded(input=>{if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).length)fail('PARAM_SCHEMA_INVALID','getQuickModelUsage takes no fields');return {status:'read',...structuredClone(host.quickModelUsage()),context:current().context};}),
-    getUILayout:()=>({...structuredClone(UI_LAYOUT),current:structuredClone(current().view.workspaceLayout)}),
+    getUILayout:(input={})=>{if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(key=>key!=='includeModelLibrary')||input.includeModelLibrary!==undefined&&typeof input.includeModelLibrary!=='boolean')fail('PARAM_SCHEMA_INVALID','getUILayout takes includeModelLibrary:boolean only');return {...structuredClone(UI_LAYOUT),current:structuredClone(current().view.workspaceLayout),...(input.includeModelLibrary?{modelLibrary:{status:'read',...modelLibrary.contracts(),context:current().context}}:{})};},
     getModelLibrary:guarded(input=>{if(!input||Object.keys(input).length)fail('PARAM_SCHEMA_INVALID','getModelLibrary takes no fields');return {status:'read',...modelLibrary.contracts(),context:current().context};}),
     updateModelLibrary:guarded(input=>{check(input,['context','expectedLibraryRevision','operation','entry','id','index','library']);const {context,...change}=input;const result=modelLibrary.update(change);host.refreshLibrary?.();return {status:'applied',...result,context:current().context};}),
     resolveModelLibrary:guarded(input=>{check(input,['context','id','expectedLibraryRevision','params']);const {context,...request}=input;return {status:'read',...modelLibrary.resolve(request),context:current().context};}),
@@ -340,6 +340,7 @@ export function createPageAPI(host){
     }),
     setView:guarded(async input=>{
       check(input,viewKeys);
+      if(input.modelLibraryChange!==undefined){if(Object.keys(input).some(key=>!['context','modelLibraryChange'].includes(key))||!input.modelLibraryChange||typeof input.modelLibraryChange!=='object'||Array.isArray(input.modelLibraryChange)||Object.hasOwn(input.modelLibraryChange,'context'))fail('PARAM_SCHEMA_INVALID','Library change must be standalone with outer context');return api.updateModelLibrary({context:input.context,...input.modelLibraryChange});}
       for(const [key,values] of Object.entries({display:['solid','edges','wire','transparentEdges'],gizmo:['off','translate','rotate'],selectionMode:['view','body','face','edge'],language:['zh','en'],temporaryDisplay:['normal','selectedOnly','transparentOthers']}))if(input[key]!==undefined&&!values.includes(input[key]))fail('PARAM_SCHEMA_INVALID',`Unknown ${key}`);
       if(input.gizmo!==undefined&&input.gizmo!=='off'&&input.selectionMode!==undefined&&input.selectionMode!=='body')fail('SELECTION_CONFLICT','Move/rotate handles require body selection; omit selectionMode or use body','selectionMode');
       for(const key of ['grid','snap','anchorVisible','toolbar','focus'])if(input[key]!==undefined&&typeof input[key]!=='boolean')fail('PARAM_SCHEMA_INVALID',`${key} must be boolean`);

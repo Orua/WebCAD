@@ -3,21 +3,26 @@
   "title": "getUILayout",
   "category": "page-method",
   "version": "1.32.0",
-  "description": "getUILayout()",
+  "description": "getUILayout({includeModelLibrary?:boolean})",
   "synonyms": [
     "getUILayout",
     "界面",
     "布局",
     "配置",
-    "选项卡"
+    "选项卡",
+    "模型库"
   ],
-  "inputContract": "getUILayout()",
-  "outputContract": "当前版本化 tabs/groups/controls/header/panels 配置。",
+  "inputContract": "getUILayout({includeModelLibrary?:boolean})",
+  "outputContract": "当前版本化tabs/groups/controls/header/panels/current。includeModelLibrary:true追加modelLibrary完整实时字段与生成合同，兼容远程MCP的getUILayout只读通道。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
-  "errorCodes": [],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "LIBRARY_INVALID",
+    "LIBRARY_STORAGE_UNAVAILABLE"
+  ],
   "docs": "api.workspace",
-  "docsHash": "sha256:f2fcc8ffc02e28d0ff8f104f9a77a82735fe3616b91751e79c2a1375642fe015"
+  "docsHash": "sha256:295ec33bafa2b94e3030be2c832b4355a80eabddbe507f4fc514543d2094fe33"
 }
