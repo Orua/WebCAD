@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.28.3 · 操作目录 sha256:692fe8ecd98654d97d2c340d0f4e8fa75fb89fc728abb2a044c6a23e5b4cc446
+API 1.32.0 · 操作目录 sha256:8e376ad0ca24359c33460764f618167cb651c767fab1196717832d8ee10985ea
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -8,6 +8,9 @@ API 1.28.3 · 操作目录 sha256:692fe8ecd98654d97d2c340d0f4e8fa75fb89fc728abb2
 
 ## 页面方法
 
+- `getModelLibrary`
+- `updateModelLibrary`
+- `resolveModelLibrary`
 - `decideServicesWait`
 - `recoverServicesJob`
 - `prepareReliefTopologyUpgrade`
@@ -211,6 +214,9 @@ API 1.28.3 · 操作目录 sha256:692fe8ecd98654d97d2c340d0f4e8fa75fb89fc728abb2
 - `template.twoPieceEyelet` · advisory · 参数化两件式薄壁鸡眼，法兰外翻边和内侧圆弯按薄壁截面精确旋转生成。A件为长脚，B件为配套短脚；支持同轴静态套合或分开展示，不模拟压铆变形、LOGO和压字。
 - `template.frameEyelet` · advisory · 圆形或圆角方形面框、恒壁厚短颈口、对称安装柱及普通直孔，一次生成单件。颈口和柱沿本地+Z；面框底面Z=0。孔深0为通孔，正值为从柱顶向下的盲孔。安装柱数量0/2/4，2柱沿Y布置。可将颈口/柱高度设0作背片。不含牙槽、锥孔、压铆、饰面及三维边圆角；按原图再加工。圆形模式内外宽高必须分别相等，角R仅用于方形。
 - `template.uStrapClip` · advisory · 沿X等宽的恒壁厚开口U夹，前后片可不同高，内外弯角为精确相切圆弧；内弯R=内净距/2时为半圆底。底面Z=0，开口朝+Z，后片在+Y。可加后片普通通孔0/1/2个，2孔沿X布置。不是四边封闭的帽套；不含牙槽、前面饰面、片端三维圆角和弹性变形。孔中心须处于后片直段。
+- `getModelLibrary` · page-method · getModelLibrary()
+- `updateModelLibrary` · page-method · updateModelLibrary({context,expectedLibraryRevision,operation:upsert|remove|move|restore|import,entry?,id?,index?,library?})。upsert entry={id,kind,label,description?,defaults?}，id为字母开头80位以内字母数字_-，kind必须已安装，defaults仅含该类型原参数。move的index为移动后零起始位置。import全量替换，library={format:webcad-model-library,version:1,entries:[entry]}；restore全量恢复默认目录、默认参数和顺序。
+- `resolveModelLibrary` · page-method · resolveModelLibrary({context,id,expectedLibraryRevision,params?:参数覆盖})
 - `decideServicesWait` · page-method · decideServicesWait({jobId,decision:"continue"|"stop"})，可在工程忙碌时调用；jobId必须是getServicesRouting().pendingWait中的当前任务。
 - `recoverServicesJob` · page-method · recoverServicesJob({jobId,reason,approved:true,acknowledgedState:"interrupted",idempotencyKey})。必须先用 getServicesJob 核对已停止旧任务。
 - `prepareReliefTopologyUpgrade` · page-method · prepareReliefTopologyUpgrade({context,featureId,maskStrategy?:"faceWithHolesExtrude"|"cutHoleSolids"})。只读规划，不计算几何；原参数没有策略时必须明确选定。
@@ -272,7 +278,7 @@ API 1.28.3 · 操作目录 sha256:692fe8ecd98654d97d2c340d0f4e8fa75fb89fc728abb2
 - `getLogoConverter` · page-method · getLogoConverter() 委托 getServices；旧 URL/Key 不自动授权统一服务。
 - `setLogoConverter` · page-method · 改用 setServices，旧 setter 拒绝存影子配置。
 - `convertLogoPdf` · page-method · convertLogoPdf({context,name,data,targetWidthMm?,page?,sizeConfirmed:true,allowUpload:true})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。
-- `setView` · page-method · setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:"X"|"Y"|"Z",position:number,enabled:boolean}。
+- `setView` · page-method · setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling/library/agent；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:"X"|"Y"|"Z",position:number,enabled:boolean}。
 - `redraw` · page-method · redraw({context}); 不接受额外字段。
 - `capture` · page-method · capture({context}); 不接受额外字段。
 - `run` · page-method · run({context,idempotencyKey,steps}); see readDocs({docId:"api.run"}); addMany for one atomic feature plan: api.feature-plan.

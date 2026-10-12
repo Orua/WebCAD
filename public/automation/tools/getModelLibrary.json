@@ -1,0 +1,29 @@
+{
+  "id": "getModelLibrary",
+  "title": "getModelLibrary",
+  "category": "page-method",
+  "version": "1.32.0",
+  "description": "getModelLibrary()",
+  "synonyms": [
+    "getModelLibrary",
+    "模型库",
+    "常用模型",
+    "配置",
+    "参数",
+    "脚本",
+    "插件"
+  ],
+  "inputContract": "getModelLibrary()",
+  "outputContract": "status=read、format:webcad-model-library、version:1、revision、persistence、entries。每条id/kind/label/description/defaults/fields/inputSchema/toolId/execution/knownUnsupportedCases。自定义条目的执行合同与已安装geometry kind共用；每条execution可直接送入run/add。最多200条，当前浏览器当前站点localStorage持久化，不随工程或账号同步。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "LIBRARY_INVALID",
+    "LIBRARY_STORAGE_UNAVAILABLE"
+  ],
+  "docs": "api.model-library",
+  "docsHash": "sha256:422748b347b7fb66dc4921760d862b67021f1cc387a298eb28132d096cc00e92"
+}

@@ -1,0 +1,39 @@
+{
+  "id": "updateModelLibrary",
+  "title": "updateModelLibrary",
+  "category": "page-method",
+  "version": "1.32.0",
+  "description": "updateModelLibrary({context,expectedLibraryRevision,operation:upsert|remove|move|restore|import,entry?,id?,index?,library?})。upsert entry={id,kind,label,description?,defaults?}，id为字母开头80位以内字母数字_-，kind必须已安装，defaults仅含该类型原参数。move的index为移动后零起始位置。import全量替换，library={format:webcad-model-library,version:1,entries:[entry]}；restore全量恢复默认目录、默认参数和顺序。",
+  "synonyms": [
+    "updateModelLibrary",
+    "模型库",
+    "管理",
+    "添加",
+    "删除",
+    "修改",
+    "排序",
+    "恢复",
+    "导入",
+    "热插拔"
+  ],
+  "inputContract": "updateModelLibrary({context,expectedLibraryRevision,operation:upsert|remove|move|restore|import,entry?,id?,index?,library?})。upsert entry={id,kind,label,description?,defaults?}，id为字母开头80位以内字母数字_-，kind必须已安装，defaults仅含该类型原参数。move的index为移动后零起始位置。import全量替换，library={format:webcad-model-library,version:1,entries:[entry]}；restore全量恢复默认目录、默认参数和顺序。",
+  "outputContract": "status=applied、revision、entries、persistence、context；不修改工程revision/历史。按expectedLibraryRevision拒绝并发陈旧写入。存储不可用明确失败；损坏库显式restore且expectedLibraryRevision=-1可恢复。删除/编辑只影响库，已有模型冻结kind和params。任意脚本/eval/URL不接受；脚本在宿主生成配置JSON再导入。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "LIBRARY_INVALID",
+    "LIBRARY_STORAGE_UNAVAILABLE",
+    "LIBRARY_REVISION_CONFLICT",
+    "LIBRARY_ENTRY_NOT_FOUND",
+    "REVISION_CONFLICT",
+    "INSTANCE_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "RESOURCE_LIMIT"
+  ],
+  "docs": "api.model-library",
+  "docsHash": "sha256:5a2e2c896c61caa12fdb4719291c9716b34ca181bb6b48e5b7ef29edab1d1f74"
+}

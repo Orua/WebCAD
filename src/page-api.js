@@ -1,3 +1,4 @@
+import {modelLibrary} from './model-library.js';
 import {layoutDrawing} from './drawing/technical-layout.js';
 import {drawingSVG,drawingDXF,drawingPDF,drawingJPEG} from './drawing/drawing-export.js';
 import {infoMetadata,discoveryMetadata,searchTools,getTools,getTool,readDocs} from './page-api-docs.js';
@@ -51,7 +52,7 @@ export function createPageAPI(host){
     if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(name=>!keys.includes(name)))fail('PARAM_SCHEMA_INVALID',`Unexpected files.${key} arguments`);
     return rawFiles[key](normalizeRequest(input));
   }]));
-  const viewKeys=['context','direction','projection','fit','selectedIds','section','display','grid','snap','gizmo','selectionMode','camera','language','temporaryDisplay','anchorVisible','panels'];
+  const viewKeys=['context','direction','projection','fit','selectedIds','section','display','grid','snap','gizmo','selectionMode','camera','language','temporaryDisplay','anchorVisible','panels','toolbar','workspace','libraryMode','focus'];
   const pasteReceipts=new Map();
   const vectorCache=new Map();
   const drawingCache=new Map();
@@ -116,7 +117,10 @@ export function createPageAPI(host){
     info:()=>({...infoMetadata({buildId:host.buildId,browserReady:current().summary.kernelReady}),transport:'in-page',context:current().context,page:{url:location.href,topLevel:window===window.top},display:host.display()}),
     getState:(input={})=>{const state=host.state(input);return {...state,requestContext:requestContext(state.context),display:host.display()};},
     getQuickModelUsage:guarded(input=>{if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).length)fail('PARAM_SCHEMA_INVALID','getQuickModelUsage takes no fields');return {status:'read',...structuredClone(host.quickModelUsage()),context:current().context};}),
-    getUILayout:()=>structuredClone(UI_LAYOUT),
+    getUILayout:()=>({...structuredClone(UI_LAYOUT),current:structuredClone(current().view.workspaceLayout)}),
+    getModelLibrary:guarded(input=>{if(!input||Object.keys(input).length)fail('PARAM_SCHEMA_INVALID','getModelLibrary takes no fields');return {status:'read',...modelLibrary.contracts(),context:current().context};}),
+    updateModelLibrary:guarded(input=>{check(input,['context','expectedLibraryRevision','operation','entry','id','index','library']);const {context,...change}=input;const result=modelLibrary.update(change);host.refreshLibrary?.();return {status:'applied',...result,context:current().context};}),
+    resolveModelLibrary:guarded(input=>{check(input,['context','id','expectedLibraryRevision','params']);const {context,...request}=input;return {status:'read',...modelLibrary.resolve(request),context:current().context};}),
     createRequestContext:(context=current().context)=>requestContext(context),
     searchTools:input=>searchTools(input,{browserReady:current().summary.kernelReady}),getTools,getTool,readDocs,
     execute:async input=>{let request;try{request=normalizeRequest(input);}catch(e){return failure(e);}let submitted=false;try{if(request?.action==='preview.start'&&request.args?.fileImport){const file=request.args.fileImport;if(Object.keys(request.args).some(key=>key!=='fileImport')||!file||typeof file!=='object'||Object.keys(file).some(key=>!['resourceId','name','placement'].includes(key)))fail('PARAM_SCHEMA_INVALID','File preview takes only fileImport with resourceId and placement');const source=await rawFiles.previewInput({resourceId:file.resourceId});request={...request,args:{fileImport:{...source,resourceId:file.resourceId,placement:file.placement}}};}submitted=true;return await host.execute(request);}catch(e){return submitted?{...failure(e),status:'unknown',commitState:'unknown',error:{...failure(e).error,recoveryAction:'INSPECT_STATE_BEFORE_RETRY'}}:failure(e);}},queryGeometry:guarded(input=>host.query(input)),
@@ -338,7 +342,9 @@ export function createPageAPI(host){
       check(input,viewKeys);
       for(const [key,values] of Object.entries({display:['solid','edges','wire','transparentEdges'],gizmo:['off','translate','rotate'],selectionMode:['view','body','face','edge'],language:['zh','en'],temporaryDisplay:['normal','selectedOnly','transparentOthers']}))if(input[key]!==undefined&&!values.includes(input[key]))fail('PARAM_SCHEMA_INVALID',`Unknown ${key}`);
       if(input.gizmo!==undefined&&input.gizmo!=='off'&&input.selectionMode!==undefined&&input.selectionMode!=='body')fail('SELECTION_CONFLICT','Move/rotate handles require body selection; omit selectionMode or use body','selectionMode');
-      for(const key of ['grid','snap','anchorVisible'])if(input[key]!==undefined&&typeof input[key]!=='boolean')fail('PARAM_SCHEMA_INVALID',`${key} must be boolean`);
+      for(const key of ['grid','snap','anchorVisible','toolbar','focus'])if(input[key]!==undefined&&typeof input[key]!=='boolean')fail('PARAM_SCHEMA_INVALID',`${key} must be boolean`);
+      if(input.workspace!==undefined&&!['modeling','library','agent'].includes(input.workspace))fail('PARAM_SCHEMA_INVALID','workspace must be modeling/library/agent');
+      if(input.libraryMode!==undefined&&!['cards','list'].includes(input.libraryMode))fail('PARAM_SCHEMA_INVALID','libraryMode must be cards/list');
       if(input.panels!==undefined&&(!input.panels||typeof input.panels!=='object'||Array.isArray(input.panels)||Object.entries(input.panels).some(([key,value])=>!['left','right'].includes(key)||typeof value!=='boolean')))fail('PARAM_SCHEMA_INVALID','panels requires left/right booleans');
       if(input.camera!==undefined){const c=input.camera;if(!c||typeof c!=='object'||Object.keys(c).some(k=>!['position','target'].includes(k))||[c.position,c.target].some(p=>!Array.isArray(p)||p.length!==3||p.some(v=>!Number.isFinite(v)))||c.position.every((v,i)=>v===c.target[i]))fail('PARAM_SCHEMA_INVALID','camera requires distinct finite XYZ position and target');}
       if(input.direction&&!['top','bottom','front','back','left','right','side','iso'].includes(input.direction))fail('PARAM_SCHEMA_INVALID','Unknown view');

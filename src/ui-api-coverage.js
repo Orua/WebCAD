@@ -52,6 +52,8 @@ export const UI_API_ROUTES = Object.freeze({
   servicesFeatureCompile:{tools:['feature.compileServices','getServicesCapabilities','getServicesRouting','getState','getServicesRequest'],method:'execute',usage:'原特征属性→Services 精确计算为每次显式远程；普通新建/编辑在 setServices 设 allowGeometryUploads:true 后按同一 ExecutionRouter 选择。getServicesRouting 读取原因。失败保留工程，未知任务先核对，不自动重算。'},
   displayPreferences:{tools:['setDisplayPreferences'],method:'setDisplayPreferences',usage:'渲染设置使用 setDisplayPreferences；LOGO 转化为独立入口。'},
   panels:{tools:['setView'],method:'setView',usage:'panels:{left:boolean,right:boolean}；getState().view.panels 读状态。'},
+  workspace:{tools:['setView','getUILayout'],method:'setView',usage:'workspace:modeling/library/agent、toolbar:boolean、focus:boolean、libraryMode:cards/list；getState().view.workspaceLayout 读回。活动草稿先结束，预览先取消。'},
+  modelLibrary:{tools:['getModelLibrary','updateModelLibrary','resolveModelLibrary','quickModel','run'],method:'updateModelLibrary',usage:'getModelLibrary读取当前revision、每条字段及完整生成契约。updateModelLibrary传当前context和expectedLibraryRevision，operation=upsert/remove/move/restore/import。resolveModelLibrary返回冻结的quickModel参数，run/add生成，删除库条目不影响历史。'},
   moveTool:{tools:['setView','transform'],method:'setView',usage:'setView({context,gizmo:"translate",selectedIds?}) 开启鼠标移动；自动使用实体选择。getState().view.transform 读可拖状态与 blocker；精确移动用 transform 的显式 params/refs，经 execute 或 run 提交。'},
   rotateTool:{tools:['setView','transform'],method:'setView',usage:'setView({context,gizmo:"rotate",selectedIds?}) 开启单对象鼠标旋转。getState().view.transform 读可拖状态；精确旋转用 transform，显式指定角度、轴与中心，不依赖 UI 选择。多对象分别用 run 的 transform 步骤，atomic=false。'},
   copySelection:{tools:['copySelection'],method:'copySelection',usage:'context、bodyIds，读 getState().view.clipboard。'},

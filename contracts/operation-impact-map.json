@@ -4,28 +4,72 @@
     {
       "operation": "round",
       "semanticVersion": "round.planar-boundary-1.0",
-      "sourcePaths": ["src/services", "src/main.js", "src/cad-kernel.js", "src/cad-worker.js", "src/ui/forms/round-tool-dialog.js", "services/WebCADServices/native/occt-worker/face_boundary_round.hxx", "services/WebCADServices/native/occt-worker/worker.cpp", "services/WebCADServices/src/WebCADServices.Runtime"],
-      "schemaFiles": ["src/operation-catalog.js", "contracts/services/v1/execution-routing.json"],
+      "sourcePaths": [
+        "src/services",
+        "src/main.js",
+        "src/cad-kernel.js",
+        "src/cad-worker.js",
+        "src/ui/forms/round-tool-dialog.js",
+        "services/WebCADServices/native/occt-worker/face_boundary_round.hxx",
+        "services/WebCADServices/native/occt-worker/worker.cpp",
+        "services/WebCADServices/src/WebCADServices.Runtime"
+      ],
+      "schemaFiles": [
+        "src/operation-catalog.js",
+        "contracts/services/v1/execution-routing.json"
+      ],
       "cacheVersion": "exact-brep-recipe-source-v1",
       "documentVersion": 3,
       "localSupported": "existing edge/end modes",
       "remoteSupported": "one rectangular face adjacent to one existing equal-radius full-span round; exact R sides and explicit smooth freeform corners",
       "acceptanceStatus": "Python and Native 7.8.1 geometry/codec, IIS page preview/apply, original-feature save and zero-request cold offline reopen passed for the bounded rectangular case",
-      "targetedTests": ["tests/services-round-plan.test.mjs", "tests/services-round-native.test.mjs", "tests/round-tool-dialog.test.mjs", "tests/round-tool-contract.test.mjs"],
-      "publicToolIds": ["round", "feature.compileServices", "getServicesRouting", "files.save", "files.open"]
+      "targetedTests": [
+        "tests/services-round-plan.test.mjs",
+        "tests/services-round-native.test.mjs",
+        "tests/round-tool-dialog.test.mjs",
+        "tests/round-tool-contract.test.mjs"
+      ],
+      "publicToolIds": [
+        "round",
+        "feature.compileServices",
+        "getServicesRouting",
+        "files.save",
+        "files.open"
+      ]
     },
     {
       "operation": "cut",
       "semanticVersion": "boolean.cut-1.0",
-      "sourcePaths": ["src/services", "src/main.js", "src/cad-kernel.js", "src/editor-actions.js", "services/WebCADServices/native/occt-worker", "services/WebCADServices/src/WebCADServices.Runtime"],
-      "schemaFiles": ["contracts/services/v1/execution-routing.json"],
+      "sourcePaths": [
+        "src/services",
+        "src/main.js",
+        "src/cad-kernel.js",
+        "src/editor-actions.js",
+        "services/WebCADServices/native/occt-worker",
+        "services/WebCADServices/src/WebCADServices.Runtime"
+      ],
+      "schemaFiles": [
+        "contracts/services/v1/execution-routing.json"
+      ],
       "cacheVersion": "ordered-input-sha256-v2",
       "documentVersion": 3,
       "localSupported": true,
       "remoteSupported": "target minus 1–32 committed single-solid tools; positive single-solid result only",
       "acceptanceStatus": "actual Native geometry/codec, ASHX 25-tool auto route, source-edit rollback and zero-request cold offline reopen passed",
-      "targetedTests": ["tests/services-boolean-contract.test.mjs", "tests/services-boolean-native.test.mjs", "tests/services-routing.test.mjs", "tests/project-container.test.mjs", "tests/boolean-roles.test.mjs"],
-      "publicToolIds": ["cut", "feature.compileServices", "getServicesRouting", "files.save", "files.open"]
+      "targetedTests": [
+        "tests/services-boolean-contract.test.mjs",
+        "tests/services-boolean-native.test.mjs",
+        "tests/services-routing.test.mjs",
+        "tests/project-container.test.mjs",
+        "tests/boolean-roles.test.mjs"
+      ],
+      "publicToolIds": [
+        "cut",
+        "feature.compileServices",
+        "getServicesRouting",
+        "files.save",
+        "files.open"
+      ]
     },
     {
       "operation": "services.configuration",
@@ -310,6 +354,42 @@
       "schemaFiles": [],
       "targetedTests": [],
       "publicToolIds": []
+    },
+    {
+      "operation": "workspace-model-library",
+      "semanticVersion": "workspace-library-1.0",
+      "sourcePaths": [
+        "src/ui.js",
+        "src/ui/model-library-workspace.js",
+        "src/ui/agent-workspace.js",
+        "src/model-library.js",
+        "src/page-api.js",
+        "src/agent/protocol.js"
+      ],
+      "localImpact": "Workspace navigation, independent toolbar visibility, focus restore and persistent declarative model library; resolved recipes reuse existing quickModel builders.",
+      "servicesImpact": "none: no server operations or configuration changes",
+      "logoImpact": "none: conversion and source geometry untouched",
+      "contractImpact": "getModelLibrary/updateModelLibrary/resolveModelLibrary; setView layout; remote adapter/helper allowlists and generated knowledge",
+      "documentImpact": "none: library entries resolve to existing kind/params; saved history does not depend on library IDs",
+      "cacheImpact": "page API 1.32.0 and regenerated catalog/docs hashes; library and layout storage version 1",
+      "requiredTests": [
+        "tests/model-library.test.mjs",
+        "tests/page-api.test.mjs",
+        "tests/page-batch.test.mjs",
+        "tests/tool-discovery.test.mjs",
+        "tests/remote-agent-adapter.test.mjs",
+        "targeted browser workspace/library/preview/save-open pass"
+      ],
+      "publicToolIds": [
+        "getModelLibrary",
+        "updateModelLibrary",
+        "resolveModelLibrary",
+        "setView",
+        "getUILayout"
+      ],
+      "targetedTests": [
+        "tests/model-library.test.mjs"
+      ]
     }
   ],
   "executionRouting": {

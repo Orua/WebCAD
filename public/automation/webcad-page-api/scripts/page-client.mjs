@@ -2,6 +2,7 @@
 // No browser discovery, socket, service, CLI process or automatic retry lives here.
 const methods=new Set(['copySelection','pasteSelection','createRequestContext','getUILayout','setRenderQuality','invoke','submit','getJob','cancelJob','connect','info','getState','searchTools','getTools','getTool','readDocs','queryGeometry','queryReferences','resolvePlacement','execute','measure','measureRelation','inspectPrintability','inspectProfile','prepareProfileEdit','projectProfile','inspectFit','inspectThickness','inspectDraft','fitProfile','traceTwinWindow','executeText','setDisplayPreferences','getLogoConverter','setLogoConverter','convertLogoPdf','setView','redraw','capture','run']);
 for(const name of ['inspectDesign','inspectConstraints','readRelief','readVector','connectVector','getHistory','planAlignment','selectRectangle','createDrawing','exportDrawing','getQuickModelUsage'])methods.add(name);
+for(const name of ['getModelLibrary','updateModelLibrary','resolveModelLibrary'])methods.add(name);
 const files=new Set(['capabilities','register','new','open','import','save','export','read','download','write','release']);
 for(const name of ['getServices','setServices','getServicesCapabilities','clearServicesCredential','getServicesJob','getServicesRequest','getServicesRouting','decideServicesWait','prepareReliefTopologyUpgrade','recoverServicesJob','cancelServicesJob','sampleReliefHeight','prepareReliefSculpt','inspectRound'])methods.add(name);
 files.add('confirmWritten');

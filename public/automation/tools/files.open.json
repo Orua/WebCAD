@@ -2,7 +2,7 @@
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.28.3",
+  "version": "1.32.0",
   "label": "打开工程",
   "synonyms": [
     "打开工程",
@@ -49,5 +49,5 @@
     "ASSET_INVALID",
     "FORMAT_UNSUPPORTED"
   ],
-  "docsHash": "sha256:2c462a6c17124a0920eb01766e5ea29a9ed1dc2e1d1a288f4d8c145b7966e944"
+  "docsHash": "sha256:d0cd64831b475016947a3b899ba5a043897ca485c0aed3de9f9cb20eb2eacc9a"
 }

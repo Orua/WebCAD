@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:692fe8ecd98654d97d2c340d0f4e8fa75fb89fc728abb2a044c6a23e5b4cc446",
-  "docsHash": "sha256:d7613007ee45231208ae2ba77554e2e16e9ff967445276fe0590632b9199e73b",
+  "catalogHash": "sha256:8e376ad0ca24359c33460764f618167cb651c767fab1196717832d8ee10985ea",
+  "docsHash": "sha256:c623bf62265f8fc5e7c4919250dbdb19d4c63c0dff614942695c867a846d8952",
   "bootstrapDocIds": [
     "api.knowledge-cache",
     "api.connection",
@@ -11,6 +11,35 @@
   ],
   "selectionPolicy": "Route by task, read a workflow, then only needed complete cards. Exact UI actions use routes.json. Live context/IDs always come from the page.",
   "routes": [
+    {
+      "id": "model-library-management",
+      "title": "模型库配置与工作区布局",
+      "keywords": [
+        "模型库",
+        "模型管理",
+        "常用模型",
+        "卡片",
+        "详细列表",
+        "热插拔",
+        "隐藏菜单",
+        "专注画布",
+        "model library",
+        "workspace"
+      ],
+      "docs": [
+        "api.model-library",
+        "api.workspace",
+        "api.views"
+      ],
+      "tools": [
+        "getModelLibrary",
+        "updateModelLibrary",
+        "resolveModelLibrary",
+        "setView",
+        "getUILayout"
+      ],
+      "note": "Read live library revision and per-entry schema. Resolve to frozen quickModel params before run/add; library IDs never become saved geometry kinds."
+    },
     {
       "id": "product-understanding",
       "title": "陌生产品结构与配件识别",
