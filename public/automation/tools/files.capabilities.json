@@ -2,7 +2,7 @@
   "id": "files.capabilities",
   "title": "files.capabilities",
   "category": "file",
-  "version": "1.32.0",
+  "version": "1.33.0",
   "label": "文件能力",
   "synonyms": [
     "文件能力",
@@ -36,5 +36,5 @@
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
-  "docsHash": "sha256:df9da05f2bfe20bbbe3d82dd9a7b0cb39c44ef80ec53addc8af2a304da2156ff"
+  "docsHash": "sha256:f31dc6cee0f0687fe886d7f50a175a6232201ccfbebbf002deda74ea147556ae"
 }

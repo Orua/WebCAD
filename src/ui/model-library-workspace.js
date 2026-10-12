@@ -2,16 +2,17 @@ import {modelLibrary} from '../model-library.js';
 import {QUICK_MODELS} from '../quick-models.js';
 import {quickModelIcon} from '../quick-model-icons.js';
 
-export function mountModelLibrary(root, {element, button, onChoose, getMode, setMode}) {
+export function mountModelLibrary(root, {element, button, onClose, onChoose, getMode, setMode}) {
   let selectedId = null, query = '', library;
   const header = element('header', {class:'library-heading'});
-  const title = element('div'); title.append(element('h1', {}, '模型库'), element('p', {}, '选模型，设参数，开始建模。'));
+  const title = element('div'); title.append(element('h1', {}, '快捷模型'), element('p', {}, '选择模型，设置参数后插入当前工程。'));
   const controls = element('div', {class:'library-controls'});
   const search = element('input', {type:'search', placeholder:'搜索模型名称、类型或说明', 'aria-label':'搜索模型库'});
   const cards = button('卡片', () => setMode('cards'), 'secondary');
   const list = button('详细列表', () => setMode('list'), 'secondary');
   const manage = button('管理模型库', () => {editor.hidden = !editor.hidden; if (!editor.hidden) loadEditor();}, 'secondary');
-  controls.append(search, cards, list, manage); header.append(title, controls);
+  const back=button('返回画布',onClose,'secondary');back.dataset.commandId='workspace';back.dataset.workspace='modeling';
+  controls.append(search, cards, list, manage, back); header.append(title, controls);
   const error = element('p', {class:'form-error', role:'alert'});
   const content = element('div', {class:'library-content'}), grid = element('div', {class:'library-grid', 'aria-label':'可用快捷模型'}), detail = element('aside', {class:'library-detail', 'aria-label':'模型详情'});
   const editor = element('section', {class:'library-editor', hidden:true, 'aria-label':'模型库管理'});

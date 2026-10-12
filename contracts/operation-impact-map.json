@@ -448,5 +448,19 @@
       "build tool coverage gate",
       "one browser batch: default/custom/persisted theme and icon rendering"
     ]
+  },
+  "menuHierarchy20261013": {
+    "localImpact": "Remove top workspace navigation; one model tool and one Agent configuration entrance. No CAD execution changes.",
+    "servicesImpact": "none: browser UI navigation only",
+    "logoImpact": "none: converter and geometry unchanged",
+    "contractImpact": "page docs 1.33; existing workspace agent opens configuration, agentSettingsOpen readback, model-library contracts preserved",
+    "documentImpact": "no saved model changes",
+    "cacheImpact": "regenerate static routes/docs hashes and assets; stored library/preferences unchanged",
+    "requiredTests": [
+      "menu hierarchy and API coverage",
+      "model-library",
+      "workspace upgrade",
+      "one browser batch: menu entry, gallery return, Agent config and API readback"
+    ]
   }
 }

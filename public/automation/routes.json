@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.32.0",
-  "buildId": "9ef7c923dc8cb140202a8469a23763b63d818a0c-src-836602bbc5cfd79a-working",
-  "catalogHash": "sha256:5f0efb559d2e357a7cac6fdf6b5d1dbb904a7fde1a6fcd600d532793c89d7a52",
-  "docsHash": "sha256:94e0339a95474dac577ead5add8f82be9b7f5fb7afeaa5397e4600a2f34a32de",
+  "pageApiVersion": "1.33.0",
+  "buildId": "815de53f155ee2ac0c87fe2b1fe16f1cd66a63c2-src-4cbb8798e425f56b-working",
+  "catalogHash": "sha256:b69cb3bbdb45faad0d53499f42e304e5711416a6a09861943f86df8fc729b4bc",
+  "docsHash": "sha256:62bee4c9861caf1405e2f0777f00be67d36ef068562b3e0f891e5b7d522f7aa4",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -20,7 +20,7 @@
         "readDocs"
       ],
       "method": "connect",
-      "usage": "connect({queries,includeContracts:true}) 返回当前 canExecute/blockers、requestContext 与完整卡；onboarding 提供首次连接步骤、本地安装包和真实操作路由；readDocs({docId:\"api.connection\"}) 说明宿主能力检查。knownHashes 只缓存完整工具卡，不缓存实体身份。"
+      "usage": "设置→Agent 配置为软件配置弹窗；兼容setView({context,workspace:\"agent\"})打开，workspace:\"modeling\"关闭；getUILayout().current.agentSettingsOpen读回。connect({queries,includeContracts:true}) 返回当前 canExecute/blockers、requestContext 与完整卡；onboarding 提供首次连接步骤、本地安装包和真实操作路由；readDocs({docId:\"api.connection\"}) 说明宿主能力检查。knownHashes 只缓存完整工具卡，不缓存实体身份。"
     },
     "alignBodies": {
       "tools": [
@@ -791,11 +791,11 @@
     },
     "quickModelFavorites": {
       "tools": [
-        "quickModel",
+        "setView",
         "getQuickModelUsage"
       ],
-      "method": "execute",
-      "usage": "模型菜单显示累计成功创建次数最多的五个 kind；getQuickModelUsage() 只读本浏览器频率，完整列表仍用快捷模型入口。生成用 quickModel 显式 params.kind、参考 placement 与幂等键。"
+      "method": "setView",
+      "usage": "兼容旧快捷入口；setView({context,workspace:\"library\"})打开同一快捷模型工具，频率仍可getQuickModelUsage只读。"
     },
     "redo": {
       "tools": [
@@ -1249,7 +1249,7 @@
         "getUILayout"
       ],
       "method": "setView",
-      "usage": "workspace:modeling/library/agent、toolbar:boolean、focus:boolean、libraryMode:cards/list；getState().view.workspaceLayout 读回。活动草稿先结束，预览先取消。"
+      "usage": "workspace:modeling返回画布、library打开快捷模型工具；兼容agent打开设置弹窗，非独立工作区；toolbar:boolean、focus:boolean、libraryMode:cards/list；getState().view.workspaceLayout 读回。活动草稿先结束，预览先取消。"
     }
   },
   "labels": {
@@ -1274,7 +1274,8 @@
     "pathFillet": "二维圆角 / prepareProfileEdit / 修改参数",
     "pathTrimCircle": "整圆裁剪 / prepareProfileEdit / 修改参数",
     "vectorImport": "矢量取线成面 / readVector / connectVector / 绘制轮廓",
-    "quickModelFavorites": "常用模型 / 快捷模型 / getQuickModelUsage",
+    "quickModel": "快捷模型",
+    "quickModelFavorites": "快捷模型 / setView / getQuickModelUsage",
     "reference.setWorkFrame": "设置参考锚点（工作基准）",
     "reference.resetWorkFrame": "重置参考锚点（工作基准）",
     "reference.setLocked": "锁定参考锚点（工作基准）",
@@ -1336,7 +1337,6 @@
     "profileRepair": "修复轮廓 / 轮廓修复",
     "profileRevolve": "轮廓旋转",
     "profileSweep": "轮廓扫掠",
-    "quickModel": "快捷模型",
     "referenceExtrude": "参考轮廓拉伸 / 轮廓拉伸",
     "referenceLoft": "参考截面放样 / 截面放样",
     "refineShape": "清理分割线 / getState / queryGeometry / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销",
@@ -1363,7 +1363,7 @@
     "themeSettings": "风格 / setDisplayPreferences",
     "snapSettings": "吸附 / setDisplayPreferences",
     "languageSettings": "语言 / setView",
-    "agentGuide": "AGENT / connect / getTools / readDocs",
+    "agentGuide": "Agent 配置 / connect / getTools / readDocs",
     "servicesSettings": "Services / getServices / setServices / getServicesCapabilities / getServicesRouting / clearServicesCredential",
     "servicesFeatureCompile": "Services 原特征编译 / getServicesCapabilities / getServicesRouting / getState / getServicesRequest",
     "displayPreferences": "渲染设置 / setDisplayPreferences",

@@ -3,7 +3,7 @@
   "title": "重建工程",
   "description": "args:{}；重建当前历史。",
   "category": "command",
-  "version": "1.32.0",
+  "version": "1.33.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:d5828b300ff12e3d35a5b7ef3ca28c0d98c6d1ed45981c495d21a20687c40adc"
+  "docsHash": "sha256:6faca6c68e80e9e11b90718a076ba78b54e27e806fe74842c2d7002dcbce1289"
 }
