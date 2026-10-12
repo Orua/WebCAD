@@ -1,0 +1,33 @@
+{
+  "id": "resolveModelLibrary",
+  "title": "resolveModelLibrary",
+  "category": "page-method",
+  "version": "1.32.0",
+  "description": "resolveModelLibrary({context,id,expectedLibraryRevision,params?:参数覆盖})",
+  "synonyms": [
+    "resolveModelLibrary",
+    "模型库",
+    "生成",
+    "参数",
+    "契约",
+    "常用模型"
+  ],
+  "inputContract": "resolveModelLibrary({context,id,expectedLibraryRevision,params?:参数覆盖})",
+  "outputContract": "status=read、op:quickModel、params（已解析默认值）、refs:[]、name、entryId、libraryRevision、context。作为run的add args提交，保留同一CommandService/Worker/预览/撤销/保存链。删除库条目后已有工程仍可编辑。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "LIBRARY_INVALID",
+    "LIBRARY_REVISION_CONFLICT",
+    "LIBRARY_ENTRY_NOT_FOUND",
+    "REVISION_CONFLICT",
+    "INSTANCE_MISMATCH",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docs": "api.model-library",
+  "docsHash": "sha256:fc99af55a14625042b9e8151073034fcbf348d4ed77e3f325472712f321339f7"
+}

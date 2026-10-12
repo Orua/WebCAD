@@ -883,6 +883,25 @@
     "method": "setView",
     "usage": "panels:{left:boolean,right:boolean}；getState().view.panels 读状态。"
   },
+  "workspace": {
+    "tools": [
+      "setView",
+      "getUILayout"
+    ],
+    "method": "setView",
+    "usage": "workspace:modeling/library/agent、toolbar:boolean、focus:boolean、libraryMode:cards/list；getState().view.workspaceLayout 读回。活动草稿先结束，预览先取消。"
+  },
+  "modelLibrary": {
+    "tools": [
+      "getModelLibrary",
+      "updateModelLibrary",
+      "resolveModelLibrary",
+      "quickModel",
+      "run"
+    ],
+    "method": "updateModelLibrary",
+    "usage": "getModelLibrary读取当前revision、每条字段及完整生成契约。updateModelLibrary传当前context和expectedLibraryRevision，operation=upsert/remove/move/restore/import。resolveModelLibrary返回冻结的quickModel参数，run/add生成，删除库条目不影响历史。"
+  },
   "moveTool": {
     "tools": [
       "setView",

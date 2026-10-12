@@ -3,7 +3,7 @@
   "title": "设置参考锚点（工作基准）",
   "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "category": "command",
-  "version": "1.28.3",
+  "version": "1.32.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -41,5 +41,5 @@
     "工作基准",
     "基准点"
   ],
-  "docsHash": "sha256:72d50d359a387dba7cf45d15b6220412bb7fb381f901196e765f1910859d43b6"
+  "docsHash": "sha256:47a5e14bdd749b172de23ebe2443508a42a71c99e24f1a3a8a3de0c0a380367a"
 }

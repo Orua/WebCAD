@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.28.3",
-  "buildId": "184e20ff4cb70339c22e8b009bd86e8b93df019d-src-84abed84b9b5247c-working",
-  "catalogHash": "sha256:692fe8ecd98654d97d2c340d0f4e8fa75fb89fc728abb2a044c6a23e5b4cc446",
-  "docsHash": "sha256:d7613007ee45231208ae2ba77554e2e16e9ff967445276fe0590632b9199e73b",
+  "pageApiVersion": "1.32.0",
+  "buildId": "39a8818713a9b39d9cf1336f4d98ad7b5807d78c-src-b2daaefb5e343ad6-working",
+  "catalogHash": "sha256:8e376ad0ca24359c33460764f618167cb651c767fab1196717832d8ee10985ea",
+  "docsHash": "sha256:c623bf62265f8fc5e7c4919250dbdb19d4c63c0dff614942695c867a846d8952",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -543,6 +543,17 @@
       ],
       "method": "execute",
       "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "modelLibrary": {
+      "tools": [
+        "getModelLibrary",
+        "updateModelLibrary",
+        "resolveModelLibrary",
+        "quickModel",
+        "run"
+      ],
+      "method": "updateModelLibrary",
+      "usage": "getModelLibrary读取当前revision、每条字段及完整生成契约。updateModelLibrary传当前context和expectedLibraryRevision，operation=upsert/remove/move/restore/import。resolveModelLibrary返回冻结的quickModel参数，run/add生成，删除库条目不影响历史。"
     },
     "moveTool": {
       "tools": [
@@ -1229,6 +1240,14 @@
         "body.visibility"
       ],
       "method": "execute"
+    },
+    "workspace": {
+      "tools": [
+        "setView",
+        "getUILayout"
+      ],
+      "method": "setView",
+      "usage": "workspace:modeling/library/agent、toolbar:boolean、focus:boolean、libraryMode:cards/list；getState().view.workspaceLayout 读回。活动草稿先结束，预览先取消。"
     }
   },
   "labels": {
@@ -1347,6 +1366,8 @@
     "servicesFeatureCompile": "Services 原特征编译 / getServicesCapabilities / getServicesRouting / getState / getServicesRequest",
     "displayPreferences": "渲染设置 / setDisplayPreferences",
     "panels": "setView",
+    "workspace": "setView / getUILayout",
+    "modelLibrary": "getModelLibrary / updateModelLibrary / resolveModelLibrary / 快捷模型 / run",
     "moveTool": "setView / 移动 / 旋转",
     "rotateTool": "setView / 移动 / 旋转",
     "copySelection": "copySelection",

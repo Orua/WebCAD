@@ -1,0 +1,3 @@
+# api.model-library
+
+模型库与当前文档独立。getModelLibrary读取各条目完整字段与schema；updateModelLibrary以当前context和expectedLibraryRevision进行upsert/remove/move/import/restore；resolveModelLibrary返回解析后的quickModel参数，再run/add。库配置仅在当前浏览器源持久化，可全量JSON迁移；已有工程不依赖可删库ID。新增几何插件仍需发布构建器和契约，不在网页执行任意脚本。

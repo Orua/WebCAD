@@ -2,7 +2,7 @@
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.28.3",
+  "version": "1.32.0",
   "label": "下载文件",
   "synonyms": [
     "下载文件",
@@ -41,5 +41,5 @@
     "ASSET_INVALID",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:a9defd52513e3ffd54fa2d83bcd4de9222e7a8ae8985f305e8ec70b9b6220c7f"
+  "docsHash": "sha256:8e86312edd1f317f92ab6e5abd479ab85a7b23814c0a9ee40c6cc17fd273b658"
 }

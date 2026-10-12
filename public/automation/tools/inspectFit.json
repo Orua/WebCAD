@@ -2,7 +2,7 @@
   "id": "inspectFit",
   "title": "inspectFit",
   "category": "page-method",
-  "version": "1.28.3",
+  "version": "1.32.0",
   "description": "inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。",
   "synonyms": [
     "inspectFit",
@@ -25,5 +25,5 @@
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:e6bf40a5d54ffbfe5a75fa99db24a973e315a0a4c33acf8e96bfe91fdcfd193a"
+  "docsHash": "sha256:b6693bc9d316fd0ccc6788468c3d5220591d325b9a07f6a765c494c3205616ac"
 }
