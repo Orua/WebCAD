@@ -26,8 +26,8 @@ export const UI_LAYOUT=freeze({version:6,workspaces:[{id:'modeling',label:'建�
   viewportActions:[{action:'gizmoRotate',label:'鼠标旋转'},{action:'gizmoTranslate',label:'鼠标移动'}],
   icons:{
     relief:['M3 19h18 M3 15c3 0 3-10 6-10s3 8 6 8 3-5 6-5 M3 15v4 M21 8v11 M3 10c3 0 3-7 6-7s3 6 6 6 3-3 6-3'],
-    ...ACTION_ICONS,refineShape:['M4 4h16v16H4Z M9 4v5 M9 15v5 M15 4v5 M15 15v5 M9 12h6'],quickDrawing:['M3 3h18v18H3Z M3 12h18 M12 3v18 M6 6h3v3H6Z M15 6h3v3h-3Z M6 15h3v3H6Z'],alignTool:ACTION_ICONS.gizmoTranslate,round:ACTION_ICONS.fillet,roundEnd:ACTION_ICONS.fillet,rounding:ACTION_ICONS.fillet,servicesSettings:ACTION_ICONS.logo,precisionSettings:ACTION_ICONS.measure,
-    helix:ACTION_ICONS.curveSweep,coil:ACTION_ICONS.curveSweep,thread:ACTION_ICONS.holeWizard,offsetSolid:ACTION_ICONS.box,offsetSurface:ACTION_ICONS.thickenFace,draftByPlane:ACTION_ICONS.draftFaces,profileConstraints:ACTION_ICONS.measure,
+    ...ACTION_ICONS,refineShape:['M4 4h16v16H4Z M9 4v5 M9 15v5 M15 4v5 M15 15v5 M9 12h6'],quickDrawing:['M3 3h18v18H3Z M3 12h18 M12 3v18 M6 6h3v3H6Z M15 6h3v3h-3Z M6 15h3v3H6Z'],alignTool:ACTION_ICONS.gizmoTranslate,round:ACTION_ICONS.fillet,roundEnd:ACTION_ICONS.roundEnd,rounding:ACTION_ICONS.rounding,servicesSettings:ACTION_ICONS.servicesSettings,precisionSettings:ACTION_ICONS.measure,
+    helix:ACTION_ICONS.helix,coil:ACTION_ICONS.coil,thread:ACTION_ICONS.thread,offsetSolid:ACTION_ICONS.offsetSolid,offsetSurface:ACTION_ICONS.offsetSurface,draftByPlane:ACTION_ICONS.draftByPlane,profileConstraints:ACTION_ICONS.profileConstraints,
     moveTool:ACTION_ICONS.gizmoTranslate,rotateTool:ACTION_ICONS.gizmoRotate,
     copySelection:ACTION_ICONS.copy,pasteSelection:['M9 4H5v18h14V4h-4 M9 2h6v5H9Z M8 11h8 M8 15h8'],
     themeSettings:['M12 3a9 9 0 1 0 0 18h2a2 2 0 0 0 0-4h-1a2 2 0 0 1 0-4h4a4 4 0 0 0 4-4c-1-4-5-6-9-6 M7 8h.1 M12 6h.1 M17 8h.1 M6 13h.1'],

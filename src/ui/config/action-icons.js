@@ -4,6 +4,13 @@ const profile=['M3 19V5h7l3 6h8v8Z'];
 const move=['M12 2v20 M2 12h20 M9 5l3-3 3 3 M9 19l3 3 3-3 M5 9l-3 3 3 3 M19 9l3 3-3 3'];
 const rotate=['M5 7a9 9 0 1 1-1 9 M5 2v5h5 M9 12h6'];
 export const ACTION_ICONS={
+ undo:['M9 4 4 9l5 5 M4 9h10a6 6 0 0 1 6 6v4'],redo:['M15 4l5 5-5 5 M20 9H10a6 6 0 0 0-6 6v4'],close:['M6 6l12 12 M18 6 6 18'],
+ eye:['M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0'],eyeOff:['M3 3l18 18 M9 5a12 12 0 0 1 3 0c6.5 0 10 7 10 7a18 18 0 0 1-4 5 M6 6a18 18 0 0 0-4 6s3.5 7 10 7a12 12 0 0 0 5-1 M10 10a3 3 0 0 0 4 4'],
+ panelLeftOpen:['M3 4h18v16H3Z M8 4v16 M12 9l3 3-3 3'],panelLeftClose:['M3 4h18v16H3Z M8 4v16 M15 9l-3 3 3 3'],panelRightOpen:['M3 4h18v16H3Z M16 4v16 M12 9l-3 3 3 3'],panelRightClose:['M3 4h18v16H3Z M16 4v16 M9 9l3 3-3 3'],
+ helix:['M5 3h14 M5 7c0-4 14-4 14 0s-14 2-14 6 14 2 14 6 M5 21h14'],coil:['M3 8c2-6 4-6 6 0s4 6 6 0 4-6 6 0 M3 8v8 M21 8v8 M3 16c2 6 4 6 6 0s4-6 6 0 4 6 6 0'],thread:['M7 3h10v18H7Z M5 7l14-3 M5 11l14-3 M5 15l14-3 M5 19l14-3'],
+ offsetSolid:['M4 8l7-4 7 4v9l-7 4-7-4Z M4 8l7 4 7-4 M11 12v9 M8 2l6-1 7 4v12'],offsetSurface:['M3 6l12-3 6 5-12 3Z M3 14l12-3 6 5-12 3Z M9 11v8'],draftByPlane:['M3 20 7 4h10l4 16Z M3 13h18 M12 2v8'],
+ roundEnd:['M4 6h9a6 6 0 0 1 0 12H4 M13 6v12 M18 3l3 3 M18 21l3-3'],rounding:['M3 19h18 M4 13l5-7h11l-5 7Z M7 16h2 M12 16h2 M17 16h2'],
+ servicesSettings:['M4 3h16v7H4Z M4 14h16v7H4Z M7 6h.1 M7 17h.1 M11 6h6 M11 17h6 M12 10v4'],profileConstraints:['M3 5h14v14H3Z M6 2v6 M2 9h6 M11 8v8 M8 12h6 M19 11l3 3-3 3'],
  // Path commands have distinct silhouettes rather than the generic fallback diamond.
  vectorImport:['M4 3h9l5 5v4 M13 3v5h5 M4 3v13','M2 17h4v4H2Z M18 17h4v4h-4Z M6 19h12','M12 10v6 M9 13l3 3 3-3'],
  pathEdit:['M3 5h10 M3 5v14h7','M11 17l8-8 3 3-8 8-4 1Z M17 11l3 3'],

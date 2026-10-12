@@ -434,5 +434,19 @@
       "reason"
     ],
     "geometryFailureRetry": false
+  },
+  "workspaceThemeIcons20261013": {
+    "localImpact": "Unified theme tokens and SVG presentation; persisted themeColor remains authoritative. No CAD execution changes.",
+    "servicesImpact": "none: browser presentation only",
+    "logoImpact": "none: no logo geometry or converter changes",
+    "contractImpact": "existing setDisplayPreferences themeColor and tool action IDs preserved",
+    "documentImpact": "no CAD document or model parameter changes",
+    "cacheImpact": "rebuild static assets and generated knowledge build identity; cookie schema unchanged",
+    "requiredTests": [
+      "workspace-theme",
+      "workspace-upgrade in isolated release",
+      "build tool coverage gate",
+      "one browser batch: default/custom/persisted theme and icon rendering"
+    ]
   }
 }
