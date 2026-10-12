@@ -93,3 +93,7 @@ const receipt = await api.run({
 独立发布版本的 75 项针对性测试、构建工具映射与知识包门禁通过；保留 75 项几何操作、167 条 UI 路由。真实浏览器验证了表单添加、卡片／列表、搜索详情、显隐恢复、预览取消，以及 Agent 配置→解析→建模→精确测量→匹配帧。测试工程实际写入 G:、重开、历史尺寸编辑及撤销／重做通过。
 
 这是新增工作流和工具映射的验证，没有重新逐项认证所有复杂几何算法。Services、Logo 转换和 Native 算法未修改。生产发布仅更新现有 WebCAD 静态目录，保留原有助手后端、服务配置和旧资源以支持回滚。
+
+## 既有远程助手兼容
+
+远程 MCP 的固定方法白名单无需升级服务：`webcad_read` 使用 method=`getUILayout`、args=`{includeModelLibrary:true}`，读取返回的 `modelLibrary` 完整条目与实际生成合同；管理用 `webcad_view` 的 method=`setView`、args=`{context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}}`，返回与 `updateModelLibrary` 完全相同的回执。管理请求单独提交，不与视图修改混用。生成把条目的 `execution` 放入已有 `run/add`。浏览器脚本宿主继续直接调用三个模型库方法。

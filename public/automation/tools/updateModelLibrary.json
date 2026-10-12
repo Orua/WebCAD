@@ -35,5 +35,10 @@
     "RESOURCE_LIMIT"
   ],
   "docs": "api.model-library",
-  "docsHash": "sha256:5a2e2c896c61caa12fdb4719291c9716b34ca181bb6b48e5b7ef29edab1d1f74"
+  "remoteCompatibility": {
+    "read": "getUILayout({includeModelLibrary:true}).modelLibrary",
+    "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
+    "create": "Use entries[].execution with run/add; current context and unique key required."
+  },
+  "docsHash": "sha256:7a25fba182144aea061dfcf44cc158e1502cf83009956e2f5a68b1c98f2fc05d"
 }

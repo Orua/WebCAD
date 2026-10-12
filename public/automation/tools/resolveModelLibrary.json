@@ -29,5 +29,10 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.model-library",
-  "docsHash": "sha256:fc99af55a14625042b9e8151073034fcbf348d4ed77e3f325472712f321339f7"
+  "remoteCompatibility": {
+    "read": "getUILayout({includeModelLibrary:true}).modelLibrary",
+    "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
+    "create": "Use entries[].execution with run/add; current context and unique key required."
+  },
+  "docsHash": "sha256:7b9bf84af0283d31f460526dea9542e0ca914ac3a6333f38b4af21c5400ed930"
 }

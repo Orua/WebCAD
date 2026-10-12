@@ -896,6 +896,8 @@
       "getModelLibrary",
       "updateModelLibrary",
       "resolveModelLibrary",
+      "getUILayout",
+      "setView",
       "quickModel",
       "run"
     ],

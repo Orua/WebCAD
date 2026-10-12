@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.32.0 · 操作目录 sha256:8e376ad0ca24359c33460764f618167cb651c767fab1196717832d8ee10985ea
+API 1.32.0 · 操作目录 sha256:5f0efb559d2e357a7cac6fdf6b5d1dbb904a7fde1a6fcd600d532793c89d7a52
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -232,7 +232,7 @@ API 1.32.0 · 操作目录 sha256:8e376ad0ca24359c33460764f618167cb651c767fab119
 - `copySelection` · page-method · copySelection({context,bodyIds}); 1–200个当前实体。
 - `pasteSelection` · page-method · pasteSelection({context,idempotencyKey}); 先 copySelection。
 - `createRequestContext` · page-method · createRequestContext(context?); omit to read the current context.
-- `getUILayout` · page-method · getUILayout()
+- `getUILayout` · page-method · getUILayout({includeModelLibrary?:boolean})
 - `setRenderQuality` · page-method · setRenderQuality({context,quality:"draft"|"standard"|"fine"|"ultra"})
 - `invoke` · page-method · invoke({method,args}); public method name or files.*.
 - `submit` · page-method · submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/inspectConstraints/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.
@@ -278,7 +278,7 @@ API 1.32.0 · 操作目录 sha256:8e376ad0ca24359c33460764f618167cb651c767fab119
 - `getLogoConverter` · page-method · getLogoConverter() 委托 getServices；旧 URL/Key 不自动授权统一服务。
 - `setLogoConverter` · page-method · 改用 setServices，旧 setter 拒绝存影子配置。
 - `convertLogoPdf` · page-method · convertLogoPdf({context,name,data,targetWidthMm?,page?,sizeConfirmed:true,allowUpload:true})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。
-- `setView` · page-method · setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling/library/agent；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:"X"|"Y"|"Z",position:number,enabled:boolean}。
+- `setView` · page-method · setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling/library/agent；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:"X"|"Y"|"Z",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。
 - `redraw` · page-method · redraw({context}); 不接受额外字段。
 - `capture` · page-method · capture({context}); 不接受额外字段。
 - `run` · page-method · run({context,idempotencyKey,steps}); see readDocs({docId:"api.run"}); addMany for one atomic feature plan: api.feature-plan.

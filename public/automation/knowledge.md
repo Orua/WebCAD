@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.32.0 · sha256:8e376ad0ca24359c33460764f618167cb651c767fab1196717832d8ee10985ea
+API 1.32.0 · sha256:5f0efb559d2e357a7cac6fdf6b5d1dbb904a7fde1a6fcd600d532793c89d7a52
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -124,7 +124,7 @@ thread refs=[单一实体]，当前圆柱 faceId、kind=external/internal、pitc
 
 ## api.model-library
 
-模型库与当前文档独立。getModelLibrary读取各条目完整字段与schema；updateModelLibrary以当前context和expectedLibraryRevision进行upsert/remove/move/import/restore；resolveModelLibrary返回解析后的quickModel参数，再run/add。库配置仅在当前浏览器源持久化，可全量JSON迁移；已有工程不依赖可删库ID。新增几何插件仍需发布构建器和契约，不在网页执行任意脚本。
+模型库与当前文档独立。getModelLibrary读取各条目完整字段与schema；updateModelLibrary以当前context和expectedLibraryRevision进行upsert/remove/move/import/restore；resolveModelLibrary返回解析后的quickModel参数，再run/add。旧远程助手固定白名单的等价入口：webcad_read method=getUILayout args={includeModelLibrary:true}读取modelLibrary；webcad_view method=setView args={context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}}进行管理，返回同一updateModelLibrary回执。生成读取entry.execution送入已有run/add；不需新服务或转换库ID。modelLibraryChange必须单独请求，不可同时改视图。库配置仅在当前浏览器源持久化，可全量JSON迁移；已有工程不依赖可删库ID。新增几何插件仍需发布构建器和契约，不在网页执行任意脚本。
 
 ## api.named-parameters
 
@@ -1112,6 +1112,8 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
       "getModelLibrary",
       "updateModelLibrary",
       "resolveModelLibrary",
+      "getUILayout",
+      "setView",
       "quickModel",
       "run"
     ],
@@ -46324,7 +46326,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "LIBRARY_STORAGE_UNAVAILABLE"
   ],
   "docs": "api.model-library",
-  "docsHash": "sha256:422748b347b7fb66dc4921760d862b67021f1cc387a298eb28132d096cc00e92"
+  "remoteCompatibility": {
+    "read": "getUILayout({includeModelLibrary:true}).modelLibrary",
+    "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
+    "create": "Use entries[].execution with run/add; current context and unique key required."
+  },
+  "docsHash": "sha256:89de90a3604f037093e4b555031773c111021b6b9019ce24745c3d1df4514107"
 }
 ```
 
@@ -46368,7 +46375,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_LIMIT"
   ],
   "docs": "api.model-library",
-  "docsHash": "sha256:5a2e2c896c61caa12fdb4719291c9716b34ca181bb6b48e5b7ef29edab1d1f74"
+  "remoteCompatibility": {
+    "read": "getUILayout({includeModelLibrary:true}).modelLibrary",
+    "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
+    "create": "Use entries[].execution with run/add; current context and unique key required."
+  },
+  "docsHash": "sha256:7a25fba182144aea061dfcf44cc158e1502cf83009956e2f5a68b1c98f2fc05d"
 }
 ```
 
@@ -46406,7 +46418,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.model-library",
-  "docsHash": "sha256:fc99af55a14625042b9e8151073034fcbf348d4ed77e3f325472712f321339f7"
+  "remoteCompatibility": {
+    "read": "getUILayout({includeModelLibrary:true}).modelLibrary",
+    "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
+    "create": "Use entries[].execution with run/add; current context and unique key required."
+  },
+  "docsHash": "sha256:7b9bf84af0283d31f460526dea9542e0ca914ac3a6333f38b4af21c5400ed930"
 }
 ```
 
@@ -46950,23 +46967,28 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "getUILayout",
   "category": "page-method",
   "version": "1.32.0",
-  "description": "getUILayout()",
+  "description": "getUILayout({includeModelLibrary?:boolean})",
   "synonyms": [
     "getUILayout",
     "界面",
     "布局",
     "配置",
-    "选项卡"
+    "选项卡",
+    "模型库"
   ],
-  "inputContract": "getUILayout()",
-  "outputContract": "当前版本化 tabs/groups/controls/header/panels 配置。",
+  "inputContract": "getUILayout({includeModelLibrary?:boolean})",
+  "outputContract": "当前版本化tabs/groups/controls/header/panels/current。includeModelLibrary:true追加modelLibrary完整实时字段与生成合同，兼容远程MCP的getUILayout只读通道。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
-  "errorCodes": [],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "LIBRARY_INVALID",
+    "LIBRARY_STORAGE_UNAVAILABLE"
+  ],
   "docs": "api.workspace",
-  "docsHash": "sha256:f2fcc8ffc02e28d0ff8f104f9a77a82735fe3616b91751e79c2a1375642fe015"
+  "docsHash": "sha256:295ec33bafa2b94e3030be2c832b4355a80eabddbe507f4fc514543d2094fe33"
 }
 ```
 
@@ -48737,7 +48759,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "setView",
   "category": "page-method",
   "version": "1.32.0",
-  "description": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling/library/agent；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
+  "description": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling/library/agent；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。",
   "synonyms": [
     "setView",
     "视图",
@@ -48764,7 +48786,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "pan view",
     "orbit view"
   ],
-  "inputContract": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling/library/agent；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。",
+  "inputContract": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling/library/agent；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。",
   "outputContract": "status=read、当前 context、display、view；view.transform 的 attached/canDrag/blocker 可读回单对象手柄状态。不修改工程 revision；拖动或数值变换通过 transform 提交。section 仅为显示裁剪，不是精确切割。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -48779,7 +48801,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "UI_TASK_ACTIVE"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:2750018ce99b272487fe150972cce2df07397d84b21e8bc40f1679ef04a3b642"
+  "docsHash": "sha256:98690781080bd0f399a6f95661581ee6beac54bdde637b5f9b9f38c5bc47cd55"
 }
 ```
 

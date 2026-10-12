@@ -53,3 +53,18 @@ test('page library mutations reject stale document context before touching stora
   assert.equal((await api.updateModelLibrary({context,expectedLibraryRevision:0,operation:'restore'})).error.code,'REVISION_CONFLICT');
   assert.equal((await api.resolveModelLibrary({context,id:'ring',expectedLibraryRevision:0})).error.code,'REVISION_CONFLICT');
 });
+test('legacy remote layout/view routes read and mutate the same library without view or document writes',async()=>{
+  const previous=globalThis.localStorage;globalThis.localStorage=storage();
+  try{
+    const current={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:7};
+    const state=()=>({context:current,summary:{busy:false,kernelReady:true},preview:{active:false,computing:false},view:{workspaceLayout:{workspace:'modeling'}}});
+    const api=createPageAPI({confirmSaved:()=>({saved:false}),state,view:()=>{throw Error('Compatibility route must not change view');}});
+    const context={sessionId:'s',documentId:'d',documentInstanceId:'i',expectedRevision:7};
+    const before=api.getUILayout({includeModelLibrary:true});assert.equal(before.modelLibrary.revision,0);
+    const applied=await api.setView({context,modelLibraryChange:{expectedLibraryRevision:0,operation:'upsert',entry:preset}});
+    assert.equal(applied.status,'applied');assert.equal(applied.revision,1);
+    assert.equal(api.getUILayout({includeModelLibrary:true}).modelLibrary.entries.at(-1).id,preset.id);
+    assert.equal((await api.setView({context,workspace:'agent',modelLibraryChange:{expectedLibraryRevision:1,operation:'restore'}})).error.code,'PARAM_SCHEMA_INVALID');
+    assert.equal(api.getUILayout({includeModelLibrary:true}).modelLibrary.revision,1);assert.equal(current.revision,7);
+  }finally{if(previous===undefined)delete globalThis.localStorage;else globalThis.localStorage=previous;}
+});
