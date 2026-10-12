@@ -97,3 +97,9 @@ const receipt = await api.run({
 ## 既有远程助手兼容
 
 远程 MCP 的固定方法白名单无需升级服务：`webcad_read` 使用 method=`getUILayout`、args=`{includeModelLibrary:true}`，读取返回的 `modelLibrary` 完整条目与实际生成合同；管理用 `webcad_view` 的 method=`setView`、args=`{context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}}`，返回与 `updateModelLibrary` 完全相同的回执。管理请求单独提交，不与视图修改混用。生成把条目的 `execution` 放入已有 `run/add`。浏览器脚本宿主继续直接调用三个模型库方法。
+
+## 2026-10-13：恢复统一主题与图标
+
+沿用 Goldenluck Web 的白底、浅边框与蓝色主题（新用户默认 `#3a6eba`）。已有全局设置保存的自定义颜色继续优先使用；切换颜色即时影响导航选中、按钮、焦点、工具及快捷模型图标。亮色主题自动选择可读的文字色，状态提示保持各自语义。
+
+快捷模型的 47 个图标统一为 24×24 网格、1.6 线宽，并分别表现对应结构。工具图标保持同一绘制规范；重新区分螺旋／弹簧／螺纹、实体／面偏移、圆端／圆滑，以及 Services 配置／Logo 操作。显隐、撤销／重做、保存、搜索、帮助、对象树和历史列表改为统一 SVG。工具名称、操作 ID、模型参数和 Agent 自动化契约保持兼容。
