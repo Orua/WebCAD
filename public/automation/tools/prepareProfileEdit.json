@@ -2,7 +2,7 @@
   "id": "prepareProfileEdit",
   "title": "prepareProfileEdit",
   "category": "page-method",
-  "version": "1.32.0",
+  "version": "1.33.0",
   "description": "prepareProfileEdit({context,bodyId,mode:\"intersections\"|\"trim\"|\"extend\"|\"trimCircle\"|\"fillet\",entityId?,targetId?,edgeIds?,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})。二维圆角可用 edgeIds:[两条当前边索引] 替代 entityId/targetId，支持解析轮廓及其未缩放的移动/旋转副本，选择先后不限；须显式 radiusMm 与新 arcId。",
   "synonyms": [
     "prepareProfileEdit",
@@ -27,5 +27,5 @@
     "GEOMETRY_INVALID"
   ],
   "docs": "api.interaction",
-  "docsHash": "sha256:7666cd02b28526f4139bd00c032d68098642caca23b8f4c354322728928f6393"
+  "docsHash": "sha256:0ed7a4caddadade5563ca6530ba5f96238e15c5991662a6ab4c3961a69718778"
 }

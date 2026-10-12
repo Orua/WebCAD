@@ -1,9 +1,9 @@
 {
-  "version": "1.32.0",
-  "buildId": "9ef7c923dc8cb140202a8469a23763b63d818a0c-src-836602bbc5cfd79a-working",
+  "version": "1.33.0",
+  "buildId": "815de53f155ee2ac0c87fe2b1fe16f1cd66a63c2-src-4cbb8798e425f56b-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:5f0efb559d2e357a7cac6fdf6b5d1dbb904a7fde1a6fcd600d532793c89d7a52",
-  "docsHash": "sha256:94e0339a95474dac577ead5add8f82be9b7f5fb7afeaa5397e4600a2f34a32de",
+  "catalogHash": "sha256:b69cb3bbdb45faad0d53499f42e304e5711416a6a09861943f86df8fc729b4bc",
+  "docsHash": "sha256:62bee4c9861caf1405e2f0777f00be67d36ef068562b3e0f891e5b7d522f7aa4",
   "apiMethods": [
     "getModelLibrary",
     "updateModelLibrary",
@@ -1159,784 +1159,784 @@
       "id": "getModelLibrary",
       "title": "getModelLibrary",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:89de90a3604f037093e4b555031773c111021b6b9019ce24745c3d1df4514107",
+      "version": "1.33.0",
+      "docsHash": "sha256:74e5f20d924d5f61b92c3a4d01412e88ede5dbed479ab60a39c6ab8b27fd33c4",
       "url": "tools/getModelLibrary.json"
     },
     {
       "id": "updateModelLibrary",
       "title": "updateModelLibrary",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:7a25fba182144aea061dfcf44cc158e1502cf83009956e2f5a68b1c98f2fc05d",
+      "version": "1.33.0",
+      "docsHash": "sha256:9a77a06014b719829c2824c8357604b82d57d354f486e67212da1c372194a93a",
       "url": "tools/updateModelLibrary.json"
     },
     {
       "id": "resolveModelLibrary",
       "title": "resolveModelLibrary",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:7b9bf84af0283d31f460526dea9542e0ca914ac3a6333f38b4af21c5400ed930",
+      "version": "1.33.0",
+      "docsHash": "sha256:e9931244521667b884397483c84514a00352e91050f5ded88f5abee9e3ff29fd",
       "url": "tools/resolveModelLibrary.json"
     },
     {
       "id": "decideServicesWait",
       "title": "decideServicesWait",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:e2d26f1747efa1efbd1c424eae64ebe39eece4ddacfaac59a853a63f2ba326c1",
+      "version": "1.33.0",
+      "docsHash": "sha256:0f86a511f2480a1f640031332ab7181cc6ce52de378ea3196c624e0e87246220",
       "url": "tools/decideServicesWait.json"
     },
     {
       "id": "recoverServicesJob",
       "title": "recoverServicesJob",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:0cf7e51a1ef89c7f1eb58a69c78d337cc24c87ac35cc1d12de65a5273d8174c0",
+      "version": "1.33.0",
+      "docsHash": "sha256:4a2e7a564af83ff1168ec8f333889d9b0cae16568b8b3b402857dc6b143e545a",
       "url": "tools/recoverServicesJob.json"
     },
     {
       "id": "prepareReliefTopologyUpgrade",
       "title": "prepareReliefTopologyUpgrade",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:ccdffa4ce997f459bca3952fc1cb5cd11664d93bcab4299e3d99899849f10ffb",
+      "version": "1.33.0",
+      "docsHash": "sha256:3e562b5b11a678ec491b3e8ec74a89eb58d43245fc55757e12f8e22ba38e88a7",
       "url": "tools/prepareReliefTopologyUpgrade.json"
     },
     {
       "id": "sampleReliefHeight",
       "title": "sampleReliefHeight",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:36dffabfc9710bca4ab783038f2c6bf39759e06b8b40a4231311936be715db90",
+      "version": "1.33.0",
+      "docsHash": "sha256:76c951a0ad39899bd79af1d0057686cb8479dbe585814662e0e31f3b627de226",
       "url": "tools/sampleReliefHeight.json"
     },
     {
       "id": "prepareReliefSculpt",
       "title": "prepareReliefSculpt",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:1ea88b19ca0a49973f613d2b1260cb8d520db2e2ac8964440613aae04e4eb38b",
+      "version": "1.33.0",
+      "docsHash": "sha256:c6c7c3448f56dd2e8d1a8634554434ed853997b452a7bab3096617c22c42507f",
       "url": "tools/prepareReliefSculpt.json"
     },
     {
       "id": "readRelief",
       "title": "readRelief",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:4816189d4c19e27c21978a3aed68ac5d752677ba1a2a0470cc9cb9fe6595b615",
+      "version": "1.33.0",
+      "docsHash": "sha256:41fce812ecfe265fda72a55b74bd0789afa360024fea8298c7a8692f21045eda",
       "url": "tools/readRelief.json"
     },
     {
       "id": "getHistory",
       "title": "getHistory",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:f0db93193bf713a082b0a01cba103cf62c5761981c6eacae0d8e346ff4c2299f",
+      "version": "1.33.0",
+      "docsHash": "sha256:e292b2ef2f53bdf77b5c030c71fb35c90c8ec4f3a020be37c4b9a97d0582e170",
       "url": "tools/getHistory.json"
     },
     {
       "id": "planAlignment",
       "title": "planAlignment",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:6f16cbfe3b0b7e07c614e40ac94559e1a11185938da6ccb586a10f09c8c6b3c0",
+      "version": "1.33.0",
+      "docsHash": "sha256:d8221d0fbd8fcad650c95421cf938fb610fad5ec9ede60626f29c31aba5bda9c",
       "url": "tools/planAlignment.json"
     },
     {
       "id": "selectRectangle",
       "title": "selectRectangle",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:9bc9324e128be9a366d3e33da668320ef70035b08e6bde9a5ee43f90470b3f78",
+      "version": "1.33.0",
+      "docsHash": "sha256:fbc021b1d89fc5376a46dbcb1fb480f192282518b1946f7649db2eedaaa33fee",
       "url": "tools/selectRectangle.json"
     },
     {
       "id": "createDrawing",
       "title": "createDrawing",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:406a94445694c2b30dc4fbe30225b383970507f997ec710805532201f67b489b",
+      "version": "1.33.0",
+      "docsHash": "sha256:c6db03489ef4c2e7851750574d0107b14aefaad46ea1dbad8c5e0871c7f7c496",
       "url": "tools/createDrawing.json"
     },
     {
       "id": "exportDrawing",
       "title": "exportDrawing",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:5a1920048c0b986610101bf0e610b07a0971cf91817d11ac648a66f4c42ab889",
+      "version": "1.33.0",
+      "docsHash": "sha256:ec1b1e9e6c040e0bdd2837fc12dd8d0d08c44b29d5ca44581ad5cdabbfabf7be",
       "url": "tools/exportDrawing.json"
     },
     {
       "id": "getQuickModelUsage",
       "title": "getQuickModelUsage",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:9ffb230265829c0e3866a82b468756c607839565e2fc87ef4c81191c74bc5f1d",
+      "version": "1.33.0",
+      "docsHash": "sha256:705a88d5d68ba245e9f6a5a00aabdd97c1ad78130b43dac9ca2804378621f224",
       "url": "tools/getQuickModelUsage.json"
     },
     {
       "id": "copySelection",
       "title": "copySelection",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:e8f4c441547840200796f46a4358e02d5e26e8571031b4ffdcadc4ec48eb8426",
+      "version": "1.33.0",
+      "docsHash": "sha256:00ab39c7639683d5c4bd4df846cb00d413d6894ca1ff274fd34df076a19d4095",
       "url": "tools/copySelection.json"
     },
     {
       "id": "pasteSelection",
       "title": "pasteSelection",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:f3cb3577e2d5b34e33395f1c14553cfcc043f40ee16ef86bf482d62127662256",
+      "version": "1.33.0",
+      "docsHash": "sha256:43a198d128d1c11c18bcf89acde732a7b891f0a0ddf6bbe62a2debb6271dcbd9",
       "url": "tools/pasteSelection.json"
     },
     {
       "id": "createRequestContext",
       "title": "createRequestContext",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:e50c9fbd42ca08478c6ec07f1933104d896f19954c5eb91714fe0b5bf29fb091",
+      "version": "1.33.0",
+      "docsHash": "sha256:ead8f045f98fdcedfabe9d304f4ab7a2510c0fa23d97a95c40aa7054f84345cd",
       "url": "tools/createRequestContext.json"
     },
     {
       "id": "getUILayout",
       "title": "getUILayout",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:295ec33bafa2b94e3030be2c832b4355a80eabddbe507f4fc514543d2094fe33",
+      "version": "1.33.0",
+      "docsHash": "sha256:0cec9e8ee4b3f8c8e45c1fb40b0db9433672d9d3e8021c6d9e77ac1824a8b54c",
       "url": "tools/getUILayout.json"
     },
     {
       "id": "setRenderQuality",
       "title": "setRenderQuality",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:171e9693519cebfefc25be7ec7486f7a761d60c4ce796d18e1cebad629c41a66",
+      "version": "1.33.0",
+      "docsHash": "sha256:b3c4b0f9bb0e42a7c9c67e2be946d17a41487b6d2523267c9c223d6d4c967d6e",
       "url": "tools/setRenderQuality.json"
     },
     {
       "id": "invoke",
       "title": "invoke",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:11bed1d88d8e644a4c0f3c9dffd85ebc989dc9a01f2778251f046b96e86d3372",
+      "version": "1.33.0",
+      "docsHash": "sha256:1a89881dc5a5b4d379036b79283bdeb91b1752b14816a285e55e71f3cf19fdeb",
       "url": "tools/invoke.json"
     },
     {
       "id": "submit",
       "title": "submit",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:812a58ad9d139b5ad79a4fe2f3ed7b9be800d9c91f24c2872ed03cb35ea7a12a",
+      "version": "1.33.0",
+      "docsHash": "sha256:63dfda01e9518e1c3ccd4be3a42e0021aec0f193efbc58e75f7c45b0a574f8b0",
       "url": "tools/submit.json"
     },
     {
       "id": "getJob",
       "title": "getJob",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:f9f89d448dfb2d694cc9599ce4b17bea059f4dd0f2f1a9d3a7cb958957f00e49",
+      "version": "1.33.0",
+      "docsHash": "sha256:cec43a3626c18069ca6de5bb58df8d553c52a95061ce2564214ec7032fd62a3e",
       "url": "tools/getJob.json"
     },
     {
       "id": "cancelJob",
       "title": "cancelJob",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:eeb2f8a08abb5c05069e306013db070acc6d64cf1b01c3824d8135c77c899826",
+      "version": "1.33.0",
+      "docsHash": "sha256:90702abc1527deca7667f3f28c4d81d2c4df89beae58104743d59f599331c553",
       "url": "tools/cancelJob.json"
     },
     {
       "id": "connect",
       "title": "connect",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:2af23af0caec55bed644396f5eef0848d3b7a0fccaf08ea79c3ccf51799b38c0",
+      "version": "1.33.0",
+      "docsHash": "sha256:68aca879132ed4b84609d7d518e5d3a5399d68f58f4f3143b93209ae67ac2852",
       "url": "tools/connect.json"
     },
     {
       "id": "info",
       "title": "info",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:472ffdaf2279eeea30787d5725447bcd6b8eb566192a1ae6021582d93ee95c51",
+      "version": "1.33.0",
+      "docsHash": "sha256:e25ffb74c74099b23675b9f36018d5c1f10971d2153b8d638ccd3a7c30094f39",
       "url": "tools/info.json"
     },
     {
       "id": "getState",
       "title": "getState",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:8060707ae70c64a3f204af1667a695a90e7d57db8194e17aa024b53580678c7e",
+      "version": "1.33.0",
+      "docsHash": "sha256:51dc261cb488a947e26bb8aff14965b52b1a7a750db04ba4f29bda348d4d4d7e",
       "url": "tools/getState.json"
     },
     {
       "id": "searchTools",
       "title": "searchTools",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:1d05871d4d9af2dcd27eeae2f584b30eb31ee30e2b01c074b40de282be3a10cb",
+      "version": "1.33.0",
+      "docsHash": "sha256:a2eaa02110b8248da0466bd9cc9d3981b22fb9acec0feadaae5c341460a41d4a",
       "url": "tools/searchTools.json"
     },
     {
       "id": "getTools",
       "title": "getTools",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:87d9cdf21bcb2cb2ed4119f3c0465de56c771faba9c56eb673c799dcecf14b93",
+      "version": "1.33.0",
+      "docsHash": "sha256:7c31bf6cda0152c34c9da65fd4c88efb66083609ba4b2617f267e4108b38ab8d",
       "url": "tools/getTools.json"
     },
     {
       "id": "getTool",
       "title": "getTool",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:0ff3fcea347ee5f4555264cc1beb13f0010c0e508b5f11c2ab7d32303f7c8d71",
+      "version": "1.33.0",
+      "docsHash": "sha256:1e4acd4b1d72cc87382698412b537103051564c73ff573439449f3b7c572a6f1",
       "url": "tools/getTool.json"
     },
     {
       "id": "readDocs",
       "title": "readDocs",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:9d6ed3edc50a25c828d1f051ebe0d3ff4c915ecb96aef52f14105a1fa525797b",
+      "version": "1.33.0",
+      "docsHash": "sha256:e8af6ae4a71636f29ccf676722b0d133021d67a4d9ecc4b44328ec644e155453",
       "url": "tools/readDocs.json"
     },
     {
       "id": "queryGeometry",
       "title": "queryGeometry",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:63e22db1feab788a9ddb993b68ff5afeb88bb4910fcaf13d4442df286838cc3c",
+      "version": "1.33.0",
+      "docsHash": "sha256:58810fc2d474255618bd17f6fa6dc6b34ca750d297dc06d847aebccf14cc03b6",
       "url": "tools/queryGeometry.json"
     },
     {
       "id": "queryReferences",
       "title": "queryReferences",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:ddffc16f2a591332749836589f1d3b38d445f034e0dda7cc4fad94fa1e81e6ca",
+      "version": "1.33.0",
+      "docsHash": "sha256:53bb2ddff808dc06dd414485f980a168bbb3603961a5ac0cceb9cfb78e72b598",
       "url": "tools/queryReferences.json"
     },
     {
       "id": "resolvePlacement",
       "title": "resolvePlacement",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:508ff35f3a23d6d89fb0901989df15ab2ee4338b3e8978d1aad967610e75733b",
+      "version": "1.33.0",
+      "docsHash": "sha256:bf29b742690e952bac9f83ab5b60c1b97c1a357f8b1a30e008e4c83a06bda9f8",
       "url": "tools/resolvePlacement.json"
     },
     {
       "id": "execute",
       "title": "execute",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:b6cc46916488b75aace27eef49a8c68486cb859a998e00e52c4f1276e08ba2a8",
+      "version": "1.33.0",
+      "docsHash": "sha256:569428e11e7ece1c2b291470621283dee209a72a7f89ddbcaa20b80825ae38e0",
       "url": "tools/execute.json"
     },
     {
       "id": "measure",
       "title": "measure",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:3e7faf7f47de7923bd60424a981dfe1fe2c2a456359f4302d5ca047b23b654f7",
+      "version": "1.33.0",
+      "docsHash": "sha256:4899203f5cbffce02129ba87ca676385383fcdc898e77636d4817e0f5ab61d9b",
       "url": "tools/measure.json"
     },
     {
       "id": "measureRelation",
       "title": "measureRelation",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:27872047ca828705cbe400531e9035ccf2f23017274ba0bdedc70f1bde5a7c10",
+      "version": "1.33.0",
+      "docsHash": "sha256:360a0e23ad1eec815baf221949f3051802b05dee873624df377a523fb9206ace",
       "url": "tools/measureRelation.json"
     },
     {
       "id": "inspectDesign",
       "title": "inspectDesign",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:cc3b3098f74d172dfb789aa9f9257e0f01368bcb3af750ef63c772f1bbf04db7",
+      "version": "1.33.0",
+      "docsHash": "sha256:00e09c55e7a00ce8ef23d4cb92c7c0b0791e4e7848fd89ba0c6788116322e21e",
       "url": "tools/inspectDesign.json"
     },
     {
       "id": "inspectPrintability",
       "title": "inspectPrintability",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:4e1def044df8fa99f89326e28a255a0a2b14e63f66a636f90a41e2af8294d0bb",
+      "version": "1.33.0",
+      "docsHash": "sha256:ea0fc26ffaedde0c859b4bb5e860850e7b4bb0164b974309de1ecf9333f5a80c",
       "url": "tools/inspectPrintability.json"
     },
     {
       "id": "inspectProfile",
       "title": "inspectProfile",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:24ff9f7470d1890a4a685189975834a97b9e0a4ddcaf07a039168b3690251520",
+      "version": "1.33.0",
+      "docsHash": "sha256:6dbfd63adea4c547be4dc3c548f89276447ffcb282b6954bc3962cf7d80878e8",
       "url": "tools/inspectProfile.json"
     },
     {
       "id": "prepareProfileEdit",
       "title": "prepareProfileEdit",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:7666cd02b28526f4139bd00c032d68098642caca23b8f4c354322728928f6393",
+      "version": "1.33.0",
+      "docsHash": "sha256:0ed7a4caddadade5563ca6530ba5f96238e15c5991662a6ab4c3961a69718778",
       "url": "tools/prepareProfileEdit.json"
     },
     {
       "id": "inspectConstraints",
       "title": "inspectConstraints",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:7b98de7befd74f3e51deb3f116c2bfb6eaff15ed9c2497bd60cc14e9b968742c",
+      "version": "1.33.0",
+      "docsHash": "sha256:719262ecb2c6f4cf417d848565ad980ebd6611235aff8fbb2a4ce999115ffa0d",
       "url": "tools/inspectConstraints.json"
     },
     {
       "id": "projectProfile",
       "title": "projectProfile",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:1fd601dd27a351c65b45852fced470b9e7f7dd2ff26b3c69ada9710a48eb9658",
+      "version": "1.33.0",
+      "docsHash": "sha256:0c60a400d5a68b3273c57736db9fe401399f0f79f42131d6971405d14049863f",
       "url": "tools/projectProfile.json"
     },
     {
       "id": "inspectFit",
       "title": "inspectFit",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:b6693bc9d316fd0ccc6788468c3d5220591d325b9a07f6a765c494c3205616ac",
+      "version": "1.33.0",
+      "docsHash": "sha256:461a9bf3cf9a28ea84a44ba250feba44f08e7b01396a45cec7c530de10cd7299",
       "url": "tools/inspectFit.json"
     },
     {
       "id": "inspectThickness",
       "title": "inspectThickness",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:79b03ff4d16a7522aa4e66ec24b1c96ab20b34af1f7aa430ffeaeb2b4752f873",
+      "version": "1.33.0",
+      "docsHash": "sha256:ef912dfcba19bf0182bbcf5314521a057b805167aa010ea9447911e29934bfa5",
       "url": "tools/inspectThickness.json"
     },
     {
       "id": "inspectDraft",
       "title": "inspectDraft",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:f5c6ab8d498437e1f7aa61072da16121dd5bd05b87f4664a48e090e15575727b",
+      "version": "1.33.0",
+      "docsHash": "sha256:2fd1138724f6a76fb0a3b2f32d529630cfae714f8c90990e149cf3f9c274dec8",
       "url": "tools/inspectDraft.json"
     },
     {
       "id": "inspectRound",
       "title": "inspectRound",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:3262b9ab4130512966a61fcf529e4f3458de91ed92b85bfc80895fa637c64b8d",
+      "version": "1.33.0",
+      "docsHash": "sha256:1683c14c58f8ceca4e0ab35bf8458f59dfe9188e26ad82a22d4cd1af4d2813e1",
       "url": "tools/inspectRound.json"
     },
     {
       "id": "readVector",
       "title": "readVector",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:fa116be5a9d204a48a7d83d23992decc0a0ad28189c438a394b02e31f9008f48",
+      "version": "1.33.0",
+      "docsHash": "sha256:33afdfc8e7388d2c858bea5c8f20a80028c2b375964d9b520af3c6f303a1ee16",
       "url": "tools/readVector.json"
     },
     {
       "id": "connectVector",
       "title": "connectVector",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:4925a8bed49f6f11b9c17993d8e9cfdd40d7f2708c00be0233ebd8a43429a1d8",
+      "version": "1.33.0",
+      "docsHash": "sha256:9c5105af29ed3c15543b65b27e3c1fe4d30e5047e8323f71b82b440bff56644f",
       "url": "tools/connectVector.json"
     },
     {
       "id": "fitProfile",
       "title": "fitProfile",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:b9934cad8ad6e2665f802ac6df9a4bcbd1e38eb63b2bab95034431243a03e98d",
+      "version": "1.33.0",
+      "docsHash": "sha256:8b97e9f902a5753d10d353f951013a090d2eb76d1cbce1f702cd958d054b846a",
       "url": "tools/fitProfile.json"
     },
     {
       "id": "traceTwinWindow",
       "title": "traceTwinWindow",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:c8f279f5411c51a5f3e3000950bdde5837c95d0aa5f4f395257fd8899543b49b",
+      "version": "1.33.0",
+      "docsHash": "sha256:56a7c46b4d716803850a076fe5d493c2b1983f9a30dc5aeada1544128340b82a",
       "url": "tools/traceTwinWindow.json"
     },
     {
       "id": "executeText",
       "title": "executeText",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:0b6212e78168a0c1f31910ec4ccd51014570166efa6f5fcf0c5a3bb614f79b66",
+      "version": "1.33.0",
+      "docsHash": "sha256:ecdac4bcfee179184d15748e8f090a0015f97a48c083e6ace1f19a5808598766",
       "url": "tools/executeText.json"
     },
     {
       "id": "setDisplayPreferences",
       "title": "setDisplayPreferences",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:0d41a32ad0bab60f4621ed9b7cc6073d820bfef4ea1ea9223f9ea4387b15a950",
+      "version": "1.33.0",
+      "docsHash": "sha256:c104a4c32d9ab79839a9b6d2f6dce0e71ac0ea8939f1489700922203faf2068e",
       "url": "tools/setDisplayPreferences.json"
     },
     {
       "id": "getServices",
       "title": "getServices",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:26dbe99f7cfb587b2de476dd9cecaa7bb37fc6a1cdd23c8f3669bb97d4785487",
+      "version": "1.33.0",
+      "docsHash": "sha256:d2df07d0bcc497d046f17310b92aea39f25bc714f975e67d0043cfc9af4f05c6",
       "url": "tools/getServices.json"
     },
     {
       "id": "setServices",
       "title": "setServices",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:57254e84c110a17681198b9f87f65b74fe73ab478fa0383fad9031432cc25e91",
+      "version": "1.33.0",
+      "docsHash": "sha256:bc32e2a9b35abf19a4ba3921b0a588ca4132e73eedd46f9f306382939040e682",
       "url": "tools/setServices.json"
     },
     {
       "id": "getServicesCapabilities",
       "title": "getServicesCapabilities",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:e360a13309cbf94030916d7bc2229047c6df4c1c6a043300a29680bf4a45ba38",
+      "version": "1.33.0",
+      "docsHash": "sha256:0f287b32b27ec86a02bd8c88d48013ffc1640b923f68fdad4081c04be6d9b9e1",
       "url": "tools/getServicesCapabilities.json"
     },
     {
       "id": "getServicesRouting",
       "title": "getServicesRouting",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:76e40a80b5ab92c5d5f59ea274a29290738a6a18cd482b1896067ebfdcc7f50c",
+      "version": "1.33.0",
+      "docsHash": "sha256:c4f004aa22e7fd2e0b7f2cd4a72059bf6588c558e2821fd3542374a6bf09e938",
       "url": "tools/getServicesRouting.json"
     },
     {
       "id": "clearServicesCredential",
       "title": "clearServicesCredential",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:4d8d247d6f975150a6bc07a330f019ed2d92bd39b68eb134b090c650765bc16c",
+      "version": "1.33.0",
+      "docsHash": "sha256:2011ea94b6504d253d4192daef75a8ba7590db7c28816ebabcb4dd61474e6dcd",
       "url": "tools/clearServicesCredential.json"
     },
     {
       "id": "getServicesJob",
       "title": "getServicesJob",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:464f98a89d135710dc61175cb9960ee04007978445332d855631ce764dd2d3e8",
+      "version": "1.33.0",
+      "docsHash": "sha256:b2995b0930f0cec709cbe93fc402a78c2a2a672b987bf0a3aa7aecfecc246f5b",
       "url": "tools/getServicesJob.json"
     },
     {
       "id": "getServicesRequest",
       "title": "getServicesRequest",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:e87ce606fb496e6675a1af32d0491eaeb977d6aca097e2e84165a7bccc2827ee",
+      "version": "1.33.0",
+      "docsHash": "sha256:a52fef4a0b03bab9264626849a481da2b850dc1b1d99b9382086065d180e6dfb",
       "url": "tools/getServicesRequest.json"
     },
     {
       "id": "cancelServicesJob",
       "title": "cancelServicesJob",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:72400c751910fdff756237cd9b4d8f082155849828874c93cf043c4463ffa584",
+      "version": "1.33.0",
+      "docsHash": "sha256:12088f44e7a81a9b02b457f705a5f2309ad00669b4bb624b5b28ec8e60f03345",
       "url": "tools/cancelServicesJob.json"
     },
     {
       "id": "getLogoConverter",
       "title": "getLogoConverter",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:20fa8155f2a89b05cefdab4b3c9412231396d8564bbf519e23e1d79209a0ad93",
+      "version": "1.33.0",
+      "docsHash": "sha256:87625aa57e600eb87cdbcf56f89494be0fdfa599227fe0a0d182d973592b5b9a",
       "url": "tools/getLogoConverter.json"
     },
     {
       "id": "setLogoConverter",
       "title": "setLogoConverter",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:0e1f14d95896790fbf64c958bbae74e87b39da1e09394b88ad81301493bebbe4",
+      "version": "1.33.0",
+      "docsHash": "sha256:b8707b9c548607fa9227ab4781b28e579481c857773a6b1c215bbd1883723b34",
       "url": "tools/setLogoConverter.json"
     },
     {
       "id": "convertLogoPdf",
       "title": "convertLogoPdf",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:a7984ae34bc3519633d0670f4dface8f0b7f29c6ce25b69535288b580cda7d10",
+      "version": "1.33.0",
+      "docsHash": "sha256:f3283cae63d5246cc7625c60a0f105b02a6f4edc5ba399f7789721201f751702",
       "url": "tools/convertLogoPdf.json"
     },
     {
       "id": "setView",
       "title": "setView",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:98690781080bd0f399a6f95661581ee6beac54bdde637b5f9b9f38c5bc47cd55",
+      "version": "1.33.0",
+      "docsHash": "sha256:1a0004d009578acc053417eb4779888818bbaaedb3b6063e687add5cece9ab37",
       "url": "tools/setView.json"
     },
     {
       "id": "redraw",
       "title": "redraw",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:357620e3c85d5b1c6c2a4e6704d56814b810a6804fc2a52497cc85893a05736f",
+      "version": "1.33.0",
+      "docsHash": "sha256:a94493670ce903a05a96300a72f8d38739aa2df6246a9755c0ba5d643d35b602",
       "url": "tools/redraw.json"
     },
     {
       "id": "capture",
       "title": "capture",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:1438d41234a45f00193be93efe4bbf8185b948b5eb6e2eceb8f2507b4fba1a6c",
+      "version": "1.33.0",
+      "docsHash": "sha256:3589abf6eab69ba4df0e2b1e4a9e16954913e5fd59621d220b3158059d2b2e34",
       "url": "tools/capture.json"
     },
     {
       "id": "run",
       "title": "run",
       "category": "page-method",
-      "version": "1.32.0",
-      "docsHash": "sha256:847029cb56533e02f8a78c3e462ef92d652b3af02740ad51a5e1e45542815287",
+      "version": "1.33.0",
+      "docsHash": "sha256:d81af33479d31eea971ad92a554ff52ce058cac7966378fa6ca60e8aa1875e27",
       "url": "tools/run.json"
     },
     {
       "id": "feature.compileServices",
       "title": "Services 原特征编译",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:abc16fc6651a39498f0f4208a8e08c0a3824daf6640ce3fb0a9b6f32ea736bf5",
+      "version": "1.33.0",
+      "docsHash": "sha256:847fb4dda5f7ef63bf064822ebe9fcb1cee9a32709865c975b282924e90a446c",
       "url": "tools/feature.compileServices.json"
     },
     {
       "id": "body.align",
       "title": "快速对齐",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:e7a68ceddaca65a7e82efd732caf347acc4344ec851bff8364db481bd5fa1ec7",
+      "version": "1.33.0",
+      "docsHash": "sha256:085260cd47ef25592b2bfaa623d3b7fa895ce6aa82c57a044847efce42cbb990",
       "url": "tools/body.align.json"
     },
     {
       "id": "history.restore",
       "title": "退回工程状态",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:a364ab07af9efffcb3441e2d07ee5f8f94766fbb7e9fcbdc2af83388e1c431b8",
+      "version": "1.33.0",
+      "docsHash": "sha256:bc581f7f09f189f5a6144d65d0461a8a619ca27f2d2a81438cff70d4b971fd9e",
       "url": "tools/history.restore.json"
     },
     {
       "id": "document.rename",
       "title": "工程改名",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:844e609098448ecbea75f0a7d00afd3845f79a410c9c047545e6bc149724684a",
+      "version": "1.33.0",
+      "docsHash": "sha256:81267dd7518f9699487fd6507b8e4ea05a7a04b54fcd970435eaef335c78cd93",
       "url": "tools/document.rename.json"
     },
     {
       "id": "feature.rename",
       "title": "特征改名 实体名称",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:c74c99089f4ca99fd06a99e7299ae5508ffa60d7965e3ab2a2e3c78e49ad8fcc",
+      "version": "1.33.0",
+      "docsHash": "sha256:db34a9f0ab47ea138d1a13ecb5d4afd662ba5a9a011881dbdf6abf99cd851aea",
       "url": "tools/feature.rename.json"
     },
     {
       "id": "body.visibility",
       "title": "显示 隐藏实体",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:8885892c26d32f38ee2732990e28636ec9527cd9800896bcacb7fb8da334a67d",
+      "version": "1.33.0",
+      "docsHash": "sha256:55cf5d9a213ff81dc2b4abd6dcff9ca898f3badf4d46e5a9de86935c65a6a227",
       "url": "tools/body.visibility.json"
     },
     {
       "id": "body.appearance",
       "title": "实体原色 颜色 金属 材质",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:eb9f7cdf9f9494c73019a769839d88e2eb1c2463a24d5f50afe22cc6c361dbf7",
+      "version": "1.33.0",
+      "docsHash": "sha256:be8354d7fc4f2f5431d84dc9b938d60b87122a22e7e5af3df87abcc4fab4fc03",
       "url": "tools/body.appearance.json"
     },
     {
       "id": "document.appearance",
       "title": "工程渲染 金属色",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:8719a68344f05d5b820f08f2f5521f0c586ebf976c2d138cdf8f8fc9902cb4a8",
+      "version": "1.33.0",
+      "docsHash": "sha256:7cc515430a739514161f66ce1c23fbcfd12f6d43ef1fc39248d0fec8c7619b76",
       "url": "tools/document.appearance.json"
     },
     {
       "id": "body.explode",
       "title": "组合拆散 多实体分解",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:9972c2e8523cd647ba7f82a0778d38d21c43c287ed8de247942163adbd11cae3",
+      "version": "1.33.0",
+      "docsHash": "sha256:fc583d4c1b33aa4132a58118c8cd9d73d88aca2250fe3c419818c30fd68f768b",
       "url": "tools/body.explode.json"
     },
     {
       "id": "reference.setWorkFrame",
       "title": "设置参考锚点（工作基准）",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:47a5e14bdd749b172de23ebe2443508a42a71c99e24f1a3a8a3de0c0a380367a",
+      "version": "1.33.0",
+      "docsHash": "sha256:776692cefcda4c730f96704fff4a3b7327a9b9504a9c4ceca5f33d19fc64e187",
       "url": "tools/reference.setWorkFrame.json"
     },
     {
       "id": "reference.resetWorkFrame",
       "title": "重置参考锚点（工作基准）",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:71cff28c1ef3faa1910dd38f4b8c61f41468cfa4e94a757a3cdcc8381e41d43e",
+      "version": "1.33.0",
+      "docsHash": "sha256:7074818e3d0e0ec1d4c9b595955767deeb1c0b081443326d782f95941ca5fc85",
       "url": "tools/reference.resetWorkFrame.json"
     },
     {
       "id": "reference.setLocked",
       "title": "锁定参考锚点（工作基准）",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:523dfcd20f285f93014c14b8aa84d3d5cffcfcc71ae656f79cac79c81791ad0d",
+      "version": "1.33.0",
+      "docsHash": "sha256:aa4d92b0992a8e592a07d5698b124bb59c3fba1a00fbbbe8d879dc3f6bade12a",
       "url": "tools/reference.setLocked.json"
     },
     {
       "id": "reference.saveFrame",
       "title": "保存具名基准",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:c042aad640a8063cf2d2a82f7e1bdb5605bf383d69dc4299e4a94be285bb4e45",
+      "version": "1.33.0",
+      "docsHash": "sha256:d4e55021d092b967955f28132a838fdacfefffc883ad250d79e29fbee6f3cbdb",
       "url": "tools/reference.saveFrame.json"
     },
     {
       "id": "reference.activateFrame",
       "title": "激活具名基准",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:279438a24ab95ce4a1f2660e737a03878e8bc1445e16ad15defcaec72d90fe31",
+      "version": "1.33.0",
+      "docsHash": "sha256:ab823bbee95d61a4bd39bdd78eaf6322bf0e9194f56b1f6d7a71754b9f5c0f3b",
       "url": "tools/reference.activateFrame.json"
     },
     {
       "id": "reference.renameFrame",
       "title": "重命名具名基准",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:0086f5d2102dba084996a9072dda690da1ed4bba15534dcb2404de9cd3fc7e1f",
+      "version": "1.33.0",
+      "docsHash": "sha256:b610db34d000b76f53f476dc309c8594181b4638f23470bbaaa5eddda5bf17fc",
       "url": "tools/reference.renameFrame.json"
     },
     {
       "id": "reference.deleteFrame",
       "title": "删除具名基准",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:9477b103d59bc94c850097b730deacbc3d1cc29e8eaa201c6a957804ec70779a",
+      "version": "1.33.0",
+      "docsHash": "sha256:42ee2102a06e0ea249fd83675696d3877c77cf9368e4bfbd8c7399deaa723b15",
       "url": "tools/reference.deleteFrame.json"
     },
     {
       "id": "reference.setBodyAnchor",
       "title": "对象锚点",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:faadbac25db7d2065b02d4adc8fa4327ca2c8003d5a00ea17642938889efec02",
+      "version": "1.33.0",
+      "docsHash": "sha256:2f639660155b87105457e3b8837ba8887af5e25d3c4715d85c992aa3cbd26579",
       "url": "tools/reference.setBodyAnchor.json"
     },
     {
       "id": "reference.deleteBodyAnchor",
       "title": "删除对象锚点",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:86ba23956769dbe8e41be89064688e61888230517525e8de3711a8bc42aec3b0",
+      "version": "1.33.0",
+      "docsHash": "sha256:03ab1a17158a5e939a7e4ed9d54a615e70e9184428f04baccc09ff3a5dfd8419",
       "url": "tools/reference.deleteBodyAnchor.json"
     },
     {
       "id": "feature.add",
       "title": "新增几何",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:f665130c14ed3074c178401c3a8d2989d44fcff18e7dcc0aa56f0a60e63bc97c",
+      "version": "1.33.0",
+      "docsHash": "sha256:866823e6ebd9b339300b7103e9eb9de01aefd23a2444767fef94fe99e79297c1",
       "url": "tools/feature.add.json"
     },
     {
       "id": "feature.addMany",
       "title": "一次提交多特征",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:d4cf7cd713bc6be540297d51352dd9b65d4d41f15909452fb35f23078cfbf321",
+      "version": "1.33.0",
+      "docsHash": "sha256:9e51d2e69131c0bcaa5a90568f5e96d3aa033717444d02455e5c536c3a99e452",
       "url": "tools/feature.addMany.json"
     },
     {
       "id": "feature.edit",
       "title": "修改参数",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:f7913632a405408e6b14307eb13f9758597ff9d634966666a6d48892a8117245",
+      "version": "1.33.0",
+      "docsHash": "sha256:7a0cec6e09fc5855bf7fef57f44eb7cf23d5073757adfe5e39421d3ccbe0da5c",
       "url": "tools/feature.edit.json"
     },
     {
       "id": "feature.remove",
       "title": "删除实体",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:a9e6a7516fb87ec370bb5ca9025c260c50e83899bcfed52e35c4dd15f16595f1",
+      "version": "1.33.0",
+      "docsHash": "sha256:27cf1743d15f6fc9ba302e2aad2d63dd361e3e621d439a5efdb71e7842750504",
       "url": "tools/feature.remove.json"
     },
     {
       "id": "history.undo",
       "title": "撤销",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:96ed0db80ed281016114d75bd58192538c233804a33f481c0bae5912c60d2e3b",
+      "version": "1.33.0",
+      "docsHash": "sha256:1adc5eaa9644c44b0ebdde47580106d0609657c819b5073ef067b24cf62879b9",
       "url": "tools/history.undo.json"
     },
     {
       "id": "history.redo",
       "title": "重做",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:20973b547bea637b4733d5cb39c0115cc7fcd923c02d3ad37073c9949b1f0eec",
+      "version": "1.33.0",
+      "docsHash": "sha256:b41a2a02f1539528049dda7ee23262f8252952018c830d5497104039cfd7900d",
       "url": "tools/history.redo.json"
     },
     {
       "id": "document.refresh",
       "title": "重建工程",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:d5828b300ff12e3d35a5b7ef3ca28c0d98c6d1ed45981c495d21a20687c40adc",
+      "version": "1.33.0",
+      "docsHash": "sha256:6faca6c68e80e9e11b90718a076ba78b54e27e806fe74842c2d7002dcbce1289",
       "url": "tools/document.refresh.json"
     },
     {
       "id": "preview.start",
       "title": "预览模型、原特征编辑或文件插入",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:77457cd3cceb19bbe77b7985b92b00adf8323de691523cbdbd5811acfe521ec0",
+      "version": "1.33.0",
+      "docsHash": "sha256:78d26461493fe3c1c3aaf73253b278009331340f12a5b0d4c34d0652e5fc8018",
       "url": "tools/preview.start.json"
     },
     {
       "id": "preview.update",
       "title": "更新预览",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:f99a677635fdd088b77ab63570032f88631a85ce8965c4f351b105f1a5aed92e",
+      "version": "1.33.0",
+      "docsHash": "sha256:3049e18e7063d826916cb3b109a119684b27e1c72e1575db723f901f2c6160d9",
       "url": "tools/preview.update.json"
     },
     {
       "id": "preview.commit",
       "title": "应用预览",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:07c5de2ca0ee8c62cae680ea2b6b0d99dddab62035a94e72606d09088c431b83",
+      "version": "1.33.0",
+      "docsHash": "sha256:5fd1b0707423ff63972020581fd26eb25c683be6e1beae0364739fd2b026bad0",
       "url": "tools/preview.commit.json"
     },
     {
       "id": "preview.cancel",
       "title": "取消预览",
       "category": "command",
-      "version": "1.32.0",
-      "docsHash": "sha256:f5e9f38e3a22093f32ad0b144fba32fde13a8cb9eb8dd484a8ca9018dc90f99f",
+      "version": "1.33.0",
+      "docsHash": "sha256:96ebbd2a9242277422326413a137159b67bd15928cb1569a93fc2ff2bbccbcdb",
       "url": "tools/preview.cancel.json"
     },
     {
       "id": "document.parameters",
       "title": "命名参数与尺寸联动",
       "category": "document",
-      "version": "1.32.0",
-      "docsHash": "sha256:3fc13a3bc0848ccb898556e20a93756be808d96aa9e2a79af89d5445eade18d5",
+      "version": "1.33.0",
+      "docsHash": "sha256:dff3213c4e6f78789ce576371cc23efa3e63c15f1da3507d8606bead86363bc8",
       "url": "tools/document.parameters.json"
     },
     {
@@ -1944,8 +1944,8 @@
       "title": "files.capabilities",
       "label": "文件能力",
       "category": "file",
-      "version": "1.32.0",
-      "docsHash": "sha256:df9da05f2bfe20bbbe3d82dd9a7b0cb39c44ef80ec53addc8af2a304da2156ff",
+      "version": "1.33.0",
+      "docsHash": "sha256:f31dc6cee0f0687fe886d7f50a175a6232201ccfbebbf002deda74ea147556ae",
       "url": "tools/files.capabilities.json"
     },
     {
@@ -1953,8 +1953,8 @@
       "title": "files.register",
       "label": "登记文件资源",
       "category": "file",
-      "version": "1.32.0",
-      "docsHash": "sha256:f6cf7d2042cb297891eb0921adcf2d5099e7aa1527932ad69cc711e3d804a5ea",
+      "version": "1.33.0",
+      "docsHash": "sha256:5ec366a79f6c6d1961b402c1d9fe9d6c26ada21af2c3c01f74519dedba53ad60",
       "url": "tools/files.register.json"
     },
     {
@@ -1962,8 +1962,8 @@
       "title": "files.new",
       "label": "新建工程",
       "category": "file",
-      "version": "1.32.0",
-      "docsHash": "sha256:9c5231d5456565801012a7cf8e2c4cea189602a97a954c9f2727843af04d1ccf",
+      "version": "1.33.0",
+      "docsHash": "sha256:952db7633dd1ce39fd494d5f71975eaa933408a70a154d324bb1755a35484db9",
       "url": "tools/files.new.json"
     },
     {
@@ -1971,8 +1971,8 @@
       "title": "files.open",
       "label": "打开工程",
       "category": "file",
-      "version": "1.32.0",
-      "docsHash": "sha256:d0cd64831b475016947a3b899ba5a043897ca485c0aed3de9f9cb20eb2eacc9a",
+      "version": "1.33.0",
+      "docsHash": "sha256:446923f3376dffe78b26c1d6f9f62a5a1ab3777f5605860011571268cbb1f47b",
       "url": "tools/files.open.json"
     },
     {
@@ -1980,8 +1980,8 @@
       "title": "files.import",
       "label": "导入",
       "category": "file",
-      "version": "1.32.0",
-      "docsHash": "sha256:b44ff794cb82a113a0e31ed5c2d101c16082e76c2e06d9fcfa129579377abe44",
+      "version": "1.33.0",
+      "docsHash": "sha256:af0d946125ed14e07bd6601c47be1a7e936445c81737f5eec7a307997d2af522",
       "url": "tools/files.import.json"
     },
     {
@@ -1989,8 +1989,8 @@
       "title": "files.save",
       "label": "保存工程",
       "category": "file",
-      "version": "1.32.0",
-      "docsHash": "sha256:f4c3d3b0d49ab115dfe2cd8c9d88c36f0fbb89476cff3fa8d5ae4e46918616ce",
+      "version": "1.33.0",
+      "docsHash": "sha256:883c57aed08a51656452a2c2b47e9c949a192500770b2a0c4830e22459e30cc6",
       "url": "tools/files.save.json"
     },
     {
@@ -1998,8 +1998,8 @@
       "title": "files.export",
       "label": "导出文件",
       "category": "file",
-      "version": "1.32.0",
-      "docsHash": "sha256:625719eedb88bff570b17a4ab2669f433393ba3af1013c0f944efb3c21a7c63f",
+      "version": "1.33.0",
+      "docsHash": "sha256:ac9a19e0b9ddfa754663bd7bc0cc0125ae220c837d7803c9ba723924718111fc",
       "url": "tools/files.export.json"
     },
     {
@@ -2007,8 +2007,8 @@
       "title": "files.read",
       "label": "读取文件字节",
       "category": "file",
-      "version": "1.32.0",
-      "docsHash": "sha256:b541f0df6e4ff9bd49cf4179612253aca581a475029fad862a5d10acf3d5e595",
+      "version": "1.33.0",
+      "docsHash": "sha256:708327414c616ff834e8dd32c2c8a87c5d5c36d1eba479c54225a5789f6b61c3",
       "url": "tools/files.read.json"
     },
     {
@@ -2016,8 +2016,8 @@
       "title": "files.download",
       "label": "下载文件",
       "category": "file",
-      "version": "1.32.0",
-      "docsHash": "sha256:8e86312edd1f317f92ab6e5abd479ab85a7b23814c0a9ee40c6cc17fd273b658",
+      "version": "1.33.0",
+      "docsHash": "sha256:6aee14397654078317c59a42b800af854a44bee3be03b900c6c9b5f5cfc50e10",
       "url": "tools/files.download.json"
     },
     {
@@ -2025,8 +2025,8 @@
       "title": "files.write",
       "label": "写入文件",
       "category": "file",
-      "version": "1.32.0",
-      "docsHash": "sha256:82d713e90c5f6ea9d53b1af79c053c0680b914abdab4e6c5b7c7b5b7ae37c6b0",
+      "version": "1.33.0",
+      "docsHash": "sha256:82c483517681af31c0bb443d661cddd8e98457e7017f394d494392b6f01ddf48",
       "url": "tools/files.write.json"
     },
     {
@@ -2034,8 +2034,8 @@
       "title": "files.confirmWritten",
       "label": "confirmWritten",
       "category": "file",
-      "version": "1.32.0",
-      "docsHash": "sha256:78c50dada76566cdc026db8aa96b9e5dc04c05e6f881356e595ef12f86a750c8",
+      "version": "1.33.0",
+      "docsHash": "sha256:dcf70aea7697a70832ac597093bf9bb6e243e3da98f4d4aab21f19ea7497769a",
       "url": "tools/files.confirmWritten.json"
     },
     {
@@ -2043,24 +2043,24 @@
       "title": "files.release",
       "label": "释放文件资源",
       "category": "file",
-      "version": "1.32.0",
-      "docsHash": "sha256:fb2d9444e60279023bf87f683f8437a840cd3dfd2ec3803af8a8aa80bfe730bf",
+      "version": "1.33.0",
+      "docsHash": "sha256:2e9f84433a1d3ef43f5f267225ed64682c50bdf65a2f78e3f0b4863ecca620d8",
       "url": "tools/files.release.json"
     },
     {
       "id": "import.iges",
       "title": "IGES/IGS 导入",
       "category": "unavailable",
-      "version": "1.32.0",
-      "docsHash": "sha256:b8847f4ddcb509e92df62b3f55c6e1a8f5077c0afad6114b27743d56773d2db1",
+      "version": "1.33.0",
+      "docsHash": "sha256:febf363b9654c691098e9b3d7e2f6a199a59f37b75e5a1a2479a58015e517573",
       "url": "tools/import.iges.json"
     },
     {
       "id": "import.vector-server",
       "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
       "category": "unavailable",
-      "version": "1.32.0",
-      "docsHash": "sha256:756df96a495336ad5053d26b162d0718dcd45914602f78ef7cfaa8bf5170712a",
+      "version": "1.33.0",
+      "docsHash": "sha256:38065ec04b47817e95aa32a3a86c9a2aa65b27951f3b9d8b51e00ffc1fbe3159",
       "url": "tools/import.vector-server.json"
     }
   ],
@@ -2227,7 +2227,7 @@
     },
     {
       "id": "api.ui-coverage",
-      "docsHash": "sha256:f8a52fdcfeaf7056cd098380a0a575c14cabe36a91089ae4fc5c238152e3750b",
+      "docsHash": "sha256:b54653b31067b6f5be88122f61f2bf10882d970bc62ea073af6acdb3bbf0a1b6",
       "url": "docs/api.ui-coverage.md"
     },
     {
@@ -2247,7 +2247,7 @@
     },
     {
       "id": "api.workspace",
-      "docsHash": "sha256:8f63d2edc9d20ab201c9d5819074d2b42c1e9a69eac61e89578023b8872bed9e",
+      "docsHash": "sha256:beb47865611c42b6a43ce45a5936115cec931806eb8571de46c3abb841e7995a",
       "url": "docs/api.workspace.md"
     },
     {

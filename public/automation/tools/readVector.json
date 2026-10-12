@@ -2,7 +2,7 @@
   "id": "readVector",
   "title": "readVector",
   "category": "page-method",
-  "version": "1.32.0",
+  "version": "1.33.0",
   "description": "readVector({context,name,resourceId|text,scaleMm?:1,targetWidthMm?,entityIds?,bounds?:[minX,minY,maxX,maxY],layers?,offset?:0,limit?:500}); limit<=10000。文件先 files.register。",
   "synonyms": [
     "readVector",
@@ -32,5 +32,5 @@
     "api.source-curves"
   ],
   "sourceCurvePolicy": "Unsupported splines preserve sourceSpline metadata; no original NURBS construction or automatic fit-point closure.",
-  "docsHash": "sha256:fa116be5a9d204a48a7d83d23992decc0a0ad28189c438a394b02e31f9008f48"
+  "docsHash": "sha256:33afdfc8e7388d2c858bea5c8f20a80028c2b375964d9b520af3c6f303a1ee16"
 }

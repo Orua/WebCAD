@@ -187,13 +187,20 @@
     "method": "readVector",
     "usage": "选择文件或粘贴矢量文本，框选完整轮廓；connectVector 诊断和组环，sketchProfile 经同一命令服务成面。"
   },
-  "quickModelFavorites": {
+  "quickModel": {
     "tools": [
-      "quickModel",
-      "getQuickModelUsage"
+      "quickModel"
     ],
     "method": "execute",
-    "usage": "模型菜单显示累计成功创建次数最多的五个 kind；getQuickModelUsage() 只读本浏览器频率，完整列表仍用快捷模型入口。生成用 quickModel 显式 params.kind、参考 placement 与幂等键。"
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
+  "quickModelFavorites": {
+    "tools": [
+      "setView",
+      "getQuickModelUsage"
+    ],
+    "method": "setView",
+    "usage": "兼容旧快捷入口；setView({context,workspace:\"library\"})打开同一快捷模型工具，频率仍可getQuickModelUsage只读。"
   },
   "reference.setWorkFrame": {
     "tools": [
@@ -627,13 +634,6 @@
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
-  "quickModel": {
-    "tools": [
-      "quickModel"
-    ],
-    "method": "execute",
-    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
-  },
   "referenceExtrude": {
     "tools": [
       "referenceExtrude"
@@ -845,7 +845,7 @@
       "readDocs"
     ],
     "method": "connect",
-    "usage": "connect({queries,includeContracts:true}) 返回当前 canExecute/blockers、requestContext 与完整卡；onboarding 提供首次连接步骤、本地安装包和真实操作路由；readDocs({docId:\"api.connection\"}) 说明宿主能力检查。knownHashes 只缓存完整工具卡，不缓存实体身份。"
+    "usage": "设置→Agent 配置为软件配置弹窗；兼容setView({context,workspace:\"agent\"})打开，workspace:\"modeling\"关闭；getUILayout().current.agentSettingsOpen读回。connect({queries,includeContracts:true}) 返回当前 canExecute/blockers、requestContext 与完整卡；onboarding 提供首次连接步骤、本地安装包和真实操作路由；readDocs({docId:\"api.connection\"}) 说明宿主能力检查。knownHashes 只缓存完整工具卡，不缓存实体身份。"
   },
   "servicesSettings": {
     "tools": [
@@ -889,7 +889,7 @@
       "getUILayout"
     ],
     "method": "setView",
-    "usage": "workspace:modeling/library/agent、toolbar:boolean、focus:boolean、libraryMode:cards/list；getState().view.workspaceLayout 读回。活动草稿先结束，预览先取消。"
+    "usage": "workspace:modeling返回画布、library打开快捷模型工具；兼容agent打开设置弹窗，非独立工作区；toolbar:boolean、focus:boolean、libraryMode:cards/list；getState().view.workspaceLayout 读回。活动草稿先结束，预览先取消。"
   },
   "modelLibrary": {
     "tools": [

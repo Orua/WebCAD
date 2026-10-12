@@ -2,7 +2,7 @@
   "id": "prepareReliefSculpt",
   "title": "prepareReliefSculpt",
   "category": "page-method",
-  "version": "1.32.0",
+  "version": "1.33.0",
   "description": "prepareReliefSculpt({context,featureId,layerIndex?,patch?:{id,domainMm:[uMin,vMin,uMax,vMax],samples:7–65,protectionMm},samples?,draft?:{deltaMm,mask},strokes:[{mode:\"raise\"|\"lower\"|\"smooth\"|\"flatten\"|\"restore\"|\"mask\"|\"unmask\"|\"fill\"|\"scrape\"|\"sharpen\",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:\"none\"|\"x\"|\"y\"|\"xy\",points:[[x,y],...]},...]})。单层与显式选层使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。",
   "synonyms": [
     "prepareReliefSculpt",
@@ -40,5 +40,5 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:1ea88b19ca0a49973f613d2b1260cb8d520db2e2ac8964440613aae04e4eb38b"
+  "docsHash": "sha256:c6c7c3448f56dd2e8d1a8634554434ed853997b452a7bab3096617c22c42507f"
 }

@@ -2,16 +2,16 @@
   "generatedFrom": "src/page-api-docs.js and src/operation-registry.js",
   "metadata": {
     "product": "WebCAD",
-    "buildId": "9ef7c923dc8cb140202a8469a23763b63d818a0c-src-836602bbc5cfd79a-working",
+    "buildId": "815de53f155ee2ac0c87fe2b1fe16f1cd66a63c2-src-4cbb8798e425f56b-working",
     "apiVersion": "2.0",
-    "pageApiVersion": "1.32.0",
+    "pageApiVersion": "1.33.0",
     "transport": "in-page",
     "entrypoint": "window.webcad.api",
-    "catalogHash": "sha256:5f0efb559d2e357a7cac6fdf6b5d1dbb904a7fde1a6fcd600d532793c89d7a52",
-    "docsHash": "sha256:94e0339a95474dac577ead5add8f82be9b7f5fb7afeaa5397e4600a2f34a32de",
+    "catalogHash": "sha256:b69cb3bbdb45faad0d53499f42e304e5711416a6a09861943f86df8fc729b4bc",
+    "docsHash": "sha256:62bee4c9861caf1405e2f0777f00be67d36ef068562b3e0f891e5b7d522f7aa4",
     "discovery": {
       "searchVersion": "2",
-      "pageApiVersion": "1.32.0",
+      "pageApiVersion": "1.33.0",
       "apiVersion": "2.0",
       "entrypoint": "window.webcad.api.connect",
       "toolCount": 232,
@@ -28,8 +28,8 @@
         "file",
         "unavailable"
       ],
-      "catalogHash": "sha256:5f0efb559d2e357a7cac6fdf6b5d1dbb904a7fde1a6fcd600d532793c89d7a52",
-      "docsHash": "sha256:94e0339a95474dac577ead5add8f82be9b7f5fb7afeaa5397e4600a2f34a32de",
+      "catalogHash": "sha256:b69cb3bbdb45faad0d53499f42e304e5711416a6a09861943f86df8fc729b4bc",
+      "docsHash": "sha256:62bee4c9861caf1405e2f0777f00be67d36ef068562b3e0f891e5b7d522f7aa4",
       "quickstart": "automation/quickstart.md",
       "manifest": "automation/manifest.json",
       "onboarding": {
@@ -44182,7 +44182,7 @@
       "id": "getModelLibrary",
       "title": "getModelLibrary",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "getModelLibrary()",
       "synonyms": [
         "getModelLibrary",
@@ -44210,13 +44210,13 @@
         "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
         "create": "Use entries[].execution with run/add; current context and unique key required."
       },
-      "docsHash": "sha256:89de90a3604f037093e4b555031773c111021b6b9019ce24745c3d1df4514107"
+      "docsHash": "sha256:74e5f20d924d5f61b92c3a4d01412e88ede5dbed479ab60a39c6ab8b27fd33c4"
     },
     {
       "id": "updateModelLibrary",
       "title": "updateModelLibrary",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "updateModelLibrary({context,expectedLibraryRevision,operation:upsert|remove|move|restore|import,entry?,id?,index?,library?})。upsert entry={id,kind,label,description?,defaults?}，id为字母开头80位以内字母数字_-，kind必须已安装，defaults仅含该类型原参数。move的index为移动后零起始位置。import全量替换，library={format:webcad-model-library,version:1,entries:[entry]}；restore全量恢复默认目录、默认参数和顺序。",
       "synonyms": [
         "updateModelLibrary",
@@ -44254,13 +44254,13 @@
         "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
         "create": "Use entries[].execution with run/add; current context and unique key required."
       },
-      "docsHash": "sha256:7a25fba182144aea061dfcf44cc158e1502cf83009956e2f5a68b1c98f2fc05d"
+      "docsHash": "sha256:9a77a06014b719829c2824c8357604b82d57d354f486e67212da1c372194a93a"
     },
     {
       "id": "resolveModelLibrary",
       "title": "resolveModelLibrary",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "resolveModelLibrary({context,id,expectedLibraryRevision,params?:参数覆盖})",
       "synonyms": [
         "resolveModelLibrary",
@@ -44292,13 +44292,13 @@
         "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
         "create": "Use entries[].execution with run/add; current context and unique key required."
       },
-      "docsHash": "sha256:7b9bf84af0283d31f460526dea9542e0ca914ac3a6333f38b4af21c5400ed930"
+      "docsHash": "sha256:e9931244521667b884397483c84514a00352e91050f5ded88f5abee9e3ff29fd"
     },
     {
       "id": "decideServicesWait",
       "title": "decideServicesWait",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "decideServicesWait({jobId,decision:\"continue\"|\"stop\"})，可在工程忙碌时调用；jobId必须是getServicesRouting().pendingWait中的当前任务。",
       "synonyms": [
         "decideServicesWait",
@@ -44317,13 +44317,13 @@
         "PARAM_SCHEMA_INVALID",
         "SERVICES_WAIT_NOT_PENDING"
       ],
-      "docsHash": "sha256:e2d26f1747efa1efbd1c424eae64ebe39eece4ddacfaac59a853a63f2ba326c1"
+      "docsHash": "sha256:0f86a511f2480a1f640031332ab7181cc6ce52de378ea3196c624e0e87246220"
     },
     {
       "id": "recoverServicesJob",
       "title": "recoverServicesJob",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "recoverServicesJob({jobId,reason,approved:true,acknowledgedState:\"interrupted\",idempotencyKey})。必须先用 getServicesJob 核对已停止旧任务。",
       "synonyms": [
         "recoverServicesJob",
@@ -44347,13 +44347,13 @@
         "SERVICES_CONNECTION_UNKNOWN",
         "SERVICES_REQUEST_FAILED"
       ],
-      "docsHash": "sha256:0cf7e51a1ef89c7f1eb58a69c78d337cc24c87ac35cc1d12de65a5273d8174c0"
+      "docsHash": "sha256:4a2e7a564af83ff1168ec8f333889d9b0cae16568b8b3b402857dc6b143e545a"
     },
     {
       "id": "prepareReliefTopologyUpgrade",
       "title": "prepareReliefTopologyUpgrade",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "prepareReliefTopologyUpgrade({context,featureId,maskStrategy?:\"faceWithHolesExtrude\"|\"cutHoleSolids\"})。只读规划，不计算几何；原参数没有策略时必须明确选定。",
       "synonyms": [
         "prepareReliefTopologyUpgrade",
@@ -44379,13 +44379,13 @@
         "CAPABILITY_UNAVAILABLE"
       ],
       "docs": "api.relief",
-      "docsHash": "sha256:ccdffa4ce997f459bca3952fc1cb5cd11664d93bcab4299e3d99899849f10ffb"
+      "docsHash": "sha256:3e562b5b11a678ec491b3e8ec74a89eb58d43245fc55757e12f8e22ba38e88a7"
     },
     {
       "id": "sampleReliefHeight",
       "title": "sampleReliefHeight",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "sampleReliefHeight({context,featureId,layerIndex?,samples?,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。分层必须明确 layerIndex；samples 仅用于读初始等高层的新草稿，约束同 prepareReliefSculpt。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。",
       "synonyms": [
         "sampleReliefHeight",
@@ -44414,13 +44414,13 @@
         "CAPABILITY_UNAVAILABLE"
       ],
       "docs": "api.relief",
-      "docsHash": "sha256:36dffabfc9710bca4ab783038f2c6bf39759e06b8b40a4231311936be715db90"
+      "docsHash": "sha256:76c951a0ad39899bd79af1d0057686cb8479dbe585814662e0e31f3b627de226"
     },
     {
       "id": "prepareReliefSculpt",
       "title": "prepareReliefSculpt",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "prepareReliefSculpt({context,featureId,layerIndex?,patch?:{id,domainMm:[uMin,vMin,uMax,vMax],samples:7–65,protectionMm},samples?,draft?:{deltaMm,mask},strokes:[{mode:\"raise\"|\"lower\"|\"smooth\"|\"flatten\"|\"restore\"|\"mask\"|\"unmask\"|\"fill\"|\"scrape\"|\"sharpen\",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:\"none\"|\"x\"|\"y\"|\"xy\",points:[[x,y],...]},...]})。单层与显式选层使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。",
       "synonyms": [
         "prepareReliefSculpt",
@@ -44458,13 +44458,13 @@
         "CAPABILITY_UNAVAILABLE"
       ],
       "docs": "api.relief",
-      "docsHash": "sha256:1ea88b19ca0a49973f613d2b1260cb8d520db2e2ac8964440613aae04e4eb38b"
+      "docsHash": "sha256:c6c7c3448f56dd2e8d1a8634554434ed853997b452a7bab3096617c22c42507f"
     },
     {
       "id": "readRelief",
       "title": "readRelief",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5})。先 files.register；只读，本地解码。",
       "synonyms": [
         "readRelief",
@@ -44499,13 +44499,13 @@
         "PARAM_SCHEMA_INVALID"
       ],
       "docs": "api.relief",
-      "docsHash": "sha256:4816189d4c19e27c21978a3aed68ac5d752677ba1a2a0470cc9cb9fe6595b615"
+      "docsHash": "sha256:41fce812ecfe265fda72a55b74bd0789afa360024fea8298c7a8692f21045eda"
     },
     {
       "id": "getHistory",
       "title": "getHistory",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "getHistory()。返回已保留状态，不含导入源字节。",
       "synonyms": [
         "getHistory",
@@ -44521,13 +44521,13 @@
       "runtimeAvailability": "requires_page",
       "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
       "errorCodes": [],
-      "docsHash": "sha256:f0db93193bf713a082b0a01cba103cf62c5761981c6eacae0d8e346ff4c2299f"
+      "docsHash": "sha256:e292b2ef2f53bdf77b5c030c71fb35c90c8ec4f3a020be37c4b9a97d0582e170"
     },
     {
       "id": "planAlignment",
       "title": "planAlignment",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true。",
       "synonyms": [
         "planAlignment",
@@ -44547,13 +44547,13 @@
         "STALE_REFERENCE",
         "REVISION_CONFLICT"
       ],
-      "docsHash": "sha256:6f16cbfe3b0b7e07c614e40ac94559e1a11185938da6ccb586a10f09c8c6b3c0"
+      "docsHash": "sha256:d8221d0fbd8fcad650c95421cf938fb610fad5ec9ede60626f29c31aba5bda9c"
     },
     {
       "id": "selectRectangle",
       "title": "selectRectangle",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。",
       "synonyms": [
         "selectRectangle",
@@ -44573,13 +44573,13 @@
         "UI_TASK_ACTIVE",
         "REVISION_CONFLICT"
       ],
-      "docsHash": "sha256:9bc9324e128be9a366d3e33da668320ef70035b08e6bde9a5ee43f90470b3f78"
+      "docsHash": "sha256:fbc021b1d89fc5376a46dbcb1fb480f192282518b1946f7649db2eedaaa33fee"
     },
     {
       "id": "createDrawing",
       "title": "createDrawing",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。",
       "synonyms": [
         "createDrawing",
@@ -44601,13 +44601,13 @@
         "REVISION_CONFLICT",
         "GEOMETRY_INVALID"
       ],
-      "docsHash": "sha256:406a94445694c2b30dc4fbe30225b383970507f997ec710805532201f67b489b"
+      "docsHash": "sha256:c6db03489ef4c2e7851750574d0107b14aefaad46ea1dbad8c5e0871c7f7c496"
     },
     {
       "id": "exportDrawing",
       "title": "exportDrawing",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "exportDrawing({context,drawingId,format:pdf|jpg|dxf|svg,paper?:A4|A3,title?,name?,disabledDimensions?:[id]})。drawingId必须仍匹配当前revision；DWG明确不可用。",
       "synonyms": [
         "exportDrawing",
@@ -44632,13 +44632,13 @@
         "REVISION_CONFLICT",
         "RESOURCE_LIMIT"
       ],
-      "docsHash": "sha256:5a1920048c0b986610101bf0e610b07a0971cf91817d11ac648a66f4c42ab889"
+      "docsHash": "sha256:ec1b1e9e6c040e0bdd2837fc12dd8d0d08c44b29d5ca44581ad5cdabbfabf7be"
     },
     {
       "id": "getQuickModelUsage",
       "title": "getQuickModelUsage",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "getQuickModelUsage({}={})；只读本浏览器累计成功创建次数，不要求几何上下文，预览期间也可读取。",
       "synonyms": [
         "getQuickModelUsage",
@@ -44660,13 +44660,13 @@
       "errorCodes": [
         "PARAM_SCHEMA_INVALID"
       ],
-      "docsHash": "sha256:9ffb230265829c0e3866a82b468756c607839565e2fc87ef4c81191c74bc5f1d"
+      "docsHash": "sha256:705a88d5d68ba245e9f6a5a00aabdd97c1ad78130b43dac9ca2804378621f224"
     },
     {
       "id": "copySelection",
       "title": "copySelection",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "copySelection({context,bodyIds}); 1–200个当前实体。",
       "synonyms": [
         "copySelection",
@@ -44688,13 +44688,13 @@
         "CAPABILITY_UNAVAILABLE",
         "UI_TASK_ACTIVE"
       ],
-      "docsHash": "sha256:e8f4c441547840200796f46a4358e02d5e26e8571031b4ffdcadc4ec48eb8426"
+      "docsHash": "sha256:00ab39c7639683d5c4bd4df846cb00d413d6894ca1ff274fd34df076a19d4095"
     },
     {
       "id": "pasteSelection",
       "title": "pasteSelection",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "pasteSelection({context,idempotencyKey}); 先 copySelection。",
       "synonyms": [
         "pasteSelection",
@@ -44724,13 +44724,13 @@
         "maxBytes": 20971520,
         "preflightReserveBytes": 4096
       },
-      "docsHash": "sha256:f3cb3577e2d5b34e33395f1c14553cfcc043f40ee16ef86bf482d62127662256"
+      "docsHash": "sha256:43a198d128d1c11c18bcf89acde732a7b891f0a0ddf6bbe62a2debb6271dcbd9"
     },
     {
       "id": "createRequestContext",
       "title": "createRequestContext",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "createRequestContext(context?); omit to read the current context.",
       "synonyms": [
         "createRequestContext",
@@ -44749,13 +44749,13 @@
         "REVISION_CONFLICT"
       ],
       "docs": "api.reliability",
-      "docsHash": "sha256:e50c9fbd42ca08478c6ec07f1933104d896f19954c5eb91714fe0b5bf29fb091"
+      "docsHash": "sha256:ead8f045f98fdcedfabe9d304f4ab7a2510c0fa23d97a95c40aa7054f84345cd"
     },
     {
       "id": "getUILayout",
       "title": "getUILayout",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "getUILayout({includeModelLibrary?:boolean})",
       "synonyms": [
         "getUILayout",
@@ -44777,13 +44777,13 @@
         "LIBRARY_STORAGE_UNAVAILABLE"
       ],
       "docs": "api.workspace",
-      "docsHash": "sha256:295ec33bafa2b94e3030be2c832b4355a80eabddbe507f4fc514543d2094fe33"
+      "docsHash": "sha256:0cec9e8ee4b3f8c8e45c1fb40b0db9433672d9d3e8021c6d9e77ac1824a8b54c"
     },
     {
       "id": "setRenderQuality",
       "title": "setRenderQuality",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "setRenderQuality({context,quality:\"draft\"|\"standard\"|\"fine\"|\"ultra\"})",
       "synonyms": [
         "setRenderQuality",
@@ -44807,13 +44807,13 @@
         "DISPLAY_FAILED"
       ],
       "docs": "api.workspace",
-      "docsHash": "sha256:171e9693519cebfefc25be7ec7486f7a761d60c4ce796d18e1cebad629c41a66"
+      "docsHash": "sha256:b3c4b0f9bb0e42a7c9c67e2be946d17a41487b6d2523267c9c223d6d4c967d6e"
     },
     {
       "id": "invoke",
       "title": "invoke",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "invoke({method,args}); public method name or files.*.",
       "synonyms": [
         "invoke",
@@ -44831,13 +44831,13 @@
         "PARAM_SCHEMA_INVALID"
       ],
       "docs": "api.reliability",
-      "docsHash": "sha256:11bed1d88d8e644a4c0f3c9dffd85ebc989dc9a01f2778251f046b96e86d3372"
+      "docsHash": "sha256:1a89881dc5a5b4d379036b79283bdeb91b1752b14816a285e55e71f3cf19fdeb"
     },
     {
       "id": "submit",
       "title": "submit",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/inspectConstraints/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.",
       "synonyms": [
         "submit",
@@ -44859,13 +44859,13 @@
         "IDEMPOTENCY_KEY_REUSED"
       ],
       "docs": "api.reliability",
-      "docsHash": "sha256:812a58ad9d139b5ad79a4fe2f3ed7b9be800d9c91f24c2872ed03cb35ea7a12a"
+      "docsHash": "sha256:63dfda01e9518e1c3ccd4be3a42e0021aec0f193efbc58e75f7c45b0a574f8b0"
     },
     {
       "id": "getJob",
       "title": "getJob",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "getJob({jobId})",
       "synonyms": [
         "getJob",
@@ -44884,13 +44884,13 @@
         "JOB_NOT_FOUND"
       ],
       "docs": "api.reliability",
-      "docsHash": "sha256:f9f89d448dfb2d694cc9599ce4b17bea059f4dd0f2f1a9d3a7cb958957f00e49"
+      "docsHash": "sha256:cec43a3626c18069ca6de5bb58df8d553c52a95061ce2564214ec7032fd62a3e"
     },
     {
       "id": "cancelJob",
       "title": "cancelJob",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "cancelJob({jobId})",
       "synonyms": [
         "cancelJob",
@@ -44907,13 +44907,13 @@
         "JOB_NOT_FOUND"
       ],
       "docs": "api.reliability",
-      "docsHash": "sha256:eeb2f8a08abb5c05069e306013db070acc6d64cf1b01c3824d8135c77c899826"
+      "docsHash": "sha256:90702abc1527deca7667f3f28c4d81d2c4df89beae58104743d59f599331c553"
     },
     {
       "id": "connect",
       "title": "connect",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.",
       "synonyms": [
         "connect",
@@ -44933,13 +44933,13 @@
         "PARAM_RANGE_INVALID"
       ],
       "docs": "api.discovery",
-      "docsHash": "sha256:2af23af0caec55bed644396f5eef0848d3b7a0fccaf08ea79c3ccf51799b38c0"
+      "docsHash": "sha256:68aca879132ed4b84609d7d518e5d3a5399d68f58f4f3143b93209ae67ac2852"
     },
     {
       "id": "info",
       "title": "info",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "info() 无参数。",
       "synonyms": [
         "info",
@@ -44954,13 +44954,13 @@
       "runtimeAvailability": "requires_page",
       "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
       "errorCodes": [],
-      "docsHash": "sha256:472ffdaf2279eeea30787d5725447bcd6b8eb566192a1ae6021582d93ee95c51"
+      "docsHash": "sha256:e25ffb74c74099b23675b9f36018d5c1f10971d2153b8d638ccd3a7c30094f39"
     },
     {
       "id": "getState",
       "title": "getState",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities/references。",
       "synonyms": [
         "getState",
@@ -44981,13 +44981,13 @@
         "PARAM_SCHEMA_INVALID",
         "INSTANCE_MISMATCH"
       ],
-      "docsHash": "sha256:8060707ae70c64a3f204af1667a695a90e7d57db8194e17aa024b53580678c7e"
+      "docsHash": "sha256:51dc261cb488a947e26bb8aff14965b52b1a7a750db04ba4f29bda348d4d4d7e"
     },
     {
       "id": "searchTools",
       "title": "searchTools",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。",
       "synonyms": [
         "searchTools",
@@ -45007,13 +45007,13 @@
         "PARAM_RANGE_INVALID"
       ],
       "docs": "api.discovery",
-      "docsHash": "sha256:1d05871d4d9af2dcd27eeae2f584b30eb31ee30e2b01c074b40de282be3a10cb"
+      "docsHash": "sha256:a2eaa02110b8248da0466bd9cc9d3981b22fb9acec0feadaae5c341460a41d4a"
     },
     {
       "id": "getTools",
       "title": "getTools",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.",
       "synonyms": [
         "getTools",
@@ -45034,13 +45034,13 @@
         "CATALOG_CHANGED"
       ],
       "docs": "api.discovery",
-      "docsHash": "sha256:87d9cdf21bcb2cb2ed4119f3c0465de56c771faba9c56eb673c799dcecf14b93"
+      "docsHash": "sha256:7c31bf6cda0152c34c9da65fd4c88efb66083609ba4b2617f267e4108b38ab8d"
     },
     {
       "id": "getTool",
       "title": "getTool",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。",
       "synonyms": [
         "getTool",
@@ -45060,13 +45060,13 @@
         "UNKNOWN_OPERATION",
         "OPERATION_VERSION_UNSUPPORTED"
       ],
-      "docsHash": "sha256:0ff3fcea347ee5f4555264cc1beb13f0010c0e508b5f11c2ab7d32303f7c8d71"
+      "docsHash": "sha256:1e4acd4b1d72cc87382698412b537103051564c73ff573439449f3b7c572a6f1"
     },
     {
       "id": "readDocs",
       "title": "readDocs",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。",
       "synonyms": [
         "readDocs",
@@ -45086,13 +45086,13 @@
         "PARAM_RANGE_INVALID",
         "OPERATION_VERSION_UNSUPPORTED"
       ],
-      "docsHash": "sha256:9d6ed3edc50a25c828d1f051ebe0d3ff4c915ecb96aef52f14105a1fa525797b"
+      "docsHash": "sha256:e8af6ae4a71636f29ccf676722b0d133021d67a4d9ecc4b44328ec644e155453"
     },
     {
       "id": "queryGeometry",
       "title": "queryGeometry",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry；多选仍须 requireUnique:false。",
       "synonyms": [
         "queryGeometry",
@@ -45116,13 +45116,13 @@
         "AMBIGUOUS_SELECTION"
       ],
       "docs": "api.query-geometry",
-      "docsHash": "sha256:63e22db1feab788a9ddb993b68ff5afeb88bb4910fcaf13d4442df286838cc3c"
+      "docsHash": "sha256:58810fc2d474255618bd17f6fa6dc6b34ca750d297dc06d847aebccf14cc03b6"
     },
     {
       "id": "queryReferences",
       "title": "queryReferences",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "queryReferences({context,bodyIds:[],kind:\"point\"|\"axis\"|\"frame\",filter?:{types?:[\"cad-vertex\",\"edge-midpoint\",\"circle-center\",\"edge-nearest\",\"trimmed-face-point\",...],near?:{point:[x,y,z],radiusMm}},limit?,offset?,requireUnique?})。",
       "synonyms": [
         "queryReferences",
@@ -45141,13 +45141,13 @@
         "STALE_REFERENCE",
         "AMBIGUOUS_REFERENCE"
       ],
-      "docsHash": "sha256:ddffc16f2a591332749836589f1d3b38d445f034e0dda7cc4fad94fa1e81e6ca"
+      "docsHash": "sha256:53bb2ddff808dc06dd414485f980a168bbb3603961a5ac0cceb9cfb78e72b598"
     },
     {
       "id": "resolvePlacement",
       "title": "resolvePlacement",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。",
       "synonyms": [
         "resolvePlacement",
@@ -45166,13 +45166,13 @@
         "FRAME_INVALID",
         "PLACEMENT_NOT_APPLICABLE"
       ],
-      "docsHash": "sha256:508ff35f3a23d6d89fb0901989df15ab2ee4338b3e8978d1aad967610e75733b"
+      "docsHash": "sha256:bf29b742690e952bac9f83ab5b60c1b97c1a357f8b1a30e008e4c83a06bda9f8"
     },
     {
       "id": "execute",
       "title": "execute",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "execute({context,idempotencyKey,action,args}); action 来自当前命令合同。",
       "synonyms": [
         "execute",
@@ -45200,13 +45200,13 @@
         "maxBytes": 20971520,
         "preflightReserveBytes": 4096
       },
-      "docsHash": "sha256:b6cc46916488b75aace27eef49a8c68486cb859a998e00e52c4f1276e08ba2a8"
+      "docsHash": "sha256:569428e11e7ece1c2b291470621283dee209a72a7f89ddbcaa20b80825ae38e0"
     },
     {
       "id": "measure",
       "title": "measure",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需当前范围内的非负整数 topologyId；整个实体测量不接受 topologyId，坐标点模式不可混用实体字段。",
       "synonyms": [
         "measure",
@@ -45235,13 +45235,13 @@
         "area": "mm^2",
         "volume": "mm^3"
       },
-      "docsHash": "sha256:3e7faf7f47de7923bd60424a981dfe1fe2c2a456359f4302d5ca047b23b654f7"
+      "docsHash": "sha256:4899203f5cbffce02129ba87ca676385383fcdc898e77636d4817e0f5ab61d9b"
     },
     {
       "id": "measureRelation",
       "title": "measureRelation",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "measureRelation({context,mode:\"shortest\"|\"centerDistance\"|\"axisAlignment\"|\"pointFace\"|\"parallelFaces\",first?,second?,face?,pointWorld?})；引用形式 {bodyId,kind:\"body\"|\"edge\"|\"face\",topologyId?}。",
       "synonyms": [
         "measureRelation",
@@ -45264,13 +45264,13 @@
         "REVISION_CONFLICT",
         "CAPABILITY_UNAVAILABLE"
       ],
-      "docsHash": "sha256:27872047ca828705cbe400531e9035ccf2f23017274ba0bdedc70f1bde5a7c10"
+      "docsHash": "sha256:360a0e23ad1eec815baf221949f3051802b05dee873624df377a523fb9206ace"
     },
     {
       "id": "inspectDesign",
       "title": "inspectDesign",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "inspectDesign({context,requirements,requirePass?:false})；1–64项{id,bodyId,kind:bounds|solidCount|material,evidence:{kind:drawing|user|assumption,reference}}。bounds加sizeMm:[X,Y,Z]/明确toleranceMm；solidCount加count；material加points/expected:inside|outside，可选toleranceMm。总计<=128个世界XYZ材料点。完整字段与示例见api.design-checks。",
       "synonyms": [
         "inspectDesign",
@@ -45558,13 +45558,13 @@
         "maxMaterialPoints": 128
       },
       "unknownFields": "rejected",
-      "docsHash": "sha256:cc3b3098f74d172dfb789aa9f9257e0f01368bcb3af750ef63c772f1bbf04db7"
+      "docsHash": "sha256:00e09c55e7a00ce8ef23d4cb92c7c0b0791e4e7848fd89ba0c6788116322e21e"
     },
     {
       "id": "inspectPrintability",
       "title": "inspectPrintability",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "inspectPrintability({context,bodyId,angleLimitDeg?:45}); angleLimitDeg 在 0 与 90 度之间。",
       "synonyms": [
         "inspectPrintability",
@@ -45587,13 +45587,13 @@
         "CAPABILITY_UNAVAILABLE"
       ],
       "docs": "api.printability",
-      "docsHash": "sha256:4e1def044df8fa99f89326e28a255a0a2b14e63f66a636f90a41e2af8294d0bb"
+      "docsHash": "sha256:ea0fc26ffaedde0c859b4bb5e860850e7b4bb0164b974309de1ecf9333f5a80c"
     },
     {
       "id": "inspectProfile",
       "title": "inspectProfile",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。界面检查选项按需展开；API 不依赖界面展开状态。",
       "synonyms": [
         "inspectProfile",
@@ -45616,13 +45616,13 @@
         "CAPABILITY_UNAVAILABLE"
       ],
       "docs": "api.interaction",
-      "docsHash": "sha256:24ff9f7470d1890a4a685189975834a97b9e0a4ddcaf07a039168b3690251520"
+      "docsHash": "sha256:6dbfd63adea4c547be4dc3c548f89276447ffcb282b6954bc3962cf7d80878e8"
     },
     {
       "id": "prepareProfileEdit",
       "title": "prepareProfileEdit",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "prepareProfileEdit({context,bodyId,mode:\"intersections\"|\"trim\"|\"extend\"|\"trimCircle\"|\"fillet\",entityId?,targetId?,edgeIds?,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})。二维圆角可用 edgeIds:[两条当前边索引] 替代 entityId/targetId，支持解析轮廓及其未缩放的移动/旋转副本，选择先后不限；须显式 radiusMm 与新 arcId。",
       "synonyms": [
         "prepareProfileEdit",
@@ -45647,13 +45647,13 @@
         "GEOMETRY_INVALID"
       ],
       "docs": "api.interaction",
-      "docsHash": "sha256:7666cd02b28526f4139bd00c032d68098642caca23b8f4c354322728928f6393"
+      "docsHash": "sha256:0ed7a4caddadade5563ca6530ba5f96238e15c5991662a6ab4c3961a69718778"
     },
     {
       "id": "inspectConstraints",
       "title": "inspectConstraints",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "inspectConstraints({context,bodyId})；当前保存的 sketchProfile 或 profileConstraints 派生轮廓。只读诊断已有关系；矩形转换为明确四条解析边并保留形状关系。",
       "synonyms": [
         "inspectConstraints",
@@ -45686,13 +45686,13 @@
         "length": "mm",
         "angle": "degrees"
       },
-      "docsHash": "sha256:7b98de7befd74f3e51deb3f116c2bfb6eaff15ed9c2497bd60cc14e9b968742c"
+      "docsHash": "sha256:719262ecb2c6f4cf417d848565ad980ebd6611235aff8fbb2a4ce999115ffa0d"
     },
     {
       "id": "projectProfile",
       "title": "projectProfile",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "projectProfile({context,bodyId,edgeIds:[当前边索引],frame?:{origin,quaternion}})；或用 pointWorld:[x,y,z] 投影明确坐标点。",
       "synonyms": [
         "projectProfile",
@@ -45714,13 +45714,13 @@
         "UNSUPPORTED_CURVE_PROJECTION",
         "DEGENERATE_PROJECTION"
       ],
-      "docsHash": "sha256:1fd601dd27a351c65b45852fced470b9e7f7dd2ff26b3c69ada9710a48eb9658"
+      "docsHash": "sha256:0c60a400d5a68b3273c57736db9fe401399f0f79f42131d6971405d14049863f"
     },
     {
       "id": "inspectFit",
       "title": "inspectFit",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。",
       "synonyms": [
         "inspectFit",
@@ -45743,13 +45743,13 @@
         "REVISION_CONFLICT",
         "CAPABILITY_UNAVAILABLE"
       ],
-      "docsHash": "sha256:b6693bc9d316fd0ccc6788468c3d5220591d325b9a07f6a765c494c3205616ac"
+      "docsHash": "sha256:461a9bf3cf9a28ea84a44ba250feba44f08e7b01396a45cec7c530de10cd7299"
     },
     {
       "id": "inspectThickness",
       "title": "inspectThickness",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "inspectThickness({context,bodyId,mode:\"ray\",point:[x,y,z],direction:[dx,dy,dz]})；或 mode:\"faces\",faceAId,faceBId,point；两面须平行且射线穿过连续材料。",
       "synonyms": [
         "inspectThickness",
@@ -45770,13 +45770,13 @@
         "REVISION_CONFLICT",
         "CAPABILITY_UNAVAILABLE"
       ],
-      "docsHash": "sha256:79b03ff4d16a7522aa4e66ec24b1c96ab20b34af1f7aa430ffeaeb2b4752f873"
+      "docsHash": "sha256:ef912dfcba19bf0182bbcf5314521a057b805167aa010ea9447911e29934bfa5"
     },
     {
       "id": "inspectDraft",
       "title": "inspectDraft",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "inspectDraft({context,bodyId,pullDirection:[0,0,1],thresholdDeg:2})；用户决定阈值。",
       "synonyms": [
         "inspectDraft",
@@ -45797,13 +45797,13 @@
         "REVISION_CONFLICT",
         "CAPABILITY_UNAVAILABLE"
       ],
-      "docsHash": "sha256:f5c6ab8d498437e1f7aa61072da16121dd5bd05b87f4664a48e090e15575727b"
+      "docsHash": "sha256:2fd1138724f6a76fb0a3b2f32d529630cfae714f8c90990e149cf3f9c274dec8"
     },
     {
       "id": "inspectRound",
       "title": "inspectRound",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "inspectRound({context,bodyId,params:{edgeIds:[0],mode:\"edge\",radiusMm:0.3}})；params 同 round 工具卡，亦可 faceIds 解析平面边界。",
       "synonyms": [
         "inspectRound",
@@ -45835,13 +45835,13 @@
       "units": {
         "length": "mm"
       },
-      "docsHash": "sha256:3262b9ab4130512966a61fcf529e4f3458de91ed92b85bfc80895fa637c64b8d"
+      "docsHash": "sha256:1683c14c58f8ceca4e0ab35bf8458f59dfe9188e26ad82a22d4cd1af4d2813e1"
     },
     {
       "id": "readVector",
       "title": "readVector",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "readVector({context,name,resourceId|text,scaleMm?:1,targetWidthMm?,entityIds?,bounds?:[minX,minY,maxX,maxY],layers?,offset?:0,limit?:500}); limit<=10000。文件先 files.register。",
       "synonyms": [
         "readVector",
@@ -45871,13 +45871,13 @@
         "api.source-curves"
       ],
       "sourceCurvePolicy": "Unsupported splines preserve sourceSpline metadata; no original NURBS construction or automatic fit-point closure.",
-      "docsHash": "sha256:fa116be5a9d204a48a7d83d23992decc0a0ad28189c438a394b02e31f9008f48"
+      "docsHash": "sha256:33afdfc8e7388d2c858bea5c8f20a80028c2b375964d9b520af3c6f303a1ee16"
     },
     {
       "id": "connectVector",
       "title": "connectVector",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "connectVector({context,entities,toleranceMm?:0.000001,origin?:[0,0],flipY?:false}); 1..500 条解析线。",
       "synonyms": [
         "connectVector",
@@ -45901,13 +45901,13 @@
         "CAPABILITY_UNAVAILABLE"
       ],
       "docs": "api.vector-import",
-      "docsHash": "sha256:4925a8bed49f6f11b9c17993d8e9cfdd40d7f2708c00be0233ebd8a43429a1d8"
+      "docsHash": "sha256:9c5105af29ed3c15543b65b27e3c1fe4d30e5047e8323f71b82b440bff56644f"
     },
     {
       "id": "fitProfile",
       "title": "fitProfile",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "fitProfile({context,kind:\"circle\"|\"line\",plane?:\"XY\"|\"XZ\"|\"YZ\",points:[[u,v],...],maxResidualMm?}); 3–1000 点。",
       "synonyms": [
         "fitProfile",
@@ -45931,13 +45931,13 @@
         "CAPABILITY_UNAVAILABLE"
       ],
       "docs": "api.profile-fitting",
-      "docsHash": "sha256:b9934cad8ad6e2665f802ac6df9a4bcbd1e38eb63b2bab95034431243a03e98d"
+      "docsHash": "sha256:8b97e9f902a5753d10d353f951013a090d2eb76d1cbce1f702cd958d054b846a"
     },
     {
       "id": "traceTwinWindow",
       "title": "traceTwinWindow",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBottomY,simplifyToleranceMm?:0..0.2}); 四条上到下 XY 采样曲线，每条3–2000点。",
       "synonyms": [
         "traceTwinWindow",
@@ -45959,13 +45959,13 @@
         "CAPABILITY_UNAVAILABLE"
       ],
       "docs": "api.dwg-spline-twin-window",
-      "docsHash": "sha256:c8f279f5411c51a5f3e3000950bdde5837c95d0aa5f4f395257fd8899543b49b"
+      "docsHash": "sha256:56a7c46b4d716803850a076fe5d493c2b1983f9a30dc5aeada1544128340b82a"
     },
     {
       "id": "executeText",
       "title": "executeText",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "executeText({context,idempotencyKey,text,dryRun?}); 每行 add <op> key=value 或 measure <bodyId|$last>。",
       "synonyms": [
         "executeText",
@@ -45988,13 +45988,13 @@
         "IDEMPOTENCY_KEY_REUSED"
       ],
       "docs": "api.text-command",
-      "docsHash": "sha256:0b6212e78168a0c1f31910ec4ccd51014570166efa6f5fcf0c5a3bb614f79b66"
+      "docsHash": "sha256:ecdac4bcfee179184d15748e8f090a0015f97a48c083e6ace1f19a5808598766"
     },
     {
       "id": "setDisplayPreferences",
       "title": "setDisplayPreferences",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "setDisplayPreferences({context,values}); values 为部分配置，字段及范围见 api.display-preferences。",
       "synonyms": [
         "setDisplayPreferences",
@@ -46019,13 +46019,13 @@
         "CAPABILITY_UNAVAILABLE"
       ],
       "docs": "api.display-preferences",
-      "docsHash": "sha256:0d41a32ad0bab60f4621ed9b7cc6073d820bfef4ea1ea9223f9ea4387b15a950"
+      "docsHash": "sha256:c104a4c32d9ab79839a9b6d2f6dce0e71ac0ea8939f1489700922203faf2068e"
     },
     {
       "id": "getServices",
       "title": "getServices",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "getServices()；地址与模式存本地，专用授权仅存本标签会话，不进入工程。",
       "synonyms": [
         "getServices",
@@ -46043,13 +46043,13 @@
       "errorCodes": [
         "SERVICES_CONFIG_INVALID"
       ],
-      "docsHash": "sha256:26dbe99f7cfb587b2de476dd9cecaa7bb37fc6a1cdd23c8f3669bb97d4785487"
+      "docsHash": "sha256:d2df07d0bcc497d046f17310b92aea39f25bc714f975e67d0043cfc9af4f05c6"
     },
     {
       "id": "setServices",
       "title": "setServices",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "setServices({context,url,credential?,enabled?,computeMode?:\"local\"|\"auto\"|\"serverPreferred\",allowGeometryUploads?,localTimeoutMs?:60000,serverWaitMs?:180000})；本地超时1–600秒、服务器提醒1–900秒，均用整数毫秒，设置保存并在下一操作生效。启用已配置Services即授权复杂运算发送到该端；简单运算本地。旧computeMode/allowGeometryUploads仅兼容读取，不覆盖此政策。支持 HTTPS 或内网 HTTP；HTTPS 页面不能直接调用内网 HTTP。服务由 ASHX 引用 DLL，沿用 LOGO 部署方式，不安装 Host。启用前验证协议。",
       "synonyms": [
         "setServices",
@@ -46073,13 +46073,13 @@
         "SERVICES_CONNECTION_UNKNOWN",
         "SERVICES_PROTOCOL_MISMATCH"
       ],
-      "docsHash": "sha256:57254e84c110a17681198b9f87f65b74fe73ab478fa0383fad9031432cc25e91"
+      "docsHash": "sha256:bc32e2a9b35abf19a4ba3921b0a588ca4132e73eedd46f9f306382939040e682"
     },
     {
       "id": "getServicesCapabilities",
       "title": "getServicesCapabilities",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "getServicesCapabilities()；读取已配置服务。",
       "synonyms": [
         "getServicesCapabilities",
@@ -46102,13 +46102,13 @@
         "SERVICES_REQUEST_FAILED",
         "SERVICES_PROTOCOL_MISMATCH"
       ],
-      "docsHash": "sha256:e360a13309cbf94030916d7bc2229047c6df4c1c6a043300a29680bf4a45ba38"
+      "docsHash": "sha256:0f287b32b27ec86a02bd8c88d48013ffc1640b923f68fdad4081c04be6d9b9e1"
     },
     {
       "id": "getServicesRouting",
       "title": "getServicesRouting",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "getServicesRouting()；读取同一 ExecutionRouter 的最近决策。",
       "synonyms": [
         "getServicesRouting",
@@ -46125,13 +46125,13 @@
       "runtimeAvailability": "requires_page",
       "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
       "errorCodes": [],
-      "docsHash": "sha256:76e40a80b5ab92c5d5f59ea274a29290738a6a18cd482b1896067ebfdcc7f50c"
+      "docsHash": "sha256:c4f004aa22e7fd2e0b7f2cd4a72059bf6588c558e2821fd3542374a6bf09e938"
     },
     {
       "id": "clearServicesCredential",
       "title": "clearServicesCredential",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "clearServicesCredential({context})",
       "synonyms": [
         "clearServicesCredential",
@@ -46150,13 +46150,13 @@
         "INSTANCE_MISMATCH",
         "REVISION_CONFLICT"
       ],
-      "docsHash": "sha256:4d8d247d6f975150a6bc07a330f019ed2d92bd39b68eb134b090c650765bc16c"
+      "docsHash": "sha256:2011ea94b6504d253d4192daef75a8ba7590db7c28816ebabcb4dd61474e6dcd"
     },
     {
       "id": "getServicesJob",
       "title": "getServicesJob",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "getServicesJob({jobId})",
       "synonyms": [
         "getServicesJob",
@@ -46178,13 +46178,13 @@
         "SERVICES_CONNECTION_UNKNOWN",
         "SERVICES_REQUEST_FAILED"
       ],
-      "docsHash": "sha256:464f98a89d135710dc61175cb9960ee04007978445332d855631ce764dd2d3e8"
+      "docsHash": "sha256:b2995b0930f0cec709cbe93fc402a78c2a2a672b987bf0a3aa7aecfecc246f5b"
     },
     {
       "id": "getServicesRequest",
       "title": "getServicesRequest",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "getServicesRequest({idempotencyKey})；连接未知时先查既有接收记录。",
       "synonyms": [
         "getServicesRequest",
@@ -46207,13 +46207,13 @@
         "SERVICES_CONNECTION_UNKNOWN",
         "SERVICES_REQUEST_FAILED"
       ],
-      "docsHash": "sha256:e87ce606fb496e6675a1af32d0491eaeb977d6aca097e2e84165a7bccc2827ee"
+      "docsHash": "sha256:a52fef4a0b03bab9264626849a481da2b850dc1b1d99b9382086065d180e6dfb"
     },
     {
       "id": "cancelServicesJob",
       "title": "cancelServicesJob",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "cancelServicesJob({context,jobId})",
       "synonyms": [
         "cancelServicesJob",
@@ -46236,13 +46236,13 @@
         "SERVICES_CONNECTION_UNKNOWN",
         "SERVICES_REQUEST_FAILED"
       ],
-      "docsHash": "sha256:72400c751910fdff756237cd9b4d8f082155849828874c93cf043c4463ffa584"
+      "docsHash": "sha256:12088f44e7a81a9b02b457f705a5f2309ad00669b4bb624b5b28ec8e60f03345"
     },
     {
       "id": "getLogoConverter",
       "title": "getLogoConverter",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "getLogoConverter() 委托 getServices；旧 URL/Key 不自动授权统一服务。",
       "synonyms": [
         "getLogoConverter",
@@ -46257,13 +46257,13 @@
       "runtimeAvailability": "requires_page",
       "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
       "errorCodes": [],
-      "docsHash": "sha256:20fa8155f2a89b05cefdab4b3c9412231396d8564bbf519e23e1d79209a0ad93"
+      "docsHash": "sha256:87625aa57e600eb87cdbcf56f89494be0fdfa599227fe0a0d182d973592b5b9a"
     },
     {
       "id": "setLogoConverter",
       "title": "setLogoConverter",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "改用 setServices，旧 setter 拒绝存影子配置。",
       "synonyms": [
         "setLogoConverter",
@@ -46283,13 +46283,13 @@
         "REVISION_CONFLICT",
         "CAPABILITY_UNAVAILABLE"
       ],
-      "docsHash": "sha256:0e1f14d95896790fbf64c958bbae74e87b39da1e09394b88ad81301493bebbe4"
+      "docsHash": "sha256:b8707b9c548607fa9227ab4781b28e579481c857773a6b1c215bbd1883723b34"
     },
     {
       "id": "convertLogoPdf",
       "title": "convertLogoPdf",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "convertLogoPdf({context,name,data,targetWidthMm?,page?,sizeConfirmed:true,allowUpload:true})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。",
       "synonyms": [
         "convertLogoPdf",
@@ -46311,14 +46311,14 @@
         "CAPABILITY_UNAVAILABLE",
         "GEOMETRY_INVALID"
       ],
-      "docsHash": "sha256:a7984ae34bc3519633d0670f4dface8f0b7f29c6ce25b69535288b580cda7d10"
+      "docsHash": "sha256:f3283cae63d5246cc7625c60a0f105b02a6f4edc5ba399f7789721201f751702"
     },
     {
       "id": "setView",
       "title": "setView",
       "category": "page-method",
-      "version": "1.32.0",
-      "description": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling/library/agent；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。",
+      "version": "1.33.0",
+      "description": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling返回画布、library打开快捷模型工具；兼容workspace=agent打开Agent配置弹窗并保持workspace=modeling，current.agentSettingsOpen读回，workspace=modeling关闭弹窗；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。",
       "synonyms": [
         "setView",
         "视图",
@@ -46345,7 +46345,7 @@
         "pan view",
         "orbit view"
       ],
-      "inputContract": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling/library/agent；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。",
+      "inputContract": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling返回画布、library打开快捷模型工具；兼容workspace=agent打开Agent配置弹窗并保持workspace=modeling，current.agentSettingsOpen读回，workspace=modeling关闭弹窗；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。",
       "outputContract": "status=read、当前 context、display、view；view.transform 的 attached/canDrag/blocker 可读回单对象手柄状态。不修改工程 revision；拖动或数值变换通过 transform 提交。section 仅为显示裁剪，不是精确切割。",
       "implementationStatus": "implemented",
       "contractStatus": "page-method",
@@ -46360,13 +46360,13 @@
         "UI_TASK_ACTIVE"
       ],
       "docs": "api.views",
-      "docsHash": "sha256:98690781080bd0f399a6f95661581ee6beac54bdde637b5f9b9f38c5bc47cd55"
+      "docsHash": "sha256:1a0004d009578acc053417eb4779888818bbaaedb3b6063e687add5cece9ab37"
     },
     {
       "id": "redraw",
       "title": "redraw",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "redraw({context}); 不接受额外字段。",
       "synonyms": [
         "redraw",
@@ -46387,13 +46387,13 @@
         "DISPLAY_FAILED"
       ],
       "docs": "api.views",
-      "docsHash": "sha256:357620e3c85d5b1c6c2a4e6704d56814b810a6804fc2a52497cc85893a05736f"
+      "docsHash": "sha256:a94493670ce903a05a96300a72f8d38739aa2df6246a9755c0ba5d643d35b602"
     },
     {
       "id": "capture",
       "title": "capture",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "capture({context}); 不接受额外字段。",
       "synonyms": [
         "capture",
@@ -46414,13 +46414,13 @@
         "DISPLAY_FAILED"
       ],
       "docs": "api.views",
-      "docsHash": "sha256:1438d41234a45f00193be93efe4bbf8185b948b5eb6e2eceb8f2507b4fba1a6c"
+      "docsHash": "sha256:3589abf6eab69ba4df0e2b1e4a9e16954913e5fd59621d220b3158059d2b2e34"
     },
     {
       "id": "run",
       "title": "run",
       "category": "page-method",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}); addMany for one atomic feature plan: api.feature-plan.",
       "synonyms": [
         "run",
@@ -46450,14 +46450,14 @@
         "maxBytes": 20971520,
         "preflightReserveBytes": 4096
       },
-      "docsHash": "sha256:847029cb56533e02f8a78c3e462ef92d652b3af02740ad51a5e1e45542815287"
+      "docsHash": "sha256:d81af33479d31eea971ad92a554ff52ce058cac7966378fa6ca60e8aa1875e27"
     },
     {
       "id": "feature.compileServices",
       "title": "Services 原特征编译",
       "description": "按服务能力执行世界坐标纯平移、均匀柱面凸雕层、多刀具 cut 或带一边旧R的矩形面完整边界 round。round 仅支持一个无孔矩形面、六个正交支撑面和一条完整同R旧圆角；四侧精确R，四角光滑自由曲面，保留4个孤立终止点。cut 的 refs 首项为目标，其余 1–32 项为刀具，各来源必须是已提交单实体，结果须为非空单实体；keepTools 保持原历史语义。全部来源按顺序校验，单项限 20 MiB、合计 64 MiB。浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。若修改来源会使下游复杂运算失效，先移除下游步骤、完成来源修改后重新执行，禁止转到本地偷算。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -46498,14 +46498,14 @@
       },
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
       "docs": "api.editor",
-      "docsHash": "sha256:abc16fc6651a39498f0f4208a8e08c0a3824daf6640ce3fb0a9b6f32ea736bf5"
+      "docsHash": "sha256:847fb4dda5f7ef63bf064822ebe9fcb1cee9a32709865c975b282924e90a446c"
     },
     {
       "id": "body.align",
       "title": "快速对齐",
       "description": "按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:\"body\",bodyId:基准实体ID},axes:[\"Y\"],sourceSide:\"center\",targetSide:\"center\",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -46563,14 +46563,14 @@
       },
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
       "docs": "api.editor",
-      "docsHash": "sha256:e7a68ceddaca65a7e82efd732caf347acc4344ec851bff8364db481bd5fa1ec7"
+      "docsHash": "sha256:085260cd47ef25592b2bfaa623d3b7fa895ce6aa82c57a044847efce42cbb990"
     },
     {
       "id": "history.restore",
       "title": "退回工程状态",
       "description": "用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -46606,14 +46606,14 @@
       },
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
       "docs": "api.editor",
-      "docsHash": "sha256:a364ab07af9efffcb3441e2d07ee5f8f94766fbb7e9fcbdc2af83388e1c431b8"
+      "docsHash": "sha256:bc581f7f09f189f5a6144d65d0461a8a619ca27f2d2a81438cff70d4b971fd9e"
     },
     {
       "id": "document.rename",
       "title": "工程改名",
       "description": "修改工程名称，保留几何。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -46652,14 +46652,14 @@
       },
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
       "docs": "api.editor",
-      "docsHash": "sha256:844e609098448ecbea75f0a7d00afd3845f79a410c9c047545e6bc149724684a"
+      "docsHash": "sha256:81267dd7518f9699487fd6507b8e4ea05a7a04b54fcd970435eaef335c78cd93"
     },
     {
       "id": "feature.rename",
       "title": "特征改名 实体名称",
       "description": "修改历史步骤及同 ID 实体名称，导入件也可使用。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -46700,14 +46700,14 @@
       },
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
       "docs": "api.editor",
-      "docsHash": "sha256:c74c99089f4ca99fd06a99e7299ae5508ffa60d7965e3ab2a2e3c78e49ad8fcc"
+      "docsHash": "sha256:db34a9f0ab47ea138d1a13ecb5d4afd662ba5a9a011881dbdf6abf99cd851aea"
     },
     {
       "id": "body.visibility",
       "title": "显示 隐藏实体",
       "description": "显隐指定当前实体，不删除几何。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -46750,14 +46750,14 @@
       },
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
       "docs": "api.editor",
-      "docsHash": "sha256:8885892c26d32f38ee2732990e28636ec9527cd9800896bcacb7fb8da334a67d"
+      "docsHash": "sha256:55cf5d9a213ff81dc2b4abd6dcff9ca898f3badf4d46e5a9de86935c65a6a227"
     },
     {
       "id": "body.appearance",
       "title": "实体原色 颜色 金属 材质",
       "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -46815,14 +46815,14 @@
       },
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
       "docs": "api.editor",
-      "docsHash": "sha256:eb9f7cdf9f9494c73019a769839d88e2eb1c2463a24d5f50afe22cc6c361dbf7"
+      "docsHash": "sha256:be8354d7fc4f2f5431d84dc9b938d60b87122a22e7e5af3df87abcc4fab4fc03"
     },
     {
       "id": "document.appearance",
       "title": "工程渲染 金属色",
       "description": "设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -46874,14 +46874,14 @@
       },
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
       "docs": "api.editor",
-      "docsHash": "sha256:8719a68344f05d5b820f08f2f5521f0c586ebf976c2d138cdf8f8fc9902cb4a8"
+      "docsHash": "sha256:7cc515430a739514161f66ce1c23fbcfd12f6d43ef1fc39248d0fec8c7619b76"
     },
     {
       "id": "body.explode",
       "title": "组合拆散 多实体分解",
       "description": "将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -46920,14 +46920,14 @@
       },
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
       "docs": "api.editor",
-      "docsHash": "sha256:9972c2e8523cd647ba7f82a0778d38d21c43c287ed8de247942163adbd11cae3"
+      "docsHash": "sha256:fc583d4c1b33aa4132a58118c8cd9d73d88aca2250fe3c419818c30fd68f768b"
     },
     {
       "id": "reference.setWorkFrame",
       "title": "设置参考锚点（工作基准）",
       "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -46965,14 +46965,14 @@
         "工作基准",
         "基准点"
       ],
-      "docsHash": "sha256:47a5e14bdd749b172de23ebe2443508a42a71c99e24f1a3a8a3de0c0a380367a"
+      "docsHash": "sha256:776692cefcda4c730f96704fff4a3b7327a9b9504a9c4ceca5f33d19fc64e187"
     },
     {
       "id": "reference.resetWorkFrame",
       "title": "重置参考锚点（工作基准）",
       "description": "args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -47002,14 +47002,14 @@
       ],
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
       "docs": "api.references",
-      "docsHash": "sha256:71cff28c1ef3faa1910dd38f4b8c61f41468cfa4e94a757a3cdcc8381e41d43e"
+      "docsHash": "sha256:7074818e3d0e0ec1d4c9b595955767deeb1c0b081443326d782f95941ca5fc85"
     },
     {
       "id": "reference.setLocked",
       "title": "锁定参考锚点（工作基准）",
       "description": "args:{locked:boolean}；可撤销的元数据操作。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -47039,14 +47039,14 @@
       ],
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
       "docs": "api.references",
-      "docsHash": "sha256:523dfcd20f285f93014c14b8aa84d3d5cffcfcc71ae656f79cac79c81791ad0d"
+      "docsHash": "sha256:aa4d92b0992a8e592a07d5698b124bb59c3fba1a00fbbbe8d879dc3f6bade12a"
     },
     {
       "id": "reference.saveFrame",
       "title": "保存具名基准",
       "description": "args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -47076,14 +47076,14 @@
       ],
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
       "docs": "api.references",
-      "docsHash": "sha256:c042aad640a8063cf2d2a82f7e1bdb5605bf383d69dc4299e4a94be285bb4e45"
+      "docsHash": "sha256:d4e55021d092b967955f28132a838fdacfefffc883ad250d79e29fbee6f3cbdb"
     },
     {
       "id": "reference.activateFrame",
       "title": "激活具名基准",
       "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -47113,14 +47113,14 @@
       ],
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
       "docs": "api.references",
-      "docsHash": "sha256:279438a24ab95ce4a1f2660e737a03878e8bc1445e16ad15defcaec72d90fe31"
+      "docsHash": "sha256:ab823bbee95d61a4bd39bdd78eaf6322bf0e9194f56b1f6d7a71754b9f5c0f3b"
     },
     {
       "id": "reference.renameFrame",
       "title": "重命名具名基准",
       "description": "args:{frameId,expectedFrameVersion,name}。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -47150,14 +47150,14 @@
       ],
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
       "docs": "api.references",
-      "docsHash": "sha256:0086f5d2102dba084996a9072dda690da1ed4bba15534dcb2404de9cd3fc7e1f"
+      "docsHash": "sha256:b610db34d000b76f53f476dc309c8594181b4638f23470bbaaa5eddda5bf17fc"
     },
     {
       "id": "reference.deleteFrame",
       "title": "删除具名基准",
       "description": "args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -47187,14 +47187,14 @@
       ],
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
       "docs": "api.references",
-      "docsHash": "sha256:9477b103d59bc94c850097b730deacbc3d1cc29e8eaa201c6a957804ec70779a"
+      "docsHash": "sha256:42ee2102a06e0ea249fd83675696d3877c77cf9368e4bfbd8c7399deaa723b15"
     },
     {
       "id": "reference.setBodyAnchor",
       "title": "对象锚点",
       "description": "args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -47228,14 +47228,14 @@
         "对象锚点",
         "实体锚点"
       ],
-      "docsHash": "sha256:faadbac25db7d2065b02d4adc8fa4327ca2c8003d5a00ea17642938889efec02"
+      "docsHash": "sha256:2f639660155b87105457e3b8837ba8887af5e25d3c4715d85c992aa3cbd26579"
     },
     {
       "id": "reference.deleteBodyAnchor",
       "title": "删除对象锚点",
       "description": "args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -47265,14 +47265,14 @@
       ],
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
       "docs": "api.references",
-      "docsHash": "sha256:86ba23956769dbe8e41be89064688e61888230517525e8de3711a8bc42aec3b0"
+      "docsHash": "sha256:03ab1a17158a5e939a7e4ed9d54a615e70e9184428f04baccc09ff3a5dfd8419"
     },
     {
       "id": "feature.add",
       "title": "新增几何",
       "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -47302,7 +47302,7 @@
       ],
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
       "docs": "api.editor",
-      "docsHash": "sha256:f665130c14ed3074c178401c3a8d2989d44fcff18e7dcc0aa56f0a60e63bc97c"
+      "docsHash": "sha256:866823e6ebd9b339300b7103e9eb9de01aefd23a2444767fef94fe99e79297c1"
     },
     {
       "inputSchema": {
@@ -47425,7 +47425,7 @@
       "title": "一次提交多特征",
       "description": "args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -47454,14 +47454,14 @@
         "getState"
       ],
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
-      "docsHash": "sha256:d4cf7cd713bc6be540297d51352dd9b65d4d41f15909452fb35f23078cfbf321"
+      "docsHash": "sha256:9e51d2e69131c0bcaa5a90568f5e96d3aa033717444d02455e5c536c3a99e452"
     },
     {
       "id": "feature.edit",
       "title": "修改参数",
       "description": "args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -47491,14 +47491,14 @@
       ],
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
       "docs": "api.editor",
-      "docsHash": "sha256:f7913632a405408e6b14307eb13f9758597ff9d634966666a6d48892a8117245"
+      "docsHash": "sha256:7a0cec6e09fc5855bf7fef57f44eb7cf23d5073757adfe5e39421d3ccbe0da5c"
     },
     {
       "id": "feature.remove",
       "title": "删除实体",
       "description": "args:{bodyIds}，不可使用历史已替换 ID。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -47528,14 +47528,14 @@
       ],
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
       "docs": "api.editor",
-      "docsHash": "sha256:a9e6a7516fb87ec370bb5ca9025c260c50e83899bcfed52e35c4dd15f16595f1"
+      "docsHash": "sha256:27cf1743d15f6fc9ba302e2aad2d63dd361e3e621d439a5efdb71e7842750504"
     },
     {
       "id": "history.undo",
       "title": "撤销",
       "description": "args:{}；撤销一个已提交步骤。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -47565,14 +47565,14 @@
       ],
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
       "docs": "api.editor",
-      "docsHash": "sha256:96ed0db80ed281016114d75bd58192538c233804a33f481c0bae5912c60d2e3b"
+      "docsHash": "sha256:1adc5eaa9644c44b0ebdde47580106d0609657c819b5073ef067b24cf62879b9"
     },
     {
       "id": "history.redo",
       "title": "重做",
       "description": "args:{}；重做一个步骤。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -47602,14 +47602,14 @@
       ],
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
       "docs": "api.editor",
-      "docsHash": "sha256:20973b547bea637b4733d5cb39c0115cc7fcd923c02d3ad37073c9949b1f0eec"
+      "docsHash": "sha256:b41a2a02f1539528049dda7ee23262f8252952018c830d5497104039cfd7900d"
     },
     {
       "id": "document.refresh",
       "title": "重建工程",
       "description": "args:{}；重建当前历史。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -47639,14 +47639,14 @@
       ],
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
       "docs": "api.editor",
-      "docsHash": "sha256:d5828b300ff12e3d35a5b7ef3ca28c0d98c6d1ed45981c495d21a20687c40adc"
+      "docsHash": "sha256:6faca6c68e80e9e11b90718a076ba78b54e27e806fe74842c2d7002dcbce1289"
     },
     {
       "id": "preview.start",
       "title": "预览模型、原特征编辑或文件插入",
       "description": "普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision，提交前工程 revision 不变。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -47676,14 +47676,14 @@
       ],
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
       "docs": "api.editor",
-      "docsHash": "sha256:77457cd3cceb19bbe77b7985b92b00adf8323de691523cbdbd5811acfe521ec0"
+      "docsHash": "sha256:78d26461493fe3c1c3aaf73253b278009331340f12a5b0d4c34d0652e5fc8018"
     },
     {
       "id": "preview.update",
       "title": "更新预览",
       "description": "args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -47713,14 +47713,14 @@
       ],
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
       "docs": "api.editor",
-      "docsHash": "sha256:f99a677635fdd088b77ab63570032f88631a85ce8965c4f351b105f1a5aed92e"
+      "docsHash": "sha256:3049e18e7063d826916cb3b109a119684b27e1c72e1575db723f901f2c6160d9"
     },
     {
       "id": "preview.commit",
       "title": "应用预览",
       "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -47750,14 +47750,14 @@
       ],
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
       "docs": "api.editor",
-      "docsHash": "sha256:07c5de2ca0ee8c62cae680ea2b6b0d99dddab62035a94e72606d09088c431b83"
+      "docsHash": "sha256:5fd1b0707423ff63972020581fd26eb25c683be6e1beae0364739fd2b026bad0"
     },
     {
       "id": "preview.cancel",
       "title": "取消预览",
       "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
       "category": "command",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "implemented",
       "contractStatus": "page-command",
       "runtimeAvailability": "requires_ready_page",
@@ -47787,13 +47787,13 @@
       ],
       "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
       "docs": "api.editor",
-      "docsHash": "sha256:f5e9f38e3a22093f32ad0b144fba32fde13a8cb9eb8dd484a8ca9018dc90f99f"
+      "docsHash": "sha256:96ebbd2a9242277422326413a137159b67bd15928cb1569a93fc2ff2bbccbcdb"
     },
     {
       "id": "document.parameters",
       "title": "命名参数与尺寸联动",
       "category": "document",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "description": "通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。",
       "synonyms": [
         "参数",
@@ -47873,13 +47873,13 @@
         "Indexed face/edge references downstream of a changed feature are rejected when stability cannot be proven."
       ],
       "docs": "api.named-parameters",
-      "docsHash": "sha256:3fc13a3bc0848ccb898556e20a93756be808d96aa9e2a79af89d5445eade18d5"
+      "docsHash": "sha256:dff3213c4e6f78789ce576371cc23efa3e63c15f1da3507d8606bead86363bc8"
     },
     {
       "id": "files.capabilities",
       "title": "files.capabilities",
       "category": "file",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "label": "文件能力",
       "synonyms": [
         "文件能力",
@@ -47913,13 +47913,13 @@
       "errorCodes": [
         "PARAM_SCHEMA_INVALID"
       ],
-      "docsHash": "sha256:df9da05f2bfe20bbbe3d82dd9a7b0cb39c44ef80ec53addc8af2a304da2156ff"
+      "docsHash": "sha256:f31dc6cee0f0687fe886d7f50a175a6232201ccfbebbf002deda74ea147556ae"
     },
     {
       "id": "files.register",
       "title": "files.register",
       "category": "file",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "label": "登记文件资源",
       "synonyms": [
         "登记文件资源",
@@ -47961,13 +47961,13 @@
         "SIZE_LIMIT",
         "RESOURCE_LIMIT"
       ],
-      "docsHash": "sha256:f6cf7d2042cb297891eb0921adcf2d5099e7aa1527932ad69cc711e3d804a5ea"
+      "docsHash": "sha256:5ec366a79f6c6d1961b402c1d9fe9d6c26ada21af2c3c01f74519dedba53ad60"
     },
     {
       "id": "files.new",
       "title": "files.new",
       "category": "file",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "label": "新建工程",
       "synonyms": [
         "新建工程",
@@ -48010,13 +48010,13 @@
         "FILE_COMMAND_FAILED",
         "SIZE_LIMIT"
       ],
-      "docsHash": "sha256:9c5231d5456565801012a7cf8e2c4cea189602a97a954c9f2727843af04d1ccf"
+      "docsHash": "sha256:952db7633dd1ce39fd494d5f71975eaa933408a70a154d324bb1755a35484db9"
     },
     {
       "id": "files.open",
       "title": "files.open",
       "category": "file",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "label": "打开工程",
       "synonyms": [
         "打开工程",
@@ -48063,13 +48063,13 @@
         "ASSET_INVALID",
         "FORMAT_UNSUPPORTED"
       ],
-      "docsHash": "sha256:d0cd64831b475016947a3b899ba5a043897ca485c0aed3de9f9cb20eb2eacc9a"
+      "docsHash": "sha256:446923f3376dffe78b26c1d6f9f62a5a1ab3777f5605860011571268cbb1f47b"
     },
     {
       "id": "files.import",
       "title": "files.import",
       "category": "file",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "label": "导入",
       "synonyms": [
         "导入",
@@ -48134,13 +48134,13 @@
         "FORMAT_UNSUPPORTED",
         "IDEMPOTENCY_KEY_REUSED"
       ],
-      "docsHash": "sha256:b44ff794cb82a113a0e31ed5c2d101c16082e76c2e06d9fcfa129579377abe44"
+      "docsHash": "sha256:af0d946125ed14e07bd6601c47be1a7e936445c81737f5eec7a307997d2af522"
     },
     {
       "id": "files.save",
       "title": "files.save",
       "category": "file",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "label": "保存工程",
       "synonyms": [
         "保存工程",
@@ -48187,13 +48187,13 @@
         "NAME_INVALID",
         "RESOURCE_LIMIT"
       ],
-      "docsHash": "sha256:f4c3d3b0d49ab115dfe2cd8c9d88c36f0fbb89476cff3fa8d5ae4e46918616ce"
+      "docsHash": "sha256:883c57aed08a51656452a2c2b47e9c949a192500770b2a0c4830e22459e30cc6"
     },
     {
       "id": "files.export",
       "title": "files.export",
       "category": "file",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "label": "导出文件",
       "synonyms": [
         "导出文件",
@@ -48243,13 +48243,13 @@
         "RESOURCE_LIMIT",
         "FORMAT_UNSUPPORTED"
       ],
-      "docsHash": "sha256:625719eedb88bff570b17a4ab2669f433393ba3af1013c0f944efb3c21a7c63f"
+      "docsHash": "sha256:ac9a19e0b9ddfa754663bd7bc0cc0125ae220c837d7803c9ba723924718111fc"
     },
     {
       "id": "files.read",
       "title": "files.read",
       "category": "file",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "label": "读取文件字节",
       "synonyms": [
         "读取文件字节",
@@ -48287,13 +48287,13 @@
         "PARAM_SCHEMA_INVALID",
         "RESOURCE_EXPIRED"
       ],
-      "docsHash": "sha256:b541f0df6e4ff9bd49cf4179612253aca581a475029fad862a5d10acf3d5e595"
+      "docsHash": "sha256:708327414c616ff834e8dd32c2c8a87c5d5c36d1eba479c54225a5789f6b61c3"
     },
     {
       "id": "files.download",
       "title": "files.download",
       "category": "file",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "label": "下载文件",
       "synonyms": [
         "下载文件",
@@ -48332,13 +48332,13 @@
         "ASSET_INVALID",
         "CAPABILITY_UNAVAILABLE"
       ],
-      "docsHash": "sha256:8e86312edd1f317f92ab6e5abd479ab85a7b23814c0a9ee40c6cc17fd273b658"
+      "docsHash": "sha256:6aee14397654078317c59a42b800af854a44bee3be03b900c6c9b5f5cfc50e10"
     },
     {
       "id": "files.write",
       "title": "files.write",
       "category": "file",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "label": "写入文件",
       "synonyms": [
         "写入文件",
@@ -48382,13 +48382,13 @@
         "HASH_MISMATCH",
         "SAVE_CONFIRMATION_FAILED"
       ],
-      "docsHash": "sha256:82d713e90c5f6ea9d53b1af79c053c0680b914abdab4e6c5b7c7b5b7ae37c6b0"
+      "docsHash": "sha256:82c483517681af31c0bb443d661cddd8e98457e7017f394d494392b6f01ddf48"
     },
     {
       "id": "files.confirmWritten",
       "title": "files.confirmWritten",
       "category": "file",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "label": "confirmWritten",
       "synonyms": [
         "confirmWritten",
@@ -48432,13 +48432,13 @@
         "REVISION_CONFLICT",
         "SAVE_CONFIRMATION_FAILED"
       ],
-      "docsHash": "sha256:78c50dada76566cdc026db8aa96b9e5dc04c05e6f881356e595ef12f86a750c8"
+      "docsHash": "sha256:dcf70aea7697a70832ac597093bf9bb6e243e3da98f4d4aab21f19ea7497769a"
     },
     {
       "id": "files.release",
       "title": "files.release",
       "category": "file",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "label": "释放文件资源",
       "synonyms": [
         "释放文件资源",
@@ -48476,35 +48476,35 @@
         "RESOURCE_EXPIRED",
         "RESOURCE_BUSY"
       ],
-      "docsHash": "sha256:fb2d9444e60279023bf87f683f8437a840cd3dfd2ec3803af8a8aa80bfe730bf"
+      "docsHash": "sha256:2e9f84433a1d3ef43f5f267225ed64682c50bdf65a2f78e3f0b4863ecca620d8"
     },
     {
       "id": "import.iges",
       "title": "IGES/IGS 导入",
       "description": "当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。",
       "category": "unavailable",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "unavailable",
       "contractStatus": "unavailable",
       "runtimeAvailability": "unavailable",
       "errorCodes": [
         "CAPABILITY_UNAVAILABLE"
       ],
-      "docsHash": "sha256:b8847f4ddcb509e92df62b3f55c6e1a8f5077c0afad6114b27743d56773d2db1"
+      "docsHash": "sha256:febf363b9654c691098e9b3d7e2f6a199a59f37b75e5a1a2479a58015e517573"
     },
     {
       "id": "import.vector-server",
       "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
       "description": "当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。",
       "category": "unavailable",
-      "version": "1.32.0",
+      "version": "1.33.0",
       "implementationStatus": "unavailable",
       "contractStatus": "unavailable",
       "runtimeAvailability": "unavailable",
       "errorCodes": [
         "CAPABILITY_UNAVAILABLE"
       ],
-      "docsHash": "sha256:756df96a495336ad5053d26b162d0718dcd45914602f78ef7cfaa8bf5170712a"
+      "docsHash": "sha256:38065ec04b47817e95aa32a3a86c9a2aa65b27951f3b9d8b51e00ffc1fbe3159"
     }
   ],
   "docs": {
@@ -48540,11 +48540,11 @@
     "api.smooth-transition": "autoRound 是严格 v2 整件圆边：params:{radius:0.1}，refs:[bodyId]，所有尖锐边统一处理，失败不部分提交。smoothTransition 是严格 v2 面组过渡：params:{radius:0.1,faceIds:[当前相邻面序号,...]}，refs:[bodyId]。选至少两个相邻面，仅对其公共尖缝联动倒圆。queryGeometry 边含 startPoint/endPoint/midpoint/bounds/adjacentFaceIds/normalAngleDeg/sharp/degenerate，面含 edgeIds；按位置和邻接找交线。getState().bodies[].transitionReport 含 processedEdgeIds/processedSeams/remainingSharpEdges/remainingSharpEdgeCount。过大半径、自交、未消除目标尖缝或抽样发现非边界新尖缝时拒绝，原模型保留。局部过渡与未选面的结束边界可能锐利，boundarySharpEdges 单独报告。检查法向为边上20/50/80%三点与1度阈值，不是曲率连续证明或全部顶点认证。未选原有锐边（如文字边）保留，不能宣称整件无利角。UI 加工→曲面处理→整件圆边/平滑过渡，选实体或 Ctrl 多选面，预览再确认。完成后用 feature.edit 修改原特征 params.radius，会从源几何重建并重算后续步骤；不是在结果上再倒一次圆角。",
     "api.source-curves": "readVector 对当前不能直接建模的 SPLINE 返回 unsupported[].sourceSpline，保留次数、控制点/节点/权重/周期性，或独立拟合点、拟合公差、端切向和源 handle；representation 区分 nurbs-parameters、fit-points、incomplete-spline。geometryCreated=false：保留参数不等于实现原始 NURBS 构造；fit-points 不能证明原始样条。DXF 源组码及 DWG 解码器实际提供的字段分别保留，不把不同源图元闭合插值成一条曲线。reliefReport.curveConversion（分层在 layers[]）记录实际使用的清理后点列/拟合边数、采样偏差、精确线圆弧面积、环孔数与核验类型；偏差参考 supplied-polyline-after-explicit-cleanup，sourceSplineDeviation=unknown，不是对源样条的全域误差界。成功回执在64000段/1024区域既有预算内保留完整环详情，ringCount/truncated明确表示完整性；错误诊断仍有界。采样偏差超过显式 curveToleranceMm 或面积改变量超过公差面积预算时拒绝转换；这也不替代源图尖角与区域用途的核对。完整原样条实体入口尚未开放。",
     "api.text-command": "executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口，不执行任意 JS 或 shell。每行一条，最多 20 行、总长 16384 字符。语法：add <操作ID> key=value ...；measure <bodyId|$last>。示例：add box width=30 depth=20 height=2.5 name=\"牌子\"，下一行 measure $last。复杂参数可用 JSON 值，例如 points=[[[0,0,0],[1,0,0],[2,0,0]],[[0,1,0],[1,1,0],[2,1,0]],[[0,2,0],[1,2,0],[2,2,0]]]。refs 可用 JSON 数组或 $last。dryRun:true 仅返回解析后的步骤；正常执行交给同一 api.run/CommandService，返回逐步回执，非原子，已提交步骤保留。每次执行需新 idempotencyKey，重试同一请求可复用原 key。",
-    "api.ui-coverage": "界面动作与 AI 等价接口（手势以坐标和显式参数代替）：\n{\n  \"servicesWaitDecision\": {\n    \"tools\": [\n      \"decideServicesWait\",\n      \"getServicesRouting\",\n      \"getServicesJob\"\n    ],\n    \"method\": \"decideServicesWait\",\n    \"usage\": \"服务器达到可配置等待时间时，选择 continue 续查同任务，或 stop 终止受控任务；不创建新计算。\"\n  },\n  \"reliefTopologyUpgrade\": {\n    \"tools\": [\n      \"prepareReliefTopologyUpgrade\",\n      \"feature.edit\",\n      \"getState\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"只读预览策略差异后按同修订明确应用；不改设计尺寸、不静默迁移旧工程。\"\n  },\n  \"servicesJobRecovery\": {\n    \"tools\": [\n      \"getServicesJob\",\n      \"recoverServicesJob\"\n    ],\n    \"method\": \"recoverServicesJob\",\n    \"usage\": \"先核对 interrupted 旧任务，再明确授权一次环境恢复；几何失败、未知或仍运行任务不会重算。\"\n  },\n  \"selectTool\": {\n    \"tools\": [\n      \"setView\",\n      \"selectRectangle\",\n      \"preview.cancel\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"实体模式左键拖框选，左向右全包含、右向左相交，Shift/Ctrl追加，Escape取消；Alt+左键保留旋转。selectRectangle显式指定当前视口0..1矩形。相交模式处理近远裁剪面，仍按对象投影包围框判定。\"\n  },\n  \"quickDrawing\": {\n    \"tools\": [\n      \"createDrawing\",\n      \"exportDrawing\",\n      \"files.download\"\n    ],\n    \"method\": \"createDrawing\",\n    \"usage\": \"选择1–40个bodyIds，创建精确三视图及最多3个截面；按drawingId导出PDF/JPG/DXF/SVG，下载走files.download。DWG暂不可用。\"\n  },\n  \"drawingCreate\": {\n    \"tools\": [\n      \"createDrawing\"\n    ],\n    \"method\": \"createDrawing\",\n    \"usage\": \"与快速出图生成按钮相同；projection first/third，sections为plane/offset数组。\"\n  },\n  \"drawingExport\": {\n    \"tools\": [\n      \"exportDrawing\",\n      \"files.download\"\n    ],\n    \"method\": \"exportDrawing\",\n    \"usage\": \"drawingId、format、paper、title、disabledDimensions；返回generated资源，再files.download/write。\"\n  },\n  \"alignTool\": {\n    \"tools\": [\n      \"planAlignment\",\n      \"body.align\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"显式指定移动bodyIds和target；X/Y/Z、min/center/max、group保持相对位置。\"\n  },\n  \"alignBodies\": {\n    \"tools\": [\n      \"body.align\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"一次事务对齐；target.kind为body/origin/anchor/point；基准件不能同时被移动。按移动件数新增特征，超过工程2000特征或20 MiB上限返回SIZE_LIMIT且不提交。\"\n  },\n  \"alignmentPlan\": {\n    \"tools\": [\n      \"planAlignment\"\n    ],\n    \"method\": \"planAlignment\",\n    \"usage\": \"只读回每个移动件的世界坐标delta，便于先核对。\"\n  },\n  \"restoreHistory\": {\n    \"tools\": [\n      \"getHistory\",\n      \"history.restore\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"读取getHistory的stateId后通过history.restore一键恢复完整工程；不能使用当前特征序号替代状态ID。导入资源在保留状态间共享，全部保留状态不再引用后才回收；bytes仅为历史基线和差量大小。\"\n  },\n  \"round\": {\n    \"tools\": [\n      \"round\",\n      \"preview.start\",\n      \"preview.update\",\n      \"preview.cancel\",\n      \"preview.commit\",\n      \"feature.edit\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"统一圆润：edgeIds 或 faceIds 二选一。界面可选择边缘或平面边界；faceIds 解析完整外边及孔边，最多1000条边，scope读回实际范围，只支持边缘模式。边缘用 strength 或原值 radiusMm；按面自动大小参考侧壁深度，不用最短碎边。端头用自动推荐或 depthMm。鼠标拖动截面手柄等价 preview.update 修改 depthMm；松手预览一次。查看原形等价 preview.cancel，返回预览用 preview.start。必须核对范围后提交；不自动填孔或修来源轮廓。\"\n  },\n  \"fillet\": {\n    \"tools\": [\n      \"fillet\",\n      \"feature.edit\",\n      \"preview.start\",\n      \"preview.update\",\n      \"preview.commit\",\n      \"preview.cancel\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"标准数值圆角：查询当前实体边或面，feature.add op=fillet，refs:[当前实体ID]，params:{radius:明确半径mm,edgeIds:[当前边号]}。也可明确 faceIds；多面仅处理公共锐边时设置 sharedFaces:true，或 allEdges:true 处理整个实体，三种范围互斥。可先预览再提交，也可直接应用；历史 feature.edit 修改 radius 从来源重建。返回 blendReport 的 processedEdgeIds、skippedTangentEdgeIds 与实际处理尺寸；失败不提交。无需自动打磨参数或求解相关网络。\"\n  },\n  \"rounding\": {\n    \"tools\": [\n      \"rounding\",\n      \"feature.edit\",\n      \"preview.start\",\n      \"preview.update\",\n      \"preview.commit\",\n      \"preview.cancel\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"先查询当前来源实体的锐边。自动打磨使用 specVersion:3 和 scope:{kind:edges,edgeIds:[当前边号]}；不需要 sizeMm。可选 strength 为 (0,1] 比例，默认 1。相关边与面允许局部跟随；先核对预览 roundingReport.region 的 sourceBodyId、requestedEdgeIds、expandedEdgeIds 和 affectedFaceIds，再提交同一份预览。feature.edit 修改 strength 从上游重新求解。旧 specVersion:1/2 特征按原参数与语义重算，不能转换为打磨。\"\n  },\n  \"roundEnd\": {\n    \"tools\": [\n      \"roundEnd\",\n      \"preview.start\",\n      \"preview.commit\",\n      \"preview.cancel\",\n      \"feature.edit\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"先选端部边；传 edgeIds、axis、direction、profileAxis、depthMm。preview.start 核对整个端头替换范围及 endRoundingReport 中保留折痕、长度与材料变化，再 preview.commit。历史改参从来源重建。\"\n  },\n  \"pathEdit\": {\n    \"tools\": [\n      \"inspectProfile\",\n      \"feature.edit\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"选择明确的 sketchProfile 原始路径，修改完整 params 后 feature.edit 提交；保留原 placement，重建后续特征。编辑器支持端点、长度/角度、删除段、闭合和线框输出。\"\n  },\n  \"pathTrim\": {\n    \"tools\": [\n      \"prepareProfileEdit\",\n      \"feature.edit\"\n    ],\n    \"method\": \"prepareProfileEdit\",\n    \"usage\": \"选择 sketchProfile 来源；prepareProfileEdit mode=trim 明确 entityId、targetId、endpoint、candidateId，再 feature.edit 提交完整 profile。\"\n  },\n  \"pathExtend\": {\n    \"tools\": [\n      \"prepareProfileEdit\",\n      \"feature.edit\"\n    ],\n    \"method\": \"prepareProfileEdit\",\n    \"usage\": \"选择 sketchProfile 来源；prepareProfileEdit mode=extend 沿原解析曲线延伸至明确交点，feature.edit 提交。\"\n  },\n  \"pathFillet\": {\n    \"tools\": [\n      \"prepareProfileEdit\",\n      \"feature.edit\"\n    ],\n    \"method\": \"prepareProfileEdit\",\n    \"usage\": \"主视图选同一轮廓两条相邻直边；prepareProfileEdit mode=fillet、bodyId、edgeIds、radiusMm、arcId；feature.edit 编辑返回的 sourceFeatureId，提交 profile。选边先后不限。\"\n  },\n  \"pathTrimCircle\": {\n    \"tools\": [\n      \"prepareProfileEdit\",\n      \"feature.edit\"\n    ],\n    \"method\": \"prepareProfileEdit\",\n    \"usage\": \"选择 sketchProfile 来源；prepareProfileEdit mode=trimCircle，明确两个交点与 keepSide，再 feature.edit 提交。\"\n  },\n  \"vectorImport\": {\n    \"tools\": [\n      \"readVector\",\n      \"connectVector\",\n      \"sketchProfile\"\n    ],\n    \"method\": \"readVector\",\n    \"usage\": \"选择文件或粘贴矢量文本，框选完整轮廓；connectVector 诊断和组环，sketchProfile 经同一命令服务成面。\"\n  },\n  \"quickModelFavorites\": {\n    \"tools\": [\n      \"quickModel\",\n      \"getQuickModelUsage\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"模型菜单显示累计成功创建次数最多的五个 kind；getQuickModelUsage() 只读本浏览器频率，完整列表仍用快捷模型入口。生成用 quickModel 显式 params.kind、参考 placement 与幂等键。\"\n  },\n  \"reference.setWorkFrame\": {\n    \"tools\": [\n      \"reference.setWorkFrame\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"完整 context、idempotencyKey；args 指定 origin 和单位 quaternion。\"\n  },\n  \"reference.resetWorkFrame\": {\n    \"tools\": [\n      \"reference.resetWorkFrame\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"args.scope 为 position、orientation 或 all。\"\n  },\n  \"reference.setLocked\": {\n    \"tools\": [\n      \"reference.setLocked\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"args.locked 为布尔值。\"\n  },\n  \"anchorDrag\": {\n    \"tools\": [\n      \"reference.setWorkFrame\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"UI 中约束拖动参考锚点，松手仅更新任务草稿；用户点击应用后提交一次 reference.setWorkFrame。\"\n  },\n  \"anchorVisibility\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"参考锚点呼吸球显隐为本地 UI 偏好，不改变工程、固定原始坐标或几何 revision。\"\n  },\n  \"temporaryDisplay\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"temporaryDisplay 为 selectedOnly/transparentOthers/normal；只改临时显隐，不改变工程持久隐藏列表。\"\n  },\n  \"occlusionCandidates\": {\n    \"tools\": [\n      \"queryGeometry\",\n      \"setView\"\n    ],\n    \"method\": \"queryGeometry\",\n    \"usage\": \"人工 Alt+单击读取当前视线候选；AI 按精确几何 queryGeometry 取得明确 body/face/edge 引用，不依赖最前方网格。\"\n  },\n  \"commandSearch\": {\n    \"tools\": [\n      \"searchTools\"\n    ],\n    \"method\": \"searchTools\",\n    \"usage\": \"全局命令搜索使用现有工具名称与 ID；AI 可直接 searchTools，不需打开对话框。\"\n  },\n  \"reference.snapNearest\": {\n    \"tools\": [\n      \"queryGeometry\",\n      \"reference.setWorkFrame\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"查询选定 CAD 边的精确端点、弧长中点与解析圆心，明确选中一个候选后提交工作基准。\"\n  },\n  \"reference.alignSelectedFace\": {\n    \"tools\": [\n      \"queryGeometry\",\n      \"reference.setWorkFrame\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"选定当前精确平面面片，读取法向；以当前工作 X 作为面内方向，确认后更新工作基准方向。\"\n  },\n  \"renderQuality\": {\n    \"tools\": [\n      \"setRenderQuality\"\n    ],\n    \"method\": \"setRenderQuality\",\n    \"usage\": \"显式 quality=draft/standard/fine/ultra；getState().renderQuality 读公差、三角面数，不修改 BRep。\"\n  },\n  \"downloadResource\": {\n    \"tools\": [\n      \"files.download\"\n    ],\n    \"method\": \"files.download\",\n    \"usage\": \"使用生成回执的 resourceId 重试下载；不重新生成或清除 dirty。\"\n  },\n  \"advancedLoft\": {\n    \"tools\": [\n      \"advancedLoft\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"arcProfile\": {\n    \"tools\": [\n      \"arcProfile\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"autoRound\": {\n    \"tools\": [\n      \"autoRound\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"box\": {\n    \"tools\": [\n      \"box\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"chamfer\": {\n    \"tools\": [\n      \"chamfer\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"circularPattern\": {\n    \"tools\": [\n      \"circularPattern\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"coil\": {\n    \"tools\": [\n      \"coil\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"cone\": {\n    \"tools\": [\n      \"cone\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"copy\": {\n    \"tools\": [\n      \"copy\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"curveSweep\": {\n    \"tools\": [\n      \"curveSweep\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"curvedLogo\": {\n    \"tools\": [\n      \"curvedLogo\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"cut\": {\n    \"tools\": [\n      \"cut\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"cylinder\": {\n    \"tools\": [\n      \"cylinder\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"draftByPlane\": {\n    \"tools\": [\n      \"draftByPlane\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"draftFaces\": {\n    \"tools\": [\n      \"draftFaces\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"extractFaces\": {\n    \"tools\": [\n      \"extractFaces\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"extractShell\": {\n    \"tools\": [\n      \"extractShell\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"extractSolid\": {\n    \"tools\": [\n      \"extractSolid\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"extrude\": {\n    \"tools\": [\n      \"extrude\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"faceBoundary\": {\n    \"tools\": [\n      \"faceBoundary\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"faceExtrude\": {\n    \"tools\": [\n      \"faceExtrude\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"faceGroove\": {\n    \"tools\": [\n      \"faceGroove\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"faceHole\": {\n    \"tools\": [\n      \"faceHole\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"fittedSurface\": {\n    \"tools\": [\n      \"fittedSurface\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"group\": {\n    \"tools\": [\n      \"group\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"helix\": {\n    \"tools\": [\n      \"helix\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"hole\": {\n    \"tools\": [\n      \"hole\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"holeWizard\": {\n    \"tools\": [\n      \"holeWizard\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"import\": {\n    \"tools\": [\n      \"files.import\"\n    ],\n    \"method\": \"files.import\",\n    \"usage\": \"先 files.register 登记真实字节；不模拟文件选择器。\"\n  },\n  \"innerTurn\": {\n    \"tools\": [\n      \"innerTurn\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"intersect\": {\n    \"tools\": [\n      \"intersect\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"linearPattern\": {\n    \"tools\": [\n      \"linearPattern\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"loft\": {\n    \"tools\": [\n      \"loft\",\n      \"profileLoft\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"已画截面使用 profileLoft，refs按截面顺序排列，加工时最后附目标；旧两个数值截面模式使用 loft。\"\n  },\n  \"logo\": {\n    \"tools\": [\n      \"logo\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"mirror\": {\n    \"tools\": [\n      \"mirror\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"multiBoss\": {\n    \"tools\": [\n      \"multiBoss\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"getTool({id:\\\"multiBoss\\\"}) 读取 strict v2 卡；feature.add 或 run add 传 radius/height/axis/direction/points 与真实 refs；feature.edit 修改历史凸台。\"\n  },\n  \"multiHole\": {\n    \"tools\": [\n      \"multiHole\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"multiPocket\": {\n    \"tools\": [\n      \"multiPocket\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"getTool({id:\\\"multiPocket\\\"}) 读取 strict v2 卡；feature.add 或 run add 传 depth/axis/direction/pockets、真实 refs；feature.edit 修改历史凹槽列表。\"\n  },\n  \"offsetSolid\": {\n    \"tools\": [\n      \"offsetSolid\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"offsetSurface\": {\n    \"tools\": [\n      \"offsetSurface\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"outerTurn\": {\n    \"tools\": [\n      \"outerTurn\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"planeSection\": {\n    \"tools\": [\n      \"planeSection\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"profileConstraints\": {\n    \"tools\": [\n      \"profileConstraints\",\n      \"inspectConstraints\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"inspectConstraints({context,bodyId})读真实局部图元、约束图及自由度；profileConstraints新建派生轮廓，继承来源关系。feature.edit修改原constraints数组驱动下游。\"\n  },\n  \"profileExtrude\": {\n    \"tools\": [\n      \"profileExtrude\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"profileLoft\": {\n    \"tools\": [\n      \"profileLoft\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"profileOffset\": {\n    \"tools\": [\n      \"profileOffset\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"profileRepair\": {\n    \"tools\": [\n      \"profileRepair\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"profileRevolve\": {\n    \"tools\": [\n      \"profileRevolve\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"profileSweep\": {\n    \"tools\": [\n      \"profileSweep\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"quickModel\": {\n    \"tools\": [\n      \"quickModel\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"referenceExtrude\": {\n    \"tools\": [\n      \"referenceExtrude\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"referenceLoft\": {\n    \"tools\": [\n      \"referenceLoft\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"refineShape\": {\n    \"tools\": [\n      \"refineShape\",\n      \"getState\",\n      \"queryGeometry\",\n      \"preview.start\",\n      \"preview.commit\",\n      \"preview.cancel\",\n      \"history.undo\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"选择一个封闭实体，feature.add op=refineShape，refs:[bodyId]，params:{}。无需公差参数，可先 preview.start 再 commit；getState.bodies[].refineReport 读前后面边数和材料差。NO_CHANGE 不提交。拓扑编号改变后重新 queryGeometry。\"\n  },\n  \"relief\": {\n    \"tools\": [\n      \"relief\",\n      \"readRelief\",\n      \"files.register\",\n      \"getState\",\n      \"preview.start\",\n      \"preview.commit\",\n      \"preview.cancel\",\n      \"feature.edit\",\n      \"history.undo\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"面加工→浮雕。files.register图像，readRelief生成独立轮廓regions与高度values；run add relief显式faceId/refs/尺寸/高度/位置、values/regions/surfaceMode/source。surfaceMode=flat为精确平顶，smooth为轮廓内平滑起伏，背景保留原面。支持分层.relief.json及layers显式高度、strokes开放刻线和curveToleranceMm曲线公差；UI逐层编辑高度和方向，API feature.edit修改layers。柱面须point、角宽≤90°、angleDeg=0。旧无regions工程保留原基底层语义。预览后提交，getState.bodies[].reliefReport回读背景、表面方式与实际材料变化。\"\n  },\n  \"remove\": {\n    \"tools\": [\n      \"feature.remove\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"args:{bodyIds}；删除当前实体。\"\n  },\n  \"revolve\": {\n    \"tools\": [\n      \"revolve\",\n      \"profileRevolve\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"已画轮廓使用 profileRevolve，refs为截面及可选加工目标；旧尺寸模式使用 revolve。显式世界轴与角度，读取当前卡。\"\n  },\n  \"sewFaces\": {\n    \"tools\": [\n      \"sewFaces\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"shell\": {\n    \"tools\": [\n      \"shell\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"sketchProfile\": {\n    \"tools\": [\n      \"sketchProfile\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"slot\": {\n    \"tools\": [\n      \"slot\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"smoothTransition\": {\n    \"tools\": [\n      \"smoothTransition\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"sphere\": {\n    \"tools\": [\n      \"sphere\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"split\": {\n    \"tools\": [\n      \"split\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"surfaceTrim\": {\n    \"tools\": [\n      \"surfaceTrim\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"sweep\": {\n    \"tools\": [\n      \"sweep\",\n      \"profileSweep\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"已画轮廓使用 profileSweep，refs=[截面,开放精确路径,可选加工目标]；截面须在路径起点平面。旧折线尺寸模式使用 sweep。\"\n  },\n  \"thickenFace\": {\n    \"tools\": [\n      \"thickenFace\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"thread\": {\n    \"tools\": [\n      \"thread\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"torus\": {\n    \"tools\": [\n      \"torus\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"transform\": {\n    \"tools\": [\n      \"transform\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"union\": {\n    \"tools\": [\n      \"union\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"vectorProfile\": {\n    \"tools\": [\n      \"vectorProfile\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"reliefSculpt\": {\n    \"tools\": [\n      \"sampleReliefHeight\",\n      \"prepareReliefSculpt\",\n      \"feature.edit\",\n      \"preview.start\",\n      \"preview.commit\",\n      \"preview.cancel\",\n      \"history.undo\"\n    ],\n    \"method\": \"prepareReliefSculpt\",\n    \"usage\": \"浮雕历史属性→浮雕精修；独立毫米域用 patch:{id,domainMm,samples,protectionMm}，域内增量独立保存，边界两排固定；实际柱面及邻层预览用 preview.start args:{featureEdit:{featureId,params}}，再 preview.commit/cancel；patchId 对应独立域吸取。prepareReliefSculpt({context,featureId,strokes,draft?})只读返回params.sculpt；检查canCommit/blockers后feature.edit提交。笔刷raise/lower/smooth/flatten/fill/scrape/sharpen/restore/mask/unmask，hardness为0–1、symmetry为none/x/y/xy，局部points为[-.5,.5]，radiusMm/amountMm/targetMm为毫米，strength为0–1。工程保存原始高度及deltaMm/mask；关闭/切层暂存草稿、应用当前层一次撤销；Alt吸取对应sampleReliefHeight({context,featureId,point,draft?})，返回targetMm可给flatten，quantity区分height/depth，与UI共用采样；轮廓外或孔内失败RELIEF_SAMPLE_OUTSIDE；预览旋转缩放不改模型。\"\n  },\n  \"precisionSettings\": {\n    \"tools\": [\n      \"setDisplayPreferences\"\n    ],\n    \"method\": \"setDisplayPreferences\",\n    \"usage\": \"全局 themeColor 与 snapThresholdMm 在当前浏览器持久化。\"\n  },\n  \"themeSettings\": {\n    \"tools\": [\n      \"setDisplayPreferences\"\n    ],\n    \"method\": \"setDisplayPreferences\",\n    \"usage\": \"全局 themeColor 与 snapThresholdMm 在当前浏览器持久化。\"\n  },\n  \"snapSettings\": {\n    \"tools\": [\n      \"setDisplayPreferences\"\n    ],\n    \"method\": \"setDisplayPreferences\",\n    \"usage\": \"全局 themeColor 与 snapThresholdMm 在当前浏览器持久化。\"\n  },\n  \"languageSettings\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"language:zh/en。\"\n  },\n  \"agentGuide\": {\n    \"tools\": [\n      \"connect\",\n      \"getTools\",\n      \"readDocs\"\n    ],\n    \"method\": \"connect\",\n    \"usage\": \"connect({queries,includeContracts:true}) 返回当前 canExecute/blockers、requestContext 与完整卡；onboarding 提供首次连接步骤、本地安装包和真实操作路由；readDocs({docId:\\\"api.connection\\\"}) 说明宿主能力检查。knownHashes 只缓存完整工具卡，不缓存实体身份。\"\n  },\n  \"servicesSettings\": {\n    \"tools\": [\n      \"getServices\",\n      \"setServices\",\n      \"getServicesCapabilities\",\n      \"getServicesRouting\",\n      \"clearServicesCredential\"\n    ],\n    \"method\": \"setServices\",\n    \"usage\": \"context、url、credential、enabled、localTimeoutMs、serverWaitMs；配置 Services 后复杂运算使用服务。超时配置从下一次运算生效；getServicesRouting 读取选择原因和等待状态，不回显授权。\"\n  },\n  \"servicesFeatureCompile\": {\n    \"tools\": [\n      \"feature.compileServices\",\n      \"getServicesCapabilities\",\n      \"getServicesRouting\",\n      \"getState\",\n      \"getServicesRequest\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"原特征属性→Services 精确计算为每次显式远程；普通新建/编辑在 setServices 设 allowGeometryUploads:true 后按同一 ExecutionRouter 选择。getServicesRouting 读取原因。失败保留工程，未知任务先核对，不自动重算。\"\n  },\n  \"displayPreferences\": {\n    \"tools\": [\n      \"setDisplayPreferences\"\n    ],\n    \"method\": \"setDisplayPreferences\",\n    \"usage\": \"渲染设置使用 setDisplayPreferences；LOGO 转化为独立入口。\"\n  },\n  \"panels\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"panels:{left:boolean,right:boolean}；getState().view.panels 读状态。\"\n  },\n  \"workspace\": {\n    \"tools\": [\n      \"setView\",\n      \"getUILayout\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"workspace:modeling/library/agent、toolbar:boolean、focus:boolean、libraryMode:cards/list；getState().view.workspaceLayout 读回。活动草稿先结束，预览先取消。\"\n  },\n  \"modelLibrary\": {\n    \"tools\": [\n      \"getModelLibrary\",\n      \"updateModelLibrary\",\n      \"resolveModelLibrary\",\n      \"getUILayout\",\n      \"setView\",\n      \"quickModel\",\n      \"run\"\n    ],\n    \"method\": \"updateModelLibrary\",\n    \"usage\": \"getModelLibrary读取当前revision、每条字段及完整生成契约。updateModelLibrary传当前context和expectedLibraryRevision，operation=upsert/remove/move/restore/import。resolveModelLibrary返回冻结的quickModel参数，run/add生成，删除库条目不影响历史。\"\n  },\n  \"moveTool\": {\n    \"tools\": [\n      \"setView\",\n      \"transform\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"setView({context,gizmo:\\\"translate\\\",selectedIds?}) 开启鼠标移动；自动使用实体选择。getState().view.transform 读可拖状态与 blocker；精确移动用 transform 的显式 params/refs，经 execute 或 run 提交。\"\n  },\n  \"rotateTool\": {\n    \"tools\": [\n      \"setView\",\n      \"transform\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"setView({context,gizmo:\\\"rotate\\\",selectedIds?}) 开启单对象鼠标旋转。getState().view.transform 读可拖状态；精确旋转用 transform，显式指定角度、轴与中心，不依赖 UI 选择。多对象分别用 run 的 transform 步骤，atomic=false。\"\n  },\n  \"copySelection\": {\n    \"tools\": [\n      \"copySelection\"\n    ],\n    \"method\": \"copySelection\",\n    \"usage\": \"context、bodyIds，读 getState().view.clipboard。\"\n  },\n  \"pasteSelection\": {\n    \"tools\": [\n      \"pasteSelection\"\n    ],\n    \"method\": \"pasteSelection\",\n    \"usage\": \"context、idempotencyKey；整体底面中心放在锚点。粘贴按对象新增特征，共用2000特征/20 MiB工程容量检查，超限不提交。\"\n  },\n  \"importAtFrame\": {\n    \"tools\": [\n      \"files.register\",\n      \"files.import\"\n    ],\n    \"method\": \"files.import\",\n    \"usage\": \"用户选定真实 STEP/BREP 文件后登记字节；显式提交当前工作基准版本、来源包围盒中心和幂等键。\"\n  },\n  \"new\": {\n    \"tools\": [\n      \"files.new\"\n    ],\n    \"method\": \"files.new\"\n  },\n  \"open\": {\n    \"tools\": [\n      \"files.open\",\n      \"files.import\"\n    ],\n    \"method\": \"files.open\"\n  },\n  \"save\": {\n    \"tools\": [\n      \"files.save\",\n      \"files.download\",\n      \"files.write\"\n    ],\n    \"method\": \"files.save\"\n  },\n  \"export\": {\n    \"tools\": [\n      \"files.export\"\n    ],\n    \"method\": \"files.export\"\n  },\n  \"rename\": {\n    \"tools\": [\n      \"document.rename\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"editFeature\": {\n    \"tools\": [\n      \"feature.edit\",\n      \"feature.rename\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"visibility\": {\n    \"tools\": [\n      \"body.visibility\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"explode\": {\n    \"tools\": [\n      \"body.explode\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"perPartMetal\": {\n    \"tools\": [\n      \"body.appearance\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"bodyColor\": {\n    \"tools\": [\n      \"body.appearance\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"metalFinish\": {\n    \"tools\": [\n      \"document.appearance\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"parameters\": {\n    \"tools\": [\n      \"document.parameters\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"undo\": {\n    \"tools\": [\n      \"history.undo\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"redo\": {\n    \"tools\": [\n      \"history.redo\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"preview\": {\n    \"tools\": [\n      \"preview.start\",\n      \"convertLogoPdf\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"PDF 字节可用 convertLogoPdf 取得待复核 regions，再用 preview.start 放置。\"\n  },\n  \"commitPreview\": {\n    \"tools\": [\n      \"preview.commit\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"cancelPreview\": {\n    \"tools\": [\n      \"preview.cancel\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"sketch\": {\n    \"tools\": [\n      \"extrude\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"兼容的轮廓并拉伸入口对应 extrude，传 profile/points/plane 等显式参数。主绘制轮廓入口用 sketchProfile，再单独 profileExtrude；不需要模拟逐点点击。\"\n  },\n  \"measure\": {\n    \"tools\": [\n      \"measure\",\n      \"queryGeometry\",\n      \"getState\"\n    ],\n    \"method\": \"measure\",\n    \"usage\": \"实体/面/边精确测量；属性区总表面积对应 getState().bodies[].area 或 measure(kind:body).area，单位mm²。两点距离用 points:[XYZ,XYZ]，来源标为输入坐标。\"\n  },\n  \"inspectPrintability\": {\n    \"tools\": [\n      \"inspectPrintability\"\n    ],\n    \"method\": \"inspectPrintability\",\n    \"usage\": \"选定当前 bodyId 与 angleLimitDeg；返回网格悬垂事实和六个摆放方向，不判定工艺合格。\"\n  },\n  \"inspectProfile\": {\n    \"tools\": [\n      \"inspectProfile\"\n    ],\n    \"method\": \"inspectProfile\",\n    \"usage\": \"选定当前可编辑解析轮廓 bodyId；返回端点、零长、重线和直线相交问题，不修改工程。\"\n  },\n  \"inspectFit\": {\n    \"tools\": [\n      \"inspectFit\"\n    ],\n    \"method\": \"inspectFit\",\n    \"usage\": \"显式给两个当前单实体 bodyId、mm 接触容差；在独立 BREP 副本上求交与测最短距离，不修改来源、历史或显示修订。\"\n  },\n  \"inspectThickness\": {\n    \"tools\": [\n      \"inspectThickness\"\n    ],\n    \"method\": \"inspectThickness\",\n    \"usage\": \"选择单一封闭实体、表面点与向内方向，或两个平行面；只读精确连续材料厚度。\"\n  },\n  \"inspectDraft\": {\n    \"tools\": [\n      \"inspectDraft\"\n    ],\n    \"method\": \"inspectDraft\",\n    \"usage\": \"显式实体、拉出方向、用户阈值；解析平面精确法向倾角，曲面明确未支持，不判定完整脱模。\"\n  },\n  \"measureRelation\": {\n    \"tools\": [\n      \"measureRelation\"\n    ],\n    \"method\": \"measureRelation\",\n    \"usage\": \"显式选择两个实体/边/面，或点与有限面，读取精确几何关系与见证点。\"\n  },\n  \"textCommand\": {\n    \"tools\": [\n      \"executeText\"\n    ],\n    \"method\": \"executeText\",\n    \"usage\": \"仅解析白名单文本命令，编译为当前页面 run 事务；dryRun 可先读回实际步骤。\"\n  },\n  \"fitProfile\": {\n    \"tools\": [\n      \"fitProfile\"\n    ],\n    \"method\": \"fitProfile\",\n    \"usage\": \"输入有序的二维截面点，返回圆或直线的数值拟合参数及残差；不修改工程。\"\n  },\n  \"screenshot\": {\n    \"tools\": [\n      \"capture\",\n      \"files.export\"\n    ],\n    \"method\": \"capture\"\n  },\n  \"fit\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"view\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"display\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"projection\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"grid\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"snap\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"section\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"selectMode\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"selection\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"gizmo\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"gizmoTranslate\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"gizmoRotate\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"gizmoOff\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"camera\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"language\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"help\": {\n    \"tools\": [\n      \"readDocs\"\n    ],\n    \"method\": \"readDocs\"\n  },\n  \"mcp\": {\n    \"tools\": [\n      \"run\"\n    ],\n    \"method\": \"run\",\n    \"usage\": \"JSON 面板只是同一 api.run 的界面入口。\"\n  }\n}",
+    "api.ui-coverage": "界面动作与 AI 等价接口（手势以坐标和显式参数代替）：\n{\n  \"servicesWaitDecision\": {\n    \"tools\": [\n      \"decideServicesWait\",\n      \"getServicesRouting\",\n      \"getServicesJob\"\n    ],\n    \"method\": \"decideServicesWait\",\n    \"usage\": \"服务器达到可配置等待时间时，选择 continue 续查同任务，或 stop 终止受控任务；不创建新计算。\"\n  },\n  \"reliefTopologyUpgrade\": {\n    \"tools\": [\n      \"prepareReliefTopologyUpgrade\",\n      \"feature.edit\",\n      \"getState\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"只读预览策略差异后按同修订明确应用；不改设计尺寸、不静默迁移旧工程。\"\n  },\n  \"servicesJobRecovery\": {\n    \"tools\": [\n      \"getServicesJob\",\n      \"recoverServicesJob\"\n    ],\n    \"method\": \"recoverServicesJob\",\n    \"usage\": \"先核对 interrupted 旧任务，再明确授权一次环境恢复；几何失败、未知或仍运行任务不会重算。\"\n  },\n  \"selectTool\": {\n    \"tools\": [\n      \"setView\",\n      \"selectRectangle\",\n      \"preview.cancel\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"实体模式左键拖框选，左向右全包含、右向左相交，Shift/Ctrl追加，Escape取消；Alt+左键保留旋转。selectRectangle显式指定当前视口0..1矩形。相交模式处理近远裁剪面，仍按对象投影包围框判定。\"\n  },\n  \"quickDrawing\": {\n    \"tools\": [\n      \"createDrawing\",\n      \"exportDrawing\",\n      \"files.download\"\n    ],\n    \"method\": \"createDrawing\",\n    \"usage\": \"选择1–40个bodyIds，创建精确三视图及最多3个截面；按drawingId导出PDF/JPG/DXF/SVG，下载走files.download。DWG暂不可用。\"\n  },\n  \"drawingCreate\": {\n    \"tools\": [\n      \"createDrawing\"\n    ],\n    \"method\": \"createDrawing\",\n    \"usage\": \"与快速出图生成按钮相同；projection first/third，sections为plane/offset数组。\"\n  },\n  \"drawingExport\": {\n    \"tools\": [\n      \"exportDrawing\",\n      \"files.download\"\n    ],\n    \"method\": \"exportDrawing\",\n    \"usage\": \"drawingId、format、paper、title、disabledDimensions；返回generated资源，再files.download/write。\"\n  },\n  \"alignTool\": {\n    \"tools\": [\n      \"planAlignment\",\n      \"body.align\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"显式指定移动bodyIds和target；X/Y/Z、min/center/max、group保持相对位置。\"\n  },\n  \"alignBodies\": {\n    \"tools\": [\n      \"body.align\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"一次事务对齐；target.kind为body/origin/anchor/point；基准件不能同时被移动。按移动件数新增特征，超过工程2000特征或20 MiB上限返回SIZE_LIMIT且不提交。\"\n  },\n  \"alignmentPlan\": {\n    \"tools\": [\n      \"planAlignment\"\n    ],\n    \"method\": \"planAlignment\",\n    \"usage\": \"只读回每个移动件的世界坐标delta，便于先核对。\"\n  },\n  \"restoreHistory\": {\n    \"tools\": [\n      \"getHistory\",\n      \"history.restore\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"读取getHistory的stateId后通过history.restore一键恢复完整工程；不能使用当前特征序号替代状态ID。导入资源在保留状态间共享，全部保留状态不再引用后才回收；bytes仅为历史基线和差量大小。\"\n  },\n  \"round\": {\n    \"tools\": [\n      \"round\",\n      \"preview.start\",\n      \"preview.update\",\n      \"preview.cancel\",\n      \"preview.commit\",\n      \"feature.edit\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"统一圆润：edgeIds 或 faceIds 二选一。界面可选择边缘或平面边界；faceIds 解析完整外边及孔边，最多1000条边，scope读回实际范围，只支持边缘模式。边缘用 strength 或原值 radiusMm；按面自动大小参考侧壁深度，不用最短碎边。端头用自动推荐或 depthMm。鼠标拖动截面手柄等价 preview.update 修改 depthMm；松手预览一次。查看原形等价 preview.cancel，返回预览用 preview.start。必须核对范围后提交；不自动填孔或修来源轮廓。\"\n  },\n  \"fillet\": {\n    \"tools\": [\n      \"fillet\",\n      \"feature.edit\",\n      \"preview.start\",\n      \"preview.update\",\n      \"preview.commit\",\n      \"preview.cancel\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"标准数值圆角：查询当前实体边或面，feature.add op=fillet，refs:[当前实体ID]，params:{radius:明确半径mm,edgeIds:[当前边号]}。也可明确 faceIds；多面仅处理公共锐边时设置 sharedFaces:true，或 allEdges:true 处理整个实体，三种范围互斥。可先预览再提交，也可直接应用；历史 feature.edit 修改 radius 从来源重建。返回 blendReport 的 processedEdgeIds、skippedTangentEdgeIds 与实际处理尺寸；失败不提交。无需自动打磨参数或求解相关网络。\"\n  },\n  \"rounding\": {\n    \"tools\": [\n      \"rounding\",\n      \"feature.edit\",\n      \"preview.start\",\n      \"preview.update\",\n      \"preview.commit\",\n      \"preview.cancel\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"先查询当前来源实体的锐边。自动打磨使用 specVersion:3 和 scope:{kind:edges,edgeIds:[当前边号]}；不需要 sizeMm。可选 strength 为 (0,1] 比例，默认 1。相关边与面允许局部跟随；先核对预览 roundingReport.region 的 sourceBodyId、requestedEdgeIds、expandedEdgeIds 和 affectedFaceIds，再提交同一份预览。feature.edit 修改 strength 从上游重新求解。旧 specVersion:1/2 特征按原参数与语义重算，不能转换为打磨。\"\n  },\n  \"roundEnd\": {\n    \"tools\": [\n      \"roundEnd\",\n      \"preview.start\",\n      \"preview.commit\",\n      \"preview.cancel\",\n      \"feature.edit\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"先选端部边；传 edgeIds、axis、direction、profileAxis、depthMm。preview.start 核对整个端头替换范围及 endRoundingReport 中保留折痕、长度与材料变化，再 preview.commit。历史改参从来源重建。\"\n  },\n  \"pathEdit\": {\n    \"tools\": [\n      \"inspectProfile\",\n      \"feature.edit\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"选择明确的 sketchProfile 原始路径，修改完整 params 后 feature.edit 提交；保留原 placement，重建后续特征。编辑器支持端点、长度/角度、删除段、闭合和线框输出。\"\n  },\n  \"pathTrim\": {\n    \"tools\": [\n      \"prepareProfileEdit\",\n      \"feature.edit\"\n    ],\n    \"method\": \"prepareProfileEdit\",\n    \"usage\": \"选择 sketchProfile 来源；prepareProfileEdit mode=trim 明确 entityId、targetId、endpoint、candidateId，再 feature.edit 提交完整 profile。\"\n  },\n  \"pathExtend\": {\n    \"tools\": [\n      \"prepareProfileEdit\",\n      \"feature.edit\"\n    ],\n    \"method\": \"prepareProfileEdit\",\n    \"usage\": \"选择 sketchProfile 来源；prepareProfileEdit mode=extend 沿原解析曲线延伸至明确交点，feature.edit 提交。\"\n  },\n  \"pathFillet\": {\n    \"tools\": [\n      \"prepareProfileEdit\",\n      \"feature.edit\"\n    ],\n    \"method\": \"prepareProfileEdit\",\n    \"usage\": \"主视图选同一轮廓两条相邻直边；prepareProfileEdit mode=fillet、bodyId、edgeIds、radiusMm、arcId；feature.edit 编辑返回的 sourceFeatureId，提交 profile。选边先后不限。\"\n  },\n  \"pathTrimCircle\": {\n    \"tools\": [\n      \"prepareProfileEdit\",\n      \"feature.edit\"\n    ],\n    \"method\": \"prepareProfileEdit\",\n    \"usage\": \"选择 sketchProfile 来源；prepareProfileEdit mode=trimCircle，明确两个交点与 keepSide，再 feature.edit 提交。\"\n  },\n  \"vectorImport\": {\n    \"tools\": [\n      \"readVector\",\n      \"connectVector\",\n      \"sketchProfile\"\n    ],\n    \"method\": \"readVector\",\n    \"usage\": \"选择文件或粘贴矢量文本，框选完整轮廓；connectVector 诊断和组环，sketchProfile 经同一命令服务成面。\"\n  },\n  \"quickModel\": {\n    \"tools\": [\n      \"quickModel\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"quickModelFavorites\": {\n    \"tools\": [\n      \"setView\",\n      \"getQuickModelUsage\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"兼容旧快捷入口；setView({context,workspace:\\\"library\\\"})打开同一快捷模型工具，频率仍可getQuickModelUsage只读。\"\n  },\n  \"reference.setWorkFrame\": {\n    \"tools\": [\n      \"reference.setWorkFrame\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"完整 context、idempotencyKey；args 指定 origin 和单位 quaternion。\"\n  },\n  \"reference.resetWorkFrame\": {\n    \"tools\": [\n      \"reference.resetWorkFrame\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"args.scope 为 position、orientation 或 all。\"\n  },\n  \"reference.setLocked\": {\n    \"tools\": [\n      \"reference.setLocked\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"args.locked 为布尔值。\"\n  },\n  \"anchorDrag\": {\n    \"tools\": [\n      \"reference.setWorkFrame\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"UI 中约束拖动参考锚点，松手仅更新任务草稿；用户点击应用后提交一次 reference.setWorkFrame。\"\n  },\n  \"anchorVisibility\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"参考锚点呼吸球显隐为本地 UI 偏好，不改变工程、固定原始坐标或几何 revision。\"\n  },\n  \"temporaryDisplay\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"temporaryDisplay 为 selectedOnly/transparentOthers/normal；只改临时显隐，不改变工程持久隐藏列表。\"\n  },\n  \"occlusionCandidates\": {\n    \"tools\": [\n      \"queryGeometry\",\n      \"setView\"\n    ],\n    \"method\": \"queryGeometry\",\n    \"usage\": \"人工 Alt+单击读取当前视线候选；AI 按精确几何 queryGeometry 取得明确 body/face/edge 引用，不依赖最前方网格。\"\n  },\n  \"commandSearch\": {\n    \"tools\": [\n      \"searchTools\"\n    ],\n    \"method\": \"searchTools\",\n    \"usage\": \"全局命令搜索使用现有工具名称与 ID；AI 可直接 searchTools，不需打开对话框。\"\n  },\n  \"reference.snapNearest\": {\n    \"tools\": [\n      \"queryGeometry\",\n      \"reference.setWorkFrame\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"查询选定 CAD 边的精确端点、弧长中点与解析圆心，明确选中一个候选后提交工作基准。\"\n  },\n  \"reference.alignSelectedFace\": {\n    \"tools\": [\n      \"queryGeometry\",\n      \"reference.setWorkFrame\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"选定当前精确平面面片，读取法向；以当前工作 X 作为面内方向，确认后更新工作基准方向。\"\n  },\n  \"renderQuality\": {\n    \"tools\": [\n      \"setRenderQuality\"\n    ],\n    \"method\": \"setRenderQuality\",\n    \"usage\": \"显式 quality=draft/standard/fine/ultra；getState().renderQuality 读公差、三角面数，不修改 BRep。\"\n  },\n  \"downloadResource\": {\n    \"tools\": [\n      \"files.download\"\n    ],\n    \"method\": \"files.download\",\n    \"usage\": \"使用生成回执的 resourceId 重试下载；不重新生成或清除 dirty。\"\n  },\n  \"advancedLoft\": {\n    \"tools\": [\n      \"advancedLoft\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"arcProfile\": {\n    \"tools\": [\n      \"arcProfile\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"autoRound\": {\n    \"tools\": [\n      \"autoRound\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"box\": {\n    \"tools\": [\n      \"box\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"chamfer\": {\n    \"tools\": [\n      \"chamfer\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"circularPattern\": {\n    \"tools\": [\n      \"circularPattern\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"coil\": {\n    \"tools\": [\n      \"coil\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"cone\": {\n    \"tools\": [\n      \"cone\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"copy\": {\n    \"tools\": [\n      \"copy\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"curveSweep\": {\n    \"tools\": [\n      \"curveSweep\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"curvedLogo\": {\n    \"tools\": [\n      \"curvedLogo\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"cut\": {\n    \"tools\": [\n      \"cut\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"cylinder\": {\n    \"tools\": [\n      \"cylinder\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"draftByPlane\": {\n    \"tools\": [\n      \"draftByPlane\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"draftFaces\": {\n    \"tools\": [\n      \"draftFaces\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"extractFaces\": {\n    \"tools\": [\n      \"extractFaces\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"extractShell\": {\n    \"tools\": [\n      \"extractShell\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"extractSolid\": {\n    \"tools\": [\n      \"extractSolid\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"extrude\": {\n    \"tools\": [\n      \"extrude\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"faceBoundary\": {\n    \"tools\": [\n      \"faceBoundary\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"faceExtrude\": {\n    \"tools\": [\n      \"faceExtrude\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"faceGroove\": {\n    \"tools\": [\n      \"faceGroove\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"faceHole\": {\n    \"tools\": [\n      \"faceHole\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"fittedSurface\": {\n    \"tools\": [\n      \"fittedSurface\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"group\": {\n    \"tools\": [\n      \"group\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"helix\": {\n    \"tools\": [\n      \"helix\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"hole\": {\n    \"tools\": [\n      \"hole\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"holeWizard\": {\n    \"tools\": [\n      \"holeWizard\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"import\": {\n    \"tools\": [\n      \"files.import\"\n    ],\n    \"method\": \"files.import\",\n    \"usage\": \"先 files.register 登记真实字节；不模拟文件选择器。\"\n  },\n  \"innerTurn\": {\n    \"tools\": [\n      \"innerTurn\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"intersect\": {\n    \"tools\": [\n      \"intersect\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"linearPattern\": {\n    \"tools\": [\n      \"linearPattern\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"loft\": {\n    \"tools\": [\n      \"loft\",\n      \"profileLoft\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"已画截面使用 profileLoft，refs按截面顺序排列，加工时最后附目标；旧两个数值截面模式使用 loft。\"\n  },\n  \"logo\": {\n    \"tools\": [\n      \"logo\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"mirror\": {\n    \"tools\": [\n      \"mirror\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"multiBoss\": {\n    \"tools\": [\n      \"multiBoss\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"getTool({id:\\\"multiBoss\\\"}) 读取 strict v2 卡；feature.add 或 run add 传 radius/height/axis/direction/points 与真实 refs；feature.edit 修改历史凸台。\"\n  },\n  \"multiHole\": {\n    \"tools\": [\n      \"multiHole\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"multiPocket\": {\n    \"tools\": [\n      \"multiPocket\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"getTool({id:\\\"multiPocket\\\"}) 读取 strict v2 卡；feature.add 或 run add 传 depth/axis/direction/pockets、真实 refs；feature.edit 修改历史凹槽列表。\"\n  },\n  \"offsetSolid\": {\n    \"tools\": [\n      \"offsetSolid\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"offsetSurface\": {\n    \"tools\": [\n      \"offsetSurface\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"outerTurn\": {\n    \"tools\": [\n      \"outerTurn\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"planeSection\": {\n    \"tools\": [\n      \"planeSection\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"profileConstraints\": {\n    \"tools\": [\n      \"profileConstraints\",\n      \"inspectConstraints\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"inspectConstraints({context,bodyId})读真实局部图元、约束图及自由度；profileConstraints新建派生轮廓，继承来源关系。feature.edit修改原constraints数组驱动下游。\"\n  },\n  \"profileExtrude\": {\n    \"tools\": [\n      \"profileExtrude\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"profileLoft\": {\n    \"tools\": [\n      \"profileLoft\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"profileOffset\": {\n    \"tools\": [\n      \"profileOffset\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"profileRepair\": {\n    \"tools\": [\n      \"profileRepair\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"profileRevolve\": {\n    \"tools\": [\n      \"profileRevolve\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"profileSweep\": {\n    \"tools\": [\n      \"profileSweep\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"referenceExtrude\": {\n    \"tools\": [\n      \"referenceExtrude\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"referenceLoft\": {\n    \"tools\": [\n      \"referenceLoft\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"refineShape\": {\n    \"tools\": [\n      \"refineShape\",\n      \"getState\",\n      \"queryGeometry\",\n      \"preview.start\",\n      \"preview.commit\",\n      \"preview.cancel\",\n      \"history.undo\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"选择一个封闭实体，feature.add op=refineShape，refs:[bodyId]，params:{}。无需公差参数，可先 preview.start 再 commit；getState.bodies[].refineReport 读前后面边数和材料差。NO_CHANGE 不提交。拓扑编号改变后重新 queryGeometry。\"\n  },\n  \"relief\": {\n    \"tools\": [\n      \"relief\",\n      \"readRelief\",\n      \"files.register\",\n      \"getState\",\n      \"preview.start\",\n      \"preview.commit\",\n      \"preview.cancel\",\n      \"feature.edit\",\n      \"history.undo\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"面加工→浮雕。files.register图像，readRelief生成独立轮廓regions与高度values；run add relief显式faceId/refs/尺寸/高度/位置、values/regions/surfaceMode/source。surfaceMode=flat为精确平顶，smooth为轮廓内平滑起伏，背景保留原面。支持分层.relief.json及layers显式高度、strokes开放刻线和curveToleranceMm曲线公差；UI逐层编辑高度和方向，API feature.edit修改layers。柱面须point、角宽≤90°、angleDeg=0。旧无regions工程保留原基底层语义。预览后提交，getState.bodies[].reliefReport回读背景、表面方式与实际材料变化。\"\n  },\n  \"remove\": {\n    \"tools\": [\n      \"feature.remove\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"args:{bodyIds}；删除当前实体。\"\n  },\n  \"revolve\": {\n    \"tools\": [\n      \"revolve\",\n      \"profileRevolve\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"已画轮廓使用 profileRevolve，refs为截面及可选加工目标；旧尺寸模式使用 revolve。显式世界轴与角度，读取当前卡。\"\n  },\n  \"sewFaces\": {\n    \"tools\": [\n      \"sewFaces\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"shell\": {\n    \"tools\": [\n      \"shell\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"sketchProfile\": {\n    \"tools\": [\n      \"sketchProfile\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"slot\": {\n    \"tools\": [\n      \"slot\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"smoothTransition\": {\n    \"tools\": [\n      \"smoothTransition\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"sphere\": {\n    \"tools\": [\n      \"sphere\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"split\": {\n    \"tools\": [\n      \"split\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"surfaceTrim\": {\n    \"tools\": [\n      \"surfaceTrim\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"sweep\": {\n    \"tools\": [\n      \"sweep\",\n      \"profileSweep\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"已画轮廓使用 profileSweep，refs=[截面,开放精确路径,可选加工目标]；截面须在路径起点平面。旧折线尺寸模式使用 sweep。\"\n  },\n  \"thickenFace\": {\n    \"tools\": [\n      \"thickenFace\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"thread\": {\n    \"tools\": [\n      \"thread\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"torus\": {\n    \"tools\": [\n      \"torus\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"transform\": {\n    \"tools\": [\n      \"transform\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"union\": {\n    \"tools\": [\n      \"union\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"vectorProfile\": {\n    \"tools\": [\n      \"vectorProfile\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"feature.add；按工具卡传显式 params/refs，或 run 的 add。\"\n  },\n  \"reliefSculpt\": {\n    \"tools\": [\n      \"sampleReliefHeight\",\n      \"prepareReliefSculpt\",\n      \"feature.edit\",\n      \"preview.start\",\n      \"preview.commit\",\n      \"preview.cancel\",\n      \"history.undo\"\n    ],\n    \"method\": \"prepareReliefSculpt\",\n    \"usage\": \"浮雕历史属性→浮雕精修；独立毫米域用 patch:{id,domainMm,samples,protectionMm}，域内增量独立保存，边界两排固定；实际柱面及邻层预览用 preview.start args:{featureEdit:{featureId,params}}，再 preview.commit/cancel；patchId 对应独立域吸取。prepareReliefSculpt({context,featureId,strokes,draft?})只读返回params.sculpt；检查canCommit/blockers后feature.edit提交。笔刷raise/lower/smooth/flatten/fill/scrape/sharpen/restore/mask/unmask，hardness为0–1、symmetry为none/x/y/xy，局部points为[-.5,.5]，radiusMm/amountMm/targetMm为毫米，strength为0–1。工程保存原始高度及deltaMm/mask；关闭/切层暂存草稿、应用当前层一次撤销；Alt吸取对应sampleReliefHeight({context,featureId,point,draft?})，返回targetMm可给flatten，quantity区分height/depth，与UI共用采样；轮廓外或孔内失败RELIEF_SAMPLE_OUTSIDE；预览旋转缩放不改模型。\"\n  },\n  \"precisionSettings\": {\n    \"tools\": [\n      \"setDisplayPreferences\"\n    ],\n    \"method\": \"setDisplayPreferences\",\n    \"usage\": \"全局 themeColor 与 snapThresholdMm 在当前浏览器持久化。\"\n  },\n  \"themeSettings\": {\n    \"tools\": [\n      \"setDisplayPreferences\"\n    ],\n    \"method\": \"setDisplayPreferences\",\n    \"usage\": \"全局 themeColor 与 snapThresholdMm 在当前浏览器持久化。\"\n  },\n  \"snapSettings\": {\n    \"tools\": [\n      \"setDisplayPreferences\"\n    ],\n    \"method\": \"setDisplayPreferences\",\n    \"usage\": \"全局 themeColor 与 snapThresholdMm 在当前浏览器持久化。\"\n  },\n  \"languageSettings\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"language:zh/en。\"\n  },\n  \"agentGuide\": {\n    \"tools\": [\n      \"connect\",\n      \"getTools\",\n      \"readDocs\"\n    ],\n    \"method\": \"connect\",\n    \"usage\": \"设置→Agent 配置为软件配置弹窗；兼容setView({context,workspace:\\\"agent\\\"})打开，workspace:\\\"modeling\\\"关闭；getUILayout().current.agentSettingsOpen读回。connect({queries,includeContracts:true}) 返回当前 canExecute/blockers、requestContext 与完整卡；onboarding 提供首次连接步骤、本地安装包和真实操作路由；readDocs({docId:\\\"api.connection\\\"}) 说明宿主能力检查。knownHashes 只缓存完整工具卡，不缓存实体身份。\"\n  },\n  \"servicesSettings\": {\n    \"tools\": [\n      \"getServices\",\n      \"setServices\",\n      \"getServicesCapabilities\",\n      \"getServicesRouting\",\n      \"clearServicesCredential\"\n    ],\n    \"method\": \"setServices\",\n    \"usage\": \"context、url、credential、enabled、localTimeoutMs、serverWaitMs；配置 Services 后复杂运算使用服务。超时配置从下一次运算生效；getServicesRouting 读取选择原因和等待状态，不回显授权。\"\n  },\n  \"servicesFeatureCompile\": {\n    \"tools\": [\n      \"feature.compileServices\",\n      \"getServicesCapabilities\",\n      \"getServicesRouting\",\n      \"getState\",\n      \"getServicesRequest\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"原特征属性→Services 精确计算为每次显式远程；普通新建/编辑在 setServices 设 allowGeometryUploads:true 后按同一 ExecutionRouter 选择。getServicesRouting 读取原因。失败保留工程，未知任务先核对，不自动重算。\"\n  },\n  \"displayPreferences\": {\n    \"tools\": [\n      \"setDisplayPreferences\"\n    ],\n    \"method\": \"setDisplayPreferences\",\n    \"usage\": \"渲染设置使用 setDisplayPreferences；LOGO 转化为独立入口。\"\n  },\n  \"panels\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"panels:{left:boolean,right:boolean}；getState().view.panels 读状态。\"\n  },\n  \"workspace\": {\n    \"tools\": [\n      \"setView\",\n      \"getUILayout\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"workspace:modeling返回画布、library打开快捷模型工具；兼容agent打开设置弹窗，非独立工作区；toolbar:boolean、focus:boolean、libraryMode:cards/list；getState().view.workspaceLayout 读回。活动草稿先结束，预览先取消。\"\n  },\n  \"modelLibrary\": {\n    \"tools\": [\n      \"getModelLibrary\",\n      \"updateModelLibrary\",\n      \"resolveModelLibrary\",\n      \"getUILayout\",\n      \"setView\",\n      \"quickModel\",\n      \"run\"\n    ],\n    \"method\": \"updateModelLibrary\",\n    \"usage\": \"getModelLibrary读取当前revision、每条字段及完整生成契约。updateModelLibrary传当前context和expectedLibraryRevision，operation=upsert/remove/move/restore/import。resolveModelLibrary返回冻结的quickModel参数，run/add生成，删除库条目不影响历史。\"\n  },\n  \"moveTool\": {\n    \"tools\": [\n      \"setView\",\n      \"transform\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"setView({context,gizmo:\\\"translate\\\",selectedIds?}) 开启鼠标移动；自动使用实体选择。getState().view.transform 读可拖状态与 blocker；精确移动用 transform 的显式 params/refs，经 execute 或 run 提交。\"\n  },\n  \"rotateTool\": {\n    \"tools\": [\n      \"setView\",\n      \"transform\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"setView({context,gizmo:\\\"rotate\\\",selectedIds?}) 开启单对象鼠标旋转。getState().view.transform 读可拖状态；精确旋转用 transform，显式指定角度、轴与中心，不依赖 UI 选择。多对象分别用 run 的 transform 步骤，atomic=false。\"\n  },\n  \"copySelection\": {\n    \"tools\": [\n      \"copySelection\"\n    ],\n    \"method\": \"copySelection\",\n    \"usage\": \"context、bodyIds，读 getState().view.clipboard。\"\n  },\n  \"pasteSelection\": {\n    \"tools\": [\n      \"pasteSelection\"\n    ],\n    \"method\": \"pasteSelection\",\n    \"usage\": \"context、idempotencyKey；整体底面中心放在锚点。粘贴按对象新增特征，共用2000特征/20 MiB工程容量检查，超限不提交。\"\n  },\n  \"importAtFrame\": {\n    \"tools\": [\n      \"files.register\",\n      \"files.import\"\n    ],\n    \"method\": \"files.import\",\n    \"usage\": \"用户选定真实 STEP/BREP 文件后登记字节；显式提交当前工作基准版本、来源包围盒中心和幂等键。\"\n  },\n  \"new\": {\n    \"tools\": [\n      \"files.new\"\n    ],\n    \"method\": \"files.new\"\n  },\n  \"open\": {\n    \"tools\": [\n      \"files.open\",\n      \"files.import\"\n    ],\n    \"method\": \"files.open\"\n  },\n  \"save\": {\n    \"tools\": [\n      \"files.save\",\n      \"files.download\",\n      \"files.write\"\n    ],\n    \"method\": \"files.save\"\n  },\n  \"export\": {\n    \"tools\": [\n      \"files.export\"\n    ],\n    \"method\": \"files.export\"\n  },\n  \"rename\": {\n    \"tools\": [\n      \"document.rename\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"editFeature\": {\n    \"tools\": [\n      \"feature.edit\",\n      \"feature.rename\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"visibility\": {\n    \"tools\": [\n      \"body.visibility\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"explode\": {\n    \"tools\": [\n      \"body.explode\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"perPartMetal\": {\n    \"tools\": [\n      \"body.appearance\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"bodyColor\": {\n    \"tools\": [\n      \"body.appearance\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"metalFinish\": {\n    \"tools\": [\n      \"document.appearance\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"parameters\": {\n    \"tools\": [\n      \"document.parameters\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"undo\": {\n    \"tools\": [\n      \"history.undo\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"redo\": {\n    \"tools\": [\n      \"history.redo\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"preview\": {\n    \"tools\": [\n      \"preview.start\",\n      \"convertLogoPdf\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"PDF 字节可用 convertLogoPdf 取得待复核 regions，再用 preview.start 放置。\"\n  },\n  \"commitPreview\": {\n    \"tools\": [\n      \"preview.commit\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"cancelPreview\": {\n    \"tools\": [\n      \"preview.cancel\"\n    ],\n    \"method\": \"execute\"\n  },\n  \"sketch\": {\n    \"tools\": [\n      \"extrude\"\n    ],\n    \"method\": \"execute\",\n    \"usage\": \"兼容的轮廓并拉伸入口对应 extrude，传 profile/points/plane 等显式参数。主绘制轮廓入口用 sketchProfile，再单独 profileExtrude；不需要模拟逐点点击。\"\n  },\n  \"measure\": {\n    \"tools\": [\n      \"measure\",\n      \"queryGeometry\",\n      \"getState\"\n    ],\n    \"method\": \"measure\",\n    \"usage\": \"实体/面/边精确测量；属性区总表面积对应 getState().bodies[].area 或 measure(kind:body).area，单位mm²。两点距离用 points:[XYZ,XYZ]，来源标为输入坐标。\"\n  },\n  \"inspectPrintability\": {\n    \"tools\": [\n      \"inspectPrintability\"\n    ],\n    \"method\": \"inspectPrintability\",\n    \"usage\": \"选定当前 bodyId 与 angleLimitDeg；返回网格悬垂事实和六个摆放方向，不判定工艺合格。\"\n  },\n  \"inspectProfile\": {\n    \"tools\": [\n      \"inspectProfile\"\n    ],\n    \"method\": \"inspectProfile\",\n    \"usage\": \"选定当前可编辑解析轮廓 bodyId；返回端点、零长、重线和直线相交问题，不修改工程。\"\n  },\n  \"inspectFit\": {\n    \"tools\": [\n      \"inspectFit\"\n    ],\n    \"method\": \"inspectFit\",\n    \"usage\": \"显式给两个当前单实体 bodyId、mm 接触容差；在独立 BREP 副本上求交与测最短距离，不修改来源、历史或显示修订。\"\n  },\n  \"inspectThickness\": {\n    \"tools\": [\n      \"inspectThickness\"\n    ],\n    \"method\": \"inspectThickness\",\n    \"usage\": \"选择单一封闭实体、表面点与向内方向，或两个平行面；只读精确连续材料厚度。\"\n  },\n  \"inspectDraft\": {\n    \"tools\": [\n      \"inspectDraft\"\n    ],\n    \"method\": \"inspectDraft\",\n    \"usage\": \"显式实体、拉出方向、用户阈值；解析平面精确法向倾角，曲面明确未支持，不判定完整脱模。\"\n  },\n  \"measureRelation\": {\n    \"tools\": [\n      \"measureRelation\"\n    ],\n    \"method\": \"measureRelation\",\n    \"usage\": \"显式选择两个实体/边/面，或点与有限面，读取精确几何关系与见证点。\"\n  },\n  \"textCommand\": {\n    \"tools\": [\n      \"executeText\"\n    ],\n    \"method\": \"executeText\",\n    \"usage\": \"仅解析白名单文本命令，编译为当前页面 run 事务；dryRun 可先读回实际步骤。\"\n  },\n  \"fitProfile\": {\n    \"tools\": [\n      \"fitProfile\"\n    ],\n    \"method\": \"fitProfile\",\n    \"usage\": \"输入有序的二维截面点，返回圆或直线的数值拟合参数及残差；不修改工程。\"\n  },\n  \"screenshot\": {\n    \"tools\": [\n      \"capture\",\n      \"files.export\"\n    ],\n    \"method\": \"capture\"\n  },\n  \"fit\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"view\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"display\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"projection\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"grid\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"snap\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"section\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"selectMode\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"selection\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"gizmo\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"gizmoTranslate\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"gizmoRotate\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"gizmoOff\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"camera\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"language\": {\n    \"tools\": [\n      \"setView\"\n    ],\n    \"method\": \"setView\",\n    \"usage\": \"通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。\"\n  },\n  \"help\": {\n    \"tools\": [\n      \"readDocs\"\n    ],\n    \"method\": \"readDocs\"\n  },\n  \"mcp\": {\n    \"tools\": [\n      \"run\"\n    ],\n    \"method\": \"run\",\n    \"usage\": \"JSON 面板只是同一 api.run 的界面入口。\"\n  }\n}",
     "api.vector-import": "从 files.register 的文件资源或 text 直接 readVector；name 后缀 DWG/ASCII DXF/SVG/JSON。DWG 由浏览器 Worker 内 LibreDWG 解码并释放内存，不上传。DWG/DXF 支持模型空间 LINE、ARC、CIRCLE、无宽度 LWPOLYLINE（含 bulge 圆弧）；跳过类型逐项报告，包括 INSERT/标注/文字/样条，不展开块。scaleMm 显式指定每源单位的毫米数，默认1，不猜单位。SVG复用受限填充路径解析器，曲线离散近似约0.005mm；不冒充精确圆弧，必须声明或输入毫米宽度。JSON为 entities 解析格式，单位mm。bounds 框选只包含整条边，entityIds/layers 可同时过滤；注意分页 total/truncated。先选需要的产品轮廓，再 connectVector 排序、反向、配对容差内唯一端点，报告每处实际移动量；容差0..1mm默认1e-6，不添加长补线。origin/flipY 仅为显式平移/翻转；源坐标和方向默认保留。canCreateFace=false 时返回开口/分叉/重线/交叉位置，不提交部分面。成功的 profile 经 api.run add sketchProfile 由精确内核检查成面，支持外环和孔洞；撤销一次即可删除新面，原图不改。",
     "api.views": "setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?,anchorVisible?,panels?}) 控制当前视口。display 为 solid/edges/wire/transparentEdges（半透明实体、边线与显示曲面三角网格）；grid/snap 为布尔值；gizmo 为 off/translate/rotate；selectionMode 为 view/body/face/edge；默认 view 查看模式不点选、不框选，左键旋转、右键平移、滚轮缩放；主动选择 body/face/edge 后进入选择模式；language 为 zh/en；camera 为 {position:[x,y,z],target:[x,y,z]}，可替代旋转、平移、缩放手势。temporaryDisplay 为 normal/selectedOnly/transparentOthers，只改变临时显示并保留工程中原有隐藏状态；getState().view 读回设置。direction 可为 top/bottom/front/back/left/right/side/iso；projection 可为 orthographic/perspective；fit 是布尔值；selectedIds 是当前实体 ID 数组，最多 200 个且不得重复。section 为 {axis:\"X\"|\"Y\"|\"Z\",position:有限数字,enabled:布尔值}，仅做显示裁剪，不切割精确 B-Rep。相机与裁剪变化不增加建模 revision。redraw({context}) 重绘当前提交版本；capture({context}) 等待匹配当前模型的渲染帧，返回 image/png dataUrl、context 和 display，失败时可能为 DISPLAY_FAILED。调用前从 getState().context 取完整当前身份与 expectedRevision。",
     "api.workflow": "先连接当前页面，而不是读取另一个工作目录的源码或旧手册。页面 buildId/pageApiVersion/catalogHash/docsHash 决定当前契约；本地知识包只作匹配哈希的缓存。只有诊断真实实现缺陷时才查源码。\n\n1. 通过宿主实际允许的脚本通道调用 api.connect({queries:['任务中的具体能力'],limit:2,includeContracts:true})；已知工具改用 toolIds（最多20个）。canExecute=false 时按 blockers 等待计算或处理预览，不自动提交/取消用户预览。契约已有则不重复读；缓存失配就更新。\n2. 先判断目标几何。圆圈可能指二维圆线或有线径的实体圆环；圆形拉伸是实体，不能冒充二维曲线。模板名命中 template.* 时读取该模板卡；若上下文无法区分影响几何的含义，简短澄清。不支持的目标应说明，不能用相近工具冒充。\n3. 复杂模型按部件和依赖规划：外形/主体、附属件、细节。模型名称（如飞机）不是工具 ID；按放样、曲线扫掠、多边形拉伸、变换等能力检索。先确定尺寸/坐标和关键截面，读这些完整契约，再分阶段执行。模板只在形状确实匹配时使用。概念模型可说明合理尺寸假设；复刻源图时不猜尺寸。\n4. 已明确参数且无需中间拓扑的主体/刀具/布尔优先读 api.feature-plan，用 run method:addMany 一次提交1–64个特征；保留各项历史、一个撤销步骤。需要面/边、Logo或读回时在提交后分段。用 api.run 执行1–20步的有界批次；每步有明确 name/params/refs。创建用 method:add；修改/删除/撤销用 method:execute。后续步骤用 {$ref:'part.createdBodyIds.0'} 读取真实结果，变换后使用变换回执的新 ID，不沿用被替换的旧实体。跨批次重新读状态。所有修改共用页面 Worker/历史；不是修改产品源码或注入任意内核代码。\n5. 在批次中测量关键部件，必要时设轴测/适配视图；最后核对每步 status、实际实体、尺寸/体积、displayMatchesContext，并检查画面。有形状或尺寸要求时，实体数量增加不能单独证明完成。源图重建先读 api.reconstruction，使用 inspectDesign 一次核对带来源的尺寸、实体数、关键材料/留空点；检查结果不代表完整产品验收。不要对每个参数往返一次，也不要默认导出保存。\n6. partial/failed：查看 progress.failedStepId、completedStepIds、unattemptedStepIds 和原始 error。前面已提交步骤保留；读当前状态后只规划剩余步骤，并给修改后的请求新 key。unknown/宿主超时：先查状态，不能盲目再次创建。相同请求/key只返回原回执，不会继续未完成步骤；回执 context 是当时快照，重连后核对。\n\n示例（通过授权脚本通道；已阅读 template.ring/measure/setView 卡并确认要实体圆环）：\nconst api=window.webcad.api;\nconst c=api.connect();\n// c.canExecute 必须为 true；尺寸为演示值，不替代用户尺寸。\nawait api.run({context:c.requestContext,idempotencyKey:crypto.randomUUID(),steps:[\n {id:'ring',method:'add',args:{op:'quickModel',name:'圆环',refs:[],params:{kind:'ring',innerDiameter:24,section:'round',sectionSize:3,gapWidth:0}}},\n {id:'size',method:'measure',args:{bodyId:{$ref:'ring.createdBodyIds.0'}}},\n {id:'view',method:'setView',args:{direction:'iso',fit:true}}\n]});\n\n删除只针对用户指定范围。用 getState 的当前 body IDs，execute action:feature.remove args:{bodyIds:[...]}；不能把“删除这个模型”无条件解释成清空所有项目。\n组合建模练习见 readDocs({docId:\"recipes.hardware-practice\"})：保留轮廓的槽轮旋转与四孔加工、三截面扭转旋钮放样与轴孔。多零件配合流程见 readDocs({docId:\"recipes.clevis-practice\"})：开口叉架、跨两耳贯穿孔、销轴、双垫片及间隙验证。示例只在获得建模授权后执行，追加当前工程，不自动保存或导出。",
-    "api.workspace": "UI配置源src/ui-layout.js。顶层建模、模型库、Agent；建模工具按编辑/路径/创建/实体/面加工/实体加工/曲面/修饰/检查/视图/设置分类。setView的workspace、toolbar、libraryMode、focus显式控制布局；getUILayout().current与getState().view.workspaceLayout读回。库和Agent工作区临时收起工具与两侧栏，回到建模恢复原显隐；专注画布保留顶栏恢复入口。左右属性栏仍独立可隐藏。模型库可卡片/详细列表、搜索、普通表单配置及高级JSON导入导出；getModelLibrary/updateModelLibrary/resolveModelLibrary与UI共用服务。setView切换遇活动任务或草稿时拒绝UI_TASK_ACTIVE；先应用或取消预览。浏览器标题显示未保存标记；URL document参数不是可恢复分享链接。setRenderQuality({context,quality}) 提供 draft/standard/fine/ultra 四档，getState().renderQuality 提供毫米公差、角度公差（弧度）及三角面数。只重算显示网格，不改工程 revision、精确 BRep 或 STEP 导出；不是屏幕自适应网格。OpenCascade 可保留已有更细网格，降档不承诺减少三角面数。当前不提供斑马纹、曲率梳和精确 G0/G1/G2 连续性认证；导入 STEP 也不能反推原始特征历史。",
+    "api.workspace": "UI配置源src/ui-layout.js。顶层只有CAD工具菜单。实体→快捷模型打开中央模型选择工具，设置→Agent 配置打开软件配置弹窗；建模工具按编辑/路径/创建/实体/面加工/实体加工/曲面/修饰/检查/视图/设置分类。setView的workspace、toolbar、libraryMode、focus显式控制布局；getUILayout().current与getState().view.workspaceLayout读回。快捷模型工具临时收起工具与两侧栏，返回画布恢复原显隐；Agent 配置不切换画布或显隐；专注画布保留顶栏恢复入口。左右属性栏仍独立可隐藏。模型库可卡片/详细列表、搜索、普通表单配置及高级JSON导入导出；getModelLibrary/updateModelLibrary/resolveModelLibrary与UI共用服务。setView切换遇活动任务或草稿时拒绝UI_TASK_ACTIVE；先应用或取消预览。浏览器标题显示未保存标记；URL document参数不是可恢复分享链接。setRenderQuality({context,quality}) 提供 draft/standard/fine/ultra 四档，getState().renderQuality 提供毫米公差、角度公差（弧度）及三角面数。只重算显示网格，不改工程 revision、精确 BRep 或 STEP 导出；不是屏幕自适应网格。OpenCascade 可保留已有更细网格，降档不承诺减少三角面数。当前不提供斑马纹、曲率梳和精确 G0/G1/G2 连续性认证；导入 STEP 也不能反推原始特征历史。",
     "coordinates": "Lengths are millimetres; angles degrees; volume mm^3; scale dimensionless. Coordinates are right-handed world XYZ unless the individual tool states otherwise.\nbox width/depth/height means positive X/Y/Z extent from [0,0,0]. It does not center at the origin.\nhole and multiHole use radius, never diameter. multiHole.points are 1..100 world [x,y,z] cutter START points, not local XY. Depth is positive; direction is 1 or -1 along axis X/Y/Z, default Z/+1. These tools do not accept through.\nfaceHole.point is world XYZ on a planar face. through=true computes sufficient depth from the body bounds; otherwise positive depth is required. Face direction comes from exact topology.\nFace and edge indices are zero-based within one body at one snapshot. No index is a stable semantic name. Prefer query selectionToken for feature.add. Current-model tokens cannot retarget a historical feature.edit.\ntransform rotates/scales about world origin, applies rotations X/Y/Z, then translates; absolute positioning sets final bounding-box center. Its legacy contract is unchanged.\nslot.angle is degrees, independent of the sign of cut direction.",
     "errors": "Errors contain code,path,message,retryable,recoveryAction. A failure before commit has commitState=not_committed; unknown outcomes must preserve unknown status and cannot claim rollback.\nPARAM_SCHEMA_INVALID / PARAM_RANGE_INVALID: correct the named field without silently changing requested dimensions.\nUNKNOWN_OPERATION / OPERATION_VERSION_UNSUPPORTED / SCHEMA_MISMATCH / CAPABILITY_UNAVAILABLE: READ_TOOL_CONTRACT and check current runtime capabilities.\nDOCUMENT_MISMATCH / INSTANCE_MISMATCH / REVISION_CONFLICT / STALE_REFERENCE / UNSAFE_LEGACY_REFERENCE: READ_STATE_AND_REPLAN; do not retry stale IDs or guess another face.\nNO_MATCH / AMBIGUOUS_SELECTION / SELECTION_CONFLICT: refine or correct selection; never silently choose the first match.\nGEOMETRY_INVALID / NO_MATERIAL_REMOVED: review geometry and explicit dimensions. No automatic radius or size reduction.\nPREVIEW_ACTIVE / RESOURCE_LIMIT / IDEMPOTENCY_KEY_REUSED: resolve the reported constraint; do not change idempotency keys merely to bypass an uncertain result.\nPERSISTENCE_FAILED / RESULT_UNKNOWN: distinguish committed memory from durable storage or unknown delivery. No durable guarantee in M1. When no automatic action exists, recoveryAction=NONE.",
     "product.bar-heads": "双端头杆件\n适用候选TypeID: 37，类别仅提供候选。\n先取证：主杆及两端截面；牙长/粘胶端；包皮/木柱/底片及目标范围。\n方向：两端头不一定相同，杆长不等于牙长；一端预装另一端客户自装属于交付状态，不能直接融合。\n这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。",
@@ -48629,152 +48629,152 @@
   },
   "docMetadata": {
     "api.connection": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:325ae0094f79676aa3b48adc1c5b96db14f8a5f24835417d62ab362638db740f"
     },
     "api.design-checks": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:a2d52601a2ebc9b53218185bb38069580cd2e07de2f43f1324c97ef9b613ad69"
     },
     "api.discovery": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:c49fb4232b4b9562ebf73fe856716e0a5226d15ec8c7e3dba98ea9126cc0cdfb"
     },
     "api.display-preferences": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:f492426a26fd9a8222457ee8ff559e9bfc5b4044cc56d307e7809fc0a25b7c87"
     },
     "api.dwg-spline-twin-window": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:46363a7b23246fed4205ce7c8ba9df64285a42bc9bfda28dbcc552d2aadca41a"
     },
     "api.editor": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:1398883fdaf0a6cbaab9d18b011dfcf44dfce43fd31d12218c9f016a645f3dd1"
     },
     "api.execute": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:35c9aae5944d2cf43dcc7e4aab93efd7437008d7cca0af28b8db634b90ac5a93"
     },
     "api.feature-plan": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:09dfb94a6099d91266c2bacd5573c66d239298e3ea8045902eda2746187eb943"
     },
     "api.file-errors": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:e9a10970cd0c4201b1b946dec691dd42c4327db6690ed97a5e405cc33916ebf4"
     },
     "api.host-control": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:b3ee791175a5e749401398f1a1de6a23fe4bfb9218b438a7af4881ed2558019e"
     },
     "api.interaction": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:c32e96b4260d4371ae0e73b3222c5ced7ad107a978bc26fa5be312d4a19988a7"
     },
     "api.knowledge-cache": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:613490ac58a6ec23585048bde4d5e6f70d72263aade42d51aa70aff4e4d2c805"
     },
     "api.logo": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:a3b70c167f394f2e4cbc37281eb4a0fd48134544646adeb867f1acec8308ed00"
     },
     "api.mechanical": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:38551e834001c5e367d4902017a1313b18b4d7a57321313e76de8b12b43a2338"
     },
     "api.model-library": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:52d625ee71b44518748ae8ea42e4a13f07ace5fc01b4abc71f6c627145c44ea0"
     },
     "api.named-parameters": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:f585bf598b42ac4f7f23bfc9216c850da7ec5f4d9352f86981fa53b4c1e58464"
     },
     "api.printability": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:ce0a69f4a1fc0e0e3584d10d9bb79ccff28d79102c5fc4fe18d861c6874928ae"
     },
     "api.product-source": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:d1d46eb7e6dbb95828bbc57163d7c535da1f50a68972a41c43196f5cd0235fe7"
     },
     "api.profile-fitting": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:19f449d06c8e9e1e2a6d9b719b3f74683ddfb2ca6ac2b6a35700f600d90df821"
     },
     "api.query-geometry": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:1b663577c61290b364cf112ac5a19c2b8e309a4cb0af9d0cad2373f2669a1e8f"
     },
     "api.quick-hardware": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:7040044529b0acd1edfa0d19b598dd7c79ea1f727b4d305d85280c50a2c0bce9"
     },
     "api.quick-installation": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:3487de3b7a80894ce6a46a0649e73820376eca332884aa96ab7b215b0ae6c14a"
     },
     "api.reconstruction": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:b9bc148ccd09265888daee79e1b1bee82c6559fd7187874a938dbaeb39d50513"
     },
     "api.references": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:0044abd479df64c8684a02ae8d6015c8cd44e8ebc1b63f23c6fbbc4317204d63"
     },
     "api.refine": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:15a0ef057a8dfa237d84a6fb1f3e00e337b5ee32824080e2964cf58f4f42d335"
     },
     "api.reliability": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:2a5a4ace66ed86804f72bb26a2caf8c74ca383444b91278ec85d7d4ee93070d8"
     },
     "api.relief": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:ccc6d2e74c8d9ab763ac885ff0d0dcdffe046c47b052c58ac7fbeb54f34eacd9"
     },
     "api.round-preflight": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:c7fbb7b1206cd7663f13f60abf3085df69d09954cea051f63002e529bff52c0a"
     },
     "api.run": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:7c04719554a68cb9d94922ca5963dad04c806acf898c9547cc472a6f00529dc6"
     },
     "api.smooth-transition": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:727ea849c792b573723bf8e5bea2e505efbe2ed9eda05f0e8a1f39f09c7f9611"
     },
     "api.source-curves": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:e61025b290c66c8980be9a065d805882d5262f5237b2b4c8f8da85f06aec203d"
     },
     "api.text-command": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:1174d30d2ce1eb0711d7ebdd8b0417368216199a5feb49670b46a3c67447dd85"
     },
     "api.ui-coverage": {
-      "version": "1.32.0",
-      "docsHash": "sha256:f8a52fdcfeaf7056cd098380a0a575c14cabe36a91089ae4fc5c238152e3750b"
+      "version": "1.33.0",
+      "docsHash": "sha256:b54653b31067b6f5be88122f61f2bf10882d970bc62ea073af6acdb3bbf0a1b6"
     },
     "api.vector-import": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:13050903f79964cf9d142f8998ba97895c7235e30ea3e243f679cf6c9ca29637"
     },
     "api.views": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:6e313b8f5c0c96330f4cf5803cb2d85332931c9d49dfca3903b18a945baff08d"
     },
     "api.workflow": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:aebb7062ca2331a21c1292b2a4896ac5e15577e27095e0dc8bb2549cba4725d6"
     },
     "api.workspace": {
-      "version": "1.32.0",
-      "docsHash": "sha256:8f63d2edc9d20ab201c9d5819074d2b42c1e9a69eac61e89578023b8872bed9e"
+      "version": "1.33.0",
+      "docsHash": "sha256:beb47865611c42b6a43ce45a5936115cec931806eb8571de46c3abb841e7995a"
     },
     "coordinates": {
       "version": "1.0.0",
@@ -48785,319 +48785,319 @@
       "docsHash": "sha256:ca4572eff010c1aa692844c901e407010463f846043916e7c5349a3ed65724a6"
     },
     "product.bar-heads": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:1fdddd855f25ecfc6c49a3ad83158f20fb0ce47cfcb84428bfd2ac42b0435bc5"
     },
     "product.bridge": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:fcf632f15bcf899841be26de64b5b69d712cc51cadf6bc20dfed2d68f508b632"
     },
     "product.chain": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:a8baf10e4b3f9c900045c96934abc563c3e78a7948840091f400a8a716d37bb7"
     },
     "product.cord-lock": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:0713a6ca937c60de0679e38bf50f61d7520268d61fcdbad1dca982d96b4b9815"
     },
     "product.end-cap": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:7cd700982c72d920e3660015b83b3a170c0f37ee1a9e1edad2d60d7c44c59fd3"
     },
     "product.eyelet": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:3fae47af759d7fba1526ce2978ead7657b0eb356a29fdbef9fef18fbacaa9dd3"
     },
     "product.flap-lock": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:600951e0041894f553e53a60c2475415d44c1adc8c12132196e75c4fc58b3b3c"
     },
     "product.flat-loop": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:0b2d329094f901f9932ae4971b6c46e432977f2052e726c35ee3a14ed51f104f"
     },
     "product.gate": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:9b299fdb3afb18d1eaf92f02c5391162be74e2275a8d323235e85041a698cbd9"
     },
     "product.handle": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:39fbad7be57c8ba9abb5d5eb647640a106fc6c838a16aa15a092d3e205c82c13"
     },
     "product.headed-fastener": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:babbc5aaf57620596b87e7e02f6114970b695047f2c6d80559997d02b931e7a6"
     },
     "product.hinge": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:a715907603a7dffe5b0af9b5a44552c28b0d1e4dfbd2932e8f10a48317b32187"
     },
     "product.hollow-cap": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:0bf9d1bcbfc0d323107dfd7ac41aca182e62d049554e1ded41a1310ec16a14ae"
     },
     "product.insert-lock": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:5d04e3a49590ac85da2a9c41d4496a53b2afb131b407bbd537476468fdb616ad"
     },
     "product.keeper": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:c22373c2e5f4fbbf494a8f368cd634c6d79fb1e0387ce1b66377159e199fed9d"
     },
     "product.magnetic": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:95b9cfa4ac393c5716159d7d1fe97472024854b6b8886bedbdf8ea61a86c261d"
     },
     "product.multi-window": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:e10f1a25b19f387e0c5cac58e158d4a58f36604afdcd303deaa826e747e31833"
     },
     "product.plate-mount": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:ce6169b7bed7fece01fe457d78105296e2d92f9e53b8896fd6d1157f64c1cebf"
     },
     "product.prong": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:bf7eab39a0173476a526ccc6a21addfac1b4b4a7b12b526d90562c8351b5ee23"
     },
     "product.pull-core": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:53eb95c60d51d130aec72fba60c916314c49080d04262a14701dc97960216f0b"
     },
     "product.pull-tab": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:968e4110f37f48b3c80527954e4e6b9d135bf0523a583e09ba9cecd6a75cf918"
     },
     "product.rivet": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:bb8e5a7947082736858e3dd36086f791fcffc9bdeb15e881657c308d9ea6d659"
     },
     "product.sliding-clasp": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:59ff1b60653f16690ff5d5ca66426f550858e9921ee865f5afc33f9c8a73ff1e"
     },
     "product.snap": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:7715c1153fd7877c776858fb6acd8c0613fb0d195c17d8753eba571e44ebf09a"
     },
     "product.split-ring": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:6b9ed57474691ea6230414ddac47804f46039a796822fc8454db03abcc3788a7"
     },
     "product.stud": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:146a3005c97799b5cb767740eb90ce516f06b33435da9e4ff15fece6794f05e4"
     },
     "product.tbar": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:4e28fe8169d2023720ace1611bafbaccf0a0bbcbd64042c917b36a2e5ccc02ac"
     },
     "product.turn-lock": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:54c82f1d7c26427a0956428c4952fa71073b74e3329a8b284550fe308f45c8e0"
     },
     "product.variable-loop": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:c97cacf8b28710f9b3771b5a47b2982cf30341a236b22a5f70097d6c0ba4fbae"
     },
     "product.wire-loop": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:5475ca05bfd3019720730c1a24e1824352114dfe107240622ac762524dd90dda"
     },
     "recipe.examples": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:90698846076b317fd4b6db87733a8cd0934c9fac31396e25e826305eecf491e0"
     },
     "recipe.file-workflow": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:5819d3732406e0176fd029e8f44eb71a889198b13a411196e898cf92750c7395"
     },
     "recipes.analytic-arc-profile": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:0b6573eee3f4e3e7ed39d7507390b9e2fde24eda4e89e95f60e8a1fe0f98d993"
     },
     "recipes.analytic-root-revolve": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:693bdada0c5eb966a24cebbe52b4209f24471fcf873d19f2f01d4daba3179637"
     },
     "recipes.arc-band-plate": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:aafeeb83d5bcad55f567131be0eb5a1e9609ee3c51ca1fdb38d1142075936507"
     },
     "recipes.arched-twin-window": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:4df3b22cdf25622095d79a7db0dcbda7408e4173cc1dc46938f6c9aac4d93ecb"
     },
     "recipes.bowed-twin-window": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:2b552948e1f3ff89c30be2090aecaccbbf267c4b058e49830b55f496985cbf02"
     },
     "recipes.capsule-wire": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:511f6cfc6d41bb9cd8738cbad07866cbeae6695bfce90c55f7c7c63b1e79ddb2"
     },
     "recipes.chamfered-wire-frame": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:b4d66f9504691206f5e87b765d5f04c1d099e676b31c9fab264fed5fc9c8d979"
     },
     "recipes.clevis-practice": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:ae0e6b04284adeb9262eea86bba32eeea42ece66f3da532c41aa7ce1814108ae"
     },
     "recipes.closed-chamfered-path": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:c83ad6e14646fa146b4c3972cb241fc0dfb61698313b53c32a30f515bf696d7a"
     },
     "recipes.compact-rect-buckle": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:b70236e3ca4926853589c7d10ab898064df5ef06351c1ec79c2ac473d11f9ee4"
     },
     "recipes.compact-slider-buckle": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:73388f2143dc752c83d73fdc448c69bda9f70b9b51c7007e61422c8e5c9797c4"
     },
     "recipes.d-flat-frame": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:59c95e2fc34e1c08b193fdc2e77360410c6fd992255358c6727703c350b925c8"
     },
     "recipes.dxf-arc-profile": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:4d552857d18f28c1b5f6420e03b6d7ff7ea264ce431ece061df6b4d642ea43ef"
     },
     "recipes.dxf-bulge-analytic-profile": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:92eaadb66a891b484a317509ab2e73159f664f70ac28dc9faa5b87b620b1af8e"
     },
     "recipes.dxf-paired-midline": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:bf44eeacac1a76e0273efa1601493ac30a00fa5350d354611fa18c62a3baaf85"
     },
     "recipes.ellipse-bar": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:d6e5483a46f067bbafd3cc0cf6269c45492e7ff9f7c0102f8ce0712a5385cc9e"
     },
     "recipes.ellipse-open-wire": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:aadc97f882a59449eb8a8097de6f8a578705bd427cd51734cdaf80ed965c50be"
     },
     "recipes.ellipse-section-rect": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:146bc607c1c8bb66ff19302b909e806fd3f48c13909bb55f178838bcc6ce510e"
     },
     "recipes.ellipse-section-ring": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:19bb5f8c2011a166c47bedfc2462fa3a36cff3a2b96c1c8479d79844e306a55b"
     },
     "recipes.ellipse-u-wire": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:281e2e44e2d1823a2a3e86701e81a5f21d6d454978cc22f43fe99f4ffa7ffa5c"
     },
     "recipes.figure-eight-capsule": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:ac81d600b8a63a8d5cea306a9fa1e82d941598e3de373bcf312534917c9faba5"
     },
     "recipes.flat-washer": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:83c00c068901946f03fc4b556d7559a3a12b32a94da3cff91628eaa4abdd376a"
     },
     "recipes.gable-open-frame": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:72bf2b578f3c5ea6b3ffae7a859bc1292a6a26f4fea55040558b6a6e1b90a1ec"
     },
     "recipes.hardware-practice": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:ea7cf1b4c7b52f0310fa75c49b5f26a63f5df7776a251a8b029ca41bf8bc8797"
     },
     "recipes.mounting-plate": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:69ab18133d744bd48aad8140a8578e6954cc26feff9a348b559a4afac8721f35"
     },
     "recipes.multi-boss": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:c560078821ddb0b27b2c7928b649f6f2ac7a27a5ac8c4bfa4017083622accdca"
     },
     "recipes.multi-pocket": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:494f515c9defe3da18fd5313c29d956092066b8c8b091b64b8decf9a8a741e7c"
     },
     "recipes.open-oval": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:03a75e1c068bfa3f4e8227c934c83cc959c1ec476fad2aa3f3d87d192e5ab127"
     },
     "recipes.pg11419-analytic-profile": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:3c8998cd077060169a3b11a16d92c246c7d5089afcfb17b3b05d366de5123b74"
     },
     "recipes.pg5752-two-source-parts": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:6140cea09cd9bfd7b6738c318bb717a7aed39940852cfdc982752ebfea04af00"
     },
     "recipes.pg8091-analytic-profile": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:5cca9e1efb75174352c7e17d16dfc7a0df6a959dbcb0d9816c4391e10b63f1fb"
     },
     "recipes.polar-hole-ring": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:5f5e4871125d5dee24e16357bf9340dd4ba832f9e62e796aa770c6c5480fe411"
     },
     "recipes.profile-loop": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:bb48b15c9c6f1f4c41c63bdf77bd8dff92dc1547b9ea44bbf2f9b5a6a62670e0"
     },
     "recipes.rectangle-profile": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:964c36a0a4e3f7b96c3fe29057505d83c2c4435912903a64ccc373f406eed322"
     },
     "recipes.reference-reconstruction": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:6c271d1c380f75a30d4c029c12dbe02932349b35c93a5bec9795a42456898c65"
     },
     "recipes.ring-bar": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:a462af220b94c141e6923446e1dd7c8e4dc563ce17289aaddf3a945c1f2a45fe"
     },
     "recipes.round-wire-slider": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:989763bbd4f292d4edeb16e03439f80c77a2abfe8df537d4a3cf2e008a3d99dc"
     },
     "recipes.rounded-flat-frame": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:0862ef37c19a25cae7b078bb18735890679bfbf65b0bffee44afd156c84a7369"
     },
     "recipes.segmented-curve-sweep": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:cfad217a025b629b76e2cab440c434d3d4971da92a26963f22fa6a18948e46ad"
     },
     "recipes.small-twin-window": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:1183dd5547adcda02c83cbdf2c5588a4246b9c6c4a40defe9bb560b8a845dc3a"
     },
     "recipes.source-analytic-round": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:aa96cbfbbf381e88c5ec2cc43c5b70e04db6f9424abace36996605687d092ee8"
     },
     "recipes.source-arc-band-profile": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:d0a567caefb02157ab0733644e23798ca0b2f72065e348d0b752e87c827508aa"
     },
     "recipes.source-faces": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:75dfd85130f04b4564f8a2578217939adc023d7b1011ff17a5007aa75882b72f"
     },
     "recipes.source-round-rect": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:b3296148a8b9010e156accd8e1011e3e0a7046fbddb7e7b7fc31e5faeb9ad407"
     },
     "recipes.twin-window-plate": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:b5813572c0726cf8f4ce9fd846ffd2a015643a305fe643855ad68ec422e3c403"
     },
     "recipes.u-end-hole-plate": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:44cb78b7ead5f01ded5f2d1f2b45ccb682279284c1740b4c7ada41240e5f2336"
     },
     "start": {
-      "version": "1.32.0",
+      "version": "1.33.0",
       "docsHash": "sha256:2c3194f04debb73107a75636d98935d5c53d6ef610382fb3a69ed5a937e96962"
     }
   }
