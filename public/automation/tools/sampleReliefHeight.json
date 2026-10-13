@@ -2,7 +2,7 @@
   "id": "sampleReliefHeight",
   "title": "sampleReliefHeight",
   "category": "page-method",
-  "version": "1.34.0",
+  "version": "1.35.0",
   "description": "sampleReliefHeight({context,featureId,layerIndex?,samples?,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。分层必须明确 layerIndex；samples 仅用于读初始等高层的新草稿，约束同 prepareReliefSculpt。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。",
   "synonyms": [
     "sampleReliefHeight",
@@ -31,5 +31,5 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:6ea66f0222f6314580e4ab9489926e05ad0f64f17d2181fa1f4ae9532b9c0394"
+  "docsHash": "sha256:47610069a7e2ece92f6af5bd44f995ebbaebd3648cb0bfd401a48198da3711db"
 }

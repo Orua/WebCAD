@@ -11,6 +11,7 @@ contextual.add('inspectRound');
 methods.add('prepareReliefSculpt');
 contextual.add('prepareReliefSculpt');
 methods.add('sampleReliefHeight');
+methods.add('planPatternMachining');
 contextual.add('sampleReliefHeight');
 methods.add('addMany');
 for(const name of ['getServices','setServices','getServicesCapabilities','getServicesRequest','clearServicesCredential','getServicesJob','cancelServicesJob'])methods.add(name);

@@ -3,11 +3,10 @@ export const IDENTITY_KEYS = Object.freeze(['sessionId','documentId','documentIn
 export const READ_METHODS = new Set(['connect','info','getState','getHistory','searchTools','getTools','getTool','readDocs',
   'queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectDesign','inspectProfile',
   'inspectConstraints','inspectFit','inspectThickness','inspectDraft','inspectPrintability','files.capabilities',
-  'prepareProfileEdit','projectProfile','sampleReliefHeight','prepareReliefSculpt','readRelief','readVector','connectVector',
-  'fitProfile','traceTwinWindow','planAlignment','getUILayout','getQuickModelUsage','inspectRound']);
-export const VIEW_METHODS = new Set(['setView','setRenderQuality','setDisplayPreferences','selectRectangle','redraw','capture']);
-export const DISCOVERY_METHODS = new Set(['connect','info','getState','getHistory','searchTools','getTools','getTool','readDocs','files.capabilities','getUILayout','getQuickModelUsage']);
-READ_METHODS.add('getModelLibrary');READ_METHODS.add('resolveModelLibrary');VIEW_METHODS.add('updateModelLibrary');DISCOVERY_METHODS.add('getModelLibrary');
+  'planPatternMachining','prepareProfileEdit','projectProfile','sampleReliefHeight','prepareReliefSculpt','readRelief','readVector','connectVector',
+  'fitProfile','traceTwinWindow','planAlignment','getUILayout','getQuickModelUsage','inspectRound','getModelLibrary','resolveModelLibrary']);
+export const VIEW_METHODS = new Set(['setView','setRenderQuality','setDisplayPreferences','selectRectangle','redraw','capture','updateModelLibrary']);
+export const DISCOVERY_METHODS = new Set(['connect','info','getState','getHistory','searchTools','getTools','getTool','readDocs','files.capabilities','getUILayout','getQuickModelUsage','getModelLibrary']);
 export const EDIT_ACTIONS = new Set(['feature.add','feature.addMany','feature.edit','feature.rename','document.rename',
   'feature.compileServices',
   'body.visibility','body.appearance','body.explode','document.appearance','history.undo','history.redo',

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "manifold": {
+    "version": "3.5.4",
+    "source": "https://github.com/elalish/manifold/archive/refs/tags/v3.5.4.zip",
+    "commit": "ce50d78021d64507f89e8c9fc2c2e51018117857",
+    "zipSha256": "5efa97c2cd9673294be10fd6725dfc5bcc43b7fd5dd4a115a6d1b48cad1788bb",
+    "license": "Apache-2.0",
+    "configuration": {"shared":false,"crossSection":false,"parallel":false,"bindings":false,"tests":false,"downloads":false}
+  },
+  "nlohmannJson": {"version":"3.11.3","license":"MIT","source":"existing controlled native dependency"},
+  "capabilityGate": "Compilation is not acceptance. Mesh operations stay disabled until real source/codec/client/offline gates pass."
+}

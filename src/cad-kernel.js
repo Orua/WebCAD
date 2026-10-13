@@ -1,3 +1,6 @@
+import {MeshShape} from './mesh/mesh-shape.js';
+import {assertPatternExecution} from './machining-intent.js';
+import {meshError} from './mesh/mesh-contract.js';
 import {createTechnicalDrawing} from './drawing/technical-drawing.js';
 import {inspectDesignRequirements} from './design-inspection.js';
 import {findExactDragSnap} from './modeling/interaction/drag-snap.js';
@@ -202,12 +205,14 @@ import {compiledCheckpointBytes,geometryRecipeFingerprint} from './services/geom
 export class CadKernel {
   constructor(oc) { cad.setOC(oc); this.oc = oc; this.shapes = new Map(); this.active = new Map(); this.renderCache = new Map();this.geometryMetrics=new WeakMap();this.geometrySourceSnapshots=new WeakMap();this.reliefLayerCache=new ReliefLayerCache(); this.historySignature = []; this.importsSignature = ''; this.renderVersion = 0; }
   async operation(feature, shapes, imports, historyFeatures=[],execution={}) {
+    assertPatternExecution(feature.op,feature.params);
     const original=feature.params||{},targetFrame=feature.placement?.frameSnapshot;
     const p=targetFrame&&['faceHole','logo'].includes(feature.op)?{...original,point:worldPoint(targetFrame,original.point),frameX:rotateVector(targetFrame.quaternion,[1,0,0]),frameNormal:rotateVector(targetFrame.quaternion,[0,0,1])}:original;
     const refs = feature.refs || [];
     const frame=feature.placement?.frameSnapshot,point=value=>frame?worldPoint(frame,value):value,vector=value=>frame?rotateVector(frame.quaternion,value):value;
     const workPlane=(name,offset=0)=>{const basis=localPlaneBasis(name);return new cad.Plane(point(basis.offset(offset)),vector(basis.x),vector(basis.normal));};
     const sources = refs.map(id => { if (!shapes.has(id)) throw new Error(`找不到引用实体 ${id}`); return shapes.get(id); });
+    if(sources.some(s=>s.geometryType==='mesh')&&!['transform','copy'].includes(feature.op))throw meshError('MESH_TOOL_UNAVAILABLE','This precise BRep tool does not operate on raw meshes; source is retained.');
     const source = () => { if (sources.length !== 1) throw new Error('此操作需要选择一个实体'); return sources[0]; };
     switch (feature.op) {
       case 'quickModel': return buildQuickModel(p, cad, {oc:this.oc,roundAll:(shape,radius)=>buildSmoothTransition(shape,{radius,allEdges:true})});
@@ -426,7 +431,9 @@ export class CadKernel {
         try { return sketch.revolve(axis, { origin: [0, 0, 0], angle }); } finally { dispose(sketch); dispose(drawing); }
       }
       case 'import': {
-        const item = imports[p.key]; if (!item || typeof item.data !== 'string') throw new Error('工程中缺少原始导入文件');
+        const item = imports[p.key];
+        if(item&&['stl','mesh'].includes(item.format))return MeshShape.fromAsset(item,this.binaryAssets?.[item.assetHash]);
+        if (!item || typeof item.data !== 'string') throw new Error('工程中缺少原始导入文件');
         if (item.format === 'iges') throw new Error('此内核不支持 IGES 编辑，请先在原 CAD 软件另存为 STEP');
         if (item.format === 'stl') throw new Error('STL 是三角网格，不能作为精确实体编辑；请使用 STEP 或 BREP');
         const bytes = Uint8Array.from(atob(item.data), c => c.charCodeAt(0));
@@ -612,6 +619,7 @@ export class CadKernel {
     }
   }
   geometrySourceSnapshot(shape){
+    if(shape?.geometryType==='mesh')throw meshError('MESH_BREP_UNAVAILABLE','A raw mesh is not a BRep source; no implicit faceted conversion.');
     let snapshot=this.geometrySourceSnapshots.get(shape);
     if(snapshot===undefined){snapshot=shape.serialize();this.geometrySourceSnapshots.set(shape,snapshot);}
     return snapshot;
@@ -672,6 +680,7 @@ export class CadKernel {
     }finally{[...solids,...shells,bbox].forEach(dispose);}
   }
   describe(shape, feature) {
+    if(shape.geometryType==='mesh')return shape.describe(feature);
     const quality=this.quality||'standard', settings=renderQuality(quality);
     const mesh = shape.mesh(settings);
     const wire = shape.meshEdges({ tolerance: settings.tolerance*0.75, angularTolerance: settings.angularTolerance*0.8 });
@@ -686,7 +695,8 @@ export class CadKernel {
     } finally { [...faces, ...edges].forEach(dispose); }
   }
   async rebuild(document) {
-    if (!document || ![1,2,3].includes(document.version) || !Array.isArray(document.features)) throw new Error('无效的 WebCAD 工程');
+    if (!document || ![1,2,3,4].includes(document.version) || !Array.isArray(document.features)) throw new Error('无效的 WebCAD 工程');
+    this.binaryAssets=document.binaryAssets||{};
     const next = new Map(), active = new Map(), ids = new Set(); let current;
     const importsSignature = JSON.stringify(document.imports || {});
     const features = document.features;
@@ -713,7 +723,7 @@ export class CadKernel {
           const sourceFingerprint=feature.op==='relief'&&feature.refs?.length===1?binaryHash(new TextEncoder().encode(this.geometrySourceSnapshot(next.get(feature.refs[0])))):undefined;
           try {
             for(const id of new Set(feature.refs||[]))if(next.has(id)){
-              const copy=cad.deserializeShape(this.geometrySourceSnapshot(next.get(id)));
+              const original=next.get(id),copy=original.geometryType==='mesh'?original.clone():cad.deserializeShape(this.geometrySourceSnapshot(original));
               copies.push(copy);inputs.set(id,copy);
             }
             // Bind the same authoritative cached source bytes that were
@@ -735,7 +745,7 @@ export class CadKernel {
         }
         if (shape) {
           next.set(current, shape);
-          if (!reused.has(current)) {
+          if (!reused.has(current)&&shape.geometryType!=='mesh') {
             if (shape.isNull) throw new Error('操作生成空模型，请检查尺寸和实体交集');
             const faces = shape.faces; const hasFaces = faces.length > 0; faces.forEach(dispose);
             if (!hasFaces) {
@@ -759,7 +769,7 @@ export class CadKernel {
         // Meshing and metadata queries can rewrite OCCT TShape flags. Freeze the
         // precise source before display work; uploads and cold checkpoint gates
         // then bind the same bytes without normalizing or weakening the hash.
-        this.geometrySourceSnapshot(next.get(id));
+        if(next.get(id).geometryType!=='mesh')this.geometrySourceSnapshot(next.get(id));
         const body = cached ? {...cached.body,name:feature.name||feature.id} : this.describe(next.get(id), feature);
         if(cached&&feature.op==='relief'&&body.reliefReport?.layers&&feature.params.layers)body.reliefReport={...body.reliefReport,layers:body.reliefReport.layers.map((layer,i)=>({...layer,name:feature.params.layers[layer.index??i]?.name??layer.name}))};
         if (!cached) body.renderVersion = String(++this.renderVersion);
@@ -809,6 +819,7 @@ export class CadKernel {
     }finally{faces.forEach(dispose);}
   }
   async queryGeometry(bodyId, kind, filter = {}) {
+    if(this.activeShape(bodyId).geometryType==='mesh')throw meshError('MESH_TOPOLOGY_UNAVAILABLE','Raw mesh has no precise BRep face/edge IDs.');
     const shape = this.activeShape(bodyId);
     const result = queryShapeGeometry(shape, this.oc, kind, filter);
     return { bodyId, ...result, geometryFingerprint:await this.geometryFingerprint(shape) };
@@ -868,6 +879,7 @@ export class CadKernel {
   }
   measure(bodyId,topologyType,topologyId) {
     const shape=this.activeShape(bodyId);
+    if(shape.geometryType==='mesh'){if(topologyType&&topologyType!=='body')throw meshError('MESH_TOPOLOGY_UNAVAILABLE','Select the full authoritative mesh.');return {bodyId,...shape.metrics()};}
     if(topologyType===undefined||topologyType==='body'){
       const box=shape.boundingBox,solids=shape.solids,shells=Array.from(cad.iterTopo(shape.wrapped,'shell'),item=>cad.cast(item));
       try{const [min,max]=box.bounds;return {bodyId,bounds:{min,max},volume:solids.length?preciseVolume(shape,this.oc):null,area:surfaceArea(shape,this.oc),solidCount:solids.length,shellCount:shells.length};}
@@ -950,6 +962,7 @@ export class CadKernel {
     const selected = ids === undefined ? [...this.active.keys()] : ids;
     if (!Array.isArray(selected) || !selected.length) throw new Error('没有可导出的实体');
     const shapes = selected.map(id => { if (!this.active.has(id)) throw new Error(`找不到导出实体 ${id}`); return this.shapes.get(id); });
+    if(shapes.some(shape=>shape.geometryType==='mesh')){if(format!=='stl')throw meshError('MESH_BREP_UNAVAILABLE','Mesh exports support full STL, not exact STEP/BRep.');if(shapes.length!==1)throw meshError('MESH_COMBINATION_UNAVAILABLE','Mixed/unjoined meshes cannot be exported as one solid.');return shapes[0].exportSTL();}
     if (format === 'step') {
       const configs = shapes.map((shape, i) => {
         const id = selected[i], color = colors[id] ?? defaultColor;

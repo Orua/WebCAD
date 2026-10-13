@@ -124,6 +124,169 @@
       },
       "areaMm2": {
         "type": "number"
+      },
+      "machiningIntent": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "requestedGeometry",
+          "sourceInterpretation",
+          "userIntentEvidence"
+        ],
+        "properties": {
+          "version": {
+            "type": "integer",
+            "const": 1
+          },
+          "requestedGeometry": {
+            "type": "string",
+            "enum": [
+              "constantDepthContours",
+              "layeredRelief",
+              "continuousRelief",
+              "mixed",
+              "unspecified"
+            ]
+          },
+          "sourceInterpretation": {
+            "type": "string",
+            "enum": [
+              "reviewedVectors",
+              "rasterArtwork",
+              "authoredHeightMap",
+              "shadedReference",
+              "sculptMesh"
+            ]
+          },
+          "userIntentEvidence": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1200
+          },
+          "sourceHash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "emboss",
+              "engrave"
+            ],
+            "unit": "1",
+            "quantityKind": "direction",
+            "quantizationPolicy": "none"
+          },
+          "dimensionsMm": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "height"
+            ],
+            "properties": {
+              "width": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 100000,
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "height": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 100000,
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              }
+            }
+          },
+          "specifiedDepthsMm": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 32,
+            "items": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 100000
+            }
+          },
+          "targetPeakMm": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 100000
+          },
+          "preserve": {
+            "type": "array",
+            "maxItems": 32,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "supportBinding": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "bodyId",
+              "geometryFingerprint"
+            ],
+            "properties": {
+              "bodyId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              },
+              "geometryFingerprint": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            }
+          },
+          "placementSnapshot": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "origin",
+              "quaternion"
+            ],
+            "properties": {
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number",
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
+                },
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number",
+                  "unit": "1",
+                  "quantityKind": "direction",
+                  "quantizationPolicy": "none"
+                },
+                "unit": "1",
+                "quantityKind": "direction",
+                "quantizationPolicy": "none"
+              }
+            }
+          }
+        }
       }
     },
     "required": [
@@ -171,7 +334,7 @@
     "曲面 LOGO"
   ],
   "description": "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
-  "schemaHash": "sha256:651d7bc7ce435932c30009486d048d6f7c1b40a1ff8d59587ef648d7603142bc",
+  "schemaHash": "sha256:58ccb447222733713d5b9a1c614d85fac1e799077e6f9088c16afc1759ae045c",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -251,7 +414,13 @@
             ]
           ]
         }
-      ]
+      ],
+      "machiningIntent": {
+        "version": 1,
+        "requestedGeometry": "constantDepthContours",
+        "sourceInterpretation": "reviewedVectors",
+        "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
+      }
     },
     "refs": [
       "<current-bodyId-1>"
@@ -286,7 +455,13 @@
             ]
           ]
         }
-      ]
+      ],
+      "machiningIntent": {
+        "version": 1,
+        "requestedGeometry": "constantDepthContours",
+        "sourceInterpretation": "reviewedVectors",
+        "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
+      }
     },
     "refs": [
       "<current-bodyId-1>"
@@ -379,5 +554,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:6d606bfa1d5d612d2c013da61620edc876c1b885d048ae7d34f1b319a25b1f2e"
+  "docsHash": "sha256:b49d04268fd51c16f0943e7d560ba9b46d64f130b3004fd61dbcfc6c953f3c52"
 }

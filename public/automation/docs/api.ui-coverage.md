@@ -663,6 +663,7 @@
   },
   "relief": {
     "tools": [
+      "planPatternMachining",
       "relief",
       "readRelief",
       "files.register",
@@ -674,7 +675,7 @@
       "history.undo"
     ],
     "method": "execute",
-    "usage": "面加工→浮雕。files.register图像，readRelief生成独立轮廓regions与高度values；run add relief显式faceId/refs/尺寸/高度/位置、values/regions/surfaceMode/source。surfaceMode=flat为精确平顶，smooth为轮廓内平滑起伏，背景保留原面。支持分层.relief.json及layers显式高度、strokes开放刻线和curveToleranceMm曲线公差；UI逐层编辑高度和方向，API feature.edit修改layers。柱面须point、角宽≤90°、angleDeg=0。旧无regions工程保留原基底层语义。预览后提交，getState.bodies[].reliefReport回读背景、表面方式与实际材料变化。"
+    "usage": "面加工→浮雕。先读api.pattern-machining、planPatternMachining区分意图；新创建params.machiningIntent保存加工意义，readRelief显式sourceInterpretation。恒深文字/图案走LOGO，灰度只用于作者高度图。files.register图像，readRelief生成独立轮廓regions与高度values；run add relief显式faceId/refs/尺寸/高度/位置、values/regions/surfaceMode/source。surfaceMode=flat为精确平顶，smooth为轮廓内平滑起伏，背景保留原面。支持分层.relief.json及layers显式高度、strokes开放刻线和curveToleranceMm曲线公差；UI逐层编辑高度和方向，API feature.edit修改layers。柱面须point、角宽≤90°、angleDeg=0。旧无regions工程保留原基底层语义。预览后提交，getState.bodies[].reliefReport回读背景、表面方式与实际材料变化。"
   },
   "remove": {
     "tools": [

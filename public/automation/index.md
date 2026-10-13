@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.34.0 · 操作目录 sha256:eb1b185e29a3af8c450a660b5ccb78ca5476d577c849220ab173a756418cbc4e
+API 1.35.0 · 操作目录 sha256:4e6eecbae4a53e2d3e97e60c30eed1a6f074a83d379defb301358015b6ab50d8
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -11,6 +11,7 @@ API 1.34.0 · 操作目录 sha256:eb1b185e29a3af8c450a660b5ccb78ca5476d577c84922
 - `getModelLibrary`
 - `updateModelLibrary`
 - `resolveModelLibrary`
+- `planPatternMachining`
 - `decideServicesWait`
 - `recoverServicesJob`
 - `prepareReliefTopologyUpgrade`
@@ -217,12 +218,13 @@ API 1.34.0 · 操作目录 sha256:eb1b185e29a3af8c450a660b5ccb78ca5476d577c84922
 - `getModelLibrary` · page-method · getModelLibrary()
 - `updateModelLibrary` · page-method · updateModelLibrary({context,expectedLibraryRevision,operation:upsert|remove|move|restore|import,entry?,id?,index?,library?})。upsert entry={id,kind,label,description?,defaults?}，id为字母开头80位以内字母数字_-，kind必须已安装，defaults仅含该类型原参数。move的index为移动后零起始位置。import全量替换，library={format:webcad-model-library,version:1,entries:[entry]}；restore全量恢复默认目录、默认参数和顺序。
 - `resolveModelLibrary` · page-method · resolveModelLibrary({context,id,expectedLibraryRevision,params?:参数覆盖})
+- `planPatternMachining` · page-method · planPatternMachining({context,intent})，intent 为 version:1 加工意图；只读规划，不推断图片深度。
 - `decideServicesWait` · page-method · decideServicesWait({jobId,decision:"continue"|"stop"})，可在工程忙碌时调用；jobId必须是getServicesRouting().pendingWait中的当前任务。
 - `recoverServicesJob` · page-method · recoverServicesJob({jobId,reason,approved:true,acknowledgedState:"interrupted",idempotencyKey})。必须先用 getServicesJob 核对已停止旧任务。
 - `prepareReliefTopologyUpgrade` · page-method · prepareReliefTopologyUpgrade({context,featureId,maskStrategy?:"faceWithHolesExtrude"|"cutHoleSolids"})。只读规划，不计算几何；原参数没有策略时必须明确选定。
 - `sampleReliefHeight` · page-method · sampleReliefHeight({context,featureId,layerIndex?,samples?,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。分层必须明确 layerIndex；samples 仅用于读初始等高层的新草稿，约束同 prepareReliefSculpt。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。
 - `prepareReliefSculpt` · page-method · prepareReliefSculpt({context,featureId,layerIndex?,patch?:{id,domainMm:[uMin,vMin,uMax,vMax],samples:7–65,protectionMm},samples?,draft?:{deltaMm,mask},strokes:[{mode:"raise"|"lower"|"smooth"|"flatten"|"restore"|"mask"|"unmask"|"fill"|"scrape"|"sharpen",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:"none"|"x"|"y"|"xy",points:[[x,y],...]},...]})。单层与显式选层使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。
-- `readRelief` · page-method · readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5})。先 files.register；只读，本地解码。
+- `readRelief` · page-method · readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5,sourceInterpretation:authoredHeightMap|rasterArtwork|reviewedVectors|shadedReference})。先 files.register；只读，本地解码。
 - `getHistory` · page-method · getHistory()。返回已保留状态，不含导入源字节。
 - `planAlignment` · page-method · planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true。
 - `selectRectangle` · page-method · selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。
@@ -278,7 +280,7 @@ API 1.34.0 · 操作目录 sha256:eb1b185e29a3af8c450a660b5ccb78ca5476d577c84922
 - `getLogoConverter` · page-method · getLogoConverter() 委托 getServices；旧 URL/Key 不自动授权统一服务。
 - `setLogoConverter` · page-method · 改用 setServices，旧 setter 拒绝存影子配置。
 - `convertLogoPdf` · page-method · convertLogoPdf({context,name,data,targetWidthMm?,page?,sizeConfirmed:true,allowUpload:true})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。
-- `setView` · page-method · setView({context,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling返回画布、library打开非全屏浮动快捷模型菜单（不改变菜单或侧栏显隐）；兼容workspace=agent打开Agent配置弹窗并保持workspace=modeling，current.agentSettingsOpen读回，workspace=modeling关闭弹窗；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:"X"|"Y"|"Z",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。
+- `setView` · page-method · setView({context,interactionPhase?:start|update|end,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 大文件运动阶段用独立显示LOD，end恢复完整精细帧；display.detail区分近似预览与精细显示。 gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling返回画布、library打开非全屏浮动快捷模型菜单（不改变菜单或侧栏显隐）；兼容workspace=agent打开Agent配置弹窗并保持workspace=modeling，current.agentSettingsOpen读回，workspace=modeling关闭弹窗；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:"X"|"Y"|"Z",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。
 - `redraw` · page-method · redraw({context}); 不接受额外字段。
 - `capture` · page-method · capture({context}); 不接受额外字段。
 - `run` · page-method · run({context,idempotencyKey,steps}); see readDocs({docId:"api.run"}); addMany for one atomic feature plan: api.feature-plan.
@@ -316,7 +318,7 @@ API 1.34.0 · 操作目录 sha256:eb1b185e29a3af8c450a660b5ccb78ca5476d577c84922
 - `files.register` · browser-file-adapter · register({name,data,mime?}); data is File, Blob, ArrayBuffer or Uint8Array; name is a safe basename.
 - `files.new` · browser-file-adapter · new({context}); complete current context; dirty replacement is always rejected by page API. Default name: 新建工程YYYYMMDD-NNN using the current local date and a daily browser-persisted sequence (minimum three digits); no explicit name argument.
 - `files.open` · browser-file-adapter · open({context,resourceId}); registered .webcad/.json resource; dirty replacement is rejected.
-- `files.import` · browser-file-adapter · import({context,resourceId,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP resource. When placement is present, idempotencyKey is required; run batch injects its own step key.
+- `files.import` · browser-file-adapter · import({context,resourceId,units?,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP or binary STL/mesh resource. Mesh requires explicit units and idempotencyKey; read api.mesh-assets. When placement is present, idempotencyKey is required; run batch injects its own step key.
 - `files.save` · browser-file-adapter · save({context,name?}); complete current context.
 - `files.export` · browser-file-adapter · export({context,format,ids?,name?}); format step/stl/brep/png.
 - `files.read` · browser-file-adapter · read({resourceId,as?}); as is blob (default) or bytes.

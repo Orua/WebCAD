@@ -54,13 +54,14 @@ namespace WebCADServices.Gateway
                 if (authorized.Status != 200) { Write(context, authorized);return; }
                 string route = request.QueryString["route"] ?? "/v1/health";
                 if (!System.Text.RegularExpressions.Regex.IsMatch(route, "^/v1/[a-zA-Z0-9/_-]+$")) throw new ServiceError("ROUTE_NOT_FOUND", "Invalid route", 404);
-                if (request.ContentLength > Protocol.MaxUpload) throw new ServiceError("SIZE_LIMIT", "Resource limit is 20 MiB", 413);
+                int resourceBudget=Protocol.ResourceBudget(route,request.Headers["X-Asset-Kind"],request.Headers["X-File-Name"]);
+                if (request.ContentLength > resourceBudget) throw new ServiceError("SIZE_LIMIT", "Resource limit is 20 MiB", 413);
                 byte[] body;
                 using (var input = request.GetBufferlessInputStream())
                 using (var memory = new MemoryStream())
                 {
                     var chunk = new byte[65536];int count;
-                    while ((count = await input.ReadAsync(chunk, 0, chunk.Length)) != 0) { if (memory.Length + count > Protocol.MaxUpload) throw new ServiceError("SIZE_LIMIT", "Resource limit is 20 MiB", 413);memory.Write(chunk, 0, count); }
+                    while ((count = await input.ReadAsync(chunk, 0, chunk.Length)) != 0) { if (memory.Length + count > resourceBudget) throw new ServiceError("SIZE_LIMIT", "Resource limit is 20 MiB", 413);memory.Write(chunk, 0, count); }
                     body = memory.ToArray();
                 }
                 Write(context, runtime.Handle(new WireRequest { Method = request.HttpMethod,Route = route,Credential = credential,FileName = Uri.UnescapeDataString(request.Headers["X-File-Name"] ?? ""),IdempotencyKey = request.Headers["Idempotency-Key"],AssetKind = request.Headers["X-Asset-Kind"],Body = body }));
@@ -84,6 +85,7 @@ namespace WebCADServices.Gateway
             string logo = path("LogoWorker", "runtime/logo/LogoVector.Worker.exe"),native = path("NativeWorker", "runtime/occt/WebCADOcctWorker.exe"),proof = path("NativeAcceptance", "runtime/kernel-pair.json");
             if (!File.Exists(logo) || !File.Exists(native) || !File.Exists(proof)) throw new ServiceError("WORKER_UNAVAILABLE", "Required Logo/OCCT runtime files are missing", 503);
             NativeAdapter.Configure(native, proof);
+            MeshAdapter.Configure(path("MeshWorker","runtime/mesh/WebCADMeshWorker.exe"),path("MeshAcceptance","runtime/mesh-acceptance.json"));
             if (NativeAdapter.Acceptance == null) throw new ServiceError("NATIVE_ACCEPTANCE_INVALID", "Native binary and proof do not match", 503);
             runtime = new ServiceRuntime(path("DataRoot", "../../WebCADServices-data"), logo, credential, true, "iis-dll");
             HostingEnvironment.RegisterObject(this);

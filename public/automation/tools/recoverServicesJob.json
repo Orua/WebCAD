@@ -2,7 +2,7 @@
   "id": "recoverServicesJob",
   "title": "recoverServicesJob",
   "category": "page-method",
-  "version": "1.34.0",
+  "version": "1.35.0",
   "description": "recoverServicesJob({jobId,reason,approved:true,acknowledgedState:\"interrupted\",idempotencyKey})。必须先用 getServicesJob 核对已停止旧任务。",
   "synonyms": [
     "recoverServicesJob",
@@ -26,5 +26,5 @@
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_REQUEST_FAILED"
   ],
-  "docsHash": "sha256:d1fd6b9f0e2679b3828c177c2dc0802986675a1e81811ec342d3211523a7b8b9"
+  "docsHash": "sha256:5cf5b75471c9f7d77054f5e248b37668cf3ced9bb10b9ebb435d4198a608763b"
 }

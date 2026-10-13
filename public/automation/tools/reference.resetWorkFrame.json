@@ -3,7 +3,7 @@
   "title": "重置参考锚点（工作基准）",
   "description": "args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "category": "command",
-  "version": "1.34.0",
+  "version": "1.35.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:53f6ef212c6c8a1c48a4ad4890a637b2455c056f372b570edf4655d59c5b5863"
+  "docsHash": "sha256:c588326181f68f33d625658961316c558c2a02fb749dc402f1d9d25c2c39a8c7"
 }

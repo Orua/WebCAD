@@ -1,5 +1,6 @@
 import initOpenCascade from 'replicad-opencascadejs';
 import wasmURL from 'replicad-opencascadejs/wasm?url';
+import {encodeProjectV4,decodeProject} from './project-container.js';
 import { CadKernel } from './cad-kernel.js';
 import {boundedDiagnosticReport} from './modeling/diagnostic-report.js';
 
@@ -14,6 +15,8 @@ self.onmessage = ({ data }) => {
       engine.onProgress=progress=>self.postMessage({requestId,kind:'progress',progress});
       let result;
       if(type==='ready')result={ready:true};
+      else if(type==='encodeProject')result={bytes:encodeProjectV4(data.document)};
+      else if(type==='decodeProject')result={document:await decodeProject(data.bytes)};
       else if(type==='rebuild')result=await engine.rebuild(data.document);
       else if(type==='remesh')result=engine.remesh(data.quality);
       else if(type==='export')result=await engine.export(data.format,data.ids,data.appearance);
@@ -40,7 +43,7 @@ self.onmessage = ({ data }) => {
           result={items,length:items.reduce((n,v)=>n+(v.length||0),0),area:items.reduce((n,v)=>n+(v.area||0),0)};
         } else result=engine.measure(data.bodyId,data.topologyType,data.topologyId);
       } else throw new Error(`未知请求 ${type}`);
-      self.postMessage({ requestId, ok: true, ...result });
+      self.postMessage({ requestId, ok: true, ...result },type==='encodeProject'?[result.bytes.buffer]:[]);
     } catch (error) { const report=boundedDiagnosticReport(error?.report);self.postMessage({ requestId, ok: false, error: error?.message || String(error), featureId: error?.featureId, code: error?.code, path: error?.path, recoveryAction: error?.recoveryAction,report }); }
   });
 };

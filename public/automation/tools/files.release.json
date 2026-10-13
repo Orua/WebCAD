@@ -2,7 +2,7 @@
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.34.0",
+  "version": "1.35.0",
   "label": "释放文件资源",
   "synonyms": [
     "释放文件资源",
@@ -26,9 +26,17 @@
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
-    "maxTotalBytes": 67108864,
+    "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
   },
+  "typedByteBudgets": {
+    "stl": 134217728,
+    "mesh": 402653184,
+    "webcad": 536870912
+  },
+  "additionalDocs": [
+    "api.mesh-assets"
+  ],
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -40,5 +48,5 @@
     "RESOURCE_EXPIRED",
     "RESOURCE_BUSY"
   ],
-  "docsHash": "sha256:8f91cc68d79f79ab2502b1853d3c890e11ea0b6c83c8d351b08d1f124fbfb23e"
+  "docsHash": "sha256:4511e03780122695793c53a6bc46d4940edf10cc62013da3ac01a3bb679a3c5a"
 }
