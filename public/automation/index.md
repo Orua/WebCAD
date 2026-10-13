@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.42.0 · 操作目录 sha256:2949efa5c85602c2b3e8e1a1b259764a0d3d5de8792c46a086b2dc5162ff0d31
+API 1.43.0 · 操作目录 sha256:2ac46e220449ea50c2e5d0288b038859575adb295432f3a8e0153d2785d2a97d
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -64,6 +64,9 @@ API 1.42.0 · 操作目录 sha256:2949efa5c85602c2b3e8e1a1b259764a0d3d5de8792c46
 - `traceTwinWindow`
 - `executeText`
 - `setDisplayPreferences`
+- `getAgentPanel`
+- `configureAgentPanel`
+- `setAgentPanel`
 - `getServices`
 - `setServices`
 - `getServicesCapabilities`
@@ -276,6 +279,9 @@ API 1.42.0 · 操作目录 sha256:2949efa5c85602c2b3e8e1a1b259764a0d3d5de8792c46
 - `traceTwinWindow` · page-method · traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBottomY,simplifyToleranceMm?:0..0.2}); 四条上到下 XY 采样曲线，每条3–2000点。
 - `executeText` · page-method · executeText({context,idempotencyKey,text,dryRun?}); 每行 add <op> key=value 或 measure <bodyId|$last>。
 - `setDisplayPreferences` · page-method · setDisplayPreferences({context,values}); values 为部分配置，字段及范围见 api.display-preferences。
+- `getAgentPanel` · page-method · getAgentPanel()
+- `configureAgentPanel` · page-method · configureAgentPanel({context,url})；HTTP/HTTPS助手页面地址，不带query/hash/凭据；HTTPS页面只接受HTTPS。
+- `setAgentPanel` · page-method · setAgentPanel({context,visible:true|false})；true将已配置助手侧栏接到当前页面，false立即撤销适配器写入、解锁并关闭侧栏，再取消同一任务并释放原会话。
 - `getServices` · page-method · getServices()；地址与模式存本地，专用授权仅存本标签会话，不进入工程。
 - `setServices` · page-method · setServices({context,url,credential?,enabled?,computeMode?:"local"|"auto"|"serverPreferred",allowGeometryUploads?,localTimeoutMs?:60000,serverWaitMs?:180000})；本地超时1–600秒、服务器提醒1–900秒，均用整数毫秒，设置保存并在下一操作生效。启用已配置Services即授权复杂运算发送到该端；简单运算本地。旧computeMode/allowGeometryUploads仅兼容读取，不覆盖此政策。支持 HTTPS 或内网 HTTP；HTTPS 页面不能直接调用内网 HTTP。服务由 ASHX 引用 DLL，沿用 LOGO 部署方式，不安装 Host。启用前验证协议。
 - `getServicesCapabilities` · page-method · getServicesCapabilities()；读取已配置服务。

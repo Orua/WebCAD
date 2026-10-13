@@ -1,0 +1,21 @@
+{
+  "id": "getAgentPanel",
+  "title": "getAgentPanel",
+  "category": "page-method",
+  "version": "1.43.0",
+  "description": "getAgentPanel()",
+  "synonyms": [
+    "getAgentPanel",
+    "Agent",
+    "助手",
+    "模式",
+    "状态"
+  ],
+  "inputContract": "getAgentPanel()",
+  "outputContract": "version/url/configured/visible/phase/connected/locked/externalHost/error；phase=release_pending 表示本地已解锁但服务端释放待核对。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:30fd7192fafff67c08a3182e8780eaaa5b83ae4130f6927e72a723e63ca05ddf"
+}

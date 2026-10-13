@@ -886,6 +886,15 @@
     "method": "connect",
     "usage": "设置→Agent 配置为软件配置弹窗；兼容setView({context,workspace:\"agent\"})打开，workspace:\"modeling\"关闭；getUILayout().current.agentSettingsOpen读回。connect({queries,includeContracts:true}) 返回当前 canExecute/blockers、requestContext 与完整卡；onboarding 提供首次连接步骤、本地安装包和真实操作路由；readDocs({docId:\"api.connection\"}) 说明宿主能力检查。knownHashes 只缓存完整工具卡，不缓存实体身份。"
   },
+  "agentPanel": {
+    "tools": [
+      "getAgentPanel",
+      "configureAgentPanel",
+      "setAgentPanel"
+    ],
+    "method": "setAgentPanel",
+    "usage": "configureAgentPanel({context,url})保存助手页面地址；setAgentPanel({context,visible:true/false})接入当前工程或退出并解锁；getAgentPanel()读取visible/phase/connected/error/release_pending。工程、历史、相机和dirty保留。"
+  },
   "servicesSettings": {
     "tools": [
       "getServices",

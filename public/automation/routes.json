@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.42.0",
-  "buildId": "7e8114e5e87962dfbc319cb480172f5d19b3dfbf-src-469b5540d4bcedda",
-  "catalogHash": "sha256:2949efa5c85602c2b3e8e1a1b259764a0d3d5de8792c46a086b2dc5162ff0d31",
-  "docsHash": "sha256:edb7a93c61b4222becfd2bc9e2dab21aff960adc29d1ea81b8a6292bf66c9e96",
+  "pageApiVersion": "1.43.0",
+  "buildId": "efd5477e59d82fd1d9a5e17fc78fb15283f2c354-src-16efe7a62331c787-working",
+  "catalogHash": "sha256:2ac46e220449ea50c2e5d0288b038859575adb295432f3a8e0153d2785d2a97d",
+  "docsHash": "sha256:dd3f7eefdf4d187263d87405a1dd4df3a4cf7dd9713f797098c14ecb1b19a381",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -21,6 +21,15 @@
       ],
       "method": "connect",
       "usage": "设置→Agent 配置为软件配置弹窗；兼容setView({context,workspace:\"agent\"})打开，workspace:\"modeling\"关闭；getUILayout().current.agentSettingsOpen读回。connect({queries,includeContracts:true}) 返回当前 canExecute/blockers、requestContext 与完整卡；onboarding 提供首次连接步骤、本地安装包和真实操作路由；readDocs({docId:\"api.connection\"}) 说明宿主能力检查。knownHashes 只缓存完整工具卡，不缓存实体身份。"
+    },
+    "agentPanel": {
+      "tools": [
+        "getAgentPanel",
+        "configureAgentPanel",
+        "setAgentPanel"
+      ],
+      "method": "setAgentPanel",
+      "usage": "configureAgentPanel({context,url})保存助手页面地址；setAgentPanel({context,visible:true/false})接入当前工程或退出并解锁；getAgentPanel()读取visible/phase/connected/error/release_pending。工程、历史、相机和dirty保留。"
     },
     "alignBodies": {
       "tools": [
@@ -1406,6 +1415,7 @@
     "snapSettings": "吸附 / setDisplayPreferences",
     "languageSettings": "语言 / setView",
     "agentGuide": "Agent 配置 / connect / getTools / readDocs",
+    "agentPanel": "getAgentPanel / configureAgentPanel / setAgentPanel",
     "servicesSettings": "Services / getServices / setServices / getServicesCapabilities / getServicesRouting / clearServicesCredential",
     "servicesFeatureCompile": "Services 原特征编译 / getServicesCapabilities / getServicesRouting / getState / getServicesRequest",
     "displayPreferences": "渲染设置 / setDisplayPreferences",

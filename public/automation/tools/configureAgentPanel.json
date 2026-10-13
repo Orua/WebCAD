@@ -1,0 +1,21 @@
+{
+  "id": "configureAgentPanel",
+  "title": "configureAgentPanel",
+  "category": "page-method",
+  "version": "1.43.0",
+  "description": "configureAgentPanel({context,url})；HTTP/HTTPS助手页面地址，不带query/hash/凭据；HTTPS页面只接受HTTPS。",
+  "synonyms": [
+    "configureAgentPanel",
+    "Agent",
+    "助手",
+    "配置",
+    "地址"
+  ],
+  "inputContract": "configureAgentPanel({context,url})；HTTP/HTTPS助手页面地址，不带query/hash/凭据；HTTPS页面只接受HTTPS。",
+  "outputContract": "status=applied,persisted；退出并释放后才能修改地址。失败AGENT_URL_INVALID/AGENT_PANEL_ACTIVE。仅浏览器保存，不进入工程。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:e47add309277dfcc16e9439e1f45c4d05dff6a6b3f1f5b24e7504b6cc9256df3"
+}

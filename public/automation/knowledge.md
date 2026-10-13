@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.42.0 · sha256:2949efa5c85602c2b3e8e1a1b259764a0d3d5de8792c46a086b2dc5162ff0d31
+API 1.43.0 · sha256:2ac46e220449ea50c2e5d0288b038859575adb295432f3a8e0153d2785d2a97d
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -1138,6 +1138,15 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
     ],
     "method": "connect",
     "usage": "设置→Agent 配置为软件配置弹窗；兼容setView({context,workspace:\"agent\"})打开，workspace:\"modeling\"关闭；getUILayout().current.agentSettingsOpen读回。connect({queries,includeContracts:true}) 返回当前 canExecute/blockers、requestContext 与完整卡；onboarding 提供首次连接步骤、本地安装包和真实操作路由；readDocs({docId:\"api.connection\"}) 说明宿主能力检查。knownHashes 只缓存完整工具卡，不缓存实体身份。"
+  },
+  "agentPanel": {
+    "tools": [
+      "getAgentPanel",
+      "configureAgentPanel",
+      "setAgentPanel"
+    ],
+    "method": "setAgentPanel",
+    "usage": "configureAgentPanel({context,url})保存助手页面地址；setAgentPanel({context,visible:true/false})接入当前工程或退出并解锁；getAgentPanel()读取visible/phase/connected/error/release_pending。工程、历史、相机和dirty保留。"
   },
   "servicesSettings": {
     "tools": [
@@ -48859,7 +48868,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "recoverKernel",
   "title": "recoverKernel",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。",
   "synonyms": [
     "recoverKernel",
@@ -48875,7 +48884,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:6e5060734f16dd99e250199f0e07a457084ecbce302b29c0e32b94fb6b84dbbc"
+  "docsHash": "sha256:83517f7448710f6feed4b0ee12e6620d6ca3e8cb10318011797408e5b6a13e49"
 }
 ```
 
@@ -48886,7 +48895,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "sampleMeshRelief",
   "title": "sampleMeshRelief",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "sampleMeshRelief({context,bodyId,inputGeometryHash,support:{originMm,xAxis,normal},pointsMm:[[U,V],…]})；明确毫米支撑，1–256个点，点数乘三角面数不得超过1200万。",
   "synonyms": [
     "sampleMeshRelief",
@@ -48996,7 +49005,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "readOnly": true,
     "geometrySource": "authoritative-mesh-f64"
   },
-  "docsHash": "sha256:d70109d6a12625cd77693b2755a58d8ea6600ba041ae8e51dab98496140add29"
+  "docsHash": "sha256:48dcf3d97db5f8c70b369d17e26163dcdbbf85e692e4361bf1adbac1d2268ff6"
 }
 ```
 
@@ -49007,7 +49016,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getModelLibrary",
   "title": "getModelLibrary",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "getModelLibrary()",
   "synonyms": [
     "getModelLibrary",
@@ -49035,7 +49044,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
     "create": "Use entries[].execution with run/add; current context and unique key required."
   },
-  "docsHash": "sha256:8bbee8b80e6c421a083226b7fbcf03964322248050414c3e142bac224ecd5934"
+  "docsHash": "sha256:766af03535a4e0ce6a999d69f8a4bc5ef3b19fcfe5d5ff1ce0cff9dbfabdae43"
 }
 ```
 
@@ -49046,7 +49055,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "updateModelLibrary",
   "title": "updateModelLibrary",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "updateModelLibrary({context,expectedLibraryRevision,operation:upsert|remove|move|restore|import,entry?,id?,index?,library?})。upsert entry={id,kind,label,description?,defaults?}，id为字母开头80位以内字母数字_-，kind必须已安装，defaults仅含该类型原参数。move的index为移动后零起始位置。import全量替换，library={format:webcad-model-library,version:1,entries:[entry]}；restore全量恢复默认目录、默认参数和顺序。",
   "synonyms": [
     "updateModelLibrary",
@@ -49084,7 +49093,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
     "create": "Use entries[].execution with run/add; current context and unique key required."
   },
-  "docsHash": "sha256:5782d862905c1040558c6177a784d2c8b98c3ce70280275bfb4ea745aaad4dcd"
+  "docsHash": "sha256:d8ea1a41b100f6c156a026d357b8ddd251117a5328bf50fa3a983e83b95a8c42"
 }
 ```
 
@@ -49095,7 +49104,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "resolveModelLibrary",
   "title": "resolveModelLibrary",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "resolveModelLibrary({context,id,expectedLibraryRevision,params?:参数覆盖})",
   "synonyms": [
     "resolveModelLibrary",
@@ -49127,7 +49136,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
     "create": "Use entries[].execution with run/add; current context and unique key required."
   },
-  "docsHash": "sha256:c915aeea6553d4ae89ebc46246de2d3fbaa3ad5101d58d119298e9ecf7f6547f"
+  "docsHash": "sha256:38d9bbb370bee712bde921d3dee550d64cded855586d84d59254e32cb0f9b1a4"
 }
 ```
 
@@ -49138,7 +49147,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "planPatternMachining",
   "title": "planPatternMachining",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "planPatternMachining({context,intent})，intent 为 version:1 加工意图；只读规划，不推断图片深度。",
   "synonyms": [
     "planPatternMachining",
@@ -49326,7 +49335,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "geometryComputed": false,
     "fallbackAllowed": false
   },
-  "docsHash": "sha256:a399722e74a0a11b9ab55b900f401933323ad44e8d9e3ba1400afd7adafb30ec"
+  "docsHash": "sha256:2a3b318c36f5813e32ba65f46dfc986dc7a79a23e9d15525b874a08c179fba24"
 }
 ```
 
@@ -49337,7 +49346,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "decideServicesWait",
   "title": "decideServicesWait",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "decideServicesWait({jobId,decision:\"continue\"|\"stop\"})，可在工程忙碌时调用；jobId必须是getServicesRouting().pendingWait中的当前任务。",
   "synonyms": [
     "decideServicesWait",
@@ -49356,7 +49365,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_SCHEMA_INVALID",
     "SERVICES_WAIT_NOT_PENDING"
   ],
-  "docsHash": "sha256:4f8ff861699b6facdb874f54f849ead93d4a85cd9c2e004070e525827470a0b2"
+  "docsHash": "sha256:336fe0e81e084babb81f9d1fd892c6cc4c385da48c63fbfb96c8947760108410"
 }
 ```
 
@@ -49367,7 +49376,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "recoverServicesJob",
   "title": "recoverServicesJob",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "recoverServicesJob({jobId,reason,approved:true,acknowledgedState:\"interrupted\",idempotencyKey})。必须先用 getServicesJob 核对已停止旧任务。",
   "synonyms": [
     "recoverServicesJob",
@@ -49391,7 +49400,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_REQUEST_FAILED"
   ],
-  "docsHash": "sha256:b835fe7a4c1b0a6cba0b5f86a99248b2021aeb26a39cc96776ba2801500e4235"
+  "docsHash": "sha256:1c4a5977cff4f6d54cd821046a8e0d3d28aabe9ff5fd63db8d5a2a887774f8ca"
 }
 ```
 
@@ -49402,7 +49411,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "prepareReliefTopologyUpgrade",
   "title": "prepareReliefTopologyUpgrade",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "prepareReliefTopologyUpgrade({context,featureId,maskStrategy?:\"faceWithHolesExtrude\"|\"cutHoleSolids\"})。只读规划，不计算几何；原参数没有策略时必须明确选定。",
   "synonyms": [
     "prepareReliefTopologyUpgrade",
@@ -49428,7 +49437,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:3c421e58c048726328379153f004c0f619a4a0dbdce5f44ec09d92e4029db09b"
+  "docsHash": "sha256:adeaf5713bd0918563f8eb9e2811d92a61b097383b47307a6b589d60375b0a9e"
 }
 ```
 
@@ -49439,7 +49448,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "sampleReliefHeight",
   "title": "sampleReliefHeight",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "sampleReliefHeight({context,featureId,layerIndex?,samples?,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。分层必须明确 layerIndex；samples 仅用于读初始等高层的新草稿，约束同 prepareReliefSculpt。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。",
   "synonyms": [
     "sampleReliefHeight",
@@ -49468,7 +49477,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:55b52cee21b3877da09ca10d7bd68c29f96ee7182d9a76419350eeea5a8e7c78"
+  "docsHash": "sha256:4d83d9f2c9a365bfbbc8d53832751f65a1a4e0d70f432c16b03abc1a9d7c5863"
 }
 ```
 
@@ -49479,7 +49488,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "prepareReliefSculpt",
   "title": "prepareReliefSculpt",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "prepareReliefSculpt({context,featureId,layerIndex?,patch?:{id,domainMm:[uMin,vMin,uMax,vMax],samples:7–65,protectionMm},samples?,draft?:{deltaMm,mask},strokes:[{mode:\"raise\"|\"lower\"|\"smooth\"|\"flatten\"|\"restore\"|\"mask\"|\"unmask\"|\"fill\"|\"scrape\"|\"sharpen\",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:\"none\"|\"x\"|\"y\"|\"xy\",points:[[x,y],...]},...]})。单层与显式选层使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。",
   "synonyms": [
     "prepareReliefSculpt",
@@ -49517,7 +49526,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:b355f7bb00d66c3ced384681cae64515c6cc3517b918c04f39eda0ddc4305e34"
+  "docsHash": "sha256:c73614b5d44bacbd7e11a74846099e8a788e148aaffa0aeb152aa080bf18c867"
 }
 ```
 
@@ -49528,7 +49537,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "readRelief",
   "title": "readRelief",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5,sourceInterpretation:authoredHeightMap|rasterArtwork|reviewedVectors|shadedReference})。先 files.register；只读，本地解码。",
   "synonyms": [
     "readRelief",
@@ -49565,7 +49574,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_SCHEMA_INVALID"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:e4ed8f553cddecbeeecd82cac58253bf686a3e63bd02dac009571ed0613eb34a"
+  "docsHash": "sha256:304816aacc411e5e71d2b7a2e9ee511c020feb9870b289902adf2c1570f777cd"
 }
 ```
 
@@ -49576,7 +49585,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getHistory",
   "title": "getHistory",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "getHistory()。返回已保留状态，不含导入源字节。",
   "synonyms": [
     "getHistory",
@@ -49592,7 +49601,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:f349beb4102f78386a08f14fadda8b9ba688fe00c5741d184fd44293efb8e28a"
+  "docsHash": "sha256:032a35024c70e56779b2d1f44178c51be5cd2f5f746ad53e4d835789e3d1132c"
 }
 ```
 
@@ -49603,7 +49612,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "planAlignment",
   "title": "planAlignment",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true。",
   "synonyms": [
     "planAlignment",
@@ -49623,7 +49632,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "STALE_REFERENCE",
     "REVISION_CONFLICT"
   ],
-  "docsHash": "sha256:2aed94b652b0959d45871209f5fdf025ba52b20fd7066f168a50db3490be34f1"
+  "docsHash": "sha256:078ba647b0ca09c661b92779ac5b29a02e0ad3e7f6abe8605651ece3b3e5d2e9"
 }
 ```
 
@@ -49634,7 +49643,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "selectRectangle",
   "title": "selectRectangle",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。",
   "synonyms": [
     "selectRectangle",
@@ -49654,7 +49663,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "UI_TASK_ACTIVE",
     "REVISION_CONFLICT"
   ],
-  "docsHash": "sha256:eab43c4dd5443006f9e85a043e2c6b20b5c78f5667c7d614a05f8fdfcf543a19"
+  "docsHash": "sha256:8503413d6ec7e60341ef83bec0d378d503d1e4f33cdf7292ffc2c6015553d5b0"
 }
 ```
 
@@ -49665,7 +49674,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "createDrawing",
   "title": "createDrawing",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。",
   "synonyms": [
     "createDrawing",
@@ -49687,7 +49696,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "GEOMETRY_INVALID"
   ],
-  "docsHash": "sha256:4c3093e4688c940aae8b2230c1f1bd2d74bd14f42faab91ecdd592228545376d"
+  "docsHash": "sha256:a979f5bd6d6ef8a740c05c483be85dd2f955471dd191e17d79f5b5dd2afdfbee"
 }
 ```
 
@@ -49698,7 +49707,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "exportDrawing",
   "title": "exportDrawing",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "exportDrawing({context,drawingId,format:pdf|jpg|dxf|svg,paper?:A4|A3,title?,name?,disabledDimensions?:[id]})。drawingId必须仍匹配当前revision；DWG明确不可用。",
   "synonyms": [
     "exportDrawing",
@@ -49723,7 +49732,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:e772f061e7418483866c39482fe04d7f717ad92f7299bfc7c0f911660d0fe1cd"
+  "docsHash": "sha256:dc38b286eb7526f52b2b46721d8a3c6b272f588a5e3890219ce5cb5dc9371276"
 }
 ```
 
@@ -49734,7 +49743,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getQuickModelUsage",
   "title": "getQuickModelUsage",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "getQuickModelUsage({}={})；只读本浏览器累计成功创建次数，不要求几何上下文，预览期间也可读取。",
   "synonyms": [
     "getQuickModelUsage",
@@ -49756,7 +49765,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
-  "docsHash": "sha256:10302eea5e6b5ccd619235b18b4a09f8f782dc47d74ecccfa83810189f564446"
+  "docsHash": "sha256:f7f662b1cff725c88da9260cf662723e6918e484f27d3d4d808f50e693bb3582"
 }
 ```
 
@@ -49767,7 +49776,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "copySelection",
   "title": "copySelection",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "copySelection({context,bodyIds}); 1–200个当前实体。",
   "synonyms": [
     "copySelection",
@@ -49789,7 +49798,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE",
     "UI_TASK_ACTIVE"
   ],
-  "docsHash": "sha256:2007e72beb0e75736c4e699e080d5b06fc367df5a834ae2d9a96858b15152525"
+  "docsHash": "sha256:e46e44199120466702ceb49a8cfc7a1921dc53a2cf480e99f631db648c2ba358"
 }
 ```
 
@@ -49800,7 +49809,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "pasteSelection",
   "title": "pasteSelection",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "pasteSelection({context,idempotencyKey}); 先 copySelection。",
   "synonyms": [
     "pasteSelection",
@@ -49830,7 +49839,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "maxBytes": 20971520,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:80d2d7afc374cee840d660653088f7baf268712872a8ed632eaacf89ba10aef9"
+  "docsHash": "sha256:fb8ff817dac3d220e52e8907afaeb35cc788b8c3f9a56c27d1fe7d085341148a"
 }
 ```
 
@@ -49841,7 +49850,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "createRequestContext",
   "title": "createRequestContext",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "createRequestContext(context?); omit to read the current context.",
   "synonyms": [
     "createRequestContext",
@@ -49860,7 +49869,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:6bdedd69250307024eacf12e85a3b4a856ce2e9f49a6376f6028d29eaf4b3445"
+  "docsHash": "sha256:2736e5e4817f1807e211cf4c397d288d976ec47228c8c03c6230eab7bd5a5b48"
 }
 ```
 
@@ -49871,7 +49880,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "getUILayout({includeModelLibrary?:boolean})",
   "synonyms": [
     "getUILayout",
@@ -49893,7 +49902,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "LIBRARY_STORAGE_UNAVAILABLE"
   ],
   "docs": "api.workspace",
-  "docsHash": "sha256:cd8cf521ded727145bc986be7d87ffbc0e4976a3199a7dbdfff3f61e9cd912ab"
+  "docsHash": "sha256:792bd9117d7512ac8f8c6be77f9ad5890d5df21d719f7ba2152b830abe3c56e3"
 }
 ```
 
@@ -49904,7 +49913,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setRenderQuality",
   "title": "setRenderQuality",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "setRenderQuality({context,quality:\"draft\"|\"standard\"|\"fine\"|\"ultra\"})",
   "synonyms": [
     "setRenderQuality",
@@ -49928,7 +49937,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "DISPLAY_FAILED"
   ],
   "docs": "api.workspace",
-  "docsHash": "sha256:1b746b9aa09ec22e32777a99f4608676a1fc6e595dd269771c05c54c2b562c41"
+  "docsHash": "sha256:170f2764a0d7b47d7d63e0f23adbb90290671b33997ca3f95dddc8fe39c15801"
 }
 ```
 
@@ -49939,7 +49948,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "invoke({method,args}); public method name or files.*.",
   "synonyms": [
     "invoke",
@@ -49957,7 +49966,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_SCHEMA_INVALID"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:9b31ef08d40a08b0b57c9f0275f81fdbd41ecd0d71b27270ddbb5d274edba264"
+  "docsHash": "sha256:33c1831f980b9309ccce956c510c88e587fc0f0f614af98e9d4aa2e1a10eff63"
 }
 ```
 
@@ -49968,7 +49977,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "submit",
   "title": "submit",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/inspectConstraints/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.",
   "synonyms": [
     "submit",
@@ -49990,7 +49999,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:548456160f9299a32c5a662a308afd71ae207d74f651fc0aa1ae1fc03660cb15"
+  "docsHash": "sha256:ae4dbe1976e495fdb4222759fab8ed1942fdb990d07104ec4b2af1bdab7763eb"
 }
 ```
 
@@ -50001,7 +50010,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getJob",
   "title": "getJob",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "getJob({jobId})",
   "synonyms": [
     "getJob",
@@ -50020,7 +50029,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "JOB_NOT_FOUND"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:c0924d80ec1151151f97c248a58c17f74f1dfd690b1e33c0ecc35810462cbf96"
+  "docsHash": "sha256:1ab3a8dff4f65e07cee7d2c5f682799f3011b3e43762c0a5e5e1429eafa789cd"
 }
 ```
 
@@ -50031,7 +50040,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "cancelJob",
   "title": "cancelJob",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "cancelJob({jobId})",
   "synonyms": [
     "cancelJob",
@@ -50048,7 +50057,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "JOB_NOT_FOUND"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:5655197ee40ae3a66a56250d5a2084e63fbce1bf40b3f0dac713a537bcfdab56"
+  "docsHash": "sha256:48df5f4c88ae5bbe029b5bcade3fdc0dfd79f7eefb2bcda752a3fee2156df951"
 }
 ```
 
@@ -50059,7 +50068,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.",
   "synonyms": [
     "connect",
@@ -50079,7 +50088,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:a0342d94c5118c4b3011c7fbd12b292f78cc80819afb5031bb3fbd4706e5d75d"
+  "docsHash": "sha256:57f16c789db6c472ca311e0c9a5ee60e3aaf583daee062b6972f3eddd85d91af"
 }
 ```
 
@@ -50090,7 +50099,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "info",
   "title": "info",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "info() 无参数。",
   "synonyms": [
     "info",
@@ -50105,7 +50114,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "runtimeAvailability": "requires_page",
   "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
   "errorCodes": [],
-  "docsHash": "sha256:c258724cf82c78ca3dafa8d69506894b156ede117c3f24e13483ee8960f55aea"
+  "docsHash": "sha256:6fdef148c4ba14bc810980a6e486b1d8462b2378889dac38b7e8d953f19fb228"
 }
 ```
 
@@ -50116,7 +50125,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities/references。",
   "synonyms": [
     "getState",
@@ -50137,7 +50146,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_SCHEMA_INVALID",
     "INSTANCE_MISMATCH"
   ],
-  "docsHash": "sha256:2bc6d1f7eb7c0a772fffeaf9a0cd05640f0d65c4112365c547ae1aa84d7f74a6"
+  "docsHash": "sha256:5558c08591935d58290178c027497e11482e87c8768b2f40b1b646e9aaf532a1"
 }
 ```
 
@@ -50148,7 +50157,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "searchTools",
   "title": "searchTools",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。",
   "synonyms": [
     "searchTools",
@@ -50168,7 +50177,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:94d52d8f7d9013f3678f35bd8dec201aba50a7c080dcb1af0ef006fb9bebc5f5"
+  "docsHash": "sha256:860195df70830bf8d38acb4e088c15cf7d8c0521a9147045189d4a59d23f70a6"
 }
 ```
 
@@ -50179,7 +50188,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getTools",
   "title": "getTools",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.",
   "synonyms": [
     "getTools",
@@ -50200,7 +50209,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CATALOG_CHANGED"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:fe1c415fa4917158c53bfbdb97f208ccd9ba8d7f9d7edc970b9afb56c153039c"
+  "docsHash": "sha256:bdef3516129ea3392b287371f63ec5a1438b136e5a5bbc9497e74a5a05c0406f"
 }
 ```
 
@@ -50211,7 +50220,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getTool",
   "title": "getTool",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。",
   "synonyms": [
     "getTool",
@@ -50231,7 +50240,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "UNKNOWN_OPERATION",
     "OPERATION_VERSION_UNSUPPORTED"
   ],
-  "docsHash": "sha256:13493c8cb40d66fa4d74ca84a6787bc492762dbb02ce83dd257c957e3b7bdca4"
+  "docsHash": "sha256:fa13ee694c37180f88bc847f2d950b5c347cba1081559e28147b7282c3aa118b"
 }
 ```
 
@@ -50242,7 +50251,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "readDocs",
   "title": "readDocs",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。",
   "synonyms": [
     "readDocs",
@@ -50262,7 +50271,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_RANGE_INVALID",
     "OPERATION_VERSION_UNSUPPORTED"
   ],
-  "docsHash": "sha256:904f0b73c0d11cca5cd124ca3c1fd26286c4c73e1341cbe92d5b1af4bcd788a2"
+  "docsHash": "sha256:cfb4b2bc1cc57f20cdf4c3e5706aa4a505da30d6f8a8f0f9aa21344281b0a680"
 }
 ```
 
@@ -50273,7 +50282,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "queryGeometry",
   "title": "queryGeometry",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry；多选仍须 requireUnique:false。",
   "synonyms": [
     "queryGeometry",
@@ -50297,7 +50306,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "AMBIGUOUS_SELECTION"
   ],
   "docs": "api.query-geometry",
-  "docsHash": "sha256:3b28d16f8a67327fe2dd6b64eec7927816651383a8b0e64aac3017a7b547264a"
+  "docsHash": "sha256:bd77cf5f0ea2e1be5092e55079fd45715df0204a408eebc54f25c26410529d13"
 }
 ```
 
@@ -50308,7 +50317,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "queryReferences",
   "title": "queryReferences",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "queryReferences({context,bodyIds:[],kind:\"point\"|\"axis\"|\"frame\",filter?:{types?:[\"cad-vertex\",\"edge-midpoint\",\"circle-center\",\"edge-nearest\",\"trimmed-face-point\",...],near?:{point:[x,y,z],radiusMm}},limit?,offset?,requireUnique?})。",
   "synonyms": [
     "queryReferences",
@@ -50327,7 +50336,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "STALE_REFERENCE",
     "AMBIGUOUS_REFERENCE"
   ],
-  "docsHash": "sha256:1416553822eec2cd20c76b8746d9a84ea861f8379f1c0262370fcb130550c8db"
+  "docsHash": "sha256:be449946c3eaa4ced02fa68ed9339eb74019e8b4bfa21f9a7fc83eb7331ba570"
 }
 ```
 
@@ -50338,7 +50347,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "resolvePlacement",
   "title": "resolvePlacement",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。",
   "synonyms": [
     "resolvePlacement",
@@ -50357,7 +50366,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "FRAME_INVALID",
     "PLACEMENT_NOT_APPLICABLE"
   ],
-  "docsHash": "sha256:d01b102bd12c35c4ed8636cf73417de9030b53b84f44635eec4cdb654513659d"
+  "docsHash": "sha256:50f8ffffe13ddb0b69d9e61476d6ca9d808a1b3208af10217f5652ad12f980e6"
 }
 ```
 
@@ -50368,7 +50377,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "execute({context,idempotencyKey,action,args}); action 来自当前命令合同。",
   "synonyms": [
     "execute",
@@ -50396,7 +50405,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "maxBytes": 20971520,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:4f0866945f9e32968e77d992dde994981c6c2197168c8976ebb697f5068f1410"
+  "docsHash": "sha256:9111813507926a6b80266e90ad0dd5e33aa5f68b0edf10b0f6dbe27b13443172"
 }
 ```
 
@@ -50407,7 +50416,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "measure",
   "title": "measure",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需当前范围内的非负整数 topologyId；整个实体测量不接受 topologyId，坐标点模式不可混用实体字段。",
   "synonyms": [
     "measure",
@@ -50436,7 +50445,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "area": "mm^2",
     "volume": "mm^3"
   },
-  "docsHash": "sha256:fef07f9b492bbe4f7986cb761df520843e7e313c786078d34a9d85bdc6078f23"
+  "docsHash": "sha256:7d6336a5a84dc508a19760eccd66c29a4ed5a7b5d6266d716e3bc4431f3defed"
 }
 ```
 
@@ -50447,7 +50456,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "measureRelation",
   "title": "measureRelation",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "measureRelation({context,mode:\"shortest\"|\"centerDistance\"|\"axisAlignment\"|\"pointFace\"|\"parallelFaces\",first?,second?,face?,pointWorld?})；引用形式 {bodyId,kind:\"body\"|\"edge\"|\"face\",topologyId?}。",
   "synonyms": [
     "measureRelation",
@@ -50470,7 +50479,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:b4cefdcec6658059eaee539233d373ab9655f62911c761b826c9279ad0fae2b6"
+  "docsHash": "sha256:99b399f8d8e560af1e0a5c029963f527fb849b73f0053f98f04d6c5fa61a6561"
 }
 ```
 
@@ -50481,7 +50490,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectDesign",
   "title": "inspectDesign",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "inspectDesign({context,requirements,requirePass?:false})；1–64项{id,bodyId,kind:bounds|solidCount|material,evidence:{kind:drawing|user|assumption,reference}}。bounds加sizeMm:[X,Y,Z]/明确toleranceMm；solidCount加count；material加points/expected:inside|outside，可选toleranceMm。总计<=128个世界XYZ材料点。完整字段与示例见api.design-checks。",
   "synonyms": [
     "inspectDesign",
@@ -50769,7 +50778,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "maxMaterialPoints": 128
   },
   "unknownFields": "rejected",
-  "docsHash": "sha256:5872d541377274f487a4efff6b0fcc8871885b5218bea6d979c6e9b9b4a38d72"
+  "docsHash": "sha256:e259e3969e25da142b99cd04fba50d07990a11a70ea4e024b317f32533c1a1ad"
 }
 ```
 
@@ -50780,7 +50789,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectPrintability",
   "title": "inspectPrintability",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "inspectPrintability({context,bodyId,angleLimitDeg?:45}); angleLimitDeg 在 0 与 90 度之间。",
   "synonyms": [
     "inspectPrintability",
@@ -50803,7 +50812,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.printability",
-  "docsHash": "sha256:e168f88f8bb5e6d19fc009cf65cfaa9c11aa18abc1bc6ec8386b4b94d740b644"
+  "docsHash": "sha256:977d237e71f3ade988550fdb89970f6c45862b8caa2a5783947675627d9ca9bd"
 }
 ```
 
@@ -50814,7 +50823,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectProfile",
   "title": "inspectProfile",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。界面检查选项按需展开；API 不依赖界面展开状态。",
   "synonyms": [
     "inspectProfile",
@@ -50837,7 +50846,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.interaction",
-  "docsHash": "sha256:279181c0f1d8055a01e1496e4666129bcbfb79c05fec92fc639bc69687665c27"
+  "docsHash": "sha256:cd677615a38f07181a3d64064693e98815566bba449a1b46334c2dfb024b7fcd"
 }
 ```
 
@@ -50848,7 +50857,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "prepareProfileEdit",
   "title": "prepareProfileEdit",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "prepareProfileEdit({context,bodyId,mode:\"intersections\"|\"trim\"|\"extend\"|\"trimCircle\"|\"fillet\",entityId?,targetId?,edgeIds?,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})。二维圆角可用 edgeIds:[两条当前边索引] 替代 entityId/targetId，支持解析轮廓及其未缩放的移动/旋转副本，选择先后不限；须显式 radiusMm 与新 arcId。",
   "synonyms": [
     "prepareProfileEdit",
@@ -50873,7 +50882,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "GEOMETRY_INVALID"
   ],
   "docs": "api.interaction",
-  "docsHash": "sha256:26dc9e263de748ddb266af4a07b83ae1d271918d93adf61e2d540183c2ece713"
+  "docsHash": "sha256:0a5201ae895ef90dc4cc07295216c728a3010592cb07a3fd0cee7baf40b99c2c"
 }
 ```
 
@@ -50884,7 +50893,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectConstraints",
   "title": "inspectConstraints",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "inspectConstraints({context,bodyId})；当前保存的 sketchProfile 或 profileConstraints 派生轮廓。只读诊断已有关系；矩形转换为明确四条解析边并保留形状关系。",
   "synonyms": [
     "inspectConstraints",
@@ -50917,7 +50926,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "length": "mm",
     "angle": "degrees"
   },
-  "docsHash": "sha256:91f6ad53c493b184007ff387616b08a7848d939f88f0fbc567c763558288074e"
+  "docsHash": "sha256:3a92eea2a88bac8f4514922504d5283806d53aa3903abcd24330f2c2328fc836"
 }
 ```
 
@@ -50928,7 +50937,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "projectProfile",
   "title": "projectProfile",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "projectProfile({context,bodyId,edgeIds:[当前边索引],frame?:{origin,quaternion}})；或用 pointWorld:[x,y,z] 投影明确坐标点。",
   "synonyms": [
     "projectProfile",
@@ -50950,7 +50959,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "UNSUPPORTED_CURVE_PROJECTION",
     "DEGENERATE_PROJECTION"
   ],
-  "docsHash": "sha256:3a528cd451b56b98c8cee52ffdf669df873f7a614f7787df4dc17a0a4f1c010a"
+  "docsHash": "sha256:4f1de1c3c30fd9784a9650bb1474e5fa8108150217ecedebdc0e63f314a6b5a1"
 }
 ```
 
@@ -50961,7 +50970,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectFit",
   "title": "inspectFit",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。",
   "synonyms": [
     "inspectFit",
@@ -50984,7 +50993,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:e480a883ac115f95a81bb2a3c4094867f6c6ca5fec47661ef4c1d0777fdcea0c"
+  "docsHash": "sha256:a8274b8555ab01e36dc26ddb836ae4036bb0834454b34037fb9fd12a0e9b67fa"
 }
 ```
 
@@ -50995,7 +51004,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectThickness",
   "title": "inspectThickness",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "inspectThickness({context,bodyId,mode:\"ray\",point:[x,y,z],direction:[dx,dy,dz]})；或 mode:\"faces\",faceAId,faceBId,point；两面须平行且射线穿过连续材料。",
   "synonyms": [
     "inspectThickness",
@@ -51016,7 +51025,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:b8c774647e3c04768ecca06bef56f4c2ba8f07cd802230611a78aaba1d538fa4"
+  "docsHash": "sha256:ef4002f05bd8a1bf346da6c79c0c373c4bf32e55516e228f4cd61e7a31f4899b"
 }
 ```
 
@@ -51027,7 +51036,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectDraft",
   "title": "inspectDraft",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "inspectDraft({context,bodyId,pullDirection:[0,0,1],thresholdDeg:2})；用户决定阈值。",
   "synonyms": [
     "inspectDraft",
@@ -51048,7 +51057,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:7033f4f16685a5af095baa8f296bd94b2e771083febf723c6b30a30fccc8b510"
+  "docsHash": "sha256:7258dcf5af114d009229a034c66b88095a122b4aff2422db25f6736af4df65c1"
 }
 ```
 
@@ -51059,7 +51068,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectRound",
   "title": "inspectRound",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "inspectRound({context,bodyId,params:{edgeIds:[0],mode:\"edge\",radiusMm:0.3}})；params 同 round 工具卡，亦可 faceIds 解析平面边界。",
   "synonyms": [
     "inspectRound",
@@ -51091,7 +51100,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "units": {
     "length": "mm"
   },
-  "docsHash": "sha256:1eed7a3189155686898ebea4934eff65f2586ab663b16f8f183a4a3a9a78a5e1"
+  "docsHash": "sha256:a94b61419c9208f34ba3deb30d79a10c08db46ec12294fe765d8f64b5566bd8e"
 }
 ```
 
@@ -51102,7 +51111,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "readVector",
   "title": "readVector",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "readVector({context,name,resourceId|text,scaleMm?:1,targetWidthMm?,entityIds?,bounds?:[minX,minY,maxX,maxY],layers?,offset?:0,limit?:500}); limit<=10000。文件先 files.register。",
   "synonyms": [
     "readVector",
@@ -51132,7 +51141,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "api.source-curves"
   ],
   "sourceCurvePolicy": "Unsupported splines preserve sourceSpline metadata; no original NURBS construction or automatic fit-point closure.",
-  "docsHash": "sha256:ad7d7df087e46ea622fdebfa90abfdce18d324cf3aea23535b403d59c597de22"
+  "docsHash": "sha256:de11e17001f27349d66c2d15d0c55aaa3f8b7111d63468fa50750b89b3272736"
 }
 ```
 
@@ -51143,7 +51152,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "connectVector",
   "title": "connectVector",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "connectVector({context,entities,toleranceMm?:0.000001,origin?:[0,0],flipY?:false}); 1..500 条解析线。",
   "synonyms": [
     "connectVector",
@@ -51167,7 +51176,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.vector-import",
-  "docsHash": "sha256:fd7536163aae1c322e47791306dda65d08d0c1dd6e5cd60da07cb854f3515e1f"
+  "docsHash": "sha256:7c495d596878eefc3f313b9af8410ffc348970a3b6adf7b73eef0283df419ca6"
 }
 ```
 
@@ -51178,7 +51187,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "fitProfile",
   "title": "fitProfile",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "fitProfile({context,kind:\"circle\"|\"line\",plane?:\"XY\"|\"XZ\"|\"YZ\",points:[[u,v],...],maxResidualMm?}); 3–1000 点。",
   "synonyms": [
     "fitProfile",
@@ -51202,7 +51211,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.profile-fitting",
-  "docsHash": "sha256:de4205b981ef7a6d6475131759a1f9f54d1ad07951ef091d4661d61624fe7acd"
+  "docsHash": "sha256:b54efa7f4d7972269510c96d53e579eaf33a52352e11d8a370ca2b1545caa8e6"
 }
 ```
 
@@ -51213,7 +51222,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "traceTwinWindow",
   "title": "traceTwinWindow",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBottomY,simplifyToleranceMm?:0..0.2}); 四条上到下 XY 采样曲线，每条3–2000点。",
   "synonyms": [
     "traceTwinWindow",
@@ -51235,7 +51244,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.dwg-spline-twin-window",
-  "docsHash": "sha256:c3f2834374e356b786fde98cd4ac8f23b9148002f9bc43d55dc37533b1e15bec"
+  "docsHash": "sha256:26e326d2f32ec14b4aa1ed4cf6b3fc1b20f6a6c271f38970f4e1f1aed9680470"
 }
 ```
 
@@ -51246,7 +51255,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "executeText",
   "title": "executeText",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "executeText({context,idempotencyKey,text,dryRun?}); 每行 add <op> key=value 或 measure <bodyId|$last>。",
   "synonyms": [
     "executeText",
@@ -51269,7 +51278,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.text-command",
-  "docsHash": "sha256:fd797faad9cc10536b9f7a54d39df698f72f7dd3a9c52a1026127fc0804c9b43"
+  "docsHash": "sha256:7d1f3400660d458f422ec406fc5dbc34d03dc145b92c73b1b901cc5cf147c110"
 }
 ```
 
@@ -51280,7 +51289,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "setDisplayPreferences({context,values}); values 为部分配置，字段及范围见 api.display-preferences。",
   "synonyms": [
     "setDisplayPreferences",
@@ -51305,7 +51314,87 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.display-preferences",
-  "docsHash": "sha256:af6eafc3ddf0236104084dc8551ac2faf0f864bcbce6d9df82d3e3daeb83425e"
+  "docsHash": "sha256:16e0f2dad631cfc4c8f2ceb7298834048745e152db702b7161123abbf6d6d0d8"
+}
+```
+
+## 工具 getAgentPanel · getAgentPanel
+
+```json
+{
+  "id": "getAgentPanel",
+  "title": "getAgentPanel",
+  "category": "page-method",
+  "version": "1.43.0",
+  "description": "getAgentPanel()",
+  "synonyms": [
+    "getAgentPanel",
+    "Agent",
+    "助手",
+    "模式",
+    "状态"
+  ],
+  "inputContract": "getAgentPanel()",
+  "outputContract": "version/url/configured/visible/phase/connected/locked/externalHost/error；phase=release_pending 表示本地已解锁但服务端释放待核对。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:30fd7192fafff67c08a3182e8780eaaa5b83ae4130f6927e72a723e63ca05ddf"
+}
+```
+
+## 工具 configureAgentPanel · configureAgentPanel
+
+```json
+{
+  "id": "configureAgentPanel",
+  "title": "configureAgentPanel",
+  "category": "page-method",
+  "version": "1.43.0",
+  "description": "configureAgentPanel({context,url})；HTTP/HTTPS助手页面地址，不带query/hash/凭据；HTTPS页面只接受HTTPS。",
+  "synonyms": [
+    "configureAgentPanel",
+    "Agent",
+    "助手",
+    "配置",
+    "地址"
+  ],
+  "inputContract": "configureAgentPanel({context,url})；HTTP/HTTPS助手页面地址，不带query/hash/凭据；HTTPS页面只接受HTTPS。",
+  "outputContract": "status=applied,persisted；退出并释放后才能修改地址。失败AGENT_URL_INVALID/AGENT_PANEL_ACTIVE。仅浏览器保存，不进入工程。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:e47add309277dfcc16e9439e1f45c4d05dff6a6b3f1f5b24e7504b6cc9256df3"
+}
+```
+
+## 工具 setAgentPanel · setAgentPanel
+
+```json
+{
+  "id": "setAgentPanel",
+  "title": "setAgentPanel",
+  "category": "page-method",
+  "version": "1.43.0",
+  "description": "setAgentPanel({context,visible:true|false})；true将已配置助手侧栏接到当前页面，false立即撤销适配器写入、解锁并关闭侧栏，再取消同一任务并释放原会话。",
+  "synonyms": [
+    "setAgentPanel",
+    "Agent",
+    "助手",
+    "进入",
+    "退出",
+    "释放",
+    "编辑"
+  ],
+  "inputContract": "setAgentPanel({context,visible:true|false})；true将已配置助手侧栏接到当前页面，false立即撤销适配器写入、解锁并关闭侧栏，再取消同一任务并释放原会话。",
+  "outputContract": "status=applied，状态见getAgentPanel；不刷新、不另建工程，不改变revision/dirty/相机/历史。网络失败releasePending=true；旧会话须核对释放，不重跑。仅匹配配置origin、实际iframe、一次性channel的消息可用；既有同源工作台可绑定外层控制器。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:189427d79810dc470a4bf6abc6c8dca7f214d30c429af1f956310b08d5b48235"
 }
 ```
 
@@ -51316,7 +51405,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getServices",
   "title": "getServices",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "getServices()；地址与模式存本地，专用授权仅存本标签会话，不进入工程。",
   "synonyms": [
     "getServices",
@@ -51334,7 +51423,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "errorCodes": [
     "SERVICES_CONFIG_INVALID"
   ],
-  "docsHash": "sha256:c74ee0fbe844ba6485da6ff454ccbfc117a1724b06008250096909b28989eeb8"
+  "docsHash": "sha256:fd99b9dd8ece214b6623098050ee1056dbbda19065e26f76dc6c49aa4047cfe5"
 }
 ```
 
@@ -51345,7 +51434,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setServices",
   "title": "setServices",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "setServices({context,url,credential?,enabled?,computeMode?:\"local\"|\"auto\"|\"serverPreferred\",allowGeometryUploads?,localTimeoutMs?:60000,serverWaitMs?:180000})；本地超时1–600秒、服务器提醒1–900秒，均用整数毫秒，设置保存并在下一操作生效。启用已配置Services即授权复杂运算发送到该端；简单运算本地。旧computeMode/allowGeometryUploads仅兼容读取，不覆盖此政策。支持 HTTPS 或内网 HTTP；HTTPS 页面不能直接调用内网 HTTP。服务由 ASHX 引用 DLL，沿用 LOGO 部署方式，不安装 Host。启用前验证协议。",
   "synonyms": [
     "setServices",
@@ -51369,7 +51458,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_PROTOCOL_MISMATCH"
   ],
-  "docsHash": "sha256:b1dbe9865ce28cd1d3f1614277b157ea3c0d89666ea37ca5e60584a06c7c9975"
+  "docsHash": "sha256:908c76bac825a0cb7d3896bc16da3fdaa3faa20db9d36267d224c17ae219f410"
 }
 ```
 
@@ -51380,7 +51469,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getServicesCapabilities",
   "title": "getServicesCapabilities",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "getServicesCapabilities()；读取已配置服务。",
   "synonyms": [
     "getServicesCapabilities",
@@ -51403,7 +51492,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SERVICES_REQUEST_FAILED",
     "SERVICES_PROTOCOL_MISMATCH"
   ],
-  "docsHash": "sha256:f89b35d327be662737a3846c5ebdd48abf3a75ea79c480e251d45deb33080c94"
+  "docsHash": "sha256:acad0cf2fe3e6b2991d16ea7936f95e2b3c18e9451e2f2c6d392f57a38830ca6"
 }
 ```
 
@@ -51414,7 +51503,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getServicesRouting",
   "title": "getServicesRouting",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "getServicesRouting()；读取同一 ExecutionRouter 的最近决策。",
   "synonyms": [
     "getServicesRouting",
@@ -51431,7 +51520,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:c5e2ef5a90ffefcb95c518f0dc96a4e89ac51100c704728d28c0931b9c9a2b6e"
+  "docsHash": "sha256:b8acdefa36647f26aaccc1ccedb350ec4660d802e3cdf81ec1196bedae4f7b51"
 }
 ```
 
@@ -51442,7 +51531,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "clearServicesCredential",
   "title": "clearServicesCredential",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "clearServicesCredential({context})",
   "synonyms": [
     "clearServicesCredential",
@@ -51461,7 +51550,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "INSTANCE_MISMATCH",
     "REVISION_CONFLICT"
   ],
-  "docsHash": "sha256:963931bbc54c5918c10f86c75a1b0025db99da1bae7620a9ddd9c1ada4c23494"
+  "docsHash": "sha256:181fb1f40c53caa7ad1127f3790522460d6965f48bbf710815b21073fc4b320a"
 }
 ```
 
@@ -51472,7 +51561,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getServicesJob",
   "title": "getServicesJob",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "getServicesJob({jobId})",
   "synonyms": [
     "getServicesJob",
@@ -51494,7 +51583,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_REQUEST_FAILED"
   ],
-  "docsHash": "sha256:3ad37a0e51a1a4432f3364740983bb9dc536bd3c7d79f9189f1fe55fc543ae98"
+  "docsHash": "sha256:d2e757b170ffcf0a73e36079d087f4c29fea177608e3811b1aba97bac246e4c6"
 }
 ```
 
@@ -51505,7 +51594,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getServicesRequest",
   "title": "getServicesRequest",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "getServicesRequest({idempotencyKey})；连接未知时先查既有接收记录。",
   "synonyms": [
     "getServicesRequest",
@@ -51528,7 +51617,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_REQUEST_FAILED"
   ],
-  "docsHash": "sha256:bab3c4c968d5ab49bef4b3d577c9340f92cd35e51d412a161fa8808b83122ac4"
+  "docsHash": "sha256:97e5b6dd94345142a3a9fcd2209e84e0430b7691a4d4deb27f31a0a4742ce773"
 }
 ```
 
@@ -51539,7 +51628,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "cancelServicesJob",
   "title": "cancelServicesJob",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "cancelServicesJob({context,jobId})",
   "synonyms": [
     "cancelServicesJob",
@@ -51562,7 +51651,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_REQUEST_FAILED"
   ],
-  "docsHash": "sha256:2b5e30edaefc447c7e18211d67a0d7cf7f1d71839013fe252c5bc0eae0d95be9"
+  "docsHash": "sha256:9e4fbb69e9693f65a105a7d3edb9b0ee1fbc8fb70964277a26cff1dd91bc84e8"
 }
 ```
 
@@ -51573,7 +51662,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getLogoConverter",
   "title": "getLogoConverter",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "getLogoConverter() 委托 getServices；旧 URL/Key 不自动授权统一服务。",
   "synonyms": [
     "getLogoConverter",
@@ -51588,7 +51677,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:01977ac464a2349555312f66d4dfd4579c2398cef5cd3c805146bb87733421d7"
+  "docsHash": "sha256:e922e4758684df9a9417575c07934f69116c56c242235e5cb26b7e9ebfa3e38a"
 }
 ```
 
@@ -51599,7 +51688,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setLogoConverter",
   "title": "setLogoConverter",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "改用 setServices，旧 setter 拒绝存影子配置。",
   "synonyms": [
     "setLogoConverter",
@@ -51619,7 +51708,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:fdb6c9c8ccb3f41c14828455a4a9938d965d50e0105015c4c704868d517a6367"
+  "docsHash": "sha256:be55266e81b95c0fa49bb218aaca6ec08aee5ec101f3b8b060dcad50df60c39a"
 }
 ```
 
@@ -51630,7 +51719,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "convertLogoPdf",
   "title": "convertLogoPdf",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "convertLogoPdf({context,name,data,targetWidthMm?,page?,sizeConfirmed:true,allowUpload:true})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。",
   "synonyms": [
     "convertLogoPdf",
@@ -51652,7 +51741,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID"
   ],
-  "docsHash": "sha256:1da0ca6968133c334d6e5da9212d15c92ca79e6eb9dc81e7c934c3f8a5cc1683"
+  "docsHash": "sha256:4c76f52fbb32ace69fe0ec55406be264efaaf4bdacc72f5718b6e29574387641"
 }
 ```
 
@@ -51663,7 +51752,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "setView({context,interactionPhase?:start|update|end,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 网格运动阶段使用独立显示LOD。复杂 BRep 首屏使用粗曲面及保守显示包围框，停止运动后按当前屏幕像素需求逐面细化可见范围，不自动恢复整件最高精度。display.detail 的 adaptiveExact、phase、visibleFaces、culledFaces、pending、budgetLimited、refinementError 读回显示状态。capture 返回当前已渲染帧及其近似状态，不等待无限细化。原始BRep和导出不变；metricsDeferred 时面积/体积为 null、boundsSource 为 conservative-display-box，measure 仍按精确实体计算。 gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling返回画布、library打开非全屏浮动快捷模型菜单（不改变菜单或侧栏显隐）；兼容workspace=agent打开Agent配置弹窗并保持workspace=modeling，current.agentSettingsOpen读回，workspace=modeling关闭弹窗；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。",
   "synonyms": [
     "setView",
@@ -51706,7 +51795,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "UI_TASK_ACTIVE"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:2705da632431da9c729b5c9826dd2542f7e5678b3df53ffb6ce5f43e0ec74504"
+  "docsHash": "sha256:5fe403c1a685e6645ee7bfd04e7b1553a2b61057a9f2add7b4e646a7cea750c4"
 }
 ```
 
@@ -51717,7 +51806,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "redraw",
   "title": "redraw",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "redraw({context}); 不接受额外字段。",
   "synonyms": [
     "redraw",
@@ -51738,7 +51827,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "DISPLAY_FAILED"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:361ecf13db3de620f93ee67483d83491081fc9e29ed14715676f5165655db6aa"
+  "docsHash": "sha256:c35ca1d2c370235f96747b98fc19c24f381990f13cdff556ae6e974e5c3413de"
 }
 ```
 
@@ -51749,7 +51838,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "capture({context}); 不接受额外字段。",
   "synonyms": [
     "capture",
@@ -51770,7 +51859,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "DISPLAY_FAILED"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:2dbcc764ab1fe594caa40ffae54560d4f0d0084d7a9cab9bde47ff964f737158"
+  "docsHash": "sha256:c3ba4c344b39597dbed3be5b58da79f072235181e5fc0d6d9e1b4d543a367821"
 }
 ```
 
@@ -51781,7 +51870,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}); addMany for one atomic feature plan: api.feature-plan.",
   "synonyms": [
     "run",
@@ -51811,7 +51900,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "maxBytes": 20971520,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:c1a0fa92ce7068b15de2750f5a42f5ae879a5966282b95301b9b94d3debd9f92"
+  "docsHash": "sha256:19e72d9d8e1c58352a24e7e14f4c0bf49a75806a7cf6000567dfc5ea9000863e"
 }
 ```
 
@@ -51823,7 +51912,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "Services 原特征编译",
   "description": "按服务能力执行世界坐标纯平移、均匀柱面凸雕层、多刀具 cut 或带一边旧R的矩形面完整边界 round。round 仅支持一个无孔矩形面、六个正交支撑面和一条完整同R旧圆角；四侧精确R，四角光滑自由曲面，保留4个孤立终止点。cut 的 refs 首项为目标，其余 1–32 项为刀具，各来源必须是已提交单实体，结果须为非空单实体；keepTools 保持原历史语义。全部来源按顺序校验，单项限 20 MiB、合计 64 MiB。浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。若修改来源会使下游复杂运算失效，先移除下游步骤、完成来源修改后重新执行，禁止转到本地偷算。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -51864,7 +51953,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:00568da02bf80580611779368c063d78ef16bd4880e2843649383f3c96345112"
+  "docsHash": "sha256:00d0f4688457eef40850910848613e171d84ec2f2d4cfa1e8b2d02f0b7857abe"
 }
 ```
 
@@ -51876,7 +51965,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "快速对齐",
   "description": "按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:\"body\",bodyId:基准实体ID},axes:[\"Y\"],sourceSide:\"center\",targetSide:\"center\",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -51934,7 +52023,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:dc899118141f22c863a355feba0f86b835d5b73a941ec4bfc0c187addc2fc2e5"
+  "docsHash": "sha256:aa878bb6477c296bbc929cb1cdd940680f10f808cc032f0f7bc0fa0ccc9668c6"
 }
 ```
 
@@ -51946,7 +52035,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "退回工程状态",
   "description": "用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -51982,7 +52071,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:2f5d255c226cdc8667a67fd2f065c912209546f20592d62be545cacaf0e12136"
+  "docsHash": "sha256:9fdfc88a43d6a6184a1655fc4f11cab01237b22732db62d636b2e7372f68ae7d"
 }
 ```
 
@@ -51994,7 +52083,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "工程改名",
   "description": "修改工程名称，保留几何。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52033,7 +52122,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:9e981b9ac57512606915078ed3137f693d856407458d30f55de9709d45625d14"
+  "docsHash": "sha256:a31385cc173fec0fa94124a1c4df8e05baaf76582d3be9de38749f0f837f7186"
 }
 ```
 
@@ -52045,7 +52134,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "特征改名 实体名称",
   "description": "修改历史步骤及同 ID 实体名称，导入件也可使用。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52086,7 +52175,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:fd942d9d15641a9f62651599f61370df98ab11373a2b12863f257a8cfa32b089"
+  "docsHash": "sha256:c7ad4ceb66fc9485c85c8b66a61b1f5b18dc927833ec68065193c8b76847a623"
 }
 ```
 
@@ -52098,7 +52187,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "显示 隐藏实体",
   "description": "显隐指定当前实体，不删除几何。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52141,7 +52230,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:899d78d66bb12b2df8f0690c979ff1d82065c726490099bb94d14620f19e2b6e"
+  "docsHash": "sha256:1bae43567f67dbd07a9cd87d6196f69571a7b9d2bbca78c83d1e89f0f05663b6"
 }
 ```
 
@@ -52153,7 +52242,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "实体原色 颜色 金属 材质",
   "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52211,7 +52300,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:be63cd58b994c0351d6af4654544fae6b3c8846ffd31f26d0ebc149e113bc036"
+  "docsHash": "sha256:7c4d7cb3799961ab9e7d5e59f4d9ad94e7ed7730d0347a28db580883045f7a56"
 }
 ```
 
@@ -52223,7 +52312,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "工程渲染 金属色",
   "description": "设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52275,7 +52364,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:ba991dc14d8b378b8902f66274f33247cacd65a09516dfcc35195e3513ed47c6"
+  "docsHash": "sha256:83b1e5d58b6f297e040196b924687d1ff4cfd904c6a882e235041d13a3500581"
 }
 ```
 
@@ -52287,7 +52376,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "组合拆散 多实体分解",
   "description": "将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52326,7 +52415,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:6c8eae2638866a59c87aff2e37b91e2e166e0666ed2ecc7ac6e82176a75925f6"
+  "docsHash": "sha256:412b9e66f0b4f20770c36dc491ee9e8f84bb2583df03847850d1ec5c6eb4a883"
 }
 ```
 
@@ -52338,7 +52427,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "设置参考锚点（工作基准）",
   "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52376,7 +52465,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "工作基准",
     "基准点"
   ],
-  "docsHash": "sha256:4222a3f4a69b43a42f816463ceb73920a0015fa22880819f9728a5ca4835162a"
+  "docsHash": "sha256:9266f5c6271e117a03cf638f37a7284e3870555314aef106e4ae045371c4cbd2"
 }
 ```
 
@@ -52388,7 +52477,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重置参考锚点（工作基准）",
   "description": "args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52418,7 +52507,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:7f19ae048da812f3be2db10165ee8f584827a06c73eb5e21238887fed435e8a2"
+  "docsHash": "sha256:ad1790061c993f2272344584b441e664f57b5dcb938b2f3818222a5c738ec386"
 }
 ```
 
@@ -52430,7 +52519,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "锁定参考锚点（工作基准）",
   "description": "args:{locked:boolean}；可撤销的元数据操作。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52460,7 +52549,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:963de3bff191bbb1a10e9ba1cafa052218e813c27c46cc53af3bd8bd4cd93991"
+  "docsHash": "sha256:54c9b9ad2f1610988eba865d557ce57c6a451ccbf5463fb631274069fc53e201"
 }
 ```
 
@@ -52472,7 +52561,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "保存具名基准",
   "description": "args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52502,7 +52591,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:62c91402bdb95bd81724e479349367f8dc20dfa4b19c07048136b4b5e63b5030"
+  "docsHash": "sha256:29a7d5d71960056c4dd6c53b4a623603604e217333c0df7cbd5b25b8f2e0c9b2"
 }
 ```
 
@@ -52514,7 +52603,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "激活具名基准",
   "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52544,7 +52633,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:48c7813ca5ae494fd9da827998f5565d62a6be89f5a61557990be3c49bb729d7"
+  "docsHash": "sha256:1d82e63cb0586a9b995597f0141254d7bd168fb103007c453222fcfe60f63ed0"
 }
 ```
 
@@ -52556,7 +52645,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重命名具名基准",
   "description": "args:{frameId,expectedFrameVersion,name}。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52586,7 +52675,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:dfc5737a6f3a5a520b39c57ee0e75ee838e0fe7ee737055da5ae6afbb0deca33"
+  "docsHash": "sha256:fa31ac489268dad5bf0495fc898d79f2da8f1ac6da1c4f572de6276796dde480"
 }
 ```
 
@@ -52598,7 +52687,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "删除具名基准",
   "description": "args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52628,7 +52717,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:4d3bafe8070a057f52ad34aebfcacc42038c93662237b91cc6f55a62457001cb"
+  "docsHash": "sha256:ec0ca7c6ba67730e9d25108ee13e73aee3cca417eaa4dc9d4d90e9600bd26c8d"
 }
 ```
 
@@ -52640,7 +52729,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "对象锚点",
   "description": "args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52674,7 +52763,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "对象锚点",
     "实体锚点"
   ],
-  "docsHash": "sha256:478e1696f2a62eb15b781adbca7901c780e99ebfe41198c421c157fc215d5e2a"
+  "docsHash": "sha256:d03d190fbe8e14a1e4944552d168849a7e09ef45a9597b7b3d6ef7c835a635a0"
 }
 ```
 
@@ -52686,7 +52775,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "删除对象锚点",
   "description": "args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52716,7 +52805,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:ad21d3cfb70ee25013f29ecc76a06e59121dbbe59bcea2fabff1c711d2bfb00a"
+  "docsHash": "sha256:d46e442d28046ced1f3dda5a746f645bb56e04fb0c6897fdbee42e90ca54cfa5"
 }
 ```
 
@@ -52728,7 +52817,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "新增几何",
   "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52758,7 +52847,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:2a70cf4a5a22d0dffa1bb9b79cd0777c0ef850a2c3ae31c140ddd9413f9dfb12"
+  "docsHash": "sha256:642431716db227672126f57d5f6906e6f6b33271cbccc4112885992eb37e3046"
 }
 ```
 
@@ -52886,7 +52975,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "一次提交多特征",
   "description": "args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52915,7 +53004,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "getState"
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
-  "docsHash": "sha256:f91a29a26dbb9a0bdc3dcc8a73f15b2ae4631f40b67fc82ffc688fd98f6b6339"
+  "docsHash": "sha256:80b96e3091e49439a1d39021156a8b07a299bd13c919adc2915536a8ff06bc62"
 }
 ```
 
@@ -52927,7 +53016,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "修改参数",
   "description": "args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52957,7 +53046,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:404e1d5f648b43f1a75207b53213892a0599877be2555edd8ef23fc791b1928a"
+  "docsHash": "sha256:9e621b5f095135c7c6999f555930b6ad2e70f59712e51cc00a126d62bfced7fc"
 }
 ```
 
@@ -52969,7 +53058,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "删除实体",
   "description": "args:{bodyIds}，不可使用历史已替换 ID。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52999,7 +53088,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:c7a898aef8801a9c0e5206779a580e77412ab45442bdb97799b69d33db8288a7"
+  "docsHash": "sha256:4cee28a00462618a2180f5847094f209b750cd9676529e537d08abb47de53b38"
 }
 ```
 
@@ -53011,7 +53100,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "撤销",
   "description": "args:{}；撤销一个已提交步骤。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -53041,7 +53130,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:39341324b6dec3a07808fe4c1480f893c02e28d6a551e5918de2524503f5f52f"
+  "docsHash": "sha256:7fc2a188f7e958dcacef9fb5036031a17d64b71091282e252bfbee7d8ac8a6ed"
 }
 ```
 
@@ -53053,7 +53142,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重做",
   "description": "args:{}；重做一个步骤。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -53083,7 +53172,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:e91a0560363fe30d532845ab37f7ebf2aea4eca0551bc282eb9fadd8e3737bb4"
+  "docsHash": "sha256:9b3e15876848f8ab108ca7898819b3d9e6bd111b9169997af84bb55388962c0f"
 }
 ```
 
@@ -53095,7 +53184,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重建工程",
   "description": "args:{}；重建当前历史。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -53125,7 +53214,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:d03f3810e27d9bc7f03e7c4c9491a538f0d3c52645d3638803ad8b8b106526f9"
+  "docsHash": "sha256:be9f068a5634e325fc0d7f03f7e1e2adfaa72a6601f20754b45ad4d5e395e257"
 }
 ```
 
@@ -53137,7 +53226,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "预览模型、原特征编辑或文件插入",
   "description": "普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision，提交前工程 revision 不变。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -53167,7 +53256,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:c9fda9236a391d8a22c516109dda98ae5c91df14ebe14bd7e2cf99691095748d"
+  "docsHash": "sha256:0dd11c858032d210fad4de46cee53fe6f74be064b7b7c30f695518df0984e651"
 }
 ```
 
@@ -53179,7 +53268,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "更新预览",
   "description": "args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -53209,7 +53298,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:e8f7cd9028d47809d65fa23d5f3b34d62d102c51e123b732e997c594378679c1"
+  "docsHash": "sha256:56b894c8f4106c177b6fc3abe749b73efc67fee15c93f4138012c961b49ab519"
 }
 ```
 
@@ -53221,7 +53310,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "应用预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -53251,7 +53340,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:b6a19d7b6b6485cb5f16c525746c84062e6a88e77bd01a3fe4fde0471b0c2ca6"
+  "docsHash": "sha256:5ea91f948caa040971ac3e379aa896f4d1bc9c92dbce104daeabf2f82f3e7c6f"
 }
 ```
 
@@ -53263,7 +53352,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "取消预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -53293,7 +53382,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:de64aa285c047ab92bc2434f6aa6abf95b0239618922d72c5eb8f00323a2926b"
+  "docsHash": "sha256:57329a8aaa68e65af8443369237869fbcf15cdabb3a41b5cc512ea55e6fab988"
 }
 ```
 
@@ -53304,7 +53393,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。",
   "synonyms": [
     "参数",
@@ -53384,7 +53473,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Indexed face/edge references downstream of a changed feature are rejected when stability cannot be proven."
   ],
   "docs": "api.named-parameters",
-  "docsHash": "sha256:b5dad73bd43f119182a229e92a7df9e2afcc555f897e4d969bfe8b4d9f8720ab"
+  "docsHash": "sha256:5fd36ad8fe0c9f979e1a115693d4f29d5962b2b6857d5aeca9292b503f276514"
 }
 ```
 
@@ -53395,7 +53484,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.capabilities",
   "title": "files.capabilities",
   "category": "file",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "label": "文件能力",
   "synonyms": [
     "文件能力",
@@ -53442,7 +53531,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
-  "docsHash": "sha256:544ce8b7f36a4fc7cf4e228cc7156c675cb4a59c6c13a200fcd0419ae3ab97cd"
+  "docsHash": "sha256:7ffdab711177f705232fb0f19cdd8c3527d477fc3f5cc7b55adfb43bffba6f79"
 }
 ```
 
@@ -53453,7 +53542,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "label": "登记文件资源",
   "synonyms": [
     "登记文件资源",
@@ -53508,7 +53597,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SIZE_LIMIT",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:653a2539663661604d6bdc70c8a5cfb12ebcb4d3491f9688b0b99dbbd0a4be71"
+  "docsHash": "sha256:1a8a4a1e28d88cf15f6d5e92d182579a798b071f60352042dfaea584d45644c5"
 }
 ```
 
@@ -53519,7 +53608,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "label": "新建工程",
   "synonyms": [
     "新建工程",
@@ -53575,7 +53664,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "FILE_COMMAND_FAILED",
     "SIZE_LIMIT"
   ],
-  "docsHash": "sha256:2fd5d672de4651fb07813feecfd10824c85835711a5bd1ca804e9fa71edf70f1"
+  "docsHash": "sha256:ed1fce648fb711131471c18f3a60503a792146be9b1d28c5dc31fc6bd6b55e66"
 }
 ```
 
@@ -53586,7 +53675,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "label": "打开工程",
   "synonyms": [
     "打开工程",
@@ -53646,7 +53735,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "ASSET_INVALID",
     "FORMAT_UNSUPPORTED"
   ],
-  "docsHash": "sha256:74cf41879a129e17ffb8809734a307724c6f500b2a3de7b65753836917c6383a"
+  "docsHash": "sha256:dd9dab26cdb488c641e0e5616fb2ad44e8420d7668cf76abded6e3135351839a"
 }
 ```
 
@@ -53657,7 +53746,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "label": "导入",
   "synonyms": [
     "导入",
@@ -53740,7 +53829,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "MESH_ASSET_CORRUPT",
     "MESH_DISPLAY_CAPACITY"
   ],
-  "docsHash": "sha256:34ded28153f6b33ab5229869ab26bc78d25d14ff8f49ff6e96a826ef692bc46a"
+  "docsHash": "sha256:b6f49e1f4130210052b9819078258f2350c03888091c8866d5c89511a302afb0"
 }
 ```
 
@@ -53751,7 +53840,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "label": "保存工程",
   "synonyms": [
     "保存工程",
@@ -53811,7 +53900,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "NAME_INVALID",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:22d71eb21007891dfc1b82b86c20326124302e4415f0f6459753dce9b6f2033d"
+  "docsHash": "sha256:ecfcf6f334c337b027a90c32f8ac4e4efc79c7fd8d81db4b7085f3709ddbe821"
 }
 ```
 
@@ -53822,7 +53911,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "label": "导出文件",
   "synonyms": [
     "导出文件",
@@ -53885,7 +53974,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_LIMIT",
     "FORMAT_UNSUPPORTED"
   ],
-  "docsHash": "sha256:f33d4ef25f7cd302c4a5a1e1d40f41fb2d5828147026ad1afcf8017f2227a1b6"
+  "docsHash": "sha256:542b85c2f2bd004192136a68fdd84f99e66cae629ec73f517c0ee4e4b6abb2e7"
 }
 ```
 
@@ -53896,7 +53985,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "label": "读取文件字节",
   "synonyms": [
     "读取文件字节",
@@ -53947,7 +54036,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_SCHEMA_INVALID",
     "RESOURCE_EXPIRED"
   ],
-  "docsHash": "sha256:e07c1063d2b9583ac38e1274d70ac4466a5d2d1733721439bfdbcdfe56ed7686"
+  "docsHash": "sha256:6b70141da42c7dd753bc007b30052f1996809db373eacbf46bbb8e68402cabe4"
 }
 ```
 
@@ -53958,7 +54047,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "label": "下载文件",
   "synonyms": [
     "下载文件",
@@ -54010,7 +54099,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "ASSET_INVALID",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:e538c09414e2b8ebe7d6dab0793053529a5e1b481915a907bc77cabe1558e2fb"
+  "docsHash": "sha256:39070a005659f9629aea43290867c392dd1d16eca16ff1afd194e447843ab70b"
 }
 ```
 
@@ -54021,7 +54110,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "label": "写入文件",
   "synonyms": [
     "写入文件",
@@ -54078,7 +54167,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "HASH_MISMATCH",
     "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:f80101a9b3404fe412650269379820847c7c4d14cfe6a2df3fb55a5f085e8d26"
+  "docsHash": "sha256:e285b4238a7709c3ddfb66af04a6ef00b4a561f8f0cd8b9cdfa758f8ba69dfb3"
 }
 ```
 
@@ -54089,7 +54178,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "label": "confirmWritten",
   "synonyms": [
     "confirmWritten",
@@ -54146,7 +54235,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:1b34658d2512755b8b6ba98ea6a21ddfd0a449e02a1ba1fdd51c8d19592f246f"
+  "docsHash": "sha256:b2598363e74b8ae775f666b656d273c3466cd2ce8a03762397cf02edbf0a9454"
 }
 ```
 
@@ -54157,7 +54246,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "label": "释放文件资源",
   "synonyms": [
     "释放文件资源",
@@ -54208,7 +54297,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "RESOURCE_BUSY"
   ],
-  "docsHash": "sha256:15ec9a8cab4fb9399fc5f0133e789ecef286c6fb09a31e1acf8ba01257f75a84"
+  "docsHash": "sha256:0c32582d892461611243bc0222fdb2feb938791ebbd21b8581e89f85c2c7521d"
 }
 ```
 
@@ -54220,14 +54309,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "IGES/IGS 导入",
   "description": "当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。",
   "category": "unavailable",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
   "errorCodes": [
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:c769cf28938274e36ba665105ca198d4c05215d46368dc012bca73cd4fb8fd76"
+  "docsHash": "sha256:f5730acdeeb64638602d8fff33793f42417927945c218bdde5484bba772390b7"
 }
 ```
 
@@ -54239,13 +54328,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
   "description": "当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。",
   "category": "unavailable",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
   "errorCodes": [
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:71df7c68a310983a58c41abaedf396c06b7f8723c30519cf8f8a7e06036fe340"
+  "docsHash": "sha256:cde060bd98d73d6eeabd2b3d038c14d2b3f375df36c67203bdde2c1599099baa"
 }
 ```

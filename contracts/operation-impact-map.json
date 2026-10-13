@@ -2,6 +2,18 @@
   "version": 1,
   "operations": [
     {
+      "operation": "agent-assistant-panel",
+      "semanticVersion": "panel-1-page-api-1.43",
+      "sourcePaths": ["src/agent/assistant-panel.js", "src/agent/protocol.js", "src/host-control.js", "src/ui.js", "src/ui/config/theme-colors.js", "src/page-api.js"],
+      "localImpact": "One configured assistant pane binds the existing page; one-click exit revokes writes and restores human editing; fixed left brand and one accent",
+      "servicesImpact": "none: geometry Services/Native protocol and runtime unchanged; Agent broker attach/release endpoints reused",
+      "logoImpact": "none: conversion and source geometry unchanged",
+      "contractImpact": "getAgentPanel/configureAgentPanel/setAgentPanel; origin+iframe+channel authenticated message transport; canonical adapter still owns commands",
+      "documentImpact": "No reload or document replacement; same revision, dirty, camera and history",
+      "cacheImpact": "Page API 1.43 docs/catalog; workbench asset query versions changed; existing appearance cookies retained",
+      "requiredTests": ["workspace-theme", "assistant-panel", "remote-agent-adapter", "page-api", "17674 enter/exit current-document verification"]
+    },
+    {
       "operation": "agent-runtime-recovery",
       "semanticVersion": "agent-adapter-2",
       "sourcePaths": [
