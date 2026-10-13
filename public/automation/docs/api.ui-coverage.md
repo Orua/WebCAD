@@ -2,286 +2,6 @@
 
 界面动作与 AI 等价接口（手势以坐标和显式参数代替）：
 {
-  "servicesWaitDecision": {
-    "tools": [
-      "decideServicesWait",
-      "getServicesRouting",
-      "getServicesJob"
-    ],
-    "method": "decideServicesWait",
-    "usage": "服务器达到可配置等待时间时，选择 continue 续查同任务，或 stop 终止受控任务；不创建新计算。"
-  },
-  "reliefTopologyUpgrade": {
-    "tools": [
-      "prepareReliefTopologyUpgrade",
-      "feature.edit",
-      "getState"
-    ],
-    "method": "execute",
-    "usage": "只读预览策略差异后按同修订明确应用；不改设计尺寸、不静默迁移旧工程。"
-  },
-  "servicesJobRecovery": {
-    "tools": [
-      "getServicesJob",
-      "recoverServicesJob"
-    ],
-    "method": "recoverServicesJob",
-    "usage": "先核对 interrupted 旧任务，再明确授权一次环境恢复；几何失败、未知或仍运行任务不会重算。"
-  },
-  "selectTool": {
-    "tools": [
-      "setView",
-      "selectRectangle",
-      "preview.cancel"
-    ],
-    "method": "setView",
-    "usage": "实体模式左键拖框选，左向右全包含、右向左相交，Shift/Ctrl追加，Escape取消；Alt+左键保留旋转。selectRectangle显式指定当前视口0..1矩形。相交模式处理近远裁剪面，仍按对象投影包围框判定。"
-  },
-  "quickDrawing": {
-    "tools": [
-      "createDrawing",
-      "exportDrawing",
-      "files.download"
-    ],
-    "method": "createDrawing",
-    "usage": "选择1–40个bodyIds，创建精确三视图及最多3个截面；按drawingId导出PDF/JPG/DXF/SVG，下载走files.download。DWG暂不可用。"
-  },
-  "drawingCreate": {
-    "tools": [
-      "createDrawing"
-    ],
-    "method": "createDrawing",
-    "usage": "与快速出图生成按钮相同；projection first/third，sections为plane/offset数组。"
-  },
-  "drawingExport": {
-    "tools": [
-      "exportDrawing",
-      "files.download"
-    ],
-    "method": "exportDrawing",
-    "usage": "drawingId、format、paper、title、disabledDimensions；返回generated资源，再files.download/write。"
-  },
-  "alignTool": {
-    "tools": [
-      "planAlignment",
-      "body.align"
-    ],
-    "method": "execute",
-    "usage": "显式指定移动bodyIds和target；X/Y/Z、min/center/max、group保持相对位置。"
-  },
-  "alignBodies": {
-    "tools": [
-      "body.align"
-    ],
-    "method": "execute",
-    "usage": "一次事务对齐；target.kind为body/origin/anchor/point；基准件不能同时被移动。按移动件数新增特征，超过工程2000特征或20 MiB上限返回SIZE_LIMIT且不提交。"
-  },
-  "alignmentPlan": {
-    "tools": [
-      "planAlignment"
-    ],
-    "method": "planAlignment",
-    "usage": "只读回每个移动件的世界坐标delta，便于先核对。"
-  },
-  "restoreHistory": {
-    "tools": [
-      "getHistory",
-      "history.restore"
-    ],
-    "method": "execute",
-    "usage": "读取getHistory的stateId后通过history.restore一键恢复完整工程；不能使用当前特征序号替代状态ID。导入资源在保留状态间共享，全部保留状态不再引用后才回收；bytes仅为历史基线和差量大小。"
-  },
-  "round": {
-    "tools": [
-      "round",
-      "preview.start",
-      "preview.update",
-      "preview.cancel",
-      "preview.commit",
-      "feature.edit"
-    ],
-    "method": "execute",
-    "usage": "统一圆润：edgeIds 或 faceIds 二选一。界面可选择边缘或平面边界；faceIds 解析完整外边及孔边，最多1000条边，scope读回实际范围，只支持边缘模式。边缘用 strength 或原值 radiusMm；按面自动大小参考侧壁深度，不用最短碎边。端头用自动推荐或 depthMm。鼠标拖动截面手柄等价 preview.update 修改 depthMm；松手预览一次。查看原形等价 preview.cancel，返回预览用 preview.start。必须核对范围后提交；不自动填孔或修来源轮廓。"
-  },
-  "fillet": {
-    "tools": [
-      "fillet",
-      "feature.edit",
-      "preview.start",
-      "preview.update",
-      "preview.commit",
-      "preview.cancel"
-    ],
-    "method": "execute",
-    "usage": "标准数值圆角：查询当前实体边或面，feature.add op=fillet，refs:[当前实体ID]，params:{radius:明确半径mm,edgeIds:[当前边号]}。也可明确 faceIds；多面仅处理公共锐边时设置 sharedFaces:true，或 allEdges:true 处理整个实体，三种范围互斥。可先预览再提交，也可直接应用；历史 feature.edit 修改 radius 从来源重建。返回 blendReport 的 processedEdgeIds、skippedTangentEdgeIds 与实际处理尺寸；失败不提交。无需自动打磨参数或求解相关网络。"
-  },
-  "rounding": {
-    "tools": [
-      "rounding",
-      "feature.edit",
-      "preview.start",
-      "preview.update",
-      "preview.commit",
-      "preview.cancel"
-    ],
-    "method": "execute",
-    "usage": "先查询当前来源实体的锐边。自动打磨使用 specVersion:3 和 scope:{kind:edges,edgeIds:[当前边号]}；不需要 sizeMm。可选 strength 为 (0,1] 比例，默认 1。相关边与面允许局部跟随；先核对预览 roundingReport.region 的 sourceBodyId、requestedEdgeIds、expandedEdgeIds 和 affectedFaceIds，再提交同一份预览。feature.edit 修改 strength 从上游重新求解。旧 specVersion:1/2 特征按原参数与语义重算，不能转换为打磨。"
-  },
-  "roundEnd": {
-    "tools": [
-      "roundEnd",
-      "preview.start",
-      "preview.commit",
-      "preview.cancel",
-      "feature.edit"
-    ],
-    "method": "execute",
-    "usage": "先选端部边；传 edgeIds、axis、direction、profileAxis、depthMm。preview.start 核对整个端头替换范围及 endRoundingReport 中保留折痕、长度与材料变化，再 preview.commit。历史改参从来源重建。"
-  },
-  "pathEdit": {
-    "tools": [
-      "inspectProfile",
-      "feature.edit"
-    ],
-    "method": "execute",
-    "usage": "选择明确的 sketchProfile 原始路径，修改完整 params 后 feature.edit 提交；保留原 placement，重建后续特征。编辑器支持端点、长度/角度、删除段、闭合和线框输出。"
-  },
-  "pathTrim": {
-    "tools": [
-      "prepareProfileEdit",
-      "feature.edit"
-    ],
-    "method": "prepareProfileEdit",
-    "usage": "选择 sketchProfile 来源；prepareProfileEdit mode=trim 明确 entityId、targetId、endpoint、candidateId，再 feature.edit 提交完整 profile。"
-  },
-  "pathExtend": {
-    "tools": [
-      "prepareProfileEdit",
-      "feature.edit"
-    ],
-    "method": "prepareProfileEdit",
-    "usage": "选择 sketchProfile 来源；prepareProfileEdit mode=extend 沿原解析曲线延伸至明确交点，feature.edit 提交。"
-  },
-  "pathFillet": {
-    "tools": [
-      "prepareProfileEdit",
-      "feature.edit"
-    ],
-    "method": "prepareProfileEdit",
-    "usage": "主视图选同一轮廓两条相邻直边；prepareProfileEdit mode=fillet、bodyId、edgeIds、radiusMm、arcId；feature.edit 编辑返回的 sourceFeatureId，提交 profile。选边先后不限。"
-  },
-  "pathTrimCircle": {
-    "tools": [
-      "prepareProfileEdit",
-      "feature.edit"
-    ],
-    "method": "prepareProfileEdit",
-    "usage": "选择 sketchProfile 来源；prepareProfileEdit mode=trimCircle，明确两个交点与 keepSide，再 feature.edit 提交。"
-  },
-  "vectorImport": {
-    "tools": [
-      "readVector",
-      "connectVector",
-      "sketchProfile"
-    ],
-    "method": "readVector",
-    "usage": "选择文件或粘贴矢量文本，框选完整轮廓；connectVector 诊断和组环，sketchProfile 经同一命令服务成面。"
-  },
-  "quickModelFavorites": {
-    "tools": [
-      "quickModel",
-      "getQuickModelUsage"
-    ],
-    "method": "execute",
-    "usage": "模型菜单显示累计成功创建次数最多的五个 kind；getQuickModelUsage() 只读本浏览器频率，完整列表仍用快捷模型入口。生成用 quickModel 显式 params.kind、参考 placement 与幂等键。"
-  },
-  "reference.setWorkFrame": {
-    "tools": [
-      "reference.setWorkFrame"
-    ],
-    "method": "execute",
-    "usage": "完整 context、idempotencyKey；args 指定 origin 和单位 quaternion。"
-  },
-  "reference.resetWorkFrame": {
-    "tools": [
-      "reference.resetWorkFrame"
-    ],
-    "method": "execute",
-    "usage": "args.scope 为 position、orientation 或 all。"
-  },
-  "reference.setLocked": {
-    "tools": [
-      "reference.setLocked"
-    ],
-    "method": "execute",
-    "usage": "args.locked 为布尔值。"
-  },
-  "anchorDrag": {
-    "tools": [
-      "reference.setWorkFrame"
-    ],
-    "method": "execute",
-    "usage": "UI 中约束拖动参考锚点，松手仅更新任务草稿；用户点击应用后提交一次 reference.setWorkFrame。"
-  },
-  "anchorVisibility": {
-    "tools": [
-      "setView"
-    ],
-    "method": "setView",
-    "usage": "参考锚点呼吸球显隐为本地 UI 偏好，不改变工程、固定原始坐标或几何 revision。"
-  },
-  "temporaryDisplay": {
-    "tools": [
-      "setView"
-    ],
-    "method": "setView",
-    "usage": "temporaryDisplay 为 selectedOnly/transparentOthers/normal；只改临时显隐，不改变工程持久隐藏列表。"
-  },
-  "occlusionCandidates": {
-    "tools": [
-      "queryGeometry",
-      "setView"
-    ],
-    "method": "queryGeometry",
-    "usage": "人工 Alt+单击读取当前视线候选；AI 按精确几何 queryGeometry 取得明确 body/face/edge 引用，不依赖最前方网格。"
-  },
-  "commandSearch": {
-    "tools": [
-      "searchTools"
-    ],
-    "method": "searchTools",
-    "usage": "全局命令搜索使用现有工具名称与 ID；AI 可直接 searchTools，不需打开对话框。"
-  },
-  "reference.snapNearest": {
-    "tools": [
-      "queryGeometry",
-      "reference.setWorkFrame"
-    ],
-    "method": "execute",
-    "usage": "查询选定 CAD 边的精确端点、弧长中点与解析圆心，明确选中一个候选后提交工作基准。"
-  },
-  "reference.alignSelectedFace": {
-    "tools": [
-      "queryGeometry",
-      "reference.setWorkFrame"
-    ],
-    "method": "execute",
-    "usage": "选定当前精确平面面片，读取法向；以当前工作 X 作为面内方向，确认后更新工作基准方向。"
-  },
-  "renderQuality": {
-    "tools": [
-      "setRenderQuality"
-    ],
-    "method": "setRenderQuality",
-    "usage": "显式 quality=draft/standard/fine/ultra；getState().renderQuality 读公差、三角面数，不修改 BRep。"
-  },
-  "downloadResource": {
-    "tools": [
-      "files.download"
-    ],
-    "method": "files.download",
-    "usage": "使用生成回执的 resourceId 重试下载；不重新生成或清除 dirty。"
-  },
   "advancedLoft": {
     "tools": [
       "advancedLoft"
@@ -521,6 +241,33 @@
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "meshReliefEdit": {
+    "tools": [
+      "meshReliefEdit",
+      "sampleMeshRelief",
+      "feature.edit",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel",
+      "history.undo",
+      "history.redo",
+      "getState"
+    ],
+    "method": "execute",
+    "usage": "面加工→网格局部修高。选择原生网格，读取meshReport.geometryHash；明确支撑坐标、表面种子、核心/过渡/硬保护圆域、scaleHeight/offset/flatten/replace及最小厚度，replace用毫米目标网格或路径profile的横纵截面替换核心并混合过渡。UI和API同一路径，预览后应用。结果回读meshReport.edit；网格不冒充精确STEP。"
+  },
+  "meshReliefPlate": {
+    "tools": [
+      "meshReliefPlate",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel",
+      "feature.edit",
+      "getState"
+    ],
+    "method": "execute",
+    "usage": "创建中心XY网格底板，显式宽长厚度、间距、圆形起伏中心/高度/平顶及外半径。参数保留于工程，UI/API同一创建路径，网格不冒充曲面BRep。"
+  },
   "mirror": {
     "tools": [
       "mirror"
@@ -629,10 +376,14 @@
   },
   "quickModel": {
     "tools": [
-      "quickModel"
+      "setView",
+      "getModelLibrary",
+      "resolveModelLibrary",
+      "quickModel",
+      "run"
     ],
-    "method": "execute",
-    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    "method": "setView",
+    "usage": "实体→快捷模型打开画布中央浮动选择菜单：setView({context,workspace:\"library\"})；返回画布用workspace:\"modeling\"。getModelLibrary读取配置，resolveModelLibrary解析后run/add生成。"
   },
   "referenceExtrude": {
     "tools": [
@@ -663,6 +414,7 @@
   },
   "relief": {
     "tools": [
+      "planPatternMachining",
       "relief",
       "readRelief",
       "files.register",
@@ -674,7 +426,7 @@
       "history.undo"
     ],
     "method": "execute",
-    "usage": "面加工→浮雕。files.register图像，readRelief生成独立轮廓regions与高度values；run add relief显式faceId/refs/尺寸/高度/位置、values/regions/surfaceMode/source。surfaceMode=flat为精确平顶，smooth为轮廓内平滑起伏，背景保留原面。支持分层.relief.json及layers显式高度、strokes开放刻线和curveToleranceMm曲线公差；UI逐层编辑高度和方向，API feature.edit修改layers。柱面须point、角宽≤90°、angleDeg=0。旧无regions工程保留原基底层语义。预览后提交，getState.bodies[].reliefReport回读背景、表面方式与实际材料变化。"
+    "usage": "面加工→浮雕。先读api.pattern-machining、planPatternMachining区分意图；新创建params.machiningIntent保存加工意义，readRelief显式sourceInterpretation。恒深文字/图案走LOGO，灰度只用于作者高度图。files.register图像，readRelief生成独立轮廓regions与高度values；run add relief显式faceId/refs/尺寸/高度/位置、values/regions/surfaceMode/source。surfaceMode=flat为精确平顶，smooth为轮廓内平滑起伏，背景保留原面。支持分层.relief.json及layers显式高度、strokes开放刻线和curveToleranceMm曲线公差；UI逐层编辑高度和方向，API feature.edit修改layers。柱面须point、角宽≤90°、angleDeg=0。旧无regions工程保留原基底层语义。预览后提交，getState.bodies[].reliefReport回读背景、表面方式与实际材料变化。"
   },
   "remove": {
     "tools": [
@@ -797,6 +549,286 @@
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "servicesWaitDecision": {
+    "tools": [
+      "decideServicesWait",
+      "getServicesRouting",
+      "getServicesJob"
+    ],
+    "method": "decideServicesWait",
+    "usage": "服务器达到可配置等待时间时，选择 continue 续查同任务，或 stop 终止受控任务；不创建新计算。"
+  },
+  "reliefTopologyUpgrade": {
+    "tools": [
+      "prepareReliefTopologyUpgrade",
+      "feature.edit",
+      "getState"
+    ],
+    "method": "execute",
+    "usage": "只读预览策略差异后按同修订明确应用；不改设计尺寸、不静默迁移旧工程。"
+  },
+  "servicesJobRecovery": {
+    "tools": [
+      "getServicesJob",
+      "recoverServicesJob"
+    ],
+    "method": "recoverServicesJob",
+    "usage": "先核对 interrupted 旧任务，再明确授权一次环境恢复；几何失败、未知或仍运行任务不会重算。"
+  },
+  "selectTool": {
+    "tools": [
+      "setView",
+      "selectRectangle",
+      "preview.cancel"
+    ],
+    "method": "setView",
+    "usage": "实体模式左键拖框选，左向右全包含、右向左相交，Shift/Ctrl追加，Escape取消；Alt+左键保留旋转。selectRectangle显式指定当前视口0..1矩形。相交模式处理近远裁剪面，仍按对象投影包围框判定。"
+  },
+  "quickDrawing": {
+    "tools": [
+      "createDrawing",
+      "exportDrawing",
+      "files.download"
+    ],
+    "method": "createDrawing",
+    "usage": "选择1–40个bodyIds，创建精确三视图及最多3个截面；按drawingId导出PDF/JPG/DXF/SVG，下载走files.download。DWG暂不可用。"
+  },
+  "drawingCreate": {
+    "tools": [
+      "createDrawing"
+    ],
+    "method": "createDrawing",
+    "usage": "与快速出图生成按钮相同；projection first/third，sections为plane/offset数组。"
+  },
+  "drawingExport": {
+    "tools": [
+      "exportDrawing",
+      "files.download"
+    ],
+    "method": "exportDrawing",
+    "usage": "drawingId、format、paper、title、disabledDimensions；返回generated资源，再files.download/write。"
+  },
+  "alignTool": {
+    "tools": [
+      "planAlignment",
+      "body.align"
+    ],
+    "method": "execute",
+    "usage": "显式指定移动bodyIds和target；X/Y/Z、min/center/max、group保持相对位置。"
+  },
+  "alignBodies": {
+    "tools": [
+      "body.align"
+    ],
+    "method": "execute",
+    "usage": "一次事务对齐；target.kind为body/origin/anchor/point；基准件不能同时被移动。按移动件数新增特征，超过工程2000特征或当前工程容量上限返回SIZE_LIMIT且不提交。"
+  },
+  "alignmentPlan": {
+    "tools": [
+      "planAlignment"
+    ],
+    "method": "planAlignment",
+    "usage": "只读回每个移动件的世界坐标delta，便于先核对。"
+  },
+  "restoreHistory": {
+    "tools": [
+      "getHistory",
+      "history.restore"
+    ],
+    "method": "execute",
+    "usage": "读取getHistory的stateId后通过history.restore一键恢复完整工程；不能使用当前特征序号替代状态ID。导入资源在保留状态间共享，全部保留状态不再引用后才回收；bytes仅为历史基线和差量大小。"
+  },
+  "round": {
+    "tools": [
+      "round",
+      "preview.start",
+      "preview.update",
+      "preview.cancel",
+      "preview.commit",
+      "feature.edit"
+    ],
+    "method": "execute",
+    "usage": "统一圆润：edgeIds 或 faceIds 二选一。界面可选择边缘或平面边界；faceIds 解析完整外边及孔边，最多1000条边，scope读回实际范围，只支持边缘模式。边缘用 strength 或原值 radiusMm；按面自动大小参考侧壁深度，不用最短碎边。端头用自动推荐或 depthMm。鼠标拖动截面手柄等价 preview.update 修改 depthMm；松手预览一次。查看原形等价 preview.cancel，返回预览用 preview.start。必须核对范围后提交；不自动填孔或修来源轮廓。"
+  },
+  "fillet": {
+    "tools": [
+      "fillet",
+      "feature.edit",
+      "preview.start",
+      "preview.update",
+      "preview.commit",
+      "preview.cancel"
+    ],
+    "method": "execute",
+    "usage": "标准数值圆角：查询当前实体边或面，feature.add op=fillet，refs:[当前实体ID]，params:{radius:明确半径mm,edgeIds:[当前边号]}。也可明确 faceIds；多面仅处理公共锐边时设置 sharedFaces:true，或 allEdges:true 处理整个实体，三种范围互斥。可先预览再提交，也可直接应用；历史 feature.edit 修改 radius 从来源重建。返回 blendReport 的 processedEdgeIds、skippedTangentEdgeIds 与实际处理尺寸；失败不提交。无需自动打磨参数或求解相关网络。"
+  },
+  "rounding": {
+    "tools": [
+      "rounding",
+      "feature.edit",
+      "preview.start",
+      "preview.update",
+      "preview.commit",
+      "preview.cancel"
+    ],
+    "method": "execute",
+    "usage": "先查询当前来源实体的锐边。自动打磨使用 specVersion:3 和 scope:{kind:edges,edgeIds:[当前边号]}；不需要 sizeMm。可选 strength 为 (0,1] 比例，默认 1。相关边与面允许局部跟随；先核对预览 roundingReport.region 的 sourceBodyId、requestedEdgeIds、expandedEdgeIds 和 affectedFaceIds，再提交同一份预览。feature.edit 修改 strength 从上游重新求解。旧 specVersion:1/2 特征按原参数与语义重算，不能转换为打磨。"
+  },
+  "roundEnd": {
+    "tools": [
+      "roundEnd",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel",
+      "feature.edit"
+    ],
+    "method": "execute",
+    "usage": "先选端部边；传 edgeIds、axis、direction、profileAxis、depthMm。preview.start 核对整个端头替换范围及 endRoundingReport 中保留折痕、长度与材料变化，再 preview.commit。历史改参从来源重建。"
+  },
+  "pathEdit": {
+    "tools": [
+      "inspectProfile",
+      "feature.edit"
+    ],
+    "method": "execute",
+    "usage": "选择明确的 sketchProfile 原始路径，修改完整 params 后 feature.edit 提交；保留原 placement，重建后续特征。编辑器支持端点、长度/角度、删除段、闭合和线框输出。"
+  },
+  "pathTrim": {
+    "tools": [
+      "prepareProfileEdit",
+      "feature.edit"
+    ],
+    "method": "prepareProfileEdit",
+    "usage": "选择 sketchProfile 来源；prepareProfileEdit mode=trim 明确 entityId、targetId、endpoint、candidateId，再 feature.edit 提交完整 profile。"
+  },
+  "pathExtend": {
+    "tools": [
+      "prepareProfileEdit",
+      "feature.edit"
+    ],
+    "method": "prepareProfileEdit",
+    "usage": "选择 sketchProfile 来源；prepareProfileEdit mode=extend 沿原解析曲线延伸至明确交点，feature.edit 提交。"
+  },
+  "pathFillet": {
+    "tools": [
+      "prepareProfileEdit",
+      "feature.edit"
+    ],
+    "method": "prepareProfileEdit",
+    "usage": "主视图选同一轮廓两条相邻直边；prepareProfileEdit mode=fillet、bodyId、edgeIds、radiusMm、arcId；feature.edit 编辑返回的 sourceFeatureId，提交 profile。选边先后不限。"
+  },
+  "pathTrimCircle": {
+    "tools": [
+      "prepareProfileEdit",
+      "feature.edit"
+    ],
+    "method": "prepareProfileEdit",
+    "usage": "选择 sketchProfile 来源；prepareProfileEdit mode=trimCircle，明确两个交点与 keepSide，再 feature.edit 提交。"
+  },
+  "vectorImport": {
+    "tools": [
+      "readVector",
+      "connectVector",
+      "sketchProfile"
+    ],
+    "method": "readVector",
+    "usage": "选择文件或粘贴矢量文本，框选完整轮廓；connectVector 诊断和组环，sketchProfile 经同一命令服务成面。"
+  },
+  "quickModelFavorites": {
+    "tools": [
+      "setView",
+      "getQuickModelUsage"
+    ],
+    "method": "setView",
+    "usage": "兼容旧快捷入口；setView({context,workspace:\"library\"})打开同一快捷模型工具，频率仍可getQuickModelUsage只读。"
+  },
+  "reference.setWorkFrame": {
+    "tools": [
+      "reference.setWorkFrame"
+    ],
+    "method": "execute",
+    "usage": "完整 context、idempotencyKey；args 指定 origin 和单位 quaternion。"
+  },
+  "reference.resetWorkFrame": {
+    "tools": [
+      "reference.resetWorkFrame"
+    ],
+    "method": "execute",
+    "usage": "args.scope 为 position、orientation 或 all。"
+  },
+  "reference.setLocked": {
+    "tools": [
+      "reference.setLocked"
+    ],
+    "method": "execute",
+    "usage": "args.locked 为布尔值。"
+  },
+  "anchorDrag": {
+    "tools": [
+      "reference.setWorkFrame"
+    ],
+    "method": "execute",
+    "usage": "UI 中约束拖动参考锚点，松手仅更新任务草稿；用户点击应用后提交一次 reference.setWorkFrame。"
+  },
+  "anchorVisibility": {
+    "tools": [
+      "setView"
+    ],
+    "method": "setView",
+    "usage": "参考锚点呼吸球显隐为本地 UI 偏好，不改变工程、固定原始坐标或几何 revision。"
+  },
+  "temporaryDisplay": {
+    "tools": [
+      "setView"
+    ],
+    "method": "setView",
+    "usage": "temporaryDisplay 为 selectedOnly/transparentOthers/normal；只改临时显隐，不改变工程持久隐藏列表。"
+  },
+  "occlusionCandidates": {
+    "tools": [
+      "queryGeometry",
+      "setView"
+    ],
+    "method": "queryGeometry",
+    "usage": "人工 Alt+单击读取当前视线候选；AI 按精确几何 queryGeometry 取得明确 body/face/edge 引用，不依赖最前方网格。"
+  },
+  "commandSearch": {
+    "tools": [
+      "searchTools"
+    ],
+    "method": "searchTools",
+    "usage": "全局命令搜索使用现有工具名称与 ID；AI 可直接 searchTools，不需打开对话框。"
+  },
+  "reference.snapNearest": {
+    "tools": [
+      "queryGeometry",
+      "reference.setWorkFrame"
+    ],
+    "method": "execute",
+    "usage": "查询选定 CAD 边的精确端点、弧长中点与解析圆心，明确选中一个候选后提交工作基准。"
+  },
+  "reference.alignSelectedFace": {
+    "tools": [
+      "queryGeometry",
+      "reference.setWorkFrame"
+    ],
+    "method": "execute",
+    "usage": "选定当前精确平面面片，读取法向；以当前工作 X 作为面内方向，确认后更新工作基准方向。"
+  },
+  "renderQuality": {
+    "tools": [
+      "setRenderQuality"
+    ],
+    "method": "setRenderQuality",
+    "usage": "显式 quality=draft/standard/fine/ultra；getState().renderQuality 读公差、三角面数，不修改 BRep。"
+  },
+  "downloadResource": {
+    "tools": [
+      "files.download"
+    ],
+    "method": "files.download",
+    "usage": "使用生成回执的 resourceId 重试下载；不重新生成或清除 dirty。"
+  },
   "reliefSculpt": {
     "tools": [
       "sampleReliefHeight",
@@ -845,7 +877,7 @@
       "readDocs"
     ],
     "method": "connect",
-    "usage": "connect({queries,includeContracts:true}) 返回当前 canExecute/blockers、requestContext 与完整卡；onboarding 提供首次连接步骤、本地安装包和真实操作路由；readDocs({docId:\"api.connection\"}) 说明宿主能力检查。knownHashes 只缓存完整工具卡，不缓存实体身份。"
+    "usage": "设置→Agent 配置为软件配置弹窗；兼容setView({context,workspace:\"agent\"})打开，workspace:\"modeling\"关闭；getUILayout().current.agentSettingsOpen读回。connect({queries,includeContracts:true}) 返回当前 canExecute/blockers、requestContext 与完整卡；onboarding 提供首次连接步骤、本地安装包和真实操作路由；readDocs({docId:\"api.connection\"}) 说明宿主能力检查。knownHashes 只缓存完整工具卡，不缓存实体身份。"
   },
   "servicesSettings": {
     "tools": [
@@ -883,6 +915,27 @@
     "method": "setView",
     "usage": "panels:{left:boolean,right:boolean}；getState().view.panels 读状态。"
   },
+  "workspace": {
+    "tools": [
+      "setView",
+      "getUILayout"
+    ],
+    "method": "setView",
+    "usage": "workspace:modeling返回画布、library打开非全屏浮动快捷模型菜单，显隐设置保持不变；兼容agent打开设置弹窗，非独立工作区；toolbar:boolean、focus:boolean、libraryMode:cards/list；getState().view.workspaceLayout 的 modelLibraryOpen/modelLibraryPresentation 与显隐读回；关闭或Esc等价workspace:modeling。活动草稿先结束，预览先取消。"
+  },
+  "modelLibrary": {
+    "tools": [
+      "getModelLibrary",
+      "updateModelLibrary",
+      "resolveModelLibrary",
+      "getUILayout",
+      "setView",
+      "quickModel",
+      "run"
+    ],
+    "method": "updateModelLibrary",
+    "usage": "getModelLibrary读取当前revision、每条字段及完整生成契约。updateModelLibrary传当前context和expectedLibraryRevision，operation=upsert/remove/move/restore/import。resolveModelLibrary返回冻结的quickModel参数，run/add生成，删除库条目不影响历史。"
+  },
   "moveTool": {
     "tools": [
       "setView",
@@ -911,7 +964,7 @@
       "pasteSelection"
     ],
     "method": "pasteSelection",
-    "usage": "context、idempotencyKey；整体底面中心放在锚点。粘贴按对象新增特征，共用2000特征/20 MiB工程容量检查，超限不提交。"
+    "usage": "context、idempotencyKey；整体底面中心放在锚点。粘贴按对象新增特征，共用2000特征及当前工程容量检查，超限不提交。"
   },
   "importAtFrame": {
     "tools": [

@@ -1,6 +1,6 @@
 // Browser-only transfer boundary for the existing document file commands.
 // File handles are selected by the UI before calling write; this module never opens a picker.
-import {FILE_LIMITS} from './browser-file-contracts.js';
+import {fileByteBudget,FILE_LIMITS,FILE_TYPED_BYTE_BUDGETS} from './browser-file-contracts.js';
 const MAX_BYTES = FILE_LIMITS.maxBytes;
 const MAX_RESOURCES = FILE_LIMITS.maxResources;
 const MAX_TOTAL_BYTES = FILE_LIMITS.maxTotalBytes;
@@ -89,7 +89,7 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
   }
   async function add({ kind, name, mime, bytes, context, saveSnapshot }) {
     basename(name);
-    if (!(bytes instanceof Uint8Array) || bytes.length > MAX_BYTES) throw failure('SIZE_LIMIT', 'File exceeds browser resource limit');
+    if (!(bytes instanceof Uint8Array) || bytes.length > fileByteBudget(name)) throw failure('SIZE_LIMIT', 'File exceeds browser resource limit');
     const hash = await sha256(bytes);
     purge();
     if (resources.size >= MAX_RESOURCES || usedBytes + bytes.length > MAX_TOTAL_BYTES) {
@@ -119,7 +119,7 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
   }
   async function generated({ context, action, args, name }) {
     const result = await run(context, action, args);
-    if (result.encoding !== 'base64') throw failure('ASSET_INVALID', 'Expected base64 from document file command');
+    if (!['base64','bytes'].includes(result.encoding)) throw failure('ASSET_INVALID', 'Expected base64 from document file command');
     const revision = result.revision ?? result.context?.revision;
     if (revision !== context?.expectedRevision ||
         (result.documentId !== undefined && result.documentId !== context.documentId) ||
@@ -133,7 +133,7 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
     const outputName = basename(name ?? `document.${extension}`);
     const savedContext = { sessionId: context.sessionId, documentId: context.documentId,
       documentInstanceId: context.documentInstanceId, revision };
-    return add({ kind: 'output', name: outputName, mime: result.mime, bytes: bytesFromBase64(result.data),
+    return add({ kind: 'output', name: outputName, mime: result.mime, bytes:result.encoding==='bytes'?result.data:bytesFromBase64(result.data),
       context: savedContext,
       saveSnapshot: action === 'save' ? { documentId: context.documentId,
         documentInstanceId: context.documentInstanceId, savedRevision: revision } : undefined });
@@ -143,27 +143,30 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
     generated:input=>add({...input,kind:"output"}),
     capabilities() { return Object.freeze({ maxBytes: MAX_BYTES, maxResources: MAX_RESOURCES,
       maxTotalBytes: MAX_TOTAL_BYTES, ttlSeconds: TTL_MS / 1000,
-      imports: ['step', 'stp', 'brep', 'brp'], exports: ['step', 'stl', 'brep', 'png'],
+      imports: ['step', 'stp', 'brep', 'brp','stl','mesh'], typedByteBudgets:FILE_TYPED_BYTE_BUDGETS, meshUnits:['mm','cm','m','in'],meshCodec:'webcad-mesh-f64-u32-v1', exports: ['step', 'stl', 'brep', 'png'],
       native: 'webcad', iges: 'unavailable_in_static_browser', transport: 'in-page' }); },
     async register({ name, data, mime } = {}) {
       basename(name);
-      if (data?.size > MAX_BYTES || data?.byteLength > MAX_BYTES) throw failure('SIZE_LIMIT', 'File exceeds browser resource limit');
+      if (data?.size > fileByteBudget(name) || data?.byteLength > fileByteBudget(name)) throw failure('SIZE_LIMIT', 'File exceeds browser resource limit');
       return add({ kind: 'input', name, mime: mime ?? data?.type, bytes: await inputBytes(data) });
     },
     async open({ context, resourceId } = {}) {
       const source = inputFor(resourceId, ['webcad', 'json']);
       const bytes = new Uint8Array(await source.blob.arrayBuffer());
-      return run(context, 'open', { name: source.name, mime: source.mime, data: base64FromBytes(bytes) });
+      return run(context, 'open', { name: source.name, mime: source.mime, data: bytes });
     },
-    async import({ context, resourceId, placement, idempotencyKey } = {}) {
-      const source = inputFor(resourceId, ['step', 'stp', 'brep', 'brp']);
-      if(placement!==undefined&&(typeof idempotencyKey!=='string'||!idempotencyKey||idempotencyKey.length>128))throw failure('PARAM_SCHEMA_INVALID','Placed import requires an idempotencyKey');
+    async import({ context, resourceId, placement, idempotencyKey, units } = {}) {
+      const source = inputFor(resourceId, ['step', 'stp', 'brep', 'brp','stl','mesh']);
+      const mesh=/\.(stl|mesh)$/i.test(source.name);
+      if(mesh&&!['mm','cm','m','in'].includes(units))throw failure('MESH_UNITS_REQUIRED','Declare STL units; mesh codec units must be mm.');
+      if(mesh&&source.name.toLowerCase().endsWith('.mesh')&&units!=='mm')throw failure('MESH_UNITS_REQUIRED','Typed mesh codec is already in mm.');
+      if((placement!==undefined||mesh)&&(typeof idempotencyKey!=='string'||!idempotencyKey||idempotencyKey.length>128))throw failure('PARAM_SCHEMA_INVALID','Placed import requires an idempotencyKey');
       const bytes = new Uint8Array(await source.blob.arrayBuffer());
-      return run(context, 'import', { name: source.name, mime: source.mime, data: base64FromBytes(bytes),...(placement===undefined?{}:{placement,idempotencyKey}) });
+      return run(context, 'import', { name: source.name, mime: source.mime, data:bytes,...(idempotencyKey===undefined?{}:{idempotencyKey}),...(mesh?{units}:{}),...(placement===undefined?{}:{placement,idempotencyKey}) });
     },
     async previewInput({resourceId}={}){
       const source=inputFor(resourceId,['step','stp','brep','brp']);
-      return {name:source.name,mime:source.mime,data:base64FromBytes(new Uint8Array(await source.blob.arrayBuffer()))};
+      return {name:source.name,mime:source.mime,data:new Uint8Array(await source.blob.arrayBuffer())};
     },
     new({ context } = {}) { return run(context, 'new'); },
     save({ context, name } = {}) { return generated({ context, action: 'save', name }); },

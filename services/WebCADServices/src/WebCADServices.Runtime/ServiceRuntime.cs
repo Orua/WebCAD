@@ -19,6 +19,7 @@ namespace WebCADServices.Runtime
         readonly string runtimeMode;
         readonly Thread scheduler;
         readonly Thread nativeScheduler;
+        readonly Thread meshScheduler;
         readonly AutoResetEvent wake = new AutoResetEvent(false);
         volatile bool stopping;
         public ServiceRuntime(string dataRoot, string logoWorker, string credential, bool serviceMode = false, string runtimeMode = null)
@@ -27,6 +28,7 @@ namespace WebCADServices.Runtime
             this.serviceMode = serviceMode;this.runtimeMode = runtimeMode ?? (serviceMode ? "service" : "console"); token = credential; worker = Path.GetFullPath(logoWorker); store = new Store(dataRoot);
             scheduler = new Thread(Dispatch) { IsBackground = true, Name = "services-persistent-dispatch" }; scheduler.Start();
             nativeScheduler = new Thread(DispatchNative) { IsBackground = true, Name = "services-native-dispatch" }; nativeScheduler.Start();
+            meshScheduler=new Thread(DispatchMesh){IsBackground=true,Name="services-mesh-dispatch"};meshScheduler.Start();
         }
         bool Auth(string supplied)
         {
@@ -37,7 +39,7 @@ namespace WebCADServices.Runtime
             try
             {
                 if (!Auth(request.Credential)) throw new ServiceError("UNAUTHORIZED", "Services authorization required", 401);
-                if (request.Body != null && request.Body.Length > WebCADServices.Transport.TransportSettings.MaxResourceBytes) throw new ServiceError("SIZE_LIMIT", "Resource limit is 20 MiB", 413);
+                if (request.Body != null && request.Body.Length > Protocol.ResourceBudget(request.Route,request.AssetKind,request.FileName)) throw new ServiceError("SIZE_LIMIT", "Resource limit is 20 MiB", 413);
                 // Dedicated credential is one principal; user-provided userid is never authority.
                 string owner = Protocol.Hash(Encoding.UTF8.GetBytes(token));
                 string route = request.Route ?? "", method = request.Method;
@@ -54,7 +56,7 @@ namespace WebCADServices.Runtime
                     var publicPayload = new JObject { ["assetId"] = input["assetId"], ["options"] = options };
                     var accepted = store.Submit(owner, request.IdempotencyKey, payload, publicPayload); wake.Set(); return WireResponse.Json(accepted, 202);
                 }
-                if (route == "/v1/compute/jobs" && method == "POST") {var input=Protocol.Parse(request.Body,Protocol.MaxNativePlan);var payload=NativeAdapter.Validate(input,store,owner);return WireResponse.Json(store.Submit(owner,request.IdempotencyKey,payload,input),202);}
+                if (route == "/v1/compute/jobs" && method == "POST") {var input=Protocol.Parse(request.Body,Protocol.MaxNativePlan);var payload=((string)input["operation"])?.StartsWith("mesh.")==true?MeshAdapter.Validate(input,store,owner):NativeAdapter.Validate(input,store,owner);return WireResponse.Json(store.Submit(owner,request.IdempotencyKey,payload,input),202);}
                 var parts = route.Split('/');
                 if (parts.Length == 4 && parts[1] == "v1" && parts[2] == "requests" && method == "GET") return WireResponse.Json(store.Request(owner, parts[3]));
                 if(parts.Length==5&&parts[1]=="v1"&&parts[2]=="requests"&&parts[4]=="result"&&method=="GET")return WireResponse.Json(store.RequestResult(owner,parts[3]));
@@ -64,7 +66,7 @@ namespace WebCADServices.Runtime
                     if(parts.Length==5&&parts[4]=="recover"&&method=="POST"){
                         var approval=Protocol.Parse(request.Body);Protocol.Keys(approval,"approved","reason","acknowledgedState");
                         if((bool?)approval["approved"]!=true||(string)approval["acknowledgedState"]!="interrupted")throw new ServiceError("RECOVERY_AUTH_REQUIRED","Explicitly approve the reviewed interrupted state",409);
-                        var original=store.RecoveryPayload(owner,id);var candidate=(JObject)original.DeepClone();
+                        var original=store.RecoveryPayload(owner,id);if(((string)original["operation"])?.StartsWith("mesh.")==true)throw new ServiceError("MESH_RECOVERY_UNAVAILABLE","Reconcile the interrupted mesh job; checkpoint recovery is not accepted",409);var candidate=(JObject)original.DeepClone();
                         if((string)original["engineBuildId"]!=(((string)original["operation"]).StartsWith("logo.")?LogoBuildId():NativeAdapter.BuildId))throw new ServiceError("RECOVERY_INPUT_CHANGED","Engine changed; use separately validated repair semantics",409);
                         if(!((string)original["operation"]).StartsWith("logo."))candidate=NativeAdapter.Validate((JObject)original["publicRequest"],store,owner);
                         var accepted=store.Recover(owner,id,request.IdempotencyKey,(string)approval["reason"],candidate);wake.Set();return WireResponse.Json(accepted,202);
@@ -92,6 +94,7 @@ namespace WebCADServices.Runtime
         JObject Capabilities(string owner) => JObject.FromObject(new
         {
             protocolVersion = Protocol.Version, supportedClientProtocolRange = new[] { "1.0" }, serviceBuildId = "sha256:" + Protocol.Hash(File.ReadAllBytes(typeof(ServiceRuntime).Assembly.Location)), hostBuildId = "sha256:" + Protocol.Hash(File.ReadAllBytes((System.Reflection.Assembly.GetEntryAssembly() ?? typeof(ServiceRuntime).Assembly).Location)),
+            mesh = MeshAdapter.Capabilities(),
             logo = new { engineBuildId = LogoBuildId(), enabled = File.Exists(worker), formats = new[] { "logo-json", "svg-restricted", "pdf", "pdf-compatible-ai", "dxf-restricted", "png", "jpeg", "bmp" }, restrictions = new[] { "monochrome", "explicit physical dimensions", "manual review for raster/reconstructed linework", "no DWG" }, maxSourceBytes = Protocol.MaxUpload, acceptanceStatus = "local JSON/FURLA PDF accepted; IIS and production identity gates pending" },
             operations = NativeOperations(), unavailableOperations = TbdOperations(), geometryExchange = new { supportedFormats = NativeAdapter.Acceptance==null?new string[0]:new[]{"occt-text-brep-v1"}, testedKernelPairs = NativeAdapter.Acceptance==null?new object[0]:new object[]{new { producerKernelBuildId=NativeAdapter.BuildId, consumerKernelBuildId=(string)NativeAdapter.Acceptance["consumerKernelBuildId"],codec="occt-text-brep-v1",brepVersion=3 }}, blockers = NativeAdapter.Acceptance==null?new[] { "NATIVE_BRIDGE_NOT_ACCEPTED" }:new string[0] },
             documentFormats = new { supportedVersions = new[] { 1, 2, 3 } },
@@ -145,6 +148,10 @@ namespace WebCADServices.Runtime
         {
             while(!stopping){var row=store.Claim("occt");if(row==null){Thread.Sleep(100);continue;}string id=(string)row["id"];try{if(store.Cancelled(id)){store.Finish(id,"cancelled");continue;}var result=NativeAdapter.Execute(row,store,()=>stopping||store.Cancelled(id));if(store.Cancelled(id)){store.Finish(id,"cancelled");continue;}store.Finish(id,"succeeded",result.ToString(Newtonsoft.Json.Formatting.None));}catch(ServiceError error){store.Finish(id,store.Cancelled(id)?"cancelled":error.Code=="WORKER_TERMINATED"?"terminated":"failed",error:error.Body("native").ToString());}catch(Exception error){store.Finish(id,"failed",error:new ServiceError("NATIVE_WORKER_FAILED","Native processing failed ("+error.GetType().Name+")").Body("native").ToString());}}
         }
-        public void Dispose() { stopping = true; wake.Set(); scheduler.Join(7000); nativeScheduler.Join(7000);store.Dispose(); wake.Dispose(); }
+        void DispatchMesh()
+        {
+            while(!stopping){var row=store.Claim("mesh");if(row==null){Thread.Sleep(100);continue;}string id=(string)row["id"];try{if(store.Cancelled(id)){store.Finish(id,"cancelled");continue;}var result=MeshAdapter.Execute(row,store,()=>stopping||store.Cancelled(id));if(store.Cancelled(id)){store.Finish(id,"cancelled");continue;}store.Finish(id,"succeeded",result.ToString(Newtonsoft.Json.Formatting.None));}catch(ServiceError error){store.Finish(id,store.Cancelled(id)?"cancelled":error.Code=="WORKER_TERMINATED"?"terminated":"failed",error:error.Body("mesh").ToString());}catch(Exception error){store.Finish(id,"failed",error:new ServiceError("MESH_WORKER_FAILED","Mesh processing failed ("+error.GetType().Name+")").Body("mesh").ToString());}}
+        }
+        public void Dispose() { stopping = true; wake.Set(); scheduler.Join(7000); nativeScheduler.Join(7000);meshScheduler.Join(7000);store.Dispose(); wake.Dispose(); }
     }
 }

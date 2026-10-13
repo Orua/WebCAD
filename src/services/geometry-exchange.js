@@ -61,7 +61,7 @@ export function installCompiledCandidate(document,{manifest,bytes,context,recipe
  if(bytes.length>20*1024*1024)throw serviceError('RESULT_TOO_LARGE_FOR_CLIENT','结果超出当前精确工程导回预算；服务产物保留');
  if(!manifest.validation?.valid||manifest.validation.solidCount!==1)throw serviceError('GEOMETRY_INVALID','服务未返回已校验的单实体');
  const checkpoint={recipeFingerprint,sourceSha256:manifest.sourceSha256,sourceSnapshotVersion:feature.op==='cut'?2:1,...(feature.op==='cut'?{inputSha256:[...manifest.inputSha256]}:{}),...(roundReport?{roundReport}:{}),artifactSha256:artifact.sha256,semanticVersion:manifest.semanticVersion,codec:manifest.codec,brepVersion:3,kernelBuildId:manifest.kernelBuildId,consumerKernelBuildId:LOCAL_KERNEL_BUILD_ID,jobId:manifest.jobId,inputFingerprint:manifest.inputFingerprint};
- return {...document,version:3,features:document.features.map(f=>f.id===feature.id?{...f,compiledCheckpoint:checkpoint}:f),compiledArtifacts:{...document.compiledArtifacts,[artifact.sha256]:new Uint8Array(bytes)}};
+ return {...document,version:document.version>=4?4:3,features:document.features.map(f=>f.id===feature.id?{...f,compiledCheckpoint:checkpoint}:f),compiledArtifacts:{...document.compiledArtifacts,[artifact.sha256]:new Uint8Array(bytes)}};
 }
 export function compiledCheckpointBytes(document,feature,sourceBytes){
  const c=feature.compiledCheckpoint;if(!c)return null;

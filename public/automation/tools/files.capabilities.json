@@ -2,7 +2,7 @@
   "id": "files.capabilities",
   "title": "files.capabilities",
   "category": "file",
-  "version": "1.28.3",
+  "version": "1.41.0",
   "label": "文件能力",
   "synonyms": [
     "文件能力",
@@ -24,9 +24,22 @@
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
-    "maxTotalBytes": 67108864,
+    "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
   },
+  "typedByteBudgets": {
+    "step": 134217728,
+    "stp": 134217728,
+    "brep": 134217728,
+    "brp": 134217728,
+    "stl": 134217728,
+    "mesh": 402653184,
+    "webcad": 536870912
+  },
+  "additionalDocs": [
+    "api.exact-source-assets",
+    "api.mesh-assets"
+  ],
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -36,5 +49,5 @@
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
-  "docsHash": "sha256:b0d0b2104efd0dc5c9263f41edef401ccf08a75ed8f4243fe0be40b4fc62f013"
+  "docsHash": "sha256:b200ae59a1737d438c98f1237e2c476432d9c8a701acc163a6f8b3ad18858780"
 }

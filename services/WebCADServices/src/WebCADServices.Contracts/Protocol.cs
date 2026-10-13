@@ -38,6 +38,9 @@ namespace WebCADServices.Contracts
     {
         public const string Version = "1.0";
         public const int MaxUpload = 20 * 1024 * 1024;
+        public const int MaxMeshSource=128*1024*1024;
+        public const int MaxMeshResult=384*1024*1024;
+        public static int ResourceBudget(string route,string kind,string name)=>route=="/v1/assets"&&kind=="mesh"?MaxMeshSource:MaxUpload;
         public const int MaxGeometryUpload = 64 * 1024 * 1024;
         public const int MaxNativePlan = 4 * 1024 * 1024;
         public static string Hash(byte[] bytes) { using (var sha = SHA256.Create()) return string.Concat(sha.ComputeHash(bytes).Select(v => v.ToString("x2"))); }

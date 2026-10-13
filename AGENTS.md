@@ -2,6 +2,23 @@
 
 Follow the existing LogoVector deployment pattern: ASHX references compiled DLLs and the DLL invokes controlled Logo/OCCT workers. Do not require or reinstall the independent Windows Host service, named-pipe transport or Host installer. Older Host-only rules below are superseded for the current deployment. The canonical IIS entry is Gateway.IisHandler; package with scripts/package-iis-dll.ps1. Preserve authorization, persistent jobs, cancellation, artifact identity, timeouts and source geometry; no server deployment to 10.121.11.8 is authorized in the current scope.
 
+## 部署端点一致性（用户要求，2026-10-13）
+
+无论修改 UI、工具、页面 API、文档、Services、Logo 或 Native，部署完成必须保证所有正式使用端点运行同一发布版本。不得只更新生产站或文件镜像而遗漏本机独立站点。
+
+每次发布必须覆盖并核对：
+
+- 生产静态页面：`https://goldenfu.cn/webcad/`。
+- 生产工作台入口：`https://goldenfu.cn/AI/WebCAD/WebCADWorkspace.aspx`；确认它加载本次发布的 WebCAD，保留宿主工作台功能。
+- 本机独立入口：`http://127.0.0.1:17674/`（包括 `?document=...` 工程链接）；当前 IIS 物理路径为 `F:/WebCADServices-local/frontend-usable-20261010-final`，部署时必须重新读取实际映射，不能只凭历史路径推断。
+- 本机 IIS 镜像入口：`http://localhost/webcad/`；当前物理路径为 `F:/Project/Goldenluck/Web/webcad`，同样核对实际映射。
+
+前端使用同一个已验证构建包同步各端点；从端点实际 HTTP 响应核对 `buildId`、`pageApiVersion`、`catalogHash`、`docsHash` 和入口资源哈希一致，不能以磁盘复制成功代替部署验证。工作台只要求其嵌入的 WebCAD 版本一致，不要求不同宿主页面 HTML 相同。
+
+涉及 Services / Logo / Native 时，所有正式配置的对应后端也必须使用本次匹配的发布产物、协议及能力版本；仅前端修改可明确记录后端无影响。环境 URL、密钥、数据目录和用户配置允许不同，工程数据、Cookie、自定义颜色及后端任务数据必须保留。不要为同步版本覆盖这些数据。
+
+临时验收站点须明确标记用途；一旦被作为正式使用入口，立即纳入同步清单。不可达、缺少授权或版本不一致的端点必须明确报告，不能宣称部署完整完成；遵守现有授权边界。将实际端点、物理映射、发布标识与核对结果记录在 G 盘部署报告。不同版本并行发布前须重新核对当前线上版本，保留其他已授权发布的改动，防止旧包覆盖新功能。
+
 # WebCAD agent rules
 
 ## Local storage restriction (user instruction, 2026-10-09)

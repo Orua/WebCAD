@@ -116,7 +116,7 @@ test('workflow tabs preserve the original tool inventory after regrouping', () =
   const actions = UI_LAYOUT.tabs.flatMap(tab => tab.groups.flatMap(([, ids]) => ids));
   for(const groups of Object.values(originalGroups))for(const [,ids] of groups)for(const id of ids)assert(actions.includes(id),`original tool lost: ${id}`);
   assert.equal(new Set(actions).size,actions.length,'a tool must not be duplicated across tabs');
-  assert.deepEqual(UI_LAYOUT.tabs.find(tab=>tab.id==='model').groups.filter(([name])=>name==='常用模型'),[['常用模型',['quickModelFavorites']]]);
+  assert.deepEqual(UI_LAYOUT.tabs.find(tab=>tab.id==='model').groups.filter(([name])=>name==='快捷模型'),[['快捷模型',['quickModel']]]);
   for(const id of ['edit','path','model'])assert.equal(UI_LAYOUT.tabs.find(tab=>tab.id===id).unfolded,true);
   const create=UI_LAYOUT.tabs.find(tab=>tab.id==='create');assert.equal(create.groups.find(([name])=>name==='路径成型')[2].unfolded,true);
   assert.equal(actions.filter(id => ['profileRevolve', 'profileSweep', 'profileLoft'].includes(id)).length, 0, 'source operations share original entries instead of duplicate ribbon buttons');

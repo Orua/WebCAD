@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:692fe8ecd98654d97d2c340d0f4e8fa75fb89fc728abb2a044c6a23e5b4cc446",
-  "docsHash": "sha256:d7613007ee45231208ae2ba77554e2e16e9ff967445276fe0590632b9199e73b",
+  "catalogHash": "sha256:48ca688a1bc0bbdc186b5c263c294e70c187cffcefcbb7df9995d8c35d2923ea",
+  "docsHash": "sha256:464f92e5fdb3f4c41522299990955a9b1abb9bf60d6ee7c9c2f1edd9fc7d79f5",
   "bootstrapDocIds": [
     "api.knowledge-cache",
     "api.connection",
@@ -11,6 +11,104 @@
   ],
   "selectionPolicy": "Route by task, read a workflow, then only needed complete cards. Exact UI actions use routes.json. Live context/IDs always come from the page.",
   "routes": [
+    {
+      "id": "agent-runtime-recovery",
+      "title": "Agent版本、保存与内核恢复",
+      "keywords": [
+        "连接",
+        "重连",
+        "恢复",
+        "内核",
+        "未就绪",
+        "保存",
+        "版本",
+        "握手",
+        "钻石",
+        "布局",
+        "kernel",
+        "reconnect",
+        "save",
+        "layout"
+      ],
+      "docs": [
+        "api.agent-runtime",
+        "api.workflow",
+        "api.reliability"
+      ],
+      "tools": [
+        "connect",
+        "getState",
+        "recoverKernel",
+        "files.save",
+        "group",
+        "feature.addMany"
+      ],
+      "note": "WebCAD publishes the adapter and contract. Verify build/software hashes before writes; save the committed snapshot even when kernel unavailable. Compute explicit analytic layout on the host using webcad_docs planLayout; never guess dimensions or replay unknown commands."
+    },
+    {
+      "id": "mesh-relief-editing",
+      "title": "网格浮雕局部纠错与底板",
+      "keywords": [
+        "网格局改",
+        "局部修高",
+        "局部替换",
+        "保护区",
+        "mesh relief",
+        "relief plate",
+        "分层",
+        "冻结",
+        "截面",
+        "局部移动"
+      ],
+      "docs": [
+        "api.mesh-relief-edit",
+        "api.mesh-assets",
+        "api.editor"
+      ],
+      "tools": [
+        "meshReliefPlate",
+        "meshReliefEdit",
+        "sampleMeshRelief",
+        "getState",
+        "preview.start",
+        "preview.update",
+        "preview.cancel",
+        "preview.commit",
+        "feature.edit",
+        "history.undo",
+        "history.redo"
+      ],
+      "note": "Use explicit support, current geometry hash and on-surface seed. Mesh tools retain Float64 assets; do not claim BRep or STEP. New/changed tools require this same public path; no pointer automation."
+    },
+    {
+      "id": "model-library-management",
+      "title": "模型库配置与工作区布局",
+      "keywords": [
+        "模型库",
+        "模型管理",
+        "常用模型",
+        "卡片",
+        "详细列表",
+        "热插拔",
+        "隐藏菜单",
+        "专注画布",
+        "model library",
+        "workspace"
+      ],
+      "docs": [
+        "api.model-library",
+        "api.workspace",
+        "api.views"
+      ],
+      "tools": [
+        "getModelLibrary",
+        "updateModelLibrary",
+        "resolveModelLibrary",
+        "setView",
+        "getUILayout"
+      ],
+      "note": "Read live library revision and per-entry schema. Resolve to frozen quickModel params before run/add; library IDs never become saved geometry kinds."
+    },
     {
       "id": "product-understanding",
       "title": "陌生产品结构与配件识别",
@@ -241,29 +339,26 @@
     },
     {
       "id": "logo-relief",
-      "title": "Logo与浮雕",
+      "title": "图案加工：先区分恒深LOGO与连续浮雕",
       "keywords": [
         "LOGO",
         "凹字",
         "凸字",
         "刻字",
+        "凹线条",
+        "恒深",
         "浮雕",
         "图案",
         "engrave",
         "relief"
       ],
       "docs": [
-        "api.logo",
-        "api.relief",
-        "api.vector-import"
+        "api.pattern-machining"
       ],
       "tools": [
-        "logo",
-        "curvedLogo",
-        "relief",
-        "readRelief"
+        "planPatternMachining"
       ],
-      "note": "Machined engraving and stamped back-side protrusion are different geometry. Use original closed glyph regions and retained holes; photographs are not measured height maps."
+      "note": "Legacy route ID retained. Discovery is not a geometry decision: read the shared workflow, declare user intent/source, then load only matched full tool cards. Never swap routes after failure; shaded reference brightness is not depth."
     },
     {
       "id": "inspection",

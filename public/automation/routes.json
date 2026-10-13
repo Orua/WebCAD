@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.28.3",
-  "buildId": "184e20ff4cb70339c22e8b009bd86e8b93df019d-src-84abed84b9b5247c-working",
-  "catalogHash": "sha256:692fe8ecd98654d97d2c340d0f4e8fa75fb89fc728abb2a044c6a23e5b4cc446",
-  "docsHash": "sha256:d7613007ee45231208ae2ba77554e2e16e9ff967445276fe0590632b9199e73b",
+  "pageApiVersion": "1.41.0",
+  "buildId": "39a8818713a9b39d9cf1336f4d98ad7b5807d78c-src-fcdda3290890940d-working",
+  "catalogHash": "sha256:48ca688a1bc0bbdc186b5c263c294e70c187cffcefcbb7df9995d8c35d2923ea",
+  "docsHash": "sha256:464f92e5fdb3f4c41522299990955a9b1abb9bf60d6ee7c9c2f1edd9fc7d79f5",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -20,14 +20,14 @@
         "readDocs"
       ],
       "method": "connect",
-      "usage": "connect({queries,includeContracts:true}) 返回当前 canExecute/blockers、requestContext 与完整卡；onboarding 提供首次连接步骤、本地安装包和真实操作路由；readDocs({docId:\"api.connection\"}) 说明宿主能力检查。knownHashes 只缓存完整工具卡，不缓存实体身份。"
+      "usage": "设置→Agent 配置为软件配置弹窗；兼容setView({context,workspace:\"agent\"})打开，workspace:\"modeling\"关闭；getUILayout().current.agentSettingsOpen读回。connect({queries,includeContracts:true}) 返回当前 canExecute/blockers、requestContext 与完整卡；onboarding 提供首次连接步骤、本地安装包和真实操作路由；readDocs({docId:\"api.connection\"}) 说明宿主能力检查。knownHashes 只缓存完整工具卡，不缓存实体身份。"
     },
     "alignBodies": {
       "tools": [
         "body.align"
       ],
       "method": "execute",
-      "usage": "一次事务对齐；target.kind为body/origin/anchor/point；基准件不能同时被移动。按移动件数新增特征，超过工程2000特征或20 MiB上限返回SIZE_LIMIT且不提交。"
+      "usage": "一次事务对齐；target.kind为body/origin/anchor/point；基准件不能同时被移动。按移动件数新增特征，超过工程2000特征或当前工程容量上限返回SIZE_LIMIT且不提交。"
     },
     "alignmentPlan": {
       "tools": [
@@ -531,6 +531,33 @@
       "method": "measureRelation",
       "usage": "显式选择两个实体/边/面，或点与有限面，读取精确几何关系与见证点。"
     },
+    "meshReliefEdit": {
+      "tools": [
+        "meshReliefEdit",
+        "sampleMeshRelief",
+        "feature.edit",
+        "preview.start",
+        "preview.commit",
+        "preview.cancel",
+        "history.undo",
+        "history.redo",
+        "getState"
+      ],
+      "method": "execute",
+      "usage": "面加工→网格局部修高。选择原生网格，读取meshReport.geometryHash；明确支撑坐标、表面种子、核心/过渡/硬保护圆域、scaleHeight/offset/flatten/replace及最小厚度，replace用毫米目标网格或路径profile的横纵截面替换核心并混合过渡。UI和API同一路径，预览后应用。结果回读meshReport.edit；网格不冒充精确STEP。"
+    },
+    "meshReliefPlate": {
+      "tools": [
+        "meshReliefPlate",
+        "preview.start",
+        "preview.commit",
+        "preview.cancel",
+        "feature.edit",
+        "getState"
+      ],
+      "method": "execute",
+      "usage": "创建中心XY网格底板，显式宽长厚度、间距、圆形起伏中心/高度/平顶及外半径。参数保留于工程，UI/API同一创建路径，网格不冒充曲面BRep。"
+    },
     "metalFinish": {
       "tools": [
         "document.appearance"
@@ -543,6 +570,19 @@
       ],
       "method": "execute",
       "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "modelLibrary": {
+      "tools": [
+        "getModelLibrary",
+        "updateModelLibrary",
+        "resolveModelLibrary",
+        "getUILayout",
+        "setView",
+        "quickModel",
+        "run"
+      ],
+      "method": "updateModelLibrary",
+      "usage": "getModelLibrary读取当前revision、每条字段及完整生成契约。updateModelLibrary传当前context和expectedLibraryRevision，operation=upsert/remove/move/restore/import。resolveModelLibrary返回冻结的quickModel参数，run/add生成，删除库条目不影响历史。"
     },
     "moveTool": {
       "tools": [
@@ -633,7 +673,7 @@
         "pasteSelection"
       ],
       "method": "pasteSelection",
-      "usage": "context、idempotencyKey；整体底面中心放在锚点。粘贴按对象新增特征，共用2000特征/20 MiB工程容量检查，超限不提交。"
+      "usage": "context、idempotencyKey；整体底面中心放在锚点。粘贴按对象新增特征，共用2000特征及当前工程容量检查，超限不提交。"
     },
     "pathEdit": {
       "tools": [
@@ -771,18 +811,22 @@
     },
     "quickModel": {
       "tools": [
-        "quickModel"
+        "setView",
+        "getModelLibrary",
+        "resolveModelLibrary",
+        "quickModel",
+        "run"
       ],
-      "method": "execute",
-      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+      "method": "setView",
+      "usage": "实体→快捷模型打开画布中央浮动选择菜单：setView({context,workspace:\"library\"})；返回画布用workspace:\"modeling\"。getModelLibrary读取配置，resolveModelLibrary解析后run/add生成。"
     },
     "quickModelFavorites": {
       "tools": [
-        "quickModel",
+        "setView",
         "getQuickModelUsage"
       ],
-      "method": "execute",
-      "usage": "模型菜单显示累计成功创建次数最多的五个 kind；getQuickModelUsage() 只读本浏览器频率，完整列表仍用快捷模型入口。生成用 quickModel 显式 params.kind、参考 placement 与幂等键。"
+      "method": "setView",
+      "usage": "兼容旧快捷入口；setView({context,workspace:\"library\"})打开同一快捷模型工具，频率仍可getQuickModelUsage只读。"
     },
     "redo": {
       "tools": [
@@ -856,6 +900,7 @@
     },
     "relief": {
       "tools": [
+        "planPatternMachining",
         "relief",
         "readRelief",
         "files.register",
@@ -867,7 +912,7 @@
         "history.undo"
       ],
       "method": "execute",
-      "usage": "面加工→浮雕。files.register图像，readRelief生成独立轮廓regions与高度values；run add relief显式faceId/refs/尺寸/高度/位置、values/regions/surfaceMode/source。surfaceMode=flat为精确平顶，smooth为轮廓内平滑起伏，背景保留原面。支持分层.relief.json及layers显式高度、strokes开放刻线和curveToleranceMm曲线公差；UI逐层编辑高度和方向，API feature.edit修改layers。柱面须point、角宽≤90°、angleDeg=0。旧无regions工程保留原基底层语义。预览后提交，getState.bodies[].reliefReport回读背景、表面方式与实际材料变化。"
+      "usage": "面加工→浮雕。先读api.pattern-machining、planPatternMachining区分意图；新创建params.machiningIntent保存加工意义，readRelief显式sourceInterpretation。恒深文字/图案走LOGO，灰度只用于作者高度图。files.register图像，readRelief生成独立轮廓regions与高度values；run add relief显式faceId/refs/尺寸/高度/位置、values/regions/surfaceMode/source。surfaceMode=flat为精确平顶，smooth为轮廓内平滑起伏，背景保留原面。支持分层.relief.json及layers显式高度、strokes开放刻线和curveToleranceMm曲线公差；UI逐层编辑高度和方向，API feature.edit修改layers。柱面须point、角宽≤90°、angleDeg=0。旧无regions工程保留原基底层语义。预览后提交，getState.bodies[].reliefReport回读背景、表面方式与实际材料变化。"
     },
     "reliefSculpt": {
       "tools": [
@@ -1229,43 +1274,17 @@
         "body.visibility"
       ],
       "method": "execute"
+    },
+    "workspace": {
+      "tools": [
+        "setView",
+        "getUILayout"
+      ],
+      "method": "setView",
+      "usage": "workspace:modeling返回画布、library打开非全屏浮动快捷模型菜单，显隐设置保持不变；兼容agent打开设置弹窗，非独立工作区；toolbar:boolean、focus:boolean、libraryMode:cards/list；getState().view.workspaceLayout 的 modelLibraryOpen/modelLibraryPresentation 与显隐读回；关闭或Esc等价workspace:modeling。活动草稿先结束，预览先取消。"
     }
   },
   "labels": {
-    "servicesWaitDecision": "decideServicesWait / getServicesRouting / getServicesJob",
-    "reliefTopologyUpgrade": "prepareReliefTopologyUpgrade / 修改参数 / getState",
-    "servicesJobRecovery": "getServicesJob / recoverServicesJob",
-    "selectTool": "选择 / setView / selectRectangle / 取消预览",
-    "quickDrawing": "快速出图 / createDrawing / exportDrawing / 下载文件",
-    "drawingCreate": "createDrawing",
-    "drawingExport": "exportDrawing / 下载文件",
-    "alignTool": "快速对齐 / planAlignment",
-    "alignBodies": "快速对齐",
-    "alignmentPlan": "planAlignment",
-    "restoreHistory": "getHistory / 退回工程状态",
-    "round": "圆润 / 预览模型、原特征编辑或文件插入 / 更新预览 / 取消预览 / 应用预览 / 修改参数",
-    "fillet": "圆角 / 修改参数 / 预览模型、原特征编辑或文件插入 / 更新预览 / 应用预览 / 取消预览",
-    "rounding": "自动打磨 / 修改参数 / 预览模型、原特征编辑或文件插入 / 更新预览 / 应用预览 / 取消预览",
-    "roundEnd": "端头圆润 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数",
-    "pathEdit": "编辑路径 / inspectProfile / 修改参数",
-    "pathTrim": "修剪 / prepareProfileEdit / 修改参数",
-    "pathExtend": "延伸 / prepareProfileEdit / 修改参数",
-    "pathFillet": "二维圆角 / prepareProfileEdit / 修改参数",
-    "pathTrimCircle": "整圆裁剪 / prepareProfileEdit / 修改参数",
-    "vectorImport": "矢量取线成面 / readVector / connectVector / 绘制轮廓",
-    "quickModelFavorites": "常用模型 / 快捷模型 / getQuickModelUsage",
-    "reference.setWorkFrame": "设置参考锚点（工作基准）",
-    "reference.resetWorkFrame": "重置参考锚点（工作基准）",
-    "reference.setLocked": "锁定参考锚点（工作基准）",
-    "anchorDrag": "设置参考锚点（工作基准）",
-    "anchorVisibility": "setView",
-    "temporaryDisplay": "setView",
-    "occlusionCandidates": "queryGeometry / setView",
-    "commandSearch": "searchTools",
-    "reference.snapNearest": "queryGeometry / 设置参考锚点（工作基准）",
-    "reference.alignSelectedFace": "queryGeometry / 设置参考锚点（工作基准）",
-    "renderQuality": "setRenderQuality",
-    "downloadResource": "下载文件",
     "advancedLoft": "高级放样",
     "arcProfile": "解析线弧轮廓 / 线弧拉伸",
     "autoRound": "整件圆边",
@@ -1300,6 +1319,8 @@
     "linearPattern": "直线阵列",
     "loft": "放样 / 轮廓放样",
     "logo": "LOGO",
+    "meshReliefEdit": "网格局部修高 / sampleMeshRelief / 修改参数 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销 / 重做 / getState",
+    "meshReliefPlate": "浮雕网格底板 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数 / getState",
     "mirror": "镜像",
     "multiBoss": "批量圆柱凸台 / 批量凸台",
     "multiHole": "多位置打孔 / 多点打孔",
@@ -1315,11 +1336,11 @@
     "profileRepair": "修复轮廓 / 轮廓修复",
     "profileRevolve": "轮廓旋转",
     "profileSweep": "轮廓扫掠",
-    "quickModel": "快捷模型",
+    "quickModel": "快捷模型 / setView / getModelLibrary / resolveModelLibrary / run",
     "referenceExtrude": "参考轮廓拉伸 / 轮廓拉伸",
     "referenceLoft": "参考截面放样 / 截面放样",
     "refineShape": "清理分割线 / getState / queryGeometry / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销",
-    "relief": "浮雕 / readRelief / 登记文件资源 / getState / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数 / 撤销",
+    "relief": "浮雕 / planPatternMachining / readRelief / 登记文件资源 / getState / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数 / 撤销",
     "remove": "删除 / 删除实体",
     "revolve": "旋转成型 / 轮廓旋转",
     "sewFaces": "曲面缝合",
@@ -1337,16 +1358,52 @@
     "transform": "移动 / 旋转",
     "union": "合并",
     "vectorProfile": "导入路径",
+    "servicesWaitDecision": "decideServicesWait / getServicesRouting / getServicesJob",
+    "reliefTopologyUpgrade": "prepareReliefTopologyUpgrade / 修改参数 / getState",
+    "servicesJobRecovery": "getServicesJob / recoverServicesJob",
+    "selectTool": "选择 / setView / selectRectangle / 取消预览",
+    "quickDrawing": "快速出图 / createDrawing / exportDrawing / 下载文件",
+    "drawingCreate": "createDrawing",
+    "drawingExport": "exportDrawing / 下载文件",
+    "alignTool": "快速对齐 / planAlignment",
+    "alignBodies": "快速对齐",
+    "alignmentPlan": "planAlignment",
+    "restoreHistory": "getHistory / 退回工程状态",
+    "round": "圆润 / 预览模型、原特征编辑或文件插入 / 更新预览 / 取消预览 / 应用预览 / 修改参数",
+    "fillet": "圆角 / 修改参数 / 预览模型、原特征编辑或文件插入 / 更新预览 / 应用预览 / 取消预览",
+    "rounding": "自动打磨 / 修改参数 / 预览模型、原特征编辑或文件插入 / 更新预览 / 应用预览 / 取消预览",
+    "roundEnd": "端头圆润 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数",
+    "pathEdit": "编辑路径 / inspectProfile / 修改参数",
+    "pathTrim": "修剪 / prepareProfileEdit / 修改参数",
+    "pathExtend": "延伸 / prepareProfileEdit / 修改参数",
+    "pathFillet": "二维圆角 / prepareProfileEdit / 修改参数",
+    "pathTrimCircle": "整圆裁剪 / prepareProfileEdit / 修改参数",
+    "vectorImport": "矢量取线成面 / readVector / connectVector / 绘制轮廓",
+    "quickModelFavorites": "快捷模型 / setView / getQuickModelUsage",
+    "reference.setWorkFrame": "设置参考锚点（工作基准）",
+    "reference.resetWorkFrame": "重置参考锚点（工作基准）",
+    "reference.setLocked": "锁定参考锚点（工作基准）",
+    "anchorDrag": "设置参考锚点（工作基准）",
+    "anchorVisibility": "setView",
+    "temporaryDisplay": "setView",
+    "occlusionCandidates": "queryGeometry / setView",
+    "commandSearch": "searchTools",
+    "reference.snapNearest": "queryGeometry / 设置参考锚点（工作基准）",
+    "reference.alignSelectedFace": "queryGeometry / 设置参考锚点（工作基准）",
+    "renderQuality": "setRenderQuality",
+    "downloadResource": "下载文件",
     "reliefSculpt": "浮雕精修 / sampleReliefHeight / prepareReliefSculpt / 修改参数 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销",
     "precisionSettings": "精度 / setDisplayPreferences",
     "themeSettings": "风格 / setDisplayPreferences",
     "snapSettings": "吸附 / setDisplayPreferences",
     "languageSettings": "语言 / setView",
-    "agentGuide": "AGENT / connect / getTools / readDocs",
+    "agentGuide": "Agent 配置 / connect / getTools / readDocs",
     "servicesSettings": "Services / getServices / setServices / getServicesCapabilities / getServicesRouting / clearServicesCredential",
     "servicesFeatureCompile": "Services 原特征编译 / getServicesCapabilities / getServicesRouting / getState / getServicesRequest",
     "displayPreferences": "渲染设置 / setDisplayPreferences",
     "panels": "setView",
+    "workspace": "setView / getUILayout",
+    "modelLibrary": "getModelLibrary / updateModelLibrary / resolveModelLibrary / getUILayout / setView / 快捷模型 / run",
     "moveTool": "setView / 移动 / 旋转",
     "rotateTool": "setView / 移动 / 旋转",
     "copySelection": "copySelection",

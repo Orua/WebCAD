@@ -1,0 +1,1350 @@
+{
+  "id": "meshReliefEdit",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "version": {
+        "type": "integer",
+        "const": 1
+      },
+      "units": {
+        "type": "string",
+        "const": "mm"
+      },
+      "topologyEpoch": {
+        "type": "integer",
+        "const": 0
+      },
+      "inputGeometryHash": {
+        "type": "string",
+        "pattern": "^sha256:[a-f0-9]{64}$"
+      },
+      "support": {
+        "type": "object",
+        "properties": {
+          "originMm": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "xAxis": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "normal": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "unit": "1",
+              "quantityKind": "direction",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "unit": "1",
+            "quantityKind": "direction",
+            "quantizationPolicy": "none"
+          }
+        },
+        "required": [
+          "originMm",
+          "xAxis",
+          "normal"
+        ],
+        "additionalProperties": false
+      },
+      "seedMm": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "region": {
+        "type": "object",
+        "properties": {
+          "centerMm": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 2,
+            "maxItems": 2,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "coreRadiusMm": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "transitionMm": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "centerMm",
+          "coreRadiusMm",
+          "transitionMm"
+        ],
+        "additionalProperties": false
+      },
+      "protectedRegions": {
+        "type": "array",
+        "maxItems": 64,
+        "items": {
+          "type": "object",
+          "properties": {
+            "centerMm": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "minItems": 2,
+              "maxItems": 2,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            "radiusMm": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            }
+          },
+          "required": [
+            "centerMm",
+            "radiusMm"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "targets": {
+        "type": "array",
+        "maxItems": 64,
+        "items": {
+          "type": "object",
+          "properties": {
+            "pointMm": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "heightMm": {
+              "type": "number",
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            "toleranceMm": {
+              "type": "number",
+              "minimum": 0,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            }
+          },
+          "required": [
+            "pointMm",
+            "heightMm",
+            "toleranceMm"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "mode": {
+        "type": "string",
+        "enum": [
+          "scaleHeight",
+          "offset",
+          "flatten",
+          "replace",
+          "layers"
+        ]
+      },
+      "value": {
+        "type": "number"
+      },
+      "field": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "originMm",
+          "sizeMm",
+          "heightsMm"
+        ],
+        "properties": {
+          "originMm": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 2,
+            "maxItems": 2,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "sizeMm": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "heightsMm": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 257,
+            "items": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 257,
+              "items": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      },
+      "profile": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "segments",
+          "stations",
+          "endTaperMm",
+          "baseHeightMm",
+          "curveToleranceMm",
+          "maxSourceSpacingMm"
+        ],
+        "properties": {
+          "segments": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 32,
+            "items": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "unit": "1",
+                  "quantityKind": "scalar",
+                  "quantizationPolicy": "none"
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "unit": "1",
+                "quantityKind": "scalar",
+                "quantizationPolicy": "none"
+              },
+              "unit": "1",
+              "quantityKind": "scalar",
+              "quantizationPolicy": "none"
+            },
+            "unit": "1",
+            "quantityKind": "scalar",
+            "quantizationPolicy": "none"
+          },
+          "stations": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 64,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "at",
+                "sectionMm"
+              ],
+              "properties": {
+                "at": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "sectionMm": {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 64,
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                }
+              }
+            }
+          },
+          "endTaperMm": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "baseHeightMm": {
+            "type": "number"
+          },
+          "curveToleranceMm": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "maxSourceSpacingMm": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        }
+      },
+      "deformation": {
+        "type": "object",
+        "properties": {
+          "pivotMm": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "translationMm": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "scale": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "unit": "1",
+              "quantityKind": "scalar",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 2,
+            "maxItems": 2,
+            "unit": "1",
+            "quantityKind": "scalar",
+            "quantizationPolicy": "none"
+          },
+          "angleDeg": {
+            "type": "number",
+            "unit": "deg",
+            "quantityKind": "angle",
+            "quantizationPolicy": "none"
+          },
+          "sourceRegion": {
+            "type": "object",
+            "properties": {
+              "centerMm": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "radiusMm": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              }
+            },
+            "required": [
+              "centerMm",
+              "radiusMm"
+            ],
+            "additionalProperties": false
+          },
+          "baseHeightMm": {
+            "type": "number"
+          },
+          "maxSourceSpacingMm": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        },
+        "required": [
+          "pivotMm",
+          "translationMm",
+          "scale",
+          "angleDeg",
+          "sourceRegion",
+          "baseHeightMm",
+          "maxSourceSpacingMm"
+        ],
+        "additionalProperties": false
+      },
+      "layers": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 16,
+        "items": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "enabled",
+                "kind",
+                "regions"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "enabled": {
+                  "type": "boolean"
+                },
+                "kind": {
+                  "const": "freeze"
+                },
+                "regions": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 64,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "centerMm",
+                      "radiusMm"
+                    ],
+                    "properties": {
+                      "centerMm": {
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "items": {
+                          "type": "number",
+                          "unit": "mm",
+                          "quantityKind": "length",
+                          "quantizationPolicy": "none"
+                        },
+                        "unit": "mm",
+                        "quantityKind": "length",
+                        "quantizationPolicy": "none"
+                      },
+                      "radiusMm": {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "unit": "mm",
+                        "quantityKind": "length",
+                        "quantizationPolicy": "none"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "enabled",
+                "kind",
+                "role",
+                "attachment",
+                "blend",
+                "region"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "enabled": {
+                  "type": "boolean"
+                },
+                "kind": {
+                  "const": "surface"
+                },
+                "role": {
+                  "enum": [
+                    "macro",
+                    "detail"
+                  ]
+                },
+                "attachment": {
+                  "enum": [
+                    "followHeight",
+                    "absolute"
+                  ]
+                },
+                "blend": {
+                  "enum": [
+                    "add",
+                    "remove",
+                    "replace"
+                  ]
+                },
+                "region": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "centerMm",
+                    "coreRadiusMm",
+                    "transitionMm"
+                  ],
+                  "properties": {
+                    "centerMm": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "number",
+                        "unit": "mm",
+                        "quantityKind": "length",
+                        "quantizationPolicy": "none"
+                      },
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    },
+                    "coreRadiusMm": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    },
+                    "transitionMm": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "heightMm": {
+                  "type": "number",
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
+                },
+                "field": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "originMm",
+                    "sizeMm",
+                    "heightsMm"
+                  ],
+                  "properties": {
+                    "originMm": {
+                      "type": "array",
+                      "items": {
+                        "type": "number",
+                        "unit": "mm",
+                        "quantityKind": "length",
+                        "quantizationPolicy": "none"
+                      },
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    },
+                    "sizeMm": {
+                      "type": "array",
+                      "items": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "minItems": 2,
+                      "maxItems": 2
+                    },
+                    "heightsMm": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 257,
+                      "items": {
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 257,
+                        "items": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                },
+                "profile": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "segments",
+                    "stations",
+                    "endTaperMm",
+                    "baseHeightMm",
+                    "curveToleranceMm",
+                    "maxSourceSpacingMm"
+                  ],
+                  "properties": {
+                    "segments": {
+                      "type": "array",
+                      "minItems": 1,
+                      "maxItems": 32,
+                      "items": {
+                        "type": "array",
+                        "minItems": 4,
+                        "maxItems": 4,
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "number",
+                            "unit": "1",
+                            "quantityKind": "scalar",
+                            "quantizationPolicy": "none"
+                          },
+                          "minItems": 2,
+                          "maxItems": 2,
+                          "unit": "1",
+                          "quantityKind": "scalar",
+                          "quantizationPolicy": "none"
+                        },
+                        "unit": "1",
+                        "quantityKind": "scalar",
+                        "quantizationPolicy": "none"
+                      },
+                      "unit": "1",
+                      "quantityKind": "scalar",
+                      "quantizationPolicy": "none"
+                    },
+                    "stations": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 64,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "at",
+                          "sectionMm"
+                        ],
+                        "properties": {
+                          "at": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          },
+                          "sectionMm": {
+                            "type": "array",
+                            "minItems": 3,
+                            "maxItems": 64,
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "number"
+                              },
+                              "minItems": 2,
+                              "maxItems": 2
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "endTaperMm": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "number",
+                        "minimum": 0
+                      }
+                    },
+                    "baseHeightMm": {
+                      "type": "number"
+                    },
+                    "curveToleranceMm": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    },
+                    "maxSourceSpacingMm": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    }
+                  }
+                }
+              },
+              "oneOf": [
+                {
+                  "properties": {
+                    "blend": {
+                      "enum": [
+                        "add",
+                        "remove"
+                      ]
+                    },
+                    "attachment": {
+                      "const": "followHeight"
+                    },
+                    "heightMm": {
+                      "type": "number",
+                      "exclusiveMinimum": 0,
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    }
+                  },
+                  "required": [
+                    "heightMm"
+                  ],
+                  "not": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "field"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "profile"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "properties": {
+                    "blend": {
+                      "const": "replace"
+                    },
+                    "attachment": {
+                      "const": "absolute"
+                    }
+                  },
+                  "required": [
+                    "heightMm"
+                  ],
+                  "not": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "field"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "profile"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "properties": {
+                    "blend": {
+                      "const": "replace"
+                    },
+                    "attachment": {
+                      "const": "absolute"
+                    }
+                  },
+                  "required": [
+                    "field"
+                  ],
+                  "not": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "heightMm"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "profile"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "properties": {
+                    "blend": {
+                      "const": "replace"
+                    },
+                    "attachment": {
+                      "const": "absolute"
+                    }
+                  },
+                  "required": [
+                    "profile"
+                  ],
+                  "not": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "heightMm"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "field"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "minThicknessMm": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      }
+    },
+    "required": [
+      "version",
+      "units",
+      "topologyEpoch",
+      "inputGeometryHash",
+      "support",
+      "seedMm",
+      "region",
+      "protectedRegions",
+      "mode",
+      "minThicknessMm"
+    ],
+    "additionalProperties": false,
+    "oneOf": [
+      {
+        "properties": {
+          "mode": {
+            "const": "layers"
+          }
+        },
+        "required": [
+          "layers"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "value"
+              ]
+            },
+            {
+              "required": [
+                "field"
+              ]
+            },
+            {
+              "required": [
+                "profile"
+              ]
+            },
+            {
+              "required": [
+                "deformation"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "properties": {
+          "mode": {
+            "const": "replace"
+          }
+        },
+        "required": [
+          "field"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "profile"
+              ]
+            },
+            {
+              "required": [
+                "deformation"
+              ]
+            },
+            {
+              "required": [
+                "value"
+              ]
+            },
+            {
+              "required": [
+                "layers"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "properties": {
+          "mode": {
+            "const": "replace"
+          }
+        },
+        "required": [
+          "profile"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "field"
+              ]
+            },
+            {
+              "required": [
+                "deformation"
+              ]
+            },
+            {
+              "required": [
+                "value"
+              ]
+            },
+            {
+              "required": [
+                "layers"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "properties": {
+          "mode": {
+            "const": "replace"
+          }
+        },
+        "required": [
+          "deformation"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "field"
+              ]
+            },
+            {
+              "required": [
+                "profile"
+              ]
+            },
+            {
+              "required": [
+                "value"
+              ]
+            },
+            {
+              "required": [
+                "layers"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "properties": {
+          "mode": {
+            "enum": [
+              "scaleHeight",
+              "offset",
+              "flatten"
+            ]
+          }
+        },
+        "required": [
+          "value"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "field"
+              ]
+            },
+            {
+              "required": [
+                "profile"
+              ]
+            },
+            {
+              "required": [
+                "deformation"
+              ]
+            },
+            {
+              "required": [
+                "layers"
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Read current meshReport.geometryHash. Explicit physical support, on-surface seed, core/transition and hard-protection disks. replace uses field.originMm/sizeMm/heightsMm in support UV; rows increase V, entries are absolute heights in mm. Bilinear target replaces old heights in core and blends only in transition, never max; field must cover editable samples. Source facet spacing must resolve target field; this is a sampling gate, not an approximation-error certificate. Fixed topology Float64 direct edit; source remains immutable. Only closed oriented planar single-valued relief, at most 200000 triangles / 20000 affected vertices / 12000000 tests per clearance phase. Clearance uses projected facet overlaps and vertex/centroid rays; arbitrary 3D self-intersection is not certified. Output remains mesh, not BRep/STEP. History restores prior asset/recipe, not an inverse brush. Read bodies[].meshReport.edit. Missing support, ambiguous seed, stale hash, unavailable back support, boundary conflict, collision or thickness failure reject atomically. replace may instead take deformation:{pivotMm,translationMm,scale:[positiveU,positiveV],angleDeg,sourceRegion:{centerMm,radiusMm},baseHeightMm,maxSourceSpacingMm}. Inverse affine sampling of the same current selected source height surface moves/narrows/rotates its relief within the declared ROI; topology/XY positions and protected vertices remain fixed. Heights are barycentrically sampled from the immutable source, never from a previous partial output. Only sourceRegion contributes; inverse samples outside it use explicit baseHeightMm, preventing unrelated neighbors from being copied. The editable ROI must cover the old and new local relief, with unrelated geometry protected. This is resampling, not recovered analytic geometry; no approximation error is certified by the spacing gate. Domain misses, nonpositive scale or ambiguous height reject. Source interpolation must resolve the narrowest scaled axis. Read meshReport.edit.profile. Alternatively replace accepts profile (mutually exclusive with field/value): cubic Bezier segments in support UV, stations from at=0 to 1 along approximate arc length, sectionMm ordered [signed lateral offset,height] pairs with zero outer heights, baseHeightMm, endTaperMm, curveToleranceMm and maxSourceSpacingMm. Positive section offset is left of path direction. Sections and stations interpolate linearly without height overshoot; end taper is cubic smoothstep in mm, exterior end planes use base height. This replaces the declared ROI including old path positions, not an additive overlay. Hard protections take precedence. Read meshReport.edit.profile. No arbitrary undercuts or automatic remeshing. Optional targets:[{pointMm:[U,V],heightMm,toleranceMm}] are mandatory acceptance constraints, not soft brush requests. A protected point conflicting with a target fails RELIEF_CONSTRAINT_CONFLICT with params.targets index before commit; no hit fails RELIEF_TARGET_OUTSIDE. Read meshReport.edit.constraints. mode=layers composes 1..16 ordered layers with unique id and enabled. Surface layers declare role=macro|detail, region and blend: add/remove require positive heightMm and attachment=followHeight (relative normal height); replace requires attachment=absolute and exactly heightMm, field or profile. A freeze layer supplies hard-protection regions for subsequent layers. Global protections apply to every layer. Editing the whole layers array at the original feature recomputes from its immutable input; order and enabled state are part of the recipe. This is height-only following, not automatic tangent or lateral detail binding. Layer domains must lie inside the total ROI; accumulated freeze disks <=64, active layers times triangles <=1000000. Mandatory targets apply to the final composed surface. Failures discard the entire candidate. Read edit.layers, layerSemanticsVersion, continuationSeedMm; minimum thickness/clearance are conservative minima over affected regions at every applied layer, not global final-surface certificates.",
+  "title": "网格局部修高 / Local mesh relief height",
+  "category": "modification",
+  "synonyms": [
+    "meshReliefEdit",
+    "网格局部修高"
+  ],
+  "description": "网格局部修高 / Local mesh relief height",
+  "schemaHash": "sha256:0af2e70e46bfec73c2e339daccb192e97f4539b1aaa559044826c25d13c7e50b",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "rawMesh"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+  ],
+  "knownUnsupportedCases": [
+    "Read current meshReport.geometryHash. Explicit physical support, on-surface seed, core/transition and hard-protection disks. replace uses field.originMm/sizeMm/heightsMm in support UV; rows increase V, entries are absolute heights in mm. Bilinear target replaces old heights in core and blends only in transition, never max; field must cover editable samples. Source facet spacing must resolve target field; this is a sampling gate, not an approximation-error certificate. Fixed topology Float64 direct edit; source remains immutable. Only closed oriented planar single-valued relief, at most 200000 triangles / 20000 affected vertices / 12000000 tests per clearance phase. Clearance uses projected facet overlaps and vertex/centroid rays; arbitrary 3D self-intersection is not certified. Output remains mesh, not BRep/STEP. History restores prior asset/recipe, not an inverse brush. Read bodies[].meshReport.edit. Missing support, ambiguous seed, stale hash, unavailable back support, boundary conflict, collision or thickness failure reject atomically. replace may instead take deformation:{pivotMm,translationMm,scale:[positiveU,positiveV],angleDeg,sourceRegion:{centerMm,radiusMm},baseHeightMm,maxSourceSpacingMm}. Inverse affine sampling of the same current selected source height surface moves/narrows/rotates its relief within the declared ROI; topology/XY positions and protected vertices remain fixed. Heights are barycentrically sampled from the immutable source, never from a previous partial output. Only sourceRegion contributes; inverse samples outside it use explicit baseHeightMm, preventing unrelated neighbors from being copied. The editable ROI must cover the old and new local relief, with unrelated geometry protected. This is resampling, not recovered analytic geometry; no approximation error is certified by the spacing gate. Domain misses, nonpositive scale or ambiguous height reject. Source interpolation must resolve the narrowest scaled axis. Read meshReport.edit.profile. Alternatively replace accepts profile (mutually exclusive with field/value): cubic Bezier segments in support UV, stations from at=0 to 1 along approximate arc length, sectionMm ordered [signed lateral offset,height] pairs with zero outer heights, baseHeightMm, endTaperMm, curveToleranceMm and maxSourceSpacingMm. Positive section offset is left of path direction. Sections and stations interpolate linearly without height overshoot; end taper is cubic smoothstep in mm, exterior end planes use base height. This replaces the declared ROI including old path positions, not an additive overlay. Hard protections take precedence. Read meshReport.edit.profile. No arbitrary undercuts or automatic remeshing. Optional targets:[{pointMm:[U,V],heightMm,toleranceMm}] are mandatory acceptance constraints, not soft brush requests. A protected point conflicting with a target fails RELIEF_CONSTRAINT_CONFLICT with params.targets index before commit; no hit fails RELIEF_TARGET_OUTSIDE. Read meshReport.edit.constraints. mode=layers composes 1..16 ordered layers with unique id and enabled. Surface layers declare role=macro|detail, region and blend: add/remove require positive heightMm and attachment=followHeight (relative normal height); replace requires attachment=absolute and exactly heightMm, field or profile. A freeze layer supplies hard-protection regions for subsequent layers. Global protections apply to every layer. Editing the whole layers array at the original feature recomputes from its immutable input; order and enabled state are part of the recipe. This is height-only following, not automatic tangent or lateral detail binding. Layer domains must lie inside the total ROI; accumulated freeze disks <=64, active layers times triangles <=1000000. Mandatory targets apply to the final composed surface. Failures discard the entire candidate. Read edit.layers, layerSemanticsVersion, continuationSeedMm; minimum thickness/clearance are conservative minima over affected regions at every applied layer, not global final-surface certificates."
+  ],
+  "minimalExample": {
+    "op": "meshReliefEdit",
+    "params": {
+      "version": 1,
+      "units": "mm",
+      "topologyEpoch": 0,
+      "inputGeometryHash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "support": {
+        "originMm": [
+          0,
+          0,
+          0
+        ],
+        "xAxis": [
+          1,
+          0,
+          0
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ]
+      },
+      "seedMm": [
+        0,
+        0,
+        1
+      ],
+      "region": {
+        "centerMm": [
+          0,
+          0
+        ],
+        "coreRadiusMm": 2,
+        "transitionMm": 1
+      },
+      "protectedRegions": [],
+      "mode": "scaleHeight",
+      "value": 0.8,
+      "minThicknessMm": 1
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "meshReliefEdit",
+    "params": {
+      "version": 1,
+      "units": "mm",
+      "topologyEpoch": 0,
+      "inputGeometryHash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "support": {
+        "originMm": [
+          0,
+          0,
+          0
+        ],
+        "xAxis": [
+          1,
+          0,
+          0
+        ],
+        "normal": [
+          0,
+          0,
+          1
+        ]
+      },
+      "seedMm": [
+        0,
+        0,
+        1
+      ],
+      "region": {
+        "centerMm": [
+          0,
+          0
+        ],
+        "coreRadiusMm": 2,
+        "transitionMm": 1
+      },
+      "protectedRegions": [],
+      "mode": "scaleHeight",
+      "value": 0.8,
+      "minThicknessMm": 1
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "version": 1,
+        "units": "mm",
+        "topologyEpoch": 0,
+        "inputGeometryHash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "support": {
+          "originMm": [
+            0,
+            0,
+            0
+          ],
+          "xAxis": [
+            1,
+            0,
+            0
+          ],
+          "normal": [
+            0,
+            0,
+            1
+          ]
+        },
+        "seedMm": [
+          0,
+          0,
+          1
+        ],
+        "region": {
+          "centerMm": [
+            0,
+            0
+          ],
+          "coreRadiusMm": 2,
+          "transitionMm": 1
+        },
+        "protectedRegions": [],
+        "mode": "scaleHeight",
+        "value": 0.8,
+        "minThicknessMm": 1,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "RELIEF_FIELD_INVALID",
+    "RELIEF_PROFILE_INVALID",
+    "RELIEF_DEFORMATION_INVALID",
+    "RELIEF_SAMPLE_OUTSIDE",
+    "RELIEF_RESOLUTION_INSUFFICIENT",
+    "RELIEF_TARGET_OUTSIDE",
+    "RELIEF_CONSTRAINT_CONFLICT",
+    "RELIEF_LAYERS_INVALID",
+    "RELIEF_SOURCE_UNSUPPORTED",
+    "RELIEF_EDIT_CAPACITY",
+    "RELIEF_EDIT_VERSION",
+    "RELIEF_SUPPORT_INVALID",
+    "RELIEF_REGION_INVALID",
+    "RELIEF_CONSTRAINT_INVALID",
+    "RELIEF_GEOMETRY_INVALID",
+    "RELIEF_NOT_CLOSED",
+    "RELIEF_SELECTION_AMBIGUOUS",
+    "RELIEF_BOUNDARY_CONFLICT",
+    "RELIEF_MULTIVALUED",
+    "RELIEF_THICKNESS_UNKNOWN",
+    "RELIEF_INTERSECTION",
+    "RELIEF_THICKNESS",
+    "STALE_REFERENCE",
+    "NO_CHANGE"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "网格局部修高",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:58d166cfb7c93cccaa49bfc68cb8aea6d4dcacbd2838d19a06cd6f6e45b87867"
+}

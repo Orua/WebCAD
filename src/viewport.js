@@ -9,12 +9,15 @@ import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import { MetalMaterials, METAL_FINISHES } from './metal-materials.js';
 import { getLanguage } from './i18n.js';
 import { loadDisplayPreferences } from './display-preferences.js';
+import {chooseDisplayLevel} from './mesh/display-lod.js';
+import {ExactDisplayDetail} from './viewport/exact-detail.js';
 const say=(zh,en)=>getLanguage()==='en'?en:zh;
 
 const COLORS = [0xaac4d9, 0xc5b395, 0x91bdb1, 0xb3a6c8, 0x9db5c6, 0xc39e9e];
 export class CADViewport {
   constructor(host, callbacks = {}) {
     this.host=host; this.callbacks=callbacks; this.objects=new Map(); this.selected=[]; this.selectionMode='view'; this.mode='edges'; this.hidden=[]; this.temporaryDisplay='normal';
+    this.exactDisplayDetail=new ExactDisplayDetail(this);
     this.scene=new THREE.Scene(); this.scene.background=new THREE.Color('#eef1f5');
     this.camera=new THREE.PerspectiveCamera(35,1,0.01,100000); this.camera.up.set(0,0,1); this.camera.position.set(90,-110,85);
     this.renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true}); this.renderer.setPixelRatio(Math.min(window.devicePixelRatio,2)); this.renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -23,6 +26,10 @@ export class CADViewport {
     this.metals.ready.then(()=>this.setMetalFinish(this.finishKey));
     host.append(this.renderer.domElement); this.renderer.domElement.setAttribute('aria-label','三维建模视口'); this.renderer.domElement.tabIndex=0;
     this.controls=new OrbitControls(this.camera,this.renderer.domElement); this.controls.enableDamping=true; this.controls.dampingFactor=.12;
+    this.viewInteraction='settled';this.interactionDeadline=0;this.userViewActive=false;
+    this.controls.addEventListener('start',()=>{this.userViewActive=true;this.setViewInteraction('start');});
+    this.controls.addEventListener('end',()=>{this.userViewActive=false;this.viewInteraction='settling';this.interactionDeadline=performance.now()+160;});
+    this.controls.addEventListener('change',()=>{if(this.userViewActive||this.viewInteraction==='settling')this.interactionDeadline=performance.now()+160;});
     this.partFinishes={};this.partColors={};this.snapEnabled=true;this.clipPlanes=[];this.renderer.localClippingEnabled=true;
     this.gizmoProxy=new THREE.Object3D();this.scene.add(this.gizmoProxy);
     this.gizmo=new TransformControls(this.camera,this.renderer.domElement);this.gizmo.setSize(.8);this.gizmo.setSpace('world');this.gizmoMode='off';this.scene.add(this.gizmo.getHelper());
@@ -88,23 +95,31 @@ export class CADViewport {
     for(const [id,entry] of this.objects){
       const body=incoming.get(id);
       if(!body||body.renderVersion===undefined||body.renderVersion!==entry.body.renderVersion){
-        this.modelRoot.remove(entry.root);this.disposeObject(entry.root);this.objects.delete(id);
+        this.modelRoot.remove(entry.root);this.exactDisplayDetail.release(entry);for(const patch of entry.displayPatches||[]){patch.full.dispose();for(const lod of patch.lods)lod.geometry.dispose();}this.disposeObject(entry.root);this.objects.delete(id);
       }
     }
     bodies.forEach((body,i)=>{
       const retained=this.objects.get(body.id);
       if(retained){retained.body=body;retained.mesh.userData.body=body;retained.root.visible=!hidden.includes(body.id);return;}
       const root=new THREE.Group();root.userData.bodyId=body.id;const geometry=new THREE.BufferGeometry();
+      if(body.previewOrigin)root.position.fromArray(body.previewOrigin);
       geometry.setAttribute('position',new THREE.Float32BufferAttribute(body.positions,3));
       if(body.normals?.length)geometry.setAttribute('normal',new THREE.Float32BufferAttribute(body.normals,3));
       geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(body.indices),1));if(!body.normals?.length)geometry.computeVertexNormals();
       const defaultColor=this.displayPreferences.defaultColor,color=this.partColors[body.id]||defaultColor;const material=new THREE.MeshStandardMaterial({color,metalness:.15,roughness:.42,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1,side:THREE.DoubleSide});
       this.metals.apply(material,this.partFinishes[body.id]||this.finishKey,{bounds:body.bounds,baseColor:color});material.clippingPlanes=this.clipPlanes;
       const mesh=new THREE.Mesh(geometry,material);mesh.userData={bodyId:body.id,body,baseColor:color,defaultColor,type:'body'};root.add(mesh);
+      let displayGroup=null,displayPatches=null;
+      if(body.displayPatches){displayGroup=new THREE.Group();displayPatches=body.displayPatches.map(patch=>{
+        const full=new THREE.BufferGeometry();full.setAttribute('position',geometry.getAttribute('position'));full.setAttribute('normal',geometry.getAttribute('normal'));full.setIndex(new THREE.BufferAttribute(patch.indices,1));full.boundingBox=new THREE.Box3(new THREE.Vector3(...patch.bounds.min),new THREE.Vector3(...patch.bounds.max));full.boundingSphere=full.boundingBox.getBoundingSphere(new THREE.Sphere());
+        const lods=patch.lods.map(level=>{const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(level.positions,3));g.setIndex(new THREE.BufferAttribute(level.indices,1));g.computeVertexNormals();g.computeBoundingSphere();return {...level,geometry:g};});
+        const piece=new THREE.Mesh(full,material);piece.userData={type:'display-only',bodyId:body.id};displayGroup.add(piece);return {piece,full,lods};
+      });root.add(displayGroup);}
       const edges=new THREE.Group();
       for(const edge of body.edges||[]){if(edge.positions.length<6)continue;const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(edge.positions,3));const line=new THREE.LineSegments(geo,new THREE.LineBasicMaterial({color:0x465b6e,transparent:true,opacity:.72}));line.userData={bodyId:body.id,type:'edge',edgeId:edge.edgeId};edges.add(line);}
-      if(!edges.children.length){const outline=new THREE.LineSegments(new THREE.EdgesGeometry(geometry,25),new THREE.LineBasicMaterial({color:0x465b6e}));outline.userData={bodyId:body.id,type:'outline'};edges.add(outline);}
-      root.add(edges);root.visible=!hidden.includes(body.id);this.modelRoot.add(root);this.objects.set(body.id,{root,mesh,edges,body});
+      if(!edges.children.length&&body.geometryType!=='rawMesh'){const outline=new THREE.LineSegments(new THREE.EdgesGeometry(geometry,25),new THREE.LineBasicMaterial({color:0x465b6e}));outline.userData={bodyId:body.id,type:'outline'};edges.add(outline);}
+      root.add(edges);root.visible=!hidden.includes(body.id);this.modelRoot.add(root);this.objects.set(body.id,{root,mesh,edges,body,displayGroup,displayPatches});
+      this.exactDisplayDetail.attach(this.objects.get(body.id));
     });this.setDisplay(this.mode);this.setMetalFinish(this.finishKey);this.applyClipping();this.updateHud();
   }
   setHidden(ids){this.hidden=ids;this.applyTemporaryDisplay();}
@@ -296,11 +311,36 @@ export class CADViewport {
   drawSketch(){this.clearGuides();const points=this.sketch.points.map(p=>this.sketchWorldPoint(p));if(points.length>1)this.guideRoot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([...points,points[0]]),new THREE.LineBasicMaterial({color:0x008d7e,depthTest:false})));for(const point of points){const dot=new THREE.Mesh(new THREE.SphereGeometry(this.span*.007,10,6),new THREE.MeshBasicMaterial({color:0x008d7e}));dot.position.copy(point);this.guideRoot.add(dot);}this.overlay.querySelector('[data-count]').textContent=`${points.length} ${say('个顶点','vertices')}`;}
   cancelTask(){if(this.sketch)this.grid.visible=this.sketch.previousGridVisible;this.callbacks.onInteraction?.(null);this.sketch=null;this.measuring=null;this.controls.enableRotate=true;this.overlay.style.display='none';this.clearGuides();this.updateHud();}
   markModel(context){this.modelContext={...context};this.displayError=null;}
-  renderFrame(){this.roundGuide?.render();this.controls.update();this.renderer.render(this.scene,this.camera);const position=this.anchorProxy.position.clone().project(this.camera),width=this.host.clientWidth,height=this.host.clientHeight;this.anchorMarker.style.transform=`translate(${(position.x+1)*width/2}px,${(1-position.y)*height/2}px)`;this.anchorMarker.hidden=!this.anchorVisible||position.z>1;this.renderedContext=this.modelContext?{...this.modelContext}:null;this.frameSequence++;this.displayError=null;}
+  setViewInteraction(phase){
+    if(!['start','update','end'].includes(phase))throw new Error('Unknown view interaction phase');
+    this.viewInteraction=phase==='end'?'settled':'moving';this.interactionDeadline=phase==='end'?0:performance.now()+300;
+  }
+  updateDisplayDetail(forceFine=false){
+    const active=!forceFine&&(this.userViewActive||performance.now()<this.interactionDeadline),height=Math.max(this.host.clientHeight,1);
+    let previewTriangles=0,fullTriangles=0,approximate=false,patchCount=0;
+    for(const entry of this.objects.values()){
+      if(!entry.displayGroup)continue;
+      entry.displayGroup.visible=true;entry.mesh.visible=false;entry.mesh.material.wireframe=this.mode==='wire';if(entry.surfaceGrid)entry.surfaceGrid.visible=this.mode==='transparentEdges'&&!active;
+      for(const patch of entry.displayPatches){
+        const center=patch.full.boundingSphere.center.clone().applyMatrix4(entry.root.matrixWorld),distance=Math.max(this.camera.position.distanceTo(center)-patch.full.boundingSphere.radius,0.001);
+        const mmPerPixel=this.camera.isOrthographicCamera?(this.camera.top-this.camera.bottom)/(this.camera.zoom*height):2*distance*Math.tan(THREE.MathUtils.degToRad(this.camera.fov/2))/height;
+        const level=chooseDisplayLevel(patch.lods,mmPerPixel,active);patch.piece.geometry=level<0?patch.full:patch.lods[level].geometry;
+        approximate ||= level>=0;fullTriangles+=patch.full.index.count/3;previewTriangles+=patch.piece.geometry.index.count/3;patchCount++;
+      }
+      if(active)entry.edges.visible=false;
+    }
+    this.displayDetail={phase:active?'interactive-preview':'fine',approximate,previewTriangles,fullTriangles,patchCount,screenErrorBudgetPx:active?8:0,sourceChanged:false,selectionSource:'full-original-display-mesh',culling:'spatial-patch frustum; occlusion not implemented'};
+    const exactDetail=this.exactDisplayDetail.update(active);if(exactDetail)this.displayDetail={...this.displayDetail,...exactDetail};
+    if(!active)this.viewInteraction='settled';
+  }
+  renderFrame(forceFine=false){this.roundGuide?.render();this.controls.update();this.scene.updateMatrixWorld();this.camera.updateMatrixWorld();this.updateDisplayDetail(forceFine);
+    const stamp=[this.camera.matrixWorld.elements,this.camera.projectionMatrix.elements,this.scene.background?.getHex(),this.clipPlanes.map(p=>[p.normal.toArray(),p.constant]),this.renderer.toneMappingExposure,this.modelContext,this.scene.environment?.id,this.displayPreferences,this.finishKey,this.partFinishes];
+    this.scene.traverse(o=>{if(o.geometry||o.isLight)stamp.push([o.id,o.visible,o.matrixWorld.elements,o.geometry?.id,o.intensity,o.material?.color?.getHex(),o.material?.emissive?.getHex(),o.material?.opacity,o.material?.wireframe,o.material?.version,o.material?.map?.id,o.material?.envMap?.id,o.material?.roughness,o.material?.metalness]);});
+    const key=JSON.stringify(stamp);if(forceFine||key!==this.lastFrameKey){this.renderer.render(this.scene,this.camera);this.lastFrameKey=key;this.cachedFrameReused=false;this.lastRenderedTriangles=this.renderer.info.render.triangles;}else this.cachedFrameReused=true;this.displayDetail.actualRenderedTriangles=this.lastRenderedTriangles;const position=this.anchorProxy.position.clone().project(this.camera),width=this.host.clientWidth,height=this.host.clientHeight;this.anchorMarker.style.transform=`translate(${(position.x+1)*width/2}px,${(1-position.y)*height/2}px)`;this.anchorMarker.hidden=!this.anchorVisible||position.z>1;this.renderedContext=this.modelContext?{...this.modelContext}:null;this.frameSequence++;this.displayError=null;}
   async frame(){await new Promise(resolve=>requestAnimationFrame(resolve));this.renderFrame();return this.displayState();}
-  displayState(){return {model:this.modelContext||null,rendered:this.renderedContext||null,frame:this.frameSequence,status:this.displayError?'failed':this.renderedContext?'rendered':'pending',error:this.displayError||null,camera:{projection:this.camera.isOrthographicCamera?'orthographic':'perspective',position:this.camera.position.toArray(),target:this.controls.target.toArray(),up:this.camera.up.toArray()}};}
-  screenshot(){this.renderer.render(this.scene,this.camera);return this.renderer.domElement.toDataURL('image/png');}
-  destroy(){this.disposeRectangleSelection?.();this.resizeObserver.disconnect();this.renderer.setAnimationLoop(null);this.controls.dispose();this.gizmo.dispose();this.disposeObject(this.scene);this.metals.dispose();this.renderer.dispose();}
+  displayState(){return {model:this.modelContext||null,rendered:this.renderedContext||null,frame:this.frameSequence,status:this.displayError?'failed':this.renderedContext?'rendered':'pending',error:this.displayError||null,detail:this.displayDetail||null,cachedFrameReused:!!this.cachedFrameReused,camera:{projection:this.camera.isOrthographicCamera?'orthographic':'perspective',position:this.camera.position.toArray(),target:this.controls.target.toArray(),up:this.camera.up.toArray()}};}
+  screenshot(){this.renderFrame(true);return this.renderer.domElement.toDataURL('image/png');}
+  destroy(){this.disposeRectangleSelection?.();this.resizeObserver.disconnect();this.renderer.setAnimationLoop(null);this.controls.dispose();this.gizmo.dispose();for(const entry of this.objects.values())this.exactDisplayDetail.release(entry);this.disposeObject(this.scene);this.metals.dispose();this.renderer.dispose();}
 }
 
 

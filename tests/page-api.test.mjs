@@ -6,6 +6,15 @@ import { UI_API_ROUTES } from '../src/ui-api-coverage.js';
 import {prepareAnalyticProfileEdit} from '../src/profile-editing.js';
 
 const context = () => ({ sessionId: 'page-1', documentId: 'doc-1', documentInstanceId: 'instance-1', expectedRevision: 7 });
+test('formal mesh height query is callable through Agent API and rejects stale input/output',async()=>{
+ const f=fixture(),p={context:context(),bodyId:'body-1',inputGeometryHash:'sha256:'+'0'.repeat(64),support:{originMm:[0,0,0],xAxis:[1,0,0],normal:[0,0,1]},pointsMm:[[0,0]]};let called=0;
+ f.host.sampleMeshRelief=async()=>{called++;return {source:'authoritative-mesh-f64',samples:[{uvMm:[0,0],heightsMm:[-2,.4],hit:true}]};};
+ assert.equal((await f.api.sampleMeshRelief({...p,context:{...p.context,expectedRevision:6}})).error.code,'REVISION_CONFLICT');assert.equal(called,0);
+ assert.equal((await f.api.invoke({method:'sampleMeshRelief',args:p})).source,'authoritative-mesh-f64');assert.equal(called,1);
+ assert.equal((await f.api.sampleMeshRelief({...p,pointsMm:[[0,0,1]]})).error.code,'PARAM_RANGE_INVALID');
+ f.host.sampleMeshRelief=async()=>{f.revision=8;return {samples:[]};};assert.equal((await f.api.sampleMeshRelief(p)).error.code,'REVISION_CONFLICT');
+ assert.ok(getTool({id:'sampleMeshRelief'}).inputSchema);
+});
 test('explicit topology upgrade previews exact original feature without computing or migrating and checks revision',async()=>{
  const {api,host}=fixture(),base=host.state;
  const params={faceId:0,widthMm:12,heightMm:12,depthMm:.5,curveToleranceMm:.01,values:Array.from({length:4},()=>Array(4).fill(1)),regions:[{outer:[[-.4,-.4],[.4,-.4],[.4,.4],[-.4,.4]]}]},original=structuredClone(params);
@@ -169,7 +178,7 @@ test('file preview resolves only a registered STEP resource before entering the 
  const registered=await f.api.files.register({name:'source.step',data:new Uint8Array([1,2,3])});
  const placement={version:1,frame:{kind:'world'},sourceAnchor:{kind:'model-origin'}};
  const result=await f.api.execute({context:context(),idempotencyKey:'file-preview',action:'preview.start',args:{fileImport:{resourceId:registered.resourceId,placement}}});
- assert.equal(result.status,'previewing');assert.equal(request.args.fileImport.name,'source.step');assert.equal(request.args.fileImport.data,'AQID');
+ assert.equal(result.status,'previewing');assert.equal(request.args.fileImport.name,'source.step');assert.deepEqual(request.args.fileImport.data,new Uint8Array([1,2,3]));
  assert.equal((await f.api.execute({context:context(),idempotencyKey:'bad',action:'preview.start',args:{fileImport:{resourceId:'missing',placement}}})).error.code,'RESOURCE_EXPIRED');
 });
 test('explicit view controls validate before host mutation and point measurement states its source',async()=>{
