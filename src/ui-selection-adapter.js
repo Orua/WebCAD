@@ -49,9 +49,9 @@ export function adaptUISelection(op, input, refs, topology) {
     if(topology.type==='face'){params.faceIds=[...topology.ids];if(topology.ids.length>=2&&params.sharedFaces===undefined)params.sharedFaces=true;}
   }
   if(op==='shell'&&params.faceIds===undefined&&topology.type==='face')params.faceIds=[...topology.ids];
-  if(['faceHole','faceExtrude','logo','curvedLogo','thickenFace','faceBoundary','offsetSurface','thread','faceGroove','innerTurn','outerTurn'].includes(op)&&params.faceId===undefined&&topology.type==='face'&&topology.ids.length===1){
+  if(['reliefShoulder','faceHole','faceExtrude','logo','curvedLogo','thickenFace','faceBoundary','offsetSurface','thread','faceGroove','innerTurn','outerTurn'].includes(op)&&params.faceId===undefined&&topology.type==='face'&&topology.ids.length===1){
     params.faceId=topology.ids[0];
-    if(['faceHole','curvedLogo'].includes(op)||op==='logo'&&params.placementVersion===2){if(params.point===undefined&&topology.point)params.point=[...topology.point];}
+    if(['reliefShoulder','faceHole','curvedLogo'].includes(op)||op==='logo'&&params.placementVersion===2){if(params.point===undefined&&topology.point)params.point=[...topology.point];}
   }
   return params;
 }
