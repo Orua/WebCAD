@@ -220,3 +220,10 @@ test('TBD dense strokes cannot execute locally or remotely, while saved exact ch
  for(const servicesAvailable of [false,true]){const result=chooseExecutor({...input,servicesAvailable});assert.equal(result.executor,'blocked');assert.equal(result.routingReason,'operation-tbd');}
  assert.equal(chooseExecutor({...input,cache:{localCheckpoint:true}}).routingReason,'compiled-checkpoint-available');
 });
+test('configured Services keeps capacity-gated mesh relief local even with large typed mesh and height fields',()=>{
+ for(const operation of ['meshReliefPlate','meshReliefEdit']){
+  const request={...input,operation,source:{bytes:12000000,faces:180000,edges:0,complexityUnavailable:true},params:{field:{heightsMm:matrix(65,65)}}};
+  const result=chooseExecutor(request);assert.equal(result.executor,'local');assert.equal(result.complexity.input.capacityGate,'bounded-local-mesh-contract');
+ }
+ assert.equal(chooseExecutor({...small,operation:'unknownMeshOperation'}).executor,'blocked');
+});

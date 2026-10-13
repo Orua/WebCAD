@@ -40,6 +40,9 @@ export function classifyComplexity({operation,source={},pattern={},params={}}={}
  const input={operation,sourceComplexityUnavailable:source.complexityUnavailable===true,preexistingBoundaryRound:source.preexistingBoundaryRound===true,sourceCount:known(source.sourceCount),sourceBytes:known(source.bytes),sourceFaces:known(source.faces),sourceEdges:known(source.edges),sourceHoles:known(source.holes),
   aggregateRegions:Math.max(metric('regions'),count(pattern.aggregateRegions)),patternHoles:metric('holes'),layers:metric('layers'),contourVertices:metric('vertices'),strokes:metric('strokes'),gridPoints:metric('gridPoints'),
   machiningItems:Math.max(length(params.points),length(params.pockets)),patternInstances:count(params.count),selectedEdges:length(params.edgeIds),selectedFaces:length(params.faceIds)};
+ // Mesh relief has its own strict facet, vertex, layer and validation budgets.
+ // BRep complexity thresholds cannot route these assets to an unavailable native path.
+ if(policy.boundedMeshOperations.includes(operation))return {complex:false,reasons:[],score:0,input:{...input,capacityGate:'bounded-local-mesh-contract'}};
  const reasons=[];let score=0;
  const threshold=(value,limit,reason)=>{score=Math.max(score,count(value)/limit);if(count(value)>=limit)reasons.push(reason);};
  threshold(input.sourceFaces,t.sourceFaces,'source-faces');
