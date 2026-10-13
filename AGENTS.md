@@ -46,7 +46,7 @@ Follow the existing LogoVector deployment pattern: ASHX references compiled DLLs
 
 禁止创建新的IIS站点、Vite/preview静态站、临时HTTP服务器或更换端口作为测试台；旧17685/17686不得恢复。历史文件、构建目录或Git工作目录不是新运行入口，也不能作为另一套正式维护版本。
 
-Git最终目标为一个正式维护版本，统一到main。当前尚未归并的下午升级必须完整保留；归并和历史目录清理是独立任务，不能仅因写入本规则而视为已经完成，也不得通过reset/checkout/pull覆盖现有未提交修改。
+唯一正式维护分支为 `main`，唯一维护目录为 `F:/Project/WebCAD`。2026-10-13已要求将上午浮雕/UI、下午Agent保存恢复和原Native肩线成果统一归并；后续修改直接在该目录的main接续，不再新增长期维护分支或Git工作目录。历史提交和回滚备份只用于恢复，不是并行版本。不得通过reset/checkout/pull覆盖已有未提交修改。
 
 # WebCAD agent rules
 

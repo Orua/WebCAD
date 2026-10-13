@@ -63,3 +63,6 @@ test-results/
 # Services build intermediates are external; never release local storage links.
 services/**/bin/
 services/**/obj/
+
+# Generated finite Agent runtime assets are built from canonical src/agent.
+public/automation/remote-agent/
