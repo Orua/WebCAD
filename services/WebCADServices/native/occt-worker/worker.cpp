@@ -111,7 +111,7 @@ int main(int argc,char** argv) {
      if(!std::isfinite(width)||!std::isfinite(protection)||width<=0||protection<=0||width>10000||protection>10000)throw std::runtime_error("Invalid shoulder dimensions");
      stage="bind-shoulder-step";progress();const auto face=bindPlanarRoundFace(input,params.at("faceIntent"),width);
      TopExp_Explorer solids(input,TopAbs_SOLID);const auto solid=TopoDS::Solid(solids.Current());
-     
+
      stage="replace-central-shoulder";progress();const auto replacement=webcad::relief_shoulder::run(solid,face,width,protection);
      const auto& spec=replacement.spec;result=replacement.shape;
      const double removed=before.at("volumeMm3").get<double>()-measure(result).at("volumeMm3").get<double>();
