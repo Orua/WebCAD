@@ -38,6 +38,7 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
     }
     if(method.startsWith('adapter.')){const name=method.slice(8),bound=adapters.get(args?.adapterId);if(!bound||!['receive','endTask','release','retryReports','state'].includes(name))fail('AGENT_METHOD_DENIED','助手适配器尚未就绪。');const result=await bound[name](args.payload);if(name==='retryReports'&&bound!==adapter&&!bound.state().pending.length)adapters.delete(args.adapterId);return result;}
     if(method==='host.state'){if(!visible){setHostState({locked:false,connected:false});return state();}setHostState(args);phase=args.connected?'connected':'connecting';notify();return state();}
+    if(method==='panel.userExit')return exit();
     if(method==='panel.close'){closeLocal();return state();}
     fail('AGENT_METHOD_DENIED','未知助手接入请求。');
   }
