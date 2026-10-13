@@ -1,3 +1,4 @@
+import policy from '../../contracts/services/v1/execution-routing.json' with {type:'json'};
 import {contractHash} from '../contracts/operation-schema.js';
 const array=value=>Array.isArray(value)?value:[];
 const gridPoints=grid=>array(grid).reduce((sum,row)=>sum+array(row).length,0);
@@ -12,6 +13,9 @@ export function aggregateSourceComplexity(sources){
 export async function collectRoutingSources(features,{hasSource,changedSourceIds=new Set(),readSource}){
  const measured=new Map(),summaries=new Map();
  for(const feature of features){
+  // Bounded local mesh edits use source geometryHash in their own Worker gate.
+  // Never serialize a mesh as BRep just to collect Native routing metrics.
+  if(policy.boundedMeshOperations.includes(feature.op))continue;
   const rows=[];let unavailable=false;
   for(const id of feature.refs??[]){
    if(!hasSource(id)){rows.push({});unavailable=true;continue;}
