@@ -462,5 +462,19 @@
       "workspace upgrade",
       "one browser batch: menu entry, gallery return, Agent config and API readback"
     ]
+  },
+  "viewerStyleFloatingModels20261013": {
+    "localImpact": "CADViewer-style icon chrome and non-fullscreen floating model selector; visibility preserved; CAD execution unchanged",
+    "servicesImpact": "none: browser presentation only",
+    "logoImpact": "none: converter/geometry unchanged",
+    "contractImpact": "page docs 1.34: modelLibraryOpen and floating-menu readback; existing setView/model-library contracts maintained",
+    "documentImpact": "no CAD document or model changes",
+    "cacheImpact": "rebuild assets and static knowledge; existing preference/library storage schemas retained",
+    "requiredTests": [
+      "workspace-theme",
+      "workspace-upgrade",
+      "model-library",
+      "one browser batch: desktop and 905/768 embedded widths, floating menu, tooltip/icon semantics, visibility and theme persistence"
+    ]
   }
 }

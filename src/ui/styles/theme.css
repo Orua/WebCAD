@@ -10,7 +10,7 @@
 .webcad-app .tool-button.active,.webcad-app .view-tool.active,.webcad-app .tree-row.selected,.webcad-app .feature-row.selected,.webcad-app .selection-modes button.active{background:var(--accent-soft);border-color:var(--accent-ink);color:var(--accent-ink)}
 .selection-modes button[aria-pressed="true"],.view-actions .gizmo-button[aria-pressed="true"]{box-shadow:inset 0 -2px var(--accent);font-weight:650}
 .selection-modes .selection-arrow{width:16px;height:16px}
-.webcad-app .primary{background:var(--accent);border-color:var(--accent-ink);color:white}
+.webcad-app .primary{background:var(--accent);border-color:var(--accent);color:white}
 .webcad-app .primary:hover:not(:disabled){background:var(--accent);border-color:var(--accent-ink)}
 .webcad-app .sidebar-note,.webcad-app .profile-canvas{background:#f8fafc;color:#64748b}
 .webcad-app .profile-entity-row.selected{outline-color:var(--accent-ink);background:var(--accent-soft)}

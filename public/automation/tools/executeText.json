@@ -2,7 +2,7 @@
   "id": "executeText",
   "title": "executeText",
   "category": "page-method",
-  "version": "1.33.0",
+  "version": "1.34.0",
   "description": "executeText({context,idempotencyKey,text,dryRun?}); 每行 add <op> key=value 或 measure <bodyId|$last>。",
   "synonyms": [
     "executeText",
@@ -25,5 +25,5 @@
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.text-command",
-  "docsHash": "sha256:ecdac4bcfee179184d15748e8f090a0015f97a48c083e6ace1f19a5808598766"
+  "docsHash": "sha256:15d130271d5d22f1227667896a60131ce7cc83a59d16b22c5f2f26b37254f4e0"
 }
