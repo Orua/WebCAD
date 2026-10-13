@@ -7,6 +7,7 @@ export const FILE_ARGUMENT_KEYS=Object.freeze(Object.fromEntries(Object.entries(
   write:['resourceId','handle'],confirmWritten:['resourceId','size','sha256'],release:['resourceId'],
 }).map(([key,value])=>[key,Object.freeze(value)])));
 export const FILE_LIMITS=Object.freeze({maxBytes:20*1024*1024,maxResources:32,maxTotalBytes:512*1024*1024,ttlSeconds:1800});
+export const FILE_TYPED_BYTE_BUDGETS=Object.freeze({step:128*1024*1024,stp:128*1024*1024,brep:128*1024*1024,brp:128*1024*1024,stl:128*1024*1024,mesh:384*1024*1024,webcad:512*1024*1024});
 export const CONTEXTUAL_FILE_METHODS=Object.freeze(['new','open','import','save','export']);
 const commandErrors=['CAPABILITY_UNAVAILABLE','REVISION_CONFLICT','INSTANCE_MISMATCH','DOCUMENT_MISMATCH','UNSAVED_REPLACEMENT','FILE_COMMAND_FAILED','SIZE_LIMIT'];
 const resourceErrors=['RESOURCE_EXPIRED','ASSET_INVALID'];
@@ -22,4 +23,4 @@ export const FILE_ERROR_CODES=Object.freeze(Object.fromEntries(Object.entries({
   release:['RESOURCE_EXPIRED','RESOURCE_BUSY'],
 }).map(([key,value])=>[key,Object.freeze([...new Set(['PARAM_SCHEMA_INVALID',...value])])])));
 
-export function fileByteBudget(name){return /\.stl$/i.test(name)?128*1024*1024:/\.mesh$/i.test(name)?384*1024*1024:/\.webcad$/i.test(name)?512*1024*1024:FILE_LIMITS.maxBytes;}
+export function fileByteBudget(name){return FILE_TYPED_BYTE_BUDGETS[String(name).split('.').pop().toLowerCase()]??FILE_LIMITS.maxBytes;}

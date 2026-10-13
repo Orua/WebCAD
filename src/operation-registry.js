@@ -1,3 +1,5 @@
+import {reliefPlateExample} from './mesh/relief-plate.js';
+import {reliefEditExample} from './mesh/relief-edit-contract.js';
 import {MACHINING_INTENT_SCHEMA,assertPatternExecution,PATTERN_OPERATIONS} from './machining-intent.js';
 import { operationCatalog, legacyRoundingOperation, legacyUnifiedRoundingOperation } from './operation-catalog.js';
 import { QUICK_MODELS } from './quick-models.js';
@@ -6,17 +8,17 @@ import { assertJsonValue, contractError, contractHash, validateSchema } from './
 import { annotateParameterSchema, numericInputPolicy } from './parameter-metadata.js';
 
 export const apiVersion = '2.0';
-export const migratedOperationIds = Object.freeze(['box', 'cylinder', 'sphere', 'cone', 'torus', 'mirror', 'linearPattern', 'circularPattern', 'hole', 'holeWizard', 'draftFaces', 'multiHole', 'multiPocket', 'multiBoss', 'faceHole', 'round', 'roundEnd', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell','sketchProfile','profileOffset','profileRepair','profileExtrude',...mechanicalIds]);
+export const migratedOperationIds = Object.freeze(['meshReliefPlate','meshReliefEdit','box', 'cylinder', 'sphere', 'cone', 'torus', 'mirror', 'linearPattern', 'circularPattern', 'hole', 'holeWizard', 'draftFaces', 'multiHole', 'multiPocket', 'multiBoss', 'faceHole', 'round', 'roundEnd', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell','sketchProfile','profileOffset','profileRepair','profileExtrude',...mechanicalIds]);
 const migrated = new Set(migratedOperationIds);
 const clone = value => JSON.parse(JSON.stringify(value));
 const topology = new Set(['faceHole', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition']);
 const topologyConvention = operationCatalog.topology;
-const defaults = { cylinder:{},sphere:{},cone:{radius1:10,radius2:0},torus:{},round:{mode:'auto',strength:.5}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z'}, rounding:{strength:1}, autoRound:{}, smoothTransition: {}, box: {}, hole: { x: 0, y: 0, z: 0, axis: 'Z', direction: 1 },holeWizard:{kind:'plain',axis:'Z',direction:1,through:false},
+const defaults = { meshReliefEdit:{},meshReliefPlate:{}, cylinder:{},sphere:{},cone:{radius1:10,radius2:0},torus:{},round:{mode:'auto',strength:.5}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z'}, rounding:{strength:1}, autoRound:{}, smoothTransition: {}, box: {}, hole: { x: 0, y: 0, z: 0, axis: 'Z', direction: 1 },holeWizard:{kind:'plain',axis:'Z',direction:1,through:false},
   mirror:{plane:'XY',offsetMm:0,keepOriginal:false},linearPattern:{count:3,dx:0,dy:0,dz:0,outputMode:'compound'},circularPattern:{count:3,angle:360,axis:'Z',cx:0,cy:0,cz:0,outputMode:'compound'},
   multiHole: { axis: 'Z', direction: 1 }, multiPocket:{axis:'Z',direction:-1}, multiBoss:{axis:'Z',direction:1}, faceHole: { through: false }, fillet: {}, chamfer: {}, shell: {}, draftFaces:{}, extractFaces:{}, extractShell:{}, sketchProfile:{}, profileOffset:{}, profileRepair:{}, profileExtrude:{},...mechanicalDefaults };
 const triangle = [[-1, -1], [1, -1], [0, 1]];
 const regions = [{ outer: triangle }];
-const examples = { round:{edgeIds:[0]}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z',depthMm:2,edgeIds:[0]}, rounding:{specVersion:3,scope:{kind:'edges',edgeIds:[0]}}, autoRound:{radius:0.1}, smoothTransition:{radius:0.1,faceIds:[0,1]},
+const examples = { meshReliefEdit:reliefEditExample,meshReliefPlate:reliefPlateExample, round:{edgeIds:[0]}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z',depthMm:2,edgeIds:[0]}, rounding:{specVersion:3,scope:{kind:'edges',edgeIds:[0]}}, autoRound:{radius:0.1}, smoothTransition:{radius:0.1,faceIds:[0,1]},
   box: { width: 50, depth: 30, height: 3 }, cylinder: { radius: 10, height: 20 }, sphere: { radius: 10 },
   cone: { radius1: 10, radius2: 0, height: 20 }, torus: { majorRadius: 10, minorRadius: 2 },
   extrude: { profile: 'rectangle', width: 20, depth: 10, height: 5 },
@@ -169,7 +171,7 @@ function buildCard(id, source) {
       ...(topology.has(id) ? ['Resolve topology against the current snapshot; do not reuse indices across revisions.'] : [])],
     postconditions: ['A successful modeling operation commits one undoable history transaction; invalid geometry must not commit.',
       ...(id==='rounding'?['Accepted automatic grinding exposes roundingReport.region with sourceBodyId, requestedEdgeIds, expandedEdgeIds and affectedFaceIds, the effective strength and measured local dimensions, candidate attempts, and every contact/inter-patch/terminal boundary plus material/locality evidence. Historical v1/v2 reports retain their semantics. Failed quality checks preserve the source and do not commit.']:[])],
-    resultShapeTypes: mechanicalResultTypes[id] || (['box','cylinder','sphere','cone','torus'].includes(id)?['solid']:id==='sketchProfile'||id==='profileOffset'||id==='profileRepair'?['wire','planar face']:['planeSection', 'faceBoundary'].includes(id) ? ['curve compound'] : id === 'extractFaces' ? ['face','compound of faces'] : id === 'extractShell' ? ['shell'] : id === 'fittedSurface' ? ['face']
+    resultShapeTypes: ['meshReliefEdit','meshReliefPlate'].includes(id)?['rawMesh']:mechanicalResultTypes[id] || (['box','cylinder','sphere','cone','torus'].includes(id)?['solid']:id==='sketchProfile'||id==='profileOffset'||id==='profileRepair'?['wire','planar face']:['planeSection', 'faceBoundary'].includes(id) ? ['curve compound'] : id === 'extractFaces' ? ['face','compound of faces'] : id === 'extractShell' ? ['shell'] : id === 'fittedSurface' ? ['face']
       : ['advancedLoft', 'vectorProfile', 'sewFaces', 'surfaceTrim'].includes(id) ? ['solid', 'shell', 'face (operation-dependent)'] : special ? [] : ['solid', 'compound (operation-dependent)']),
     ...(mechanicalRefCounts[id]?{conditionalRefs:clone(mechanicalRefCounts[id])}:{}),
     consumesInputs: minRefs > 0 && preserves !== true, preservesInputs: preserves, createsResults: id !== 'remove',
@@ -183,6 +185,9 @@ function buildCard(id, source) {
       ...(id==='cone'?[{params:{radius1:0,radius2:0,height:5},errorCode:'PARAM_RANGE_INVALID',explanation:'At least one radius must be positive; validation applies after the existing defaults.'}]:[]),
       ...(id==='torus'?[{params:{majorRadius:2,minorRadius:2},errorCode:'PARAM_RANGE_INVALID',explanation:'The tube radius must be smaller than the centerline radius.'}]:[])],
     errorCodes: ['PARAM_SCHEMA_INVALID', 'PARAM_RANGE_INVALID', 'UNKNOWN_OPERATION', 'OPERATION_VERSION_UNSUPPORTED', 'SCHEMA_MISMATCH', 'CAPABILITY_UNAVAILABLE', 'GEOMETRY_INVALID', 'SIZE_LIMIT',
+      ...(id==='meshReliefPlate'?['RELIEF_PLATE_INVALID','RELIEF_EDIT_CAPACITY','RELIEF_THICKNESS']:[]),
+      ...(id==='meshReliefEdit'?['RELIEF_FIELD_INVALID','RELIEF_PROFILE_INVALID','RELIEF_DEFORMATION_INVALID','RELIEF_SAMPLE_OUTSIDE','RELIEF_RESOLUTION_INSUFFICIENT','RELIEF_TARGET_OUTSIDE','RELIEF_CONSTRAINT_CONFLICT','RELIEF_LAYERS_INVALID']:[]),
+      ...(id==='meshReliefEdit'?['RELIEF_SOURCE_UNSUPPORTED','RELIEF_EDIT_CAPACITY','RELIEF_EDIT_VERSION','RELIEF_SUPPORT_INVALID','RELIEF_REGION_INVALID','RELIEF_CONSTRAINT_INVALID','RELIEF_GEOMETRY_INVALID','RELIEF_NOT_CLOSED','RELIEF_SELECTION_AMBIGUOUS','RELIEF_BOUNDARY_CONFLICT','RELIEF_MULTIVALUED','RELIEF_THICKNESS_UNKNOWN','RELIEF_INTERSECTION','RELIEF_THICKNESS','STALE_REFERENCE','NO_CHANGE']:[]),
       ...(id==='round'?['ROUND_SELECTION_AMBIGUOUS','END_ROUNDING_UNSUPPORTED','KERNEL_BUILD_FAILED','NO_CHANGE','STALE_REFERENCE']:[]),
       ...(id==='roundEnd'?['END_ROUNDING_UNSUPPORTED','KERNEL_BUILD_FAILED','NO_CHANGE']:[]),
       ...(topology.has(id) ? ['SELECTION_CONFLICT', 'STALE_REFERENCE', 'UNSAFE_LEGACY_REFERENCE'] : []),

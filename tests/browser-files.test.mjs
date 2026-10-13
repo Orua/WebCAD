@@ -40,7 +40,7 @@ test('register copies bytes, applies basename and size limits, and forwards exac
   assert.equal((await h.files.read({ resourceId: resource.resourceId })).size, 4);
   await h.files.import({ context: context(), resourceId: resource.resourceId });
   assert.equal(h.calls.at(-1).action, 'import');
-  assert.deepEqual([...Buffer.from(h.calls.at(-1).args.data, 'base64')], [0, 1, 2, 255]);
+  assert(h.calls.at(-1).args.data instanceof Uint8Array);assert.deepEqual([...h.calls.at(-1).args.data], [0, 1, 2, 255]);
   await assert.rejects(h.files.open({ context: context(), resourceId: resource.resourceId }), { code: 'FORMAT_UNSUPPORTED' });
   const native = await h.files.register({ name: 'native.webcad', data: new Blob(['{}']) });
   await h.files.open({ context: context(), resourceId: native.resourceId });
@@ -49,7 +49,7 @@ test('register copies bytes, applies basename and size limits, and forwards exac
   await assert.rejects(h.files.import({ context: context(), resourceId: iges.resourceId }), { code: 'CAPABILITY_UNAVAILABLE' });
   await assert.rejects(h.files.register({ name: '../outside.step', data: original }), { code: 'NAME_INVALID' });
   await assert.rejects(h.files.register({ name: 'https:evil.step', data: original }), { code: 'NAME_INVALID' });
-  await assert.rejects(h.files.register({ name: 'big.step', data: new Uint8Array(20 * 1024 * 1024 + 1) }), { code: 'SIZE_LIMIT' });
+  await assert.rejects(h.files.register({ name: 'big.step', data: {byteLength:128 * 1024 * 1024 + 1} }), { code: 'SIZE_LIMIT' });
   h.files.release({ resourceId: resource.resourceId });
   await assert.rejects(h.files.read({ resourceId: resource.resourceId }), { code: 'RESOURCE_EXPIRED' });
 });
@@ -191,4 +191,37 @@ test('expired resources are unusable and release their capacity', async()=>{
  const h=harness(),original=Date.now,resource=await h.files.register({name:'expires.step',data:new Uint8Array([1,2])});
  try{Date.now=()=>original()+31*60*1000;await assert.rejects(h.files.read({resourceId:resource.resourceId}),{code:'RESOURCE_EXPIRED'});const fresh=await h.files.register({name:'fresh.step',data:new Uint8Array([3])});assert.equal(fresh.size,1);}
  finally{Date.now=original;}
+});
+
+test('large exact sources use typed import, preview and export without the legacy base64 ceiling', async () => {
+  const source = new Uint8Array(21 * 1024 * 1024 + 3);
+  source[0] = 73; source[source.length - 1] = 255;
+  let imported;
+  const files = createBrowserFiles({confirmSaved: async () => ({saved:false}), command: async input => {
+    if (input.action === 'import') { imported = input; return {status:'committed'}; }
+    assert.equal(input.action, 'export');
+    return {status:'read', revision:4, extension:input.args.format, encoding:'bytes', data:source};
+  }});
+  const resource = await files.register({name:'large.STP',data:source});
+  await files.import({context:context(),resourceId:resource.resourceId});
+  assert(imported.args.data instanceof Uint8Array);
+  assert.equal(imported.args.data.length, source.length);
+  assert.equal(imported.args.idempotencyKey, undefined, 'unplaced legacy calls remain valid');
+  const preview = await files.previewInput({resourceId:resource.resourceId});
+  assert(preview.data instanceof Uint8Array);
+  assert.deepEqual(preview.data, source);
+  await files.import({context:context(),resourceId:resource.resourceId,idempotencyKey:'exact-input'});
+  assert.equal(imported.args.idempotencyKey, 'exact-input');
+  for (const format of ['step','brep']) {
+    const output = await files.export({context:context(),format});
+    assert.equal(output.size, source.length);
+    assert.equal(output.sha256, resource.sha256);
+    assert.deepEqual(await files.read({resourceId:output.resourceId,as:'bytes'}),source);
+    files.release({resourceId:output.resourceId});
+  }
+  for (const ext of ['step','stp','brep','brp']) {
+    assert.equal(files.capabilities().typedByteBudgets[ext],128 * 1024 * 1024);
+    await assert.rejects(files.register({name:`oversized.${ext}`,data:{byteLength:128 * 1024 * 1024 + 1}}),{code:'SIZE_LIMIT'});
+  }
+  files.release({resourceId:resource.resourceId});
 });

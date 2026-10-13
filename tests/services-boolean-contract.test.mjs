@@ -31,6 +31,22 @@ test('cut checkpoints bind every ordered input and survive the v3 container',asy
  const incomplete={...manifest,inputSha256:manifest.inputSha256.slice(0,2)};
  assert.throws(()=>installCompiledCandidate(doc,{manifest:incomplete,bytes:data,context,recipeFingerprint:manifest.recipeFingerprint}),{code:'RESULT_MISMATCH'});
 });
+
+test('installing a small Services checkpoint preserves v4 source assets and keeps the independent 20 MiB result gate',()=>{
+ const source=bytes('retained exact source'),sourceHash=sha(source),doc={...fixture(),version:4,binaryAssets:{[sourceHash]:source}};
+ doc.imports={source:{format:'step',assetHash:sourceHash}};
+ doc.features[0]={id:'target',op:'import',params:{key:'source'},refs:[]};
+ const data=bytes('exact-test-container'),manifest=manifestFor(doc);
+ const installed=installCompiledCandidate(doc,{manifest,bytes:data,context,recipeFingerprint:manifest.recipeFingerprint});
+ assert.equal(installed.version,4);
+ assert.equal(installed.binaryAssets,doc.binaryAssets);
+ assert.equal(installed.binaryAssets[sourceHash],source);
+ assert.deepEqual(compiledCheckpointBytes(installed,installed.features.at(-1),inputs),data);
+ const oversized=new Uint8Array(20*1024*1024+1);
+ const oversizedManifest={...manifest,geometryArtifact:{...manifest.geometryArtifact,sha256:sha(oversized),bytes:oversized.length}};
+ assert.throws(()=>installCompiledCandidate(doc,{manifest:oversizedManifest,bytes:oversized,context,recipeFingerprint:manifest.recipeFingerprint}),{code:'RESULT_TOO_LARGE_FOR_CLIENT'});
+ assert.equal(doc.features.at(-1).compiledCheckpoint,undefined,'rejected result leaves source document untouched');
+});
 test('many input routing aggregates all sources but keeps each source budget separate',()=>{
  const rows=Array.from({length:26},(_,i)=>({faces:6,edges:12,solids:1,bytes:1024,holes:0,sourceSha256:sha(bytes(String(i)))}));
  const source=aggregateSourceComplexity(rows),capability={operation:'cut',semanticVersion:'boolean.cut-1.0',enabled:true,acceptanceStatus:'passed',limits:{maxSolids:33,maxSolidsPerInput:1,maxSources:33,maxSourceBytes:20*1024*1024,maxTotalSourceBytes:64*1024*1024}};

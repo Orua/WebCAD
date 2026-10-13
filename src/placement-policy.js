@@ -5,11 +5,11 @@ import {mechanicalIds,mechanicalCreationIds} from './mechanical-tool-contracts.j
 // C: independent creation; T: tool/additive material; S: target face;
 // X: axis/plane/vector; N: existing topology/location; L: legacy only.
 const category={
-  C:['box','cylinder','sphere','cone','torus','extrude','revolve','sweep','loft','quickModel','vectorProfile','arcProfile','sketchProfile','curveSweep','advancedLoft','fittedSurface','import'],
+  C:['meshReliefPlate','box','cylinder','sphere','cone','torus','extrude','revolve','sweep','loft','quickModel','vectorProfile','arcProfile','sketchProfile','curveSweep','advancedLoft','fittedSurface','import'],
   T:['hole','holeWizard','multiHole','slot','multiPocket','multiBoss'],
   S:['faceHole','logo'],
   X:['transform','copy','mirror','linearPattern','circularPattern','split','planeSection','referenceExtrude'],
-  N:['referenceLoft','faceExtrude','thickenFace','round','roundEnd','rounding','fillet','chamfer','shell','draftFaces','autoRound','smoothTransition','union','cut','intersect','group','extractSolid','extractShell','extractFaces','faceBoundary','sewFaces','surfaceTrim','profileOffset','profileRepair','profileExtrude','remove'],
+  N:['meshReliefEdit','referenceLoft','faceExtrude','thickenFace','round','roundEnd','rounding','fillet','chamfer','shell','draftFaces','autoRound','smoothTransition','union','cut','intersect','group','extractSolid','extractShell','extractFaces','faceBoundary','sewFaces','surfaceTrim','profileOffset','profileRepair','profileExtrude','remove'],
   L:['curvedLogo'],
 };
 export const PLACEMENT_POLICIES=Object.freeze({...Object.fromEntries(Object.entries(category).flatMap(([policy,ids])=>ids.map(id=>[id,policy]))),...Object.fromEntries(mechanicalIds.map(id=>[id,mechanicalCreationIds.includes(id)?'C':'N']))});

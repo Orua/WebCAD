@@ -4,6 +4,7 @@ import tbdCapabilities from '../contracts/services/v1/tbd-capabilities.json' wit
 import {recordTimeline,restoreTimeline,timelineList,validateTimeline} from './document-timeline.js';
 import {cloneAssetDocument} from './mesh/mesh-assets.js';
 import {meshScale} from './mesh/mesh-contract.js';
+import {attachExactSource} from './exact-source.js';
 import {fileByteBudget} from './browser-file-contracts.js';
 import {binaryHash} from './contracts/operation-schema.js';
 import {decodeProject} from './project-container.js';
@@ -62,11 +63,11 @@ const emptyDocument = () => ({version:2,documentId:crypto.randomUUID(),name:next
 const pageSessionId=crypto.randomUUID();
 let documentInstanceId=crypto.randomUUID(),lastWarnings=[],persistenceCheckpoint='pending';
 const clone = cloneAssetDocument;
-const labels = {round:'圆润',roundEnd:'端头圆润',rounding:'自动打磨',autoRound:'整件圆边',smoothTransition:'平滑过渡',box:'长方体',cylinder:'圆柱',sphere:'球体',cone:'圆锥',torus:'圆环',extrude:'拉伸',revolve:'旋转成型',transform:'变换',copy:'复制',mirror:'镜像',union:'合并',cut:'切除',intersect:'求交',fillet:'圆角',chamfer:'倒角',shell:'抽壳',hole:'打孔',linearPattern:'直线阵列',circularPattern:'环形阵列',import:'导入',remove:'删除'};
+const labels = {meshReliefPlate:'浮雕网格底板',meshReliefEdit:'网格局部修高',round:'圆润',roundEnd:'端头圆润',rounding:'自动打磨',autoRound:'整件圆边',smoothTransition:'平滑过渡',box:'长方体',cylinder:'圆柱',sphere:'球体',cone:'圆锥',torus:'圆环',extrude:'拉伸',revolve:'旋转成型',transform:'变换',copy:'复制',mirror:'镜像',union:'合并',cut:'切除',intersect:'求交',fillet:'圆角',chamfer:'倒角',shell:'抽壳',hole:'打孔',linearPattern:'直线阵列',circularPattern:'环形阵列',import:'导入',remove:'删除'};
 let documentModel=emptyDocument(),bodies=[],selectedIds=[],selectedTopology=null,busy=false,kernelReady=false,dirty=false;
 const servicesExecutionHistory=createExecutionHistory();let lastServicesDecision=null;
 let qualityKey='standard';
-function qualityState(){return {quality:qualityKey,...RENDER_QUALITIES[qualityKey],triangleCount:bodies.reduce((n,b)=>n+b.indices.length/3,0),source:'viewer-tessellation',adaptive:false};}
+function qualityState(){return {quality:qualityKey,...RENDER_QUALITIES[qualityKey],triangleCount:bodies.reduce((n,b)=>n+b.indices.length/3,0),source:'viewer-tessellation',adaptive:bodies.some(b=>!!b.adaptiveDisplay)};}
 let undoStack=[],redoStack=[],requestSequence=0,status='正在启动精确建模内核…';
 let modelClipboard=null;
 let revision=0,previewNext=null,previewIdentity=null,previewScopeReport=null,previewGeneration=0,previewComputing=false,aiStatus='in-page',agentBridge=null;
@@ -87,6 +88,8 @@ function createWorker(){
   const instance=new Worker(new URL('./cad-worker.js',import.meta.url),{type:'module'});
   instance.onmessage=event=>{if(instance!==worker)return;const result=event.data,job=pending.get(result.requestId);if(!job)return;if(result.kind==='progress'){
     kernelProgress={...result.progress,requestId:result.requestId,updatedAt:Date.now()};job.pulse();
+    job.progress=kernelProgress;
+    if(result.progress.kind==='rebuild'){const p=result.progress;setStatus(`${p.label}${p.total?` ${p.completed}/${p.total}`:''}`);return;}
     const p=result.progress,label=p.phase==='relief-contour'?`轮廓 ${p.completed}/${p.total}`:p.phase==='relief-boolean'?'合成实体':`层 ${p.completed}/${p.total}`;
     setStatus(`浮雕 ${p.layer??1}/${p.layerCount??1} · ${p.name??''} · ${label}`);return;
   }clearTimeout(job.timer);pending.delete(result.requestId);kernelProgress=null;if(result.ok)job.resolve(result);else job.reject(Object.assign(new Error(result.error||'建模操作失败'),{code:result.code,path:result.path,recoveryAction:result.recoveryAction,featureId:result.featureId,report:result.report}));};
@@ -100,7 +103,7 @@ function request(type,payload={}){return new Promise((resolve,reject)=>{
     clearTimeout(job.timer);
     job.timer=setTimeout(()=>{
       if(instance!==worker)return;
-      const error=Object.assign(new Error(`运算过于复杂，已超过本地${timeoutMs/1000}秒上限并停止计算。当前工程保留；请简化操作或配置 Services。`),{code:'LOCAL_COMPUTE_TOO_COMPLEX',commitState:'not_committed',recoveryAction:'SIMPLIFY_OR_CONFIGURE_SERVICES'});
+      const error=Object.assign(new Error(`运算过于复杂，已超过本地${timeoutMs/1000}秒上限并停止计算。当前工程保留；请简化操作或配置 Services。`),{code:'LOCAL_COMPUTE_TOO_COMPLEX',commitState:'not_committed',recoveryAction:'SIMPLIFY_OR_CONFIGURE_SERVICES',report:{operation:type,stage:job.progress?.phase||'worker',elapsedMs:Date.now()-started,lastProgress:job.progress||null}});
       kernelProgress=null;
       if(recoveryPromise){worker.terminate();rejectPending(error);kernelReady=false;reportError(error);}else restartWorker(error).catch(reportError);
     },Math.max(0,started+timeoutMs-Date.now()));
@@ -163,6 +166,7 @@ const ui=createUI(document.getElementById('app'),{
   onProfileViewRestore:previous=>viewport.restoreFrameView(previous),
 });
 const viewport=new CADViewport(document.getElementById('viewport'),{
+  onRefineDisplay:input=>busy||!kernelReady||pending.size?null:request('refineDisplay',input),
   onRectangleSelect:input=>selectRectangle(input),
   onPick:pick,
   onPickCandidates:candidates=>ui.showPickCandidates(candidates),
@@ -317,7 +321,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
 }
 function featureDocument(op,params={},explicitRefs=[],name,placement){
   const mechanicalRange=mechanicalIds.includes(op)?mechanicalRefRange(op,params):null;
-  const refs=[];const selection=explicitRefs;const single=['round','roundEnd','rounding','autoRound','smoothTransition','transform','copy','mirror','fillet','chamfer','shell','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','split','extractSolid','extractShell','faceHole','faceExtrude','logo','curvedLogo','thickenFace','extractFaces'];
+  const refs=[];const selection=explicitRefs;const single=['meshReliefEdit','round','roundEnd','rounding','autoRound','smoothTransition','transform','copy','mirror','fillet','chamfer','shell','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','split','extractSolid','extractShell','faceHole','faceExtrude','logo','curvedLogo','thickenFace','extractFaces'];
   if(mechanicalRange){if(selection.length<mechanicalRange.min||selection.length>mechanicalRange.max)throw new Error(`此操作须明确提供 ${mechanicalRange.min===mechanicalRange.max?mechanicalRange.min:`${mechanicalRange.min}–${mechanicalRange.max}`} 个当前来源／目标对象。`);refs.push(...selection);}
   if([...single,'planeSection','faceBoundary','referenceExtrude','profileOffset','profileRepair'].includes(op)){
     if(selection.length!==1||!bodies.some(b=>b.id===selection[0]))throw new Error('请先选择一个当前实体。');
@@ -422,7 +426,7 @@ async function previewFeature(op,params,explicitRefs,name,placement,identity=nul
   const generation=++previewGeneration;previewComputing=true;previewComputingOwner=identity?.owner??'ui';setBusy(true,'预览 / Preview…');
   try{const routed=await routeChangedFeature(next,{expectedRevision:revision});next=routed.next;const result=await request('rebuild',{document:next});
     if(generation!==previewGeneration){await request('rebuild',{document:documentModel});previewNext=null;viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);return false;}
-    previewNext=next;previewIdentity=identity;const previewBody=result.bodies.find(body=>body.id===(editId??next.features.at(-1)?.id));previewScopeReport=op==='relief'?previewBody?.reliefReport||null:op==='refineShape'?previewBody?.refineReport||null:op==='round'?previewBody?.roundReport||null:op==='rounding'?previewBody?.roundingReport||null:op==='roundEnd'?previewBody?.endRoundingReport||null:null;
+    previewNext=next;previewIdentity=identity;const previewBody=result.bodies.find(body=>body.id===(editId??next.features.at(-1)?.id));previewScopeReport=op==='meshReliefEdit'?previewBody?.meshReport?.edit||null:op==='relief'?previewBody?.reliefReport||null:op==='refineShape'?previewBody?.refineReport||null:op==='round'?previewBody?.roundReport||null:op==='rounding'?previewBody?.roundingReport||null:op==='roundEnd'?previewBody?.endRoundingReport||null:null;
     viewport.setBodies(result.bodies,next.hidden);viewport.setSelection([]);
     if(previewScopeReport&&op==='rounding'){const sourceBody=bodies.find(body=>body.id===refs[0]);viewport.setScopeOverlay(sourceBody?.edges,previewScopeReport.requestedSelection,previewScopeReport.expandedSelection);}
     if(op==='round'&&previewScopeReport){previewScopeReport={...previewScopeReport,previewBodyId:previewBody.id,sourceBodyId:refs[0]};viewport.setRoundGuide(previewScopeReport);if(previewScopeReport.mode==='edge')viewport.setScopeOverlay(bodies.find(b=>b.id===refs[0])?.edges,params.edgeIds||[],params.edgeIds||[]);}
@@ -434,7 +438,7 @@ async function previewFile(fileImport,identity,update=false){
   if(busy)throw new Error('Please wait for the current operation.');
   const previousPreview=previewNext,previousIdentity=previewIdentity,next=update?clone(previewNext):clone(documentModel);
   if(update){if(!next||!previousIdentity||previousIdentity.previewId!==identity.previewId||previousIdentity.generation+1!==identity.generation)throw Object.assign(new Error('Preview generation changed'),{code:'STALE_REFERENCE'});next.features.at(-1).placement=fileImport.placement;}
-  else{const {name,data,placement}=fileImport,extension=name.split('.').pop().toLowerCase(),format=['step','stp'].includes(extension)?'step':['brep','brp'].includes(extension)?'brep':null;if(!format)throw Object.assign(new Error('Unsupported file preview format'),{code:'FORMAT_UNSUPPORTED'});const key=crypto.randomUUID(),id=crypto.randomUUID();next.imports[key]={format,data};next.features.push({id,op:'import',name,params:{key},refs:[],placement,semanticsVersion:2});}
+  else{const {name,data,placement}=fileImport,extension=name.split('.').pop().toLowerCase(),format=['step','stp'].includes(extension)?'step':['brep','brp'].includes(extension)?'brep':null;if(!format)throw Object.assign(new Error('Unsupported file preview format'),{code:'FORMAT_UNSUPPORTED'});const key=crypto.randomUUID(),id=crypto.randomUUID();attachExactSource(next,{key,name,format,data});next.features.push({id,op:'import',name,params:{key},refs:[],placement,semanticsVersion:2});}
   assertDocumentCapacity(next,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});
   if(!identity||identity.owner==='ui')assertHumanEditing();
   const generation=++previewGeneration;previewComputing=true;previewComputingOwner=identity?.owner??'ui';setBusy(true,'文件插入预览 / File preview…');
@@ -479,7 +483,7 @@ async function saveProject(){
   }catch(error){if(error.code==='PERMISSION_REQUIRED'||error.name==='NotAllowedError')projectFileHandle=null;ui.showFileReceipt(artifact,{status:'write_failed',error:{message:error.message}});throw error;}
   setStatus(projectFileHandle?'文件已写入、关闭并回读核验；保存状态按版本更新。':'下载已发起；未确认写入，未保存标记保留。');refresh();
 }
-function chooseFile(accept='.webcad,.json,.step,.stp,.brep,.brp,.iges,.igs,.stl',multiple=true){return new Promise(resolve=>{const input=document.createElement('input');input.type='file';input.accept=accept;input.multiple=multiple;input.addEventListener('change',()=>resolve([...input.files]));input.addEventListener('cancel',()=>resolve([]));input.click();});}
+function chooseFile(accept='.webcad,.json,.step,.stp,.brep,.brp,.iges,.igs,.stl,.mesh',multiple=true){return new Promise(resolve=>{const input=document.createElement('input');input.type='file';input.accept=accept;input.multiple=multiple;input.addEventListener('change',()=>resolve([...input.files]));input.addEventListener('cancel',()=>resolve([]));input.click();});}
 function base64(array){let text='';for(let i=0;i<array.length;i+=0x8000)text+=String.fromCharCode(...array.subarray(i,i+0x8000));return btoa(text);}
 function validateDocument(doc){
   if(!doc||![1,2,3,4].includes(doc.version)||!Array.isArray(doc.features)||typeof doc.imports!=='object'||!doc.imports)throw new Error('不是有效的 WebCAD 1.x/2.x/3.x/4.x 工程文件。');
@@ -511,7 +515,7 @@ async function openFiles(files,{confirmReplace=true,signal,expectedRevision,mcp=
       if(!format)throw new Error('请选择 .webcad 工程、STEP/STP 或 BREP 文件。');
       const next=clone(documentModel),key=crypto.randomUUID(),id=crypto.randomUUID();
       if(isIges)throw Object.assign(new Error('静态版不支持 IGES；请离线转换为 STEP / BREP。'),{code:'CAPABILITY_UNAVAILABLE'});
-      next.imports[key]={format,data:base64(new Uint8Array(await file.arrayBuffer()))};
+      attachExactSource(next,{key,name:file.name,format,data:new Uint8Array(await file.arrayBuffer())});
       next.features.push({id,op:'import',name:file.name,params:{key},refs:[],...(placement?{placement,semanticsVersion:2}:{})});
       if(!next.features.slice(0,-1).length)next.name=file.name.replace(/\.[^.]+$/,'');
       await rebuild(next,{fit:true,select:id,signal,expectedRevision});
@@ -702,8 +706,8 @@ const ready=(async()=>{
   catch(error){reportError(error);return false;}
 })();
 // Public automation surface also used by reproducible acceptance checks; never runs arbitrary code.
-function getState(){return {revision,document:clone(documentModel),bodies:bodies.map(({id,name,geometryType,triangleCount,vertexCount,meshReport,previewOrigin,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,threadReport,constraintReport,reliefReport,refineReport,faceGroups,edges})=>({id,name,geometryType,triangleCount,vertexCount,meshReport,previewOrigin,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,threadReport,constraintReport,reliefReport,refineReport,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,dirty,preview:!!previewNext};}
-function aiState(){return {sessionId:pageSessionId,revision,dirty,documentId:documentModel.documentId,documentInstanceId,documentName:documentModel.name,referenceSystem:clone(documentModel.referenceSystem),features:clone(documentModel.features),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),bodies:bodies.map(({id,name,geometryType,triangleCount,vertexCount,meshReport,previewOrigin,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,threadReport,constraintReport,reliefReport,refineReport,faceGroups,edges})=>({id,name,geometryType,triangleCount,vertexCount,meshReport,previewOrigin,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,threadReport,constraintReport,reliefReport,refineReport,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,preview:!!previewNext,previewInfo:previewIdentity?clone(previewIdentity):null,previewScope:previewScopeReport?clone(previewScopeReport):null};}
+function getState(){return {revision,document:clone(documentModel),bodies:bodies.map(({id,name,geometryType,triangleCount,vertexCount,meshReport,previewOrigin,metricsDeferred,measurementStatus,boundsSource,adaptiveDisplay,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,threadReport,constraintReport,reliefReport,refineReport,faceGroups,edges})=>({id,name,geometryType,triangleCount,vertexCount,meshReport,previewOrigin,metricsDeferred,measurementStatus,boundsSource,adaptiveDisplay,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,threadReport,constraintReport,reliefReport,refineReport,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,dirty,preview:!!previewNext};}
+function aiState(){return {sessionId:pageSessionId,revision,dirty,documentId:documentModel.documentId,documentInstanceId,documentName:documentModel.name,referenceSystem:clone(documentModel.referenceSystem),features:clone(documentModel.features),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),bodies:bodies.map(({id,name,geometryType,triangleCount,vertexCount,meshReport,previewOrigin,metricsDeferred,measurementStatus,boundsSource,adaptiveDisplay,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,threadReport,constraintReport,reliefReport,refineReport,faceGroups,edges})=>({id,name,geometryType,triangleCount,vertexCount,meshReport,previewOrigin,metricsDeferred,measurementStatus,boundsSource,adaptiveDisplay,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,threadReport,constraintReport,reliefReport,refineReport,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,preview:!!previewNext,previewInfo:previewIdentity?clone(previewIdentity):null,previewScope:previewScopeReport?clone(previewScopeReport):null};}
 async function executeAI(command,args={},options={}){
   if(command==='file_command')return commandService.fileCommand(args,options);
   if(command==='get_state_v2')return commandService.getState(args);
@@ -810,7 +814,7 @@ async function executeAI(command,args={},options={}){
       result={extension:'png',mime:'image/png',data:Uint8Array.from(atob(cap.dataUrl.split(',')[1]),c=>c.charCodeAt(0))};
     }else result=await exportData(args.format,args.ids);
     checkTransaction(options.signal,options.expectedRevision);
-    return {revision,extension:result.extension,mime:result.mime,encoding:result.meshReport?'bytes':'base64',data:result.meshReport?result.data:base64(typeof result.data==='string'?new TextEncoder().encode(result.data):new Uint8Array(result.data)),...(result.meshReport?{meshReport:result.meshReport}:{})};
+    return {revision,extension:result.extension,mime:result.mime,encoding:'bytes',data:typeof result.data==='string'?new TextEncoder().encode(result.data):new Uint8Array(result.data),...(result.meshReport?{meshReport:result.meshReport}:{})};
   }
   if(command==='inspect_geometry'){
     const startRevision=revision;const result=await request('measure',{bodyId:args.bodyId,topologyType:args.kind,topologyId:args.topologyId});
@@ -870,6 +874,7 @@ const pageAPI=createPageAPI({
   resolvePlacement:async input=>{if(input.refs.some(id=>!bodies.some(b=>b.id===id)))throw Object.assign(new Error('Unknown current body'),{code:'STALE_REFERENCE'});const context=pageAPI.getState().context,anchorId=input.placement?.sourceAnchor?.kind==='named'?input.placement.sourceAnchor.anchorId:null;if(anchorId){const anchor=documentModel.referenceSystem.bodyAnchors.find(item=>item.anchorId===anchorId&&item.status==='valid');if(!anchor||!input.refs.includes(anchor.bodyId))throw Object.assign(new Error('Named anchor is not on the source body'),{code:'STALE_REFERENCE'});const exact=await request('queryGeometry',{bodyId:anchor.bodyId,kind:'edge',filter:{}});if(exact.geometryFingerprint!==anchor.geometryFingerprint)throw Object.assign(new Error('Named anchor geometry changed'),{code:'STALE_REFERENCE'});if(documentInstanceId!==context.documentInstanceId||revision!==context.revision)throw Object.assign(new Error('Document changed during placement resolution'),{code:'STALE_REFERENCE'});}const params=migratedOperationIds.includes(input.op)?normalizeOperationParams(input.op,input.params):input.params;const resolved=resolvePlacement(input.placement,documentModel.referenceSystem,input.op,params);if(!resolved)throw Object.assign(new Error('Explicit placement required'),{code:'FRAME_INVALID'});return {status:'read',context,...describeResolvedPlacement(input.op,params,resolved)};},
   confirmSaved:snapshot=>executeAI('acknowledge_save',snapshot),
   measure:input=>request('measure',{bodyId:input.bodyId,topologyType:input.kind==='body'?undefined:input.kind,topologyId:input.topologyId}),
+  sampleMeshRelief:input=>request('sampleMeshRelief',{input}),
   inspectPrintability:(bodyId,angleLimitDeg)=>{const body=bodies.find(item=>item.id===bodyId);if(!body)throw Object.assign(new Error('Unknown current body'),{code:'STALE_REFERENCE'});return inspectPrintabilityMesh(body,angleLimitDeg);},
   inspectProfile:bodyId=>{const feature=documentModel.features.find(item=>item.id===bodyId&&item.op==='sketchProfile');if(!feature||!bodies.some(body=>body.id===bodyId))throw Object.assign(new Error('请选择当前可编辑解析轮廓'),{code:'STALE_REFERENCE'});return inspectProfileModel(feature.params);},
   inspectConstraints:bodyId=>{const solved=constrainProfileRecipe(resolveProfileRecipe(documentModel.features,bodyId),[]);return {profile:clone(solved.profile),constraints:clone(solved.constraints),diagnostics:clone(solved.diagnostics),primitiveConversion:clone(solved.primitiveConversion||[]),intrinsicConstraints:clone(solved.intrinsicConstraints||[]),placement:clone(solved.placement||null)};},

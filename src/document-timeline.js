@@ -1,5 +1,7 @@
-// Forward state differences; imported BREP/STEP bytes stay once in document.imports.
+// Forward state differences; v4 sources stay once in binaryAssets by hash.
 import {DOCUMENT_LIMITS} from './document-limits.js';
+import {BINARY_SOURCE_FORMATS} from './mesh/mesh-assets.js';
+import {PROJECT_V4_LIMITS} from './mesh/project-v4.js';
 const clone=structuredClone;
 const bytes=x=>new TextEncoder().encode(JSON.stringify(x)).length;
 const canonical=x=>JSON.stringify(x,(_k,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);
@@ -17,7 +19,7 @@ function retainImports(doc,timeline){
   if(doc.binaryAssets){const assetHashes=new Set(Object.values(doc.imports||{}).map(item=>item.assetHash).filter(Boolean));doc.binaryAssets=Object.fromEntries(Object.entries(doc.binaryAssets).filter(([hash])=>assetHashes.has(hash)));}
   if(doc.compiledArtifacts)doc.compiledArtifacts=Object.fromEntries(Object.entries(doc.compiledArtifacts).filter(([hash])=>hashes.has(hash)));
 }
-function validateImports(snapshot,imports){for(const key of importKeys(snapshot))if(typeof key!=='string'||!Object.hasOwn(imports||{},key)||(typeof imports[key]?.data!=='string'&&!(['stl','mesh'].includes(imports[key]?.format)&&/^[a-f0-9]{64}$/.test(imports[key]?.assetHash||''))))fail('历史工程缺少原始导入资源');}
+function validateImports(snapshot,imports){for(const key of importKeys(snapshot))if(typeof key!=='string'||!Object.hasOwn(imports||{},key)||(typeof imports[key]?.data!=='string'&&!(BINARY_SOURCE_FORMATS.includes(imports[key]?.format)&&/^[a-f0-9]{64}$/.test(imports[key]?.assetHash||''))))fail('历史工程缺少原始导入资源');}
 function diff(a,b,path=[]){
  if(JSON.stringify(a)===JSON.stringify(b))return [];
  if(a===null||b===null||typeof a!=='object'||typeof b!=='object'||Array.isArray(a)!==Array.isArray(b))return [{path,value:clone(b)}];
@@ -61,7 +63,7 @@ export function recordTimeline(previous,next,{label,featureId,maxSteps=100,maxBy
  while(t.entries.length&&t.entries.length+1>t.maxSteps)prune();
  retainImports(next,t);
  const artifactBytes=()=>[...Object.values(next.compiledArtifacts||{}),...Object.values(next.binaryAssets||{})].reduce((n,v)=>n+(v?.byteLength||0),0);
- const available=()=>Math.min(t.maxBytes,Math.max(0,(next.version===4?512*1024*1024:DOCUMENT_LIMITS.maxBytes)-8192-bytes({...next,timeline:undefined,compiledArtifacts:undefined,binaryAssets:undefined})-artifactBytes()));
+ const available=()=>{const metadataBytes=bytes({...next,timeline:undefined,compiledArtifacts:undefined,binaryAssets:undefined});return Math.min(t.maxBytes,Math.max(0,(next.version===4?PROJECT_V4_LIMITS.maxBytes:DOCUMENT_LIMITS.maxBytes)-8192-metadataBytes-artifactBytes()),...(next.version===4?[Math.max(0,PROJECT_V4_LIMITS.maxJsonBytes-8192-metadataBytes)]:[]));};
  let limit=available();
  while(t.entries.length&&bytes(t)>limit){prune();retainImports(next,t);limit=available();}
  // A full current state too large to checkpoint leaves explicit zero history.

@@ -1,3 +1,4 @@
+import {iconButtonContent} from './vector-icon.js';
 import {modelLibrary} from '../model-library.js';
 import {QUICK_MODELS} from '../quick-models.js';
 import {quickModelIcon} from '../quick-model-icons.js';
@@ -11,7 +12,8 @@ export function mountModelLibrary(root, {element, button, onClose, onChoose, get
   const cards = button('卡片', () => setMode('cards'), 'secondary');
   const list = button('详细列表', () => setMode('list'), 'secondary');
   const manage = button('管理模型库', () => {editor.hidden = !editor.hidden; if (!editor.hidden) loadEditor();}, 'secondary');
-  const back=button('返回画布',onClose,'secondary');back.dataset.commandId='workspace';back.dataset.workspace='modeling';
+  for(const [control,kind,label]of [[cards,'libraryCards','卡片'],[list,'libraryList','详细列表'],[manage,'libraryManage','管理模型库']]){iconButtonContent(control,kind);control.title=label;control.setAttribute('aria-label',label);control.classList.add('library-control-icon');}
+  const back=button('返回画布',onClose,'secondary library-close');iconButtonContent(back,'close');back.title='关闭快捷模型 · 返回画布';back.setAttribute('aria-label','返回画布');back.dataset.commandId='workspace';back.dataset.workspace='modeling';
   controls.append(search, cards, list, manage, back); header.append(title, controls);
   const error = element('p', {class:'form-error', role:'alert'});
   const content = element('div', {class:'library-content'}), grid = element('div', {class:'library-grid', 'aria-label':'可用快捷模型'}), detail = element('aside', {class:'library-detail', 'aria-label':'模型详情'});
@@ -80,10 +82,10 @@ export function mountModelLibrary(root, {element, button, onClose, onChoose, get
   search.addEventListener('input', () => {query = search.value.trim().toLowerCase(); render();});
   function renderDetail(entry) {
     detail.replaceChildren(); if (!entry) {detail.append(element('p', {}, '选择一个模型查看参数与说明。')); return;}
-    detail.append(quickModelIcon(entry.kind), element('h2', {}, entry.label), element('p', {}, entry.description), element('p', {class:'library-kind'}, '几何类型 · ' + entry.kind));
+    detail.append(quickModelIcon(entry.kind), element('h2', {}, entry.label), button('设置参数并创建', () => onChoose(entry), 'primary'), element('p', {}, entry.description), element('p', {class:'library-kind'}, '几何类型 · ' + entry.kind));
     const fields = element('dl', {class:'library-defaults'});
     for (const field of QUICK_MODELS[entry.kind].fields) fields.append(element('dt', {}, field.label), element('dd', {}, String(entry.defaults[field.key])));
-    detail.append(fields, button('设置参数并创建', () => onChoose(entry), 'primary'), button('编辑库配置', () => {editor.hidden = false; loadEditor(entry);}, 'secondary'));
+    const defaults=element('details',{class:'library-default-parameters'});defaults.append(element('summary',{},'默认参数'),fields);detail.append(defaults, button('编辑库配置', () => {editor.hidden = false; loadEditor(entry);}, 'secondary'));
     const contract = element('details', {class:'library-contract'}); contract.append(element('summary', {}, 'Agent 调用契约'));
     contract.append(element('pre', {}, JSON.stringify({method:'resolveModelLibrary', args:{id:entry.id, expectedLibraryRevision:library.revision, params:{}}}, null, 2)), element('p', {}, '读取 getModelLibrary 获得字段、范围和工具卡；resolveModelLibrary 返回可送入 run/add 的实际参数。'));
     detail.append(contract);
