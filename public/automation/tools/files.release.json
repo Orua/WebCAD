@@ -2,7 +2,7 @@
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.33.0",
+  "version": "1.34.0",
   "label": "释放文件资源",
   "synonyms": [
     "释放文件资源",
@@ -40,5 +40,5 @@
     "RESOURCE_EXPIRED",
     "RESOURCE_BUSY"
   ],
-  "docsHash": "sha256:2e9f84433a1d3ef43f5f267225ed64682c50bdf65a2f78e3f0b4863ecca620d8"
+  "docsHash": "sha256:8f91cc68d79f79ab2502b1853d3c890e11ea0b6c83c8d351b08d1f124fbfb23e"
 }

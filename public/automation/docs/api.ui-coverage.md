@@ -889,7 +889,7 @@
       "getUILayout"
     ],
     "method": "setView",
-    "usage": "workspace:modeling返回画布、library打开快捷模型工具；兼容agent打开设置弹窗，非独立工作区；toolbar:boolean、focus:boolean、libraryMode:cards/list；getState().view.workspaceLayout 读回。活动草稿先结束，预览先取消。"
+    "usage": "workspace:modeling返回画布、library打开非全屏浮动快捷模型菜单，显隐设置保持不变；兼容agent打开设置弹窗，非独立工作区；toolbar:boolean、focus:boolean、libraryMode:cards/list；getState().view.workspaceLayout 的 modelLibraryOpen/modelLibraryPresentation 与显隐读回；关闭或Esc等价workspace:modeling。活动草稿先结束，预览先取消。"
   },
   "modelLibrary": {
     "tools": [
