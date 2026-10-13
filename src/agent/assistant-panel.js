@@ -14,7 +14,7 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
   let url=defaultUrl,frame=null,channel=null,origin=null,adapter=null,visible=false,phase='closed',error=null,external=null,exitOperation=null;
   let requestSeq=0,handshakeTimer=null;const pending=new Map(),adapters=new Map();
   try{const saved=localStorage.getItem('webcad.assistant-url.v1');if(saved)url=validateAssistantUrl(saved);}catch{}
-  const state=()=>({version:1,url,configured:Boolean(url),visible,phase,error,connected:hostControl.get().connected,locked:hostControl.get().locked,externalHost:Boolean(external)});
+  const state=()=>({version:1,url,configured:Boolean(url),visible,phase:external&&visible&&hostControl.get().connected?'connected':phase,error,connected:hostControl.get().connected,locked:hostControl.get().locked,externalHost:Boolean(external)});
   const notify=()=>onChange(state());
   function post(data){frame?.contentWindow?.postMessage({protocol:PROTOCOL,channel,...data},origin);}
   function request(method,args){
