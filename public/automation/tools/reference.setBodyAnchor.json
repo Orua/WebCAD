@@ -3,7 +3,7 @@
   "title": "对象锚点",
   "description": "args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "category": "command",
-  "version": "1.41.0",
+  "version": "1.42.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -37,5 +37,5 @@
     "对象锚点",
     "实体锚点"
   ],
-  "docsHash": "sha256:6c085a40823402fa6277fd88dc051c63d1b82286f72188daddcde52ab6c4d65c"
+  "docsHash": "sha256:478e1696f2a62eb15b781adbca7901c780e99ebfe41198c421c157fc215d5e2a"
 }

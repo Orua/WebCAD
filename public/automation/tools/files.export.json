@@ -2,7 +2,7 @@
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.41.0",
+  "version": "1.42.0",
   "label": "导出文件",
   "synonyms": [
     "导出文件",
@@ -65,5 +65,5 @@
     "RESOURCE_LIMIT",
     "FORMAT_UNSUPPORTED"
   ],
-  "docsHash": "sha256:8aafd9dba7a6a8e4bfc2020c54ba1bea5aa2e4e65d20f90fb4fb4cb07aa35d47"
+  "docsHash": "sha256:f33d4ef25f7cd302c4a5a1e1d40f41fb2d5828147026ad1afcf8017f2227a1b6"
 }

@@ -2,7 +2,7 @@
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.41.0",
+  "version": "1.42.0",
   "description": "execute({context,idempotencyKey,action,args}); action 来自当前命令合同。",
   "synonyms": [
     "execute",
@@ -30,5 +30,5 @@
     "maxBytes": 20971520,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:69fea360e2febab7509150899fd984cef24882648552cb321d3fe507acea3830"
+  "docsHash": "sha256:4f0866945f9e32968e77d992dde994981c6c2197168c8976ebb697f5068f1410"
 }
