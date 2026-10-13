@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:eb1b185e29a3af8c450a660b5ccb78ca5476d577c849220ab173a756418cbc4e",
-  "docsHash": "sha256:709c5b0850f83b298e081068562ea5378e11677bde80a6df94ae797c915101e0",
+  "catalogHash": "sha256:4e6eecbae4a53e2d3e97e60c30eed1a6f074a83d379defb301358015b6ab50d8",
+  "docsHash": "sha256:d484a10c66f127509f81b0dad6a6af6c8ced28f34a35fb730d869d0121a43b6c",
   "bootstrapDocIds": [
     "api.knowledge-cache",
     "api.connection",
@@ -270,29 +270,26 @@
     },
     {
       "id": "logo-relief",
-      "title": "Logo与浮雕",
+      "title": "图案加工：先区分恒深LOGO与连续浮雕",
       "keywords": [
         "LOGO",
         "凹字",
         "凸字",
         "刻字",
+        "凹线条",
+        "恒深",
         "浮雕",
         "图案",
         "engrave",
         "relief"
       ],
       "docs": [
-        "api.logo",
-        "api.relief",
-        "api.vector-import"
+        "api.pattern-machining"
       ],
       "tools": [
-        "logo",
-        "curvedLogo",
-        "relief",
-        "readRelief"
+        "planPatternMachining"
       ],
-      "note": "Machined engraving and stamped back-side protrusion are different geometry. Use original closed glyph regions and retained holes; photographs are not measured height maps."
+      "note": "Legacy route ID retained. Discovery is not a geometry decision: read the shared workflow, declare user intent/source, then load only matched full tool cards. Never swap routes after failure; shaded reference brightness is not depth."
     },
     {
       "id": "inspection",

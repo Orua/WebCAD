@@ -2,7 +2,7 @@
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.34.0",
+  "version": "1.35.0",
   "label": "导出文件",
   "synonyms": [
     "导出文件",
@@ -29,9 +29,17 @@
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
-    "maxTotalBytes": 67108864,
+    "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
   },
+  "typedByteBudgets": {
+    "stl": 134217728,
+    "mesh": 402653184,
+    "webcad": 536870912
+  },
+  "additionalDocs": [
+    "api.mesh-assets"
+  ],
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -52,5 +60,5 @@
     "RESOURCE_LIMIT",
     "FORMAT_UNSUPPORTED"
   ],
-  "docsHash": "sha256:2093eb61ac403207f8d054eae51abab2a87532dff5d93527deddedbaf669af25"
+  "docsHash": "sha256:39af453b36e1e11b05d358d7e6d0ffb72e76da6b453f72029d466208081c787d"
 }

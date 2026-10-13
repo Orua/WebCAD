@@ -2,7 +2,7 @@
   "id": "traceTwinWindow",
   "title": "traceTwinWindow",
   "category": "page-method",
-  "version": "1.34.0",
+  "version": "1.35.0",
   "description": "traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBottomY,simplifyToleranceMm?:0..0.2}); 四条上到下 XY 采样曲线，每条3–2000点。",
   "synonyms": [
     "traceTwinWindow",
@@ -24,5 +24,5 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.dwg-spline-twin-window",
-  "docsHash": "sha256:c43abf395980b6841e96a638797003100739786c67690d4b169594a43918ef9d"
+  "docsHash": "sha256:e0f1b93f799c98c1379be4515698c226bed1b46c1c65763356146dd20154af01"
 }

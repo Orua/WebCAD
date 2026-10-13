@@ -2,7 +2,7 @@
   "id": "updateModelLibrary",
   "title": "updateModelLibrary",
   "category": "page-method",
-  "version": "1.34.0",
+  "version": "1.35.0",
   "description": "updateModelLibrary({context,expectedLibraryRevision,operation:upsert|remove|move|restore|import,entry?,id?,index?,library?})。upsert entry={id,kind,label,description?,defaults?}，id为字母开头80位以内字母数字_-，kind必须已安装，defaults仅含该类型原参数。move的index为移动后零起始位置。import全量替换，library={format:webcad-model-library,version:1,entries:[entry]}；restore全量恢复默认目录、默认参数和顺序。",
   "synonyms": [
     "updateModelLibrary",
@@ -40,5 +40,5 @@
     "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
     "create": "Use entries[].execution with run/add; current context and unique key required."
   },
-  "docsHash": "sha256:92ef38e6b2c4cb88d2545697ed2a85ec1c1d2084ad4d6a8489398ddff71daacd"
+  "docsHash": "sha256:bd2f07b40d2234c100cf31a6a0063a942ef9c8150f5cd88f52aec8d2e6b55a5a"
 }

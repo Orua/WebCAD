@@ -7,11 +7,11 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
   contracts: [
-    'metal-materials',
+    'metal-materials', 'model-library', 'workspace-theme',
     'remote-agent-adapter',
     'agent-knowledge', 'services-settings', 'services-routing', 'services-wait-policy', 'services-boolean-contract', 'project-container', 'geometry-cache',
     'design-inspection-contract',
-    'relief-contract', 'relief-sculpt',
+    'mesh-assets', 'display-lod', 'pattern-machining', 'relief-contract', 'relief-sculpt',
     'document-capacity',
     'generated-file-write',
     'rectangle-selection',
@@ -31,6 +31,7 @@ const groups = {
     'tool-state', 'viewport-transform', 'dfam-inspection', 'profile-fitting', 'text-commands',
   ],
   kernel: [
+    'mesh-kernel',
     'services-round-plan',
     'feature-plan',
     'design-inspection-kernel',

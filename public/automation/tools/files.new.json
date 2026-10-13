@@ -2,7 +2,7 @@
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.34.0",
+  "version": "1.35.0",
   "label": "新建工程",
   "synonyms": [
     "新建工程",
@@ -26,9 +26,17 @@
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
-    "maxTotalBytes": 67108864,
+    "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
   },
+  "typedByteBudgets": {
+    "stl": 134217728,
+    "mesh": 402653184,
+    "webcad": 536870912
+  },
+  "additionalDocs": [
+    "api.mesh-assets"
+  ],
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -45,5 +53,5 @@
     "FILE_COMMAND_FAILED",
     "SIZE_LIMIT"
   ],
-  "docsHash": "sha256:2f856a8c512b1425671a574261cc2faedbc1ed20487fa414acf99b6a138a5947"
+  "docsHash": "sha256:0b99304f9afbf224c4e0cc13f03e5a95fb3f7aa4e06e0107d3922cdcff7f57fc"
 }
