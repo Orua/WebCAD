@@ -1,9 +1,14 @@
 // Vector icons live with menu configuration. They are independent of font glyph support.
-const cube=['M3 7l9-5 9 5v10l-9 5-9-5Z M3 7l9 5 9-5 M12 12v10'];
+const cube=['M12 3l8 4.5v9L12 21l-8-4.5v-9Z M4 7.5l8 4.5 8-4.5 M12 12v9'];
 const profile=['M3 19V5h7l3 6h8v8Z'];
-const move=['M12 2v20 M2 12h20 M9 5l3-3 3 3 M9 19l3 3 3-3 M5 9l-3 3 3 3 M19 9l3 3-3 3'];
-const rotate=['M5 7a9 9 0 1 1-1 9 M5 2v5h5 M9 12h6'];
+const move=['M12 3v18 M3 12h18 M9 6l3-3 3 3 M9 18l3 3 3-3 M6 9l-3 3 3 3 M18 9l3 3-3 3'];
+const rotate=['M4 10a8 8 0 1 1 1 8 M4 4v6h6'];
 export const ACTION_ICONS={
+ folder:['M3 7h7l2 2h9v11H3Z'],
+ toolbarHide:['M3 4h18v16H3Z M3 9h18 M7 6.5h.1 M11 6.5h.1 M10 15l2-2 2 2'],toolbarShow:['M3 4h18v16H3Z M3 9h18 M7 6.5h.1 M11 6.5h.1 M10 13l2 2 2-2'],
+ focusCanvas:['M8 3H3v5 M16 3h5v5 M3 16v5h5 M21 16v5h-5'],exitFocus:['M3 8h5V3 M21 8h-5V3 M8 21v-5H3 M16 21v-5h5'],
+ alignObjects:['M12 3v18 M3 5h6v5H3Z M15 14h6v5h-6Z M5 13h4 M7 11l2 2-2 2 M15 9h4 M17 7l-2 2 2 2'],
+ libraryCards:['M3 3h7v7H3Z M14 3h7v7h-7Z M3 14h7v7H3Z M14 14h7v7h-7Z'],libraryList:['M3 5h2 M9 5h12 M3 12h2 M9 12h12 M3 19h2 M9 19h12'],libraryManage:['M4 7h16 M4 17h16 M8 4v6 M16 14v6'],
  undo:['M9 4 4 9l5 5 M4 9h10a6 6 0 0 1 6 6v4'],redo:['M15 4l5 5-5 5 M20 9H10a6 6 0 0 0-6 6v4'],close:['M6 6l12 12 M18 6 6 18'],
  eye:['M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0'],eyeOff:['M3 3l18 18 M9 5a12 12 0 0 1 3 0c6.5 0 10 7 10 7a18 18 0 0 1-4 5 M6 6a18 18 0 0 0-4 6s3.5 7 10 7a12 12 0 0 0 5-1 M10 10a3 3 0 0 0 4 4'],
  panelLeftOpen:['M3 4h18v16H3Z M8 4v16 M12 9l3 3-3 3'],panelLeftClose:['M3 4h18v16H3Z M8 4v16 M15 9l-3 3 3 3'],panelRightOpen:['M3 4h18v16H3Z M16 4v16 M12 9l-3 3 3 3'],panelRightClose:['M3 4h18v16H3Z M16 4v16 M9 9l3 3-3 3'],
@@ -24,7 +29,7 @@ export const ACTION_ICONS={
  cone:['M12 2L3 19a9 3 0 0 0 18 0Z M3 19a9 3 0 0 1 18 0'],torus:['M22 12a10 7 0 1 1-20 0 10 7 0 0 1 20 0 M17 12a5 3 0 1 1-10 0 5 3 0 0 1 10 0'],
  sketchProfile:['M3 20l3-6L17 3l4 4-11 11Z M6 14l4 4 M3 20h18'],sketch:profile,vectorProfile:[...profile,'M3 5h.1 M10 5h.1 M13 11h.1 M21 19h.1'],arcProfile:['M3 19V9a9 7 0 0 1 18 0v10Z'],
  faceGroove:[...cube,'M8 11h9v6H8Z'],innerTurn:[...cube,'M16 15a2 2 0 1 1-4 0 2 2 0 0 1 4 0'],outerTurn:[...cube,'M2 12h20 M5 9l-3 3 3 3 M19 9l3 3-3 3'],quickModelFavorites:[...cube,'M16 2v5 M14 4h5'],
- quickModel:[...cube,'M16 2v5 M14 4h5'],profileExtrude:[...profile,'M8 11V2 M5 5l3-3 3 3'],extrude:[...cube,'M12 8V1 M9 4l3-3 3 3'],revolve:[...profile,'M17 3a8 8 0 0 1 3 12 M18 11l2 4 3-3'],sweep:['M3 20c12 0 0-16 18-16 M2 17h4v6H2Z M18 2h5v5h-5Z'],loft:['M5 3h14v4H5Z M2 18h20v4H2Z M5 7L2 18 M19 7l3 11'],
+ quickModel:['M3 3h7v7H3Z M14 3h7v7h-7Z M3 14h7v7H3Z M14 14h7v7h-7Z'],profileExtrude:[...profile,'M8 11V2 M5 5l3-3 3 3'],extrude:[...cube,'M12 8V1 M9 4l3-3 3 3'],revolve:[...profile,'M17 3a8 8 0 0 1 3 12 M18 11l2 4 3-3'],sweep:['M3 20c12 0 0-16 18-16 M2 17h4v6H2Z M18 2h5v5h-5Z'],loft:['M5 3h14v4H5Z M2 18h20v4H2Z M5 7L2 18 M19 7l3 11'],
  selectTool:['M5 3v17l5-6 5 8 3-2-5-7h8Z'],transform:move,gizmoTranslate:move,gizmoRotate:rotate,gizmoOff:['M5 3v17l5-6 5 8 3-2-5-7h8Z'],
  copy:['M8 8h13v13H8Z M3 16V3h13'],mirror:['M12 2v20 M9 6H3v12h6Z M15 6h6v12h-6Z'],group:['M2 2h20v20H2Z M5 5h5v5H5Z M14 14h5v5h-5Z'],explode:['M2 2h6v6H2Z M16 2h6v6h-6Z M2 16h6v6H2Z M16 16h6v6h-6Z M9 9l-2-2 M15 9l2-2 M9 15l-2 2 M15 15l2 2'],
  linearPattern:['M2 8h5v8H2Z M10 8h5v8h-5Z M18 8h5v8h-5Z'],circularPattern:['M10 2h4v4h-4Z M18 10h4v4h-4Z M10 18h4v4h-4Z M2 10h4v4H2Z M8 12a4 4 0 1 0 8 0 4 4 0 0 0-8 0'],remove:['M4 6h16 M9 2h6v4 M6 6l1 16h10l1-16 M10 10v8 M14 10v8'],

@@ -1,3 +1,5 @@
+import {meshReliefSampleSchema} from './mesh/relief-sample.js';
+import {validateSchema} from './contracts/operation-schema.js';
 import {layoutDrawing} from './drawing/technical-layout.js';
 import {drawingSVG,drawingDXF,drawingPDF,drawingJPEG} from './drawing/drawing-export.js';
 import {infoMetadata,discoveryMetadata,searchTools,getTools,getTool,readDocs} from './page-api-docs.js';
@@ -128,6 +130,11 @@ export function createPageAPI(host){
     queryReferences:guarded(async input=>{check(input,['context','bodyIds','kind','filter','limit','offset','requireUnique']);const request=validateReferenceQuery(input),result=await host.references(request);check(input,['context','bodyIds','kind','filter','limit','offset','requireUnique']);return result;}),
     resolvePlacement:guarded(async input=>{check(input,['context','op','params','refs','placement']);if(typeof input.op!=='string'||!Array.isArray(input.refs)||input.refs.some(id=>typeof id!=='string')||!input.params||typeof input.params!=='object')fail('PARAM_SCHEMA_INVALID','op, params and refs required');const result=await host.resolvePlacement(input);check(input,['context','op','params','refs','placement']);return result;}),
     setRenderQuality:guarded(async input=>{check(input,['context','quality']);renderQuality(input.quality);await host.quality(input.quality);check(input,['context','quality']);return {status:'applied',context:current().context,renderQuality:current().renderQuality,display:host.display()};}),
+    sampleMeshRelief:guarded(async input=>{
+      const keys=['context','bodyId','inputGeometryHash','support','pointsMm'],s=check(input,keys),{context,...args}=input;validateSchema(meshReliefSampleSchema,args);
+      if(!s.bodies.some(b=>b.id===input.bodyId))fail('STALE_REFERENCE','Unknown current mesh body');
+      const result=await host.sampleMeshRelief(args);check(input,keys);return {status:'read',context:current().context,bodyId:input.bodyId,...result};
+    }),
     measure:guarded(async input=>{
       check(input,['context','bodyId','kind','topologyId','points']);
       if(input.points!==undefined){

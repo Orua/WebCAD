@@ -6,7 +6,7 @@ const luminance=color=>rgb(color).map(value=>{const channel=value/255;return cha
 export function contrastRatio(a,b){const values=[luminance(a),luminance(b)].sort((x,y)=>y-x);return (values[0]+.05)/(values[1]+.05);}
 export function workspaceThemeTokens(value=DEFAULT_THEME_COLOR){
   const color=/^#[0-9a-f]{6}$/i.test(value)?value.toLowerCase():DEFAULT_THEME_COLOR;
-  let ink=hex(rgb(color).map(channel=>channel*.85));
+  let ink=color===DEFAULT_THEME_COLOR?'#2f5f9f':hex(rgb(color).map(channel=>channel*.85));
   for(let factor=.8;contrastRatio(ink,'#ffffff')<6&&factor>0;factor-=.05)ink=hex(rgb(color).map(channel=>channel*factor));
-  return {'--accent':color,'--accent-soft':`color-mix(in srgb, ${color} 10%, white)`,'--accent-dark':hex(rgb(color).map(channel=>channel*.85)),'--accent-ink':ink,'--accent-contrast':contrastRatio(color,'#ffffff')>=4.5?'#ffffff':'#000000'};
+  return {'--accent':color,'--accent-soft':`color-mix(in srgb, ${color} 10%, white)`,'--accent-dark':color===DEFAULT_THEME_COLOR?'#2f5f9f':hex(rgb(color).map(channel=>channel*.85)),'--accent-ink':ink,'--accent-contrast':contrastRatio(color,'#ffffff')>=4.5?'#ffffff':'#000000'};
 }

@@ -1,7 +1,8 @@
 import initOpenCascade from 'replicad-opencascadejs';
 import wasmURL from 'replicad-opencascadejs/wasm?url';
-import {encodeProjectV4,decodeProject} from './project-container.js';
+import {encodeProjectV4,decodeProject,decodedProjectTransfers} from './project-container.js';
 import { CadKernel } from './cad-kernel.js';
+import {refineExactDisplay} from './modeling/io/adaptive-display.js';
 import {boundedDiagnosticReport} from './modeling/diagnostic-report.js';
 
 const kernel = initOpenCascade({ locateFile: () => wasmURL }).then(oc => new CadKernel(oc));
@@ -19,6 +20,7 @@ self.onmessage = ({ data }) => {
       else if(type==='decodeProject')result={document:await decodeProject(data.bytes)};
       else if(type==='rebuild')result=await engine.rebuild(data.document);
       else if(type==='remesh')result=engine.remesh(data.quality);
+      else if(type==='refineDisplay')result=refineExactDisplay(engine,data);
       else if(type==='export')result=await engine.export(data.format,data.ids,data.appearance);
       else if(type==='technicalDrawing')result={drawing:engine.technicalDrawing(data.input)};
       else if(type==='faceInfo')result=engine.faceInfo(data.bodyId,data.faceId);
@@ -30,6 +32,7 @@ self.onmessage = ({ data }) => {
       else if(type==='inspectDesign')result=engine.inspectDesign(data.input);
       else if(type==='inspectFit')result=engine.inspectFit(data.bodyAId,data.bodyBId,data.toleranceMm,data.volumeThresholdMm3);
       else if(type==='inspectThickness')result=engine.inspectThickness(data.input);
+      else if(type==='sampleMeshRelief')result=engine.sampleMeshRelief(data.input);
       else if(type==='inspectDraft')result=engine.inspectDraft(data.input);
       else if(type==='inspectRound')result=engine.inspectRound(data.input);
       else if(type==='serializeFeature')result=engine.serializeFeatureShape(data.featureId);
@@ -43,7 +46,7 @@ self.onmessage = ({ data }) => {
           result={items,length:items.reduce((n,v)=>n+(v.length||0),0),area:items.reduce((n,v)=>n+(v.area||0),0)};
         } else result=engine.measure(data.bodyId,data.topologyType,data.topologyId);
       } else throw new Error(`未知请求 ${type}`);
-      self.postMessage({ requestId, ok: true, ...result },type==='encodeProject'?[result.bytes.buffer]:[]);
+      self.postMessage({ requestId, ok: true, ...result },type==='refineDisplay'?result.patches.flatMap(p=>p.limited?[]:[p.positions.buffer,p.normals.buffer,p.indices.buffer]):type==='encodeProject'?[result.bytes.buffer]:type==='decodeProject'?decodedProjectTransfers(result.document):[]);
     } catch (error) { const report=boundedDiagnosticReport(error?.report);self.postMessage({ requestId, ok: false, error: error?.message || String(error), featureId: error?.featureId, code: error?.code, path: error?.path, recoveryAction: error?.recoveryAction,report }); }
   });
 };

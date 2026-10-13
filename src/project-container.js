@@ -1,15 +1,25 @@
 import {zipSync,Unzip,UnzipInflate} from 'three/examples/jsm/libs/fflate.module.js';
 import {encodeProjectV4 as packV4,PROJECT_V4_LIMITS} from './mesh/project-v4.js';
-import {validateBinaryAssets} from './mesh/mesh-assets.js';
-import {MESH_LIMITS} from './mesh/mesh-contract.js';
+import {validateBinaryAssets,BINARY_SOURCE_FORMATS,binaryAssetByteLimit} from './mesh/mesh-assets.js';
 import {binaryHash} from './contracts/operation-schema.js';
 import {validateTimeline} from './document-timeline.js';
 const LEGACY_MAX_BYTES=20*1024*1024,MAX_BYTES=PROJECT_V4_LIMITS.maxBytes,MAX_ENTRIES=256,encoder=new TextEncoder(),decoder=new TextDecoder('utf-8',{fatal:true});
 const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
-const validName=name=>['manifest.json','document.json'].includes(name)||/^artifacts\/[a-f0-9]{64}\.brep$/.test(name)||/^assets\/[a-f0-9]{64}\.(stl|mesh)$/.test(name);
+const validName=name=>['manifest.json','document.json'].includes(name)||/^artifacts\/[a-f0-9]{64}\.brep$/.test(name)||/^assets\/[a-f0-9]{64}\.(stl|mesh|step|brep)$/.test(name);
 export function encodeProjectV4(document,options={}){if(options.includeTimeline!==false)validateTimeline(document);return packV4(document,options);}
+// Only called for a freshly decoded Worker-owned document. The main thread's
+// authoritative assets and undo history are never passed to this function.
+export function decodedProjectTransfers(document){
+ const buffers=new Set();
+ for(const assets of [document.binaryAssets,document.compiledArtifacts])for(const [key,value] of Object.entries(assets||{})){
+  if(!(value instanceof Uint8Array)||!(value.buffer instanceof ArrayBuffer))continue;
+  const owned=value.byteOffset===0&&value.byteLength===value.buffer.byteLength?value:value.slice();
+  assets[key]=owned;buffers.add(owned.buffer);
+ }
+ return [...buffers];
+}
 export function encodeProjectV3(document,{includeTimeline=true}={}){
- if(document.binaryAssets)fail('DOCUMENT_VERSION_UNSUPPORTED','不能降级保存并丢弃完整网格资产；请使用版本4');
+ if(document.binaryAssets)fail('DOCUMENT_VERSION_UNSUPPORTED','不能降级保存并丢弃完整源资产；请使用版本4');
  const data={...document,...(!includeTimeline?{timeline:undefined}:{}),compiledArtifacts:undefined};
  if(document.version!==3)fail('DOCUMENT_VERSION_UNSUPPORTED','ZIP 工程须明确标记版本 3');
  if(includeTimeline)validateTimeline(document);
@@ -33,7 +43,7 @@ function directory(bytes){
   const flags=view.getUint16(at+8,true),method=view.getUint16(at+10,true),unpacked=view.getUint32(at+24,true),nameLength=view.getUint16(at+28,true),extra=view.getUint16(at+30,true),comment=view.getUint16(at+32,true);
   if(flags&1||![0,8].includes(method)||at+46+nameLength+extra+comment>end)fail('PROJECT_FORMAT_INVALID','ZIP 加密或压缩格式不支持');
   const name=decoder.decode(bytes.subarray(at+46,at+46+nameLength));if(!validName(name)||entries.has(name))fail('PROJECT_FORMAT_INVALID','工程容器路径或重复条目无效');
-  const itemLimit=name==='manifest.json'?65536:name==='document.json'||name.endsWith('.brep')?LEGACY_MAX_BYTES:name.endsWith('.stl')?MESH_LIMITS.maxSourceBytes:MESH_LIMITS.maxAssetBytes;if(unpacked>itemLimit)fail('SIZE_LIMIT','工程条目超出类型容量');
+  const itemLimit=name==='manifest.json'?65536:name==='document.json'||name.startsWith('artifacts/')?LEGACY_MAX_BYTES:binaryAssetByteLimit(name.slice(name.lastIndexOf('.')+1));if(unpacked>itemLimit)fail('SIZE_LIMIT','工程条目超出类型容量');
   total+=unpacked;if(total>MAX_BYTES)fail('SIZE_LIMIT','工程解压预算超限');entries.set(name,unpacked);at+=46+nameLength+extra+comment;
  }
  if(at!==end||!entries.has('manifest.json')||!entries.has('document.json'))fail('PROJECT_FORMAT_INVALID','工程容器缺少必需条目');return entries;
@@ -51,8 +61,9 @@ export async function decodeProject(bytes){
  const doc=JSON.parse(decoder.decode(docBytes));if(doc.version!==manifest.version)fail('DOCUMENT_VERSION_UNSUPPORTED','新容器不得伪装旧工程版本');doc.compiledArtifacts={};
  const used=new Set();for(const item of manifest.artifacts){const name=`artifacts/${item.sha256}.brep`,data=files.get(name);if(used.has(name)||!data||data.length!==item.bytes||binaryHash(data).slice(7)!==item.sha256||item.format!=='occt-text-brep-v1'||item.brepVersion!==3)fail('ARTIFACT_CORRUPT','保存的精确产物损坏');used.add(name);doc.compiledArtifacts[item.sha256]=data;}
  if(manifest.version===4){
-  if(!Array.isArray(manifest.binaryAssets))fail('ARTIFACT_CORRUPT','缺少完整网格源清单');doc.binaryAssets={};
-  for(const item of manifest.binaryAssets){if(!['stl','mesh'].includes(item.format)||!/^[a-f0-9]{64}$/.test(item.sha256))fail('ARTIFACT_CORRUPT','网格资产声明无效');const name=`assets/${item.sha256}.${item.format}`,data=files.get(name);if(used.has(name)||!data||data.length!==item.bytes||binaryHash(data).slice(7)!==item.sha256)fail('ARTIFACT_CORRUPT','网格源字节损坏');used.add(name);doc.binaryAssets[item.sha256]=data;}validateBinaryAssets(doc);
+  if(!Array.isArray(manifest.binaryAssets))fail('ARTIFACT_CORRUPT','缺少完整源资产清单');doc.binaryAssets={};const declaredFormats=new Map();
+  for(const item of manifest.binaryAssets){if(!BINARY_SOURCE_FORMATS.includes(item.format)||!/^[a-f0-9]{64}$/.test(item.sha256))fail('ARTIFACT_CORRUPT','源资产声明无效');const name=`assets/${item.sha256}.${item.format}`,data=files.get(name);if(used.has(name)||declaredFormats.has(item.sha256)||!data||data.length!==item.bytes||binaryHash(data).slice(7)!==item.sha256)fail('ARTIFACT_CORRUPT','源资产字节损坏');used.add(name);declaredFormats.set(item.sha256,item.format);doc.binaryAssets[item.sha256]=data;}
+  const formats=validateBinaryAssets(doc);for(const [hash,format] of formats)if(declaredFormats.get(hash)!==format)fail('ARTIFACT_CORRUPT','源资产格式与导入引用不一致');
  }
  if(files.size!==used.size+2)fail('PROJECT_FORMAT_INVALID','存在未声明工程产物');return doc;
 }

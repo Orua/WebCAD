@@ -1,6 +1,6 @@
 // Browser-only transfer boundary for the existing document file commands.
 // File handles are selected by the UI before calling write; this module never opens a picker.
-import {fileByteBudget,FILE_LIMITS} from './browser-file-contracts.js';
+import {fileByteBudget,FILE_LIMITS,FILE_TYPED_BYTE_BUDGETS} from './browser-file-contracts.js';
 const MAX_BYTES = FILE_LIMITS.maxBytes;
 const MAX_RESOURCES = FILE_LIMITS.maxResources;
 const MAX_TOTAL_BYTES = FILE_LIMITS.maxTotalBytes;
@@ -143,7 +143,7 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
     generated:input=>add({...input,kind:"output"}),
     capabilities() { return Object.freeze({ maxBytes: MAX_BYTES, maxResources: MAX_RESOURCES,
       maxTotalBytes: MAX_TOTAL_BYTES, ttlSeconds: TTL_MS / 1000,
-      imports: ['step', 'stp', 'brep', 'brp','stl','mesh'], typedByteBudgets:{stl:128*1024*1024,mesh:384*1024*1024,webcad:512*1024*1024}, meshUnits:['mm','cm','m','in'],meshCodec:'webcad-mesh-f64-u32-v1', exports: ['step', 'stl', 'brep', 'png'],
+      imports: ['step', 'stp', 'brep', 'brp','stl','mesh'], typedByteBudgets:FILE_TYPED_BYTE_BUDGETS, meshUnits:['mm','cm','m','in'],meshCodec:'webcad-mesh-f64-u32-v1', exports: ['step', 'stl', 'brep', 'png'],
       native: 'webcad', iges: 'unavailable_in_static_browser', transport: 'in-page' }); },
     async register({ name, data, mime } = {}) {
       basename(name);
@@ -162,11 +162,11 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
       if(mesh&&source.name.toLowerCase().endsWith('.mesh')&&units!=='mm')throw failure('MESH_UNITS_REQUIRED','Typed mesh codec is already in mm.');
       if((placement!==undefined||mesh)&&(typeof idempotencyKey!=='string'||!idempotencyKey||idempotencyKey.length>128))throw failure('PARAM_SCHEMA_INVALID','Placed import requires an idempotencyKey');
       const bytes = new Uint8Array(await source.blob.arrayBuffer());
-      return run(context, 'import', { name: source.name, mime: source.mime, data:mesh?bytes:base64FromBytes(bytes),...(mesh?{units,idempotencyKey}:{}),...(placement===undefined?{}:{placement,idempotencyKey}) });
+      return run(context, 'import', { name: source.name, mime: source.mime, data:bytes,...(idempotencyKey===undefined?{}:{idempotencyKey}),...(mesh?{units}:{}),...(placement===undefined?{}:{placement,idempotencyKey}) });
     },
     async previewInput({resourceId}={}){
       const source=inputFor(resourceId,['step','stp','brep','brp']);
-      return {name:source.name,mime:source.mime,data:base64FromBytes(new Uint8Array(await source.blob.arrayBuffer()))};
+      return {name:source.name,mime:source.mime,data:new Uint8Array(await source.blob.arrayBuffer())};
     },
     new({ context } = {}) { return run(context, 'new'); },
     save({ context, name } = {}) { return generated({ context, action: 'save', name }); },

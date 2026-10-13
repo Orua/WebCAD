@@ -1,4 +1,5 @@
 import {decodeBinarySTL,exportBinarySTL} from './stl-source.js';
+import {meshGeometryHash} from './relief-edit.js';
 import {decodeMesh} from './mesh-codec.js';
 import {meshError} from './mesh-contract.js';
 import {binaryHash} from '../contracts/operation-schema.js';
@@ -29,7 +30,7 @@ export class MeshShape{
  metrics(){
   if(this.cachedMetrics)return this.cachedMetrics;const mesh=this.transformed(),p=mesh.positions,min=[Infinity,Infinity,Infinity],max=[-Infinity,-Infinity,-Infinity];for(let i=0;i<p.length;i++){min[i%3]=Math.min(min[i%3],p[i]);max[i%3]=Math.max(max[i%3],p[i]);}
   let area=0;for(let i=0;i<mesh.indices.length;i+=3){const a=mesh.indices[i]*3,b=mesh.indices[i+1]*3,c=mesh.indices[i+2]*3,ux=p[b]-p[a],uy=p[b+1]-p[a+1],uz=p[b+2]-p[a+2],vx=p[c]-p[a],vy=p[c+1]-p[a+1],vz=p[c+2]-p[a+2];area+=Math.hypot(uy*vz-uz*vy,uz*vx-ux*vz,ux*vy-uy*vx)/2;}
-  return this.cachedMetrics={source:'authoritative-mesh',bounds:{min,max},area,volume:null,solidCount:0,shellCount:0,faceCount:0,edgeCount:0,triangleCount:mesh.indices.length/3,vertexCount:p.length/3,geometryType:'rawMesh',meshReport:{...this.report,sourceHash:this.sourceHash,matrix:[...this.matrix],formalPrecision:'Float64',displayPrecision:'Float32',solidEligibility:'not-checked',selfIntersection:'not-checked'}};
+  return this.cachedMetrics={source:'authoritative-mesh',bounds:{min,max},area,volume:null,solidCount:0,shellCount:0,faceCount:0,edgeCount:0,triangleCount:mesh.indices.length/3,vertexCount:p.length/3,geometryType:'rawMesh',meshReport:{...this.report,sourceHash:this.sourceHash,geometryHash:meshGeometryHash(mesh),topologyEpoch:0,matrix:[...this.matrix],formalPrecision:'Float64',displayPrecision:'Float32',solidEligibility:'not-checked',selfIntersection:'not-checked'}};
  }
  describe(feature){const formal=this.transformed(),mesh=indexedDisplayMesh(formal),metrics=this.metrics(),previewOrigin=metrics.bounds.min.map((v,i)=>(v+metrics.bounds.max[i])/2),positions=new Float32Array(mesh.positions.length);let maxPreviewErrorMm=0;
   for(let i=0;i<positions.length;i++){const local=mesh.positions[i]-previewOrigin[i%3];positions[i]=local;maxPreviewErrorMm=Math.max(maxPreviewErrorMm,Math.abs(local-positions[i]));}

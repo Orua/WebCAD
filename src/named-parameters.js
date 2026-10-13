@@ -1,3 +1,4 @@
+import {cloneAssetDocument} from './mesh/mesh-assets.js';
 import { evaluateExpression } from './parameter-calculator.js';
 import { getOperation, migratedOperationIds, normalizeOperationParams } from './operation-registry.js';
 import { assertJsonValue, validateSchema } from './contracts/operation-schema.js';
@@ -132,7 +133,7 @@ function pathTarget(feature, expressionPath, path) {
 export function evaluateDocumentParameters(document, { previousDocument } = {}) {
   object(document, 'document');
   if (!Array.isArray(document.features)) fail('PARAM_SCHEMA_INVALID', 'features', 'Document features must be an array.');
-  const output = structuredClone(document);
+  const output = cloneAssetDocument(document);
   const values = evaluateNamedParameters(document.parameters === undefined ? {} : document.parameters);
   let expressionCount = 0;
   for (let index = 0; index < output.features.length; index++) {

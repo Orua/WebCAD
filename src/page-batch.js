@@ -11,6 +11,8 @@ contextual.add('inspectRound');
 methods.add('prepareReliefSculpt');
 contextual.add('prepareReliefSculpt');
 methods.add('sampleReliefHeight');
+methods.add('sampleMeshRelief');
+contextual.add('sampleMeshRelief');
 methods.add('planPatternMachining');
 contextual.add('sampleReliefHeight');
 methods.add('addMany');
@@ -19,6 +21,7 @@ for(const name of ['setServices','clearServicesCredential','cancelServicesJob'])
 contextual.add('inspectDesign');
 for(const method of ['getModelLibrary','updateModelLibrary','resolveModelLibrary'])methods.add(method);
 for(const method of ['updateModelLibrary','resolveModelLibrary'])contextual.add(method);
+export const BATCH_METHODS=Object.freeze([...methods]);
 const bad = (code,message) => { throw Object.assign(new Error(message),{code}); };
 const plain = x => x && typeof x==='object' && !Array.isArray(x);
 const keys = (x,allowed) => { if(!plain(x)||Object.keys(x).some(k=>!allowed.includes(k)))bad('PARAM_SCHEMA_INVALID','Unexpected object fields'); };

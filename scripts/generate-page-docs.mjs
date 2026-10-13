@@ -11,8 +11,10 @@ import { CONNECTION_POLICY } from '../src/automation-guidance.js';
 import { generateAgentEntry } from './generate-agent-entry.mjs';
 import { generateAgentKit } from './generate-agent-kit.mjs';
 import {generateAgentKnowledge} from './generate-agent-knowledge.mjs';
+import {auditAgentInterfaces} from './agent-interface-audit.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+await auditAgentInterfaces(root);
 const target = resolve(root, 'public', 'automation');
 const metadata = infoMetadata({buildId:readBuildIdentity(root).buildId});
 const cards = [];

@@ -491,6 +491,62 @@
       "targetedTests": [
         "tests/model-library.test.mjs"
       ]
+    },
+    {
+      "operation": "meshReliefEdit",
+      "semanticVersion": "mesh-relief-edit-1",
+      "localImpact": "Worker Float64 fixed-topology height edit",
+      "servicesImpact": "No remote implementation or fallback; bounded local edit only",
+      "logoImpact": "none; existing intent routing unchanged",
+      "contractImpact": "strict source-bound edit: height, field/profile replace, bounded source-region pullback; public formal mesh height readback; ordered add/remove/replace/freeze layers and final mandatory targets",
+      "documentImpact": "v4 immutable source and feature recipe; unchanged format",
+      "cacheImpact": "full feature params, regenerated tool docs",
+      "requiredTests": [
+        "tests/relief-edit.test.mjs",
+        "tests/relief-edit-kernel.test.mjs",
+        "tests/operation-registry.test.mjs",
+        "tests/pattern-machining.test.mjs",
+        "tests/agent-interface-coverage.test.mjs",
+        "tests/relief-profile.test.mjs",
+        "tests/page-api.test.mjs",
+        "tests/relief-layers.test.mjs"
+      ]
+    },
+    {
+      "operation": "meshReliefPlate",
+      "semanticVersion": "mesh-relief-plate-1",
+      "localImpact": "Worker generic Float64 plate and radial profiles",
+      "servicesImpact": "No remote implementation or fallback; bounded local edit only",
+      "logoImpact": "none; existing intent routing unchanged",
+      "contractImpact": "strict plate dimensions, sampling spacing, explicit radial profiles, Agent/UI operation",
+      "documentImpact": "v4 immutable source and feature recipe; unchanged format",
+      "cacheImpact": "full feature params, regenerated tool docs",
+      "requiredTests": [
+        "tests/relief-edit.test.mjs",
+        "tests/relief-edit-kernel.test.mjs",
+        "tests/operation-registry.test.mjs",
+        "tests/pattern-machining.test.mjs",
+        "tests/agent-interface-coverage.test.mjs"
+      ]
+    },
+    {
+      "operation": "sampleMeshRelief",
+      "semanticVersion": "mesh-relief-sample-1",
+      "localImpact": "Read-only authoritative Float64 mesh normal-line intersections",
+      "servicesImpact": "none; reads committed local mesh without server compute",
+      "logoImpact": "none; existing intent routing unchanged",
+      "contractImpact": "strict source-bound edit: height, field/profile replace, bounded source-region pullback; public formal mesh height readback",
+      "documentImpact": "none; recheck instance/revision after Worker query",
+      "cacheImpact": "new public method card, routes and knowledge package",
+      "requiredTests": [
+        "tests/relief-edit.test.mjs",
+        "tests/relief-edit-kernel.test.mjs",
+        "tests/operation-registry.test.mjs",
+        "tests/pattern-machining.test.mjs",
+        "tests/agent-interface-coverage.test.mjs",
+        "tests/relief-profile.test.mjs",
+        "tests/page-api.test.mjs"
+      ]
     }
   ],
   "executionRouting": {
@@ -587,5 +643,54 @@
     "documentImpact": "v4 bundles immutable full binary assets; old projects retain 20 MiB and existing source/history.",
     "releaseBoundary": "Paused at 2026-10-12 stage checkpoint; no semantic sculpting, new layered mesh editing or mesh Services activation.",
     "contractImpact": "Page API 1.34, typed file budgets, explicit mesh units, interactionPhase and source interpretation."
+  },
+  "viewerStyleFloatingModels20261013": {
+    "localImpact": "CADViewer-style icon chrome and non-fullscreen floating model selector; visibility preserved; CAD execution unchanged",
+    "servicesImpact": "none: browser presentation only",
+    "logoImpact": "none: converter/geometry unchanged",
+    "contractImpact": "page docs 1.34: modelLibraryOpen and floating-menu readback; existing setView/model-library contracts maintained",
+    "documentImpact": "no CAD document or model changes",
+    "cacheImpact": "rebuild assets and static knowledge; existing preference/library storage schemas retained",
+    "requiredTests": [
+      "workspace-theme",
+      "workspace-upgrade",
+      "model-library",
+      "one browser batch: desktop and 905/768 embedded widths, floating menu, tooltip/icon semantics, visibility and theme persistence"
+    ]
+  },
+  "largeExactSources20261013": {
+    "localImpact": "UI/API/import preview use typed STEP/BREP source assets up to 128 MiB; exact OCCT geometry preserved; no sculpting algorithm changes.",
+    "servicesImpact": "Retain v4 when installing compiled results; Services source/checkpoint 20 MiB budgets unchanged; no DLL/native/IIS change.",
+    "logoImpact": "none: Logo/vector parser and converter budgets unchanged.",
+    "contractImpact": "Page API 1.36 typed budgets for step/stp/brep/brp, exact-source docs and typed export. Optional legacy unplaced exact import key behavior preserved.",
+    "documentImpact": "v4 source assets step/brep, hash/entry/capacity validation; legacy v1-v3 readable; no recovered upstream recipe claimed.",
+    "cacheImpact": "Regenerate static contracts. Freshly decoded Worker-owned binary assets transfer to the main thread without retaining a second Worker copy; main-thread history assets are never detached. Bounded rebuild stage progress preserves timeout diagnostics without changing the time limit.",
+    "requiredTests": [
+      "exact-source-assets",
+      "browser-files",
+      "command-service",
+      "project-container",
+      "document-capacity",
+      "named-parameters",
+      "services-boolean-contract",
+      "page-api",
+      "one real stage43 STEP import, render, save and cold reopen"
+    ],
+    "acceptanceBoundary": "Configured capacity is not universal geometry/performance acceptance. Tiger is a reusable-tool regression fixture, never a product-specific implementation."
+  },
+  "adaptiveExactDisplay20261013": {
+    "localImpact": "Complex BRep coarse-first display, bounded edge sampling, conservative display bounds, per-visible-face refinement, pixel tolerance, frustum culling and bounded disposable display buffers. Precise measurements remain on demand.",
+    "servicesImpact": "none: display of committed local BRep only; no computation routing, protocol, DLL, native or IIS change",
+    "logoImpact": "none: source/logo geometry and conversion unchanged",
+    "contractImpact": "Existing files.import, setView, setRenderQuality, capture and getState; adaptive display progress and deferred measurement metadata exposed; no new tool or UI-only path",
+    "documentImpact": "no document format change; original source bytes and BRep retained; display caches not saved",
+    "cacheImpact": "Disposable per-renderVersion mesh cache; stale replies rejected, offscreen refinements evicted; regenerate public knowledge on release",
+    "requiredTests": [
+      "adaptive-exact-display",
+      "display-lod",
+      "build release gate in isolated snapshot",
+      "real 87,930,530-byte STEP import, visible render, camera pan/zoom, refinement and unchanged revision"
+    ],
+    "deployment": "local development/isolated acceptance only; no formal endpoint updated"
   }
 }

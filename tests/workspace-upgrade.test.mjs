@@ -61,7 +61,7 @@ test('5 MiB project payload decodes exactly without regex stack overflow; larger
  const files=createBrowserFiles({command:async()=>({status:'read',revision:7,extension:'webcad',encoding:'base64',data:Buffer.from(bytes).toString('base64')}),confirmSaved:()=>({saved:false})});
  const out=await files.save({context:requestContext(context)});
  assert.equal(out.size,bytes.length);assert.deepEqual(await files.read({resourceId:out.resourceId,as:'bytes'}),bytes);
- for(const size of [25,100])await assert.rejects(files.register({name:'oversize.step',data:{byteLength:size*1024*1024}}),{code:'SIZE_LIMIT'});
+ for(const size of [129,200])await assert.rejects(files.register({name:'oversize.step',data:{byteLength:size*1024*1024}}),{code:'SIZE_LIMIT'});
  await assert.rejects(files.register({name:'oversize.webcad',data:{byteLength:513*1024*1024}}),{code:'SIZE_LIMIT'});
  for(const data of ['AA=A','A===','AAA','AA$A']){
   const invalid=createBrowserFiles({command:async()=>({status:'read',revision:7,extension:'webcad',encoding:'base64',data}),confirmSaved:()=>({})});

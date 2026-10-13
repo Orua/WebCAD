@@ -1,4 +1,8 @@
+import {sampleMeshRelief} from './mesh/relief-sample.js';
+import {exactSourceBytes} from './exact-source.js';
 import {MeshShape} from './mesh/mesh-shape.js';
+import {makeReliefPlate} from './mesh/relief-plate.js';
+import {editMeshRelief} from './mesh/relief-edit.js';
 import {assertPatternExecution} from './machining-intent.js';
 import {meshError} from './mesh/mesh-contract.js';
 import {createTechnicalDrawing} from './drawing/technical-drawing.js';
@@ -7,6 +11,8 @@ import {findExactDragSnap} from './modeling/interaction/drag-snap.js';
 import * as cad from 'replicad';
 import {exportColoredSTEP} from './modeling/io/step-export.js';
 import {renderQuality} from './render-quality.js';
+import {EXACT_DISPLAY} from './viewport/exact-display-policy.js';
+import {displayEdges,displayMetadata,isPlanarPolygon} from './modeling/io/adaptive-display.js';
 import { buildQuickModel } from './quick-models.js';
 import { buildLogoOnPlane, buildVectorProfile } from './logo-model.js';
 import {buildRelief} from './modeling/manufacturing/relief.js';
@@ -212,9 +218,15 @@ export class CadKernel {
     const frame=feature.placement?.frameSnapshot,point=value=>frame?worldPoint(frame,value):value,vector=value=>frame?rotateVector(frame.quaternion,value):value;
     const workPlane=(name,offset=0)=>{const basis=localPlaneBasis(name);return new cad.Plane(point(basis.offset(offset)),vector(basis.x),vector(basis.normal));};
     const sources = refs.map(id => { if (!shapes.has(id)) throw new Error(`找不到引用实体 ${id}`); return shapes.get(id); });
-    if(sources.some(s=>s.geometryType==='mesh')&&!['transform','copy'].includes(feature.op))throw meshError('MESH_TOOL_UNAVAILABLE','This precise BRep tool does not operate on raw meshes; source is retained.');
+    if(sources.some(s=>s.geometryType==='mesh')&&!['transform','copy','meshReliefEdit'].includes(feature.op))throw meshError('MESH_TOOL_UNAVAILABLE','This precise BRep tool does not operate on raw meshes; source is retained.');
     const source = () => { if (sources.length !== 1) throw new Error('此操作需要选择一个实体'); return sources[0]; };
     switch (feature.op) {
+      case 'meshReliefPlate': return new MeshShape(makeReliefPlate(p),{units:'mm',sourceFormat:'generated-mesh',report:{authoritativeEditableKind:'mesh-f64',recipeVersion:1}});
+      case 'meshReliefEdit': {
+        const original=source();if(original.geometryType!=='mesh')throw meshError('RELIEF_SOURCE_UNSUPPORTED','This operation edits a mesh; exact BRep requires its own surface operation.');
+        const result=editMeshRelief(original.transformed(),p);
+        return new MeshShape(result.mesh,{sourceBytes:original.sourceBytes,sourceHash:original.sourceHash,units:'mm',sourceFormat:'edited-mesh',report:{...original.report,edit:result.report}});
+      }
       case 'quickModel': return buildQuickModel(p, cad, {oc:this.oc,roundAll:(shape,radius)=>buildSmoothTransition(shape,{radius,allEdges:true})});
       case 'advancedLoft': return buildAdvancedLoft(p,cad);
       case 'curveSweep': return buildCurveSweep(p,cad);
@@ -433,10 +445,10 @@ export class CadKernel {
       case 'import': {
         const item = imports[p.key];
         if(item&&['stl','mesh'].includes(item.format))return MeshShape.fromAsset(item,this.binaryAssets?.[item.assetHash]);
-        if (!item || typeof item.data !== 'string') throw new Error('工程中缺少原始导入文件');
+        if (!item) throw new Error('工程中缺少原始导入文件');
         if (item.format === 'iges') throw new Error('此内核不支持 IGES 编辑，请先在原 CAD 软件另存为 STEP');
         if (item.format === 'stl') throw new Error('STL 是三角网格，不能作为精确实体编辑；请使用 STEP 或 BREP');
-        const bytes = Uint8Array.from(atob(item.data), c => c.charCodeAt(0));
+        const bytes = exactSourceBytes(item,this.binaryAssets);
         if (item.format === 'step') return (await cad.importSTEP(new Blob([bytes]))).asShape3D();
         if (item.format === 'brep') return cad.deserializeShape(new TextDecoder().decode(bytes)).asShape3D();
         throw new Error('导入格式不受支持');
@@ -660,12 +672,18 @@ export class CadKernel {
       return {bodies,quality};
     } catch(error) {this.quality=previous;throw error;}
   }
+  reportRebuildProgress(phase,label,details={}){
+    if(this.rebuildStarted===undefined)return;
+    this.onProgress?.({kind:'rebuild',phase,label,elapsedMs:Math.round(performance.now()-this.rebuildStarted),...details});
+  }
   measureBodyGeometry(shape,faces,edges){
     const cached=this.geometryMetrics.get(shape);if(cached)return cached;
     const solids=shape.solids,shells=Array.from(cad.iterTopo(shape.wrapped,'shell'),item=>cad.cast(item)),bbox=shape.boundingBox;
     try{
       const [min,max]=bbox.bounds,snapPoints=[];
+      this.reportRebuildProgress('snap-points','计算精确吸附点',{completed:0,total:edges.length});
       edges.forEach((edge,edgeId)=>{
+        if(edgeId&&edgeId%64===0)this.reportRebuildProgress('snap-points','计算精确吸附点',{completed:edgeId,total:edges.length});
         for(const [type,get] of [['endpoint',()=>edge.startPoint],['endpoint',()=>edge.endPoint]]){
           const vector=get();try{snapPoints.push({point:vector.toTuple(),type,edgeId});}finally{dispose(vector);}
         }
@@ -675,27 +693,36 @@ export class CadKernel {
           try{circle=adaptor.Circle();center=circle.Location();snapPoints.push({point:[center.X(),center.Y(),center.Z()],type:'center',edgeId});}finally{[center,circle,adaptor].forEach(dispose);}
         }
       });
+      this.reportRebuildProgress('mass-properties','测量正式实体');
       const measured={faceCount:faces.length,edgeCount:edges.length,snapPoints,bounds:{min,max},volume:solids.length?preciseVolume(shape,this.oc):null,area:surfaceArea(shape,this.oc),solidCount:solids.length,shellCount:shells.length};
       this.geometryMetrics.set(shape,measured);return measured;
     }finally{[...solids,...shells,bbox].forEach(dispose);}
   }
   describe(shape, feature) {
     if(shape.geometryType==='mesh')return shape.describe(feature);
-    const quality=this.quality||'standard', settings=renderQuality(quality);
-    const mesh = shape.mesh(settings);
-    const wire = shape.meshEdges({ tolerance: settings.tolerance*0.75, angularTolerance: settings.angularTolerance*0.8 });
+    const quality=this.quality||'standard', requested=renderQuality(quality);
     const faces = shape.faces, edges = shape.edges;
+    const adaptive=faces.length>=EXACT_DISPLAY.faceThreshold;
+    const settings=adaptive?{tolerance:EXACT_DISPLAY.initialTolerance,angularTolerance:EXACT_DISPLAY.initialAngle}:requested;
     try {
+    this.reportRebuildProgress('surface-mesh','生成曲面显示');
+    const mesh = shape.mesh(settings);
+    this.reportRebuildProgress('edge-mesh','生成边线显示');
+    const wire = adaptive?null:shape.meshEdges({ tolerance: settings.tolerance*0.75, angularTolerance: settings.angularTolerance*0.8 });
       const faceMap = new Map(faces.map((v, i) => [v.hashCode, i])), edgeMap = new Map(edges.map((v, i) => [v.hashCode, i]));
-      const measured=this.geometryMetrics.get(shape)||this.measureBodyGeometry(shape,faces,edges);
-      const mappedFaces = mesh.faceGroups.map(g => ({ ...g, faceId: faceMap.get(g.faceId) }));
-      const mappedEdges = wire.edgeGroups.map(g => ({ edgeId: edgeMap.get(g.edgeId), positions: Array.from(wire.lines.slice(g.start * 3, (g.start + g.count) * 3)) }));
+      this.reportRebuildProgress('display-bounds','计算显示范围');
+      const measured=this.geometryMetrics.get(shape)||(adaptive?displayMetadata(shape,faces,edges,this.oc):this.measureBodyGeometry(shape,faces,edges));
+      const mappedFaces = mesh.faceGroups.map(g => ({ ...g, faceId: faceMap.get(g.faceId),...(adaptive?{exactPolygon:isPlanarPolygon(faces[faceMap.get(g.faceId)])}:{}) }));
+      this.reportRebuildProgress('edge-polylines','生成显示边线');
+      const mappedEdges = adaptive?displayEdges(edges,settings.tolerance,this.oc):wire.edgeGroups.map(g => ({ edgeId: edgeMap.get(g.edgeId), positions: Array.from(wire.lines.slice(g.start * 3, (g.start + g.count) * 3)) }));
+      if(adaptive)measured.snapPoints=mappedEdges.filter(e=>e.positions.length).flatMap(e=>[{point:e.positions.slice(0,3),type:'endpoint',edgeId:e.edgeId},{point:e.positions.slice(-3),type:'endpoint',edgeId:e.edgeId}]);
       if (mappedFaces.some(g => g.faceId === undefined) || mappedEdges.some(g => g.edgeId === undefined)) throw new Error('拓扑索引映射失败');
-      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges,...measured,reliefReport:shape.reliefReport, refineReport:shape.refineReport, roundReport:shape.roundReport,endRoundingReport:shape.endRoundingReport,roundingReport:shape.roundingReport, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
+      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges,...measured,adaptiveDisplay:adaptive?{initialTolerance:settings.tolerance,requestedQuality:quality,source:'exact-brep',sourceChanged:false}:undefined,reliefReport:shape.reliefReport, refineReport:shape.refineReport, roundReport:shape.roundReport,endRoundingReport:shape.endRoundingReport,roundingReport:shape.roundingReport, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
     } finally { [...faces, ...edges].forEach(dispose); }
   }
   async rebuild(document) {
     if (!document || ![1,2,3,4].includes(document.version) || !Array.isArray(document.features)) throw new Error('无效的 WebCAD 工程');
+    this.rebuildStarted=performance.now();
     this.binaryAssets=document.binaryAssets||{};
     const next = new Map(), active = new Map(), ids = new Set(); let current;
     const importsSignature = JSON.stringify(document.imports || {});
@@ -710,6 +737,7 @@ export class CadKernel {
       for (let index = 0; index < features.length; index++) {
         const feature = features[index];
         current = feature.id;
+        this.reportRebuildProgress('feature','重建特征',{featureId:current,completed:index,total:features.length});
         if (!current || ids.has(current)) throw new Error('特征 ID 缺失或重复');
         ids.add(current);
         let shape;
@@ -745,6 +773,7 @@ export class CadKernel {
         }
         if (shape) {
           next.set(current, shape);
+          this.reportRebuildProgress('validation','校验几何',{featureId:current});
           if (!reused.has(current)&&shape.geometryType!=='mesh') {
             if (shape.isNull) throw new Error('操作生成空模型，请检查尺寸和实体交集');
             const faces = shape.faces; const hasFaces = faces.length > 0; faces.forEach(dispose);
@@ -769,6 +798,7 @@ export class CadKernel {
         // Meshing and metadata queries can rewrite OCCT TShape flags. Freeze the
         // precise source before display work; uploads and cold checkpoint gates
         // then bind the same bytes without normalizing or weakening the hash.
+        this.reportRebuildProgress('source-snapshot','保留精确源快照',{featureId:id});
         if(next.get(id).geometryType!=='mesh')this.geometrySourceSnapshot(next.get(id));
         const body = cached ? {...cached.body,name:feature.name||feature.id} : this.describe(next.get(id), feature);
         if(cached&&feature.op==='relief'&&body.reliefReport?.layers&&feature.params.layers)body.reliefReport={...body.reliefReport,layers:body.reliefReport.layers.map((layer,i)=>({...layer,name:feature.params.layers[layer.index??i]?.name??layer.name}))};
@@ -779,14 +809,15 @@ export class CadKernel {
       this.shapes.forEach((shape, id) => { if (!reused.has(id) && !next.has(id)) dispose(shape); });
       this.shapes.forEach((shape, id) => { if (next.has(id) && next.get(id) !== shape && !reused.has(id)) dispose(shape); });
       this.shapes = next; this.active = active; this.historySignature = signatures; this.importsSignature = importsSignature; this.renderCache = nextRenderCache;
-      return { bodies, renderVersion: String(this.renderVersion), compiledReuse,compiledInvalidated,stats: { bodies: bodies.length, solids: bodies.reduce((n, b) => n + b.solidCount, 0), volume: bodies.reduce((n, b) => n + (b.volume || 0), 0) } };
+      this.reportRebuildProgress('complete','重建完成');
+      return { bodies, renderVersion: String(this.renderVersion), compiledReuse,compiledInvalidated,stats: { bodies: bodies.length, solids: bodies.reduce((n, b) => n + b.solidCount, 0), volume: bodies.some(b=>b.metricsDeferred)?null:bodies.reduce((n, b) => n + (b.volume || 0), 0) } };
     } catch (error) {
       next.forEach((shape, id) => { if (!reused.has(id)) dispose(shape); });
       const raw=String(error?.message||error||'');
       const descriptive=raw.replace(/\s*\[object WebAssembly\.Exception\]\s*$/,'').trim();
       const message=descriptive||'几何内核未能生成有效实体；请减小加工尺寸或缩小目标范围。原模型保持。';
       throw Object.assign(new Error(message,{cause:error}), { featureId: current, code:error?.code||'GEOMETRY_INVALID', path:error?.path, recoveryAction:error?.recoveryAction||'CORRECT_PARAMETERS',report:error?.report });
-    }
+    } finally {this.rebuildStarted=undefined;}
   }
   technicalDrawing(input){return createTechnicalDrawing(input.bodyIds.map(id=>this.activeShape(id)),input);}
   activeShape(bodyId) {
@@ -877,6 +908,7 @@ export class CadKernel {
     const shape=this.activeShape(bodyId),items=nearestBrepReferences(shape,this.oc,kind,point,options);
     return {bodyId,kind,items,geometryFingerprint:await this.geometryFingerprint(shape)};
   }
+  sampleMeshRelief(input){const shape=this.activeShape(input.bodyId);if(shape.geometryType!=='mesh')throw meshError('RELIEF_SOURCE_UNSUPPORTED','Height query requires a current authoritative mesh.');return sampleMeshRelief(shape.transformed(),input);}
   measure(bodyId,topologyType,topologyId) {
     const shape=this.activeShape(bodyId);
     if(shape.geometryType==='mesh'){if(topologyType&&topologyType!=='body')throw meshError('MESH_TOPOLOGY_UNAVAILABLE','Select the full authoritative mesh.');return {bodyId,...shape.metrics()};}

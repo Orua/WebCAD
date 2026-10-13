@@ -10,12 +10,14 @@ import { MetalMaterials, METAL_FINISHES } from './metal-materials.js';
 import { getLanguage } from './i18n.js';
 import { loadDisplayPreferences } from './display-preferences.js';
 import {chooseDisplayLevel} from './mesh/display-lod.js';
+import {ExactDisplayDetail} from './viewport/exact-detail.js';
 const say=(zh,en)=>getLanguage()==='en'?en:zh;
 
 const COLORS = [0xaac4d9, 0xc5b395, 0x91bdb1, 0xb3a6c8, 0x9db5c6, 0xc39e9e];
 export class CADViewport {
   constructor(host, callbacks = {}) {
     this.host=host; this.callbacks=callbacks; this.objects=new Map(); this.selected=[]; this.selectionMode='view'; this.mode='edges'; this.hidden=[]; this.temporaryDisplay='normal';
+    this.exactDisplayDetail=new ExactDisplayDetail(this);
     this.scene=new THREE.Scene(); this.scene.background=new THREE.Color('#eef1f5');
     this.camera=new THREE.PerspectiveCamera(35,1,0.01,100000); this.camera.up.set(0,0,1); this.camera.position.set(90,-110,85);
     this.renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true}); this.renderer.setPixelRatio(Math.min(window.devicePixelRatio,2)); this.renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -93,7 +95,7 @@ export class CADViewport {
     for(const [id,entry] of this.objects){
       const body=incoming.get(id);
       if(!body||body.renderVersion===undefined||body.renderVersion!==entry.body.renderVersion){
-        this.modelRoot.remove(entry.root);for(const patch of entry.displayPatches||[]){patch.full.dispose();for(const lod of patch.lods)lod.geometry.dispose();}this.disposeObject(entry.root);this.objects.delete(id);
+        this.modelRoot.remove(entry.root);this.exactDisplayDetail.release(entry);for(const patch of entry.displayPatches||[]){patch.full.dispose();for(const lod of patch.lods)lod.geometry.dispose();}this.disposeObject(entry.root);this.objects.delete(id);
       }
     }
     bodies.forEach((body,i)=>{
@@ -117,6 +119,7 @@ export class CADViewport {
       for(const edge of body.edges||[]){if(edge.positions.length<6)continue;const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(edge.positions,3));const line=new THREE.LineSegments(geo,new THREE.LineBasicMaterial({color:0x465b6e,transparent:true,opacity:.72}));line.userData={bodyId:body.id,type:'edge',edgeId:edge.edgeId};edges.add(line);}
       if(!edges.children.length&&body.geometryType!=='rawMesh'){const outline=new THREE.LineSegments(new THREE.EdgesGeometry(geometry,25),new THREE.LineBasicMaterial({color:0x465b6e}));outline.userData={bodyId:body.id,type:'outline'};edges.add(outline);}
       root.add(edges);root.visible=!hidden.includes(body.id);this.modelRoot.add(root);this.objects.set(body.id,{root,mesh,edges,body,displayGroup,displayPatches});
+      this.exactDisplayDetail.attach(this.objects.get(body.id));
     });this.setDisplay(this.mode);this.setMetalFinish(this.finishKey);this.applyClipping();this.updateHud();
   }
   setHidden(ids){this.hidden=ids;this.applyTemporaryDisplay();}
@@ -327,6 +330,7 @@ export class CADViewport {
       if(active)entry.edges.visible=false;
     }
     this.displayDetail={phase:active?'interactive-preview':'fine',approximate,previewTriangles,fullTriangles,patchCount,screenErrorBudgetPx:active?8:0,sourceChanged:false,selectionSource:'full-original-display-mesh',culling:'spatial-patch frustum; occlusion not implemented'};
+    const exactDetail=this.exactDisplayDetail.update(active);if(exactDetail)this.displayDetail={...this.displayDetail,...exactDetail};
     if(!active)this.viewInteraction='settled';
   }
   renderFrame(forceFine=false){this.roundGuide?.render();this.controls.update();this.scene.updateMatrixWorld();this.camera.updateMatrixWorld();this.updateDisplayDetail(forceFine);
@@ -336,7 +340,7 @@ export class CADViewport {
   async frame(){await new Promise(resolve=>requestAnimationFrame(resolve));this.renderFrame();return this.displayState();}
   displayState(){return {model:this.modelContext||null,rendered:this.renderedContext||null,frame:this.frameSequence,status:this.displayError?'failed':this.renderedContext?'rendered':'pending',error:this.displayError||null,detail:this.displayDetail||null,cachedFrameReused:!!this.cachedFrameReused,camera:{projection:this.camera.isOrthographicCamera?'orthographic':'perspective',position:this.camera.position.toArray(),target:this.controls.target.toArray(),up:this.camera.up.toArray()}};}
   screenshot(){this.renderFrame(true);return this.renderer.domElement.toDataURL('image/png');}
-  destroy(){this.disposeRectangleSelection?.();this.resizeObserver.disconnect();this.renderer.setAnimationLoop(null);this.controls.dispose();this.gizmo.dispose();this.disposeObject(this.scene);this.metals.dispose();this.renderer.dispose();}
+  destroy(){this.disposeRectangleSelection?.();this.resizeObserver.disconnect();this.renderer.setAnimationLoop(null);this.controls.dispose();this.gizmo.dispose();for(const entry of this.objects.values())this.exactDisplayDetail.release(entry);this.disposeObject(this.scene);this.metals.dispose();this.renderer.dispose();}
 }
 
 

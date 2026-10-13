@@ -32,9 +32,9 @@ export function renderWorkspaceRibbon({q,toolButtons,activeCategory,UI_LAYOUT,gr
     for(const [index,action]of actions.entries()){
       const fullLabel=names[action]||UI_LAYOUT.shortLabels?.[action]||action;
       const b=button('',()=>{if(more)more.open=false;run(action);},'tool-button');
-      b.dataset.action=action;b.dataset.commandId=action;b.dataset.group=label;b.dataset.fullLabel=fullLabel;b.setAttribute('aria-label',fullLabel);
+      b.dataset.action=action;b.dataset.commandId=action;b.dataset.group=label;b.dataset.fullLabel=fullLabel;b.setAttribute('aria-label',fullLabel);b.title=fullLabel;
       if(action==='selectTool')b.setAttribute('aria-keyshortcuts','V');
-      b.append(action==='selectTool'?selectionIcon():actionIcon(action),element('span',{},UI_LAYOUT.shortLabels?.[action]||fullLabel));
+      b.append(action==='selectTool'?selectionIcon():actionIcon(action),element('span',{class:'tool-label'},UI_LAYOUT.shortLabels?.[action]||fullLabel));
       (more&&(policy.overflowActions?policy.overflowActions.includes(action):index>=policy.visibleActions)?menu:row).append(b);toolButtons.push(b);
     }
     if(more){
@@ -56,7 +56,7 @@ export function renderWorkspaceRibbon({q,toolButtons,activeCategory,UI_LAYOUT,gr
     const control=UI_LAYOUT.controls[id],row=group(control.label);row.classList.add('view-grid');row.setAttribute('role','group');row.setAttribute('aria-label',control.label);
     for(const [label,value]of control.items){
       const action=control.action||value,b=button('',()=>emit(action,control.key?{[control.key]:value}:undefined),'view-tool');
-      b.append(actionIcon(value),element('span',{},UI_LAYOUT.shortLabels?.[value]||label));b.dataset.action=action;b.dataset.fullLabel=label;b.dataset.group=control.label;b.setAttribute('aria-label',label);
+      b.append(actionIcon(value),element('span',{class:'tool-label'},UI_LAYOUT.shortLabels?.[value]||label));b.dataset.action=action;b.dataset.fullLabel=label;b.dataset.group=control.label;b.setAttribute('aria-label',label);
       if(control.setting){b.dataset.setting=control.setting;b.dataset.value=value;}row.append(b);toolButtons.push(b);
     }
   }
