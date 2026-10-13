@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.41.0",
-  "buildId": "39a8818713a9b39d9cf1336f4d98ad7b5807d78c-src-fcdda3290890940d-working",
-  "catalogHash": "sha256:48ca688a1bc0bbdc186b5c263c294e70c187cffcefcbb7df9995d8c35d2923ea",
-  "docsHash": "sha256:464f92e5fdb3f4c41522299990955a9b1abb9bf60d6ee7c9c2f1edd9fc7d79f5",
+  "pageApiVersion": "1.42.0",
+  "buildId": "7e8114e5e87962dfbc319cb480172f5d19b3dfbf-src-469b5540d4bcedda",
+  "catalogHash": "sha256:2949efa5c85602c2b3e8e1a1b259764a0d3d5de8792c46a086b2dc5162ff0d31",
+  "docsHash": "sha256:edb7a93c61b4222becfd2bc9e2dab21aff960adc29d1ea81b8a6292bf66c9e96",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -927,6 +927,13 @@
       "method": "prepareReliefSculpt",
       "usage": "浮雕历史属性→浮雕精修；独立毫米域用 patch:{id,domainMm,samples,protectionMm}，域内增量独立保存，边界两排固定；实际柱面及邻层预览用 preview.start args:{featureEdit:{featureId,params}}，再 preview.commit/cancel；patchId 对应独立域吸取。prepareReliefSculpt({context,featureId,strokes,draft?})只读返回params.sculpt；检查canCommit/blockers后feature.edit提交。笔刷raise/lower/smooth/flatten/fill/scrape/sharpen/restore/mask/unmask，hardness为0–1、symmetry为none/x/y/xy，局部points为[-.5,.5]，radiusMm/amountMm/targetMm为毫米，strength为0–1。工程保存原始高度及deltaMm/mask；关闭/切层暂存草稿、应用当前层一次撤销；Alt吸取对应sampleReliefHeight({context,featureId,point,draft?})，返回targetMm可给flatten，quantity区分height/depth，与UI共用采样；轮廓外或孔内失败RELIEF_SAMPLE_OUTSIDE；预览旋转缩放不改模型。"
     },
+    "reliefShoulder": {
+      "tools": [
+        "reliefShoulder"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
     "reliefTopologyUpgrade": {
       "tools": [
         "prepareReliefTopologyUpgrade",
@@ -1341,6 +1348,7 @@
     "referenceLoft": "参考截面放样 / 截面放样",
     "refineShape": "清理分割线 / getState / queryGeometry / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销",
     "relief": "浮雕 / planPatternMachining / readRelief / 登记文件资源 / getState / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数 / 撤销",
+    "reliefShoulder": "浮雕层肩部",
     "remove": "删除 / 删除实体",
     "revolve": "旋转成型 / 轮廓旋转",
     "sewFaces": "曲面缝合",

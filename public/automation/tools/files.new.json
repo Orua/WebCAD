@@ -2,7 +2,7 @@
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.41.0",
+  "version": "1.42.0",
   "label": "新建工程",
   "synonyms": [
     "新建工程",
@@ -58,5 +58,5 @@
     "FILE_COMMAND_FAILED",
     "SIZE_LIMIT"
   ],
-  "docsHash": "sha256:f3dc1c025863c7881a942cc45428476a8a31db7ffdbb81f8b97c9fbed42344df"
+  "docsHash": "sha256:2fd5d672de4651fb07813feecfd10824c85835711a5bd1ca804e9fa71edf70f1"
 }

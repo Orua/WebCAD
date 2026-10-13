@@ -2,7 +2,7 @@
   "id": "submit",
   "title": "submit",
   "category": "page-method",
-  "version": "1.41.0",
+  "version": "1.42.0",
   "description": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/inspectConstraints/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.",
   "synonyms": [
     "submit",
@@ -24,5 +24,5 @@
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:6da6067102e2d43291c2241f6cbf09a4a4c1ce17ea6541bf50ddfdb60feea3c0"
+  "docsHash": "sha256:548456160f9299a32c5a662a308afd71ae207d74f651fc0aa1ae1fc03660cb15"
 }

@@ -2,7 +2,7 @@
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.41.0",
+  "version": "1.42.0",
   "description": "capture({context}); 不接受额外字段。",
   "synonyms": [
     "capture",
@@ -23,5 +23,5 @@
     "DISPLAY_FAILED"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:117b2669a15d46232ad73cc2d760e5628f2f5f8760ff74b9d2a602f7ab83928a"
+  "docsHash": "sha256:2dbcc764ab1fe594caa40ffae54560d4f0d0084d7a9cab9bde47ff964f737158"
 }

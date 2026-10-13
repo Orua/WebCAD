@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "id": "webcad-page-api",
-  "version": "1.41.0",
-  "buildId": "39a8818713a9b39d9cf1336f4d98ad7b5807d78c-src-fcdda3290890940d-working",
-  "catalogHash": "sha256:48ca688a1bc0bbdc186b5c263c294e70c187cffcefcbb7df9995d8c35d2923ea",
-  "docsHash": "sha256:464f92e5fdb3f4c41522299990955a9b1abb9bf60d6ee7c9c2f1edd9fc7d79f5",
+  "version": "1.42.0",
+  "buildId": "7e8114e5e87962dfbc319cb480172f5d19b3dfbf-src-469b5540d4bcedda",
+  "catalogHash": "sha256:2949efa5c85602c2b3e8e1a1b259764a0d3d5de8792c46a086b2dc5162ff0d31",
+  "docsHash": "sha256:edb7a93c61b4222becfd2bc9e2dab21aff960adc29d1ea81b8a6292bf66c9e96",
   "entrypoints": {
     "browser": "agent-start.html",
     "machine": "agent-start.json",
@@ -41,8 +41,8 @@
     {
       "relativePath": "routes.json",
       "url": "routes.json",
-      "sizeBytes": 52431,
-      "sha256": "sha256:747469dce8f8dcf52b960a50d8236cce7ceebe83d373aea677aa1c65be44f922"
+      "sizeBytes": 52659,
+      "sha256": "sha256:a28fcacc1607ec0c48a1fa82051e77524dae791a752062e65f824720467c0ca5"
     }
   ],
   "installer": {

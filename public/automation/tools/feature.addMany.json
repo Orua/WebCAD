@@ -119,7 +119,7 @@
   "title": "一次提交多特征",
   "description": "args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
   "category": "command",
-  "version": "1.41.0",
+  "version": "1.42.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -148,5 +148,5 @@
     "getState"
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
-  "docsHash": "sha256:0b82033351109c2ad299e2824fc60b84c6a480813b6733247bf2b26e68bb06e1"
+  "docsHash": "sha256:f91a29a26dbb9a0bdc3dcc8a73f15b2ae4631f40b67fc82ffc688fd98f6b6339"
 }
