@@ -66,9 +66,9 @@
 
 /* CADViewer-style icon chrome, with Goldenluck configurable colour roles. */
 .webcad-app .app-header{height:48px;min-height:48px;flex-wrap:nowrap;gap:8px;padding:0 12px}
-.webcad-app .app-header .brand{min-width:0;gap:7px;flex:none;font-size:14px;color:var(--accent-ink)}
+.webcad-app .app-header .brand{position:static;transform:none;margin:0;order:0;min-width:0;gap:7px;flex:0 0 auto;justify-content:flex-start;font-size:14px;color:var(--accent)}
 .webcad-app .app-header .brand>div{display:block}.webcad-app .app-header .brand small{display:none}
-.webcad-app .app-header .brand-mark{width:28px;height:28px;background:transparent;color:var(--accent-ink);box-shadow:none;border-radius:0}
+.webcad-app .app-header .brand-mark{display:grid;place-items:center;flex:0 0 28px;width:28px;height:28px;background:transparent;color:var(--accent);box-shadow:none;border-radius:0}
 .webcad-app .brand-mark .ui-vector-icon{width:27px;height:27px}
 .webcad-app .app-header .document-title{flex:0 1 240px;min-width:80px;max-width:240px;font-size:12px;padding:6px;border:0;gap:7px}
 .webcad-app .app-header .header-actions{margin-left:auto;gap:4px;flex:none}

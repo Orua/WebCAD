@@ -2,7 +2,7 @@
   "id": "decideServicesWait",
   "title": "decideServicesWait",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "decideServicesWait({jobId,decision:\"continue\"|\"stop\"})，可在工程忙碌时调用；jobId必须是getServicesRouting().pendingWait中的当前任务。",
   "synonyms": [
     "decideServicesWait",
@@ -21,5 +21,5 @@
     "PARAM_SCHEMA_INVALID",
     "SERVICES_WAIT_NOT_PENDING"
   ],
-  "docsHash": "sha256:4f8ff861699b6facdb874f54f849ead93d4a85cd9c2e004070e525827470a0b2"
+  "docsHash": "sha256:336fe0e81e084babb81f9d1fd892c6cc4c385da48c63fbfb96c8947760108410"
 }

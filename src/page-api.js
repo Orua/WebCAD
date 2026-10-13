@@ -60,6 +60,9 @@ export function createPageAPI(host){
   const vectorCache=new Map();
   const drawingCache=new Map();
   const api={
+    getAgentPanel:()=>window.webcad.assistantPanel.get(),
+    configureAgentPanel:guarded(async input=>{check(input,['context','url']);if(typeof input.url!=='string')fail('PARAM_SCHEMA_INVALID','url must be a string');return window.webcad.assistantPanel.configure(input.url);}),
+    setAgentPanel:guarded(async input=>{check(input,['context','visible']);if(typeof input.visible!=='boolean')fail('PARAM_SCHEMA_INVALID','visible must be boolean');return input.visible?window.webcad.assistantPanel.enter():window.webcad.assistantPanel.exit();}),
     getHistory:()=>host.history(),
     planAlignment:guarded(async input=>{check(input,['context','bodyIds','target','axes','sourceSide','targetSide','group','gapMm']);return {status:'read',...host.planAlignment(input),context:current().context};}),
     selectRectangle:guarded(async input=>{check(input,['context','rect','mode','additive']);if(input.additive!==undefined&&typeof input.additive!=='boolean')fail('PARAM_SCHEMA_INVALID','additive must be boolean');return host.selectRectangle(input);}),

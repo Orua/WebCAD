@@ -1,0 +1,23 @@
+{
+  "id": "setAgentPanel",
+  "title": "setAgentPanel",
+  "category": "page-method",
+  "version": "1.43.0",
+  "description": "setAgentPanel({context,visible:true|false})；true将已配置助手侧栏接到当前页面，false立即撤销适配器写入、解锁并关闭侧栏，再取消同一任务并释放原会话。",
+  "synonyms": [
+    "setAgentPanel",
+    "Agent",
+    "助手",
+    "进入",
+    "退出",
+    "释放",
+    "编辑"
+  ],
+  "inputContract": "setAgentPanel({context,visible:true|false})；true将已配置助手侧栏接到当前页面，false立即撤销适配器写入、解锁并关闭侧栏，再取消同一任务并释放原会话。",
+  "outputContract": "status=applied，状态见getAgentPanel；不刷新、不另建工程，不改变revision/dirty/相机/历史。网络失败releasePending=true；旧会话须核对释放，不重跑。仅匹配配置origin、实际iframe、一次性channel的消息可用；既有同源工作台可绑定外层控制器。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:189427d79810dc470a4bf6abc6c8dca7f214d30c429af1f956310b08d5b48235"
+}

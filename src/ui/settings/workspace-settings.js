@@ -14,6 +14,10 @@ export function showWorkspaceSettings(action,{openDialog,element,button,state,em
   }
   if(action==='agentGuide'){
     d.dataset.agentSettings='true';
+    const page=window.webcad.api,panel=page.getAgentPanel();
+    const addressLabel=element('label',{class:'form-field wide'}),address=element('input',{type:'url','aria-label':'Agent 助手页面地址',required:''});address.value=panel.url;address.style.width='100%';addressLabel.append(element('span',{},'Agent 助手页面地址'),address);form.append(addressLabel);
+    note('保存助手页面地址后，点击顶栏的立方体 Agent 按钮，助手将接入当前工程；再次点击即可退出并恢复编辑。助手使用已有登录与授权。');
+    const saveAddress=button('保存配置',async()=>{if(!address.reportValidity())return;const result=await page.configureAgentPanel({context:page.getState().context,url:address.value.trim()});if(result.status==='failed'){api.showError(result.error.message);return;}closeDialog();},'primary');saveAddress.dataset.commandId='agentPanel';form.append(saveAddress);
     const guide=element('details',{class:'agent-config-guide wide'});guide.append(element('summary',{},'连接说明与安装'));
     d.style.width='min(760px, calc(100vw - 32px))';d.style.maxWidth='760px';
     const rootUrl=new URL('./',document.baseURI),assetUrl=path=>new URL(path,rootUrl).href;

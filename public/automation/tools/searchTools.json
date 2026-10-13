@@ -2,7 +2,7 @@
   "id": "searchTools",
   "title": "searchTools",
   "category": "page-method",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。",
   "synonyms": [
     "searchTools",
@@ -22,5 +22,5 @@
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:94d52d8f7d9013f3678f35bd8dec201aba50a7c080dcb1af0ef006fb9bebc5f5"
+  "docsHash": "sha256:860195df70830bf8d38acb4e088c15cf7d8c0521a9147045189d4a59d23f70a6"
 }

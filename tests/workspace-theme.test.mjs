@@ -13,6 +13,7 @@ test('Goldenluck default and saved custom colour use one shared theme token set'
   applyWorkspaceTheme(app,'#9333ea');assert.equal(props.get('--accent'),'#9333ea');assert(props.get('--accent-soft').includes('#9333ea'));
   applyWorkspaceTheme(app,'#0c827d');assert.equal(props.get('--accent'),'#0c827d');assert.notEqual(props.get('--accent-ink'),'#9333ea');assert.equal(modalProps.get('--accent'),'#0c827d');assert.equal(modalProps.get('--accent-contrast'),props.get('--accent-contrast'));
   assert.equal(workspaceThemeTokens('invalid')['--accent'],DEFAULT_THEME_COLOR);
+  for(const color of ['#3a6eba','#0c827d','#9333ea']){const tokens=workspaceThemeTokens(color);assert.equal(tokens['--accent-ink'],color);assert.equal(tokens['--accent-dark'],color);}
 });
 test('theme text and primary foreground remain readable for configured bright and dark colours',()=>{
   for(const color of ['#3a6eba','#0c827d','#9333ea','#ea580c','#666666','#ffffff','#ffff00','#7f7f7f','#000000']){

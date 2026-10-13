@@ -1,13 +1,13 @@
 import {contractHash} from '../contracts/operation-schema.js';
 export const PROTOCOL = 'goldenluck.webcad/1';
 export const IDENTITY_KEYS = Object.freeze(['sessionId','documentId','documentInstanceId']);
-export const READ_METHODS = new Set(['connect','info','getState','getHistory','searchTools','getTools','getTool','readDocs',
+export const READ_METHODS = new Set(['connect','info','getState','getAgentPanel','getHistory','searchTools','getTools','getTool','readDocs',
   'queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectDesign','inspectProfile',
   'inspectConstraints','inspectFit','inspectThickness','inspectDraft','inspectPrintability','files.capabilities',
   'planPatternMachining','prepareProfileEdit','projectProfile','sampleMeshRelief','sampleReliefHeight','prepareReliefSculpt','readRelief','readVector','connectVector',
   'fitProfile','traceTwinWindow','planAlignment','getUILayout','getQuickModelUsage','inspectRound','getModelLibrary','resolveModelLibrary']);
 export const VIEW_METHODS = new Set(['setView','setRenderQuality','setDisplayPreferences','selectRectangle','redraw','capture','updateModelLibrary']);
-export const DISCOVERY_METHODS = new Set(['connect','info','getState','getHistory','searchTools','getTools','getTool','readDocs','files.capabilities','getUILayout','getQuickModelUsage','getModelLibrary']);
+export const DISCOVERY_METHODS = new Set(['connect','info','getState','getAgentPanel','getHistory','searchTools','getTools','getTool','readDocs','files.capabilities','getUILayout','getQuickModelUsage','getModelLibrary']);
 export const EDIT_ACTIONS = new Set(['feature.add','feature.addMany','feature.edit','feature.rename','document.rename',
   'feature.compileServices',
   'body.visibility','body.appearance','body.explode','document.appearance','history.undo','history.redo',
@@ -33,6 +33,7 @@ export function editsDocument(payload) {
 }
 // Host-managed resources and service credentials never enter model-controlled arguments.
 export const HOST_ONLY_METHODS = Object.freeze({invoke:'dispatch wrapper',submit:'adapter owns job IDs',getJob:'original receipt via webcad_job',cancelJob:'host stop control',
+  configureAgentPanel:'user-owned assistant destination',setAgentPanel:'user-owned connection lifetime',
   getServices:'host service configuration',setServices:'host service credentials and upload consent',clearServicesCredential:'host authorization lifetime',
   getServicesCapabilities:'host service connection',getServicesRouting:'host execution router',getServicesJob:'host server job ownership',getServicesRequest:'host server request reconciliation',
   cancelServicesJob:'host server cancellation',decideServicesWait:'host user wait decision',recoverServicesJob:'requires explicit recovery approval',
