@@ -356,6 +356,107 @@
       "publicToolIds": []
     },
     {
+      "operation": "pattern.machining-intent",
+      "semanticVersion": "pattern.intent-1.0",
+      "sourcePaths": [
+        "src/machining-intent.js",
+        "src/command-service.js",
+        "src/page-api.js",
+        "src/relief-image.js",
+        "src/ui/forms/relief-dialog.js",
+        "src/agent/protocol.js",
+        "src/cad-kernel.js",
+        "src/main.js"
+      ],
+      "schemaFiles": [
+        "src/operation-registry.js"
+      ],
+      "cacheVersion": "catalog-docs-hash",
+      "documentVersion": "v1-v3 retained; optional params.machiningIntent on new recipes",
+      "localSupported": "read-only declared-intent planning; LOGO/layers/author height-map execution guard",
+      "remoteSupported": "existing Services unchanged; semantic mesh sculpting disabled",
+      "acceptanceStatus": "R01 real constant-depth regression previously passed; targeted followup passed for explicit UI numerical intent updates and Worker final execution guard. Semantic tiger sculpture remains unaccepted/disabled.",
+      "localImpact": "new shared planning and creation guard; old edits/rebuilds retain meaning",
+      "servicesImpact": "no new native algorithm or transport; intent preserved in recipe; unsupported continuous reference explicit blocker",
+      "logoImpact": "constant-depth intent/source check; existing contour geometry unchanged",
+      "contractImpact": "new planPatternMachining; params.machiningIntent; readRelief explicit sourceInterpretation",
+      "documentImpact": "new recipe metadata only; legacy recipes not migrated",
+      "cacheImpact": "regenerate static docs/cards/router and hashes",
+      "requiredTests": [
+        "pattern-machining",
+        "page-api",
+        "remote-agent-adapter",
+        "relief-contract",
+        "R01 original stripes depth/blank regions"
+      ],
+      "targetedTests": [
+        "tests/pattern-machining.test.mjs"
+      ],
+      "publicToolIds": [
+        "planPatternMachining",
+        "logo",
+        "relief",
+        "readRelief"
+      ]
+    },
+    {
+      "operation": "mesh.source-preservation",
+      "semanticVersion": "mesh.source-preservation-1.0",
+      "sourcePaths": [
+        "src/mesh",
+        "src/cad-kernel.js",
+        "src/main.js",
+        "src/viewport.js",
+        "src/project-container.js",
+        "src/browser-files.js",
+        "src/document-timeline.js",
+        "services/WebCADServices/native/mesh-worker",
+        "services/WebCADServices/src/WebCADServices.Runtime/MeshAdapter.cs",
+        "src/viewport/display-modes.js",
+        "src/page-api.js"
+      ],
+      "schemaFiles": [
+        "src/browser-file-contracts.js",
+        "contracts/mesh/dependencies.json"
+      ],
+      "cacheVersion": "catalog-docs-hash; mesh codec v1",
+      "documentVersion": "v4 full binary assets; reads v1-v3",
+      "localSupported": "raw binary STL/mesh import with explicit units, formal Float64 measurements, transforms, complete single STL export and offline v4 project",
+      "remoteSupported": "MeshWorker built; Services mesh operations remain disabled without matching complete acceptance proof",
+      "acceptanceStatus": "PARTIAL phase 2: local full snake source/offline preservation and user-directed display transition passed. Corrected isolated 120-frame public view loop 30.1515 iterations/sec exceeds 20 target, drawn proxy triangles 109926, release full 1885180; source hash unchanged. Earlier low numbers had four concurrent agent-owned CAD pages and are invalid as single-view acceptance. Full six-source capacity, service lifecycle/page install/package and Agent large transfer remain pending; native mesh service disabled.",
+      "localImpact": "typed source assets, rawMesh identity and independent exact-index display; unsupported BRep tools reject meshes; user-directed spatial display patches, pixel-error LOD while moving, full detail on release and cached idle frame",
+      "servicesImpact": "same authorization/store/queue/supervisor entrance; selective protocol limits and optional mesh producer; lifecycle/page installation/package acceptance still pending",
+      "logoImpact": "none: source-preservation work does not change LOGO contours or depth",
+      "contractImpact": "explicit mesh units, binary byte budgets and mesh codec; ordinary files retain small limits; setView interactionPhase start/update/end and display.detail approximation/readback",
+      "documentImpact": "self-contained v4 full source assets shared by history; no lossy v3 downgrade",
+      "cacheImpact": "regenerated public file cards and api.mesh-assets; live topology/state never cached",
+      "requiredTests": [
+        "mesh-assets",
+        "mesh-kernel",
+        "project-container",
+        "browser-files",
+        "pattern-machining",
+        "command-service",
+        "real snake offline source hash and rotation benchmark",
+        "Services controlled lifecycle/page install/package capacity pending",
+        "display-lod",
+        "real snake public preview/fine transition and unchanged export source hash"
+      ],
+      "targetedTests": [
+        "tests/mesh-assets.test.mjs",
+        "tests/mesh-kernel.test.mjs",
+        "tests/display-lod.test.mjs"
+      ],
+      "publicToolIds": [
+        "files.import",
+        "files.open",
+        "files.save",
+        "files.export",
+        "measure",
+        "getState"
+      ]
+    },
+    {
       "operation": "workspace-model-library",
       "semanticVersion": "workspace-library-1.0",
       "sourcePaths": [
@@ -462,5 +563,29 @@
       "workspace upgrade",
       "one browser batch: menu entry, gallery return, Agent config and API readback"
     ]
+  },
+  "stageCheckpoint20261013": {
+    "cacheImpact": "Regenerated page catalog/docs/build hashes; display LOD never changes authoritative mesh.",
+    "logoImpact": "Explicit pattern intent guards distinguish LOGO and relief; legacy recipes retain original semantics.",
+    "servicesImpact": "Mesh scaffold compiled only; capability acceptance remains disabled and production Services DLLs unchanged.",
+    "requiredTests": [
+      "mesh-assets",
+      "mesh-kernel",
+      "display-lod",
+      "pattern-machining",
+      "project-container",
+      "document-capacity",
+      "browser-files",
+      "page-api",
+      "command-service",
+      "workspace-upgrade",
+      "model-library",
+      "legacy LOGO and relief kernel",
+      "one real browser ordinary CAD and large mesh save/reopen"
+    ],
+    "localImpact": "Binary STL and Float64 mesh preservation, view-only adaptive LOD, v4 self-contained project and legacy v1-v3 compatibility.",
+    "documentImpact": "v4 bundles immutable full binary assets; old projects retain 20 MiB and existing source/history.",
+    "releaseBoundary": "Paused at 2026-10-12 stage checkpoint; no semantic sculpting, new layered mesh editing or mesh Services activation.",
+    "contractImpact": "Page API 1.34, typed file budgets, explicit mesh units, interactionPhase and source interpretation."
   }
 }

@@ -2,7 +2,7 @@
   "id": "getServicesCapabilities",
   "title": "getServicesCapabilities",
   "category": "page-method",
-  "version": "1.33.0",
+  "version": "1.34.0",
   "description": "getServicesCapabilities()；读取已配置服务。",
   "synonyms": [
     "getServicesCapabilities",
@@ -25,5 +25,5 @@
     "SERVICES_REQUEST_FAILED",
     "SERVICES_PROTOCOL_MISMATCH"
   ],
-  "docsHash": "sha256:0f287b32b27ec86a02bd8c88d48013ffc1640b923f68fdad4081c04be6d9b9e1"
+  "docsHash": "sha256:46541ddfcbb4e22d59b83ca19887cc6adb41ec2efd845bb6a7e9ba4c01f10bdf"
 }

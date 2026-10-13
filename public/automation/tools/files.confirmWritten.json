@@ -2,7 +2,7 @@
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.33.0",
+  "version": "1.34.0",
   "label": "confirmWritten",
   "synonyms": [
     "confirmWritten",
@@ -28,9 +28,17 @@
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
-    "maxTotalBytes": 67108864,
+    "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
   },
+  "typedByteBudgets": {
+    "stl": 134217728,
+    "mesh": 402653184,
+    "webcad": 536870912
+  },
+  "additionalDocs": [
+    "api.mesh-assets"
+  ],
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -46,5 +54,5 @@
     "REVISION_CONFLICT",
     "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:dcf70aea7697a70832ac597093bf9bb6e243e3da98f4d4aab21f19ea7497769a"
+  "docsHash": "sha256:8712dfc6f34063e39cf24e16bf9eef9c049299656882820237386ce9c8a70a29"
 }

@@ -2,7 +2,7 @@
   "id": "setServices",
   "title": "setServices",
   "category": "page-method",
-  "version": "1.33.0",
+  "version": "1.34.0",
   "description": "setServices({context,url,credential?,enabled?,computeMode?:\"local\"|\"auto\"|\"serverPreferred\",allowGeometryUploads?,localTimeoutMs?:60000,serverWaitMs?:180000})；本地超时1–600秒、服务器提醒1–900秒，均用整数毫秒，设置保存并在下一操作生效。启用已配置Services即授权复杂运算发送到该端；简单运算本地。旧computeMode/allowGeometryUploads仅兼容读取，不覆盖此政策。支持 HTTPS 或内网 HTTP；HTTPS 页面不能直接调用内网 HTTP。服务由 ASHX 引用 DLL，沿用 LOGO 部署方式，不安装 Host。启用前验证协议。",
   "synonyms": [
     "setServices",
@@ -26,5 +26,5 @@
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_PROTOCOL_MISMATCH"
   ],
-  "docsHash": "sha256:bc32e2a9b35abf19a4ba3921b0a588ca4132e73eedd46f9f306382939040e682"
+  "docsHash": "sha256:2a5c29c270daa88f809c44f4690281e6d33e02018c5c25d63dd03594350c1ff5"
 }

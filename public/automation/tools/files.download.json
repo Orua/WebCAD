@@ -2,7 +2,7 @@
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.33.0",
+  "version": "1.34.0",
   "label": "下载文件",
   "synonyms": [
     "下载文件",
@@ -26,9 +26,17 @@
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
-    "maxTotalBytes": 67108864,
+    "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
   },
+  "typedByteBudgets": {
+    "stl": 134217728,
+    "mesh": 402653184,
+    "webcad": 536870912
+  },
+  "additionalDocs": [
+    "api.mesh-assets"
+  ],
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -41,5 +49,5 @@
     "ASSET_INVALID",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:6aee14397654078317c59a42b800af854a44bee3be03b900c6c9b5f5cfc50e10"
+  "docsHash": "sha256:2a3c1214225d88091371be58099c0d8f80f2243088858175f46d03f29929e4b8"
 }

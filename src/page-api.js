@@ -1,4 +1,3 @@
-import {modelLibrary} from './model-library.js';
 import {layoutDrawing} from './drawing/technical-layout.js';
 import {drawingSVG,drawingDXF,drawingPDF,drawingJPEG} from './drawing/drawing-export.js';
 import {infoMetadata,discoveryMetadata,searchTools,getTools,getTool,readDocs} from './page-api-docs.js';
@@ -20,6 +19,7 @@ import {UI_LAYOUT} from './ui-layout.js';
 import {validateReferenceQuery} from './reference-query.js';
 import {readVectorInput,selectVector} from './browser-vector-input.js';
 import {connectVector} from './vector-import.js';
+import {planPatternMachining,validateMachiningIntent} from './machining-intent.js';
 import {readReliefImage} from './relief-image.js';
 import {prepareReliefSculpt,sampleReliefHeight,reliefLayerParams} from './relief-sculpt.js';
 import {planReliefTopologyUpgrade} from './services/relief-plan.js';
@@ -28,6 +28,7 @@ import {boundedDiagnosticReport} from './modeling/diagnostic-report.js';
 import {assertHistoryEditSafe} from './history-edit-safety.js';
 import {validateDesignRequirements} from './design-inspection.js';
 import {normalizeOperationParams} from './operation-registry.js';
+import {modelLibrary} from './model-library.js';
 
 // Only structured, bounded commands cross this boundary. No mutable app objects escape.
 export function createPageAPI(host){
@@ -52,7 +53,7 @@ export function createPageAPI(host){
     if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(name=>!keys.includes(name)))fail('PARAM_SCHEMA_INVALID',`Unexpected files.${key} arguments`);
     return rawFiles[key](normalizeRequest(input));
   }]));
-  const viewKeys=['context','direction','projection','fit','selectedIds','section','display','grid','snap','gizmo','selectionMode','camera','language','temporaryDisplay','anchorVisible','panels','toolbar','workspace','libraryMode','focus','modelLibraryChange'];
+  const viewKeys=['context','interactionPhase','direction','projection','fit','selectedIds','section','display','grid','snap','gizmo','selectionMode','camera','language','temporaryDisplay','anchorVisible','panels','toolbar','workspace','libraryMode','focus','modelLibraryChange'];
   const pasteReceipts=new Map();
   const vectorCache=new Map();
   const drawingCache=new Map();
@@ -287,10 +288,14 @@ export function createPageAPI(host){
       try{assertHistoryEditSafe(s,{features:s.features.map(f=>f.id===feature.id?{...f,params:{...f.params,...result.params}}:f)});}catch(e){if(e.code!=='UNSAFE_LEGACY_REFERENCE')throw e;blockers=[{code:e.code,message:e.message,affectedFeatureIds:e.affectedFeatureIds}];}
       return {status:'prepared',featureId:feature.id,...result,canCommit:!blockers.length,blockers,context:current().context};
     }),
+    planPatternMachining:guarded(input=>{
+      check(input,['context','intent']);return {...planPatternMachining(input.intent),context:current().context};
+    }),
     readRelief:guarded(async input=>{
-      const keys=['context','resourceId','name','samples','whiteHigh','style','threshold'];check(input,keys);
+      const keys=['context','resourceId','name','samples','whiteHigh','style','threshold','sourceInterpretation'];check(input,keys);
       if(typeof input.resourceId!=='string'||!input.resourceId||typeof input.name!=='string')fail('PARAM_SCHEMA_INVALID','Provide a registered image resourceId and its file name');
       const blob=await rawFiles.read({resourceId:input.resourceId});
+      if(!input.sourceInterpretation)fail('MACHINING_SOURCE_REQUIRED','Declare sourceInterpretation; shaded reference brightness is not depth.');
       const data=await readReliefImage(blob,input);check(input,keys);
       return {status:'read',...data,context:current().context};
     }),
@@ -341,6 +346,7 @@ export function createPageAPI(host){
     setView:guarded(async input=>{
       check(input,viewKeys);
       if(input.modelLibraryChange!==undefined){if(Object.keys(input).some(key=>!['context','modelLibraryChange'].includes(key))||!input.modelLibraryChange||typeof input.modelLibraryChange!=='object'||Array.isArray(input.modelLibraryChange)||Object.hasOwn(input.modelLibraryChange,'context'))fail('PARAM_SCHEMA_INVALID','Library change must be standalone with outer context');return api.updateModelLibrary({context:input.context,...input.modelLibraryChange});}
+      if(input.interactionPhase!==undefined&&!['start','update','end'].includes(input.interactionPhase))fail('PARAM_SCHEMA_INVALID','interactionPhase must be start/update/end');
       for(const [key,values] of Object.entries({display:['solid','edges','wire','transparentEdges'],gizmo:['off','translate','rotate'],selectionMode:['view','body','face','edge'],language:['zh','en'],temporaryDisplay:['normal','selectedOnly','transparentOthers']}))if(input[key]!==undefined&&!values.includes(input[key]))fail('PARAM_SCHEMA_INVALID',`Unknown ${key}`);
       if(input.gizmo!==undefined&&input.gizmo!=='off'&&input.selectionMode!==undefined&&input.selectionMode!=='body')fail('SELECTION_CONFLICT','Move/rotate handles require body selection; omit selectionMode or use body','selectionMode');
       for(const key of ['grid','snap','anchorVisible','toolbar','focus'])if(input[key]!==undefined&&typeof input[key]!=='boolean')fail('PARAM_SCHEMA_INVALID',`${key} must be boolean`);
@@ -385,7 +391,7 @@ export function createPageAPI(host){
       const display=host.display(),state=current();
       if(display.status!=='rendered'||['documentId','documentInstanceId','revision'].some(k=>display.rendered?.[k]!==state.context[k]))fail('DISPLAY_FAILED','Rendered frame does not match the committed model; call redraw');
       const dataUrl=host.capture();
-      return {status:'read',mime:'image/png',dataUrl,context:current().context,display};
+      return {status:'read',mime:'image/png',dataUrl,context:current().context,display:host.display()};
     }),files:Object.freeze(files),
   };
   const run=createPageBatch(api);

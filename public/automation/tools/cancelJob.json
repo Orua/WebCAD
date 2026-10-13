@@ -2,7 +2,7 @@
   "id": "cancelJob",
   "title": "cancelJob",
   "category": "page-method",
-  "version": "1.33.0",
+  "version": "1.34.0",
   "description": "cancelJob({jobId})",
   "synonyms": [
     "cancelJob",
@@ -19,5 +19,5 @@
     "JOB_NOT_FOUND"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:90702abc1527deca7667f3f28c4d81d2c4df89beae58104743d59f599331c553"
+  "docsHash": "sha256:8adfcddb4706a1dfef089bb29da9bec0b9185f9df3cba4c8374922fbb78bfc64"
 }

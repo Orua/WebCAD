@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.33.0",
-  "buildId": "815de53f155ee2ac0c87fe2b1fe16f1cd66a63c2-src-4cbb8798e425f56b-working",
-  "catalogHash": "sha256:b69cb3bbdb45faad0d53499f42e304e5711416a6a09861943f86df8fc729b4bc",
-  "docsHash": "sha256:62bee4c9861caf1405e2f0777f00be67d36ef068562b3e0f891e5b7d522f7aa4",
+  "pageApiVersion": "1.34.0",
+  "buildId": "7c2ecd556cf095c5b013eb8e3b85c66b77dc380f-src-7ea15064babb6604-working",
+  "catalogHash": "sha256:795478cf069a794fb41475bc5fbf2b53c94a2d09b1fc373a1c04f7a2674b6624",
+  "docsHash": "sha256:5f907efa67663ece349664eaedcd36b1f15f5912e19b7c944e447d4344eea9ab",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -869,6 +869,7 @@
     },
     "relief": {
       "tools": [
+        "planPatternMachining",
         "relief",
         "readRelief",
         "files.register",
@@ -880,7 +881,7 @@
         "history.undo"
       ],
       "method": "execute",
-      "usage": "面加工→浮雕。files.register图像，readRelief生成独立轮廓regions与高度values；run add relief显式faceId/refs/尺寸/高度/位置、values/regions/surfaceMode/source。surfaceMode=flat为精确平顶，smooth为轮廓内平滑起伏，背景保留原面。支持分层.relief.json及layers显式高度、strokes开放刻线和curveToleranceMm曲线公差；UI逐层编辑高度和方向，API feature.edit修改layers。柱面须point、角宽≤90°、angleDeg=0。旧无regions工程保留原基底层语义。预览后提交，getState.bodies[].reliefReport回读背景、表面方式与实际材料变化。"
+      "usage": "面加工→浮雕。先读api.pattern-machining、planPatternMachining区分意图；新创建params.machiningIntent保存加工意义，readRelief显式sourceInterpretation。恒深文字/图案走LOGO，灰度只用于作者高度图。files.register图像，readRelief生成独立轮廓regions与高度values；run add relief显式faceId/refs/尺寸/高度/位置、values/regions/surfaceMode/source。surfaceMode=flat为精确平顶，smooth为轮廓内平滑起伏，背景保留原面。支持分层.relief.json及layers显式高度、strokes开放刻线和curveToleranceMm曲线公差；UI逐层编辑高度和方向，API feature.edit修改layers。柱面须point、角宽≤90°、angleDeg=0。旧无regions工程保留原基底层语义。预览后提交，getState.bodies[].reliefReport回读背景、表面方式与实际材料变化。"
     },
     "reliefSculpt": {
       "tools": [
@@ -1340,7 +1341,7 @@
     "referenceExtrude": "参考轮廓拉伸 / 轮廓拉伸",
     "referenceLoft": "参考截面放样 / 截面放样",
     "refineShape": "清理分割线 / getState / queryGeometry / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销",
-    "relief": "浮雕 / readRelief / 登记文件资源 / getState / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数 / 撤销",
+    "relief": "浮雕 / planPatternMachining / readRelief / 登记文件资源 / getState / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数 / 撤销",
     "remove": "删除 / 删除实体",
     "revolve": "旋转成型 / 轮廓旋转",
     "sewFaces": "曲面缝合",

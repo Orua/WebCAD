@@ -1,4 +1,6 @@
 import {FILE_LIMITS} from './browser-file-contracts.js';
+import {preflightProjectV4} from './mesh/project-v4.js';
+import {encodeProjectV4} from './project-container.js';
 import {encodeProjectV3} from './project-container.js';
 
 export const DOCUMENT_LIMITS=Object.freeze({maxFeatures:2000,maxBytes:FILE_LIMITS.maxBytes,preflightReserveBytes:4096});
@@ -10,7 +12,10 @@ export function assertFeatureCapacity(features,additionalCount=0){
 // excludes the timeline because recordTimeline may trim it before commit.
 export function serializeBoundedDocument(doc,{includeTimeline=true,reserveBytes=0}={}){
   assertFeatureCapacity(doc.features);
-  const bytes=doc.version===3?encodeProjectV3(doc,{includeTimeline}):new TextEncoder().encode(JSON.stringify(includeTimeline?doc:{...doc,timeline:undefined}));
-  if(bytes.byteLength>DOCUMENT_LIMITS.maxBytes-reserveBytes)limit('document','自包含工程超过 20 MiB 浏览器文件限额；请拆分工程。原工程保留。');
+  const bytes=doc.version===4?encodeProjectV4(doc,{includeTimeline}):doc.version===3?encodeProjectV3(doc,{includeTimeline}):new TextEncoder().encode(JSON.stringify(includeTimeline?doc:{...doc,timeline:undefined}));
+  const maxBytes=doc.version===4?512*1024*1024:DOCUMENT_LIMITS.maxBytes;
+  if(bytes.byteLength>maxBytes-reserveBytes)limit('document',`自包含工程超过 ${maxBytes/1024/1024} MiB 浏览器文件限额；请拆分工程。原工程保留。`);
   return bytes;
 }
+
+export function assertDocumentCapacity(doc,options={}){assertFeatureCapacity(doc.features);return doc.version===4?preflightProjectV4(doc,options):serializeBoundedDocument(doc,options);}
