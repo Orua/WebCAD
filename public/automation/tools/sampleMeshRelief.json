@@ -1,0 +1,116 @@
+{
+  "id": "sampleMeshRelief",
+  "title": "sampleMeshRelief",
+  "category": "page-method",
+  "version": "1.41.0",
+  "description": "sampleMeshRelief({context,bodyId,inputGeometryHash,support:{originMm,xAxis,normal},pointsMm:[[U,V],…]})；明确毫米支撑，1–256个点，点数乘三角面数不得超过1200万。",
+  "synonyms": [
+    "sampleMeshRelief",
+    "网格",
+    "浮雕",
+    "正式高度",
+    "截面",
+    "采样",
+    "mesh",
+    "relief",
+    "section"
+  ],
+  "inputContract": "sampleMeshRelief({context,bodyId,inputGeometryHash,support:{originMm,xAxis,normal},pointsMm:[[U,V],…]})；明确毫米支撑，1–256个点，点数乘三角面数不得超过1200万。",
+  "outputContract": "status=read、geometryHash、source:authoritative-mesh-f64、samples[{uvMm,heightsMm,hit}]。返回每条法向线上全部有序高度，重合值1e-8mm去重，不自动选择最高面。空数组为无命中；平行面不产生孤立交点。测量当前Float64正式三角面，不是显示LOD、控制网或解析曲面。只读，完成后再次验证context。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "STALE_REFERENCE",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE",
+    "RELIEF_SOURCE_UNSUPPORTED",
+    "RELIEF_SUPPORT_INVALID",
+    "RELIEF_EDIT_CAPACITY"
+  ],
+  "docs": "api.mesh-relief-edit",
+  "units": {
+    "length": "mm"
+  },
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "context",
+      "bodyId",
+      "inputGeometryHash",
+      "support",
+      "pointsMm"
+    ],
+    "properties": {
+      "context": {
+        "type": "object"
+      },
+      "bodyId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "inputGeometryHash": {
+        "type": "string",
+        "pattern": "^sha256:[a-f0-9]{64}$"
+      },
+      "support": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "originMm",
+          "xAxis",
+          "normal"
+        ],
+        "properties": {
+          "originMm": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
+            }
+          },
+          "xAxis": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
+            }
+          },
+          "normal": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "pointsMm": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 256,
+        "items": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  },
+  "executionPolicy": {
+    "readOnly": true,
+    "geometrySource": "authoritative-mesh-f64"
+  },
+  "docsHash": "sha256:8f985d7b1a2647c2e030f4b9106ba1b863726738d4df8805ec1853ee2ee0d6a7"
+}

@@ -5,6 +5,9 @@ import {resolvePlacement,describeResolvedPlacement,newFeaturePlacement} from './
 import { assertHistoryEditSafe } from './history-edit-safety.js';
 import {assertFeatureCapacity} from './document-limits.js';
 import {compileFeaturePlan} from './feature-plan.js';
+import {fileByteBudget} from './browser-file-contracts.js';
+import {binaryHash} from './contracts/operation-schema.js';
+import {assertPatternExecution,PATTERN_OPERATIONS,uiPatternIntent} from './machining-intent.js';
 import {boundedDiagnosticReport} from './modeling/diagnostic-report.js';
 
 const clone=structuredClone;
@@ -104,14 +107,16 @@ export function createCommandService(adapter) {
     try{
       s=snapshot();object(input,['context','idempotencyKey','action','args'],'input');context(input.context,s,{revision:false});
       string(input.idempotencyKey,'idempotencyKey',128);key=input.idempotencyKey;
-      fingerprint=canonical({...input,context:{...input.context,sessionId:undefined}});
+      const bytePreview=input.action==='preview.start'&&input.args?.fileImport?.data instanceof Uint8Array;
+      const signatureInput=bytePreview?{...input,args:{...input.args,fileImport:{...input.args.fileImport,data:{sha256:binaryHash(input.args.fileImport.data),bytes:input.args.fileImport.data.length}}}}:input;
+      fingerprint=canonical({...signatureInput,context:{...input.context,sessionId:undefined}});
       const previous=receipts.get(key);
       if(previous){if(previous.fingerprint!==fingerprint)fail('IDEMPOTENCY_KEY_REUSED','idempotencyKey','Key has a different payload');return clone(previous.result);}
       const allowPreview=['preview.update','preview.commit','preview.cancel'].includes(input.action);
-      context(input.context,s);available(s,allowPreview);finiteTree(input);
+      context(input.context,s);available(s,allowPreview);finiteTree(signatureInput);
       if(receipts.size>=1000)fail('RESOURCE_LIMIT','idempotencyKey','1000 receipts per document instance; no receipts are silently evicted');
       if(options.signal?.aborted)fail('CANCELLED','context','Cancelled before commit');
-      const a=clone(input.args);let command,args,op,refs=[];
+      const a=bytePreview?{...clone({...input.args,fileImport:{...input.args.fileImport,data:undefined}}),fileImport:{...input.args.fileImport}}:clone(input.args);let command,args,op,refs=[];
       switch(input.action){
         case 'feature.addMany':{
           assertFeatureCapacity(s.features,Array.isArray(a?.features)?a.features.length:0);
@@ -123,7 +128,7 @@ export function createCommandService(adapter) {
             object(a,['featureEdit'],'args');object(a.featureEdit,['featureId','params','name'],'args.featureEdit');const edit=a.featureEdit;string(edit.featureId,'args.featureEdit.featureId');const feature=s.features.find(f=>f.id===edit.featureId);if(!feature)fail('STALE_REFERENCE','args.featureEdit.featureId','Unknown feature');op=feature.op;const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,feature.params,edit.params):parameters(op,{...feature.params,...edit.params});if(edit.name!==undefined)string(edit.name,'args.featureEdit.name',120);
             command='preview_feature_edit';args={featureId:feature.id,params,name:edit.name,previewIdentity:{previewId:uid(),generation:1,baseRevision:s.revision,owner:options.fromUI?'ui':'api',featureId:feature.id}};break;
           }
-          if(a?.fileImport!==undefined){object(a,['fileImport'],'args');object(a.fileImport,['resourceId','name','mime','data','placement'],'args.fileImport');for(const key of ['resourceId','name','data'])string(a.fileImport[key],`args.fileImport.${key}`,key==='data'?28*1024*1024:200);if(!/\.(step|stp|brep|brp)$/i.test(a.fileImport.name))fail('FORMAT_UNSUPPORTED','args.fileImport.name','File preview requires STEP or BREP');if(a.fileImport.placement===undefined)fail('FRAME_INVALID','args.fileImport.placement','Explicit file placement required');command='preview_file';args={fileImport:{...a.fileImport,placement:resolvePlacement(a.fileImport.placement,s.referenceSystem,'import',{})},previewIdentity:{previewId:uid(),generation:1,baseRevision:s.revision,owner:options.fromUI?'ui':'api'}};break;}
+          if(a?.fileImport!==undefined){object(a,['fileImport'],'args');object(a.fileImport,['resourceId','name','mime','data','placement'],'args.fileImport');for(const key of ['resourceId','name'])string(a.fileImport[key],'args.fileImport.'+key,255);if(a.fileImport.data instanceof Uint8Array){if(!a.fileImport.data.length||a.fileImport.data.length>fileByteBudget(a.fileImport.name))fail('SIZE_LIMIT','args.fileImport.data','Exact source exceeds its byte budget');}else string(a.fileImport.data,'args.fileImport.data',28*1024*1024);if(!/\.(step|stp|brep|brp)$/i.test(a.fileImport.name))fail('FORMAT_UNSUPPORTED','args.fileImport.name','File preview requires STEP or BREP');if(a.fileImport.placement===undefined)fail('FRAME_INVALID','args.fileImport.placement','Explicit file placement required');command='preview_file';args={fileImport:{...a.fileImport,placement:resolvePlacement(a.fileImport.placement,s.referenceSystem,'import',{})},previewIdentity:{previewId:uid(),generation:1,baseRevision:s.revision,owner:options.fromUI?'ui':'api'}};break;}
         }
         // Ordinary preview and add share the same feature contract.
         case 'feature.add':{
@@ -139,6 +144,10 @@ export function createCommandService(adapter) {
             if(op==='faceHole'&&t.ids.length!==1)fail('AMBIGUOUS_SELECTION','selectionToken','One face is required');
             if(['fillet','chamfer'].includes(op))a.params.edgeIds=t.ids;else if(['shell','smoothTransition'].includes(op))a.params.faceIds=t.ids;else a.params.faceId=t.ids[0];
           }
+          if(PATTERN_OPERATIONS.includes(op)&&options.fromUI&&!a.params?.machiningIntent){
+            a.params={...a.params,machiningIntent:uiPatternIntent(op,a.params)};
+          }
+          assertPatternExecution(op,a.params,{required:true});
           a.params=parameters(op,a.params);if(['transform','copy'].includes(op)&&a.params.mode&&a.placement===undefined)fail('FRAME_INVALID','args.placement','Spatial transform mode requires explicit placement');if(a.name!==undefined)string(a.name,'args.name',120);await verifyNamedPlacement(a.placement,s,refs);
           command=input.action==='preview.start'?'preview_feature':'add_feature';args={op,params:a.params,refs,name:a.name,placement:resolvePlacement(newFeaturePlacement(a.placement,s.referenceSystem,op),s.referenceSystem,op,a.params),...(input.action==='preview.start'?{previewIdentity:{previewId:uid(),generation:1,baseRevision:s.revision,owner:options.fromUI?'ui':'api'}}:{})};break;
         }
@@ -214,14 +223,14 @@ export function createCommandService(adapter) {
       try{
         before=snapshot();object(input,['context','action','args'],'input');context(input.context,before,{revision:false});
         if(!['new','open','import','save','export'].includes(input.action))fail('PARAM_SCHEMA_INVALID','action','Unknown file action');
-        if(input.action==='import'&&input.args?.placement!==undefined){
+        if(input.action==='import'&&(input.args?.placement!==undefined||input.args?.idempotencyKey!==undefined||/\.(stl|mesh)$/i.test(input.args?.name||''))){
           key=input.args.idempotencyKey;string(key,'args.idempotencyKey',128);
-          const data=new TextEncoder().encode(canonical({action:input.action,args:input.args,context:{sessionId:input.context.sessionId,documentId:input.context.documentId,documentInstanceId:input.context.documentInstanceId}}));
+          const data=new TextEncoder().encode(canonical({action:input.action,args:input.args?.data instanceof Uint8Array?{...input.args,data:{sha256:binaryHash(input.args.data),bytes:input.args.data.length}}:input.args,context:{sessionId:input.context.sessionId,documentId:input.context.documentId,documentInstanceId:input.context.documentInstanceId}}));
           fingerprint=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',data)),v=>v.toString(16).padStart(2,'0')).join('');
           const previous=receipts.get(key);if(previous){if(previous.fingerprint!==fingerprint)fail('IDEMPOTENCY_KEY_REUSED','args.idempotencyKey','Key has a different payload');return clone(previous.result);}
           if(receipts.size>=1000)fail('RESOURCE_LIMIT','args.idempotencyKey','Receipt cache full');
         }
-        context(input.context,before);available(before);
+        context(input.context,before);if(input.action!=='save')available(before);
         if(input.action==='import')assertFeatureCapacity(before.features,1);
         const args=input.action==='import'?{...input.args,placement:newFeaturePlacement(input.args?.placement,before.referenceSystem,'import')}:input.args??{};
         const result=await adapter.execute(`file_${input.action}`,args,{...options,expectedRevision:before.revision});
@@ -233,6 +242,8 @@ export function createCommandService(adapter) {
         if(key&&fingerprint&&!receipts.has(key))receipts.set(key,{fingerprint,result:clone(receipt)});return receipt;
       }
     };
+    // A save reads the last committed snapshot even while a geometry job is pending.
+    if(input?.action==='save')return run();
     const job=tail.then(run);tail=job.catch(()=>{});return job;
   }
   return {getState,queryGeometry,registerReferenceCandidates,execute,fileCommand};

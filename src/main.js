@@ -1,6 +1,15 @@
+import {intentForUIParameterEdit} from './machining-intent.js';
+import {encodeCommittedProject} from './project-save.js';
+import {createHostAdapter} from './agent/host-adapter.js';
+import {AGENT_CONTRACT} from './agent/protocol.js';
 import '../public/automation/runtime-uuid.js';
 import tbdCapabilities from '../contracts/services/v1/tbd-capabilities.json' with {type:'json'};
 import {recordTimeline,restoreTimeline,timelineList,validateTimeline} from './document-timeline.js';
+import {cloneAssetDocument} from './mesh/mesh-assets.js';
+import {meshScale} from './mesh/mesh-contract.js';
+import {attachExactSource} from './exact-source.js';
+import {fileByteBudget} from './browser-file-contracts.js';
+import {binaryHash} from './contracts/operation-schema.js';
 import {decodeProject} from './project-container.js';
 import {servicesClient} from './services/client.js';
 import {getServicesConfig,serviceError} from './services/settings.js';
@@ -10,7 +19,7 @@ import {patternComplexity,aggregateSourceComplexity,collectRoutingSources,remote
 import {geometryFeatureRecord} from './services/geometry-signature.js';
 import {compileRemoteFeature} from './services/remote-executor.js';
 import {assertCompilableFeature,geometryRecipeFingerprint,installCompiledCandidate,compiledCheckpointBytes,compiledSemanticVersion,VERIFIED_NATIVE_KERNELS,LOCAL_KERNEL_BUILD_ID,GEOMETRY_CODEC,TRANSLATION_SEMANTIC_VERSION} from './services/geometry-exchange.js';
-import {DOCUMENT_LIMITS,serializeBoundedDocument} from './document-limits.js';
+import {DOCUMENT_LIMITS,serializeBoundedDocument,assertDocumentCapacity} from './document-limits.js';
 import {planBodyAlignment} from './modeling/interaction/align-bodies.js';
 import {nextProjectName} from './project-name.js';
 import {getQuickModelUsage,recordQuickModelUse} from './quick-model-usage.js';
@@ -20,6 +29,7 @@ import './style.css';
 import './workspace-layout.css';
 import './host-control.css';
 import './ui/styles/theme.css';
+import './workspace-upgrade.css';
 import {RENDER_QUALITIES} from './render-quality.js';
 import { validateDisplayPreferences, saveDisplayPreferences } from './display-preferences.js';
 import { createUI } from './ui.js';
@@ -55,12 +65,12 @@ import {resolveProfileRecipe,constrainProfileRecipe} from './modeling/profiles/p
 const emptyDocument = () => ({version:2,documentId:crypto.randomUUID(),name:nextProjectName(),features:[],imports:{},hidden:[],referenceSystem:createReferenceSystem()});
 const pageSessionId=crypto.randomUUID();
 let documentInstanceId=crypto.randomUUID(),lastWarnings=[],persistenceCheckpoint='pending';
-const clone = value => structuredClone(value);
-const labels = {round:'圆润',roundEnd:'端头圆润',rounding:'自动打磨',autoRound:'整件圆边',smoothTransition:'平滑过渡',box:'长方体',cylinder:'圆柱',sphere:'球体',cone:'圆锥',torus:'圆环',extrude:'拉伸',revolve:'旋转成型',transform:'变换',copy:'复制',mirror:'镜像',union:'合并',cut:'切除',intersect:'求交',fillet:'圆角',chamfer:'倒角',shell:'抽壳',hole:'打孔',linearPattern:'直线阵列',circularPattern:'环形阵列',import:'导入',remove:'删除'};
+const clone = cloneAssetDocument;
+const labels = {meshReliefPlate:'浮雕网格底板',meshReliefEdit:'网格局部修高',round:'圆润',roundEnd:'端头圆润',rounding:'自动打磨',autoRound:'整件圆边',smoothTransition:'平滑过渡',box:'长方体',cylinder:'圆柱',sphere:'球体',cone:'圆锥',torus:'圆环',extrude:'拉伸',revolve:'旋转成型',transform:'变换',copy:'复制',mirror:'镜像',union:'合并',cut:'切除',intersect:'求交',fillet:'圆角',chamfer:'倒角',shell:'抽壳',hole:'打孔',linearPattern:'直线阵列',circularPattern:'环形阵列',import:'导入',remove:'删除'};
 let documentModel=emptyDocument(),bodies=[],selectedIds=[],selectedTopology=null,busy=false,kernelReady=false,dirty=false;
 const servicesExecutionHistory=createExecutionHistory();let lastServicesDecision=null;
 let qualityKey='standard';
-function qualityState(){return {quality:qualityKey,...RENDER_QUALITIES[qualityKey],triangleCount:bodies.reduce((n,b)=>n+b.indices.length/3,0),source:'viewer-tessellation',adaptive:false};}
+function qualityState(){return {quality:qualityKey,...RENDER_QUALITIES[qualityKey],triangleCount:bodies.reduce((n,b)=>n+b.indices.length/3,0),source:'viewer-tessellation',adaptive:bodies.some(b=>!!b.adaptiveDisplay)};}
 let undoStack=[],redoStack=[],requestSequence=0,status='正在启动精确建模内核…';
 let modelClipboard=null;
 let revision=0,previewNext=null,previewIdentity=null,previewScopeReport=null,previewGeneration=0,previewComputing=false,aiStatus='in-page',agentBridge=null;
@@ -81,6 +91,8 @@ function createWorker(){
   const instance=new Worker(new URL('./cad-worker.js',import.meta.url),{type:'module'});
   instance.onmessage=event=>{if(instance!==worker)return;const result=event.data,job=pending.get(result.requestId);if(!job)return;if(result.kind==='progress'){
     kernelProgress={...result.progress,requestId:result.requestId,updatedAt:Date.now()};job.pulse();
+    job.progress=kernelProgress;
+    if(result.progress.kind==='rebuild'){const p=result.progress;setStatus(`${p.label}${p.total?` ${p.completed}/${p.total}`:''}`);return;}
     const p=result.progress,label=p.phase==='relief-contour'?`轮廓 ${p.completed}/${p.total}`:p.phase==='relief-boolean'?'合成实体':`层 ${p.completed}/${p.total}`;
     setStatus(`浮雕 ${p.layer??1}/${p.layerCount??1} · ${p.name??''} · ${label}`);return;
   }clearTimeout(job.timer);pending.delete(result.requestId);kernelProgress=null;if(result.ok)job.resolve(result);else job.reject(Object.assign(new Error(result.error||'建模操作失败'),{code:result.code,path:result.path,recoveryAction:result.recoveryAction,featureId:result.featureId,report:result.report}));};
@@ -91,12 +103,15 @@ worker=createWorker();
 function request(type,payload={}){return new Promise((resolve,reject)=>{
   const requestId=++requestSequence,instance=worker,started=Date.now(),timeoutMs=type==='ready'?45000:getServicesConfig().localTimeoutMs;kernelProgress=null;
   const job={resolve,reject,timer:null,pulse:()=>{
+    if(job.reminded)return;
     clearTimeout(job.timer);
     job.timer=setTimeout(()=>{
       if(instance!==worker)return;
-      const error=Object.assign(new Error(`运算过于复杂，已超过本地${timeoutMs/1000}秒上限并停止计算。当前工程保留；请简化操作或配置 Services。`),{code:'LOCAL_COMPUTE_TOO_COMPLEX',commitState:'not_committed',recoveryAction:'SIMPLIFY_OR_CONFIGURE_SERVICES'});
-      kernelProgress=null;
-      if(recoveryPromise){worker.terminate();rejectPending(error);kernelReady=false;reportError(error);}else restartWorker(error).catch(reportError);
+      if(type!=='ready'){
+        job.reminded=true;setStatus('本地计算已超过 '+timeoutMs/1000+' 秒，仍在执行原任务；可保存当前已提交工程。');return;
+      }
+      const error=Object.assign(new Error('建模内核初始化超时；工程仍可保存，可请求恢复内核。'),{code:'KERNEL_START_TIMEOUT',commitState:'not_committed'});
+      worker.terminate();rejectPending(error);kernelReady=false;refresh();
     },Math.max(0,started+timeoutMs-Date.now()));
   }};
   pending.set(requestId,job);job.pulse();instance.postMessage({requestId,type,...payload});
@@ -104,7 +119,13 @@ function request(type,payload={}){return new Promise((resolve,reject)=>{
 function restartWorker(error){
   if(recoveryPromise)return recoveryPromise;
   worker.terminate();rejectPending(error);kernelReady=false;worker=createWorker();
-  const recovering=(async()=>{await request('ready');const result=await request('rebuild',{document:documentModel});kernelReady=true;viewport.setBodies(result.bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);refresh();})();
+  const recovering=(async()=>{
+    await request('ready');const result=await request('rebuild',{document:documentModel});
+    bodies=result.bodies;selectedIds=selectedIds.filter(id=>bodies.some(body=>body.id===id));selectedTopology=null;
+    // A new kernel invalidates old topology selections; keep geometry and history.
+    revision++;kernelReady=true;viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,null);
+    viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});refresh();
+  })();
   recoveryPromise=recovering;
   void recovering.finally(()=>{if(recoveryPromise===recovering)recoveryPromise=null;}).catch(()=>{});
   return recovering;
@@ -129,8 +150,8 @@ const ui=createUI(document.getElementById('app'),{
   onRoundGuide:(report,handlers)=>viewport.setRoundGuide(report,handlers),
   onSelection:(id,additive)=>selectBody(id,additive),
   onPickCandidate:hit=>pick(hit,false),
-  onEditFeature:(id,params,name)=>{assertHumanEditing();return editFeature(id,params,name).then(result=>{ui.clearPropertyDraft();return result;});},
-  onPreviewFeatureEdit:(featureId,params)=>runEditorAction('preview.start',{featureEdit:{featureId,params}},{fromUI:true}),
+  onEditFeature:(id,params,name)=>{assertHumanEditing();const feature=documentModel.features.find(f=>f.id===id);params=intentForUIParameterEdit(feature?.op,{...feature?.params,...params});return editFeature(id,params,name).then(result=>{ui.clearPropertyDraft();return result;});},
+  onPreviewFeatureEdit:(featureId,params)=>{const feature=documentModel.features.find(f=>f.id===featureId);params=intentForUIParameterEdit(feature?.op,{...feature?.params,...params});return runEditorAction('preview.start',{featureEdit:{featureId,params}},{fromUI:true});},
   onCompileServicesFeature:featureId=>runEditorAction('feature.compileServices',{featureId,allowUpload:true},{fromUI:true}),
   onPrepareReliefTopologyUpgrade:(featureId,maskStrategy)=>pageAPI.prepareReliefTopologyUpgrade({context:pageAPI.createRequestContext(),featureId,...(maskStrategy?{maskStrategy}:{})}),
   onApplyReliefTopologyUpgrade:async candidate=>{
@@ -157,6 +178,7 @@ const ui=createUI(document.getElementById('app'),{
   onProfileViewRestore:previous=>viewport.restoreFrameView(previous),
 });
 const viewport=new CADViewport(document.getElementById('viewport'),{
+  onRefineDisplay:input=>busy||!kernelReady||pending.size?null:request('refineDisplay',input),
   onRectangleSelect:input=>selectRectangle(input),
   onPick:pick,
   onPickCandidates:candidates=>ui.showPickCandidates(candidates),
@@ -175,7 +197,7 @@ installHostInteractionGuard(document,()=>hostControl.get().locked,target=>target
 function refresh(){document.title=(dirty?'● ':'')+documentModel.name+' — WebCAD';const url=new URL(location.href);if(url.searchParams.get('document')!==documentModel.documentId){url.searchParams.set('document',documentModel.documentId);history.replaceState(null,'',url);}ui.update({renderQuality:qualityState(),document:documentModel,bodies,selectedIds,selectedTopology,undoAvailable:undoStack.length>0,redoAvailable:redoStack.length>0,busy,status,kernelReady,dirty,displayPreferences:viewport.displayPreferences,metalFinish:viewport.finishKey,aiStatus,revision,viewState:{quality:qualityKey,display:viewport.mode,projection:viewport.camera.isOrthographicCamera?'orthographic':'perspective',grid:viewport.grid.visible,snap:viewport.snapEnabled,gizmo:viewport.gizmoMode,transform:viewport.getTransformState(),selection:viewport.selectionMode,anchorDrag:viewport.anchorDragEnabled,anchorVisible:viewport.anchorVisible,temporaryDisplay:viewport.temporaryDisplay}});}
 function setStatus(message){status=message;ui.setStatus(t(message));}
 function reportError(error){console.error(error);ui.showError(error.message||String(error));setStatus(error.message||String(error));}
-function pushUndo(next,label){if(next){recordTimeline(documentModel,next,{label});serializeBoundedDocument(next);}const {imports,timeline,...rest}=documentModel;undoStack.push({...clone(rest),imports,timeline});if(undoStack.length>40)undoStack.shift();redoStack=[];}
+function pushUndo(next,label){if(next){recordTimeline(documentModel,next,{label});assertDocumentCapacity(next);}const {imports,timeline,...rest}=documentModel;undoStack.push({...clone(rest),imports,timeline});if(undoStack.length>40)undoStack.shift();redoStack=[];}
 function setBusy(value,message){busy=value;viewport.setBusy?.(value);ui.setBusy(value,message);if(message)setStatus(message);refresh();}
 function selectRectangle(input){if(busy)return;const ids=viewport.rectangleCandidates(input);ui.discardForSelection();selectedIds=input.additive?[...new Set([...selectedIds,...ids])]:ids;selectedTopology=null;viewport.setSelection(selectedIds);refresh();return {status:'read',selectedIds:[...selectedIds],context:pageAPI.getState().context};}
 function selectBody(id,additive=false){
@@ -276,7 +298,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     assertHistoryEditSafe(previousDocument,next);
     // Keep every committed project saveable through the bounded browser file API.
     // Reserve a small margin for subsequent UI name/appearance metadata changes.
-    serializeBoundedDocument(next,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});
+    assertDocumentCapacity(next,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});
     if(record&&!newInstance&&!restoring&&next.documentId===documentModel.documentId){routed=await routeChangedFeature(next,{signal,expectedRevision:expectedRevision??revision});next=routed.next;}
     localBegan=performance.now();
     const result=await request('rebuild',{document:next});
@@ -291,7 +313,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     const newQuickModels=record&&!newInstance&&documentModel.documentId===next.documentId?next.features.filter(f=>f.op==='quickModel'&&!documentModel.features.some(old=>old.id===f.id)):[];
     // Anchors and retained history can grow after preflight. Validate the final
     // snapshot before changing undo/redo, revision, or the authoritative model.
-    try{if(record)pushUndo(next,historyLabel);else serializeBoundedDocument(next);}
+    try{if(record)pushUndo(next,historyLabel);else assertDocumentCapacity(next);}
     catch(error){await request('rebuild',{document:documentModel});throw error;}
     if(newInstance||documentModel.documentId!==next.documentId){documentInstanceId=crypto.randomUUID();projectFileHandle=null;}
     documentModel=next;bodies=result.bodies;selectedTopology=null;previewNext=null;previewIdentity=null;previewScopeReport=null;revision++;
@@ -311,7 +333,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
 }
 function featureDocument(op,params={},explicitRefs=[],name,placement){
   const mechanicalRange=mechanicalIds.includes(op)?mechanicalRefRange(op,params):null;
-  const refs=[];const selection=explicitRefs;const single=['round','roundEnd','rounding','autoRound','smoothTransition','transform','copy','mirror','fillet','chamfer','shell','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','split','extractSolid','extractShell','faceHole','faceExtrude','logo','curvedLogo','thickenFace','extractFaces'];
+  const refs=[];const selection=explicitRefs;const single=['meshReliefEdit','round','roundEnd','rounding','autoRound','smoothTransition','transform','copy','mirror','fillet','chamfer','shell','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','split','extractSolid','extractShell','faceHole','faceExtrude','logo','curvedLogo','thickenFace','extractFaces'];
   if(mechanicalRange){if(selection.length<mechanicalRange.min||selection.length>mechanicalRange.max)throw new Error(`此操作须明确提供 ${mechanicalRange.min===mechanicalRange.max?mechanicalRange.min:`${mechanicalRange.min}–${mechanicalRange.max}`} 个当前来源／目标对象。`);refs.push(...selection);}
   if([...single,'planeSection','faceBoundary','referenceExtrude','profileOffset','profileRepair'].includes(op)){
     if(selection.length!==1||!bodies.some(b=>b.id===selection[0]))throw new Error('请先选择一个当前实体。');
@@ -398,7 +420,7 @@ async function navigateHistory(direction,options={}){
   const source=direction==='undo'?undoStack:redoStack;if(!source.length||busy)return;
   const next=clone(source[source.length-1]),old=clone(documentModel);recordTimeline(documentModel,next,{label:direction==='undo'?'撤销到上一状态':'重做状态'});
   if(JSON.stringify({features:next.features,imports:next.imports})===JSON.stringify({features:old.features,imports:old.imports})){
-    checkTransaction(options.signal,options.expectedRevision);serializeBoundedDocument(next);documentModel=clone(next);revision++;dirty=true;void autosave();viewport.setWorkFrame?.(next.referenceSystem.workFrame);viewport.markModel({documentId:next.documentId,documentInstanceId,revision});refresh();
+    checkTransaction(options.signal,options.expectedRevision);assertDocumentCapacity(next);documentModel=clone(next);revision++;dirty=true;void autosave();viewport.setWorkFrame?.(next.referenceSystem.workFrame);viewport.markModel({documentId:next.documentId,documentInstanceId,revision});refresh();
   }else await rebuild(clone(next),{...options,record:false,restoring:true});source.pop();(direction==='undo'?redoStack:undoStack).push(old);try{refresh();}catch(error){lastWarnings.push({code:'DISPLAY_FAILED',message:error.message});}
 }
 function checkTransaction(signal,expectedRevision){if(signal?.aborted)throw Object.assign(new Error('AI request cancelled before commit'),{code:'CANCELLED',path:'context',recoveryAction:'READ_STATE_AND_REPLAN'});if(expectedRevision!==undefined&&expectedRevision!==revision)throw Object.assign(new Error(`Revision conflict: expected ${expectedRevision}, current ${revision}. Read state and retry.`),{code:'REVISION_CONFLICT',path:'context.expectedRevision',recoveryAction:'READ_STATE_AND_REPLAN'});}
@@ -411,12 +433,12 @@ async function previewFeature(op,params,explicitRefs,name,placement,identity=nul
   const resolved=await resolveLogoParams(op,migratedOperationIds.includes(op)?normalizeOperationParams(op,uiParams):uiParams,refs);
   let next;
   if(editId){next=clone(documentModel);const edited=next.features.find(f=>f.id===editId);if(!edited)throw Object.assign(new Error('预览编辑特征已失效'),{code:'STALE_REFERENCE'});if(Object.keys(resolved).some(key=>JSON.stringify(resolved[key])!==JSON.stringify(edited.params[key])&&Object.keys(edited.expressions||{}).some(path=>path===key||path.startsWith(key+'.'))))throw Object.assign(new Error('该尺寸已绑定命名参数，请在参数表中修改。'),{code:'PARAMETER_BOUND'});edited.params=resolved;if(name!==undefined)edited.name=name;if(placement)edited.placement=placement;assertHistoryEditSafe(documentModel,next);}
-  else ({next}=featureDocument(op,resolved,refs,name,placement));serializeBoundedDocument(next,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});
+  else ({next}=featureDocument(op,resolved,refs,name,placement));assertDocumentCapacity(next,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});
   if(!identity||identity.owner==='ui')assertHumanEditing();
   const generation=++previewGeneration;previewComputing=true;previewComputingOwner=identity?.owner??'ui';setBusy(true,'预览 / Preview…');
   try{const routed=await routeChangedFeature(next,{expectedRevision:revision});next=routed.next;const result=await request('rebuild',{document:next});
     if(generation!==previewGeneration){await request('rebuild',{document:documentModel});previewNext=null;viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);return false;}
-    previewNext=next;previewIdentity=identity;const previewBody=result.bodies.find(body=>body.id===(editId??next.features.at(-1)?.id));previewScopeReport=op==='relief'?previewBody?.reliefReport||null:op==='refineShape'?previewBody?.refineReport||null:op==='round'?previewBody?.roundReport||null:op==='rounding'?previewBody?.roundingReport||null:op==='roundEnd'?previewBody?.endRoundingReport||null:null;
+    previewNext=next;previewIdentity=identity;const previewBody=result.bodies.find(body=>body.id===(editId??next.features.at(-1)?.id));previewScopeReport=op==='meshReliefEdit'?previewBody?.meshReport?.edit||null:op==='relief'?previewBody?.reliefReport||null:op==='refineShape'?previewBody?.refineReport||null:op==='round'?previewBody?.roundReport||null:op==='rounding'?previewBody?.roundingReport||null:op==='roundEnd'?previewBody?.endRoundingReport||null:null;
     viewport.setBodies(result.bodies,next.hidden);viewport.setSelection([]);
     if(previewScopeReport&&op==='rounding'){const sourceBody=bodies.find(body=>body.id===refs[0]);viewport.setScopeOverlay(sourceBody?.edges,previewScopeReport.requestedSelection,previewScopeReport.expandedSelection);}
     if(op==='round'&&previewScopeReport){previewScopeReport={...previewScopeReport,previewBodyId:previewBody.id,sourceBodyId:refs[0]};viewport.setRoundGuide(previewScopeReport);if(previewScopeReport.mode==='edge')viewport.setScopeOverlay(bodies.find(b=>b.id===refs[0])?.edges,params.edgeIds||[],params.edgeIds||[]);}
@@ -428,8 +450,8 @@ async function previewFile(fileImport,identity,update=false){
   if(busy)throw new Error('Please wait for the current operation.');
   const previousPreview=previewNext,previousIdentity=previewIdentity,next=update?clone(previewNext):clone(documentModel);
   if(update){if(!next||!previousIdentity||previousIdentity.previewId!==identity.previewId||previousIdentity.generation+1!==identity.generation)throw Object.assign(new Error('Preview generation changed'),{code:'STALE_REFERENCE'});next.features.at(-1).placement=fileImport.placement;}
-  else{const {name,data,placement}=fileImport,extension=name.split('.').pop().toLowerCase(),format=['step','stp'].includes(extension)?'step':['brep','brp'].includes(extension)?'brep':null;if(!format)throw Object.assign(new Error('Unsupported file preview format'),{code:'FORMAT_UNSUPPORTED'});const key=crypto.randomUUID(),id=crypto.randomUUID();next.imports[key]={format,data};next.features.push({id,op:'import',name,params:{key},refs:[],placement,semanticsVersion:2});}
-  serializeBoundedDocument(next,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});
+  else{const {name,data,placement}=fileImport,extension=name.split('.').pop().toLowerCase(),format=['step','stp'].includes(extension)?'step':['brep','brp'].includes(extension)?'brep':null;if(!format)throw Object.assign(new Error('Unsupported file preview format'),{code:'FORMAT_UNSUPPORTED'});const key=crypto.randomUUID(),id=crypto.randomUUID();attachExactSource(next,{key,name,format,data});next.features.push({id,op:'import',name,params:{key},refs:[],placement,semanticsVersion:2});}
+  assertDocumentCapacity(next,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});
   if(!identity||identity.owner==='ui')assertHumanEditing();
   const generation=++previewGeneration;previewComputing=true;previewComputingOwner=identity?.owner??'ui';setBusy(true,'文件插入预览 / File preview…');
   try{const result=await request('rebuild',{document:next});if(generation!==previewGeneration){await request('rebuild',{document:documentModel});previewNext=null;previewIdentity=null;previewScopeReport=null;viewport.clearScopeOverlay();viewport.setBodies(bodies,documentModel.hidden);return false;}previewNext=next;previewIdentity=identity;previewScopeReport=null;viewport.clearScopeOverlay();viewport.setBodies(result.bodies,next.hidden);viewport.setSelection([]);setStatus('文件插入预览未保存 · 应用或取消');return true;}
@@ -457,7 +479,7 @@ function retainOutput(artifact){
   lastOutputResource=artifact.resourceId;
 }
 async function saveProject(){
-  if(busy||previewNext||previewComputing||ui.hasActiveTask())throw new Error('请先应用或取消当前草稿，再保存工程。');
+  // Save the committed document; an unfinished calculation or preview is excluded.
   // Acquire permission synchronously from the user gesture, before expensive generation.
   if(!projectFileHandle&&window.showSaveFilePicker){
     try{projectFileHandle=await window.showSaveFilePicker({suggestedName:safeName(documentModel.name)+'.webcad',types:[{description:'WebCAD 工程',accept:{'application/json':['.webcad']}}]});}
@@ -473,35 +495,39 @@ async function saveProject(){
   }catch(error){if(error.code==='PERMISSION_REQUIRED'||error.name==='NotAllowedError')projectFileHandle=null;ui.showFileReceipt(artifact,{status:'write_failed',error:{message:error.message}});throw error;}
   setStatus(projectFileHandle?'文件已写入、关闭并回读核验；保存状态按版本更新。':'下载已发起；未确认写入，未保存标记保留。');refresh();
 }
-function chooseFile(accept='.webcad,.json,.step,.stp,.brep,.brp,.iges,.igs,.stl',multiple=true){return new Promise(resolve=>{const input=document.createElement('input');input.type='file';input.accept=accept;input.multiple=multiple;input.addEventListener('change',()=>resolve([...input.files]));input.addEventListener('cancel',()=>resolve([]));input.click();});}
+function chooseFile(accept='.webcad,.json,.step,.stp,.brep,.brp,.iges,.igs,.stl,.mesh',multiple=true){return new Promise(resolve=>{const input=document.createElement('input');input.type='file';input.accept=accept;input.multiple=multiple;input.addEventListener('change',()=>resolve([...input.files]));input.addEventListener('cancel',()=>resolve([]));input.click();});}
 function base64(array){let text='';for(let i=0;i<array.length;i+=0x8000)text+=String.fromCharCode(...array.subarray(i,i+0x8000));return btoa(text);}
 function validateDocument(doc){
-  if(!doc||![1,2,3].includes(doc.version)||!Array.isArray(doc.features)||typeof doc.imports!=='object'||!doc.imports)throw new Error('不是有效的 WebCAD 1.x/2.x/3.x 工程文件。');
-  serializeBoundedDocument(doc);
-  const ids=new Set();for(const f of doc.features){if(!f.id||ids.has(f.id)||typeof f.op!=='string'||!f.params||!Array.isArray(f.refs))throw new Error('工程特征结构无效。');for(const ref of f.refs)if(!ids.has(ref))throw new Error('工程包含无效的操作引用。');if(f.placement!==undefined){if(![2,3].includes(doc.version)||f.semanticsVersion!==2)throw Object.assign(new Error('定位特征需要工程版本 2 和语义版本 2。'),{code:'DOCUMENT_VERSION_UNSUPPORTED'});validateResolvedPlacement(f.placement,f.op);}ids.add(f.id);}
+  if(!doc||![1,2,3,4].includes(doc.version)||!Array.isArray(doc.features)||typeof doc.imports!=='object'||!doc.imports)throw new Error('不是有效的 WebCAD 1.x/2.x/3.x/4.x 工程文件。');
+  assertDocumentCapacity(doc);
+  const ids=new Set();for(const f of doc.features){if(!f.id||ids.has(f.id)||typeof f.op!=='string'||!f.params||!Array.isArray(f.refs))throw new Error('工程特征结构无效。');for(const ref of f.refs)if(!ids.has(ref))throw new Error('工程包含无效的操作引用。');if(f.placement!==undefined){if(![2,3,4].includes(doc.version)||f.semanticsVersion!==2)throw Object.assign(new Error('定位特征需要工程版本 2 和语义版本 2。'),{code:'DOCUMENT_VERSION_UNSUPPORTED'});validateResolvedPlacement(f.placement,f.op);}ids.add(f.id);}
   if(doc.timeline){validateTimeline(doc);validateReferenceSystem(doc.referenceSystem);return clone(doc);}
-  return {version:doc.version===3?3:2,...(doc.version===3?{compiledArtifacts:doc.compiledArtifacts||{}}:{}),referenceSystem:doc.version>=2?validateReferenceSystem(doc.referenceSystem):createReferenceSystem(),...(doc.parameters!==undefined?{parameters:doc.parameters}:{}),documentId:typeof doc.documentId==='string'&&doc.documentId.length>0&&doc.documentId.length<=150?doc.documentId:crypto.randomUUID(),name:String(doc.name||'导入工程'),features:doc.features,imports:doc.imports,hidden:Array.isArray(doc.hidden)?doc.hidden:[],appearance:doc.appearance&&typeof doc.appearance==='object'?doc.appearance:{},colors:doc.colors&&typeof doc.colors==='object'?Object.fromEntries(Object.entries(doc.colors).filter(([,v])=>typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v))):{},renderFinish:doc.renderFinish??null};
+  return {version:doc.version>=3?doc.version:2,...(doc.version===4?{binaryAssets:doc.binaryAssets||{}}:{}),...(doc.version>=3?{compiledArtifacts:doc.compiledArtifacts||{}}:{}),referenceSystem:doc.version>=2?validateReferenceSystem(doc.referenceSystem):createReferenceSystem(),...(doc.parameters!==undefined?{parameters:doc.parameters}:{}),documentId:typeof doc.documentId==='string'&&doc.documentId.length>0&&doc.documentId.length<=150?doc.documentId:crypto.randomUUID(),name:String(doc.name||'导入工程'),features:doc.features,imports:doc.imports,hidden:Array.isArray(doc.hidden)?doc.hidden:[],appearance:doc.appearance&&typeof doc.appearance==='object'?doc.appearance:{},colors:doc.colors&&typeof doc.colors==='object'?Object.fromEntries(Object.entries(doc.colors).filter(([,v])=>typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v))):{},renderFinish:doc.renderFinish??null};
 }
-async function openFiles(files,{confirmReplace=true,signal,expectedRevision,mcp=false,placement}={}){
+async function openFiles(files,{confirmReplace=true,signal,expectedRevision,mcp=false,placement,units}={}){
   if(ui.hasActiveTask())throw Object.assign(new Error('请先应用或取消当前未提交的人工草稿，再打开文件。'),{code:'UI_TASK_ACTIVE'});
   if(busy){if(mcp)throw new Error('Worker is busy');return;}
   for(const file of files){
     checkTransaction(signal,expectedRevision);
-    if(file.size>20*1024*1024)throw Object.assign(new Error('单文件超过 20 MiB；请先拆分模型。导入后自包含工程也必须可在此限额内保存。'),{code:'SIZE_LIMIT'});
+    if(file.size>fileByteBudget(file.name))throw Object.assign(new Error(`单文件超过 ${fileByteBudget(file.name)/1024/1024} MiB；请先拆分模型。导入后自包含工程也必须可在相应格式限额内保存。`),{code:'SIZE_LIMIT'});
     const ext=file.name.split('.').pop().toLowerCase();
     if(['webcad','json'].includes(ext)){
-      const next=validateDocument(await decodeProject(new Uint8Array(await file.arrayBuffer())));
+      const next=validateDocument((await request('decodeProject',{bytes:new Uint8Array(await file.arrayBuffer())})).document);
       if(mcp&&dirty)throw Object.assign(new Error('Save the current document before opening another project.'),{code:'UNSAVED_REPLACEMENT'});
       if(confirmReplace&&dirty&&!confirm('打开工程将替换当前设计。尚未另存的设计可取消后先保存。继续打开？'))return;
       await rebuild(next,{fit:true,newInstance:true,record:false,signal,expectedRevision});undoStack=[];redoStack=[];dirty=false;refresh();
     }else{
-      if(ext==='stl')throw new Error('STL 是三角网格，精确建模请使用 STEP、BREP 或 IGS。');
+      if(['stl','mesh'].includes(ext)){
+        const declared=units??(mcp?undefined:prompt('网格源单位（STL没有单位）：填写 mm、cm、m 或 in；取消保留原工程。',''));if(declared===null)return;meshScale(declared);if(ext==='mesh'&&declared!=='mm')throw Object.assign(new Error('Float64网格已使用mm。'),{code:'MESH_UNITS_REQUIRED'});
+        const bytes=new Uint8Array(await file.arrayBuffer()),hash=binaryHash(bytes).slice(7),next=clone(documentModel),key=crypto.randomUUID(),id=crypto.randomUUID();next.version=4;next.binaryAssets={...next.binaryAssets,[hash]:bytes};next.imports[key]={format:ext,units:declared,assetHash:hash,name:file.name};next.features.push({id,op:'import',name:file.name,params:{key},refs:[],...(placement?{placement,semanticsVersion:2}:{})});
+        await rebuild(next,{fit:true,select:id,signal,expectedRevision});continue;
+      }
       const isIges=['igs','iges'].includes(ext);
       const format=isIges?'step':['step','stp'].includes(ext)?'step':['brep','brp'].includes(ext)?'brep':null;
       if(!format)throw new Error('请选择 .webcad 工程、STEP/STP 或 BREP 文件。');
       const next=clone(documentModel),key=crypto.randomUUID(),id=crypto.randomUUID();
       if(isIges)throw Object.assign(new Error('静态版不支持 IGES；请离线转换为 STEP / BREP。'),{code:'CAPABILITY_UNAVAILABLE'});
-      next.imports[key]={format,data:base64(new Uint8Array(await file.arrayBuffer()))};
+      attachExactSource(next,{key,name:file.name,format,data:new Uint8Array(await file.arrayBuffer())});
       next.features.push({id,op:'import',name:file.name,params:{key},refs:[],...(placement?{placement,semanticsVersion:2}:{})});
       if(!next.features.slice(0,-1).length)next.name=file.name.replace(/\.[^.]+$/,'');
       await rebuild(next,{fit:true,select:id,signal,expectedRevision});
@@ -510,7 +536,7 @@ async function openFiles(files,{confirmReplace=true,signal,expectedRevision,mcp=
   }
 }
 async function performAction(action,params={}){
-  assertHumanEditing();
+  if(!['save','downloadResource'].includes(action))assertHumanEditing();
   if(['copySelection','pasteSelection'].includes(action))return performShortcut(action);
   if(action==='downloadResource'){const result=await pageAPI.files.download({resourceId:params.resourceId});setStatus('下载已发起；请在浏览器下载记录中确认。');return result;}
   if(action==='renderQuality'){const result=await pageAPI.setRenderQuality({context:pageAPI.getState().context,quality:params.quality});if(result.status==='failed')throw new Error(result.error.message);return result;}
@@ -677,7 +703,7 @@ async function performShortcut(action){
   return performAction(action);
 }
 document.addEventListener('keydown',event=>{
-  if(hostControl.get().locked)return;
+  if(hostControl.get().locked&&!((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='s'))return;
   const typing=event.target instanceof Element&&!!event.target.closest('input,textarea,select,[contenteditable=true]');
   if(event.key==='Escape'){if(event.isComposing)return;if(previewComputing){ui.cancelTaskPicking();ui.cancelActiveTask();cancelPreview().catch(reportError);return;}if(ui.cancelTaskPicking()||ui.cancelActiveTask())return;viewport.cancelAnchorDrag();viewport.setGizmo('off');viewport.cancelTask();if(previewNext)cancelPreview().catch(reportError);if(!typing){viewport.setSelectionMode('view');selectBody(null);}else refresh();return;}
   const action=webcadShortcut(event,{editing:typing,dialogOpen:!!document.querySelector('dialog[open]')});
@@ -692,9 +718,19 @@ const ready=(async()=>{
   catch(error){reportError(error);return false;}
 })();
 // Public automation surface also used by reproducible acceptance checks; never runs arbitrary code.
-function getState(){return {revision,document:clone(documentModel),bodies:bodies.map(({id,name,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,threadReport,constraintReport,reliefReport,refineReport,faceGroups,edges})=>({id,name,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,threadReport,constraintReport,reliefReport,refineReport,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,dirty,preview:!!previewNext};}
-function aiState(){return {sessionId:pageSessionId,revision,dirty,documentId:documentModel.documentId,documentInstanceId,documentName:documentModel.name,referenceSystem:clone(documentModel.referenceSystem),features:clone(documentModel.features),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),bodies:bodies.map(({id,name,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,threadReport,constraintReport,reliefReport,refineReport,faceGroups,edges})=>({id,name,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,threadReport,constraintReport,reliefReport,refineReport,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,preview:!!previewNext,previewInfo:previewIdentity?clone(previewIdentity):null,previewScope:previewScopeReport?clone(previewScopeReport):null};}
+function getState(){return {revision,document:clone(documentModel),bodies:bodies.map(({id,name,geometryType,triangleCount,vertexCount,meshReport,previewOrigin,metricsDeferred,measurementStatus,boundsSource,adaptiveDisplay,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,threadReport,constraintReport,reliefReport,refineReport,faceGroups,edges})=>({id,name,geometryType,triangleCount,vertexCount,meshReport,previewOrigin,metricsDeferred,measurementStatus,boundsSource,adaptiveDisplay,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,threadReport,constraintReport,reliefReport,refineReport,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,dirty,preview:!!previewNext};}
+function aiState(){return {sessionId:pageSessionId,revision,dirty,documentId:documentModel.documentId,documentInstanceId,documentName:documentModel.name,referenceSystem:clone(documentModel.referenceSystem),features:clone(documentModel.features),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),bodies:bodies.map(({id,name,geometryType,triangleCount,vertexCount,meshReport,previewOrigin,metricsDeferred,measurementStatus,boundsSource,adaptiveDisplay,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,threadReport,constraintReport,reliefReport,refineReport,faceGroups,edges})=>({id,name,geometryType,triangleCount,vertexCount,meshReport,previewOrigin,metricsDeferred,measurementStatus,boundsSource,adaptiveDisplay,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,threadReport,constraintReport,reliefReport,refineReport,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,preview:!!previewNext,previewInfo:previewIdentity?clone(previewIdentity):null,previewScope:previewScopeReport?clone(previewScopeReport):null};}
 async function executeAI(command,args={},options={}){
+  if(command==='file_save'){
+    const snapshot=clone(documentModel),savedRevision=revision,instance=documentInstanceId,docId=snapshot.documentId;
+    const bytes=await encodeCommittedProject(snapshot);
+    if(options.signal?.aborted)throw Object.assign(new Error('保存已取消；原工程保留'),{code:'JOB_CANCELED'});
+    return {revision:savedRevision,documentId:docId,documentInstanceId:instance,encoding:'bytes',data:bytes,extension:'webcad',mime:snapshot.version>=3?'application/zip':'application/json'};
+  }
+  if(command==='acknowledge_save'){
+    if(args.documentId!==documentModel.documentId||args.documentInstanceId!==documentInstanceId||args.savedRevision!==revision)return {saved:false,dirty,revision,reason:'SNAPSHOT_CHANGED'};
+    dirty=false;refresh();return {saved:true,dirty:false,revision,documentId:documentModel.documentId,documentInstanceId};
+  }
   if(command==='file_command')return commandService.fileCommand(args,options);
   if(command==='get_state_v2')return commandService.getState(args);
   if(command==='query_geometry')return commandService.queryGeometry(args);
@@ -769,28 +805,20 @@ async function executeAI(command,args={},options={}){
     }
     await rebuild(next,options);return aiState();
   }
-  if(command==='file_save'){
-    const savedRevision=revision,instance=documentInstanceId,docId=documentModel.documentId;
-    const bytes=serializeBoundedDocument(documentModel);
-    checkTransaction(options.signal,savedRevision);
-    return {revision:savedRevision,documentId:docId,documentInstanceId:instance,encoding:'base64',data:base64(bytes),extension:'webcad',mime:documentModel.version===3?'application/zip':'application/json'};
-  }else if(command==='acknowledge_save'){
-    if(args.documentId!==documentModel.documentId||args.documentInstanceId!==documentInstanceId||args.savedRevision!==revision)return {saved:false,dirty,revision,reason:'SNAPSHOT_CHANGED'};
-    dirty=false;refresh();return {saved:true,dirty:false,revision,documentId:documentModel.documentId,documentInstanceId};
-  }else if(command==='file_new'){
+  if(command==='file_new'){
     if(dirty)throw Object.assign(new Error('Save the current document before creating a new project.'),{code:'UNSAVED_REPLACEMENT'});
     await rebuild(emptyDocument(),{...options,fit:true,newInstance:true,record:false});undoStack=[];redoStack=[];selectedIds=[];dirty=false;refresh();
     return {dirty};
   }else if(command==='file_open'||command==='file_import'){
     const ext=args.name?.split('.').pop().toLowerCase();
-    const allowed=command==='file_open'?['webcad','json']:['step','stp','brep','brp','igs','iges'];
+    const allowed=command==='file_open'?['webcad','json']:['step','stp','brep','brp','igs','iges','stl','mesh'];
     if(!allowed.includes(ext))throw Object.assign(new Error('Unsupported file type for this action.'),{code:'FORMAT_UNSUPPORTED'});
     if(command==='file_open'&&dirty)throw Object.assign(new Error('Save the current document before opening another project.'),{code:'UNSAVED_REPLACEMENT'});
-    if(typeof args.name!=='string'||typeof args.data!=='string'||args.data.length>28*1024*1024)throw new Error('ASSET_INVALID: missing or oversized asset payload.');
-    const raw=atob(args.data),bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
+    if(typeof args.name!=='string'||!(args.data instanceof Uint8Array)&&typeof args.data!=='string')throw new Error('ASSET_INVALID: typed bytes or legacy base64 required.');
+    let bytes;if(args.data instanceof Uint8Array)bytes=args.data;else{if(args.data.length>28*1024*1024)throw new Error('ASSET_INVALID: oversized base64 payload');const raw=atob(args.data);bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);}if(bytes.length>fileByteBudget(args.name))throw Object.assign(new Error('文件超出类型容量'),{code:'SIZE_LIMIT'});
     const file=new File([bytes],args.name,{type:args.mime||'application/octet-stream'});
     const placement=command==='file_import'?resolvePlacement(args.placement,documentModel.referenceSystem,'import',{}):undefined;
-    await openFiles([file],{...options,confirmReplace:false,mcp:true,placement});
+    await openFiles([file],{...options,confirmReplace:false,mcp:true,placement,units:args.units});
     return {dirty};
   }else if(command==='file_export'){
     let result;
@@ -800,7 +828,7 @@ async function executeAI(command,args={},options={}){
       result={extension:'png',mime:'image/png',data:Uint8Array.from(atob(cap.dataUrl.split(',')[1]),c=>c.charCodeAt(0))};
     }else result=await exportData(args.format,args.ids);
     checkTransaction(options.signal,options.expectedRevision);
-    return {revision,extension:result.extension,mime:result.mime,encoding:'base64',data:base64(typeof result.data==='string'?new TextEncoder().encode(result.data):new Uint8Array(result.data))};
+    return {revision,extension:result.extension,mime:result.mime,encoding:'bytes',data:typeof result.data==='string'?new TextEncoder().encode(result.data):new Uint8Array(result.data),...(result.meshReport?{meshReport:result.meshReport}:{})};
   }
   if(command==='inspect_geometry'){
     const startRevision=revision;const result=await request('measure',{bodyId:args.bodyId,topologyType:args.kind,topologyId:args.topologyId});
@@ -842,6 +870,16 @@ const commandService=createCommandService({
   query:args=>request('queryGeometry',args),
 });
 const pageAPI=createPageAPI({
+  recoverKernel:async({stopRunning=false}={})=>{
+    if(kernelReady&&!busy&&!recoveryPromise&&!stopRunning)return {status:'read',recovered:true,alreadyReady:true,context:pageAPI.getState().context};
+    if(recoveryPromise){await recoveryPromise;return {status:'read',recovered:kernelReady,context:pageAPI.getState().context};}
+    if((busy||pending.size||previewComputing)&&!stopRunning)throw Object.assign(new Error('原计算仍在运行；请等待，或明确 stopRunning:true 保留已提交工程后停止。'),{code:'KERNEL_BUSY'});
+    const wasBusy=busy;setBusy(true,'从最后已提交工程恢复建模内核…');
+    try{if(stopRunning){previewNext=null;previewIdentity=null;previewGeneration++;previewComputing=false;}
+      await restartWorker(Object.assign(new Error('内核受控恢复；未提交计算停止，原工程保留。'),{code:'KERNEL_RECOVERY_REQUESTED'}));
+      return {status:'read',recovered:true,context:pageAPI.getState().context};
+    }finally{if(!wasBusy||stopRunning)setBusy(false);}
+  },
   decideServicesWait:input=>decideServicesWait(input.jobId,input.decision),
   servicesRouting:()=>({unavailableOperations:tbdCapabilities.operations,policyVersion:EXECUTION_POLICY.policyVersion,executionTimeouts:{localTimeoutMs:getServicesConfig().localTimeoutMs,serverWaitMs:getServicesConfig().serverWaitMs},pendingWait:pendingServicesWait?{jobId:pendingServicesWait.jobId,elapsedMs:pendingServicesWait.elapsedMs,execution:pendingServicesWait.execution,requestKey:pendingServicesWait.requestKey,decisionRequired:true}:null,lastDecision:lastServicesDecision?.documentInstanceId===documentInstanceId?clone(lastServicesDecision):null,historyStorage:'bounded-session-memory',automaticUploadConsent:getServicesConfig().allowGeometryUploads}),
   history:()=>timelineList(documentModel),
@@ -849,9 +887,10 @@ const pageAPI=createPageAPI({
   selectRectangle:input=>{if(ui.hasActiveTask())throw Object.assign(new Error('请先完成当前人工任务'),{code:'UI_TASK_ACTIVE'});return selectRectangle(input);},
   createDrawing:async input=>{const expected=revision;if(input.bodyIds.reduce((sum,id)=>sum+(bodies.find(b=>b.id===id)?.faceGroups.length||0),0)>1500)throw Object.assign(new Error('选择的面超过1500个，请分批出图'),{code:'RESOURCE_LIMIT'});setBusy(true,'生成三视图与截面…');try{const result=await request('technicalDrawing',{input});checkTransaction(undefined,expected);return result.drawing;}finally{setBusy(false);}},
   quickModelUsage:getQuickModelUsage,
+  refreshLibrary:()=>ui.refreshLibrary(),
   clipboard:async(action,ids)=>{if(ui.hasActiveTask())throw Object.assign(new Error('请先应用或取消人工任务'),{code:'UI_TASK_ACTIVE'});if(action==='copy'){modelClipboard={documentInstanceId,ids:[...ids],pasteCount:0};return;}return pasteModelClipboard();},
   buildId:__WEBCAD_BUILD__,
-  state:(input={})=>({hostControl:hostControl.get(),kernelProgress:clone(kernelProgress),...commandService.getState({sessionId:pageSessionId,include:['summary','features','bodies','selection','capabilities','references'],...input}),referenceSystem:clone(documentModel.referenceSystem),previewInfo:previewIdentity?clone(previewIdentity):null,previewScope:previewScopeReport?clone(previewScopeReport):null,renderQuality:qualityState(),parameters:clone(documentModel.parameters||{}),parameterValues:evaluateNamedParameters(documentModel.parameters||{}),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),colors:clone(documentModel.colors||{}),renderFinish:documentModel.renderFinish??null,displayPreferences:clone(viewport.displayPreferences),view:{anchorVisible:viewport.anchorVisible,panels:ui.getPanels(),clipboard:{available:modelClipboard?.documentInstanceId===documentInstanceId,bodyIds:modelClipboard?.documentInstanceId===documentInstanceId?[...modelClipboard.ids]:[]},display:viewport.mode,projection:viewport.camera.isOrthographicCamera?'orthographic':'perspective',grid:viewport.grid.visible,snap:viewport.snapEnabled,gizmo:viewport.gizmoMode,transform:viewport.getTransformState(),selectionMode:viewport.selectionMode,language:getLanguage(),camera:{position:viewport.camera.position.toArray(),target:viewport.controls.target.toArray()},section:clone(viewport.sectionState||{axis:'Z',position:0,enabled:false}),temporaryDisplay:viewport.temporaryDisplay}}),
+  state:(input={})=>({hostControl:hostControl.get(),kernelProgress:clone(kernelProgress),...commandService.getState({sessionId:pageSessionId,include:['summary','features','bodies','selection','capabilities','references'],...input}),referenceSystem:clone(documentModel.referenceSystem),previewInfo:previewIdentity?clone(previewIdentity):null,previewScope:previewScopeReport?clone(previewScopeReport):null,renderQuality:qualityState(),parameters:clone(documentModel.parameters||{}),parameterValues:evaluateNamedParameters(documentModel.parameters||{}),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),colors:clone(documentModel.colors||{}),renderFinish:documentModel.renderFinish??null,displayPreferences:clone(viewport.displayPreferences),view:{workspaceLayout:ui.getWorkspaceLayout(),anchorVisible:viewport.anchorVisible,panels:ui.getPanels(),clipboard:{available:modelClipboard?.documentInstanceId===documentInstanceId,bodyIds:modelClipboard?.documentInstanceId===documentInstanceId?[...modelClipboard.ids]:[]},display:viewport.mode,projection:viewport.camera.isOrthographicCamera?'orthographic':'perspective',grid:viewport.grid.visible,snap:viewport.snapEnabled,gizmo:viewport.gizmoMode,transform:viewport.getTransformState(),selectionMode:viewport.selectionMode,language:getLanguage(),camera:{position:viewport.camera.position.toArray(),target:viewport.controls.target.toArray()},section:clone(viewport.sectionState||{axis:'Z',position:0,enabled:false}),temporaryDisplay:viewport.temporaryDisplay}}),
   quality:async quality=>{setBusy(true,'更新显示网格…');try{const result=await request('remesh',{quality}),features=new Map(documentModel.features.map(f=>[f.id,f]));bodies=result.bodies.map(body=>({...body,name:features.get(body.id)?.name||body.id}));qualityKey=quality;viewport.setBodies(bodies,documentModel.hidden);applyAppearance();viewport.setSelection(selectedIds,selectedTopology);viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});await viewport.frame();setStatus('显示网格已更新 · '+RENDER_QUALITIES[quality].label+' · '+qualityState().triangleCount.toLocaleString()+' 三角面');}finally{setBusy(false);}},
   preferences:values=>{viewport.displayPreferences={...viewport.displayPreferences,...validateDisplayPreferences(values)};viewport.setModelingPrecision();applyAppearance();const persisted=saveDisplayPreferences(viewport.displayPreferences);refresh();return {persisted,storage:'cookie',values:clone(viewport.displayPreferences)};},
   execute:input=>commandService.execute(input),query:input=>commandService.queryGeometry(input),files:input=>commandService.fileCommand(input),
@@ -859,6 +898,7 @@ const pageAPI=createPageAPI({
   resolvePlacement:async input=>{if(input.refs.some(id=>!bodies.some(b=>b.id===id)))throw Object.assign(new Error('Unknown current body'),{code:'STALE_REFERENCE'});const context=pageAPI.getState().context,anchorId=input.placement?.sourceAnchor?.kind==='named'?input.placement.sourceAnchor.anchorId:null;if(anchorId){const anchor=documentModel.referenceSystem.bodyAnchors.find(item=>item.anchorId===anchorId&&item.status==='valid');if(!anchor||!input.refs.includes(anchor.bodyId))throw Object.assign(new Error('Named anchor is not on the source body'),{code:'STALE_REFERENCE'});const exact=await request('queryGeometry',{bodyId:anchor.bodyId,kind:'edge',filter:{}});if(exact.geometryFingerprint!==anchor.geometryFingerprint)throw Object.assign(new Error('Named anchor geometry changed'),{code:'STALE_REFERENCE'});if(documentInstanceId!==context.documentInstanceId||revision!==context.revision)throw Object.assign(new Error('Document changed during placement resolution'),{code:'STALE_REFERENCE'});}const params=migratedOperationIds.includes(input.op)?normalizeOperationParams(input.op,input.params):input.params;const resolved=resolvePlacement(input.placement,documentModel.referenceSystem,input.op,params);if(!resolved)throw Object.assign(new Error('Explicit placement required'),{code:'FRAME_INVALID'});return {status:'read',context,...describeResolvedPlacement(input.op,params,resolved)};},
   confirmSaved:snapshot=>executeAI('acknowledge_save',snapshot),
   measure:input=>request('measure',{bodyId:input.bodyId,topologyType:input.kind==='body'?undefined:input.kind,topologyId:input.topologyId}),
+  sampleMeshRelief:input=>request('sampleMeshRelief',{input}),
   inspectPrintability:(bodyId,angleLimitDeg)=>{const body=bodies.find(item=>item.id===bodyId);if(!body)throw Object.assign(new Error('Unknown current body'),{code:'STALE_REFERENCE'});return inspectPrintabilityMesh(body,angleLimitDeg);},
   inspectProfile:bodyId=>{const feature=documentModel.features.find(item=>item.id===bodyId&&item.op==='sketchProfile');if(!feature||!bodies.some(body=>body.id===bodyId))throw Object.assign(new Error('请选择当前可编辑解析轮廓'),{code:'STALE_REFERENCE'});return inspectProfileModel(feature.params);},
   inspectConstraints:bodyId=>{const solved=constrainProfileRecipe(resolveProfileRecipe(documentModel.features,bodyId),[]);return {profile:clone(solved.profile),constraints:clone(solved.constraints),diagnostics:clone(solved.diagnostics),primitiveConversion:clone(solved.primitiveConversion||[]),intrinsicConstraints:clone(solved.intrinsicConstraints||[]),placement:clone(solved.placement||null)};},
@@ -876,10 +916,10 @@ const pageAPI=createPageAPI({
   inspectRound:input=>request('inspectRound',{input}),
   measureRelation:input=>request('measureRelation',{input}),
   display:()=>viewport.displayState(),frame:()=>{if(lastWarnings.some(w=>w.code==='DISPLAY_FAILED'))throw Object.assign(new Error('Display failed; call redraw'),{code:'DISPLAY_FAILED'});viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});return viewport.frame();},capture:()=>viewport.screenshot(),
-  view:async input=>{if(input.anchorVisible!==undefined)viewport.setAnchorVisible(input.anchorVisible);if(input.panels)ui.setPanels(input.panels);if(input.temporaryDisplay)viewport.setTemporaryDisplay(input.temporaryDisplay);if(input.display)viewport.setDisplay(input.display);if(input.grid!==undefined)viewport.grid.visible=input.grid;if(input.snap!==undefined)viewport.snapEnabled=input.snap;if(input.gizmo){if(input.gizmo!=='off'){viewport.setAnchorDrag(false);viewport.setSelectionMode('body');selectedTopology=null;}viewport.setGizmo(input.gizmo);}if(input.selectionMode){if(input.selectionMode!=='body')viewport.setGizmo('off');viewport.setSelectionMode(input.selectionMode);selectedTopology=null;}if(input.language){setLanguage(input.language);viewport.updateLanguage();ui.update({language:input.language});}if(input.camera){viewport.camera.position.fromArray(input.camera.position);viewport.controls.target.fromArray(input.camera.target);viewport.controls.update();}if(input.section)viewport.setSection(input.section);if(input.projection)viewport.setProjection(input.projection);if(input.direction)viewport.view(input.direction==='side'?'right':input.direction);if(input.fit)viewport.fit();if(input.selectedIds){if(JSON.stringify(input.selectedIds)!==JSON.stringify(selectedIds))ui.discardForSelection();selectedIds=[...input.selectedIds];selectedTopology=null;viewport.setSelection(selectedIds);}viewport.setSelection(selectedIds,selectedTopology);refresh();await viewport.frame();},
+  view:async input=>{ui.setWorkspaceLayout(input);viewport.setViewInteraction(input.interactionPhase??'end');if(input.anchorVisible!==undefined)viewport.setAnchorVisible(input.anchorVisible);if(input.panels)ui.setPanels(input.panels);if(input.temporaryDisplay)viewport.setTemporaryDisplay(input.temporaryDisplay);if(input.display)viewport.setDisplay(input.display);if(input.grid!==undefined)viewport.grid.visible=input.grid;if(input.snap!==undefined)viewport.snapEnabled=input.snap;if(input.gizmo){if(input.gizmo!=='off'){viewport.setAnchorDrag(false);viewport.setSelectionMode('body');selectedTopology=null;}viewport.setGizmo(input.gizmo);}if(input.selectionMode){if(input.selectionMode!=='body')viewport.setGizmo('off');viewport.setSelectionMode(input.selectionMode);selectedTopology=null;}if(input.language){setLanguage(input.language);viewport.updateLanguage();ui.update({language:input.language});}if(input.camera){viewport.camera.position.fromArray(input.camera.position);viewport.controls.target.fromArray(input.camera.target);viewport.controls.update();}if(input.section)viewport.setSection(input.section);if(input.projection)viewport.setProjection(input.projection);if(input.direction)viewport.view(input.direction==='side'?'right':input.direction);if(input.fit)viewport.fit();if(input.selectedIds){if(JSON.stringify(input.selectedIds)!==JSON.stringify(selectedIds))ui.discardForSelection();selectedIds=[...input.selectedIds];selectedTopology=null;viewport.setSelection(selectedIds);}viewport.setSelection(selectedIds,selectedTopology);refresh();await viewport.frame();},
   redraw:async()=>{viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});await viewport.frame();lastWarnings=lastWarnings.filter(w=>w.code!=='DISPLAY_FAILED');},
 });
-Object.defineProperty(window,'webcad',{value:Object.freeze({api:pageAPI,hostControl}),writable:false,configurable:false});
+Object.defineProperty(window,'webcad',{value:Object.freeze({api:pageAPI,hostControl,agent:Object.freeze({contract:AGENT_CONTRACT,createHostAdapter})}),writable:false,configurable:false});
 if(new URLSearchParams(location.search).get('agent')==='1'){
   aiStatus='connecting';refresh();
   import('./ai-bridge.js').then(({connectAI})=>{

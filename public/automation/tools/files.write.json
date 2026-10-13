@@ -2,7 +2,7 @@
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.28.3",
+  "version": "1.41.0",
   "label": "写入文件",
   "synonyms": [
     "写入文件",
@@ -27,9 +27,22 @@
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
-    "maxTotalBytes": 67108864,
+    "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
   },
+  "typedByteBudgets": {
+    "step": 134217728,
+    "stp": 134217728,
+    "brep": 134217728,
+    "brp": 134217728,
+    "stl": 134217728,
+    "mesh": 402653184,
+    "webcad": 536870912
+  },
+  "additionalDocs": [
+    "api.exact-source-assets",
+    "api.mesh-assets"
+  ],
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -46,5 +59,5 @@
     "HASH_MISMATCH",
     "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:2435b0ba47fa3b944e03c1bcf4ef55183236baa8998d7cf288447e6c7f77a75d"
+  "docsHash": "sha256:352cde44c02f7aca1a43a8a1c102f0fd6a2a31cb2e1bf59e20c0e3bbccade542"
 }

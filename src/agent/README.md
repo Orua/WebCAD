@@ -1,5 +1,12 @@
 # Optional remote Agent adapter
 
+Current adapter v2 is exposed by the loaded page as window.webcad.agent.createHostAdapter.
+Goldenluck hosts do not copy this folder. Connect publishes the canonical contract;
+automation/remote-agent.json supplies the finite adapter/contract/host numeric planner,
+bound to buildId/catalogHash/docsHash/contractHash and verified byte hashes.
+Kernel recovery is a public, guarded job. Saving reads the last committed snapshot
+independently of kernel readiness, running geometry and previews.
+
 `createHostAdapter` accepts the current public WebCAD API, a server-issued document binding and an authenticated report capability. The Goldenluck workspace owns network requests and login; this package owns only bounded method dispatch and page-local receipts.
 
 CAD tools, registries and Workers remain owned by the public page API. The modules can be served as plain ES modules by the host. They never evaluate model-provided JavaScript or open model-provided URLs. Every page method is explicitly supported or listed in `HOST_ONLY_METHODS` with its host-side responsibility; a contract test prevents silent omissions.

@@ -1,0 +1,41 @@
+# WebCAD 与宿主 Agent 配合
+
+WebCAD 维护 CAD 适配器、方法契约和有限数值规划器；Agent 保留通用认证、任务、MCP、会话、账本和附件传输。工作台从当前 iframe 的 window.webcad.agent.createHostAdapter 创建适配器，不保存第二份 protocol.js。
+
+## 连接与版本
+
+1. 读取当前页面 connect 的 context/requestContext、buildId、pageApiVersion、catalogHash、docsHash、agentProtocol 和 agentSoftware。
+2. 宿主按准入的页面根地址下载 automation/remote-agent.json。清单 build/catalog/docs/contract 必须与握手一致，逐文件核对长度与 SHA256；缓存按页面根、构建和知识哈希分开。
+3. 有限软件包为 host-adapter.mjs、runtime-contract.json、layout-planner.py。后者以 .py.txt 作为静态下载资源，避免 IIS 将其当服务器脚本。Agent 在私有缓存中保存 .py；它仅接受声明的数值布局，不执行模型给出的代码、命令、URL 或路径。
+4. 新工具的准入与 MCP 分类读已验证 runtime-contract；旧后端常量只服务旧页面。协议主版本不兼容明确阻断。版本改变暂停新写入，先核对原回执，再重新 prepare；工程和未知作业不得刷新、替换或重放。
+
+## 保存和恢复
+
+files.save 读取最后提交的工程，不等待几何 Worker。未完成计算、预览、UI 草稿不写入这个快照。v4 用独立编码 Worker，保留原完整资产；其它版本按原容器编码。写入确认仍检查文件 SHA256、大小和工程修订，旧快照不能清除新修订的 dirty。
+
+内核错误先读取 getState。recoverKernel({context,stopRunning:false}) 只恢复未就绪内核；原计算仍运行时拒绝强行停止。经用户要求受控停止才用 stopRunning:true。恢复重建最后提交配方，保留几何和撤销历史，递增 revision 并清掉旧拓扑选择。恢复失败也能保存。恢复不是重新执行此前 Agent 命令。
+
+webcad_connect 的 recover:true 请求宿主恢复连接。已认证 SSE 仍在线时维持原 lease，解决后台定时器被节流造成的假离线；关闭、释放及 epoch 改变不能由旧流复活。原回执按 commandId/pageJobId 核对。
+
+任务专属 MCP 未准备好允许一次 app-server 内部重载，发生在模型回合和任何 CAD 命令之前；失败报告实际工具列表，不显示为已执行。模型服务繁忙、MCP 启动失败、页面离线、内核未就绪和计算中的状态分别处理。
+
+已选择本地执行的计算到 localTimeoutMs 时仅提醒，继续原任务。它不证明运算太复杂，也不能推荐没有相应能力的 Services。本地初始化保留保护时限；远端仍使用原作业、继续/停止决定以及 Native 硬保护。
+
+## 固定对象与钻石布局
+
+group 建立复合体，减少对象树和选择管理，保留每个独立实体；它不减少三角面或曲面数量。union 是布尔融合，会改变接触件的实体结构，分离钻石也可能没有性能收益。不要为了少显示几个对象融合钻石、镶位和环体或丢弃来源。检查源件的对象数、实体数和历史长度，再决定分组；冻结检查点的能力和容量按现有 compiled checkpoint 规则核对，不能据此宣称一键冻结已经实现。
+
+宿主布局调用为 webcad_docs({method:"planLayout",args:{layout}})，先读 api.agent-runtime。当前有限规划器支持明确测量的解析圆环面；不从照片或未知 STEP 猜曲面，不替代几何验收。输入：
+
+    {
+      "kind": "torus-surface",
+      "sourceBinding": {"documentId": "实际工程ID", "revision": 8, "geometryFingerprint": "实际来源指纹"},
+      "majorRadiusMm": 30, "minorRadiusMm": 5,
+      "stoneDiameterMm": 2, "clearanceMm": 0.2, "embedDepthMm": 0.25,
+      "centerMm": [3,4,5], "xAxis": [1,0,0], "normal": [0,0,1],
+      "rows": [{"angleDeg":-60},{"angleDeg":0},{"angleDeg":60}]
+    }
+
+数值仅为参数格式示例，不能用于替代用户源尺寸。最多64行/2000位置，可明确 count 与 phaseDeg。按弦长间距计算数量，返回世界坐标、法向、local+Z 对齐四元数、最小中心距、spacingPass 和来源绑定。spacingPass=false 不得直接提交；中心距核对不能替代石体/镶位干涉检查。
+
+插入前重读 sourceBinding 和完整 copy/transform/placement 卡，选择石体本地锚点与朝向；规划器四元数不自动覆盖石体的来源轴系。使用 feature.addMany 等有界批量减少重复重建，固定部分和正在调整部分分开；原配方、数量、尺寸和源孔保留。每批核对实际 bounds/渲染和必要测量，失败只继续尚未执行的步骤。

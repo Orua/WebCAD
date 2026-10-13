@@ -2,7 +2,7 @@
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.28.3",
+  "version": "1.41.0",
   "label": "保存工程",
   "synonyms": [
     "保存工程",
@@ -27,9 +27,22 @@
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
-    "maxTotalBytes": 67108864,
+    "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
   },
+  "typedByteBudgets": {
+    "step": 134217728,
+    "stp": 134217728,
+    "brep": 134217728,
+    "brp": 134217728,
+    "stl": 134217728,
+    "mesh": 402653184,
+    "webcad": 536870912
+  },
+  "additionalDocs": [
+    "api.exact-source-assets",
+    "api.mesh-assets"
+  ],
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -49,5 +62,5 @@
     "NAME_INVALID",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:8fb9585999164fce8e266aed84cc346b4e0639145115d6d3f69a3000229efb3f"
+  "docsHash": "sha256:17ea72fc7154bd1a73fa61e51979fe60ad7167b05b994854b8e57d63629146ad"
 }

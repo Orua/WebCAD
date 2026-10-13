@@ -1,0 +1,22 @@
+{
+  "id": "recoverKernel",
+  "title": "recoverKernel",
+  "category": "page-method",
+  "version": "1.41.0",
+  "description": "recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。",
+  "synonyms": [
+    "recoverKernel",
+    "内核恢复",
+    "重连",
+    "复位",
+    "kernel",
+    "recovery"
+  ],
+  "inputContract": "recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。",
+  "outputContract": "status=read,recovered,context；工程身份、已提交数据和历史保留；恢复完成递增revision，失效旧拓扑选择，必须重读context/拓扑。原任务回执保留。重建使用原已提交配方，不刷新页面或重放Agent命令；失败仍可files.save。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docsHash": "sha256:4f17b05232b151f8515df5194134daa4a132f841be08eb16406065c099e84379"
+}

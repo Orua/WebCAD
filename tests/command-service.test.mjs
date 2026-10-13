@@ -44,6 +44,34 @@ import { getOperation } from '../src/operation-registry.js';
 import { EDITOR_ACTIONS, validateEditorAction } from '../src/editor-actions.js';
 import { createReferenceSystem } from '../src/work-frame.js';
 
+test('typed exact imports preserve unkeyed callers and enforce explicit-key replay',async()=>{
+ const s={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:1,features:[],bodies:[],kernelReady:true,busy:false,referenceSystem:createReferenceSystem()};
+ let calls=0;
+ const service=createCommandService({snapshot:()=>structuredClone(s),execute:async(command,args)=>{assert.equal(command,'file_import');assert(args.data instanceof Uint8Array);calls++;s.revision++;}});
+ const context=()=>({sessionId:'s',documentId:'d',documentInstanceId:'i',expectedRevision:s.revision});
+ const data=new Uint8Array([73,83,79]);
+ const legacy=await service.fileCommand({context:context(),action:'import',args:{name:'part.stp',data}});
+ assert.equal(legacy.status,'committed',JSON.stringify(legacy));assert.equal(calls,1);
+ const input={context:context(),action:'import',args:{name:'part.brep',data,idempotencyKey:'exact-import'}};
+ const first=await service.fileCommand(input);assert.equal(first.status,'committed',JSON.stringify(first));
+ assert.deepEqual(await service.fileCommand(input),first);assert.equal(calls,2);
+ const conflict=await service.fileCommand({...input,args:{...input.args,data:new Uint8Array([73,83,80])}});
+ assert.equal(conflict.error.code,'IDEMPOTENCY_KEY_REUSED');assert.equal(calls,2);
+});
+
+test('large typed file preview hashes source bytes without enumerating or copying them into request metadata',async()=>{
+ const data=new Uint8Array(21*1024*1024+3);data[0]=73;data[data.length-1]=255;
+ Object.defineProperty(data,'mustNotEnumerate',{enumerable:true,get(){throw Error('Source bytes were enumerated as JSON metadata');}});
+ const s={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:1,features:[],bodies:[],kernelReady:true,busy:false,referenceSystem:createReferenceSystem()};
+ let calls=0;
+ const service=createCommandService({snapshot:()=>structuredClone(s),execute:async(command,args)=>{assert.equal(command,'preview_file');assert.equal(args.fileImport.data,data,'immutable source is shared with preview');calls++;s.preview=true;s.previewInfo=args.previewIdentity;}});
+ const input={context:{sessionId:'s',documentId:'d',documentInstanceId:'i',expectedRevision:1},idempotencyKey:'large-preview',action:'preview.start',args:{fileImport:{resourceId:'registered',name:'large.STP',data,placement:{version:1,frame:{kind:'world'},sourceAnchor:{kind:'model-origin'}}}}};
+ const first=await service.execute(input);assert.equal(first.status,'previewing',JSON.stringify(first));
+ assert.equal(s.revision,1);assert.deepEqual(await service.execute(input),first);assert.equal(calls,1);
+ data[data.length-1]^=1;
+ const conflict=await service.execute(input);assert.equal(conflict.error.code,'IDEMPOTENCY_KEY_REUSED');assert.equal(calls,1);
+});
+
 test('editor contracts reject invalid colors/materials/references and preserve exact intent',()=>{
  const state={bodies:[{id:'b',solidCount:2}],features:[{id:'f'}]};
  const valid={ 'feature.compileServices':{featureId:'f',allowUpload:true},'body.align':{bodyIds:['b'],target:{kind:'origin'}},'history.restore':{stateId:'saved-state'},'document.rename':{name:'设计'},'feature.rename':{featureId:'f',name:'导入体'},'body.visibility':{bodyIds:['b'],visible:false},'body.appearance':{bodyIds:['b'],color:'#123abc',finish:'design'},'document.appearance':{finish:'nickel'},'body.explode':{bodyId:'b'}};

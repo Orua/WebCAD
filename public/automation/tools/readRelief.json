@@ -2,8 +2,8 @@
   "id": "readRelief",
   "title": "readRelief",
   "category": "page-method",
-  "version": "1.28.3",
-  "description": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5})。先 files.register；只读，本地解码。",
+  "version": "1.41.0",
+  "description": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5,sourceInterpretation:authoredHeightMap|rasterArtwork|reviewedVectors|shadedReference})。先 files.register；只读，本地解码。",
   "synonyms": [
     "readRelief",
     "浮雕",
@@ -21,13 +21,15 @@
     "轮廓",
     "凹凸曲面"
   ],
-  "inputContract": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5})。先 files.register；只读，本地解码。",
+  "inputContract": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5,sourceInterpretation:authoredHeightMap|rasterArtwork|reviewedVectors|shadedReference})。先 files.register；只读，本地解码。",
   "outputContract": "status=read；分层文件返回layers、widthMm、heightMm、curveToleranceMm；图片返回values、regions、surfaceMode、contourSamples、rows、columns、aspectRatio、source{sha256,name,format,style}、interpretation；values/regions/surfaceMode/source一起交给relief params，不依赖UI选择。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [
+    "MACHINING_SOURCE_REQUIRED",
+    "MACHINING_SOURCE_CONFLICT",
     "RELIEF_IMAGE_INVALID",
     "RELIEF_LIMIT",
     "RELIEF_NO_CHANGE",
@@ -37,5 +39,5 @@
     "PARAM_SCHEMA_INVALID"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:fb5f4a50db4e111ece86f302eed066f6281a5a1b07ed6693a505c6fbb72327c3"
+  "docsHash": "sha256:a3609e8799aeec9fcf0b6a79643246d95dea3b143bed67c09242e1c394175a1b"
 }

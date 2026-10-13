@@ -1,0 +1,3 @@
+# api.model-library
+
+模型库与当前文档独立。getModelLibrary读取各条目完整字段与schema；updateModelLibrary以当前context和expectedLibraryRevision进行upsert/remove/move/import/restore；resolveModelLibrary返回解析后的quickModel参数，再run/add。旧远程助手固定白名单的等价入口：webcad_read method=getUILayout args={includeModelLibrary:true}读取modelLibrary；webcad_view method=setView args={context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}}进行管理，返回同一updateModelLibrary回执。生成读取entry.execution送入已有run/add；不需新服务或转换库ID。modelLibraryChange必须单独请求，不可同时改视图。库配置仅在当前浏览器源持久化，可全量JSON迁移；已有工程不依赖可删库ID。新增几何插件仍需发布构建器和契约，不在网页执行任意脚本。

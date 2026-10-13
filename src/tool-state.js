@@ -1,7 +1,7 @@
 const single=new Set(['moveTool','rotateTool','round','roundEnd','rounding','autoRound','transform','copy','mirror','fillet','chamfer','shell','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','faceHole','faceExtrude','logo','curvedLogo','thickenFace','split','extractSolid','explode','gizmoTranslate','gizmoRotate']);
 const boolean=new Set(['union','cut','intersect']);
 export function toolDisabledReason(action,state){
- if(action==='selectTool')return '';
+ if(['selectTool','save'].includes(action))return '';
  if(state.busy)return '正在计算，请稍候';
  if(!state.kernelReady)return '建模内核尚未就绪';
  const count=state.selectedIds.length,topology=state.selectedTopology;

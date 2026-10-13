@@ -2,7 +2,7 @@
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.28.3",
+  "version": "1.41.0",
   "label": "登记文件资源",
   "synonyms": [
     "登记文件资源",
@@ -28,9 +28,22 @@
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
-    "maxTotalBytes": 67108864,
+    "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
   },
+  "typedByteBudgets": {
+    "step": 134217728,
+    "stp": 134217728,
+    "brep": 134217728,
+    "brp": 134217728,
+    "stl": 134217728,
+    "mesh": 402653184,
+    "webcad": 536870912
+  },
+  "additionalDocs": [
+    "api.exact-source-assets",
+    "api.mesh-assets"
+  ],
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -44,5 +57,5 @@
     "SIZE_LIMIT",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:09324e60dd1eb04a816cbe98e5f2428d4b422f8cd4c7d3ad473b5ea2f51e66e3"
+  "docsHash": "sha256:26bd43aa712e8473ff81818ab5379100447f8c823367adf7f545b01c39459b58"
 }

@@ -1,12 +1,13 @@
+import {contractHash} from '../contracts/operation-schema.js';
 export const PROTOCOL = 'goldenluck.webcad/1';
 export const IDENTITY_KEYS = Object.freeze(['sessionId','documentId','documentInstanceId']);
 export const READ_METHODS = new Set(['connect','info','getState','getHistory','searchTools','getTools','getTool','readDocs',
   'queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectDesign','inspectProfile',
   'inspectConstraints','inspectFit','inspectThickness','inspectDraft','inspectPrintability','files.capabilities',
-  'prepareProfileEdit','projectProfile','sampleReliefHeight','prepareReliefSculpt','readRelief','readVector','connectVector',
-  'fitProfile','traceTwinWindow','planAlignment','getUILayout','getQuickModelUsage','inspectRound']);
-export const VIEW_METHODS = new Set(['setView','setRenderQuality','setDisplayPreferences','selectRectangle','redraw','capture']);
-export const DISCOVERY_METHODS = new Set(['connect','info','getState','getHistory','searchTools','getTools','getTool','readDocs','files.capabilities','getUILayout','getQuickModelUsage']);
+  'planPatternMachining','prepareProfileEdit','projectProfile','sampleMeshRelief','sampleReliefHeight','prepareReliefSculpt','readRelief','readVector','connectVector',
+  'fitProfile','traceTwinWindow','planAlignment','getUILayout','getQuickModelUsage','inspectRound','getModelLibrary','resolveModelLibrary']);
+export const VIEW_METHODS = new Set(['setView','setRenderQuality','setDisplayPreferences','selectRectangle','redraw','capture','updateModelLibrary']);
+export const DISCOVERY_METHODS = new Set(['connect','info','getState','getHistory','searchTools','getTools','getTool','readDocs','files.capabilities','getUILayout','getQuickModelUsage','getModelLibrary']);
 export const EDIT_ACTIONS = new Set(['feature.add','feature.addMany','feature.edit','feature.rename','document.rename',
   'feature.compileServices',
   'body.visibility','body.appearance','body.explode','document.appearance','history.undo','history.redo',
@@ -16,8 +17,14 @@ export const EDIT_ACTIONS = new Set(['feature.add','feature.addMany','feature.ed
 export const JOB_METHODS = new Set(['run','execute','queryGeometry','measure','measureRelation','inspectProfile','inspectConstraints',
   'inspectDesign','inspectFit','inspectThickness','inspectDraft','setView','setRenderQuality','files.save','files.export','files.import',
   'prepareProfileEdit','projectProfile','createDrawing','exportDrawing','copySelection','pasteSelection','inspectRound']);
-const EDIT_METHODS = new Set(['execute','files.import','copySelection','pasteSelection']);
-const EXPORT_METHODS = new Set(['files.save','files.export','createDrawing','exportDrawing']);
+export const EDIT_METHODS = new Set(['execute','files.import','copySelection','pasteSelection','recoverKernel']);
+export const EXPORT_METHODS = new Set(['files.save','files.export','createDrawing','exportDrawing']);
+JOB_METHODS.add('recoverKernel');
+const contract={schemaVersion:1,adapterVersion:2,protocol:PROTOCOL,
+  readMethods:[...READ_METHODS].sort(),viewMethods:[...VIEW_METHODS].sort(),jobMethods:[...JOB_METHODS].sort(),
+  discoveryMethods:[...DISCOVERY_METHODS].sort(),editActions:[...EDIT_ACTIONS].sort(),
+  editMethods:[...EDIT_METHODS].sort(),exportMethods:[...EXPORT_METHODS].sort()};
+export const AGENT_CONTRACT=Object.freeze({...contract,contractHash:contractHash(contract)});
 // A task may think/read for minutes; only a command that changes the document
 // needs exclusive manual editing control. Page revision guards remain active.
 export function editsDocument(payload) {
