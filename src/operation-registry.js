@@ -1,3 +1,4 @@
+import {MACHINING_INTENT_SCHEMA,assertPatternExecution,PATTERN_OPERATIONS} from './machining-intent.js';
 import { operationCatalog, legacyRoundingOperation, legacyUnifiedRoundingOperation } from './operation-catalog.js';
 import { QUICK_MODELS } from './quick-models.js';
 import {mechanicalIds,mechanicalDefaults,mechanicalExamples,mechanicalNames,mechanicalRefCounts,mechanicalResultTypes,mechanicalPreservedIds,profileSolidIds,mechanicalErrorCodes} from './mechanical-tool-contracts.js';
@@ -56,6 +57,7 @@ const examples = { round:{edgeIds:[0]}, roundEnd:{axis:'Y',direction:1,profileAx
 function schemaFor(id, source) {
   const schema = clone(source.paramsSchema || { type: 'object', properties: {}, additionalProperties: false });
   schema.$schema = 'https://json-schema.org/draft/2020-12/schema';
+  if(PATTERN_OPERATIONS.includes(id))schema.properties.machiningIntent=clone(MACHINING_INTENT_SCHEMA);
   if (id === 'quickModel') {
     return { $schema: schema.$schema, type: 'object', oneOf: Object.entries(QUICK_MODELS).map(([kind, definition]) => {
       const fields = new Map(definition.fields.map(field => [field.key, field]));
@@ -123,6 +125,7 @@ function buildCard(id, source) {
   const example = { op: id, params: clone(examples[id]), refs: Array.from({ length: minRefs }, (_, i) => `<current-bodyId-${i + 1}>`),
     referenceInstructions: 'Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.',
     validation: strict ? 'strict-parameter-schema' : special ? 'dedicated-entry-only' : 'advisory-schema-only; kernel prerequisites are not certified by this example' };
+  if(PATTERN_OPERATIONS.includes(id))example.params.machiningIntent={version:1,requestedGeometry:id==='relief'?'continuousRelief':'constantDepthContours',sourceInterpretation:id==='relief'?'authoredHeightMap':'reviewedVectors',userIntentEvidence:'Example only: replace with the actual confirmed user request and source identity'};
   const invalidParams = id === 'box' ? { ...examples[id], width: -1 }
     : ['hole', 'multiHole', 'faceHole'].includes(id) ? { ...examples[id], diameter: 4 }
       : id === 'shell' ? { ...examples[id], thickness: 0 }
@@ -320,6 +323,7 @@ export function validateOperationRefs(op, refs) {
 
 /** Documentation examples are parameter-checked; this is not a geometry test. */
 export function validateOperationExample(op, params) {
+  assertPatternExecution(op,params);
   const card = getOperation(op);
   return card.strictContract ? normalizeOperationParams(op, params) : validateSchema(card.inputSchema, params);
 }

@@ -2,7 +2,7 @@
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.33.0",
+  "version": "1.34.0",
   "label": "打开工程",
   "synonyms": [
     "打开工程",
@@ -27,9 +27,17 @@
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
-    "maxTotalBytes": 67108864,
+    "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
   },
+  "typedByteBudgets": {
+    "stl": 134217728,
+    "mesh": 402653184,
+    "webcad": 536870912
+  },
+  "additionalDocs": [
+    "api.mesh-assets"
+  ],
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -49,5 +57,5 @@
     "ASSET_INVALID",
     "FORMAT_UNSUPPORTED"
   ],
-  "docsHash": "sha256:446923f3376dffe78b26c1d6f9f62a5a1ab3777f5605860011571268cbb1f47b"
+  "docsHash": "sha256:241c57b276405b697b66a85fbfd0ee3c3bf2c3c68e4155b0f15261f1bde7dfff"
 }

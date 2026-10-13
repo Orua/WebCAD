@@ -2,7 +2,7 @@
   "id": "inspectDraft",
   "title": "inspectDraft",
   "category": "page-method",
-  "version": "1.33.0",
+  "version": "1.34.0",
   "description": "inspectDraft({context,bodyId,pullDirection:[0,0,1],thresholdDeg:2})；用户决定阈值。",
   "synonyms": [
     "inspectDraft",
@@ -23,5 +23,5 @@
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:2fd1138724f6a76fb0a3b2f32d529630cfae714f8c90990e149cf3f9c274dec8"
+  "docsHash": "sha256:4bc49d4b54b899a5dcdefbd8a3e2b026b9b00453974111da22603a9fac85ac36"
 }

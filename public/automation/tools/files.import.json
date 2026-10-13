@@ -2,14 +2,14 @@
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.33.0",
+  "version": "1.34.0",
   "label": "导入",
   "synonyms": [
     "导入",
     "import"
   ],
-  "description": "import({context,resourceId,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP resource. When placement is present, idempotencyKey is required; run batch injects its own step key.",
-  "inputContract": "import({context,resourceId,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP resource. When placement is present, idempotencyKey is required; run batch injects its own step key.",
+  "description": "import({context,resourceId,units?,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP or binary STL/mesh resource. Mesh requires explicit units and idempotencyKey; read api.mesh-assets. When placement is present, idempotencyKey is required; run batch injects its own step key.",
+  "inputContract": "import({context,resourceId,units?,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP or binary STL/mesh resource. Mesh requires explicit units and idempotencyKey; read api.mesh-assets. When placement is present, idempotencyKey is required; run batch injects its own step key.",
   "outputContract": "Imported source-backed feature in current project; omitted placement freezes the current work frame with model-origin source anchor. Explicit world retains source coordinates.",
   "units": {
     "length": "mm",
@@ -22,16 +22,25 @@
     "context",
     "resourceId",
     "placement",
-    "idempotencyKey"
+    "idempotencyKey",
+    "units"
   ],
   "unknownFields": "rejected",
   "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.import\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
-    "maxTotalBytes": 67108864,
+    "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
   },
+  "typedByteBudgets": {
+    "stl": 134217728,
+    "mesh": 402653184,
+    "webcad": 536870912
+  },
+  "additionalDocs": [
+    "api.mesh-assets"
+  ],
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -65,7 +74,11 @@
     "RESOURCE_EXPIRED",
     "ASSET_INVALID",
     "FORMAT_UNSUPPORTED",
-    "IDEMPOTENCY_KEY_REUSED"
+    "IDEMPOTENCY_KEY_REUSED",
+    "MESH_UNITS_REQUIRED",
+    "MESH_SOURCE_INVALID",
+    "MESH_ASSET_CORRUPT",
+    "MESH_DISPLAY_CAPACITY"
   ],
-  "docsHash": "sha256:af0d946125ed14e07bd6601c47be1a7e936445c81737f5eec7a307997d2af522"
+  "docsHash": "sha256:2a0cebff0a43b8b44f5bafd5b9c02f0b7f1f8089e5c6976d7f03301c7ce4353d"
 }

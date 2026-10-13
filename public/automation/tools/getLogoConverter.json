@@ -2,7 +2,7 @@
   "id": "getLogoConverter",
   "title": "getLogoConverter",
   "category": "page-method",
-  "version": "1.33.0",
+  "version": "1.34.0",
   "description": "getLogoConverter() 委托 getServices；旧 URL/Key 不自动授权统一服务。",
   "synonyms": [
     "getLogoConverter",
@@ -17,5 +17,5 @@
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:87625aa57e600eb87cdbcf56f89494be0fdfa599227fe0a0d182d973592b5b9a"
+  "docsHash": "sha256:0997ea30c2e61a35346b216a0601527f6949ce97252b199c9f19f406b6843662"
 }

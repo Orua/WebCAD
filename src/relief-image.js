@@ -1,5 +1,6 @@
 // Local image preparation shared by the UI and public readRelief API.
 // No network requests or model mutation. Only normalized height samples persist.
+import {IMAGE_TO_RELIEF} from './machining-intent.js';
 import {reliefContours} from './relief-contours.js';
 import {readVectorRelief} from './relief-vector.js';
 const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
@@ -83,13 +84,15 @@ function prepareReliefSvg(text){
 }
 export function validateReliefSvg(text){return prepareReliefSvg(text).text;}
 
-export async function readReliefImage(blob,{name='image.jpg',samples=33,whiteHigh=false,style='grayscale',threshold=.5}={}){
+export async function readReliefImage(blob,{name='image.jpg',samples=33,whiteHigh=false,style='grayscale',threshold=.5,sourceInterpretation}={}){
+ if(sourceInterpretation!==undefined&&!['rasterArtwork','authoredHeightMap','reviewedVectors','shadedReference'].includes(sourceInterpretation))fail('PARAM_SCHEMA_INVALID','无效的图像用途');
+ if(sourceInterpretation==='shadedReference'||sourceInterpretation==='rasterArtwork'&&style==='grayscale')fail('MACHINING_SOURCE_CONFLICT','光影参考图不能直接按亮度生成高度；灰度仅用于作者制作的高度图。');
  if(typeof name!=='string'||name.length>255||!Number.isInteger(samples)||samples<4||samples>65||typeof whiteHigh!=='boolean'||!['grayscale','rounded','flat'].includes(style)||!Number.isFinite(threshold)||threshold<=0||threshold>=1)fail('PARAM_SCHEMA_INVALID','图片名称、采样或明暗参数无效（阈值须在0与1之间）');
  if(!(blob instanceof Blob)||!blob.size||blob.size>8*1024*1024)fail('RELIEF_LIMIT','图片须为非空文件且不超过 8 MiB');
  const format=/\.relief\.json$/i.test(name)?'vector':/\.jpe?g$/i.test(name)?'jpg':/\.png$/i.test(name)?'png':/\.svg$/i.test(name)?'svg':null;
  if(!format)fail('FORMAT_UNSUPPORTED','浮雕支持 JPG、PNG、SVG 和分层 .relief.json');
  const bytes=await blob.arrayBuffer(),sha256=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),v=>v.toString(16).padStart(2,'0')).join('');
- if(format==='vector')return {...readVectorRelief(new TextDecoder().decode(bytes)),source:{name,sha256,format:'grid',style:'rounded'}};
+ if(format==='vector')return {...readVectorRelief(new TextDecoder().decode(bytes)),imageToRelief:IMAGE_TO_RELIEF,source:{name,sha256,format:'grid',style:'rounded',...(sourceInterpretation?{sourceInterpretation:'reviewedVectors'}:{})}};
  if(format!=='svg')rasterDimensions(bytes,format);
  const svg=format==='svg'?prepareReliefSvg(new TextDecoder().decode(bytes)):null;
  const imageBlob=svg?new Blob([svg.text],{type:'image/svg+xml'}):new Blob([bytes],{type:format==='jpg'?'image/jpeg':'image/png'});
@@ -109,6 +112,6 @@ export async function readReliefImage(blob,{name='image.jpg',samples=33,whiteHig
   ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
   const maskValues=heightValuesFromRgba(ctx.getImageData(0,0,canvas.width,canvas.height).data,canvas.width,canvas.height,{whiteHigh});
   const regions=reliefContours(maskValues,style==='grayscale'?1/255:threshold);
-  return {values,regions,surfaceMode:style==='flat'?'flat':'smooth',contourSamples:257,aspectRatio:ratio,rows:height,columns:width,source:{name,sha256,format,style,whiteHigh,threshold,originalWidth,originalHeight},interpretation:style==='flat'?'轮廓内生成精确平顶，轮廓外保留原表面':style==='rounded'?'图形按到背景的距离逐渐鼓起；轮廓外保留原表面':'轮廓内亮度映射为平滑高度；空白保留原表面，不代表照片真实深度'};
+  return {imageToRelief:IMAGE_TO_RELIEF,values,regions,surfaceMode:style==='flat'?'flat':'smooth',contourSamples:257,aspectRatio:ratio,rows:height,columns:width,source:{name,sha256,format,style,...(sourceInterpretation?{sourceInterpretation}:{}),whiteHigh,threshold,originalWidth,originalHeight},interpretation:style==='flat'?'轮廓内生成精确平顶，轮廓外保留原表面':style==='rounded'?'图形按到背景的距离逐渐鼓起；轮廓外保留原表面':'轮廓内亮度映射为平滑高度；空白保留原表面，不代表照片真实深度'};
  }finally{bitmap?.close?.();if(url)URL.revokeObjectURL(url);}
 }

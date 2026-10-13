@@ -2,7 +2,7 @@
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.33.0",
+  "version": "1.34.0",
   "label": "读取文件字节",
   "synonyms": [
     "读取文件字节",
@@ -27,9 +27,17 @@
   "limits": {
     "maxBytes": 20971520,
     "maxResources": 32,
-    "maxTotalBytes": 67108864,
+    "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
   },
+  "typedByteBudgets": {
+    "stl": 134217728,
+    "mesh": 402653184,
+    "webcad": 536870912
+  },
+  "additionalDocs": [
+    "api.mesh-assets"
+  ],
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -40,5 +48,5 @@
     "PARAM_SCHEMA_INVALID",
     "RESOURCE_EXPIRED"
   ],
-  "docsHash": "sha256:708327414c616ff834e8dd32c2c8a87c5d5c36d1eba479c54225a5789f6b61c3"
+  "docsHash": "sha256:122384b6d8d3441f0562f9afc7014f78d6e4088926b3dc04684941536e287c31"
 }
