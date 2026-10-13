@@ -4,14 +4,28 @@
     {
       "operation": "agent-runtime-recovery",
       "semanticVersion": "agent-adapter-2",
-      "sourcePaths": ["src/agent", "src/main.js", "src/project-save.js", "src/project-codec-worker.js", "src/command-service.js", "src/page-api.js", "scripts/generate-remote-agent.mjs"],
+      "sourcePaths": [
+        "src/agent",
+        "src/main.js",
+        "src/project-save.js",
+        "src/project-codec-worker.js",
+        "src/command-service.js",
+        "src/page-api.js",
+        "scripts/generate-remote-agent.mjs"
+      ],
       "localImpact": "independent committed save, guarded kernel recovery, local wait reminder, topology invalidation",
       "servicesImpact": "none: Native/Logo protocol, geometry, storage and server hard limits unchanged",
       "logoImpact": "none: source conversion and geometry unchanged",
       "contractImpact": "page API 1.41 and canonical adapter v2 downloaded/verified by Agent; host mirrors removed",
       "documentImpact": "existing source recipes, assets and history retained; recovery issues fresh revision; no new project format",
       "cacheImpact": "Agent caches separate buildId/catalogHash/docsHash/contractHash and reverify software assets",
-      "requiredTests": ["tests/agent-recovery-save.test.mjs", "tests/remote-agent-adapter.test.mjs", "tests/page-api.test.mjs", "CodexAgent tests/unit/test_webcad_software.py", "original rev98 project cold open/save"]
+      "requiredTests": [
+        "tests/agent-recovery-save.test.mjs",
+        "tests/remote-agent-adapter.test.mjs",
+        "tests/page-api.test.mjs",
+        "CodexAgent tests/unit/test_webcad_software.py",
+        "original rev98 project cold open/save"
+      ]
     },
     {
       "operation": "reliefShoulder",
@@ -555,7 +569,7 @@
       "operation": "meshReliefEdit",
       "semanticVersion": "mesh-relief-edit-1",
       "localImpact": "Worker Float64 fixed-topology height edit",
-      "servicesImpact": "No remote implementation or fallback; bounded local edit only",
+      "servicesImpact": "Explicit boundedMeshOperations shared policy: own strict local mesh capacity gate, including when Services is configured; no native conversion or fallback",
       "logoImpact": "none; existing intent routing unchanged",
       "contractImpact": "strict source-bound edit: height, field/profile replace, bounded source-region pullback; public formal mesh height readback; ordered add/remove/replace/freeze layers and final mandatory targets",
       "documentImpact": "v4 immutable source and feature recipe; unchanged format",
@@ -568,14 +582,15 @@
         "tests/agent-interface-coverage.test.mjs",
         "tests/relief-profile.test.mjs",
         "tests/page-api.test.mjs",
-        "tests/relief-layers.test.mjs"
+        "tests/relief-layers.test.mjs",
+        "tests/services-routing.test.mjs"
       ]
     },
     {
       "operation": "meshReliefPlate",
       "semanticVersion": "mesh-relief-plate-1",
       "localImpact": "Worker generic Float64 plate and radial profiles",
-      "servicesImpact": "No remote implementation or fallback; bounded local edit only",
+      "servicesImpact": "Explicit boundedMeshOperations shared policy: own strict local mesh capacity gate, including when Services is configured; no native conversion or fallback",
       "logoImpact": "none; existing intent routing unchanged",
       "contractImpact": "strict plate dimensions, sampling spacing, explicit radial profiles, Agent/UI operation",
       "documentImpact": "v4 immutable source and feature recipe; unchanged format",
@@ -585,7 +600,8 @@
         "tests/relief-edit-kernel.test.mjs",
         "tests/operation-registry.test.mjs",
         "tests/pattern-machining.test.mjs",
-        "tests/agent-interface-coverage.test.mjs"
+        "tests/agent-interface-coverage.test.mjs",
+        "tests/services-routing.test.mjs"
       ]
     },
     {

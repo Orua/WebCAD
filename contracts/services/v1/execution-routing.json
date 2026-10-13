@@ -180,5 +180,9 @@
     },
     "storage": "webcad.services.v1",
     "appliesTo": "next-operation"
-  }
+  },
+  "boundedMeshOperations": [
+    "meshReliefPlate",
+    "meshReliefEdit"
+  ]
 }
