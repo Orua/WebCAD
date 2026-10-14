@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.43.0",
-  "buildId": "689f860bd30dea9ff50165e2134cef00d7480909-src-94bfbb3a2b3237d5",
-  "catalogHash": "sha256:2ac46e220449ea50c2e5d0288b038859575adb295432f3a8e0153d2785d2a97d",
-  "docsHash": "sha256:dd3f7eefdf4d187263d87405a1dd4df3a4cf7dd9713f797098c14ecb1b19a381",
+  "pageApiVersion": "1.46.0",
+  "buildId": "73fc37c5e3bcb303e228d370a3a092ebb0c50dee-src-88a8f81590699ac1-working",
+  "catalogHash": "sha256:53022dd7b6b123769e516381007fcf7631d02dfc860c9a0eae8815a07b21e15c",
+  "docsHash": "sha256:7f7cd795ba70b67545344f91380383d0892611906fae7f6820cf9ff02ee8341e",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -26,10 +26,12 @@
       "tools": [
         "getAgentPanel",
         "configureAgentPanel",
-        "setAgentPanel"
+        "setAgentPanel",
+        "getUILayout",
+        "setView"
       ],
       "method": "setAgentPanel",
-      "usage": "configureAgentPanel({context,url})保存助手页面地址；setAgentPanel({context,visible:true/false})接入当前工程或退出并解锁；getAgentPanel()读取visible/phase/connected/error/release_pending。工程、历史、相机和dirty保留。"
+      "usage": "configureAgentPanel({context,url})保存助手页面地址；setAgentPanel({context,visible:true/false})接入当前工程或退出并解锁。Agent入口及连接成功自动focus:true、toolbar:false；退出恢复原布局，活动任务保留并在完成后进入专注。getAgentPanel和getUILayout读回连接及布局。工程、历史、相机和dirty保留。"
     },
     "alignBodies": {
       "tools": [
@@ -593,6 +595,15 @@
       "method": "updateModelLibrary",
       "usage": "getModelLibrary读取当前revision、每条字段及完整生成契约。updateModelLibrary传当前context和expectedLibraryRevision，operation=upsert/remove/move/restore/import。resolveModelLibrary返回冻结的quickModel参数，run/add生成，删除库条目不影响历史。"
     },
+    "modelLibraryEdit": {
+      "tools": [
+        "getModelLibrary",
+        "updateModelLibrary",
+        "resolveModelLibrary"
+      ],
+      "method": "updateModelLibrary",
+      "usage": "浮动编辑层维护工具名称、默认参数和script。getModelLibrary读取后upsert，唯一id新增、已有id修改；script步骤及引用按api.model-library验证；expectedLibraryRevision拒绝陈旧库写入。"
+    },
     "moveTool": {
       "tools": [
         "setView",
@@ -824,10 +835,11 @@
         "getModelLibrary",
         "resolveModelLibrary",
         "quickModel",
-        "run"
+        "run",
+        "preview.start"
       ],
       "method": "setView",
-      "usage": "实体→快捷模型打开画布中央浮动选择菜单：setView({context,workspace:\"library\"})；返回画布用workspace:\"modeling\"。getModelLibrary读取配置，resolveModelLibrary解析后run/add生成。"
+      "usage": "实体→快捷模型打开画布中央浮动选择菜单：setView({context,workspace:\"library\"})；选择后在浮动对话框设置参数。getModelLibrary读取字段和完整script；resolveModelLibrary解析后run/add生成，params.modelScript冻结脚本。实体缩略图和参数引线示意不提交工程，实际模型可preview.start或quickModel生成并measure核对。"
     },
     "quickModelFavorites": {
       "tools": [
@@ -1352,7 +1364,7 @@
     "profileRepair": "修复轮廓 / 轮廓修复",
     "profileRevolve": "轮廓旋转",
     "profileSweep": "轮廓扫掠",
-    "quickModel": "快捷模型 / setView / getModelLibrary / resolveModelLibrary / run",
+    "quickModel": "快捷模型 / setView / getModelLibrary / resolveModelLibrary / run / 预览模型、原特征编辑或文件插入",
     "referenceExtrude": "参考轮廓拉伸 / 轮廓拉伸",
     "referenceLoft": "参考截面放样 / 截面放样",
     "refineShape": "清理分割线 / getState / queryGeometry / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销",
@@ -1396,6 +1408,7 @@
     "pathFillet": "二维圆角 / prepareProfileEdit / 修改参数",
     "pathTrimCircle": "整圆裁剪 / prepareProfileEdit / 修改参数",
     "vectorImport": "矢量取线成面 / readVector / connectVector / 绘制轮廓",
+    "modelLibraryEdit": "getModelLibrary / updateModelLibrary / resolveModelLibrary",
     "quickModelFavorites": "快捷模型 / setView / getQuickModelUsage",
     "reference.setWorkFrame": "设置参考锚点（工作基准）",
     "reference.resetWorkFrame": "重置参考锚点（工作基准）",
@@ -1415,7 +1428,7 @@
     "snapSettings": "吸附 / setDisplayPreferences",
     "languageSettings": "语言 / setView",
     "agentGuide": "Agent 配置 / connect / getTools / readDocs",
-    "agentPanel": "getAgentPanel / configureAgentPanel / setAgentPanel",
+    "agentPanel": "getAgentPanel / configureAgentPanel / setAgentPanel / getUILayout / setView",
     "servicesSettings": "Services / getServices / setServices / getServicesCapabilities / getServicesRouting / clearServicesCredential",
     "servicesFeatureCompile": "Services 原特征编译 / getServicesCapabilities / getServicesRouting / getState / getServicesRequest",
     "displayPreferences": "渲染设置 / setDisplayPreferences",

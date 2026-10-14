@@ -2,6 +2,63 @@
   "version": 1,
   "operations": [
     {
+      "operation": "ribbon-uniform-icons-background-highlight",
+      "sourcePaths": ["src/workspace-upgrade.css"],
+      "localImpact": "All ribbon buttons use non-shrinking 34px slots and 20px icons; selection highlights use background only, without border space",
+      "servicesImpact": "none: CSS only",
+      "logoImpact": "none: source geometry and conversion unchanged",
+      "contractImpact": "none: actions and public AI routes unchanged; documentation release identity updated",
+      "documentImpact": "none: no project, camera, history or recipe changes",
+      "cacheImpact": "Rebuild frontend and matching discovery identity; user preferences retained",
+      "requiredTests": ["build", "17674 view/edit icon sizes, ribbon height and selected border"]
+    },
+    {
+      "operation": "agent-focus-uniform-ribbon",
+      "sourcePaths": ["src/ui.js", "src/workspace-layout.css"],
+      "localImpact": "View ribbon uses the same 44px height; Agent entry and connection activate existing focus mode and hide tools, exit restores prior layout",
+      "servicesImpact": "none: UI layout only; geometry routing and backend unchanged",
+      "logoImpact": "none: no conversion or source geometry change",
+      "contractImpact": "Page API 1.46; setAgentPanel and getUILayout document automatic focus; existing setView remains shared layout API",
+      "documentImpact": "No document, history, camera or geometry replacement; retain active tasks",
+      "cacheImpact": "Frontend build/catalog/docs hashes; existing preferences retained",
+      "requiredTests": ["workspace-theme", "assistant-panel", "build", "17674 view/edit height and Agent entry/connection/exit layout"]
+    },
+    {
+      "operation": "tool-execution-routing-2",
+      "sourcePaths": ["contracts/services/v1/execution-routing.json", "src/services/execution-router.js", "src/services/execution-context.js", "src/main.js"],
+      "localImpact": "All 47 quick models and ordinary tools remain local with configured Services; eligible complex geometry requires measured thresholds",
+      "servicesImpact": "Client selector only; no Native algorithm, DLL, protocol, job or codec change",
+      "logoImpact": "none: converter and source geometry unchanged",
+      "contractImpact": "Page API 1.45, complexity-routing-2.0, getServicesRouting.operationPolicy",
+      "documentImpact": "Recipes, checkpoints, undo, project data and unresolved physical-job guards retained",
+      "cacheImpact": "Frontend build/catalog/docs hashes change; preserve credentials and settings",
+      "requiredTests": ["services-routing", "services-boolean-contract", "build", "17674 threadedSleeve with Services configured and no backend requests"]
+    },
+    {
+  "operation": "quick-model-dialog-script-preview",
+  "sourcePaths": [
+    "src/quick-models",
+    "src/model-library.js",
+    "src/ui/model-library-workspace.js",
+    "src/ui/model-preview.js",
+    "src/ui.js"
+  ],
+  "localImpact": "Three-input key ring with circular R tips; modal creation/management; finite editable geometry recipes; lazy isolated generated solid previews and dimension leaders",
+  "servicesImpact": "none: quick models execute in existing local WASM; Services protocols, jobs and runtime unchanged",
+  "logoImpact": "none: logo converter and source geometry unchanged",
+  "contractImpact": "page API 1.44; entry.script / params.modelScript; existing update/resolve/run/add and preview APIs share full recipe",
+  "documentImpact": "Generated features freeze full script; legacy ring recipes without new flags retain explicit winding; no format change",
+  "cacheImpact": "new frontend/catalog/docs/build hashes; preserve cookies, local model library and project data",
+  "requiredTests": [
+    "key-ring",
+    "model-library",
+    "model-script",
+    "build",
+    "17674 modal/script/preview/create"
+  ]
+},
+
+    {
       "operation": "ui-icon-color",
       "sourcePaths": ["src/ui/styles/theme.css"],
       "localImpact": "All coloured UI icons inherit one saved theme accent; neutral controls remain grayscale",
@@ -648,7 +705,7 @@
     }
   ],
   "executionRouting": {
-    "policyVersion": "complexity-routing-1.0",
+    "policyVersion": "complexity-routing-2.0",
     "sharedPolicy": "contracts/services/v1/execution-routing.json",
     "localTimeoutMsDefault": 60000,
     "serverWaitMsDefault": 180000,

@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {chooseExecutor,classifyComplexity,createExecutionHistory,EXECUTION_POLICY} from '../src/services/execution-router.js';
 import {patternComplexity,physicalExecutionKey,remotePlacementSupported} from '../src/services/execution-context.js';
+import {listOperations} from '../src/operation-registry.js';
+import {QUICK_MODELS} from '../src/quick-models.js';
 const codec='occt-text-brep-v1';
 const capability={operation:'relief',semanticVersion:'relief.compiled-contours-1.0',enabled:true,acceptanceStatus:'bridge-passed-project-gates-pending',
  kernelBuildId:'actual-test-kernel',resultFormats:[codec],limits:{maxSourceBytes:20971520,maxSolids:1,maxLayers:32,maxPrimitives:64000}};
@@ -15,7 +17,7 @@ const matrix=(rows,columns)=>Array.from({length:rows},()=>Array(columns).fill(0)
 const ring=size=>Array.from({length:size},(_,i)=>[i,0]);
 
 test('shared complexity policy carries the agreed time budgets and is immutable',()=>{
- assert.equal(EXECUTION_POLICY.policyVersion,'complexity-routing-1.0');
+ assert.equal(EXECUTION_POLICY.policyVersion,'complexity-routing-2.0');
  assert.equal(EXECUTION_POLICY.localTimeoutMs,60000);
  assert.equal(EXECUTION_POLICY.serverWaitMs,180000);
  assert.equal(EXECUTION_POLICY.maximumServerWallMs,900000);
@@ -44,10 +46,10 @@ test('deterministic source and relief thresholds include the boundary and exclud
  assert.equal(classifyComplexity({operation:'box',source:{faces:NaN,edges:-1,bytes:Infinity}}).complex,false);
 });
 
-test('large surfaces, dense machining, edge treatment and unknown operations have conservative rules',()=>{
- for(const operation of ['profileLoft','profileSweep','curveSweep','advancedLoft','thickenFace','fittedSurface','offsetSurface','thread','coil','autoRound','futureUnsupportedSurface']){
-  const classified=classifyComplexity({operation});assert.equal(classified.complex,true,operation);
-  assert.equal(chooseExecutor({...small,operation}).executor,'blocked',operation);
+test('surface tools require measured complexity; ordinary machining and presets remain local',()=>{
+ for(const operation of ['profileLoft','profileSweep','curveSweep','advancedLoft','thickenFace','fittedSurface','offsetSurface','thread','coil','autoRound']){
+  const classified=classifyComplexity({operation});assert.equal(classified.complex,false,operation);
+  assert.equal(chooseExecutor({...small,operation}).executor,'local',operation);
  }
  for(const [operation,params,below] of [
   ['multiHole',{points:Array(12).fill([0,0,0])},{points:Array(11).fill([0,0,0])}],
@@ -58,14 +60,25 @@ test('large surfaces, dense machining, edge treatment and unknown operations hav
   ['fillet',{edgeIds:Array.from({length:24},(_,i)=>i)},{edgeIds:Array.from({length:23},(_,i)=>i)}],
   ['smoothTransition',{faceIds:Array.from({length:12},(_,i)=>i)},{faceIds:Array.from({length:11},(_,i)=>i)}]
  ]){
-  assert.equal(classifyComplexity({operation,params}).complex,true,operation);
+  assert.equal(classifyComplexity({operation,params}).complex,EXECUTION_POLICY.servicesEligibleOperations.includes(operation),operation);
   assert.equal(classifyComplexity({operation,params:below}).complex,false,operation);
  }
  assert.equal(classifyComplexity({operation:'fillet',params:{allEdges:true}}).complex,true);
- assert.equal(classifyComplexity({operation:'quickModel',params:{kind:'screw'}}).complex,true);
- assert.equal(classifyComplexity({operation:'quickModel',params:{kind:'threadedSleeve'}}).complex,true);
+ assert.equal(classifyComplexity({operation:'quickModel',params:{kind:'screw'}}).complex,false);
+ assert.equal(classifyComplexity({operation:'quickModel',params:{kind:'threadedSleeve'}}).complex,false);
  assert.equal(chooseExecutor({...small,operation:'box'}).executor,'local');
- assert.equal(chooseExecutor({...small,operation:'multiHole',params:{points:Array(12).fill([0,0,0])}}).executor,'blocked');
+ assert.equal(chooseExecutor({...small,operation:'multiHole',params:{points:Array(12).fill([0,0,0])}}).executor,'local');
+});
+
+test('every registered tool has explicit routing; presets and ordinary tools remain local on huge sources',()=>{
+ const eligible=EXECUTION_POLICY.servicesEligibleOperations,local=EXECUTION_POLICY.localOnlyOperations;
+ for(const operation of listOperations())assert.equal(Number(eligible.includes(operation.id))+Number(local.includes(operation.id)),1,operation.id);
+ const source={bytes:128*1024*1024,faces:10000,edges:20000,complexityUnavailable:true};
+ for(const operation of local)for(const explicitRemote of [false,true])assert.equal(chooseExecutor({servicesAvailable:true,operation,source,explicitRemote,capabilities:null}).executor,'local',operation);
+ for(const [kind,params]of Object.entries(QUICK_MODELS))assert.equal(chooseExecutor({servicesAvailable:true,operation:'quickModel',params:{kind,...params.defaults},source,capabilities:null}).executor,'local',kind);
+ const unknown=chooseExecutor({servicesAvailable:true,operation:'futureUnsupportedSurface',source});assert.equal(unknown.executor,'blocked');assert.equal(unknown.routingReason,'operation-routing-unregistered');
+ for(const operation of ['profileLoft','shell','fittedSurface','cut'])assert.equal(classifyComplexity({operation,source:{faces:150}}).complex,true,operation);
+ assert.equal(classifyComplexity({operation:'cut',source:{complexityUnavailable:true}}).complex,false);
 });
 
 test('patternComplexity aggregates actual layers, holes, stroke vertices and sculpt lattices',()=>{
@@ -85,7 +98,7 @@ test('patternComplexity aggregates actual layers, holes, stroke vertices and scu
 });
 
 test('without configured Services all ordinary requests stay local, including explicit and unsupported complex requests',()=>{
- for(const options of [small,input,{...input,explicitRemote:true},{...input,operation:'futureUnsupportedSurface'},{...input,capabilities:null}]){
+ for(const options of [small,input,{...input,explicitRemote:true},{...input,capabilities:null}]){
   const decision=chooseExecutor({...options,servicesAvailable:false});
   assert.equal(decision.executor,'local');assert.equal(decision.routingReason,'services-not-configured');
  }

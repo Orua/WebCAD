@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "平底、光滑凸面；直径和高度独立设置，可以调整拱高，不限于半球。",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "domedPin"
@@ -164,7 +205,7 @@
       }
     }
   },
-  "schemaHash": "sha256:80c8560cfc4b64f82af5934a3edbd94f3cb431ffeed433f1bc97e05fdd193def",
+  "schemaHash": "sha256:4f47ccd7f70ff0e0c418a81630d6d5cfee644771421ca307f07816328ddbad9d",
   "defaults": {
     "diameterMm": 6,
     "heightMm": 2
@@ -217,5 +258,5 @@
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:3ab204b3e0e8e425e7707908426ebc678ccc7923793dae1e594bf27ff3679a76"
+  "docsHash": "sha256:47cdba31a6e4b5939f45637f4a9ad77c23b0e3472bcc0c19b73efb0a3b9b8b99"
 }

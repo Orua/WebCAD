@@ -65,7 +65,7 @@ function schemaFor(id, source) {
       const fields = new Map(definition.fields.map(field => [field.key, field]));
       return { type: 'object', required: ['kind'], additionalProperties: false,
         description: definition.descriptionEn || definition.description,
-        properties: { kind: { type: 'string', const: kind }, ...Object.fromEntries(Object.entries(definition.defaults).map(([key, value]) => {
+        properties: { modelScript:{type:'array',minItems:1,maxItems:20,items:{type:'object',required:['id','op'],additionalProperties:false,properties:{id:{type:'string'},op:{type:'string',enum:['box','cylinder','sphere','quickModel','union','cut','intersect','transform']},params:{type:'object',additionalProperties:true},refs:{type:'array',items:{type:'string'}}}}},kind: { type: 'string', const: kind }, ...Object.fromEntries(Object.entries(definition.defaults).map(([key, value]) => {
           const field = fields.get(key);
           return [key, { type: typeof value, default: value,
             description: field?.labelEn || field?.label || key,

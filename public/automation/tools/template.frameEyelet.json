@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "One exact circular or rounded rectangular frame with an optional constant-wall collar, symmetric mounting posts and plain straight holes. Collar and posts extend along local +Z from a flange at Z=0. Hole depth 0 means through; positive depth is blind from the post top. 0/2/4 posts; two posts lie on Y. Zero collar/post heights make a backplate. No threads, taper, riveting, decoration or 3D edge blends. Circular mode requires matching width/height pairs; corner radii apply only to rectangular mode.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "frameEyelet"
@@ -237,7 +278,7 @@
       }
     }
   },
-  "schemaHash": "sha256:2a0cb614769292eb5c3733600fcae0b1f60ed7f31d427271ca707a281849c215",
+  "schemaHash": "sha256:a07b4c5b681d0d67bca55f8099e09c7ca84ccd0a5e32ceef5cf73cadd35504f5",
   "defaults": {
     "shape": "roundedRect",
     "outerWidthMm": 25.6,
@@ -469,5 +510,5 @@
     "refs": []
   },
   "docs": "api.quick-installation",
-  "docsHash": "sha256:62d93558e076c1f3e8fb793c8ef101817ff18ffd883fd51b647d7dc12ee19688"
+  "docsHash": "sha256:91891872ee40314a4bf94f10db40dc5941a000b10669cbd339ee879d422061a9"
 }

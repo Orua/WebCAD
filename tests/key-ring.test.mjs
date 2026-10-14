@@ -31,13 +31,16 @@ try{
   assert.ok(planar.some(face=>face.areaMm2>200),'wide flat layer faces are present');
   const innerArc=await kernel.queryGeometry('ring','edge',{curveType:'circle',radiusRangeMm:{min:12.49,max:12.51}});
   assert.ok(innerArc.matchCount>0,'inner diameter is controlled by the 12.5 mm centerline offset');
-  const variant=await run({...QUICK_MODELS.keyRing.defaults,innerDiameterMm:30,outerDiameterMm:40,totalDepthMm:4,turns:1.5,layerGapMm:.02});
+  const variant=await run({innerDiameterMm:30,outerDiameterMm:40,totalDepthMm:4});
   assert.equal(variant.stats.solids,1);
   near(variant.bodies[0].bounds.max[0]-variant.bodies[0].bounds.min[0],40,.03,'variant outer diameter');
   near(variant.bodies[0].bounds.max[2]-variant.bodies[0].bounds.min[2],4,.03,'variant overall side depth');
-  await assert.rejects(run({...QUICK_MODELS.keyRing.defaults,turns:2.1}),/匙圈/);
-  await assert.rejects(run({...QUICK_MODELS.keyRing.defaults,turns:1.99,transitionAngleDeg:36}),/匙圈/);
-  await assert.rejects(run({...QUICK_MODELS.keyRing.defaults,layerGapMm:-.1}),/匙圈/);
+  assert.equal(QUICK_MODELS.keyRing.fields.length,3);
+  const tipArc=await kernel.queryGeometry('ring','edge',{curveType:'circle',radiusRangeMm:{min:2.49,max:2.51}});
+  assert.ok(tipArc.matchCount>0,'tips carry a circular outline, not flat end faces');
+  await assert.rejects(run({...QUICK_MODELS.keyRing.defaults,autoFit:false,turns:2.1}),/匙圈/);
+  await assert.rejects(run({...QUICK_MODELS.keyRing.defaults,autoFit:false,turns:1.99,transitionAngleDeg:36}),/匙圈/);
+  await assert.rejects(run({...QUICK_MODELS.keyRing.defaults,autoFit:false,layerGapMm:-.1}),/匙圈/);
 }finally{kernel.dispose();}
 console.log('PASS keyRing: source-sized rounded double layer, local transition, physical envelope, variant and invalid bounds');
 

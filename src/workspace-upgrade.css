@@ -45,6 +45,24 @@
 .model-library-workspace[data-library-mode=list] .library-model-values{display:block;max-width:30%;line-height:1.6}
 .library-editor{margin:0 0 24px;padding:20px;background:var(--ui-surface);border:1px solid var(--ui-border);border-radius:12px}
 .library-editor[hidden]{display:none}
+.library-editor.cad-dialog{position:fixed;inset:0;margin:auto;width:min(780px,94vw);max-height:88vh;overflow:auto;padding:20px;z-index:1200;box-shadow:0 18px 52px color-mix(in srgb,var(--ui-text) 21%,transparent)}
+.library-editor::backdrop,.quick-model-dialog::backdrop{background:color-mix(in srgb,var(--ui-text) 27%,transparent)}
+.quick-model-dialog.cad-dialog{width:min(680px,94vw);max-height:88vh;overflow:auto;margin:auto}
+.model-solid-preview{position:relative;margin:0;min-height:82px;width:100%;overflow:hidden;background:var(--ui-subtle);border-radius:6px}
+.model-solid-preview img{display:block;width:100%;aspect-ratio:520/330;object-fit:contain}
+.model-solid-preview img:not([src]){visibility:hidden}
+.model-solid-preview figcaption{font-size:11px;line-height:1.5;color:var(--ui-muted);padding:5px 8px;white-space:normal}
+.model-solid-preview figcaption:empty{display:none}
+.model-parameter-guides{position:absolute;top:0;left:0;width:100%;height:auto;pointer-events:none;overflow:visible}
+.model-parameter-guides line{stroke:var(--accent-ink);stroke-width:1;fill:none}
+.model-parameter-guides text{fill:var(--accent-ink);font:11px sans-serif;paint-order:stroke;stroke:var(--ui-subtle);stroke-width:3px;stroke-linejoin:round}
+.library-detail:has(.model-solid-preview){padding:12px}
+.library-content:has(.model-solid-preview){grid-template-columns:minmax(0,1fr) minmax(290px,38%)}
+.model-library-workspace[data-library-mode=list] .model-solid-preview{width:98px;flex:0 0 98px}
+.model-library-workspace[data-library-mode=list] .model-solid-preview figcaption{display:none}
+.library-detail .annotated{min-height:200px}
+.quick-model-dialog .annotated{max-width:580px;margin:0 auto 16px}
+@media(max-width:760px){.library-content:has(.model-solid-preview){grid-template-columns:minmax(0,1fr)}.library-detail:has(.model-solid-preview){display:block;position:static}.library-detail .annotated{max-width:520px;margin:auto}.quick-model-dialog.cad-dialog{padding:16px}}
 .library-editor select{min-height:32px;border:1px solid var(--ui-border);border-radius:5px;padding:4px 8px}
 .library-editor textarea{display:block;width:100%;resize:vertical;margin:12px 0;padding:12px;background:var(--ui-subtle);color:var(--ui-text);border:1px solid var(--ui-border);border-radius:6px;font:12px/1.6 Consolas,monospace}
 .library-editor-actions{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
@@ -81,10 +99,13 @@
 .webcad-app .file-menu>summary::after{display:none}
 .webcad-app .ribbon{height:44px;min-height:44px;padding:5px 12px;gap:8px;overflow-x:auto}
 .webcad-app .ribbon-group{flex-direction:row;border-color:var(--ui-border);padding-right:8px}
-.webcad-app .ribbon .tool-button,.webcad-app .ribbon .view-tool{width:34px;height:34px;min-width:34px;max-width:34px;min-height:34px;padding:6px;gap:0;flex-direction:row;box-sizing:border-box}
+.webcad-app .ribbon .tool-button,.webcad-app .ribbon .view-tool{width:34px;height:34px;min-width:34px;max-width:34px;min-height:34px;padding:7px;border:0;gap:0;flex:0 0 34px;flex-direction:row;box-sizing:border-box}
 .webcad-app .ribbon .tool-label{display:none}
 .webcad-app .ribbon .tool-icon{color:var(--accent-ink);font-size:0;line-height:1;display:flex;align-items:center;justify-content:center}
 .webcad-app .ribbon .ui-vector-icon,.webcad-app .ribbon svg.selection-arrow{width:20px;height:20px}
+.webcad-app .ribbon .tool-icon{width:20px;height:20px;flex:0 0 20px}
+.webcad-app .ribbon .tool-icon svg,.webcad-app .ribbon .view-tool .tool-icon svg{width:20px;height:20px;min-width:20px;min-height:20px;flex:none}
+.webcad-app .ribbon .tool-button.active,.webcad-app .ribbon .view-tool.active,.webcad-app .ribbon button[aria-pressed=true]{background:var(--accent-soft);border:0;box-shadow:none;color:var(--accent-ink)}
 .webcad-app .ribbon-more-items .tool-button{width:100%;max-width:none;justify-content:flex-start;gap:8px}
 .webcad-app .ribbon-more-items .tool-label{display:inline}
 .webcad-app .ribbon .view-grid{display:flex;gap:2px}

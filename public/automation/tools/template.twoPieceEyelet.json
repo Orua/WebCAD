@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "A parameterized two-piece thin-wall eyelet with exact revolved flange bends. Part A has a long shank and Part B is its mating ring. Supports static coaxial fit or exploded display; riveting deformation, logos and lettering are not modeled.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "twoPieceEyelet"
@@ -213,7 +254,7 @@
       }
     }
   },
-  "schemaHash": "sha256:928886b1d523a7db8a0437872e86284996bb936cd22c76ddca6a190890a269a7",
+  "schemaHash": "sha256:f1c48edaad10779806c98813f3defb4d5b309ed1b9521d49cccd18bc9d466984",
   "defaults": {
     "aFlangeDiameterMm": 18,
     "aBoreDiameterMm": 11,
@@ -391,5 +432,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3aac7221260afad976ee4e70f31d692b1adfbe43f2fa2bd626ce71795d9f489e"
+  "docsHash": "sha256:bc8710208431ad1fd302c00f00edfc6d4c550710b7bfe0e38ecc776888a49c82"
 }

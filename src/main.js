@@ -265,10 +265,15 @@ async function routeChangedFeature(next,{signal,expectedRevision,featureId,expli
  }
  const classification=classifyComplexity(base);
  const pending=tbdForOperation(base);if(pending){publish(chooseExecutor(base));throw serviceError('OPERATION_TBD','TBD：'+pending.label+'尚未完成验收，已禁用，原工程保留。');}
- if(!servicesAvailable||!classification.complex&&!explicitRemote){const decision=chooseExecutor(base);publish(decision);if(explicitRemote&&!servicesAvailable)throw serviceError('SERVICES_CONFIG_REQUIRED','先配置并启用 Services');return {next};}
+ if(!servicesAvailable||!classification.complex&&!explicitRemote||classification.input.routingClass==='local-only'||classification.input.capacityGate==='bounded-local-mesh-contract'){
+  const decision=chooseExecutor(base);publish(decision);
+  if(decision.executor==='blocked')throw serviceError('SERVICES_OPERATION_UNAVAILABLE',decision.reason);
+  if(explicitRemote&&classification.input.routingClass==='local-only')throw serviceError('SERVICES_OPERATION_UNAVAILABLE','本工具固定使用本地计算，无需 Services 精确计算。');
+  if(explicitRemote&&!servicesAvailable)throw serviceError('SERVICES_CONFIG_REQUIRED','先配置并启用 Services');return {next};
+ }
  if(!remotePlacementSupported(feature))throw serviceError('SERVICES_OPERATION_UNAVAILABLE','此复杂操作的放置尚未由原生服务器支持，请明确使用已支持的世界坐标语义；不会回退本地。');
- if(!feature.refs?.length||feature.refs.some(id=>!documentModel.features.some(row=>row.id===id)||geometryRecipeFingerprint(next,id)!==geometryRecipeFingerprint(documentModel,id)))throw serviceError('SERVICES_SOURCE_UNAVAILABLE','复杂操作的目标和全部刀具都必须是已提交、未变化的来源；请先完成来源步骤。');
  try{assertCompilableFeature(feature);}catch(error){throw serviceError('SERVICES_OPERATION_UNAVAILABLE','此复杂操作尚未由原生服务器实现：'+error.message,{operation:feature.op});}
+ if(!feature.refs?.length||feature.refs.some(id=>!documentModel.features.some(row=>row.id===id)||geometryRecipeFingerprint(next,id)!==geometryRecipeFingerprint(documentModel,id)))throw serviceError('SERVICES_SOURCE_UNAVAILABLE','复杂操作的目标和全部刀具都必须是已提交、未变化的来源；请先完成来源步骤。');
  const capabilities=await servicesClient.capabilities();checkTransaction(signal,expectedRevision);
  const capability=capabilities.operations.find(row=>row.operation===feature.op&&row.semanticVersion===base.semanticVersion&&row.enabled);
  const sources=[];for(const id of feature.refs){sources.push(await request('sourceComplexity',{featureId:id,...(feature.op==='relief'?{faceId:feature.params.faceId}:{})}));checkTransaction(signal,expectedRevision);}
@@ -883,7 +888,7 @@ const pageAPI=createPageAPI({
     }finally{if(!wasBusy||stopRunning)setBusy(false);}
   },
   decideServicesWait:input=>decideServicesWait(input.jobId,input.decision),
-  servicesRouting:()=>({unavailableOperations:tbdCapabilities.operations,policyVersion:EXECUTION_POLICY.policyVersion,executionTimeouts:{localTimeoutMs:getServicesConfig().localTimeoutMs,serverWaitMs:getServicesConfig().serverWaitMs},pendingWait:pendingServicesWait?{jobId:pendingServicesWait.jobId,elapsedMs:pendingServicesWait.elapsedMs,execution:pendingServicesWait.execution,requestKey:pendingServicesWait.requestKey,decisionRequired:true}:null,lastDecision:lastServicesDecision?.documentInstanceId===documentInstanceId?clone(lastServicesDecision):null,historyStorage:'bounded-session-memory',automaticUploadConsent:getServicesConfig().allowGeometryUploads}),
+  servicesRouting:()=>({operationPolicy:{localOnly:EXECUTION_POLICY.localOnlyOperations,conditionalServices:EXECUTION_POLICY.servicesEligibleOperations,quickModels:'all-local',unknownOperation:EXECUTION_POLICY.unknownOperation},unavailableOperations:tbdCapabilities.operations,policyVersion:EXECUTION_POLICY.policyVersion,executionTimeouts:{localTimeoutMs:getServicesConfig().localTimeoutMs,serverWaitMs:getServicesConfig().serverWaitMs},pendingWait:pendingServicesWait?{jobId:pendingServicesWait.jobId,elapsedMs:pendingServicesWait.elapsedMs,execution:pendingServicesWait.execution,requestKey:pendingServicesWait.requestKey,decisionRequired:true}:null,lastDecision:lastServicesDecision?.documentInstanceId===documentInstanceId?clone(lastServicesDecision):null,historyStorage:'bounded-session-memory',automaticUploadConsent:getServicesConfig().allowGeometryUploads}),
   history:()=>timelineList(documentModel),
   planAlignment:input=>planBodyAlignment(input,bodies,documentModel.referenceSystem),
   selectRectangle:input=>{if(ui.hasActiveTask())throw Object.assign(new Error('请先完成当前人工任务'),{code:'UI_TASK_ACTIVE'});return selectRectangle(input);},

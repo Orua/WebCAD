@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "washer"
@@ -163,7 +204,7 @@
       }
     }
   },
-  "schemaHash": "sha256:7dc1a95b72b9fe017bb067866b58395a4f663e61b02ca1b6c4eb79b43d766cb3",
+  "schemaHash": "sha256:90dde765475f5e763d6cba713b12ba2de7b32e3f3395de7f6abe907018d6a223",
   "defaults": {
     "innerDiameter": 10,
     "sectionSize": 3,
@@ -228,5 +269,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:12adae78ccfd4b762f4fde8b61e02d7e5bf62142e1dd454fca05244dc7ed558f"
+  "docsHash": "sha256:90ddccaba31b0761351ae8a4eb36ab02d30709d0abfb19132997356f7fbfb040"
 }

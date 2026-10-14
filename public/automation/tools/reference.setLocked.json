@@ -3,7 +3,7 @@
   "title": "锁定参考锚点（工作基准）",
   "description": "args:{locked:boolean}；可撤销的元数据操作。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:54c9b9ad2f1610988eba865d557ce57c6a451ccbf5463fb631274069fc53e201"
+  "docsHash": "sha256:fdc043c2b02fb091860182004883f5e8b4a525398c94b5ed725d384582bcc318"
 }

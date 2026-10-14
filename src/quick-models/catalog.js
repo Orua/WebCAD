@@ -47,6 +47,7 @@ import twoPieceEyelet from './twoPieceEyelet/index.js';
 import frameEyelet from './frameEyelet/index.js';
 import uStrapClip from './uStrapClip/index.js';
 
+import {buildModelScript} from './model-script.js';
 const entries = [
   ring, washer, tube, domedPin, spring, screw, threadedSleeve,
   roundBadge, mountingPlate, fourHolePlate, flatFrame, roundedFlatFrame,
@@ -93,6 +94,7 @@ export const QUICK_MODEL_ENTRIES = Object.freeze(byKind);
 export const QUICK_MODELS = Object.freeze(Object.fromEntries(entries.map(entry => [entry.kind, Object.freeze({...entry.definition,defaultInsertionAnchor:entry.definition.defaultInsertionAnchor||'model-origin'})])));
 export const QUICK_MODEL_VISIBLE_KINDS = Object.freeze(entries.map(entry => entry.kind).filter(kind => !hiddenFromPicker.has(kind)));
 export function buildQuickModel(params, cad, options = {}) {
+  if(params?.modelScript){const {modelScript,...values}=params;return buildModelScript(modelScript,values,cad,options,QUICK_MODELS,buildQuickModel);}
   const entry = QUICK_MODEL_ENTRIES[params?.kind];
   if (!entry) throw new Error('未知快速模型');
   return entry.build(params, cad, options, { definitions: QUICK_MODELS, buildNested: buildQuickModel });

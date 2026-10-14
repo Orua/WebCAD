@@ -2,7 +2,7 @@
   "id": "getServicesRouting",
   "title": "getServicesRouting",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "getServicesRouting()；读取同一 ExecutionRouter 的最近决策。",
   "synonyms": [
     "getServicesRouting",
@@ -13,11 +13,11 @@
     "原因"
   ],
   "inputContract": "getServicesRouting()；读取同一 ExecutionRouter 的最近决策。",
-  "outputContract": "policyVersion、lastDecision{executor,reason,inputs,complexity}、executionTimeouts、pendingWait、unavailableOperations（TBD且enabled=false）。操作类型和全部来源/图案固定规则决定本地/远程，不需要双端耗时或结果一致性；cut 从 13 个来源（目标加 12 刀具）或其它复杂度门槛起走 Services，支持最多 32 个单实体刀具，空/分裂多体结果拒绝。尚未验收的 union/intersect 不冒称远程支持。pendingWait.decisionRequired时用decideServicesWait选择同任务continue/stop。服务失败不转本地重算。",
+  "outputContract": "policyVersion、operationPolicy{localOnly,conditionalServices,quickModels,unknownOperation}、lastDecision{executor,reason,inputs,complexity}、executionTimeouts、pendingWait、unavailableOperations（TBD且enabled=false）。全部快捷模型（丝筒、螺丝、弹簧等）及普通建模/加工/变换/阵列固定本地，不能因大来源或未知操作自动送 Services；浮雕、R角与登记的复杂几何候选只有达到来源/图案/选边门槛才送 Services。未知工具须明确登记，未测量不等于复杂；不需要双端耗时或结果一致性；cut 从 13 个来源（目标加 12 刀具）或其它复杂度门槛起走 Services，支持最多 32 个单实体刀具，空/分裂多体结果拒绝。尚未验收的 union/intersect 不冒称远程支持。pendingWait.decisionRequired时用decideServicesWait选择同任务continue/stop。服务失败不转本地重算。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:b8acdefa36647f26aaccc1ccedb350ec4660d802e3cdf81ec1196bedae4f7b51"
+  "docsHash": "sha256:0fe33c101dbc3796a68ed5860db379aa153211c96db57dbe8713d571c7c0bc40"
 }

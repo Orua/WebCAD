@@ -3,7 +3,7 @@
   "title": "重做",
   "description": "args:{}；重做一个步骤。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:9b3e15876848f8ab108ca7898819b3d9e6bd111b9169997af84bb55388962c0f"
+  "docsHash": "sha256:2546a9fa869dc0f2fcd59b9bd266372fd5a1e2a9dd4237fd3c126a22ad0eb95c"
 }

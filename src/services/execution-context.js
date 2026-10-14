@@ -15,7 +15,7 @@ export async function collectRoutingSources(features,{hasSource,changedSourceIds
  for(const feature of features){
   // Bounded local mesh edits use source geometryHash in their own Worker gate.
   // Never serialize a mesh as BRep just to collect Native routing metrics.
-  if(policy.boundedMeshOperations.includes(feature.op))continue;
+  if(!policy.servicesEligibleOperations.includes(feature.op))continue;
   const rows=[];let unavailable=false;
   for(const id of feature.refs??[]){
    if(!hasSource(id)){rows.push({});unavailable=true;continue;}

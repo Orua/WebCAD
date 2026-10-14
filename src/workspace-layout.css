@@ -72,7 +72,7 @@
 .ribbon-tabs .tab-list{height:30px;gap:2px}
 .ribbon-tabs .ribbon-tab{height:30px;min-height:28px;min-width:48px;padding:0 10px;font-size:12px}
 .webcad-app .ribbon{height:40px;min-height:40px;padding:4px 6px;gap:0}
-.webcad-app .ribbon:has(.view-grid){height:66px;min-height:66px}
+.webcad-app .ribbon:has(.view-grid){height:44px;min-height:44px}
 .ribbon .ribbon-group{padding:0 7px;justify-content:center}
 .ribbon .ribbon-tools{align-items:center;gap:2px}
 .ribbon .tool-button{display:inline-flex;flex-direction:row;align-items:center;height:30px;min-height:28px;min-width:28px;max-width:none;font-size:12px;gap:5px;padding:4px 7px;white-space:nowrap}

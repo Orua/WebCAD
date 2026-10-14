@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "Constant-section rounded rectangular frame. A closed round-wire frame supports an inner short side at least 2.5 times the wire diameter; other variants require four times the section size.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "rectBuckle"
@@ -193,7 +234,7 @@
       }
     }
   },
-  "schemaHash": "sha256:1ada5c25825ae2ab47af04edd42a021cbf04544c138a70f67e831ad27d2071f3",
+  "schemaHash": "sha256:d3775cf3a19d5cc1055406dc63a77448129fde1b44238c0e6d24d2cdd0442fc3",
   "defaults": {
     "section": "round",
     "sectionSize": 3,
@@ -323,5 +364,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:67be310d45af9460c07f1f0101ba025e5b7eabfa2e6d75953274825b6fc99738"
+  "docsHash": "sha256:c398bce5f55b3fd63859e5a9b21c47b434e91e56893108f24b0248c7551709f1"
 }

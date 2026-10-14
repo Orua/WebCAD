@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "A flat plate with straight top/bottom, tangent bowed sides and four small corner arcs, plus two symmetric capsule windows. Optional edge fillet. Symmetric parameter model only.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "bowedTwinWindowPlate"
@@ -199,7 +240,7 @@
       }
     }
   },
-  "schemaHash": "sha256:a7630317d74c466b90604a4c17723f01c4b15856d5a0a083a220ad9bf781d189",
+  "schemaHash": "sha256:bb6e654bff418ab0637586c067894acd18ac36efc1e95be3f7a116adb5277cbf",
   "defaults": {
     "outerHeight": 24.5,
     "topStraightWidth": 30.2527,
@@ -324,5 +365,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:f8a483b8ec52f7640326962c3acc156422cfb5c24c6ee0e8a8f21fa1c879a7c7"
+  "docsHash": "sha256:f4d924e7afe0f4212a0bb6e8ed19c25f2165b06bcc0bc597d2f32472c5ec4928"
 }

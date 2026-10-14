@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "A flat plate with two equal symmetric rounded windows and an integral center bridge. Independent outline, window and front/back edge radii. No round bar, offset windows or side arch.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "twinWindowPlate"
@@ -196,7 +237,7 @@
       }
     }
   },
-  "schemaHash": "sha256:f0975b9b7d799b5dc854cd3c2d85a4f37a66b996801bb800ca5df69e65b9ace6",
+  "schemaHash": "sha256:e7bda45f7ace5e8240bcf191cf6f8331051086e5ed7ec614b58e7a9c6210a43a",
   "defaults": {
     "outerWidth": 44.8,
     "outerHeight": 26.6,
@@ -321,5 +362,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:5f48766c024b9bdca862a4523b540405c65cd46dd5ef6d102c0458e2190cac4c"
+  "docsHash": "sha256:03770c39cef94ff339c53cea8d99b9ce00c11f3a454d7977c1b1dab498e5a0c8"
 }

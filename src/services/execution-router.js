@@ -13,6 +13,8 @@ const descriptions={
  'interactive-feedback':'选择、旋转及笔刷反馈使用本地',
  'compiled-checkpoint-available':'工程内已有匹配的精确检查点，复用而不重算',
  'simple-local':'输入低于固定复杂度门槛，使用本地计算',
+ 'tool-local-only':'本工具固定使用本地计算，不交给 Services',
+ 'operation-routing-unregistered':'本工具尚未登记执行分流，不能自动交给 Services',
  'complex-remote':'输入达到固定复杂度门槛，交给已配置的 Services',
  'explicit-server':'本次明确使用 Services',
  'services-unavailable':'已配置的 Services 不可用，复杂任务已阻止，不能自动转本地',
@@ -43,16 +45,23 @@ export function classifyComplexity({operation,source={},pattern={},params={}}={}
  // Mesh relief has its own strict facet, vertex, layer and validation budgets.
  // BRep complexity thresholds cannot route these assets to an unavailable native path.
  if(policy.boundedMeshOperations.includes(operation))return {complex:false,reasons:[],score:0,input:{...input,capacityGate:'bounded-local-mesh-contract'}};
+ // Complexity belongs to a specific eligible operation, not its source size
+ // alone. Moving a large solid or making a threaded preset is still local.
+ if(policy.localOnlyOperations.includes(operation))return {complex:false,reasons:[],score:0,input:{...input,routingClass:'local-only'}};
+ if(!policy.servicesEligibleOperations.includes(operation))return {complex:false,reasons:[],score:0,input:{...input,routingClass:'unregistered'}};
+ input.routingClass='conditional-services';
  const reasons=[];let score=0;
  const threshold=(value,limit,reason)=>{score=Math.max(score,count(value)/limit);if(count(value)>=limit)reasons.push(reason);};
  threshold(input.sourceFaces,t.sourceFaces,'source-faces');
  threshold(input.sourceEdges,t.sourceEdges,'source-edges');
  threshold(input.sourceBytes,t.sourceBytes,'source-bytes');
- threshold(input.aggregateRegions,t.aggregateRegions,'pattern-regions');
- threshold(input.patternHoles,t.patternHoles,'pattern-holes');
- threshold(input.contourVertices,t.vertices,'pattern-vertices');
- threshold(input.strokes,t.strokes,'pattern-strokes');
- threshold(input.gridPoints,t.gridPoints,'large-surface-grid');
+ if(operation==='relief'){
+  threshold(input.aggregateRegions,t.aggregateRegions,'pattern-regions');
+  threshold(input.patternHoles,t.patternHoles,'pattern-holes');
+  threshold(input.contourVertices,t.vertices,'pattern-vertices');
+  threshold(input.strokes,t.strokes,'pattern-strokes');
+  threshold(input.gridPoints,t.gridPoints,'large-surface-grid');
+ }
  if(policy.booleanOperations.includes(operation))threshold(input.sourceCount,t.booleanInputs,'many-boolean-inputs');
  if(operation==='round'&&input.preexistingBoundaryRound){reasons.push('preexisting-round-face-boundary');score=Math.max(score,1);}
  if(policy.unmeasuredSourceOperations.includes(operation)&&input.sourceComplexityUnavailable){reasons.push('changed-or-unmeasured-source');score=Math.max(score,1);}
@@ -70,11 +79,8 @@ export function classifyComplexity({operation,source={},pattern={},params={}}={}
   threshold(input.selectedFaces,t.selectedFaces,'dense-face-treatment');
   if(params.allEdges===true){reasons.push('whole-body-edge-treatment');score=Math.max(score,1);}
  }
- if(policy.conservativeOperations.includes(operation)||operation==='quickModel'&&policy.conservativeQuickModelKinds.includes(params.kind)){
-  reasons.push('conservative-surface-or-machining-operation');score=Math.max(score,1);
- }else if(!policy.boundedOperations.includes(operation)){
-  reasons.push('unclassified-operation');score=Math.max(score,1);
- }
+ // This Native relief operation is a multi-stage exact surface reconstruction.
+ if(operation==='reliefShoulder'){reasons.push('native-relief-shoulder');score=Math.max(score,1);}
  return {complex:reasons.length>0,reasons,score,input};
 }
 
@@ -91,6 +97,8 @@ export function chooseExecutor({servicesAvailable=false,mode='auto',operation,se
  if(cache.localCheckpoint===true)return result('local','compiled-checkpoint-available');
  if(knownTask&&['failed','unknown','running','paused'].includes(knownTask.state))return result('blocked','known-task-unresolved');
  if(tbdForOperation({operation,semanticVersion,source,pattern,params,explicitRemote}))return result('blocked','operation-tbd');
+ if(complexity.input.routingClass==='unregistered')return result('blocked','operation-routing-unregistered');
+ if(complexity.input.routingClass==='local-only'||policy.boundedMeshOperations.includes(operation))return result(localSupported?'local':'blocked',localSupported?'tool-local-only':'local-operation-unsupported');
  if(servicesAvailable!==true)return result('local','services-not-configured');
  if(!complexity.complex&&!explicitRemote)return result(localSupported?'local':'blocked',localSupported?'simple-local':'local-operation-unsupported');
  if(!capabilities||capabilities.available===false||capabilities.enabled===false)return result('blocked','services-unavailable');

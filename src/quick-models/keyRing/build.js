@@ -51,10 +51,33 @@ function transition(cad,hold,radius,start,end,lowZ,highZ,direction,width,depth,c
   return hold(cad.cast(builder.Shape()));
 }
 
+// Keep the original endpoint envelope; a rounded cylinder trims the two tip
+// corners and carries a real R along its top and bottom, rather than a flat cut.
+function roundTip(shape,cad,hold,radius,angle,z,direction,width,depth,corner){
+  const cap=hold(cad.makeCylinder(width/2,depth,[radius,direction*width/2,z-depth/2]));
+  const rounded=hold(cap.fillet(Math.min(corner,depth*.24,width*.12)));
+  const half=hold(cad.makeBox([radius-width,direction>0?-width:-width/2,z-depth],[radius+width,direction>0?width/2:width,z+depth]));
+  const cutter=hold(half.cut(rounded));
+  const placed=hold(cutter.rotate(angle*180/Math.PI,[0,0,0],[0,0,1]));
+  return hold(shape.cut(placed));
+}
+
 export function build(params,cad,_options,{definitions}){
   const definition=definitions.keyRing;
   if(Object.keys(params||{}).some(key=>key!=='kind'&&!Object.hasOwn(definition.defaults,key)))fail('参数存在未知字段');
   const p={...definition.defaults,...params};
+  // Old saved recipes without these flags retain their explicit winding.
+  const automatic=params.autoFit??!Object.hasOwn(params,'turns');
+  const roundedTips=params.roundedTips??automatic;
+  if(automatic){
+    const width=(Number(p.outerDiameterMm)-Number(p.innerDiameterMm))/2;
+    p.layerGapMm=Math.min(.01,Number(p.totalDepthMm)*.01);
+    const depth=(Number(p.totalDepthMm)-p.layerGapMm)/2;
+    p.sectionCornerRadiusMm=Math.min(.5,width*.12,depth*.3);
+    const radius=(Number(p.innerDiameterMm)+Number(p.outerDiameterMm))/4;
+    p.transitionAngleDeg=Math.min(60,Math.max(24,Math.atan2(width*2,radius)*180/Math.PI));
+    p.turns=2-p.transitionAngleDeg/360;p.leftHanded=false;
+  }
   const numeric=['innerDiameterMm','outerDiameterMm','totalDepthMm','turns','layerGapMm','sectionCornerRadiusMm','transitionAngleDeg'];
   for(const key of numeric)if(!Number.isFinite(Number(p[key])))fail(`${key} 必须为有限数`);
   const inner=Number(p.innerDiameterMm),outer=Number(p.outerDiameterMm),totalDepth=Number(p.totalDepthMm),turns=Number(p.turns),gap=Number(p.layerGapMm);
@@ -74,6 +97,7 @@ export function build(params,cad,_options,{definitions}){
     low=sweepLayer(cad,hold,radius,0,lowEnd,lowZ,direction,width,depth,corner);
     bridge=transition(cad,hold,radius,lowEnd,highStart,lowZ,highZ,direction,width,depth,corner);
     high=sweepLayer(cad,hold,radius,highStart,highEnd,highZ,direction,width,depth,corner);
+    if(roundedTips){low=roundTip(low,cad,hold,radius,0,lowZ,direction,width,depth,corner);high=roundTip(high,cad,hold,radius,highEnd,highZ,-direction,width,depth,corner);}
     const joined=hold(low.fuse(bridge));
     result=joined.fuse(high);
     assertSolid(result,cad);

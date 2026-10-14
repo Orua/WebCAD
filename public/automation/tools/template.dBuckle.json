@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "dBuckle"
@@ -193,7 +234,7 @@
       }
     }
   },
-  "schemaHash": "sha256:53b4704be8d47e37f268903ca6ccc64fd736ea6653f862b81bdb571725052558",
+  "schemaHash": "sha256:89c260e719b0b56c18f659621edd67c5835fbac7f6c62a66a5eef868347bd812",
   "defaults": {
     "section": "round",
     "sectionSize": 3,
@@ -323,5 +364,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:def99c0c4c9c9188cb435d37c4384cc5c360563e2ee19ae8aa1cc6161da22df6"
+  "docsHash": "sha256:30cb22928ca62a0e7799ddb7f4fb32596016a1512808e241bc8de7b42999bde2"
 }
