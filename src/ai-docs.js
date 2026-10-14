@@ -1,6 +1,7 @@
 import { apiVersion, catalogHash as operationCatalogHash, getOperation, listOperations, migratedOperationIds } from './operation-registry.js';
 import { fileCatalogHash, getFileTool, listFileTools } from './file-contracts.js';
 import { contractError, contractHash, validateSchema } from './contracts/operation-schema.js';
+import { LIMITS } from './limits.js';
 
 const string = (maxLength = 150) => ({ type: 'string', minLength: 1, maxLength });
 const object = properties => ({ type: 'object', properties, additionalProperties: false });
@@ -79,7 +80,7 @@ export function bootstrap({ serverInstanceId = null, buildId = 'unreported', bro
       nextTools: ['webcad_list_sessions', 'webcad_get_state_v2', 'webcad_search_tools', 'webcad_get_tool', 'webcad_file_capabilities', 'webcad_register_asset', 'webcad_new_document', 'webcad_open_asset', 'webcad_import_asset', 'webcad_save_document', 'webcad_export_artifact', 'webcad_confirm_artifact_written', 'webcad_release_resource'],
       read: 'webcad_read_docs', execute: 'webcad_execute_v2', export: 'webcad_export', exportArtifact:'webcad_export_artifact', transfer: 'client file-transfer adapter' },
     limits: { operationIdLength: 60, idLength: 150, nameLength: 120, searchLength: 500, idempotencyKeyLength: 128,
-      cursorLength: 2048, searchLimit: 50, docsLimitChars: 16000, uploadBytes: 20 * 1024 * 1024, artifactBytes: 20 * 1024 * 1024, assetTtlSeconds: 1800, artifactTtlSeconds: 1800, receiptsPerInstance: 1000, selectionTokensPerInstance: 1000, queryCursorsPerInstance: 1000, migratedOperations: [...migratedOperationIds] },
+      cursorLength: 2048, searchLimit: 50, docsLimitChars: 16000, uploadBytes: LIMITS.transport.maxInputBytes, artifactBytes: LIMITS.transport.maxArtifactBytes, resultBytes: LIMITS.transport.maxResultBytes, commandTimeoutMs: LIMITS.transport.commandTimeoutMs, assetTtlSeconds: 1800, artifactTtlSeconds: 1800, receiptsPerInstance: 1000, selectionTokensPerInstance: 1000, queryCursorsPerInstance: 1000, migratedOperations: [...migratedOperationIds] },
     idempotencyGuarantee: { scope: 'same documentInstanceId; in-memory bounded receipts', durable: false,
       survivesReload: false, survivesBridgeReconnect: 'only while the same browser instance and cached receipt remain alive' },
     capabilities: { staticDocumentation: 'available', modeling: browserReady ? 'available' : 'not_ready',

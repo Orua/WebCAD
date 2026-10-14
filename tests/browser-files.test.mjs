@@ -41,10 +41,12 @@ test('register copies bytes, applies basename and size limits, and forwards exac
   await h.files.import({ context: context(), resourceId: resource.resourceId });
   assert.equal(h.calls.at(-1).action, 'import');
   assert(h.calls.at(-1).args.data instanceof Uint8Array);assert.deepEqual([...h.calls.at(-1).args.data], [0, 1, 2, 255]);
-  await assert.rejects(h.files.open({ context: context(), resourceId: resource.resourceId }), { code: 'FORMAT_UNSUPPORTED' });
+  await assert.rejects(h.files.open({ context: context(), resourceId: resource.resourceId }), { code: 'PARAM_SCHEMA_INVALID' });
+  await h.files.open({ context: context(), resourceId: resource.resourceId, unsaved: 'fail' });
+  assert.equal(h.calls.at(-1).action, 'open');assert.equal(h.calls.at(-1).args.unsaved, 'fail');
   const native = await h.files.register({ name: 'native.webcad', data: new Blob(['{}']) });
-  await h.files.open({ context: context(), resourceId: native.resourceId });
-  assert.equal(h.calls.at(-1).action, 'open');
+  await h.files.open({ context: context(), resourceId: native.resourceId, unsaved: 'discard' });
+  assert.equal(h.calls.at(-1).action, 'open');assert.equal(h.calls.at(-1).args.unsaved, 'discard');
   const iges = await h.files.register({ name: 'old.iges', data: new Blob(['IGES']) });
   await assert.rejects(h.files.import({ context: context(), resourceId: iges.resourceId }), { code: 'CAPABILITY_UNAVAILABLE' });
   await assert.rejects(h.files.register({ name: '../outside.step', data: original }), { code: 'NAME_INVALID' });
@@ -148,7 +150,7 @@ test('export transfers large binary exactly and releases bounded resources', asy
   const bytes = await h.files.read({ resourceId: artifact.resourceId, as: 'bytes' });
   assert.equal(bytes.length, 100_000);
   assert(bytes.every(byte => byte === 47));
-  assert.equal(h.files.capabilities().maxBytes, 20 * 1024 * 1024);
+  assert.equal(h.files.capabilities().maxBytes, 100 * 1024 * 1024); // LIMITS.transport.maxInputBytes
   assert.equal(h.files.capabilities().transport, 'in-page');
   const resources = [];
   for (let i = 0; i < 31; i++) resources.push(await h.files.register({ name: `asset-${i}.step`, data: new Uint8Array([i]) }));

@@ -12,7 +12,7 @@ const groups = {
     'agent-knowledge', 'services-settings', 'services-routing', 'services-wait-policy', 'services-boolean-contract', 'project-container', 'geometry-cache',
     'design-inspection-contract',
     'agent-interface-coverage', 'relief-layers', 'relief-profile', 'relief-edit', 'mesh-assets', 'heightfield-relief', 'exact-source-assets', 'display-lod', 'pattern-machining', 'relief-contract', 'relief-sculpt',
-    'document-capacity', 'limits',
+    'document-capacity', 'limits', 'chunked-upload', 'page-wait', 'open-import',
     'generated-file-write',
     'rectangle-selection',
     'build-identity',

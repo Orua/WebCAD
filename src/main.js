@@ -2,6 +2,7 @@ import {legacyReliefParams} from './relief-param-migration.js';
 import {intentForUIParameterEdit} from './machining-intent.js';
 import {encodeCommittedProject} from './project-save.js';
 import {createHostAdapter} from './agent/host-adapter.js';
+import {uploadChunked,createBrokerUploadClient} from './transfer/chunked-upload.js';
 import {AGENT_CONTRACT} from './agent/protocol.js';
 import '../public/automation/runtime-uuid.js';
 import tbdCapabilities from '../contracts/services/v1/tbd-capabilities.json' with {type:'json'};
@@ -64,6 +65,8 @@ import {createHostControl,installHostInteractionGuard} from './host-control.js';
 import { normalizeOperationParams, normalizeOperationPatch, migratedOperationIds, getOperation } from './operation-registry.js';
 import {mechanicalIds,mechanicalNames,mechanicalRefRange} from './mechanical-tool-contracts.js';
 import {resolveProfileRecipe,constrainProfileRecipe} from './modeling/profiles/profile-constraint-history.js';
+import {classifyFile,extensionOf,assertOpenAllowed,assertOpenable,assertInsertable,dropDecision} from './open-import-policy.js';
+import {chooseAction,UNSAVED_CHOICES,DROP_CHOICE_LABELS} from './ui/choice-dialog.js';
 
 
 const emptyDocument = () => ({version:2,documentId:crypto.randomUUID(),name:nextProjectName(),features:[],imports:{},hidden:[],referenceSystem:createReferenceSystem()});
@@ -506,7 +509,7 @@ async function saveProject(){
   // Acquire permission synchronously from the user gesture, before expensive generation.
   if(!projectFileHandle&&window.showSaveFilePicker){
     try{projectFileHandle=await window.showSaveFilePicker({suggestedName:safeName(documentModel.name)+'.webcad',types:[{description:'WebCAD 工程',accept:{'application/json':['.webcad']}}]});}
-    catch(error){if(error.name==='AbortError'){setStatus('保存已取消，工程保留。');return;}throw error;}
+    catch(error){if(error.name==='AbortError'){setStatus('保存已取消，工程保留。');return false;}throw error;}
   }
   const c=pageAPI.getState().context,context={...c,expectedRevision:c.revision};delete context.revision;
   const artifact=await pageAPI.files.save({context,name:safeName(documentModel.name)+'.webcad'});if(artifact.status==='failed')throw new Error(artifact.error.message);
@@ -527,36 +530,71 @@ function validateDocument(doc){
   if(doc.timeline){validateTimeline(doc);validateReferenceSystem(doc.referenceSystem);return clone(doc);}
   return {version:doc.version>=3?doc.version:2,...(doc.version===4?{binaryAssets:doc.binaryAssets||{}}:{}),...(doc.version>=3?{compiledArtifacts:doc.compiledArtifacts||{}}:{}),referenceSystem:doc.version>=2?validateReferenceSystem(doc.referenceSystem):createReferenceSystem(),...(doc.parameters!==undefined?{parameters:doc.parameters}:{}),documentId:typeof doc.documentId==='string'&&doc.documentId.length>0&&doc.documentId.length<=150?doc.documentId:crypto.randomUUID(),name:String(doc.name||'导入工程'),features:doc.features,imports:doc.imports,hidden:Array.isArray(doc.hidden)?doc.hidden:[],appearance:doc.appearance&&typeof doc.appearance==='object'?doc.appearance:{},colors:doc.colors&&typeof doc.colors==='object'?Object.fromEntries(Object.entries(doc.colors).filter(([,v])=>typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v))):{},renderFinish:doc.renderFinish??null};
 }
-async function openFiles(files,{confirmReplace=true,signal,expectedRevision,mcp=false,placement,units}={}){
+// 打开 replaces the document; 插入 adds into it. The intent is explicit, never inferred
+// from the file extension (opening a STEP while editing used to append silently).
+function checkInputFile(file,signal,expectedRevision){
+  checkTransaction(signal,expectedRevision);
+  if(file.size>fileByteBudget(file.name))throw Object.assign(new Error(`单文件超过 ${fileByteBudget(file.name)/1024/1024} MiB；请先拆分模型。导入后自包含工程也必须可在相应格式限额内保存。`),{code:'SIZE_LIMIT'});
+}
+function assertOpenReady(mcp){
   if(ui.hasActiveTask())throw Object.assign(new Error('请先应用或取消当前未提交的人工草稿，再打开文件。'),{code:'UI_TASK_ACTIVE'});
-  if(busy){if(mcp)throw new Error('Worker is busy');return;}
-  for(const file of files){
-    checkTransaction(signal,expectedRevision);
-    if(file.size>fileByteBudget(file.name))throw Object.assign(new Error(`单文件超过 ${fileByteBudget(file.name)/1024/1024} MiB；请先拆分模型。导入后自包含工程也必须可在相应格式限额内保存。`),{code:'SIZE_LIMIT'});
-    const ext=file.name.split('.').pop().toLowerCase();
-    if(['webcad','json'].includes(ext)){
-      const next=validateDocument((await request('decodeProject',{bytes:new Uint8Array(await file.arrayBuffer())})).document);
-      if(mcp&&dirty)throw Object.assign(new Error('Save the current document before opening another project.'),{code:'UNSAVED_REPLACEMENT'});
-      if(confirmReplace&&dirty&&!confirm('打开工程将替换当前设计。尚未另存的设计可取消后先保存。继续打开？'))return;
-      await rebuild(next,{fit:true,newInstance:true,record:false,signal,expectedRevision});undoStack=[];redoStack=[];dirty=false;refresh();
-    }else{
-      if(['stl','mesh'].includes(ext)){
-        const declared=units??(mcp?undefined:prompt('网格源单位（STL没有单位）：填写 mm、cm、m 或 in；取消保留原工程。',''));if(declared===null)return;meshScale(declared);if(ext==='mesh'&&declared!=='mm')throw Object.assign(new Error('Float64网格已使用mm。'),{code:'MESH_UNITS_REQUIRED'});
-        const bytes=new Uint8Array(await file.arrayBuffer()),hash=binaryHash(bytes).slice(7),next=clone(documentModel),key=crypto.randomUUID(),id=crypto.randomUUID();next.version=4;next.binaryAssets={...next.binaryAssets,[hash]:bytes};next.imports[key]={format:ext,units:declared,assetHash:hash,name:file.name};next.features.push({id,op:'import',name:file.name,params:{key},refs:[],...(placement?{placement,semanticsVersion:2}:{})});
-        await rebuild(next,{fit:true,select:id,signal,expectedRevision});continue;
-      }
-      const isIges=['igs','iges'].includes(ext);
-      const format=isIges?'step':['step','stp'].includes(ext)?'step':['brep','brp'].includes(ext)?'brep':null;
-      if(!format)throw new Error('请选择 .webcad 工程、STEP/STP 或 BREP 文件。');
-      const next=clone(documentModel),key=crypto.randomUUID(),id=crypto.randomUUID();
-      if(isIges)throw Object.assign(new Error('静态版不支持 IGES；请离线转换为 STEP / BREP。'),{code:'CAPABILITY_UNAVAILABLE'});
-      attachExactSource(next,{key,name:file.name,format,data:new Uint8Array(await file.arrayBuffer())});
-      next.features.push({id,op:'import',name:file.name,params:{key},refs:[],...(placement?{placement,semanticsVersion:2}:{})});
-      if(!next.features.slice(0,-1).length)next.name=file.name.replace(/\.[^.]+$/,'');
-      await rebuildLargeImport(next,{fit:true,select:id,signal,expectedRevision});
-      if(isIges&&!mcp){const d=next.imports[key].source;ui.showInfo('IGS 导入诊断',`源文件 ${d.name}：${d.topology?.faces??'?'} 面，${d.topology?.shells??'?'} 壳，${d.topology?.solids??'?'} 实体。未自动修复；散面请尝试曲面缝合，开放壳不能直接当实体加工。`);}
-    }
+  if(busy){if(mcp)throw new Error('Worker is busy');return false;}
+  return true;
+}
+// Adds one STEP/BREP/STL/MESH import feature to `next`. Returns null when the user cancels.
+async function appendModel(next,file,{mcp=false,placement,units}={}){
+  const ext=extensionOf(file.name);
+  if(['stl','mesh'].includes(ext)){
+    const declared=units??(mcp?undefined:prompt('网格源单位（STL没有单位）：填写 mm、cm、m 或 in；取消保留原工程。',''));if(declared===null)return null;meshScale(declared);if(ext==='mesh'&&declared!=='mm')throw Object.assign(new Error('Float64网格已使用mm。'),{code:'MESH_UNITS_REQUIRED'});
+    const bytes=new Uint8Array(await file.arrayBuffer()),hash=binaryHash(bytes).slice(7),key=crypto.randomUUID(),id=crypto.randomUUID();next.version=4;next.binaryAssets={...next.binaryAssets,[hash]:bytes};next.imports[key]={format:ext,units:declared,assetHash:hash,name:file.name};next.features.push({id,op:'import',name:file.name,params:{key},refs:[],...(placement?{placement,semanticsVersion:2}:{})});
+    return {id,large:false};
   }
+  const format=['step','stp'].includes(ext)?'step':['brep','brp'].includes(ext)?'brep':null;
+  if(!format)throw Object.assign(new Error('请选择 STEP/STP、BREP 或 STL 模型文件。'),{code:'FORMAT_UNSUPPORTED'});
+  const key=crypto.randomUUID(),id=crypto.randomUUID();
+  attachExactSource(next,{key,name:file.name,format,data:new Uint8Array(await file.arrayBuffer())});
+  next.features.push({id,op:'import',name:file.name,params:{key},refs:[],...(placement?{placement,semanticsVersion:2}:{})});
+  return {id,large:true};
+}
+// UI: 保存 / 不保存 / 取消. Returns true when replacing may proceed.
+async function confirmReplaceUnsaved(){
+  if(!dirty)return true;
+  const choice=await chooseAction({title:'当前设计尚未保存',message:'“打开”会替换当前设计（不会合并）。是否先保存当前设计？',choices:UNSAVED_CHOICES,defaultId:'cancel'});
+  if(choice==='cancel')return false;
+  if(choice==='save')return (await saveProject())!==false;
+  return true;
+}
+async function openDocument(file,{signal,expectedRevision,mcp=false,unsaved,units}={}){
+  if(!assertOpenReady(mcp))return {status:'cancelled'};
+  checkInputFile(file,signal,expectedRevision);assertOpenable(file.name);
+  if(mcp)assertOpenAllowed({unsaved,dirty});else if(!await confirmReplaceUnsaved())return {status:'cancelled'};
+  let next,select,large=false;
+  if(classifyFile(file.name)==='project')next=validateDocument((await request('decodeProject',{bytes:new Uint8Array(await file.arrayBuffer())})).document);
+  else{
+    next=emptyDocument();const added=await appendModel(next,file,{mcp,units});if(!added)return {status:'cancelled'};
+    select=added.id;large=added.large;next.name=file.name.replace(/\.[^.]+$/,'');
+  }
+  const options={fit:true,newInstance:true,record:false,signal,expectedRevision,...(select?{select}:{})};
+  await (large?rebuildLargeImport(next,options):rebuild(next,options));
+  undoStack=[];redoStack=[];dirty=false;refresh();
+  return {status:'opened'};
+}
+async function insertModels(files,{signal,expectedRevision,mcp=false,placement,units}={}){
+  if(!assertOpenReady(mcp))return;
+  for(const file of files){
+    checkInputFile(file,signal,expectedRevision);assertInsertable(file.name);
+    const next=clone(documentModel),added=await appendModel(next,file,{mcp,placement,units});if(!added)return;
+    if(!next.features.slice(0,-1).length)next.name=file.name.replace(/\.[^.]+$/,'');
+    const options={fit:true,select:added.id,signal,expectedRevision};
+    await (added.large?rebuildLargeImport(next,options):rebuild(next,options));
+  }
+}
+async function handleDroppedFiles(files){
+  const decision=dropDecision({files,documentEmpty:!documentModel.features.length,dirty});
+  if(decision.mode==='reject')throw Object.assign(new Error(decision.reason==='ONE_PROJECT_ONLY'?'一次只能打开一个工程文件。':'不支持的文件类型；请拖入 .webcad 工程或 STEP/BREP/STL 模型。'),{code:'FORMAT_UNSUPPORTED'});
+  const choice=decision.mode==='ask'?await chooseAction({title:'如何处理拖入的文件？',message:`${files.map(f=>f.name).join('、')}\n“打开”会替换当前设计；“插入”会加入当前设计。`,choices:decision.choices.map(id=>({id,label:DROP_CHOICE_LABELS[id]})),defaultId:decision.defaultChoice}):decision.mode;
+  if(choice==='open')return openDocument(files[0]);
+  if(choice==='insert')return insertModels(files);
 }
 // STEP/BREP import: if the kernel crashes, runs out of wasm memory or stalls,
 // restart it (restoring the committed project) and retry once with a coarser
@@ -661,7 +699,7 @@ async function performAction(action,params={}){
     if(dirty&&!confirm('当前设计尚未另存。确定新建设计？（可以取消后先保存）'))return;
     await rebuild(emptyDocument(),{fit:true,newInstance:true});selectedIds=[];dirty=false;refresh();return;
   }
-  if(action==='open'){await openFiles(await chooseFile());return;}
+  if(action==='open'){const [file]=await chooseFile(undefined,false);if(file)await openDocument(file);return;}
   if(action==='importAtFrame'){
     const [file]=await chooseFile('.step,.stp,.brep,.brp',false);
     if(!file)return;
@@ -762,7 +800,7 @@ document.addEventListener('keydown',event=>{
   if(action){event.preventDefault();performShortcut(action).catch(reportError);}
 });
 window.addEventListener('beforeunload',event=>{if(dirty){event.preventDefault();event.returnValue='';}});
-const host=document.getElementById('viewport');host.addEventListener('dragover',event=>{event.preventDefault();event.dataTransfer.dropEffect=hostControl.get().locked?'none':'copy';});host.addEventListener('drop',event=>{event.preventDefault();if(!hostControl.get().locked)openFiles([...event.dataTransfer.files]).catch(reportError);});
+const host=document.getElementById('viewport');host.addEventListener('dragover',event=>{event.preventDefault();event.dataTransfer.dropEffect=hostControl.get().locked?'none':'copy';});host.addEventListener('drop',event=>{event.preventDefault();if(!hostControl.get().locked)handleDroppedFiles([...event.dataTransfer.files]).catch(reportError);});
 
 refresh();
 const ready=(async()=>{
@@ -863,14 +901,16 @@ async function executeAI(command,args={},options={}){
     return {dirty};
   }else if(command==='file_open'||command==='file_import'){
     const ext=args.name?.split('.').pop().toLowerCase();
-    const allowed=command==='file_open'?['webcad','json']:['step','stp','brep','brp','igs','iges','stl','mesh'];
+    const allowed=command==='file_open'?['webcad','json','step','stp','brep','brp','stl','mesh']:['step','stp','brep','brp','igs','iges','stl','mesh'];
     if(!allowed.includes(ext))throw Object.assign(new Error('Unsupported file type for this action.'),{code:'FORMAT_UNSUPPORTED'});
-    if(command==='file_open'&&dirty)throw Object.assign(new Error('Save the current document before opening another project.'),{code:'UNSAVED_REPLACEMENT'});
+    // Legacy callers that omit unsaved keep the old safe refusal (fail on dirty).
+    if(command==='file_open')assertOpenAllowed({unsaved:args.unsaved??'fail',dirty});
     if(typeof args.name!=='string'||!(args.data instanceof Uint8Array)&&typeof args.data!=='string')throw new Error('ASSET_INVALID: typed bytes or legacy base64 required.');
     let bytes;if(args.data instanceof Uint8Array)bytes=args.data;else{if(args.data.length>28*1024*1024)throw new Error('ASSET_INVALID: oversized base64 payload');const raw=atob(args.data);bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);}if(bytes.length>fileByteBudget(args.name))throw Object.assign(new Error('文件超出类型容量'),{code:'SIZE_LIMIT'});
     const file=new File([bytes],args.name,{type:args.mime||'application/octet-stream'});
     const placement=command==='file_import'?resolvePlacement(args.placement,documentModel.referenceSystem,'import',{}):undefined;
-    await openFiles([file],{...options,confirmReplace:false,mcp:true,placement,units:args.units});
+    if(command==='file_open')await openDocument(file,{...options,mcp:true,unsaved:args.unsaved??'fail',units:args.units});
+    else await insertModels([file],{...options,mcp:true,placement,units:args.units});
     return {dirty};
   }else if(command==='file_export'){
     let result;
@@ -972,7 +1012,7 @@ const pageAPI=createPageAPI({
   redraw:async()=>{viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});await viewport.frame();lastWarnings=lastWarnings.filter(w=>w.code!=='DISPLAY_FAILED');},
 });
 const assistantPanel=createAssistantPanel({getApi:()=>pageAPI,hostControl,onChange:state=>ui.setAgentPanel(state)});
-Object.defineProperty(window,'webcad',{value:Object.freeze({api:pageAPI,hostControl,assistantPanel,agent:Object.freeze({contract:AGENT_CONTRACT,createHostAdapter})}),writable:false,configurable:false});
+Object.defineProperty(window,'webcad',{value:Object.freeze({api:pageAPI,hostControl,assistantPanel,agent:Object.freeze({contract:AGENT_CONTRACT,createHostAdapter,uploadChunked,createBrokerUploadClient})}),writable:false,configurable:false});
 ui.setAgentPanel(assistantPanel.get());
 if(new URLSearchParams(location.search).get('agent')==='1'){
   aiStatus='connecting';refresh();

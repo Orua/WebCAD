@@ -1,4 +1,6 @@
 import { contractHash, contractError } from './contracts/operation-schema.js';
+import { LIMITS } from './limits.js';
+const T=LIMITS.transport;
 
 const id = { type: 'string', minLength: 1, maxLength: 150 };
 const context = { type: 'object', additionalProperties: false, required: ['sessionId', 'documentId', 'documentInstanceId', 'expectedRevision'], properties: {
@@ -31,7 +33,7 @@ const outputSchema = {
     context: { type: 'object', additionalProperties: true }, requestId: { type: 'string' },
     assetId: { type: 'string', pattern: '^ast_[a-f0-9]{48}$' }, artifactId: { type: 'string', pattern: '^art_[a-f0-9]{48}$' },
     resourceId: { type: 'string', pattern: '^(ast|art)_[a-f0-9]{48}$' }, name: { type: 'string' }, mime: { type: 'string' },
-    size: { type: 'integer', minimum: 0, maximum: 20 * 1024 * 1024 }, sha256: hash, expiresAt: { type: 'integer' },
+    size: { type: 'integer', minimum: 0, maximum: T.maxArtifactBytes }, sha256: hash, expiresAt: { type: 'integer' },
     uploadUrl: { type: 'string' }, uploadToken: { type: 'string' }, downloadUrl: { type: 'string' }, downloadToken: { type: 'string' },
     generated: { type: 'boolean' }, downloaded: { type: 'boolean' }, written: { type: 'boolean' },
     writeConfirmation: { type: 'string', const: 'client_reported_verified_write' }, documentSaved: { type: 'boolean' }, acknowledgement: { type: 'object', additionalProperties: true },
@@ -44,7 +46,7 @@ const outputSchema = {
 export const fileToolDefinitions = {
   file_capabilities: { description: 'Read public file workflow capabilities, limits, TTL, supported formats, and client transfer requirements.', inputSchema: strict({}) },
   register_asset: { description: 'Register expected local file metadata and receive a bounded one-use raw-byte upload capability. The upload PUT response returns assetId.', inputSchema: strict({
-    name: { type: 'string', minLength: 1, maxLength: 255 }, size: { type: 'integer', minimum: 0, maximum: 20 * 1024 * 1024 }, sha256: hash,
+    name: { type: 'string', minLength: 1, maxLength: 255 }, size: { type: 'integer', minimum: 0, maximum: T.maxInputBytes }, sha256: hash,
     mime: { type: 'string', maxLength: 127 }
   }, ['name', 'size', 'sha256']) },
   new_document: { description: 'Create a new empty document for the explicitly selected current document instance; refuses unsaved replacement.', inputSchema: strict({ context }) },
@@ -55,7 +57,7 @@ export const fileToolDefinitions = {
     format: { type: 'string', enum: ['step', 'stl', 'brep', 'png'] }, ids: uniqueIds
   }, ['context', 'format']) },
   confirm_artifact_written: { description: 'Record the client assertion that a downloaded artifact was verified and written inside its authorized directory. The server cannot prove disk fsync.', inputSchema: strict({
-    artifactId: { type: 'string', pattern: '^art_[a-f0-9]{48}$' }, size: { type: 'integer', minimum: 0, maximum: 20 * 1024 * 1024 }, sha256: hash
+    artifactId: { type: 'string', pattern: '^art_[a-f0-9]{48}$' }, size: { type: 'integer', minimum: 0, maximum: T.maxArtifactBytes }, sha256: hash
   }) },
   release_resource: { description: 'Release an owned temporary asset or artifact resource before its TTL expires.', inputSchema: strict({ resourceId: { type: 'string', pattern: '^(ast|art)_[a-f0-9]{48}$' } }) }
 };

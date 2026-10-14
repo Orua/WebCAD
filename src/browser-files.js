@@ -151,10 +151,15 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
       if (data?.size > fileByteBudget(name) || data?.byteLength > fileByteBudget(name)) throw failure('SIZE_LIMIT', 'File exceeds browser resource limit');
       return add({ kind: 'input', name, mime: mime ?? data?.type, bytes: await inputBytes(data) });
     },
-    async open({ context, resourceId } = {}) {
-      const source = inputFor(resourceId, ['webcad', 'json']);
+    // 打开 = replace the current document (project or a single model in a new document).
+    // unsaved is required so an agent never silently discards or merges work.
+    async open({ context, resourceId, unsaved, units } = {}) {
+      if (!['fail', 'discard'].includes(unsaved)) throw failure('PARAM_SCHEMA_INVALID', 'files.open 需要显式 unsaved:"fail"|"discard"；打开会替换当前设计，从不合并。要加入当前设计请用 files.import。');
+      const source = inputFor(resourceId, ['webcad', 'json', 'step', 'stp', 'brep', 'brp', 'stl', 'mesh']);
+      const mesh = /\.(stl|mesh)$/i.test(source.name);
+      if (mesh && !['mm', 'cm', 'm', 'in'].includes(units)) throw failure('MESH_UNITS_REQUIRED', 'Declare STL units; mesh codec units must be mm.');
       const bytes = new Uint8Array(await source.blob.arrayBuffer());
-      return run(context, 'open', { name: source.name, mime: source.mime, data: bytes });
+      return run(context, 'open', { name: source.name, mime: source.mime, data: bytes, unsaved, ...(mesh ? { units } : {}) });
     },
     async import({ context, resourceId, placement, idempotencyKey, units } = {}) {
       const source = inputFor(resourceId, ['step', 'stp', 'brep', 'brp','stl','mesh']);

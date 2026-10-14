@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { WebSocketServer, WebSocket } from 'ws';
+import { LIMITS } from '../src/limits.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { z } from 'zod';
@@ -121,13 +122,14 @@ function v2Failure(error,requestId,args){
  return {status:unknown?'unknown':'failed',requestId,...(args.idempotencyKey?{idempotencyKey:args.idempotencyKey}:{}),error:{code:unknown?'RESULT_UNKNOWN':error.code||'CAPABILITY_UNAVAILABLE',path:error.path||'',message:error.message||String(error),retryable:false,recoveryAction:unknown?'READ_STATE_AND_CHECK_RECEIPT':error.recoveryAction||'READ_STATE_AND_REPLAN'},commitState:unknown?'unknown':'not_committed'};
 }
 
-export function createMCPBridge(httpServer,{commandTimeout=90000,artifactRoot}={}) {
+// Legacy dev/test channel: timeouts and payload caps come from LIMITS.transport.
+export function createMCPBridge(httpServer,{commandTimeout=LIMITS.transport.commandTimeoutMs,artifactRoot}={}) {
  const serverInstanceId=randomUUID();
  const sourceHash=createHash('sha256');
  for(const source of ['./mcp-bridge.mjs','./document-assets.mjs','./artifact-store.mjs','./file-transfer-client.mjs','./iges-import.mjs','../src/file-contracts.js','../src/main.js','../src/command-service.js','../src/ai-docs.js','../src/operation-registry.js','../src/operation-catalog.js'])sourceHash.update(readFileSync(new URL(source,import.meta.url)));
  const buildId=`mcp-source-${sourceHash.digest('hex').slice(0,16)}`;
  const sessions=new Map();
- const wss=new WebSocketServer({noServer:true,maxPayload:32*1024*1024});
+ const wss=new WebSocketServer({noServer:true,maxPayload:Math.ceil(LIMITS.transport.maxArtifactBytes*4/3)+LIMITS.transport.maxResultBytes});
  httpServer.on('upgrade',(req,socket,head)=>{
   if(req.url!=='/ai-bridge'||!localRequestAllowed(req,{requireOrigin:true})){socket.write('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n');socket.destroy();return;}
   wss.handleUpgrade(req,socket,head,ws=>wss.emit('connection',ws,req));
