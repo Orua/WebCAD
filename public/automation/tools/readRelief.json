@@ -3,6 +3,7 @@
   "title": "readRelief",
   "category": "page-method",
   "version": "1.47.0",
+  "contextPolicy": "identity",
   "description": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5,sourceInterpretation:authoredHeightMap|rasterArtwork|reviewedVectors|shadedReference})。先 files.register；只读，本地解码。",
   "synonyms": [
     "readRelief",
@@ -39,5 +40,5 @@
     "PARAM_SCHEMA_INVALID"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:70dff3f4958aa12ba43cbfa4355323ab6a5793184bd09f6dff033ae72adca056"
+  "docsHash": "sha256:9aa0b780f4f07feac3e9cc376a816f56371fb1d1899302f7998cc4f491e5ad71"
 }

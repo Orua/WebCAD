@@ -15,6 +15,7 @@ import {compileTextCommands} from './text-commands.js';
 import {fitProfilePoints} from './profile-fitting.js';
 import {traceTwinWindowProfile} from './dwg-spline-twin-window.js';
 import {normalizeRequest,requestContext} from './page-context.js';
+import {contextPolicy,identityContext} from './page-context-policy.js';
 import {createPageJobs} from './page-jobs.js';
 import {renderQuality} from './render-quality.js';
 import {UI_LAYOUT} from './ui-layout.js';
@@ -34,6 +35,7 @@ import {modelLibrary} from './model-library.js';
 
 // Only structured, bounded commands cross this boundary. No mutable app objects escape.
 export function createPageAPI(host){
+  const requestPolicies=new WeakMap();
   const current=()=>host.state();
   const failure=e=>({status:'failed',commitState:'not_committed',error:{...(e.jobId?{jobId:e.jobId}:{}),...(e.stage?{stage:e.stage}:{}),...(e.diagnosticsRef?{diagnosticsRef:e.diagnosticsRef}:{}),...(e.supportBinding?{supportBinding:boundedDiagnosticReport(e.supportBinding)}:{}),...(e.report?{report:boundedDiagnosticReport(e.report)}:{}),code:e.code||'PARAM_SCHEMA_INVALID',message:e.message,path:e.path??null,retryable:false,recoveryAction:e.recoveryAction||(e.code==='REVISION_CONFLICT'?'READ_STATE_AND_REPLAN':'READ_TOOL_AND_CORRECT_PARAMS')},context:current().context});
   const fail=(code,message,path)=>{throw Object.assign(new Error(message),{code,...(path?{path}:{})});};
@@ -42,14 +44,14 @@ export function createPageAPI(host){
     const s=current();
     if(requiredContext){
       const c=input.context;
-      if(!c||Object.keys(c).some(k=>!['sessionId','documentId','documentInstanceId','expectedRevision'].includes(k)))fail('PARAM_SCHEMA_INVALID','Full context is required');
+      if(!c||Object.keys(c).some(k=>!['sessionId','documentId','documentInstanceId','expectedRevision'].includes(k)))fail('PARAM_SCHEMA_INVALID','Full context is required: pass api.getState().context');
       for(const key of ['sessionId','documentId','documentInstanceId'])if(c[key]!==s.context[key])fail('INSTANCE_MISMATCH',`Stale ${key}`);
-      if(c.expectedRevision!==s.context.revision)fail('REVISION_CONFLICT','Read current state and replan');
+      if(requiredContext!=='identity'&&requestPolicies.get(input)!=='identity'&&c.expectedRevision!==s.context.revision)fail('REVISION_CONFLICT','Read current state and replan');
     }
     if(s.summary.busy||!s.summary.kernelReady||s.preview.active||s.preview.computing)fail('CAPABILITY_UNAVAILABLE','Finish computation/preview before this request');
     return s;
   }
-  const guarded=fn=>async(input={})=>{try{return await fn(normalizeRequest(input));}catch(e){return failure(e);}};
+  const guarded=fn=>async(input={})=>{try{const mode=requestPolicies.get(input),request=normalizeRequest(input);if(mode)requestPolicies.set(request,mode);return await fn(request);}catch(e){return failure(e);}};
   const rawFiles=createBrowserFiles({command:input=>host.files(input),confirmSaved:host.confirmSaved});
   const files=Object.fromEntries(Object.entries(FILE_ARGUMENT_KEYS).map(([key,keys])=>[key,(input={})=>{
     if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(name=>!keys.includes(name)))fail('PARAM_SCHEMA_INVALID',`Unexpected files.${key} arguments`);
@@ -425,5 +427,9 @@ export function createPageAPI(host){
   };
   Object.assign(api,createPageJobs(api,{runBatch:(args,control)=>run(args,control)}));
   for(const name of ['submit','getJob','cancelJob'])callable.add(name);
+  for(const name of Object.keys(api))if(typeof api[name]==='function'&&contextPolicy(name)==='identity'){
+    const original=api[name];api[name]=async(input={})=>{try{const c=identityContext(input.context),s=current();for(const key of ['sessionId','documentId','documentInstanceId'])if(c[key]!==s.context[key])fail('INSTANCE_MISMATCH',`Stale ${key}`);const request={...input,context:{...c,expectedRevision:s.context.revision}};requestPolicies.set(request,'identity');return await original(request);}catch(e){return failure(e);}};
+  }
+  api.contextPolicies=Object.freeze(Object.fromEntries([...Object.keys(api).filter(k=>typeof api[k]==='function'),...Object.keys(files).map(k=>'files.'+k)].map(name=>[name,contextPolicy(name)])));
   return Object.freeze(api);
 }

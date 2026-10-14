@@ -3,6 +3,7 @@
   "title": "resolvePlacement",
   "category": "page-method",
   "version": "1.47.0",
+  "contextPolicy": "identity",
   "description": "resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。",
   "synonyms": [
     "resolvePlacement",
@@ -21,5 +22,5 @@
     "FRAME_INVALID",
     "PLACEMENT_NOT_APPLICABLE"
   ],
-  "docsHash": "sha256:cf116e04173d6462d71ba31821ee4983d4aa24e64ee876583909b3a6e2da7249"
+  "docsHash": "sha256:c6400fe77a45ef8f03b9788b610201ff4db5f74ec0213468f2cfe0b81026921a"
 }

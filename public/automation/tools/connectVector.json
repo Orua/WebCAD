@@ -3,6 +3,7 @@
   "title": "connectVector",
   "category": "page-method",
   "version": "1.47.0",
+  "contextPolicy": "none",
   "description": "connectVector({context,entities,toleranceMm?:0.000001,origin?:[0,0],flipY?:false}); 1..500 条解析线。",
   "synonyms": [
     "connectVector",
@@ -26,5 +27,5 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.vector-import",
-  "docsHash": "sha256:9ff31792cb2419b96713339ffba9a56182877b1e2b4cff06c5d6dfdbc8f73043"
+  "docsHash": "sha256:08178e52e573220bfef39d856b6c7b531b9da3ad4d8adc3c45bf991fbac79f52"
 }

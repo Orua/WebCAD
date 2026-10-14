@@ -3,6 +3,7 @@
   "title": "recoverKernel",
   "category": "page-method",
   "version": "1.47.0",
+  "contextPolicy": "revision",
   "description": "recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。",
   "synonyms": [
     "recoverKernel",
@@ -18,5 +19,5 @@
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:5ece04ee69c7358a5c0b318364c6e794c6a81f3476573093f4ec785617985a28"
+  "docsHash": "sha256:99178c857c0fb6378f9ae5200f23a40232d47e3b94ccd58f17fdb97e4ab36c49"
 }
