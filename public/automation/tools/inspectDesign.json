@@ -2,7 +2,7 @@
   "id": "inspectDesign",
   "title": "inspectDesign",
   "category": "page-method",
-  "version": "1.47.0",
+  "version": "1.48.0",
   "contextPolicy": "identity",
   "description": "inspectDesign({context,requirements,requirePass?:false})；1–64项{id,bodyId,kind:bounds|solidCount|material,evidence:{kind:drawing|user|assumption,reference}}。bounds加sizeMm:[X,Y,Z]/明确toleranceMm；solidCount加count；material加points/expected:inside|outside，可选toleranceMm。总计<=128个世界XYZ材料点。完整字段与示例见api.design-checks。",
   "synonyms": [
@@ -291,5 +291,5 @@
     "maxMaterialPoints": 128
   },
   "unknownFields": "rejected",
-  "docsHash": "sha256:fec450ac153764845b8809c8079e9814f5e26901c7f5cf6bd7fc094db5eb0fed"
+  "docsHash": "sha256:6d5b4addd00b0a726132cf8c0b4b2b49d4967fa533bd2ca73fceb70376eac917"
 }

@@ -670,37 +670,37 @@
       },
       {
         "code": "PARAM_RANGE_INVALID",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "UNKNOWN_OPERATION",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "OPERATION_VERSION_UNSUPPORTED",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "SCHEMA_MISMATCH",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "CAPABILITY_UNAVAILABLE",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "GEOMETRY_INVALID",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "SIZE_LIMIT",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       }
     ],
@@ -759,7 +759,8 @@
       "Copy with scale, rotation and translation",
       "copy operation"
     ],
-    "status": "experimental"
+    "status": "experimental",
+    "sourcePaths": []
   },
   "purpose": "Copy with scale, rotation and translation",
   "whenToUse": [
@@ -793,37 +794,37 @@
     },
     {
       "code": "PARAM_RANGE_INVALID",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "UNKNOWN_OPERATION",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "OPERATION_VERSION_UNSUPPORTED",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "SCHEMA_MISMATCH",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "CAPABILITY_UNAVAILABLE",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "GEOMETRY_INVALID",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "SIZE_LIMIT",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     }
   ],
@@ -854,5 +855,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:fc9851400a3b4f6357d727ef3fe11f5d83804b5251bf3aaa0e143c415413fe2a"
+  "docsHash": "sha256:0864ad5fe0987239b21243b7ebda86f2049f6fae4e62ea09b3dfda7575bcc929"
 }

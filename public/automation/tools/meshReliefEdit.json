@@ -1547,157 +1547,157 @@
       },
       {
         "code": "PARAM_RANGE_INVALID",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "UNKNOWN_OPERATION",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "OPERATION_VERSION_UNSUPPORTED",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "SCHEMA_MISMATCH",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "CAPABILITY_UNAVAILABLE",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "GEOMETRY_INVALID",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "SIZE_LIMIT",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_FIELD_INVALID",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_PROFILE_INVALID",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_DEFORMATION_INVALID",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_SAMPLE_OUTSIDE",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_RESOLUTION_INSUFFICIENT",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_TARGET_OUTSIDE",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_CONSTRAINT_CONFLICT",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_LAYERS_INVALID",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_SOURCE_UNSUPPORTED",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_EDIT_CAPACITY",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_EDIT_VERSION",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_SUPPORT_INVALID",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_REGION_INVALID",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_CONSTRAINT_INVALID",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_GEOMETRY_INVALID",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_NOT_CLOSED",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_SELECTION_AMBIGUOUS",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_BOUNDARY_CONFLICT",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_MULTIVALUED",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_THICKNESS_UNKNOWN",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_INTERSECTION",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "RELIEF_THICKNESS",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "STALE_REFERENCE",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "NO_CHANGE",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       }
     ],
@@ -1866,7 +1866,10 @@
       "STL 精修",
       "mesh sculpt"
     ],
-    "status": "experimental"
+    "status": "experimental",
+    "sourcePaths": [
+      "src/mesh/relief-edit.js"
+    ]
   },
   "purpose": "网格局部修高 / Local mesh relief height",
   "whenToUse": [
@@ -1898,157 +1901,157 @@
     },
     {
       "code": "PARAM_RANGE_INVALID",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "UNKNOWN_OPERATION",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "OPERATION_VERSION_UNSUPPORTED",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "SCHEMA_MISMATCH",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "CAPABILITY_UNAVAILABLE",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "GEOMETRY_INVALID",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "SIZE_LIMIT",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_FIELD_INVALID",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_PROFILE_INVALID",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_DEFORMATION_INVALID",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_SAMPLE_OUTSIDE",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_RESOLUTION_INSUFFICIENT",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_TARGET_OUTSIDE",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_CONSTRAINT_CONFLICT",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_LAYERS_INVALID",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_SOURCE_UNSUPPORTED",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_EDIT_CAPACITY",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_EDIT_VERSION",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_SUPPORT_INVALID",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_REGION_INVALID",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_CONSTRAINT_INVALID",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_GEOMETRY_INVALID",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_NOT_CLOSED",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_SELECTION_AMBIGUOUS",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_BOUNDARY_CONFLICT",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_MULTIVALUED",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_THICKNESS_UNKNOWN",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_INTERSECTION",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "RELIEF_THICKNESS",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "STALE_REFERENCE",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "NO_CHANGE",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     }
   ],
@@ -2080,5 +2083,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:22c714b2838a65f6a27b21ec8f9c8d00ebdb87830d84174c700017489f53046f"
+  "docsHash": "sha256:b0282128f070449f1559563c755ec9cfa24f71cdb714fd831bc35a8adce3ed24"
 }

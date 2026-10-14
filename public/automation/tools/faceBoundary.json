@@ -261,37 +261,37 @@
       },
       {
         "code": "PARAM_RANGE_INVALID",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "UNKNOWN_OPERATION",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "OPERATION_VERSION_UNSUPPORTED",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "SCHEMA_MISMATCH",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "CAPABILITY_UNAVAILABLE",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "GEOMETRY_INVALID",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "SIZE_LIMIT",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       }
     ],
@@ -345,7 +345,8 @@
       "放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。",
       "face Boundary operation"
     ],
-    "status": "experimental"
+    "status": "experimental",
+    "sourcePaths": []
   },
   "purpose": "先选中一张面。all 提取包括内孔在内的全部边界；outer 明确只提取外环，不带孔。保留源模型，生成精确线框。单闭环可接参考轮廓拉伸/放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。",
   "whenToUse": [
@@ -379,37 +380,37 @@
     },
     {
       "code": "PARAM_RANGE_INVALID",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "UNKNOWN_OPERATION",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "OPERATION_VERSION_UNSUPPORTED",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "SCHEMA_MISMATCH",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "CAPABILITY_UNAVAILABLE",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "GEOMETRY_INVALID",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "SIZE_LIMIT",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     }
   ],
@@ -441,5 +442,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:4ee84d749b72fd4b0823ce074e7a6d3c6138d70b4522937bb3b8b517430db6af"
+  "docsHash": "sha256:f589e5f70e0b82a49fbf35e5f245364b1cb9983d3baeb11511ed7224b2a217e6"
 }

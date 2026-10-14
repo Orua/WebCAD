@@ -315,42 +315,42 @@
     "errors": [
       {
         "code": "PARAM_SCHEMA_INVALID",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "PARAM_RANGE_INVALID",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "UNKNOWN_OPERATION",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "OPERATION_VERSION_UNSUPPORTED",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "SCHEMA_MISMATCH",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "CAPABILITY_UNAVAILABLE",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "GEOMETRY_INVALID",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
         "code": "SIZE_LIMIT",
-        "when": "该操作schema或执行流程拒绝输入",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
       {
@@ -432,7 +432,10 @@
       "STL 布尔",
       "mesh boolean"
     ],
-    "status": "experimental"
+    "status": "experimental",
+    "sourcePaths": [
+      "src/mesh/mesh-boolean.js"
+    ]
   },
   "purpose": "网格布尔合并 / Mesh boolean",
   "whenToUse": [
@@ -459,42 +462,42 @@
   "errors": [
     {
       "code": "PARAM_SCHEMA_INVALID",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "PARAM_RANGE_INVALID",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "UNKNOWN_OPERATION",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "OPERATION_VERSION_UNSUPPORTED",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "SCHEMA_MISMATCH",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "CAPABILITY_UNAVAILABLE",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "GEOMETRY_INVALID",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
       "code": "SIZE_LIMIT",
-      "when": "该操作schema或执行流程拒绝输入",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
@@ -546,5 +549,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:6d57979e0e38056f51407bc1ca05945dde38b279205f579922915ff78bae93c7"
+  "docsHash": "sha256:16b5398b269e3bc1bde7019bd340fc79351160c36ac3902c92a2b774db3a4ee8"
 }

@@ -2,7 +2,7 @@
   "id": "planAlignment",
   "title": "planAlignment",
   "category": "page-method",
-  "version": "1.47.0",
+  "version": "1.48.0",
   "contextPolicy": "identity",
   "description": "planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true。",
   "synonyms": [
@@ -23,5 +23,5 @@
     "STALE_REFERENCE",
     "REVISION_CONFLICT"
   ],
-  "docsHash": "sha256:d1e07cec93d9b0e732578df5d525a29e5510eed9fa7eedf63d78c0b9ad7f6fd5"
+  "docsHash": "sha256:63b9f754cb051c160554311db93fb8f317386c35f8226a87b6f1e3227507fe64"
 }

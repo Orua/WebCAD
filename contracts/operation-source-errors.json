@@ -1,0 +1,90 @@
+{
+  "meshHeightfieldRelief": {
+    "sourcePaths": [
+      "src/mesh/heightfield-relief.js"
+    ],
+    "codes": [
+      "HEIGHTFIELD_INVALID",
+      "HEIGHTFIELD_SCULPT_INVALID",
+      "RELIEF_EDIT_CAPACITY"
+    ]
+  },
+  "meshBoolean": {
+    "sourcePaths": [
+      "src/mesh/mesh-boolean.js"
+    ],
+    "codes": [
+      "MESH_BOOLEAN_EMPTY",
+      "MESH_BOOLEAN_INVALID",
+      "MESH_BOOLEAN_UNAVAILABLE",
+      "MESH_NOT_MANIFOLD"
+    ]
+  },
+  "meshReliefPlate": {
+    "sourcePaths": [
+      "src/mesh/relief-plate.js"
+    ],
+    "codes": [
+      "RELIEF_EDIT_CAPACITY",
+      "RELIEF_PLATE_INVALID",
+      "RELIEF_THICKNESS"
+    ]
+  },
+  "meshReliefEdit": {
+    "sourcePaths": [
+      "src/mesh/relief-edit.js"
+    ],
+    "codes": [
+      "NO_CHANGE",
+      "RELIEF_BOUNDARY_CONFLICT",
+      "RELIEF_CONSTRAINT_CONFLICT",
+      "RELIEF_CONSTRAINT_INVALID",
+      "RELIEF_DEFORMATION_INVALID",
+      "RELIEF_EDIT_CAPACITY",
+      "RELIEF_EDIT_VERSION",
+      "RELIEF_GEOMETRY_INVALID",
+      "RELIEF_INTERSECTION",
+      "RELIEF_LAYERS_INVALID",
+      "RELIEF_MULTIVALUED",
+      "RELIEF_NOT_CLOSED",
+      "RELIEF_REGION_INVALID",
+      "RELIEF_RESOLUTION_INSUFFICIENT",
+      "RELIEF_SAMPLE_OUTSIDE",
+      "RELIEF_SELECTION_AMBIGUOUS",
+      "RELIEF_SUPPORT_INVALID",
+      "RELIEF_TARGET_OUTSIDE",
+      "RELIEF_THICKNESS",
+      "RELIEF_THICKNESS_UNKNOWN",
+      "STALE_REFERENCE"
+    ]
+  },
+  "relief": {
+    "sourcePaths": [
+      "src/modeling/manufacturing/relief.js",
+      "src/modeling/manufacturing/cylindrical-relief.js",
+      "src/relief-sculpt.js"
+    ],
+    "codes": [
+      "PARAM_RANGE_INVALID",
+      "PARAM_SCHEMA_INVALID",
+      "RELIEF_INVALID",
+      "RELIEF_LIMIT",
+      "RELIEF_NO_CHANGE",
+      "RELIEF_OUTSIDE_FACE",
+      "RELIEF_PATCH_INVALID",
+      "RELIEF_PATCH_PROTECTION",
+      "RELIEF_PATCH_UNSUPPORTED",
+      "RELIEF_SAMPLE_OUTSIDE",
+      "RELIEF_SHOULDER_INVALID",
+      "RELIEF_SHOULDER_UNSUPPORTED",
+      "RELIEF_UNSUPPORTED",
+      "STALE_REFERENCE"
+    ]
+  },
+  "logo": {
+    "sourcePaths": [
+      "src/logo-model.js"
+    ],
+    "codes": []
+  }
+}

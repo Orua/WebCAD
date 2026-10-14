@@ -3,7 +3,7 @@
   "title": "更新预览",
   "description": "args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
   "category": "command",
-  "version": "1.47.0",
+  "version": "1.48.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:3be91a579e447d435f324e7baa4615716534d57345b1e023d938a6d9009a29ca"
+  "docsHash": "sha256:871c45bd9b1aadab0ec2d12ffb1d0e6edc3a8ef778daab3d34103423531314f8"
 }

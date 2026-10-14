@@ -2,7 +2,8 @@
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.47.0",
+  "version": "1.48.0",
+  "contextPolicy": "none",
   "label": "读取文件字节",
   "synonyms": [
     "读取文件字节",
@@ -53,5 +54,5 @@
     "PARAM_SCHEMA_INVALID",
     "RESOURCE_EXPIRED"
   ],
-  "docsHash": "sha256:ef8ec2f2f1e88dd013bd99e814076b10f83f9e2bd79a08c0d5e6fb5b8664acfa"
+  "docsHash": "sha256:d68c82054d47adbe311e5aa6199a81bc3612a1a89e772a8f5dcc857fc6b5c67d"
 }

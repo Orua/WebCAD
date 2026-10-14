@@ -9,6 +9,7 @@ import {createHash} from 'node:crypto';
 import {isDeepStrictEqual} from 'node:util';
 import {AGENT_ONBOARDING} from '../src/agent-onboarding.js';
 import {verifyOperationContracts} from './verify-operation-contracts.mjs';
+import {spawnSync} from 'node:child_process';
 
 const root = resolve(import.meta.dirname, '..');
 const json = async path => JSON.parse(await readFile(resolve(root, path), 'utf8'));
@@ -73,4 +74,6 @@ for(const file of [...kit.files,kit.installer]){
 const routes=await outputJson('automation/routes.json');
 if(!isDeepStrictEqual(routes.routes,UI_API_ROUTES))throw new Error('Agent operation routes differ from UI API routes');
 verifyOperationContracts();
+for(const method of metadata.methods)if(!cards.get(method)?.contextPolicy)throw Error(`Missing method contextPolicy: ${method}`);
+const contextTest=spawnSync(process.execPath,['--test','tests/page-context-policy.test.mjs'],{cwd:root,encoding:'utf8',windowsHide:true});if(contextTest.status!==0)throw Error('Runtime context policy check failed: '+contextTest.stdout+contextTest.stderr);
 console.log(`Release gate passed: ${report.operations.length} operations, ${report.executeActions.length} actions, ${report.uiRoutes.length} UI routes; agent entry, kit and operation contracts verified`);
