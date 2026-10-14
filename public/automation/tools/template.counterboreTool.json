@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "Tool solid: entry at Z=0, extending along +Z. Position at the workpiece surface, rotate 180 degrees if needed, then select the body first and subtract the tool.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "counterboreTool"
@@ -183,7 +224,7 @@
       }
     }
   },
-  "schemaHash": "sha256:6d9549d60b0de9109e16af5af324fb5512d4ffd894b5bd79bfc21787be36a36a",
+  "schemaHash": "sha256:2f82e615618a28dd075e1128a3522c98de8c02e96e424074a9b89b1647876eae",
   "defaults": {
     "holeDiameter": 4,
     "depth": 8,
@@ -278,5 +319,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:fe897a2d85f3ceca1161bb45a32e050475f35eb34901ce387bbf196d2a2c8e77"
+  "docsHash": "sha256:3dde8c1e82333af56c7eea962e5f8d21cfedbc43c9ab87e47db1c36b5387cbd6"
 }

@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "Two symmetric X-axis holes with independent center spacing. Plain through holes only; no threads, countersinks or counterbores.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "mountingPlate"
@@ -193,7 +234,7 @@
       }
     }
   },
-  "schemaHash": "sha256:fdfaf2621ba160ad6a73ba01fbe33a7ea6498135b3bab602290842b944226be8",
+  "schemaHash": "sha256:bf1e6fe56979303ada78083346f835885559ab868a3c5d969fb80d1a9465d38b",
   "defaults": {
     "width": 40,
     "depth": 16,
@@ -288,5 +329,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:713cd14874ee88461614bb1d9ce5411b69f54dd0115d1a60a0ae8a94f90aff7e"
+  "docsHash": "sha256:b849f38f3f77cac751247a1f187e4b3dce70ab2c54ce2c7fe336f5cf91768f1d"
 }

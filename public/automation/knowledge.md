@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.43.0 · sha256:2ac46e220449ea50c2e5d0288b038859575adb295432f3a8e0153d2785d2a97d
+API 1.46.0 · sha256:53022dd7b6b123769e516381007fcf7631d02dfc860c9a0eae8815a07b21e15c
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -147,7 +147,7 @@ meshReliefPlate创建可复用底板：widthMm/depthMm/thicknessMm/spacingMm及b
 
 ## api.model-library
 
-模型库与当前文档独立。getModelLibrary读取各条目完整字段与schema；updateModelLibrary以当前context和expectedLibraryRevision进行upsert/remove/move/import/restore；resolveModelLibrary返回解析后的quickModel参数，再run/add。旧远程助手固定白名单的等价入口：webcad_read method=getUILayout args={includeModelLibrary:true}读取modelLibrary；webcad_view method=setView args={context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}}进行管理，返回同一updateModelLibrary回执。生成读取entry.execution送入已有run/add；不需新服务或转换库ID。modelLibraryChange必须单独请求，不可同时改视图。库配置仅在当前浏览器源持久化，可全量JSON迁移；已有工程不依赖可删库ID。新增几何插件仍需发布构建器和契约，不在网页执行任意脚本。
+模型库与当前文档独立。getModelLibrary读取各条目完整字段与schema；updateModelLibrary以当前context和expectedLibraryRevision进行upsert/remove/move/import/restore；resolveModelLibrary返回解析后的quickModel参数，再run/add。旧远程助手固定白名单的等价入口：webcad_read method=getUILayout args={includeModelLibrary:true}读取modelLibrary；webcad_view method=setView args={context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}}进行管理，返回同一updateModelLibrary回执。生成读取entry.execution送入已有run/add；不需新服务或转换库ID。modelLibraryChange必须单独请求，不可同时改视图。库配置仅在当前浏览器源持久化，可全量JSON迁移；已有工程不依赖可删库ID。条目可选 script 为有限建模步骤：box/cylinder/sphere/quickModel/transform/union/cut/intersect，params 可引用 $params.字段，refs 引用前面步骤 ID，最后步骤为结果。resolveModelLibrary 和 entries.execution 自动携带 modelScript，特征冻结完整脚本，库修改不改变已有工程。UI 管理和创建使用浮动对话框；模型缩略图由隔离预览内核生成，参数引线仅示意、不修改当前工程。脚本不支持 JavaScript/eval 或外部 URL。
 
 ## api.named-parameters
 
@@ -633,10 +633,11 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
       "getModelLibrary",
       "resolveModelLibrary",
       "quickModel",
-      "run"
+      "run",
+      "preview.start"
     ],
     "method": "setView",
-    "usage": "实体→快捷模型打开画布中央浮动选择菜单：setView({context,workspace:\"library\"})；返回画布用workspace:\"modeling\"。getModelLibrary读取配置，resolveModelLibrary解析后run/add生成。"
+    "usage": "实体→快捷模型打开画布中央浮动选择菜单：setView({context,workspace:\"library\"})；选择后在浮动对话框设置参数。getModelLibrary读取字段和完整script；resolveModelLibrary解析后run/add生成，params.modelScript冻结脚本。实体缩略图和参数引线示意不提交工程，实际模型可preview.start或quickModel生成并measure核对。"
   },
   "referenceExtrude": {
     "tools": [
@@ -994,6 +995,15 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
     "method": "readVector",
     "usage": "选择文件或粘贴矢量文本，框选完整轮廓；connectVector 诊断和组环，sketchProfile 经同一命令服务成面。"
   },
+  "modelLibraryEdit": {
+    "tools": [
+      "getModelLibrary",
+      "updateModelLibrary",
+      "resolveModelLibrary"
+    ],
+    "method": "updateModelLibrary",
+    "usage": "浮动编辑层维护工具名称、默认参数和script。getModelLibrary读取后upsert，唯一id新增、已有id修改；script步骤及引用按api.model-library验证；expectedLibraryRevision拒绝陈旧库写入。"
+  },
   "quickModelFavorites": {
     "tools": [
       "setView",
@@ -1143,10 +1153,12 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
     "tools": [
       "getAgentPanel",
       "configureAgentPanel",
-      "setAgentPanel"
+      "setAgentPanel",
+      "getUILayout",
+      "setView"
     ],
     "method": "setAgentPanel",
-    "usage": "configureAgentPanel({context,url})保存助手页面地址；setAgentPanel({context,visible:true/false})接入当前工程或退出并解锁；getAgentPanel()读取visible/phase/connected/error/release_pending。工程、历史、相机和dirty保留。"
+    "usage": "configureAgentPanel({context,url})保存助手页面地址；setAgentPanel({context,visible:true/false})接入当前工程或退出并解锁。Agent入口及连接成功自动focus:true、toolbar:false；退出恢复原布局，活动任务保留并在完成后进入专注。getAgentPanel和getUILayout读回连接及布局。工程、历史、相机和dirty保留。"
   },
   "servicesSettings": {
     "tools": [
@@ -1584,7 +1596,7 @@ await api.run({context:c.requestContext,idempotencyKey:crypto.randomUUID(),steps
 
 ## api.workspace
 
-UI配置源src/ui-layout.js。顶层只有CAD工具菜单。实体→快捷模型打开画布中央非全屏浮动模型选择工具，设置→Agent 配置打开软件配置弹窗；建模工具按编辑/路径/创建/实体/面加工/实体加工/曲面/修饰/检查/视图/设置分类。setView的workspace、toolbar、libraryMode、focus显式控制布局；getUILayout().current与getState().view.workspaceLayout读回。快捷模型工具保留工具与两侧栏的原显隐；关闭按钮或Esc返回画布；modelLibraryOpen/modelLibraryPresentation=floating-menu读回；Agent 配置不切换画布或显隐；专注画布保留顶栏恢复入口。左右属性栏仍独立可隐藏。模型库可卡片/详细列表、搜索、普通表单配置及高级JSON导入导出；getModelLibrary/updateModelLibrary/resolveModelLibrary与UI共用服务。setView切换遇活动任务或草稿时拒绝UI_TASK_ACTIVE；先应用或取消预览。浏览器标题显示未保存标记；URL document参数不是可恢复分享链接。setRenderQuality({context,quality}) 提供 draft/standard/fine/ultra 四档，getState().renderQuality 提供毫米公差、角度公差（弧度）及三角面数。只重算显示网格，不改工程 revision、精确 BRep 或 STEP 导出；不是屏幕自适应网格。OpenCascade 可保留已有更细网格，降档不承诺减少三角面数。当前不提供斑马纹、曲率梳和精确 G0/G1/G2 连续性认证；导入 STEP 也不能反推原始特征历史。
+UI配置源src/ui-layout.js。顶层只有CAD工具菜单。实体→快捷模型打开画布中央非全屏浮动模型选择工具，设置→Agent 配置打开软件配置弹窗；建模工具按编辑/路径/创建/实体/面加工/实体加工/曲面/修饰/检查/视图/设置分类。setView的workspace、toolbar、libraryMode、focus显式控制布局；getUILayout().current与getState().view.workspaceLayout读回。快捷模型工具保留工具与两侧栏的原显隐；关闭按钮或Esc返回画布；modelLibraryOpen/modelLibraryPresentation=floating-menu读回；Agent 配置不切换画布或显隐；专注画布保留顶栏恢复入口。Agent 模式进入（包括外部 Agent 入口 bindExternal）或 hostControl.connected 首次变为 true 时自动 focus:true、toolbar:false；退出 Agent 后恢复之前的工具及面板显隐，已有专注状态保持；活动任务先保留，完成后进入专注。视图工具栏与其他菜单同为44px；所有工具图标统一20px，按钮34px且不压缩，选中态只用背景色、不用外框占空间。左右属性栏仍独立可隐藏。模型库可卡片/详细列表、搜索、普通表单配置及高级JSON导入导出；getModelLibrary/updateModelLibrary/resolveModelLibrary与UI共用服务。setView切换遇活动任务或草稿时拒绝UI_TASK_ACTIVE；先应用或取消预览。浏览器标题显示未保存标记；URL document参数不是可恢复分享链接。setRenderQuality({context,quality}) 提供 draft/standard/fine/ultra 四档，getState().renderQuality 提供毫米公差、角度公差（弧度）及三角面数。只重算显示网格，不改工程 revision、精确 BRep 或 STEP 导出；不是屏幕自适应网格。OpenCascade 可保留已有更细网格，降档不承诺减少三角面数。当前不提供斑马纹、曲率梳和精确 G0/G1/G2 连续性认证；导入 STEP 也不能反推原始特征历史。
 
 ## coordinates
 
@@ -18206,6 +18218,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "同心圆恒截面单圈；开缝为底部正中平行平切。",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "ring"
@@ -18255,6 +18308,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "washer"
@@ -18284,6 +18378,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Coaxial tube; defaults 13.4 outer diameter, 12.4 inner diameter and 3 height for the user C-part.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "tube"
@@ -18316,6 +18451,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "平底、光滑凸面；直径和高度独立设置，可以调整拱高，不限于半球。",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "domedPin"
@@ -18346,6 +18522,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "圆线沿精确螺旋路径扫掠。螺距大于线径；半径是中心线半径。",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "spring"
@@ -18397,6 +18614,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "头在参考位置下端，牙杆朝本地 +Z。沉头外缘固定直升位 0.20 mm。M 使用常用粗牙螺距，真实 V 型牙槽；不含配合公差。",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "screw"
@@ -18465,6 +18723,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "底面在参考位置，面端朝本地 -Z；从下方面端向上攻牙。牙径采用支持的名义 M 粗牙直径，不含配合公差。",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "threadedSleeve"
@@ -18504,6 +18803,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "One solid combining a round badge plate, raised front rim and two rear mounting posts. Posts may be hollow. Brand artwork, knurling, doming and production dimensions are excluded.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "roundBadge"
@@ -18564,6 +18904,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Two symmetric X-axis holes with independent center spacing. Plain through holes only; no threads, countersinks or counterbores.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "mountingPlate"
@@ -18623,6 +19004,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Rectangular plate with four through holes. Set X/Y edge insets and optional outer corner radius; no threads or counterbores.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "fourHolePlate"
@@ -18687,6 +19109,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Independent inner/outer outlines and thickness. Half-short-side radii allow capsule frames. A parametric tool, not a complete reconstruction of an IGS part.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "flatFrame"
@@ -18739,6 +19202,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "A flat frame with independent inner and outer corner radii, then one exact fillet of every sharp edge. The specified edge radius fails atomically if unsolvable. Near half-thickness can approximate a round section but is not certified as a semicircle.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "roundedFlatFrame"
@@ -18796,6 +19300,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "dBuckle"
@@ -18855,6 +19400,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Constant-section rounded rectangular frame. A closed round-wire frame supports an inner short side at least 2.5 times the wire diameter; other variants require four times the section size.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "rectBuckle"
@@ -18914,6 +19500,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "ovalBuckle"
@@ -18973,6 +19600,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "The inner height spans the full frame; the fused round bar has an editable vertical offset and no opening. Compact round-wire frames require an inner short side at least 2.5 wire diameters and each window at least one wire diameter high.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "sliderBuckle"
@@ -19042,6 +19710,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "圆角方线 U 主体与固定圆杆融合；杆底与脚底齐平。",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "dBarBuckle"
@@ -19096,6 +19805,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "A coaxial flange and cylindrical bushing with a straight bore through the full length. Generic parametric geometry, with no threads or source-product feature reconstruction.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "flangedBushing"
@@ -19135,6 +19885,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "A rounded plate with two symmetric hollow cylindrical bosses; each bore passes through both boss and plate. Generic parametric geometry, not a threaded, counterbored, or source-product reconstruction.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "bossPlate"
@@ -19201,6 +19992,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "One fused solid, centered in XY, bottom at Z=0, open top. Clear cavity width/depth = outer width/depth minus twice wall thickness; clear height = height minus floor thickness. Two X-symmetric bosses rise from the inner floor; bores pass through bosses and floor. Straight walls/corners only; no draft, fillets, threads or assembly relationships.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "thinWallTray"
@@ -19266,6 +20098,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Open rounded-rectangle tray with two hollow bosses on the inner floor. Outer corner radius, wall/floor thickness and boss dimensions are editable. Straight walls only; no draft, clips, lettering or texture.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "roundedBossTray"
@@ -19339,6 +20212,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Constant-section circular arc with an adjustable opening angle for C rings, hook rings and open circular frames. End balls, hinges and variable sections are excluded.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "openArcRing"
@@ -19388,6 +20302,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Tool solid: entry at Z=0, extending along +Z. Position at the workpiece surface, rotate 180 degrees if needed, then select the body first and subtract the tool.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "counterboreTool"
@@ -19437,6 +20392,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "A flat plate with two equal symmetric rounded windows and an integral center bridge. Independent outline, window and front/back edge radii. No round bar, offset windows or side arch.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "twinWindowPlate"
@@ -19499,6 +20495,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "One flat U plate with concentric semicircular crowns, equal-width straight legs and one through-hole at each end. No second assembly component, thread or round-wire section.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "uEndHolePlate"
@@ -19549,6 +20586,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Circular ring swept from an elliptical section with independent front band width and side depth. Section shape is an editable candidate to verify against the source.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "ellipseSectionRing"
@@ -19578,6 +20656,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Annular band segment with editable sweep, plate thickness, symmetric end-hole inset and optional counterbores. Threads and mating parts are separate.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "arcBandPlate"
@@ -19643,6 +20762,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Open gable frame with straight legs, sloped shoulders and rounded open ends. Independent inner/outer widths, shoulder and peak heights, depth and end radius.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "gableOpenFrame"
@@ -19703,6 +20863,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Sweep an elliptical cross-section around a rounded rectangular centerline. Front band width and side depth are independent; the inner planar radius is separate from section shape.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "ellipseSectionRectFrame"
@@ -19742,6 +20943,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Flat D frame with semicircular crown, straight legs, independent inner/outer bottom radii and optional measured bottom gap. Thickness is a flat plate depth, not a round-wire section.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "dFlatFrame"
@@ -19799,6 +21041,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Intersect a rounded twin-window footprint with a coaxial cylindrical wall to create an arched plate. Set outer bend radius and radial thickness independently. Projected strip construction without source-specific edge treatment; round-wire frames need another tool.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "archedTwinWindowPlate"
@@ -19858,6 +21141,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "A flat plate with straight top/bottom, tangent bowed sides and four small corner arcs, plus two symmetric capsule windows. Optional edge fillet. Symmetric parameter model only.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "bowedTwinWindowPlate"
@@ -19923,6 +21247,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "A constant-section circular frame fused to one round X-axis crossbar. The bar has editable Y and depth Z offsets. Moving bars, hinges and exact joint transitions are excluded.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "ringBar"
@@ -19982,6 +21347,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Offset a true inner ellipse for a round-wire sweep and fuse one centered fixed round bar. Read back exact bounds; source spline and joint continuity still require comparison.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "ellipseBar"
@@ -20021,6 +21427,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Sweep round wire along a half-wire outward offset of a true inner ellipse, then cut a bottom-center parallel flat gap. Source drawings with a true outer ellipse need another tool.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "ellipseOpenWire"
@@ -20055,6 +21502,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Closed capsule loop with semicircular ends and straight runs. Front width, side depth and section radius are independent; a half-short-side radius forms an exact stadium section.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "profileLoop"
@@ -20094,6 +21582,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Closed round-wire capsule loop with exact semicircular ends and straight runs. Set inner width, inner height and wire diameter; an unmarked seam is not guessed.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "capsuleWire"
@@ -20123,6 +21652,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Separate tongue: X-axis pivot loop and a rounded flat strip along +Y. Length is pivot-center to tip. Approximate loop-head flat tongue only; no stamping bends, knurling, artwork or assembly motion validation.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "buckleTongue"
@@ -20171,6 +21741,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Separate crossbar with two open Y-axis rolled eyes and independently tangent inner/outer transitions into the center strip. For regular pull buckles; it remains separate from the frame.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "pullCoreBar"
@@ -20236,8 +21847,49 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
           "kind"
         ],
         "additionalProperties": false,
-        "description": "A rounded rectangular strip uses two planar circular layers joined by a local transition. Inner/outer diameters define the band; total side depth is split evenly between the layers plus the gap. Turns are limited to >1 and <2; the transition angle must fit within the open tip sector. Four section corners are R0.5; product-specific tip outlines, attachments and patterns are not included.",
+        "description": "Three dimensions: inner diameter, outer diameter and total thickness. Winding, layer gap, transition and section R are fitted automatically; both tips have circular outlines with rounded edges. Legacy explicit winding recipes remain supported.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "keyRing"
@@ -20255,12 +21907,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
           "totalDepthMm": {
             "type": "number",
             "default": 3,
-            "description": "Total side depth"
+            "description": "Total thickness"
+          },
+          "autoFit": {
+            "type": "boolean",
+            "default": true,
+            "description": "autoFit"
+          },
+          "roundedTips": {
+            "type": "boolean",
+            "default": true,
+            "description": "roundedTips"
           },
           "turns": {
             "type": "number",
             "default": 1.9,
-            "description": "Turns",
+            "description": "turns",
             "unit": "1",
             "quantityKind": "scalar",
             "quantizationPolicy": "none"
@@ -20268,22 +21930,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
           "layerGapMm": {
             "type": "number",
             "default": 0.01,
-            "description": "Layer gap"
+            "description": "layerGapMm"
           },
           "sectionCornerRadiusMm": {
             "type": "number",
             "default": 0.5,
-            "description": "Section corner radius"
+            "description": "sectionCornerRadiusMm"
           },
           "transitionAngleDeg": {
             "type": "number",
             "default": 36,
-            "description": "Transition angle"
+            "description": "transitionAngleDeg"
           },
           "leftHanded": {
             "type": "boolean",
             "default": false,
-            "description": "Left handed"
+            "description": "leftHanded"
           }
         }
       },
@@ -20295,6 +21957,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "A horizontal rounded rod joined to an elliptical-section U eye that narrows in Z depth from root to top.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "hangingRod"
@@ -20349,6 +22052,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "A regular round-section U bridge with straight legs, an exact semicircular crown, and optional coaxial holes in both end faces.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "archedBridge"
@@ -20388,6 +22132,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "A parameterized two-piece mushroom rivet with a spherical cap, hollow socket, rounded waisted post and base flange. Supports assembled or exploded display, with a blind post bore depth and direction.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "mushroomRivet"
@@ -20502,6 +22287,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Two-piece nipple stud with an arc-profiled flat-top body, radiused base, blind M2 nominal clearance bore, crowned screw head, stem, and parameterized six-lobe drive. Threads and standardized drive dimensions are not modeled.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "nippleStud"
@@ -20626,6 +22452,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "A parameterized two-piece thin-wall eyelet with exact revolved flange bends. Part A has a long shank and Part B is its mating ring. Supports static coaxial fit or exploded display; riveting deformation, logos and lettering are not modeled.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "twoPieceEyelet"
@@ -20705,6 +22572,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "One exact circular or rounded rectangular frame with an optional constant-wall collar, symmetric mounting posts and plain straight holes. Collar and posts extend along local +Z from a flange at Z=0. Hole depth 0 means through; positive depth is blind from the post top. 0/2/4 posts; two posts lie on Y. Zero collar/post heights make a backplate. No threads, taper, riveting, decoration or 3D edge blends. Circular mode requires matching width/height pairs; corner radii apply only to rectangular mode.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "frameEyelet"
@@ -20808,6 +22716,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "additionalProperties": false,
         "description": "Constant-wall open U clip of uniform X width, independent front/back heights and exact tangent bend arcs. An inner radius equal to half the gap makes a semicircular bottom. Bottom Z=0, opening +Z, back wall +Y. Optional 0/1/2 plain back-wall through holes; two holes lie on X. Not a closed cap. No threads, decorations, end blends or elastic deformation. Holes must fit entirely within the straight back wall.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "uStrapClip"
@@ -21227,6 +23176,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "innerDiameterMm": 25,
       "outerDiameterMm": 33,
       "totalDepthMm": 3,
+      "autoFit": true,
+      "roundedTips": true,
       "turns": 1.9,
       "layerGapMm": 0.01,
       "sectionCornerRadiusMm": 0.5,
@@ -21361,7 +23312,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "快捷模型"
   ],
   "description": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-  "schemaHash": "sha256:de9756b418ea854f8469fb9a4f262a1de24d41743a956ef0a3fd4123cca4ed75",
+  "schemaHash": "sha256:295358f6bc129acb6c6be0764bacd3123654eddf39a03e210814d458bd18918c",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -24893,11 +26844,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     {
       "kind": "keyRing",
       "title": "Flat split key ring",
-      "description": "A rounded rectangular strip uses two planar circular layers joined by a local transition. Inner/outer diameters define the band; total side depth is split evenly between the layers plus the gap. Turns are limited to >1 and <2; the transition angle must fit within the open tip sector. Four section corners are R0.5; product-specific tip outlines, attachments and patterns are not included.",
+      "description": "Three dimensions: inner diameter, outer diameter and total thickness. Winding, layer gap, transition and section R are fitted automatically; both tips have circular outlines with rounded edges. Legacy explicit winding recipes remain supported.",
       "defaults": {
         "innerDiameterMm": 25,
         "outerDiameterMm": 33,
         "totalDepthMm": 3,
+        "autoFit": true,
+        "roundedTips": true,
         "turns": 1.9,
         "layerGapMm": 0.01,
         "sectionCornerRadiusMm": 0.5,
@@ -24925,55 +26878,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         },
         {
           "key": "totalDepthMm",
-          "label": "侧向总厚",
-          "labelEn": "Total side depth",
+          "label": "总厚度",
+          "labelEn": "Total thickness",
           "type": "number",
           "min": 0.1,
           "step": 0.1,
           "unit": "mm"
-        },
-        {
-          "key": "turns",
-          "label": "绕卷圈数",
-          "labelEn": "Turns",
-          "type": "number",
-          "min": 1.01,
-          "max": 2,
-          "step": 0.05
-        },
-        {
-          "key": "layerGapMm",
-          "label": "相邻层间隙",
-          "labelEn": "Layer gap",
-          "type": "number",
-          "min": 0,
-          "step": 0.1,
-          "unit": "mm"
-        },
-        {
-          "key": "sectionCornerRadiusMm",
-          "label": "截面圆角",
-          "labelEn": "Section corner radius",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1,
-          "unit": "mm"
-        },
-        {
-          "key": "transitionAngleDeg",
-          "label": "跨层角",
-          "labelEn": "Transition angle",
-          "type": "number",
-          "min": 0.1,
-          "max": 180,
-          "step": 1,
-          "unit": "degrees"
-        },
-        {
-          "key": "leftHanded",
-          "label": "左旋",
-          "labelEn": "Left handed",
-          "type": "boolean"
         }
       ],
       "knownUnsupportedCases": [
@@ -24987,6 +26897,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "innerDiameterMm": 25,
         "outerDiameterMm": 33,
         "totalDepthMm": 3,
+        "autoFit": true,
+        "roundedTips": true,
         "turns": 1.9,
         "layerGapMm": 0.01,
         "sectionCornerRadiusMm": 0.5,
@@ -26200,7 +28112,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:7e61245a4396e79e58b289c0080afd41cbf0ff4c5e241e2f27b7f598b422b555"
+  "docsHash": "sha256:d85b5ec9afe2c981f952fcbda8359f8c937253cccf401f579643486f375c4f0e"
 }
 ```
 
@@ -34113,6 +36025,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "同心圆恒截面单圈；开缝为底部正中平行平切。",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "ring"
@@ -34154,7 +36107,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:2ceab3f6495b3bf74eb40bef7e4fa6c073567e3911684f82409b920ef0fff522",
+  "schemaHash": "sha256:0b9620680bb53ba2259d0b139c5b887f015a50968370f712b78be63da499f2a2",
   "defaults": {
     "section": "round",
     "sectionSize": 3,
@@ -34264,7 +36217,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3d4be011bc7883ec27e1faf85dfd192579160cea1f9075d2ad15e75a478dfb4f"
+  "docsHash": "sha256:fe2a0b60e4cf07d3e881d4381009f66ccd15f91d87dc7d0a2822976b3c1b7257"
 }
 ```
 
@@ -34415,6 +36368,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "washer"
@@ -34436,7 +36430,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:7dc1a95b72b9fe017bb067866b58395a4f663e61b02ca1b6c4eb79b43d766cb3",
+  "schemaHash": "sha256:90dde765475f5e763d6cba713b12ba2de7b32e3f3395de7f6abe907018d6a223",
   "defaults": {
     "innerDiameter": 10,
     "sectionSize": 3,
@@ -34501,7 +36495,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:12adae78ccfd4b762f4fde8b61e02d7e5bf62142e1dd454fca05244dc7ed558f"
+  "docsHash": "sha256:90ddccaba31b0761351ae8a4eb36ab02d30709d0abfb19132997356f7fbfb040"
 }
 ```
 
@@ -34652,6 +36646,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Coaxial tube; defaults 13.4 outer diameter, 12.4 inner diameter and 3 height for the user C-part.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "tube"
@@ -34676,7 +36711,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:5cdff819f4d488afd9f47de8d98d91467e5f705ebd6bf424d034afe113027fb0",
+  "schemaHash": "sha256:debdba438db593c2cd46e9977203bce6fda6821627b9628f936dbc64d0f906ec",
   "defaults": {
     "outerDiameter": 13.4,
     "innerDiameter": 12.4,
@@ -34741,7 +36776,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:e24b308d6dbb9a8af89afa998aee983acad8cc259b3ba04ff8fcc424d6901c8a"
+  "docsHash": "sha256:b8e50d5d634510f0c72840f32db4d1d7f317d5bb6b7281eb91684e435dd498b1"
 }
 ```
 
@@ -34892,6 +36927,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "平底、光滑凸面；直径和高度独立设置，可以调整拱高，不限于半球。",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "domedPin"
@@ -34914,7 +36990,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:80c8560cfc4b64f82af5934a3edbd94f3cb431ffeed433f1bc97e05fdd193def",
+  "schemaHash": "sha256:4f47ccd7f70ff0e0c418a81630d6d5cfee644771421ca307f07816328ddbad9d",
   "defaults": {
     "diameterMm": 6,
     "heightMm": 2
@@ -34967,7 +37043,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:3ab204b3e0e8e425e7707908426ebc678ccc7923793dae1e594bf27ff3679a76"
+  "docsHash": "sha256:47cdba31a6e4b5939f45637f4a9ad77c23b0e3472bcc0c19b73efb0a3b9b8b99"
 }
 ```
 
@@ -35118,6 +37194,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "圆线沿精确螺旋路径扫掠。螺距大于线径；半径是中心线半径。",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "spring"
@@ -35161,7 +37278,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:bd225a44f296fcb6d24cf4765b2c95311099e2eca6c69f2c901499b96680d496",
+  "schemaHash": "sha256:3b79c61fb41f346d18e20214f09adf34068decf1650e7e6ab73582f800bd9555",
   "defaults": {
     "radiusMm": 6,
     "wireDiameterMm": 1.2,
@@ -35239,7 +37356,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:93e788fe0877dc26803f0cf95f6f10f29e043b7c61c663ef021f0eac8d21036d"
+  "docsHash": "sha256:4b19056cef75abb808d7f35cc1ed8e877bdbbfa6da74f7f5ff1dc0c7d3040632"
 }
 ```
 
@@ -35390,6 +37507,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "头在参考位置下端，牙杆朝本地 +Z。沉头外缘固定直升位 0.20 mm。M 使用常用粗牙螺距，真实 V 型牙槽；不含配合公差。",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "screw"
@@ -35450,7 +37608,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:8b22d15a955a6e4957168d45edb5bdc484604eb2f16334a0d3c341a602efa76d",
+  "schemaHash": "sha256:45cf26e115d5faafd4518a6d7ccea615bc53fe1c4a24fcdddfa2da5089eb10c4",
   "defaults": {
     "headType": "flat",
     "headWidthMm": 6,
@@ -35611,7 +37769,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:bb8c6beb803822cc22574be489b108c085aa75ffbd2da4d9ee55766d5adeda98"
+  "docsHash": "sha256:022e4bbf9b5d4b7ee372a71c8fff5049e889f362b51867909043888752d07dd4"
 }
 ```
 
@@ -35762,6 +37920,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "底面在参考位置，面端朝本地 -Z；从下方面端向上攻牙。牙径采用支持的名义 M 粗牙直径，不含配合公差。",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "threadedSleeve"
@@ -35793,7 +37992,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:972929944241722e089340991ce2dafab2ee40a8e75255aa0fa3b55f1fa7a22d",
+  "schemaHash": "sha256:a70a5fd8c52b2f1c3323c40145bffb4e3ce0976b30010f892173c8bf4b39fe05",
   "defaults": {
     "bottomDiameterMm": 8,
     "faceDiameterMm": 6,
@@ -35873,7 +38072,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:a8af5c46ef67cf86c217f67c4287adb3253c27f85700dc7e5c3097db53e5c0fa"
+  "docsHash": "sha256:0d4d25a66ddff62caf968226691cbff24a31fc70671d66ad6a603f2b42c86c3e"
 }
 ```
 
@@ -36024,6 +38223,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "One solid combining a round badge plate, raised front rim and two rear mounting posts. Posts may be hollow. Brand artwork, knurling, doming and production dimensions are excluded.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "roundBadge"
@@ -36076,7 +38316,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:a4fd4fb02ab51a17e548784f36576296d4cb52193dfed660a1e1d47ae59d81d9",
+  "schemaHash": "sha256:a5c68bad0754433e7f01e8bca2a80a6e2a09d556d786296c2c2b8919568d6405",
   "defaults": {
     "diameter": 40,
     "thickness": 2,
@@ -36191,7 +38431,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:d32cacb1bedeb2f66b628aeede113dbcb5de479d71a2ce0d56d6bf549788ac0f"
+  "docsHash": "sha256:d7c20b9cfb71226fb2535f102af445d544356eda26c86500af2c3cf7f6304365"
 }
 ```
 
@@ -36342,6 +38582,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Two symmetric X-axis holes with independent center spacing. Plain through holes only; no threads, countersinks or counterbores.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "mountingPlate"
@@ -36393,7 +38674,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:fdfaf2621ba160ad6a73ba01fbe33a7ea6498135b3bab602290842b944226be8",
+  "schemaHash": "sha256:bf1e6fe56979303ada78083346f835885559ab868a3c5d969fb80d1a9465d38b",
   "defaults": {
     "width": 40,
     "depth": 16,
@@ -36488,7 +38769,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:713cd14874ee88461614bb1d9ce5411b69f54dd0115d1a60a0ae8a94f90aff7e"
+  "docsHash": "sha256:b849f38f3f77cac751247a1f187e4b3dce70ab2c54ce2c7fe336f5cf91768f1d"
 }
 ```
 
@@ -36639,6 +38920,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Rectangular plate with four through holes. Set X/Y edge insets and optional outer corner radius; no threads or counterbores.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "fourHolePlate"
@@ -36695,7 +39017,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:dda93b3640da974120c63cf9b212b90d7934a3b5e936438475588d6819c746b9",
+  "schemaHash": "sha256:673bd4b794d559cabb7e08f6d3856271233ebb32a6f2ca172001bb8fc323dc8a",
   "defaults": {
     "width": 50,
     "depth": 30,
@@ -36800,7 +39122,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:61bc8073cc45c433f38cbc7ef9ec4ac725d85801930f26ee5dddf4b48f3906d1"
+  "docsHash": "sha256:171dfd958078b4d31a3968f04fa1ef1863cd803a8791fd9f6ff61688765a9586"
 }
 ```
 
@@ -36951,6 +39273,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Independent inner/outer outlines and thickness. Half-short-side radii allow capsule frames. A parametric tool, not a complete reconstruction of an IGS part.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "flatFrame"
@@ -36995,7 +39358,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:4087509fb52425adca08cec55939c102976411c561f7202d4e44c21979333b7e",
+  "schemaHash": "sha256:f2cbf230bdfa4d89d87bec5d409ad934c393b54d8f3300ed1a0eff1e07e0358e",
   "defaults": {
     "outerWidth": 40,
     "outerHeight": 28,
@@ -37100,7 +39463,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:d3bd61f2dcea577e8d095d44e70258f7a893d0cc9d287ff7830a4860f68c1dc7"
+  "docsHash": "sha256:4ac7eb0bc2f55cce2fba11981a43d49730ffaaedb92061eef874dae4e103f9de"
 }
 ```
 
@@ -37251,6 +39614,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "A flat frame with independent inner and outer corner radii, then one exact fillet of every sharp edge. The specified edge radius fails atomically if unsolvable. Near half-thickness can approximate a round section but is not certified as a semicircle.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "roundedFlatFrame"
@@ -37300,7 +39704,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:8cd46ffe195f841aa53ef963822e38033ef49a0a0ea6511a2b076b7fba495eb7",
+  "schemaHash": "sha256:a4e750f81860d0fd4fb8212af40a4836e563eaefaf984d347f7e0725dec99390",
   "defaults": {
     "outerWidth": 40,
     "outerHeight": 28,
@@ -37415,7 +39819,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:a00848bf0e937daf4ec523f14c67d531be3a5ec5271272c2979dd8e0f8c90b4c"
+  "docsHash": "sha256:06f1fbd3782c9c18606634a1bb59de910028940e563aa629727e376a465b1e74"
 }
 ```
 
@@ -37566,6 +39970,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "dBuckle"
@@ -37617,7 +40062,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:53b4704be8d47e37f268903ca6ccc64fd736ea6653f862b81bdb571725052558",
+  "schemaHash": "sha256:89c260e719b0b56c18f659621edd67c5835fbac7f6c62a66a5eef868347bd812",
   "defaults": {
     "section": "round",
     "sectionSize": 3,
@@ -37747,7 +40192,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:def99c0c4c9c9188cb435d37c4384cc5c360563e2ee19ae8aa1cc6161da22df6"
+  "docsHash": "sha256:30cb22928ca62a0e7799ddb7f4fb32596016a1512808e241bc8de7b42999bde2"
 }
 ```
 
@@ -37898,6 +40343,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Constant-section rounded rectangular frame. A closed round-wire frame supports an inner short side at least 2.5 times the wire diameter; other variants require four times the section size.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "rectBuckle"
@@ -37949,7 +40435,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:1ada5c25825ae2ab47af04edd42a021cbf04544c138a70f67e831ad27d2071f3",
+  "schemaHash": "sha256:d3775cf3a19d5cc1055406dc63a77448129fde1b44238c0e6d24d2cdd0442fc3",
   "defaults": {
     "section": "round",
     "sectionSize": 3,
@@ -38079,7 +40565,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:67be310d45af9460c07f1f0101ba025e5b7eabfa2e6d75953274825b6fc99738"
+  "docsHash": "sha256:c398bce5f55b3fd63859e5a9b21c47b434e91e56893108f24b0248c7551709f1"
 }
 ```
 
@@ -38230,6 +40716,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "ovalBuckle"
@@ -38281,7 +40808,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:fdd884fe8375003f5f2d624f6f6f0c3b22494eb883bc40256f8c5e1195c861e2",
+  "schemaHash": "sha256:e5d3cd5d6f9cadab89f8ebebf30481ff42477e992e22667f128b66297375fea1",
   "defaults": {
     "section": "round",
     "sectionSize": 3,
@@ -38411,7 +40938,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:b293967fb960624bbc8f11c6e20626dc5904de1cf21184265ad49548a27977a8"
+  "docsHash": "sha256:2544a4b7016a9910206b4a70b026bb05a0c760d7fb24ee33c15070c24eb6e171"
 }
 ```
 
@@ -38562,6 +41089,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "The inner height spans the full frame; the fused round bar has an editable vertical offset and no opening. Compact round-wire frames require an inner short side at least 2.5 wire diameters and each window at least one wire diameter high.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "sliderBuckle"
@@ -38623,7 +41191,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:85986d5c55c3dfb1949b5c4c808ef77d07ae29fa7e13d173591c517f990566d3",
+  "schemaHash": "sha256:098dcf9d9bcac0bbb198cf406ee2acfabbd6f584ab770944bd11c3792add7761",
   "defaults": {
     "section": "round",
     "sectionSize": 3,
@@ -38765,7 +41333,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:c0f072d255b0f1aec3563afadbc989c695ab6d7c38e3f352e7667f139efbd415"
+  "docsHash": "sha256:d3fc278102a70607d4c80888efb824361927d770bd851be37519a23b4b436444"
 }
 ```
 
@@ -38916,6 +41484,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "圆角方线 U 主体与固定圆杆融合；杆底与脚底齐平。",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "dBarBuckle"
@@ -38962,7 +41571,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:d34dc010471b3b4da89308376612b4ca0ff1c9396bd3e86f1d8be17b6cdc0b19",
+  "schemaHash": "sha256:c911046414de7020de2b9f1f4f562436bcf300f3d5d9a173808af999299f89b9",
   "defaults": {
     "section": "square",
     "sectionSize": 6,
@@ -39053,7 +41662,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:dff80df95d3edaa80aee9dc5c313fc387a53c05eafe6cf0f5e77a2e758c38ba6"
+  "docsHash": "sha256:fb739d3ff3e6d4d6b97d0efef6694d5bc211caa00e6e2e3f95e2096f57beeb78"
 }
 ```
 
@@ -39204,6 +41813,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "A coaxial flange and cylindrical bushing with a straight bore through the full length. Generic parametric geometry, with no threads or source-product feature reconstruction.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "flangedBushing"
@@ -39235,7 +41885,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:d3b527b2e8a84b428a623e8e2a7b694808f63949e4b9a39b96f07b14af62fcc9",
+  "schemaHash": "sha256:26c17fc845273db53c5faf9911bf9b303c956e63b4a678966a26fb4321db48e9",
   "defaults": {
     "bodyDiameter": 12,
     "flangeDiameter": 20,
@@ -39320,7 +41970,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:7ac44dc9360e4361ba3db86b469502dab16ce9d097b66bb4d87562c9a3f43982"
+  "docsHash": "sha256:576123a1b08f7398a50b62b8dc868122245e672e095e357a6e1c2a1cb7808372"
 }
 ```
 
@@ -39471,6 +42121,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "A rounded plate with two symmetric hollow cylindrical bosses; each bore passes through both boss and plate. Generic parametric geometry, not a threaded, counterbored, or source-product reconstruction.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "bossPlate"
@@ -39529,7 +42220,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:fdb59a0a07257dedac73b271917d07f9a884925149e1a2a2b58fb2a2a8a1167c",
+  "schemaHash": "sha256:f08a3d3b2e777026ef048110302c0a34223a217542b7100484d3142985052462",
   "defaults": {
     "width": 40,
     "depth": 16,
@@ -39644,7 +42335,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:51c8c19d2dde0f0be3ee09d8da1c18a0bc839ffa86fc527fceb23feac144fcf9"
+  "docsHash": "sha256:76f2cc86776f46bfb7a2f294b730a0e1e1cbeef55419b1894a27cba3eac55132"
 }
 ```
 
@@ -39795,6 +42486,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "One fused solid, centered in XY, bottom at Z=0, open top. Clear cavity width/depth = outer width/depth minus twice wall thickness; clear height = height minus floor thickness. Two X-symmetric bosses rise from the inner floor; bores pass through bosses and floor. Straight walls/corners only; no draft, fillets, threads or assembly relationships.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "thinWallTray"
@@ -39852,7 +42584,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:b813e29862c892b1fd7c8fbc2f13fc7f47174e5691f4839c2e78413ab4421a01",
+  "schemaHash": "sha256:0186f3e04916ac0f671eb8862f64672fa7259f06d7f9cd4f67b17ee9f40c4511",
   "defaults": {
     "outerWidth": 60,
     "outerDepth": 36,
@@ -39977,7 +42709,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:6ec55cabfb02fdc45cf9ae1341bc8050a3bb2c2d7d1e03bcc30c26b894bb36a7"
+  "docsHash": "sha256:11f2b6a5b36483dd7cb509ae3039670734bbe787c3867073109f1b2073423f3a"
 }
 ```
 
@@ -40128,6 +42860,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Open rounded-rectangle tray with two hollow bosses on the inner floor. Outer corner radius, wall/floor thickness and boss dimensions are editable. Straight walls only; no draft, clips, lettering or texture.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "roundedBossTray"
@@ -40193,7 +42966,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:2e890611becae040327bd6c60d4ca334f192595f17cc955fbca1d43adced3c32",
+  "schemaHash": "sha256:3a8e6d6f1c5281a3bfd2222103c8c307fa858147d9d2d94b7873ff86a50c3cd2",
   "defaults": {
     "outerWidth": 60,
     "outerDepth": 38,
@@ -40328,7 +43101,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:aee7f11610e03b65343a1e7ddc2a7436d2e3bdca45081c8184ca80e7a320db35"
+  "docsHash": "sha256:f65c4946e5b60fc65a91933d5e8ec3fe27b74f834e41f0b4ef911a6fce5a10ef"
 }
 ```
 
@@ -40479,6 +43252,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Constant-section circular arc with an adjustable opening angle for C rings, hook rings and open circular frames. End balls, hinges and variable sections are excluded.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "openArcRing"
@@ -40520,7 +43334,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:fd9e7eae0a0571cc1fe30148fe3ecc5958bcdcef7e9efcebdbe3bcc52939cb1f",
+  "schemaHash": "sha256:708c061eecf81095d124cbaef0ce8f9a8e50f3078f0656d8ab0b66b51a458629",
   "defaults": {
     "section": "round",
     "innerDiameter": 30,
@@ -40630,7 +43444,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:4f653d8a9963f93419c46a1fc7cf84f06c793f8d1250df10cb37cf9d7b1b32c7"
+  "docsHash": "sha256:ea11a99c6e58d2fceb0bbf006701b0464025dfd5384d7709ee13c9feaaeae8b3"
 }
 ```
 
@@ -40781,6 +43595,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Tool solid: entry at Z=0, extending along +Z. Position at the workpiece surface, rotate 180 degrees if needed, then select the body first and subtract the tool.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "counterboreTool"
@@ -40822,7 +43677,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:6d9549d60b0de9109e16af5af324fb5512d4ffd894b5bd79bfc21787be36a36a",
+  "schemaHash": "sha256:2f82e615618a28dd075e1128a3522c98de8c02e96e424074a9b89b1647876eae",
   "defaults": {
     "holeDiameter": 4,
     "depth": 8,
@@ -40917,7 +43772,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:fe897a2d85f3ceca1161bb45a32e050475f35eb34901ce387bbf196d2a2c8e77"
+  "docsHash": "sha256:3dde8c1e82333af56c7eea962e5f8d21cfedbc43c9ab87e47db1c36b5387cbd6"
 }
 ```
 
@@ -41068,6 +43923,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "A flat plate with two equal symmetric rounded windows and an integral center bridge. Independent outline, window and front/back edge radii. No round bar, offset windows or side arch.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "twinWindowPlate"
@@ -41122,7 +44018,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:f0975b9b7d799b5dc854cd3c2d85a4f37a66b996801bb800ca5df69e65b9ace6",
+  "schemaHash": "sha256:e7bda45f7ace5e8240bcf191cf6f8331051086e5ed7ec614b58e7a9c6210a43a",
   "defaults": {
     "outerWidth": 44.8,
     "outerHeight": 26.6,
@@ -41247,7 +44143,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:5f48766c024b9bdca862a4523b540405c65cd46dd5ef6d102c0458e2190cac4c"
+  "docsHash": "sha256:03770c39cef94ff339c53cea8d99b9ce00c11f3a454d7977c1b1dab498e5a0c8"
 }
 ```
 
@@ -41398,6 +44294,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "One flat U plate with concentric semicircular crowns, equal-width straight legs and one through-hole at each end. No second assembly component, thread or round-wire section.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "uEndHolePlate"
@@ -41440,7 +44377,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:3f920a4471d858cf41c38c5161e8cce1eb4636842d56ffdd7b6a5cf387da92d5",
+  "schemaHash": "sha256:7650e18934e9441b7d92e82fab7a8e1a23cc243afd19e5d605abc080d43df67c",
   "defaults": {
     "outerWidth": 22,
     "innerWidth": 10,
@@ -41535,7 +44472,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:1adb287a79fcddba87064f164f315aaecf92ff4cb166c0ccde12b7cfb18ff6f3"
+  "docsHash": "sha256:615647824a97e6d0ca48aab110d78831f98b02879712c8f27d2799bc3915f306"
 }
 ```
 
@@ -41686,6 +44623,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Circular ring swept from an elliptical section with independent front band width and side depth. Section shape is an editable candidate to verify against the source.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "ellipseSectionRing"
@@ -41707,7 +44685,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:3d0b1d31f7aefd9865f5b85bbd8e9ed8ef2697254f5b9cc1f31aa81c91a09643",
+  "schemaHash": "sha256:b518c13415f23e764118d26ae82bd55ddfef1b9c15f5231de5a21fa550ca8493",
   "defaults": {
     "innerDiameter": 37.4,
     "sectionWidth": 4.1,
@@ -41772,7 +44750,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:a75297e1986a129779da8c256395fbf93554f8224bbb0fd41a8db61813329901"
+  "docsHash": "sha256:160f0a999dd8a2b26b2a759f721742f62f6ac69dbb7d2d4f8446bd1290694223"
 }
 ```
 
@@ -41923,6 +44901,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Annular band segment with editable sweep, plate thickness, symmetric end-hole inset and optional counterbores. Threads and mating parts are separate.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "arcBandPlate"
@@ -41980,7 +44999,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:3beed3735793ecc5760c158be69d24dbcc431dd973ce02c26dcb6bec91ad3866",
+  "schemaHash": "sha256:a5f7290bd06a549b50d50fb9624df655e07c91729b6f683cc7de21c4287bb871",
   "defaults": {
     "outerRadius": 20,
     "innerRadius": 15,
@@ -42105,7 +45124,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:40c73935578c9247a6900ec03ddd69789cfdd1932808de2aa9b02bee66eb20c4"
+  "docsHash": "sha256:915e6203d057989c89af5cac3144eba921fcf697b3393c7bc934ba251b47f954"
 }
 ```
 
@@ -42256,6 +45275,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Open gable frame with straight legs, sloped shoulders and rounded open ends. Independent inner/outer widths, shoulder and peak heights, depth and end radius.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "gableOpenFrame"
@@ -42308,7 +45368,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:1238a80d5f98f2c2b4e76a9847de67e601215f81d887807ba95cc55f9e056a25",
+  "schemaHash": "sha256:4c427589642b4fe9803f7b07fdd751ade82c684c598fded5dea57201ed48e3d3",
   "defaults": {
     "outerWidth": 25,
     "innerWidth": 20,
@@ -42423,7 +45483,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:e9013898709687c2df6c6acaae97c12677218d4704596c62f9fca4c0032dc758"
+  "docsHash": "sha256:e343a2ca698189f88954845ab50e1aac8c5b2a37e345eb610437f808f7656bf4"
 }
 ```
 
@@ -42574,6 +45634,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Sweep an elliptical cross-section around a rounded rectangular centerline. Front band width and side depth are independent; the inner planar radius is separate from section shape.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "ellipseSectionRectFrame"
@@ -42605,7 +45706,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:24949e5fb813da995a3f71559079fcc1a9190dfed543adf04d4140e2befbe91a",
+  "schemaHash": "sha256:9d1b040d6e4b1fd46748dd8f1c6e9a3a9a1a2a4ea964549bcaa0dfb8cbc77aa3",
   "defaults": {
     "innerWidth": 25,
     "innerHeight": 19,
@@ -42690,7 +45791,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:59c6c04736645b6c85c1dd278ae8116c728f435ab1a0589e449cdc5ade8ad35b"
+  "docsHash": "sha256:c250f8dec83492ab1345814bd4102082a1f648c677b7cb0e686244f0db20028d"
 }
 ```
 
@@ -42841,6 +45942,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Flat D frame with semicircular crown, straight legs, independent inner/outer bottom radii and optional measured bottom gap. Thickness is a flat plate depth, not a round-wire section.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "dFlatFrame"
@@ -42890,7 +46032,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:1f98eacaacf016b9943d7f619d534ff8453a9a1738c66fbda10360a20d986e8c",
+  "schemaHash": "sha256:9cef5cadbdbc1496d17b73fc001fa158cdcc5acf70153df223471c90d1c7a185",
   "defaults": {
     "outerWidth": 28,
     "outerHeight": 25,
@@ -43005,7 +46147,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:7d9f467a84e592439d7ac94168955aee51a63747bb1f5466479d32dafb535276"
+  "docsHash": "sha256:a10e6af5882af1e8c5117bb2fdc93b556cf44cf00cab6a9eb026d72fe2bec293"
 }
 ```
 
@@ -43156,6 +46298,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Intersect a rounded twin-window footprint with a coaxial cylindrical wall to create an arched plate. Set outer bend radius and radial thickness independently. Projected strip construction without source-specific edge treatment; round-wire frames need another tool.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "archedTwinWindowPlate"
@@ -43207,7 +46390,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:726ebe97a743251282d155561fd6e3920731fdf0a6dc0389f3324f0485c80da0",
+  "schemaHash": "sha256:05c33422382186273e88ba732de2ff39044bf5f7014c4d28a3895d2ef8bca9c0",
   "defaults": {
     "outerWidth": 32.9,
     "outerHeight": 25.5,
@@ -43332,7 +46515,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:4f84427dab716ba70aab6d55a8e5598e971c7dc34170750c9a7f1da05fbccef6"
+  "docsHash": "sha256:04e1e702226444e40d0f4d52c2f44618690d8c096763d27e8ee23a9936dae85a"
 }
 ```
 
@@ -43483,6 +46666,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "A flat plate with straight top/bottom, tangent bowed sides and four small corner arcs, plus two symmetric capsule windows. Optional edge fillet. Symmetric parameter model only.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "bowedTwinWindowPlate"
@@ -43540,7 +46764,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:a7630317d74c466b90604a4c17723f01c4b15856d5a0a083a220ad9bf781d189",
+  "schemaHash": "sha256:bb6e654bff418ab0637586c067894acd18ac36efc1e95be3f7a116adb5277cbf",
   "defaults": {
     "outerHeight": 24.5,
     "topStraightWidth": 30.2527,
@@ -43665,7 +46889,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:f8a483b8ec52f7640326962c3acc156422cfb5c24c6ee0e8a8f21fa1c879a7c7"
+  "docsHash": "sha256:f4d924e7afe0f4212a0bb6e8ed19c25f2165b06bcc0bc597d2f32472c5ec4928"
 }
 ```
 
@@ -43816,6 +47040,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "A constant-section circular frame fused to one round X-axis crossbar. The bar has editable Y and depth Z offsets. Moving bars, hinges and exact joint transitions are excluded.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "ringBar"
@@ -43867,7 +47132,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:fe9453c63f7c389dd88318f342a21c484406ed7e1d54ed53d2be69ce7b139669",
+  "schemaHash": "sha256:857b1db452cdbdc8a1be6c49954f42c1c9abf7572c14775b1bb5439e6becff7d",
   "defaults": {
     "section": "round",
     "innerDiameter": 20,
@@ -43997,7 +47262,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:f940babcfc707cc97fd9905d1f23e5250c1dd4037a1082cc78e251f8ff9754af"
+  "docsHash": "sha256:e937c7dea48b7b14de4df85da63b622261c95d021fc376c0c74895a1ab8f6b05"
 }
 ```
 
@@ -44148,6 +47413,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Offset a true inner ellipse for a round-wire sweep and fuse one centered fixed round bar. Read back exact bounds; source spline and joint continuity still require comparison.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "ellipseBar"
@@ -44179,7 +47485,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:bbae47f98797114053862a99d585d47efd134d29f78d8a75fa31b4572466abd0",
+  "schemaHash": "sha256:c66b08fa85d99b66d0fe4e3f1f0e2a658df61c166209ca4fc10a8e6ff55703ec",
   "defaults": {
     "innerWidth": 35,
     "innerHeight": 25,
@@ -44264,7 +47570,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:480cc940cd9a9054b8479013a06a89df2045389128b78e5b90b54a1a7d5cee74"
+  "docsHash": "sha256:e5abc07e1d04589ebf24a43b3f831c401836bcd2b7725fbfec77d419e7ea631f"
 }
 ```
 
@@ -44415,6 +47721,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Sweep round wire along a half-wire outward offset of a true inner ellipse, then cut a bottom-center parallel flat gap. Source drawings with a true outer ellipse need another tool.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "ellipseOpenWire"
@@ -44441,7 +47788,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:7f860ae884b91285bbd5df3211901159c35bf9a8fc7b694351f9a70f49f450de",
+  "schemaHash": "sha256:3b82d629a7f157707ed16100821e20dd7217d3452d28cdb76e1e0c60f4303df2",
   "defaults": {
     "innerWidth": 15,
     "innerHeight": 20,
@@ -44516,7 +47863,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:a45dcc3a70a1c68a05c4f909478c26b46c54ea1db6c6e43ebe2bcbeae021b329"
+  "docsHash": "sha256:00a673271183c820608bca463dc9237cafccb1e7d5021d808c517d543d4a761b"
 }
 ```
 
@@ -44667,6 +48014,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Closed capsule loop with semicircular ends and straight runs. Front width, side depth and section radius are independent; a half-short-side radius forms an exact stadium section.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "profileLoop"
@@ -44698,7 +48086,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:7255952b663b7d7bf9175c42aa9080a66c9cd9c57b2776e4d74ee8377c304ef7",
+  "schemaHash": "sha256:6c7434d761c1e2d78dfe9520a8b4e85a42e21e9d590767bd64970037fdd25722",
   "defaults": {
     "innerWidth": 35.2,
     "innerHeight": 14.6,
@@ -44783,7 +48171,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:f887b87d0fcb510722ddc15f83b872103416bf049a08b309d40cf0775bcfa2b5"
+  "docsHash": "sha256:7f23f6d03cba511cc572f1def6a681be1138db5baffc28249f40c7efbbef95ee"
 }
 ```
 
@@ -44934,6 +48322,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Closed round-wire capsule loop with exact semicircular ends and straight runs. Set inner width, inner height and wire diameter; an unmarked seam is not guessed.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "capsuleWire"
@@ -44955,7 +48384,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:8bbcb0d1a8b6e25623cb6c35bb7fbae24d0d1d1f2c4c859dccb6246f0be4412b",
+  "schemaHash": "sha256:fc7dfa602a807b94551304b9c3bb6845cb7ddbc8803d8200b1a04a8822e7c7d8",
   "defaults": {
     "innerWidth": 34.9,
     "innerHeight": 13.9,
@@ -45020,7 +48449,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:81fc66f2be570e78abedcabdce1ce048bb97a6b2197248559bc3fc2a192f5b4f"
+  "docsHash": "sha256:f7d587a7cff351302baa1cda59075d59e0e4a4fe5aee154005a4fbed0f56fcbd"
 }
 ```
 
@@ -45171,6 +48600,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Separate tongue: X-axis pivot loop and a rounded flat strip along +Y. Length is pivot-center to tip. Approximate loop-head flat tongue only; no stamping bends, knurling, artwork or assembly motion validation.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "buckleTongue"
@@ -45211,7 +48681,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:3c21de9bcd686765536add111bcc062df70803635707949e67ee39b9546b04d0",
+  "schemaHash": "sha256:9748148c098999dc212a1a32c2adaa392ddee75a23b22a0f7e9aa734263052ad",
   "defaults": {
     "lengthMm": 22,
     "widthMm": 3,
@@ -45301,7 +48771,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:f03cea0b6ada5094b218c0cee8cf147a85bd980820e113a569d612776464e679"
+  "docsHash": "sha256:35bbac87a01267cd35b3a57f46f03df6ef995012752f5923127f5e278d84c96c"
 }
 ```
 
@@ -45452,6 +48922,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Separate crossbar with two open Y-axis rolled eyes and independently tangent inner/outer transitions into the center strip. For regular pull buckles; it remains separate from the frame.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "pullCoreBar"
@@ -45511,7 +49022,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:9ddca39907c55bc306198e8c043b08abb9b7e9a06c7d7b2bb9bef71f06f84144",
+  "schemaHash": "sha256:62f0bd38fd093cfee877dfb824d08482389cf60fa489c1805e02cc5d02ef9bbb",
   "defaults": {
     "eyePitchMm": 45.5,
     "eyeInnerDiameterMm": 5.5,
@@ -45657,7 +49168,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:9850ad7dfc2e28f4cfcd028c066e05920a8ee251f5ae8c72301ffb883ebe55ab"
+  "docsHash": "sha256:650187eef2d4080126d7dde06d0df539ca8e59a51d36f179cd55aae5553c65b5"
 }
 ```
 
@@ -45703,7 +49214,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "扁线双层匙圈",
     "Flat split key ring"
   ],
-  "description": "圆角矩形扁线由两段平面圆弧层和一段局部跨层过渡连续构成。内外径控制环带，侧向总厚由两层各半厚及层间隙组成。圈数只支持大于1且小于2；跨层角可调，须位于两端错开的扇区。截面四角R0.5；不包含端头专属轮廓、钥匙链附件或花纹。",
+  "description": "只需内径、外径与总厚度。双层扁线、跨层过渡、层间隙和截面 R 角自动拟合，两端采用圆弧收口并带边缘 R 角。旧工程的显式绕卷参数仍可重建；不包含附件或花纹。",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -45806,8 +49317,49 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "kind"
     ],
     "additionalProperties": false,
-    "description": "A rounded rectangular strip uses two planar circular layers joined by a local transition. Inner/outer diameters define the band; total side depth is split evenly between the layers plus the gap. Turns are limited to >1 and <2; the transition angle must fit within the open tip sector. Four section corners are R0.5; product-specific tip outlines, attachments and patterns are not included.",
+    "description": "Three dimensions: inner diameter, outer diameter and total thickness. Winding, layer gap, transition and section R are fitted automatically; both tips have circular outlines with rounded edges. Legacy explicit winding recipes remain supported.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "keyRing"
@@ -45825,12 +49377,22 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "totalDepthMm": {
         "type": "number",
         "default": 3,
-        "description": "Total side depth"
+        "description": "Total thickness"
+      },
+      "autoFit": {
+        "type": "boolean",
+        "default": true,
+        "description": "autoFit"
+      },
+      "roundedTips": {
+        "type": "boolean",
+        "default": true,
+        "description": "roundedTips"
       },
       "turns": {
         "type": "number",
         "default": 1.9,
-        "description": "Turns",
+        "description": "turns",
         "unit": "1",
         "quantityKind": "scalar",
         "quantizationPolicy": "none"
@@ -45838,30 +49400,32 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "layerGapMm": {
         "type": "number",
         "default": 0.01,
-        "description": "Layer gap"
+        "description": "layerGapMm"
       },
       "sectionCornerRadiusMm": {
         "type": "number",
         "default": 0.5,
-        "description": "Section corner radius"
+        "description": "sectionCornerRadiusMm"
       },
       "transitionAngleDeg": {
         "type": "number",
         "default": 36,
-        "description": "Transition angle"
+        "description": "transitionAngleDeg"
       },
       "leftHanded": {
         "type": "boolean",
         "default": false,
-        "description": "Left handed"
+        "description": "leftHanded"
       }
     }
   },
-  "schemaHash": "sha256:ac3758e6adbb04aa01ac57f0b6f28a29661e80f1b78e6485863474e85a108621",
+  "schemaHash": "sha256:8c5dac3dd5bcfa9b2777aff74fed0f03345adf7bfb260533adb24da7fade38b2",
   "defaults": {
     "innerDiameterMm": 25,
     "outerDiameterMm": 33,
     "totalDepthMm": 3,
+    "autoFit": true,
+    "roundedTips": true,
     "turns": 1.9,
     "layerGapMm": 0.01,
     "sectionCornerRadiusMm": 0.5,
@@ -45889,55 +49453,12 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     },
     {
       "key": "totalDepthMm",
-      "label": "侧向总厚",
-      "labelEn": "Total side depth",
+      "label": "总厚度",
+      "labelEn": "Total thickness",
       "type": "number",
       "min": 0.1,
       "step": 0.1,
       "unit": "mm"
-    },
-    {
-      "key": "turns",
-      "label": "绕卷圈数",
-      "labelEn": "Turns",
-      "type": "number",
-      "min": 1.01,
-      "max": 2,
-      "step": 0.05
-    },
-    {
-      "key": "layerGapMm",
-      "label": "相邻层间隙",
-      "labelEn": "Layer gap",
-      "type": "number",
-      "min": 0,
-      "step": 0.1,
-      "unit": "mm"
-    },
-    {
-      "key": "sectionCornerRadiusMm",
-      "label": "截面圆角",
-      "labelEn": "Section corner radius",
-      "type": "number",
-      "min": 0.1,
-      "step": 0.1,
-      "unit": "mm"
-    },
-    {
-      "key": "transitionAngleDeg",
-      "label": "跨层角",
-      "labelEn": "Transition angle",
-      "type": "number",
-      "min": 0.1,
-      "max": 180,
-      "step": 1,
-      "unit": "degrees"
-    },
-    {
-      "key": "leftHanded",
-      "label": "左旋",
-      "labelEn": "Left handed",
-      "type": "boolean"
     }
   ],
   "placementPolicy": {
@@ -45969,6 +49490,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       "innerDiameterMm": 25,
       "outerDiameterMm": 33,
       "totalDepthMm": 3,
+      "autoFit": true,
+      "roundedTips": true,
       "turns": 1.9,
       "layerGapMm": 0.01,
       "sectionCornerRadiusMm": 0.5,
@@ -45978,7 +49501,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:a67ae69b4434e315fff10a0af8d785513ce85f8d20a3cb36c405838bf2279249"
+  "docsHash": "sha256:89e776cb77252d35c88360cea55f23c8b423cd7bc127e718c47875e118a2bd9c"
 }
 ```
 
@@ -46129,6 +49652,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "A horizontal rounded rod joined to an elliptical-section U eye that narrows in Z depth from root to top.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "hangingRod"
@@ -46175,7 +49739,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:12a5d52adf7ceda186b605c21fc1cf83ef8b064c07d91ed58108cb94b436c30f",
+  "schemaHash": "sha256:872aa0c29fc5e1700069ffa48f6e0b9cd4b6ed64d7ff74f7cb76df69bd6987db",
   "defaults": {
     "barLengthMm": 35,
     "barDiameterMm": 5,
@@ -46298,7 +49862,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3c77b5d6e370a3eebe15b09fe355d84095ab6080c25b15a1122cb24cc02fc070"
+  "docsHash": "sha256:2c49bf5b341eb11f3f1fe604fef96cf15b4b4386885fcefe471fedc92e4b6a61"
 }
 ```
 
@@ -46449,6 +50013,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "A regular round-section U bridge with straight legs, an exact semicircular crown, and optional coaxial holes in both end faces.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "archedBridge"
@@ -46480,7 +50085,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:cda1c238448af5fbd060815940c2ef45d106ddf2aac23dab64cc6be91a0659d2",
+  "schemaHash": "sha256:17a1679c5b0acc6c47a80905ecec97dc2411494641210adb334c3afabc66694e",
   "defaults": {
     "outerWidthMm": 11.3,
     "outerHeightMm": 7.5,
@@ -46570,7 +50175,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:5f945f6a8d065a5c1e383e3c757d4dfc3572d3a19613b19782d2911131af3b2f"
+  "docsHash": "sha256:76acfe4c5c0b7a1c5af91046db70b59d912986b41dac68039444fd93551d79f1"
 }
 ```
 
@@ -46721,6 +50326,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "A parameterized two-piece mushroom rivet with a spherical cap, hollow socket, rounded waisted post and base flange. Supports assembled or exploded display, with a blind post bore depth and direction.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "mushroomRivet"
@@ -46827,7 +50473,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:0c7c3733b85c025aa37fd96b770b49323b7d8e1cf965c84123f372dca8e1e87c",
+  "schemaHash": "sha256:735a7a017c62466b77b66e562b2f69eeab2ea45ee9b4490bb106dcae6592e878",
   "defaults": {
     "capDiameterMm": 10,
     "capRiseMm": 5,
@@ -47079,7 +50725,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:a0ed0a9c82e4d88bba14bbba91190c3f87562bce15a85cff71b13e2b71cb2240"
+  "docsHash": "sha256:ce4fd7d54328d4ddcbc454eb64cf28787d1aec53d9830ba5b669b12bec5b7332"
 }
 ```
 
@@ -47230,6 +50876,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Two-piece nipple stud with an arc-profiled flat-top body, radiused base, blind M2 nominal clearance bore, crowned screw head, stem, and parameterized six-lobe drive. Threads and standardized drive dimensions are not modeled.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "nippleStud"
@@ -47346,7 +51033,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:a840ed0a7d97b61b6237d11d6b1a789965837013e2312e6e4d8d3550b1a45e5c",
+  "schemaHash": "sha256:00415cde2395817d89c8050753e2f280fa213df31c57a98ee25a70e9b26c73f9",
   "defaults": {
     "headDiameterMm": 5,
     "overallHeightMm": 9.1,
@@ -47623,7 +51310,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:ab2532fa202054c447d7c0336b2db10e1864fa91a57261cd857b5a1aa148a194"
+  "docsHash": "sha256:364ea90be847b4516a56cd37f3742ce561893c1c7531ed172fd89cd01848fb7e"
 }
 ```
 
@@ -47774,6 +51461,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "A parameterized two-piece thin-wall eyelet with exact revolved flange bends. Part A has a long shank and Part B is its mating ring. Supports static coaxial fit or exploded display; riveting deformation, logos and lettering are not modeled.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "twoPieceEyelet"
@@ -47845,7 +51573,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:928886b1d523a7db8a0437872e86284996bb936cd22c76ddca6a190890a269a7",
+  "schemaHash": "sha256:f1c48edaad10779806c98813f3defb4d5b309ed1b9521d49cccd18bc9d466984",
   "defaults": {
     "aFlangeDiameterMm": 18,
     "aBoreDiameterMm": 11,
@@ -48023,7 +51751,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3aac7221260afad976ee4e70f31d692b1adfbe43f2fa2bd626ce71795d9f489e"
+  "docsHash": "sha256:bc8710208431ad1fd302c00f00edfc6d4c550710b7bfe0e38ecc776888a49c82"
 }
 ```
 
@@ -48174,6 +51902,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "One exact circular or rounded rectangular frame with an optional constant-wall collar, symmetric mounting posts and plain straight holes. Collar and posts extend along local +Z from a flange at Z=0. Hole depth 0 means through; positive depth is blind from the post top. 0/2/4 posts; two posts lie on Y. Zero collar/post heights make a backplate. No threads, taper, riveting, decoration or 3D edge blends. Circular mode requires matching width/height pairs; corner radii apply only to rectangular mode.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "frameEyelet"
@@ -48269,7 +52038,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:2a0cb614769292eb5c3733600fcae0b1f60ed7f31d427271ca707a281849c215",
+  "schemaHash": "sha256:a07b4c5b681d0d67bca55f8099e09c7ca84ccd0a5e32ceef5cf73cadd35504f5",
   "defaults": {
     "shape": "roundedRect",
     "outerWidthMm": 25.6,
@@ -48501,7 +52270,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.quick-installation",
-  "docsHash": "sha256:62d93558e076c1f3e8fb793c8ef101817ff18ffd883fd51b647d7dc12ee19688"
+  "docsHash": "sha256:91891872ee40314a4bf94f10db40dc5941a000b10669cbd339ee879d422061a9"
 }
 ```
 
@@ -48652,6 +52421,47 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "additionalProperties": false,
     "description": "Constant-wall open U clip of uniform X width, independent front/back heights and exact tangent bend arcs. An inner radius equal to half the gap makes a semicircular bottom. Bottom Z=0, opening +Z, back wall +Y. Optional 0/1/2 plain back-wall through holes; two holes lie on X. Not a closed cap. No threads, decorations, end blends or elastic deformation. Holes must fit entirely within the straight back wall.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "uStrapClip"
@@ -48711,7 +52521,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
       }
     }
   },
-  "schemaHash": "sha256:76c51a14a77bab83b9dbdb5ef341f5373b62ac203e48a5b9bd520bab20031997",
+  "schemaHash": "sha256:eaabcb2e41a049b99bda3861726c055e029a58c6ba65e20e029395fa5947aed0",
   "defaults": {
     "widthMm": 20,
     "innerGapMm": 3,
@@ -48857,7 +52667,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "refs": []
   },
   "docs": "api.quick-installation",
-  "docsHash": "sha256:cfc420b03a9ddcef1dd246983d3aa29be2532f5b3a966ab2d619dff3255b2349"
+  "docsHash": "sha256:457fdb2ce02b292ea2ac34bf28c54e525ede2ba96e516de57d954a89e55c6992"
 }
 ```
 
@@ -48868,7 +52678,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "recoverKernel",
   "title": "recoverKernel",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。",
   "synonyms": [
     "recoverKernel",
@@ -48884,7 +52694,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:83517f7448710f6feed4b0ee12e6620d6ca3e8cb10318011797408e5b6a13e49"
+  "docsHash": "sha256:16e30e3c5e47d82807d8e14936caf73225fe47aa7331138ec82b0b8dbf592177"
 }
 ```
 
@@ -48895,7 +52705,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "sampleMeshRelief",
   "title": "sampleMeshRelief",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "sampleMeshRelief({context,bodyId,inputGeometryHash,support:{originMm,xAxis,normal},pointsMm:[[U,V],…]})；明确毫米支撑，1–256个点，点数乘三角面数不得超过1200万。",
   "synonyms": [
     "sampleMeshRelief",
@@ -49005,7 +52815,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "readOnly": true,
     "geometrySource": "authoritative-mesh-f64"
   },
-  "docsHash": "sha256:48dcf3d97db5f8c70b369d17e26163dcdbbf85e692e4361bf1adbac1d2268ff6"
+  "docsHash": "sha256:f799dd349cf074b3a1f90a73c8b6f385aa606bd6b8b36e944e2016bca1a430ad"
 }
 ```
 
@@ -49016,7 +52826,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getModelLibrary",
   "title": "getModelLibrary",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "getModelLibrary()",
   "synonyms": [
     "getModelLibrary",
@@ -49044,7 +52854,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
     "create": "Use entries[].execution with run/add; current context and unique key required."
   },
-  "docsHash": "sha256:766af03535a4e0ce6a999d69f8a4bc5ef3b19fcfe5d5ff1ce0cff9dbfabdae43"
+  "docsHash": "sha256:1db3a5c63abe14775f622b3bdbf4975af49e8df36208234918a969c5af9314a5"
 }
 ```
 
@@ -49055,8 +52865,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "updateModelLibrary",
   "title": "updateModelLibrary",
   "category": "page-method",
-  "version": "1.43.0",
-  "description": "updateModelLibrary({context,expectedLibraryRevision,operation:upsert|remove|move|restore|import,entry?,id?,index?,library?})。upsert entry={id,kind,label,description?,defaults?}，id为字母开头80位以内字母数字_-，kind必须已安装，defaults仅含该类型原参数。move的index为移动后零起始位置。import全量替换，library={format:webcad-model-library,version:1,entries:[entry]}；restore全量恢复默认目录、默认参数和顺序。",
+  "version": "1.46.0",
+  "description": "updateModelLibrary({context,expectedLibraryRevision,operation:upsert|remove|move|restore|import,entry?,id?,index?,library?})。upsert entry={id,kind,label,description?,defaults?,script?}，id为字母开头80位以内字母数字_-，kind必须已安装，defaults仅含该类型原参数。move的index为移动后零起始位置。import全量替换，library={format:webcad-model-library,version:1,entries:[entry]}；restore全量恢复默认目录、默认参数和顺序。",
   "synonyms": [
     "updateModelLibrary",
     "模型库",
@@ -49069,8 +52879,8 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "导入",
     "热插拔"
   ],
-  "inputContract": "updateModelLibrary({context,expectedLibraryRevision,operation:upsert|remove|move|restore|import,entry?,id?,index?,library?})。upsert entry={id,kind,label,description?,defaults?}，id为字母开头80位以内字母数字_-，kind必须已安装，defaults仅含该类型原参数。move的index为移动后零起始位置。import全量替换，library={format:webcad-model-library,version:1,entries:[entry]}；restore全量恢复默认目录、默认参数和顺序。",
-  "outputContract": "status=applied、revision、entries、persistence、context；不修改工程revision/历史。按expectedLibraryRevision拒绝并发陈旧写入。存储不可用明确失败；损坏库显式restore且expectedLibraryRevision=-1可恢复。删除/编辑只影响库，已有模型冻结kind和params。任意脚本/eval/URL不接受；脚本在宿主生成配置JSON再导入。",
+  "inputContract": "updateModelLibrary({context,expectedLibraryRevision,operation:upsert|remove|move|restore|import,entry?,id?,index?,library?})。upsert entry={id,kind,label,description?,defaults?,script?}，id为字母开头80位以内字母数字_-，kind必须已安装，defaults仅含该类型原参数。move的index为移动后零起始位置。import全量替换，library={format:webcad-model-library,version:1,entries:[entry]}；restore全量恢复默认目录、默认参数和顺序。",
+  "outputContract": "status=applied、revision、entries、persistence、context；不修改工程revision/历史。按expectedLibraryRevision拒绝并发陈旧写入。存储不可用明确失败；损坏库显式restore且expectedLibraryRevision=-1可恢复。删除/编辑只影响库，已有模型冻结kind和params。script 为 1–20 个步骤 [{id,op,params,refs}]，支持 box/cylinder/sphere/quickModel/transform/union/cut/intersect；refs 只能引用前面步骤，最后一步为结果；params 数值可写 $params.字段引用工具参数。已有工具从 getModelLibrary 读取后修改 script 并 upsert；新工具使用唯一 ID。JavaScript/eval/URL 不接受。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -49093,7 +52903,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
     "create": "Use entries[].execution with run/add; current context and unique key required."
   },
-  "docsHash": "sha256:d8ea1a41b100f6c156a026d357b8ddd251117a5328bf50fa3a983e83b95a8c42"
+  "docsHash": "sha256:2fd7a8710be019c245a5173186c0e8552abf9a2c62d6e4bdf82a6d73d253b60b"
 }
 ```
 
@@ -49104,7 +52914,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "resolveModelLibrary",
   "title": "resolveModelLibrary",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "resolveModelLibrary({context,id,expectedLibraryRevision,params?:参数覆盖})",
   "synonyms": [
     "resolveModelLibrary",
@@ -49136,7 +52946,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
     "create": "Use entries[].execution with run/add; current context and unique key required."
   },
-  "docsHash": "sha256:38d9bbb370bee712bde921d3dee550d64cded855586d84d59254e32cb0f9b1a4"
+  "docsHash": "sha256:9fd95f8d98f3600cd246c4df5334967960dd24eac105fca8c0cc08463ef95b2e"
 }
 ```
 
@@ -49147,7 +52957,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "planPatternMachining",
   "title": "planPatternMachining",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "planPatternMachining({context,intent})，intent 为 version:1 加工意图；只读规划，不推断图片深度。",
   "synonyms": [
     "planPatternMachining",
@@ -49335,7 +53145,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "geometryComputed": false,
     "fallbackAllowed": false
   },
-  "docsHash": "sha256:2a3b318c36f5813e32ba65f46dfc986dc7a79a23e9d15525b874a08c179fba24"
+  "docsHash": "sha256:ba248dfebfad61881212e7092fd26fbb18a3d9f6daa943c5eac2a80efcad6e99"
 }
 ```
 
@@ -49346,7 +53156,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "decideServicesWait",
   "title": "decideServicesWait",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "decideServicesWait({jobId,decision:\"continue\"|\"stop\"})，可在工程忙碌时调用；jobId必须是getServicesRouting().pendingWait中的当前任务。",
   "synonyms": [
     "decideServicesWait",
@@ -49365,7 +53175,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_SCHEMA_INVALID",
     "SERVICES_WAIT_NOT_PENDING"
   ],
-  "docsHash": "sha256:336fe0e81e084babb81f9d1fd892c6cc4c385da48c63fbfb96c8947760108410"
+  "docsHash": "sha256:f4c32252d7e2c127a08345c17718ae5befeeb2acadce3305192a80e905c3012a"
 }
 ```
 
@@ -49376,7 +53186,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "recoverServicesJob",
   "title": "recoverServicesJob",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "recoverServicesJob({jobId,reason,approved:true,acknowledgedState:\"interrupted\",idempotencyKey})。必须先用 getServicesJob 核对已停止旧任务。",
   "synonyms": [
     "recoverServicesJob",
@@ -49400,7 +53210,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_REQUEST_FAILED"
   ],
-  "docsHash": "sha256:1c4a5977cff4f6d54cd821046a8e0d3d28aabe9ff5fd63db8d5a2a887774f8ca"
+  "docsHash": "sha256:b0e17807780183cd53e6202c9aaddbc9a1df7bf2251a2af0fd4361b393092450"
 }
 ```
 
@@ -49411,7 +53221,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "prepareReliefTopologyUpgrade",
   "title": "prepareReliefTopologyUpgrade",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "prepareReliefTopologyUpgrade({context,featureId,maskStrategy?:\"faceWithHolesExtrude\"|\"cutHoleSolids\"})。只读规划，不计算几何；原参数没有策略时必须明确选定。",
   "synonyms": [
     "prepareReliefTopologyUpgrade",
@@ -49437,7 +53247,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:adeaf5713bd0918563f8eb9e2811d92a61b097383b47307a6b589d60375b0a9e"
+  "docsHash": "sha256:411479e24d3d6e4004ee9992b4a816f02910c6bf7b46b24c3907e6d9f1c59262"
 }
 ```
 
@@ -49448,7 +53258,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "sampleReliefHeight",
   "title": "sampleReliefHeight",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "sampleReliefHeight({context,featureId,layerIndex?,samples?,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。分层必须明确 layerIndex；samples 仅用于读初始等高层的新草稿，约束同 prepareReliefSculpt。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。",
   "synonyms": [
     "sampleReliefHeight",
@@ -49477,7 +53287,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:4d83d9f2c9a365bfbbc8d53832751f65a1a4e0d70f432c16b03abc1a9d7c5863"
+  "docsHash": "sha256:5ff9d88b90b8639d5f6f11e0ea6156815d0c0032a0f6c5c1f37773fb4d1228bc"
 }
 ```
 
@@ -49488,7 +53298,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "prepareReliefSculpt",
   "title": "prepareReliefSculpt",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "prepareReliefSculpt({context,featureId,layerIndex?,patch?:{id,domainMm:[uMin,vMin,uMax,vMax],samples:7–65,protectionMm},samples?,draft?:{deltaMm,mask},strokes:[{mode:\"raise\"|\"lower\"|\"smooth\"|\"flatten\"|\"restore\"|\"mask\"|\"unmask\"|\"fill\"|\"scrape\"|\"sharpen\",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:\"none\"|\"x\"|\"y\"|\"xy\",points:[[x,y],...]},...]})。单层与显式选层使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。",
   "synonyms": [
     "prepareReliefSculpt",
@@ -49526,7 +53336,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:c73614b5d44bacbd7e11a74846099e8a788e148aaffa0aeb152aa080bf18c867"
+  "docsHash": "sha256:594f815229054e4c110719b475f96dfb18e930d2b78031af2d599e4504106efc"
 }
 ```
 
@@ -49537,7 +53347,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "readRelief",
   "title": "readRelief",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5,sourceInterpretation:authoredHeightMap|rasterArtwork|reviewedVectors|shadedReference})。先 files.register；只读，本地解码。",
   "synonyms": [
     "readRelief",
@@ -49574,7 +53384,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_SCHEMA_INVALID"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:304816aacc411e5e71d2b7a2e9ee511c020feb9870b289902adf2c1570f777cd"
+  "docsHash": "sha256:5d78308e4a6ceaf4ded226652b188f4fc2d7d76e8939591b514368e52c539a94"
 }
 ```
 
@@ -49585,7 +53395,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getHistory",
   "title": "getHistory",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "getHistory()。返回已保留状态，不含导入源字节。",
   "synonyms": [
     "getHistory",
@@ -49601,7 +53411,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:032a35024c70e56779b2d1f44178c51be5cd2f5f746ad53e4d835789e3d1132c"
+  "docsHash": "sha256:54b4f13d10792de8bb8e9c5f5e3546aeb0633e18558a4585508cc6ba4b074bc0"
 }
 ```
 
@@ -49612,7 +53422,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "planAlignment",
   "title": "planAlignment",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true。",
   "synonyms": [
     "planAlignment",
@@ -49632,7 +53442,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "STALE_REFERENCE",
     "REVISION_CONFLICT"
   ],
-  "docsHash": "sha256:078ba647b0ca09c661b92779ac5b29a02e0ad3e7f6abe8605651ece3b3e5d2e9"
+  "docsHash": "sha256:7ecd204ef16c75c580769295320de74cb6e7670d98c78c847449fa2bcefe98a8"
 }
 ```
 
@@ -49643,7 +53453,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "selectRectangle",
   "title": "selectRectangle",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。",
   "synonyms": [
     "selectRectangle",
@@ -49663,7 +53473,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "UI_TASK_ACTIVE",
     "REVISION_CONFLICT"
   ],
-  "docsHash": "sha256:8503413d6ec7e60341ef83bec0d378d503d1e4f33cdf7292ffc2c6015553d5b0"
+  "docsHash": "sha256:333bf9eaf160e77b4fe46ad40daaa2ec6317098c426fcec5af67fb4155dcffb3"
 }
 ```
 
@@ -49674,7 +53484,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "createDrawing",
   "title": "createDrawing",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。",
   "synonyms": [
     "createDrawing",
@@ -49696,7 +53506,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "GEOMETRY_INVALID"
   ],
-  "docsHash": "sha256:a979f5bd6d6ef8a740c05c483be85dd2f955471dd191e17d79f5b5dd2afdfbee"
+  "docsHash": "sha256:f1e91ffc57ada7546dc67793bf521b6daf63b3068554fa003ba0f3a940d9a6f5"
 }
 ```
 
@@ -49707,7 +53517,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "exportDrawing",
   "title": "exportDrawing",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "exportDrawing({context,drawingId,format:pdf|jpg|dxf|svg,paper?:A4|A3,title?,name?,disabledDimensions?:[id]})。drawingId必须仍匹配当前revision；DWG明确不可用。",
   "synonyms": [
     "exportDrawing",
@@ -49732,7 +53542,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:dc38b286eb7526f52b2b46721d8a3c6b272f588a5e3890219ce5cb5dc9371276"
+  "docsHash": "sha256:6884f98a6386de9b95c8707b77cf45411021b5abd6fd979d1e02007ccc0a94cd"
 }
 ```
 
@@ -49743,7 +53553,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getQuickModelUsage",
   "title": "getQuickModelUsage",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "getQuickModelUsage({}={})；只读本浏览器累计成功创建次数，不要求几何上下文，预览期间也可读取。",
   "synonyms": [
     "getQuickModelUsage",
@@ -49765,7 +53575,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
-  "docsHash": "sha256:f7f662b1cff725c88da9260cf662723e6918e484f27d3d4d808f50e693bb3582"
+  "docsHash": "sha256:32c78cfde2b8fea0aea4e2442797532a717942554904f624cef5b81c08a5ca32"
 }
 ```
 
@@ -49776,7 +53586,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "copySelection",
   "title": "copySelection",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "copySelection({context,bodyIds}); 1–200个当前实体。",
   "synonyms": [
     "copySelection",
@@ -49798,7 +53608,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE",
     "UI_TASK_ACTIVE"
   ],
-  "docsHash": "sha256:e46e44199120466702ceb49a8cfc7a1921dc53a2cf480e99f631db648c2ba358"
+  "docsHash": "sha256:a5de4de718d1b1049a18e44bcd97effe67d67e462c53c335ea90aa4a0096c750"
 }
 ```
 
@@ -49809,7 +53619,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "pasteSelection",
   "title": "pasteSelection",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "pasteSelection({context,idempotencyKey}); 先 copySelection。",
   "synonyms": [
     "pasteSelection",
@@ -49839,7 +53649,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "maxBytes": 20971520,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:fb8ff817dac3d220e52e8907afaeb35cc788b8c3f9a56c27d1fe7d085341148a"
+  "docsHash": "sha256:c1f337cb37eccec0454cc80e1b54d56b1214619911520bc827cf6170602f1fec"
 }
 ```
 
@@ -49850,7 +53660,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "createRequestContext",
   "title": "createRequestContext",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "createRequestContext(context?); omit to read the current context.",
   "synonyms": [
     "createRequestContext",
@@ -49869,7 +53679,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:2736e5e4817f1807e211cf4c397d288d976ec47228c8c03c6230eab7bd5a5b48"
+  "docsHash": "sha256:831928c54d8545e692004d009642f5d19c7fa652ead8ee8d1452a5471db46467"
 }
 ```
 
@@ -49880,7 +53690,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "getUILayout({includeModelLibrary?:boolean})",
   "synonyms": [
     "getUILayout",
@@ -49902,7 +53712,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "LIBRARY_STORAGE_UNAVAILABLE"
   ],
   "docs": "api.workspace",
-  "docsHash": "sha256:792bd9117d7512ac8f8c6be77f9ad5890d5df21d719f7ba2152b830abe3c56e3"
+  "docsHash": "sha256:636858ed22871bb5854b7e74a065370a2601f84203c072729cd36a36da4215a6"
 }
 ```
 
@@ -49913,7 +53723,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setRenderQuality",
   "title": "setRenderQuality",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "setRenderQuality({context,quality:\"draft\"|\"standard\"|\"fine\"|\"ultra\"})",
   "synonyms": [
     "setRenderQuality",
@@ -49937,7 +53747,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "DISPLAY_FAILED"
   ],
   "docs": "api.workspace",
-  "docsHash": "sha256:170f2764a0d7b47d7d63e0f23adbb90290671b33997ca3f95dddc8fe39c15801"
+  "docsHash": "sha256:f5acea34c113dee4f3369c7af0fac62d11d870dacae5d79889a59189ac82291a"
 }
 ```
 
@@ -49948,7 +53758,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "invoke({method,args}); public method name or files.*.",
   "synonyms": [
     "invoke",
@@ -49966,7 +53776,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_SCHEMA_INVALID"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:33c1831f980b9309ccce956c510c88e587fc0f0f614af98e9d4aa2e1a10eff63"
+  "docsHash": "sha256:3cce03c21fd7461b40f1f43d7accebdcf5dc12ce727fac5ff00d09250dc92b26"
 }
 ```
 
@@ -49977,7 +53787,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "submit",
   "title": "submit",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/inspectConstraints/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.",
   "synonyms": [
     "submit",
@@ -49999,7 +53809,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:ae4dbe1976e495fdb4222759fab8ed1942fdb990d07104ec4b2af1bdab7763eb"
+  "docsHash": "sha256:ebe0dcdb2359b70d7b1c287d06e11b10a74ff3d5c6b1f5dfec482143b50fae70"
 }
 ```
 
@@ -50010,7 +53820,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getJob",
   "title": "getJob",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "getJob({jobId})",
   "synonyms": [
     "getJob",
@@ -50029,7 +53839,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "JOB_NOT_FOUND"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:1ab3a8dff4f65e07cee7d2c5f682799f3011b3e43762c0a5e5e1429eafa789cd"
+  "docsHash": "sha256:437360dd38a7f7806880d102354a9a516cb0dd09f3b197bdb86534af8ef37ffb"
 }
 ```
 
@@ -50040,7 +53850,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "cancelJob",
   "title": "cancelJob",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "cancelJob({jobId})",
   "synonyms": [
     "cancelJob",
@@ -50057,7 +53867,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "JOB_NOT_FOUND"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:48df5f4c88ae5bbe029b5bcade3fdc0dfd79f7eefb2bcda752a3fee2156df951"
+  "docsHash": "sha256:4579c29953827bf2601d93fe9c1e7a7cb52797a781709b6bb0c1cff8cda2cb86"
 }
 ```
 
@@ -50068,7 +53878,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.",
   "synonyms": [
     "connect",
@@ -50088,7 +53898,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:57f16c789db6c472ca311e0c9a5ee60e3aaf583daee062b6972f3eddd85d91af"
+  "docsHash": "sha256:158665b641d2f1e7a76792d678514fc540aed5c88d9e3e68a96018d4228afac6"
 }
 ```
 
@@ -50099,7 +53909,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "info",
   "title": "info",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "info() 无参数。",
   "synonyms": [
     "info",
@@ -50114,7 +53924,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "runtimeAvailability": "requires_page",
   "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
   "errorCodes": [],
-  "docsHash": "sha256:6fdef148c4ba14bc810980a6e486b1d8462b2378889dac38b7e8d953f19fb228"
+  "docsHash": "sha256:ddd5c6337d36aafc7d58ac3016a868dd9dd3506abbb546e50b5dd991dabac6ca"
 }
 ```
 
@@ -50125,7 +53935,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities/references。",
   "synonyms": [
     "getState",
@@ -50146,7 +53956,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_SCHEMA_INVALID",
     "INSTANCE_MISMATCH"
   ],
-  "docsHash": "sha256:5558c08591935d58290178c027497e11482e87c8768b2f40b1b646e9aaf532a1"
+  "docsHash": "sha256:a91b796c48eeba353e4c7a0f3400acc88e8ef9a3077384576eb0edede6b1139a"
 }
 ```
 
@@ -50157,7 +53967,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "searchTools",
   "title": "searchTools",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。",
   "synonyms": [
     "searchTools",
@@ -50177,7 +53987,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:860195df70830bf8d38acb4e088c15cf7d8c0521a9147045189d4a59d23f70a6"
+  "docsHash": "sha256:d0c9e9f02da2e93794f6082d366da9771f24f36d4bf32cbb9c884401f88ca709"
 }
 ```
 
@@ -50188,7 +53998,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getTools",
   "title": "getTools",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.",
   "synonyms": [
     "getTools",
@@ -50209,7 +54019,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CATALOG_CHANGED"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:bdef3516129ea3392b287371f63ec5a1438b136e5a5bbc9497e74a5a05c0406f"
+  "docsHash": "sha256:b24a32fd64a291d9e19f2cb912362997b77231f814a36043fb3e2d3e09e8fe7e"
 }
 ```
 
@@ -50220,7 +54030,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getTool",
   "title": "getTool",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。",
   "synonyms": [
     "getTool",
@@ -50240,7 +54050,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "UNKNOWN_OPERATION",
     "OPERATION_VERSION_UNSUPPORTED"
   ],
-  "docsHash": "sha256:fa13ee694c37180f88bc847f2d950b5c347cba1081559e28147b7282c3aa118b"
+  "docsHash": "sha256:296a573232646dc655f9c22cb333f90f7fdc76a54847c6ee18e576c7a8d70934"
 }
 ```
 
@@ -50251,7 +54061,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "readDocs",
   "title": "readDocs",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。",
   "synonyms": [
     "readDocs",
@@ -50271,7 +54081,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_RANGE_INVALID",
     "OPERATION_VERSION_UNSUPPORTED"
   ],
-  "docsHash": "sha256:cfb4b2bc1cc57f20cdf4c3e5706aa4a505da30d6f8a8f0f9aa21344281b0a680"
+  "docsHash": "sha256:2ef59a7929bb6e16c4e5c7fa2b770d2a9c67b6d0c6da98e218e6454d6c742383"
 }
 ```
 
@@ -50282,7 +54092,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "queryGeometry",
   "title": "queryGeometry",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry；多选仍须 requireUnique:false。",
   "synonyms": [
     "queryGeometry",
@@ -50306,7 +54116,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "AMBIGUOUS_SELECTION"
   ],
   "docs": "api.query-geometry",
-  "docsHash": "sha256:bd77cf5f0ea2e1be5092e55079fd45715df0204a408eebc54f25c26410529d13"
+  "docsHash": "sha256:14261faca0b59cf5b96a12b339459669074dc67f0983068886f58f1345103081"
 }
 ```
 
@@ -50317,7 +54127,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "queryReferences",
   "title": "queryReferences",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "queryReferences({context,bodyIds:[],kind:\"point\"|\"axis\"|\"frame\",filter?:{types?:[\"cad-vertex\",\"edge-midpoint\",\"circle-center\",\"edge-nearest\",\"trimmed-face-point\",...],near?:{point:[x,y,z],radiusMm}},limit?,offset?,requireUnique?})。",
   "synonyms": [
     "queryReferences",
@@ -50336,7 +54146,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "STALE_REFERENCE",
     "AMBIGUOUS_REFERENCE"
   ],
-  "docsHash": "sha256:be449946c3eaa4ced02fa68ed9339eb74019e8b4bfa21f9a7fc83eb7331ba570"
+  "docsHash": "sha256:4024fa8656d5d28835eb119594efe15ee7ba0d82a40f9dc33575fcbb41cfc4b0"
 }
 ```
 
@@ -50347,7 +54157,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "resolvePlacement",
   "title": "resolvePlacement",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。",
   "synonyms": [
     "resolvePlacement",
@@ -50366,7 +54176,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "FRAME_INVALID",
     "PLACEMENT_NOT_APPLICABLE"
   ],
-  "docsHash": "sha256:50f8ffffe13ddb0b69d9e61476d6ca9d808a1b3208af10217f5652ad12f980e6"
+  "docsHash": "sha256:e891297bd481203b4be5a1ed23503546c8b0c9d06ec082d79d09413f15f47c3d"
 }
 ```
 
@@ -50377,7 +54187,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "execute({context,idempotencyKey,action,args}); action 来自当前命令合同。",
   "synonyms": [
     "execute",
@@ -50405,7 +54215,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "maxBytes": 20971520,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:9111813507926a6b80266e90ad0dd5e33aa5f68b0edf10b0f6dbe27b13443172"
+  "docsHash": "sha256:02878a97d6493437576c6b9504ba10253243e746c5e7b918173ae908dd915d92"
 }
 ```
 
@@ -50416,7 +54226,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "measure",
   "title": "measure",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需当前范围内的非负整数 topologyId；整个实体测量不接受 topologyId，坐标点模式不可混用实体字段。",
   "synonyms": [
     "measure",
@@ -50445,7 +54255,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "area": "mm^2",
     "volume": "mm^3"
   },
-  "docsHash": "sha256:7d6336a5a84dc508a19760eccd66c29a4ed5a7b5d6266d716e3bc4431f3defed"
+  "docsHash": "sha256:678a27198ca05d8a883cb7a5965b717b9682cf81117874b2c7effb3dac30d192"
 }
 ```
 
@@ -50456,7 +54266,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "measureRelation",
   "title": "measureRelation",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "measureRelation({context,mode:\"shortest\"|\"centerDistance\"|\"axisAlignment\"|\"pointFace\"|\"parallelFaces\",first?,second?,face?,pointWorld?})；引用形式 {bodyId,kind:\"body\"|\"edge\"|\"face\",topologyId?}。",
   "synonyms": [
     "measureRelation",
@@ -50479,7 +54289,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:99b399f8d8e560af1e0a5c029963f527fb849b73f0053f98f04d6c5fa61a6561"
+  "docsHash": "sha256:65e7edb457f3e1032722b3efec77434b6ed68af63880ccd3d64cac9b3d9b8f02"
 }
 ```
 
@@ -50490,7 +54300,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectDesign",
   "title": "inspectDesign",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "inspectDesign({context,requirements,requirePass?:false})；1–64项{id,bodyId,kind:bounds|solidCount|material,evidence:{kind:drawing|user|assumption,reference}}。bounds加sizeMm:[X,Y,Z]/明确toleranceMm；solidCount加count；material加points/expected:inside|outside，可选toleranceMm。总计<=128个世界XYZ材料点。完整字段与示例见api.design-checks。",
   "synonyms": [
     "inspectDesign",
@@ -50778,7 +54588,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "maxMaterialPoints": 128
   },
   "unknownFields": "rejected",
-  "docsHash": "sha256:e259e3969e25da142b99cd04fba50d07990a11a70ea4e024b317f32533c1a1ad"
+  "docsHash": "sha256:2137a02e0d7dbe34d9471f8b2df3c8d22370c5752b8d988a598a78f2fcdee195"
 }
 ```
 
@@ -50789,7 +54599,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectPrintability",
   "title": "inspectPrintability",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "inspectPrintability({context,bodyId,angleLimitDeg?:45}); angleLimitDeg 在 0 与 90 度之间。",
   "synonyms": [
     "inspectPrintability",
@@ -50812,7 +54622,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.printability",
-  "docsHash": "sha256:977d237e71f3ade988550fdb89970f6c45862b8caa2a5783947675627d9ca9bd"
+  "docsHash": "sha256:dc9167c63d9b08e5d7909fa313ec6b08b26a7b4ce959c2d12aef39230d1d1c43"
 }
 ```
 
@@ -50823,7 +54633,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectProfile",
   "title": "inspectProfile",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。界面检查选项按需展开；API 不依赖界面展开状态。",
   "synonyms": [
     "inspectProfile",
@@ -50846,7 +54656,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.interaction",
-  "docsHash": "sha256:cd677615a38f07181a3d64064693e98815566bba449a1b46334c2dfb024b7fcd"
+  "docsHash": "sha256:d26c749d84d1f5c6e71460e96f6b033425f3a47728146c20d11b6b4efa16910e"
 }
 ```
 
@@ -50857,7 +54667,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "prepareProfileEdit",
   "title": "prepareProfileEdit",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "prepareProfileEdit({context,bodyId,mode:\"intersections\"|\"trim\"|\"extend\"|\"trimCircle\"|\"fillet\",entityId?,targetId?,edgeIds?,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})。二维圆角可用 edgeIds:[两条当前边索引] 替代 entityId/targetId，支持解析轮廓及其未缩放的移动/旋转副本，选择先后不限；须显式 radiusMm 与新 arcId。",
   "synonyms": [
     "prepareProfileEdit",
@@ -50882,7 +54692,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "GEOMETRY_INVALID"
   ],
   "docs": "api.interaction",
-  "docsHash": "sha256:0a5201ae895ef90dc4cc07295216c728a3010592cb07a3fd0cee7baf40b99c2c"
+  "docsHash": "sha256:07dfad69434f6ff67503b5f865f2c167736e6a838524df79e7e2973e019e0744"
 }
 ```
 
@@ -50893,7 +54703,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectConstraints",
   "title": "inspectConstraints",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "inspectConstraints({context,bodyId})；当前保存的 sketchProfile 或 profileConstraints 派生轮廓。只读诊断已有关系；矩形转换为明确四条解析边并保留形状关系。",
   "synonyms": [
     "inspectConstraints",
@@ -50926,7 +54736,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "length": "mm",
     "angle": "degrees"
   },
-  "docsHash": "sha256:3a92eea2a88bac8f4514922504d5283806d53aa3903abcd24330f2c2328fc836"
+  "docsHash": "sha256:308b169c86b41ff44ead001eba44a3722a8241797a5faccf789b739217d5be4d"
 }
 ```
 
@@ -50937,7 +54747,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "projectProfile",
   "title": "projectProfile",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "projectProfile({context,bodyId,edgeIds:[当前边索引],frame?:{origin,quaternion}})；或用 pointWorld:[x,y,z] 投影明确坐标点。",
   "synonyms": [
     "projectProfile",
@@ -50959,7 +54769,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "UNSUPPORTED_CURVE_PROJECTION",
     "DEGENERATE_PROJECTION"
   ],
-  "docsHash": "sha256:4f1de1c3c30fd9784a9650bb1474e5fa8108150217ecedebdc0e63f314a6b5a1"
+  "docsHash": "sha256:9b63389a97de251c6c606e48dc48687e399bda1147135a761f479af3b8dfd9a2"
 }
 ```
 
@@ -50970,7 +54780,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectFit",
   "title": "inspectFit",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。",
   "synonyms": [
     "inspectFit",
@@ -50993,7 +54803,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:a8274b8555ab01e36dc26ddb836ae4036bb0834454b34037fb9fd12a0e9b67fa"
+  "docsHash": "sha256:5d139b2225494e8ecc2e0ec96105f0ddeafd1aa551a36ea67ab6f1ff0b101da0"
 }
 ```
 
@@ -51004,7 +54814,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectThickness",
   "title": "inspectThickness",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "inspectThickness({context,bodyId,mode:\"ray\",point:[x,y,z],direction:[dx,dy,dz]})；或 mode:\"faces\",faceAId,faceBId,point；两面须平行且射线穿过连续材料。",
   "synonyms": [
     "inspectThickness",
@@ -51025,7 +54835,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:ef4002f05bd8a1bf346da6c79c0c373c4bf32e55516e228f4cd61e7a31f4899b"
+  "docsHash": "sha256:2f056cd055d976b61f312710f71cf68fa73730194d7e2dfaf4dd374acf52bcf4"
 }
 ```
 
@@ -51036,7 +54846,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectDraft",
   "title": "inspectDraft",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "inspectDraft({context,bodyId,pullDirection:[0,0,1],thresholdDeg:2})；用户决定阈值。",
   "synonyms": [
     "inspectDraft",
@@ -51057,7 +54867,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:7258dcf5af114d009229a034c66b88095a122b4aff2422db25f6736af4df65c1"
+  "docsHash": "sha256:9611513b2d23d075a8e7163708294e535768e1f4e419231a34194668e330ae1e"
 }
 ```
 
@@ -51068,7 +54878,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "inspectRound",
   "title": "inspectRound",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "inspectRound({context,bodyId,params:{edgeIds:[0],mode:\"edge\",radiusMm:0.3}})；params 同 round 工具卡，亦可 faceIds 解析平面边界。",
   "synonyms": [
     "inspectRound",
@@ -51100,7 +54910,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "units": {
     "length": "mm"
   },
-  "docsHash": "sha256:a94b61419c9208f34ba3deb30d79a10c08db46ec12294fe765d8f64b5566bd8e"
+  "docsHash": "sha256:a6b1a28e92b22cf8548aea3d52c190308df98efc9cccea5d3cbc95562f6a578c"
 }
 ```
 
@@ -51111,7 +54921,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "readVector",
   "title": "readVector",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "readVector({context,name,resourceId|text,scaleMm?:1,targetWidthMm?,entityIds?,bounds?:[minX,minY,maxX,maxY],layers?,offset?:0,limit?:500}); limit<=10000。文件先 files.register。",
   "synonyms": [
     "readVector",
@@ -51141,7 +54951,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "api.source-curves"
   ],
   "sourceCurvePolicy": "Unsupported splines preserve sourceSpline metadata; no original NURBS construction or automatic fit-point closure.",
-  "docsHash": "sha256:de11e17001f27349d66c2d15d0c55aaa3f8b7111d63468fa50750b89b3272736"
+  "docsHash": "sha256:1c63e55ec61d3b672e80f0c015fa8dd145c62121753b83ea924d2f7bab0cf675"
 }
 ```
 
@@ -51152,7 +54962,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "connectVector",
   "title": "connectVector",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "connectVector({context,entities,toleranceMm?:0.000001,origin?:[0,0],flipY?:false}); 1..500 条解析线。",
   "synonyms": [
     "connectVector",
@@ -51176,7 +54986,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.vector-import",
-  "docsHash": "sha256:7c495d596878eefc3f313b9af8410ffc348970a3b6adf7b73eef0283df419ca6"
+  "docsHash": "sha256:b7a046638228a9e9ab460665e5285afdb1e8083666fdafdbc9eb0b9bfb31f0fb"
 }
 ```
 
@@ -51187,7 +54997,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "fitProfile",
   "title": "fitProfile",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "fitProfile({context,kind:\"circle\"|\"line\",plane?:\"XY\"|\"XZ\"|\"YZ\",points:[[u,v],...],maxResidualMm?}); 3–1000 点。",
   "synonyms": [
     "fitProfile",
@@ -51211,7 +55021,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.profile-fitting",
-  "docsHash": "sha256:b54efa7f4d7972269510c96d53e579eaf33a52352e11d8a370ca2b1545caa8e6"
+  "docsHash": "sha256:bbab8c4a14f66ed28fd79a8889b008a9319d84e9cc5fca6f76701d402cb2e521"
 }
 ```
 
@@ -51222,7 +55032,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "traceTwinWindow",
   "title": "traceTwinWindow",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBottomY,simplifyToleranceMm?:0..0.2}); 四条上到下 XY 采样曲线，每条3–2000点。",
   "synonyms": [
     "traceTwinWindow",
@@ -51244,7 +55054,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.dwg-spline-twin-window",
-  "docsHash": "sha256:26e326d2f32ec14b4aa1ed4cf6b3fc1b20f6a6c271f38970f4e1f1aed9680470"
+  "docsHash": "sha256:6af3b6478264b010b7a435bd490732d97e18d4eddf06ade6115630e05f920993"
 }
 ```
 
@@ -51255,7 +55065,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "executeText",
   "title": "executeText",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "executeText({context,idempotencyKey,text,dryRun?}); 每行 add <op> key=value 或 measure <bodyId|$last>。",
   "synonyms": [
     "executeText",
@@ -51278,7 +55088,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.text-command",
-  "docsHash": "sha256:7d1f3400660d458f422ec406fc5dbc34d03dc145b92c73b1b901cc5cf147c110"
+  "docsHash": "sha256:06104f8ee170193f07f579577ff6e6e57389c5c62144f21415d2ead002196aa3"
 }
 ```
 
@@ -51289,7 +55099,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "setDisplayPreferences({context,values}); values 为部分配置，字段及范围见 api.display-preferences。",
   "synonyms": [
     "setDisplayPreferences",
@@ -51314,7 +55124,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.display-preferences",
-  "docsHash": "sha256:16e0f2dad631cfc4c8f2ceb7298834048745e152db702b7161123abbf6d6d0d8"
+  "docsHash": "sha256:27350149c667436e43922a1ebc563119f9f42654f5751f7bcdc59461383494dc"
 }
 ```
 
@@ -51325,7 +55135,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getAgentPanel",
   "title": "getAgentPanel",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "getAgentPanel()",
   "synonyms": [
     "getAgentPanel",
@@ -51340,7 +55150,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:30fd7192fafff67c08a3182e8780eaaa5b83ae4130f6927e72a723e63ca05ddf"
+  "docsHash": "sha256:a8942585b3f418a4710afffb26099364692e33a265c6e3785e2b6c11374a5db7"
 }
 ```
 
@@ -51351,7 +55161,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "configureAgentPanel",
   "title": "configureAgentPanel",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "configureAgentPanel({context,url})；HTTP/HTTPS助手页面地址，不带query/hash/凭据；HTTPS页面只接受HTTPS。",
   "synonyms": [
     "configureAgentPanel",
@@ -51366,7 +55176,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:e47add309277dfcc16e9439e1f45c4d05dff6a6b3f1f5b24e7504b6cc9256df3"
+  "docsHash": "sha256:d4582a011b99a9d62a77fb8aeeb4f50dc4d82c0f1b227234da82473837c70dc7"
 }
 ```
 
@@ -51377,7 +55187,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setAgentPanel",
   "title": "setAgentPanel",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "setAgentPanel({context,visible:true|false})；true将已配置助手侧栏接到当前页面，false立即撤销适配器写入、解锁并关闭侧栏，再取消同一任务并释放原会话。",
   "synonyms": [
     "setAgentPanel",
@@ -51394,7 +55204,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:189427d79810dc470a4bf6abc6c8dca7f214d30c429af1f956310b08d5b48235"
+  "docsHash": "sha256:15ea52bf02f2993ea0d0b4f594b14cb917e98f624e32e4809c40819a7a0d4e76"
 }
 ```
 
@@ -51405,7 +55215,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getServices",
   "title": "getServices",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "getServices()；地址与模式存本地，专用授权仅存本标签会话，不进入工程。",
   "synonyms": [
     "getServices",
@@ -51423,7 +55233,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "errorCodes": [
     "SERVICES_CONFIG_INVALID"
   ],
-  "docsHash": "sha256:fd99b9dd8ece214b6623098050ee1056dbbda19065e26f76dc6c49aa4047cfe5"
+  "docsHash": "sha256:3727c0cc9f762aad02eb84404a34c89756caa95dcfd45681121c68e94188710b"
 }
 ```
 
@@ -51434,7 +55244,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setServices",
   "title": "setServices",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "setServices({context,url,credential?,enabled?,computeMode?:\"local\"|\"auto\"|\"serverPreferred\",allowGeometryUploads?,localTimeoutMs?:60000,serverWaitMs?:180000})；本地超时1–600秒、服务器提醒1–900秒，均用整数毫秒，设置保存并在下一操作生效。启用已配置Services即授权复杂运算发送到该端；简单运算本地。旧computeMode/allowGeometryUploads仅兼容读取，不覆盖此政策。支持 HTTPS 或内网 HTTP；HTTPS 页面不能直接调用内网 HTTP。服务由 ASHX 引用 DLL，沿用 LOGO 部署方式，不安装 Host。启用前验证协议。",
   "synonyms": [
     "setServices",
@@ -51458,7 +55268,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_PROTOCOL_MISMATCH"
   ],
-  "docsHash": "sha256:908c76bac825a0cb7d3896bc16da3fdaa3faa20db9d36267d224c17ae219f410"
+  "docsHash": "sha256:bac9536f5b950d480bf1a59bdcca4ed7eec7a604b4c1149db3eb3b7a313d4b12"
 }
 ```
 
@@ -51469,7 +55279,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getServicesCapabilities",
   "title": "getServicesCapabilities",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "getServicesCapabilities()；读取已配置服务。",
   "synonyms": [
     "getServicesCapabilities",
@@ -51492,7 +55302,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SERVICES_REQUEST_FAILED",
     "SERVICES_PROTOCOL_MISMATCH"
   ],
-  "docsHash": "sha256:acad0cf2fe3e6b2991d16ea7936f95e2b3c18e9451e2f2c6d392f57a38830ca6"
+  "docsHash": "sha256:1b9e5f5a3ac7f8245f308fbe86c48b93dc82bfb5a8a03fb77c1dbd033eaa00a4"
 }
 ```
 
@@ -51503,7 +55313,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getServicesRouting",
   "title": "getServicesRouting",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "getServicesRouting()；读取同一 ExecutionRouter 的最近决策。",
   "synonyms": [
     "getServicesRouting",
@@ -51514,13 +55324,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "原因"
   ],
   "inputContract": "getServicesRouting()；读取同一 ExecutionRouter 的最近决策。",
-  "outputContract": "policyVersion、lastDecision{executor,reason,inputs,complexity}、executionTimeouts、pendingWait、unavailableOperations（TBD且enabled=false）。操作类型和全部来源/图案固定规则决定本地/远程，不需要双端耗时或结果一致性；cut 从 13 个来源（目标加 12 刀具）或其它复杂度门槛起走 Services，支持最多 32 个单实体刀具，空/分裂多体结果拒绝。尚未验收的 union/intersect 不冒称远程支持。pendingWait.decisionRequired时用decideServicesWait选择同任务continue/stop。服务失败不转本地重算。",
+  "outputContract": "policyVersion、operationPolicy{localOnly,conditionalServices,quickModels,unknownOperation}、lastDecision{executor,reason,inputs,complexity}、executionTimeouts、pendingWait、unavailableOperations（TBD且enabled=false）。全部快捷模型（丝筒、螺丝、弹簧等）及普通建模/加工/变换/阵列固定本地，不能因大来源或未知操作自动送 Services；浮雕、R角与登记的复杂几何候选只有达到来源/图案/选边门槛才送 Services。未知工具须明确登记，未测量不等于复杂；不需要双端耗时或结果一致性；cut 从 13 个来源（目标加 12 刀具）或其它复杂度门槛起走 Services，支持最多 32 个单实体刀具，空/分裂多体结果拒绝。尚未验收的 union/intersect 不冒称远程支持。pendingWait.decisionRequired时用decideServicesWait选择同任务continue/stop。服务失败不转本地重算。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:b8acdefa36647f26aaccc1ccedb350ec4660d802e3cdf81ec1196bedae4f7b51"
+  "docsHash": "sha256:0fe33c101dbc3796a68ed5860db379aa153211c96db57dbe8713d571c7c0bc40"
 }
 ```
 
@@ -51531,7 +55341,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "clearServicesCredential",
   "title": "clearServicesCredential",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "clearServicesCredential({context})",
   "synonyms": [
     "clearServicesCredential",
@@ -51550,7 +55360,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "INSTANCE_MISMATCH",
     "REVISION_CONFLICT"
   ],
-  "docsHash": "sha256:181fb1f40c53caa7ad1127f3790522460d6965f48bbf710815b21073fc4b320a"
+  "docsHash": "sha256:98f699df13474801eb5a408927c390b34f7c2425751aa54a80b3b867aadf2b2c"
 }
 ```
 
@@ -51561,7 +55371,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getServicesJob",
   "title": "getServicesJob",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "getServicesJob({jobId})",
   "synonyms": [
     "getServicesJob",
@@ -51583,7 +55393,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_REQUEST_FAILED"
   ],
-  "docsHash": "sha256:d2e757b170ffcf0a73e36079d087f4c29fea177608e3811b1aba97bac246e4c6"
+  "docsHash": "sha256:5d651463e02e98aef5490dbab04f9f21b7a84716373ae2e51889228bedf2f15e"
 }
 ```
 
@@ -51594,7 +55404,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getServicesRequest",
   "title": "getServicesRequest",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "getServicesRequest({idempotencyKey})；连接未知时先查既有接收记录。",
   "synonyms": [
     "getServicesRequest",
@@ -51617,7 +55427,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_REQUEST_FAILED"
   ],
-  "docsHash": "sha256:97e5b6dd94345142a3a9fcd2209e84e0430b7691a4d4deb27f31a0a4742ce773"
+  "docsHash": "sha256:7e0325164e08bb400b9989aa8623ebb2993946f943de6f05aa5b926dc67be945"
 }
 ```
 
@@ -51628,7 +55438,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "cancelServicesJob",
   "title": "cancelServicesJob",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "cancelServicesJob({context,jobId})",
   "synonyms": [
     "cancelServicesJob",
@@ -51651,7 +55461,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_REQUEST_FAILED"
   ],
-  "docsHash": "sha256:9e4fbb69e9693f65a105a7d3edb9b0ee1fbc8fb70964277a26cff1dd91bc84e8"
+  "docsHash": "sha256:fb86e724d1f2af95f58d16b04ed96ff4faef68569e441ca566b2418654355a99"
 }
 ```
 
@@ -51662,7 +55472,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "getLogoConverter",
   "title": "getLogoConverter",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "getLogoConverter() 委托 getServices；旧 URL/Key 不自动授权统一服务。",
   "synonyms": [
     "getLogoConverter",
@@ -51677,7 +55487,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:e922e4758684df9a9417575c07934f69116c56c242235e5cb26b7e9ebfa3e38a"
+  "docsHash": "sha256:c53d5df8e8646eacccd0e2a30b69048dd3cb3deda4d576f1a1cab6b6d3901c1e"
 }
 ```
 
@@ -51688,7 +55498,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setLogoConverter",
   "title": "setLogoConverter",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "改用 setServices，旧 setter 拒绝存影子配置。",
   "synonyms": [
     "setLogoConverter",
@@ -51708,7 +55518,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:be55266e81b95c0fa49bb218aaca6ec08aee5ec101f3b8b060dcad50df60c39a"
+  "docsHash": "sha256:9e07a8991544eca87c1c3d31426e27b3139fb9790bfc4032f0794926ccf82df8"
 }
 ```
 
@@ -51719,7 +55529,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "convertLogoPdf",
   "title": "convertLogoPdf",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "convertLogoPdf({context,name,data,targetWidthMm?,page?,sizeConfirmed:true,allowUpload:true})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。",
   "synonyms": [
     "convertLogoPdf",
@@ -51741,7 +55551,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID"
   ],
-  "docsHash": "sha256:4c76f52fbb32ace69fe0ec55406be264efaaf4bdacc72f5718b6e29574387641"
+  "docsHash": "sha256:2f8eea0485f7cbe6294443565e2fe62d1a446b622ecf204d0731cda5f94b1613"
 }
 ```
 
@@ -51752,7 +55562,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "setView({context,interactionPhase?:start|update|end,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 网格运动阶段使用独立显示LOD。复杂 BRep 首屏使用粗曲面及保守显示包围框，停止运动后按当前屏幕像素需求逐面细化可见范围，不自动恢复整件最高精度。display.detail 的 adaptiveExact、phase、visibleFaces、culledFaces、pending、budgetLimited、refinementError 读回显示状态。capture 返回当前已渲染帧及其近似状态，不等待无限细化。原始BRep和导出不变；metricsDeferred 时面积/体积为 null、boundsSource 为 conservative-display-box，measure 仍按精确实体计算。 gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling返回画布、library打开非全屏浮动快捷模型菜单（不改变菜单或侧栏显隐）；兼容workspace=agent打开Agent配置弹窗并保持workspace=modeling，current.agentSettingsOpen读回，workspace=modeling关闭弹窗；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。",
   "synonyms": [
     "setView",
@@ -51795,7 +55605,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "UI_TASK_ACTIVE"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:5fe403c1a685e6645ee7bfd04e7b1553a2b61057a9f2add7b4e646a7cea750c4"
+  "docsHash": "sha256:8a5ac7a40310071a3128b8d6211ccdcc730f5182d88f79d00cac95053e92d4af"
 }
 ```
 
@@ -51806,7 +55616,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "redraw",
   "title": "redraw",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "redraw({context}); 不接受额外字段。",
   "synonyms": [
     "redraw",
@@ -51827,7 +55637,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "DISPLAY_FAILED"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:c35ca1d2c370235f96747b98fc19c24f381990f13cdff556ae6e974e5c3413de"
+  "docsHash": "sha256:b053ccbabaeec5f535e072b8ae792db8184ed80998653da652f725fd58f22ac1"
 }
 ```
 
@@ -51838,7 +55648,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "capture({context}); 不接受额外字段。",
   "synonyms": [
     "capture",
@@ -51859,7 +55669,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "DISPLAY_FAILED"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:c3ba4c344b39597dbed3be5b58da79f072235181e5fc0d6d9e1b4d543a367821"
+  "docsHash": "sha256:c2fb4a87a44483e1f87eee305d870cb8f787a583d2ff30a08b2f833b2841a501"
 }
 ```
 
@@ -51870,7 +55680,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}); addMany for one atomic feature plan: api.feature-plan.",
   "synonyms": [
     "run",
@@ -51900,7 +55710,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "maxBytes": 20971520,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:19e72d9d8e1c58352a24e7e14f4c0bf49a75806a7cf6000567dfc5ea9000863e"
+  "docsHash": "sha256:7a82d7c2b227e21a71cfd0236822fa3e962616ddd0148987e10528146f990ce0"
 }
 ```
 
@@ -51912,7 +55722,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "Services 原特征编译",
   "description": "按服务能力执行世界坐标纯平移、均匀柱面凸雕层、多刀具 cut 或带一边旧R的矩形面完整边界 round。round 仅支持一个无孔矩形面、六个正交支撑面和一条完整同R旧圆角；四侧精确R，四角光滑自由曲面，保留4个孤立终止点。cut 的 refs 首项为目标，其余 1–32 项为刀具，各来源必须是已提交单实体，结果须为非空单实体；keepTools 保持原历史语义。全部来源按顺序校验，单项限 20 MiB、合计 64 MiB。浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。若修改来源会使下游复杂运算失效，先移除下游步骤、完成来源修改后重新执行，禁止转到本地偷算。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -51953,7 +55763,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:00d0f4688457eef40850910848613e171d84ec2f2d4cfa1e8b2d02f0b7857abe"
+  "docsHash": "sha256:1cac4d0cc54e8bcecc63ecc53112d3a9547cfd18a44bb198d34cea028dac111e"
 }
 ```
 
@@ -51965,7 +55775,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "快速对齐",
   "description": "按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:\"body\",bodyId:基准实体ID},axes:[\"Y\"],sourceSide:\"center\",targetSide:\"center\",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52023,7 +55833,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:aa878bb6477c296bbc929cb1cdd940680f10f808cc032f0f7bc0fa0ccc9668c6"
+  "docsHash": "sha256:ac777917c0e405b30fac2886c1b76f05ca1d3b783b5d60270da191d3058d2f6f"
 }
 ```
 
@@ -52035,7 +55845,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "退回工程状态",
   "description": "用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52071,7 +55881,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:9fdfc88a43d6a6184a1655fc4f11cab01237b22732db62d636b2e7372f68ae7d"
+  "docsHash": "sha256:4fd05cbfe8291af28f04ff11ea1cd7dd70de6f1e532fe878920b70ff1a0fe479"
 }
 ```
 
@@ -52083,7 +55893,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "工程改名",
   "description": "修改工程名称，保留几何。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52122,7 +55932,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:a31385cc173fec0fa94124a1c4df8e05baaf76582d3be9de38749f0f837f7186"
+  "docsHash": "sha256:56459c550d17e86ec68fa68995465b0d9f8d72a32b426bd586e744b521c8481e"
 }
 ```
 
@@ -52134,7 +55944,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "特征改名 实体名称",
   "description": "修改历史步骤及同 ID 实体名称，导入件也可使用。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52175,7 +55985,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:c7ad4ceb66fc9485c85c8b66a61b1f5b18dc927833ec68065193c8b76847a623"
+  "docsHash": "sha256:4d02789432ef38e597fca0d274aff9359e43dc336dc0ffe0920c807a5021a966"
 }
 ```
 
@@ -52187,7 +55997,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "显示 隐藏实体",
   "description": "显隐指定当前实体，不删除几何。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52230,7 +56040,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:1bae43567f67dbd07a9cd87d6196f69571a7b9d2bbca78c83d1e89f0f05663b6"
+  "docsHash": "sha256:6061939a3f8ab48329fa0554694908e59c98c66186ad6d5b19ef75ccbee183f5"
 }
 ```
 
@@ -52242,7 +56052,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "实体原色 颜色 金属 材质",
   "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52300,7 +56110,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:7c4d7cb3799961ab9e7d5e59f4d9ad94e7ed7730d0347a28db580883045f7a56"
+  "docsHash": "sha256:f43c307fbb778b3c611feb877b638e301df60eb9206a4d67af93b5498873fdf4"
 }
 ```
 
@@ -52312,7 +56122,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "工程渲染 金属色",
   "description": "设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52364,7 +56174,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:83b1e5d58b6f297e040196b924687d1ff4cfd904c6a882e235041d13a3500581"
+  "docsHash": "sha256:20d29d0ff2dc6afff17c5aee542ab157050041d08605e41a2ad39e6231c27142"
 }
 ```
 
@@ -52376,7 +56186,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "组合拆散 多实体分解",
   "description": "将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52415,7 +56225,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:412b9e66f0b4f20770c36dc491ee9e8f84bb2583df03847850d1ec5c6eb4a883"
+  "docsHash": "sha256:2c7527f4af1d4b44d73419b55a10aabdce4e1e5e4c40da8941c6d80d66e6648a"
 }
 ```
 
@@ -52427,7 +56237,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "设置参考锚点（工作基准）",
   "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52465,7 +56275,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "工作基准",
     "基准点"
   ],
-  "docsHash": "sha256:9266f5c6271e117a03cf638f37a7284e3870555314aef106e4ae045371c4cbd2"
+  "docsHash": "sha256:687b0a0a4bec0e605a757c476589676fd5a3fbf1cdc8ab30ed7dca163a810f4f"
 }
 ```
 
@@ -52477,7 +56287,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重置参考锚点（工作基准）",
   "description": "args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52507,7 +56317,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:ad1790061c993f2272344584b441e664f57b5dcb938b2f3818222a5c738ec386"
+  "docsHash": "sha256:ec591fd315a793ff0b061b9eb369b467a01623b6785d0d3b4b90730265d47064"
 }
 ```
 
@@ -52519,7 +56329,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "锁定参考锚点（工作基准）",
   "description": "args:{locked:boolean}；可撤销的元数据操作。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52549,7 +56359,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:54c9b9ad2f1610988eba865d557ce57c6a451ccbf5463fb631274069fc53e201"
+  "docsHash": "sha256:fdc043c2b02fb091860182004883f5e8b4a525398c94b5ed725d384582bcc318"
 }
 ```
 
@@ -52561,7 +56371,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "保存具名基准",
   "description": "args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52591,7 +56401,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:29a7d5d71960056c4dd6c53b4a623603604e217333c0df7cbd5b25b8f2e0c9b2"
+  "docsHash": "sha256:6dc1cf5639a7fd760a2215022ded8cdb58be9e73946dc6e89ef9db53aea4434b"
 }
 ```
 
@@ -52603,7 +56413,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "激活具名基准",
   "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52633,7 +56443,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:1d82e63cb0586a9b995597f0141254d7bd168fb103007c453222fcfe60f63ed0"
+  "docsHash": "sha256:b2a5572baace4ffc61afdd27cb17593c17dfa984614441b265b05ce6ac69d8bf"
 }
 ```
 
@@ -52645,7 +56455,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重命名具名基准",
   "description": "args:{frameId,expectedFrameVersion,name}。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52675,7 +56485,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:fa31ac489268dad5bf0495fc898d79f2da8f1ac6da1c4f572de6276796dde480"
+  "docsHash": "sha256:1c2640306170b335c9a3349e8de61e625740bbee9013e4571a73af25ec5a0dba"
 }
 ```
 
@@ -52687,7 +56497,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "删除具名基准",
   "description": "args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52717,7 +56527,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:ec0ca7c6ba67730e9d25108ee13e73aee3cca417eaa4dc9d4d90e9600bd26c8d"
+  "docsHash": "sha256:292d8c83627451cce59a0ca7a477b6b9da14d08ccc48ed689d9b903b62564fb3"
 }
 ```
 
@@ -52729,7 +56539,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "对象锚点",
   "description": "args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52763,7 +56573,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "对象锚点",
     "实体锚点"
   ],
-  "docsHash": "sha256:d03d190fbe8e14a1e4944552d168849a7e09ef45a9597b7b3d6ef7c835a635a0"
+  "docsHash": "sha256:669511663f507cf16a5dd1173f3d57b75a84da77cc8ea81247833c0ed097fba5"
 }
 ```
 
@@ -52775,7 +56585,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "删除对象锚点",
   "description": "args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52805,7 +56615,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:d46e442d28046ced1f3dda5a746f645bb56e04fb0c6897fdbee42e90ca54cfa5"
+  "docsHash": "sha256:1be632c222fd160ac2b6f9dcffd218df57eb9bc7da8ca729fc0202cca3997d49"
 }
 ```
 
@@ -52817,7 +56627,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "新增几何",
   "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -52847,7 +56657,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:642431716db227672126f57d5f6906e6f6b33271cbccc4112885992eb37e3046"
+  "docsHash": "sha256:24ef623a92a6199d39987351024d0355f2b946ba5546a9ce1f9d53c806d93a0e"
 }
 ```
 
@@ -52975,7 +56785,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "一次提交多特征",
   "description": "args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -53004,7 +56814,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "getState"
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
-  "docsHash": "sha256:80b96e3091e49439a1d39021156a8b07a299bd13c919adc2915536a8ff06bc62"
+  "docsHash": "sha256:ce9e579bfe65ad24281b5f63d28b56ec328c7d0b457d0342323a930d591daa69"
 }
 ```
 
@@ -53016,7 +56826,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "修改参数",
   "description": "args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -53046,7 +56856,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:9e621b5f095135c7c6999f555930b6ad2e70f59712e51cc00a126d62bfced7fc"
+  "docsHash": "sha256:b43b83da55987065fdd6af2e30b5566c9885e530e30a5f581b025d72c4d636b8"
 }
 ```
 
@@ -53058,7 +56868,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "删除实体",
   "description": "args:{bodyIds}，不可使用历史已替换 ID。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -53088,7 +56898,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:4cee28a00462618a2180f5847094f209b750cd9676529e537d08abb47de53b38"
+  "docsHash": "sha256:caf753e574b4143a238f96b815b2bd4e7598c0829ed4d814b9e7edde1cf1bc0f"
 }
 ```
 
@@ -53100,7 +56910,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "撤销",
   "description": "args:{}；撤销一个已提交步骤。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -53130,7 +56940,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:7fc2a188f7e958dcacef9fb5036031a17d64b71091282e252bfbee7d8ac8a6ed"
+  "docsHash": "sha256:558a465c5a4d8953cc119f4381a33b2f463aaec212cff32a497925c6f1c6556a"
 }
 ```
 
@@ -53142,7 +56952,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重做",
   "description": "args:{}；重做一个步骤。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -53172,7 +56982,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:9b3e15876848f8ab108ca7898819b3d9e6bd111b9169997af84bb55388962c0f"
+  "docsHash": "sha256:2546a9fa869dc0f2fcd59b9bd266372fd5a1e2a9dd4237fd3c126a22ad0eb95c"
 }
 ```
 
@@ -53184,7 +56994,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "重建工程",
   "description": "args:{}；重建当前历史。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -53214,7 +57024,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:be9f068a5634e325fc0d7f03f7e1e2adfaa72a6601f20754b45ad4d5e395e257"
+  "docsHash": "sha256:e3087c35dfe965ab2f06b6d7bce21c02a82177faea0a113ac3b6840a502c6766"
 }
 ```
 
@@ -53226,7 +57036,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "预览模型、原特征编辑或文件插入",
   "description": "普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision，提交前工程 revision 不变。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -53256,7 +57066,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:0dd11c858032d210fad4de46cee53fe6f74be064b7b7c30f695518df0984e651"
+  "docsHash": "sha256:75635f41507b1e8c79a11e27b7b756495a4eab18139281d91cf43c2a82556d4f"
 }
 ```
 
@@ -53268,7 +57078,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "更新预览",
   "description": "args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -53298,7 +57108,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:56b894c8f4106c177b6fc3abe749b73efc67fee15c93f4138012c961b49ab519"
+  "docsHash": "sha256:b88fc9ac0cded2a7f0527a3bbf0052f3264d5341902483953a2b85eb3ad21ccf"
 }
 ```
 
@@ -53310,7 +57120,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "应用预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -53340,7 +57150,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:5ea91f948caa040971ac3e379aa896f4d1bc9c92dbce104daeabf2f82f3e7c6f"
+  "docsHash": "sha256:c804805c56a7a6adba268b90957b8976a4d6a9710ed30d6dc2881b8b05d5ceca"
 }
 ```
 
@@ -53352,7 +57162,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "取消预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -53382,7 +57192,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:57329a8aaa68e65af8443369237869fbcf15cdabb3a41b5cc512ea55e6fab988"
+  "docsHash": "sha256:442c5457c8bbfc420873accc06511f15fa606aabaf8140f5c5dd0ecd227f604d"
 }
 ```
 
@@ -53393,7 +57203,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。",
   "synonyms": [
     "参数",
@@ -53473,7 +57283,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Indexed face/edge references downstream of a changed feature are rejected when stability cannot be proven."
   ],
   "docs": "api.named-parameters",
-  "docsHash": "sha256:5fd36ad8fe0c9f979e1a115693d4f29d5962b2b6857d5aeca9292b503f276514"
+  "docsHash": "sha256:e0ca35924fe3532eba1f0d5d80ac15f9817a9a09352ad6e495b95251f68db612"
 }
 ```
 
@@ -53484,7 +57294,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.capabilities",
   "title": "files.capabilities",
   "category": "file",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "label": "文件能力",
   "synonyms": [
     "文件能力",
@@ -53531,7 +57341,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
-  "docsHash": "sha256:7ffdab711177f705232fb0f19cdd8c3527d477fc3f5cc7b55adfb43bffba6f79"
+  "docsHash": "sha256:77c55e19d1f1f91d1884b71465f32974e925b298b91d8d8e58ac276535d83964"
 }
 ```
 
@@ -53542,7 +57352,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "label": "登记文件资源",
   "synonyms": [
     "登记文件资源",
@@ -53597,7 +57407,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "SIZE_LIMIT",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:1a8a4a1e28d88cf15f6d5e92d182579a798b071f60352042dfaea584d45644c5"
+  "docsHash": "sha256:f8679f565ee28cff572fac4e2b18b08d1ceacc1746af4ec5a797df215fdcbe7b"
 }
 ```
 
@@ -53608,7 +57418,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "label": "新建工程",
   "synonyms": [
     "新建工程",
@@ -53664,7 +57474,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "FILE_COMMAND_FAILED",
     "SIZE_LIMIT"
   ],
-  "docsHash": "sha256:ed1fce648fb711131471c18f3a60503a792146be9b1d28c5dc31fc6bd6b55e66"
+  "docsHash": "sha256:54b105edadfbf96932b78cb93c627b9dbe71732a3d588648ac4f84f8483bfbab"
 }
 ```
 
@@ -53675,7 +57485,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "label": "打开工程",
   "synonyms": [
     "打开工程",
@@ -53735,7 +57545,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "ASSET_INVALID",
     "FORMAT_UNSUPPORTED"
   ],
-  "docsHash": "sha256:dd9dab26cdb488c641e0e5616fb2ad44e8420d7668cf76abded6e3135351839a"
+  "docsHash": "sha256:4f3e1c423708f9068466c8cac096e8beb7caf87c1dc7da4dee79becd396c881a"
 }
 ```
 
@@ -53746,7 +57556,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "label": "导入",
   "synonyms": [
     "导入",
@@ -53829,7 +57639,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "MESH_ASSET_CORRUPT",
     "MESH_DISPLAY_CAPACITY"
   ],
-  "docsHash": "sha256:b6f49e1f4130210052b9819078258f2350c03888091c8866d5c89511a302afb0"
+  "docsHash": "sha256:fed1cb3418e942e6967d099045cb38ad1d6e60dc6085391e2dfed2bb83228adf"
 }
 ```
 
@@ -53840,7 +57650,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "label": "保存工程",
   "synonyms": [
     "保存工程",
@@ -53900,7 +57710,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "NAME_INVALID",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:ecfcf6f334c337b027a90c32f8ac4e4efc79c7fd8d81db4b7085f3709ddbe821"
+  "docsHash": "sha256:b54be494b1b455700da2348387c9c3d476a033934831c91bf92033031201f19e"
 }
 ```
 
@@ -53911,7 +57721,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "label": "导出文件",
   "synonyms": [
     "导出文件",
@@ -53974,7 +57784,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_LIMIT",
     "FORMAT_UNSUPPORTED"
   ],
-  "docsHash": "sha256:542b85c2f2bd004192136a68fdd84f99e66cae629ec73f517c0ee4e4b6abb2e7"
+  "docsHash": "sha256:b05f53b6db406f6cefe03fbdc16b597d1ffb01c3d625ae52e59a197c72cee5cb"
 }
 ```
 
@@ -53985,7 +57795,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "label": "读取文件字节",
   "synonyms": [
     "读取文件字节",
@@ -54036,7 +57846,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "PARAM_SCHEMA_INVALID",
     "RESOURCE_EXPIRED"
   ],
-  "docsHash": "sha256:6b70141da42c7dd753bc007b30052f1996809db373eacbf46bbb8e68402cabe4"
+  "docsHash": "sha256:0a9ae804c76553d3a000969a8800dc4e867325c889031d262dee3c8249988425"
 }
 ```
 
@@ -54047,7 +57857,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "label": "下载文件",
   "synonyms": [
     "下载文件",
@@ -54099,7 +57909,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "ASSET_INVALID",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:39070a005659f9629aea43290867c392dd1d16eca16ff1afd194e447843ab70b"
+  "docsHash": "sha256:27ff9f98f52def3babf0db5b9d2706f9bc92aba7146df1e7471fdc0b5c5fc1df"
 }
 ```
 
@@ -54110,7 +57920,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "label": "写入文件",
   "synonyms": [
     "写入文件",
@@ -54167,7 +57977,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "HASH_MISMATCH",
     "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:e285b4238a7709c3ddfb66af04a6ef00b4a561f8f0cd8b9cdfa758f8ba69dfb3"
+  "docsHash": "sha256:785a32d02177685334ec17d1d4e12faa03311d8e78f4b3d832474e73d765e061"
 }
 ```
 
@@ -54178,7 +57988,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "label": "confirmWritten",
   "synonyms": [
     "confirmWritten",
@@ -54235,7 +58045,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "REVISION_CONFLICT",
     "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:b2598363e74b8ae775f666b656d273c3466cd2ce8a03762397cf02edbf0a9454"
+  "docsHash": "sha256:6962a004a9fc75532d3b9750d924d43da2b4ef5044828c9c964c1497a5aeb2d9"
 }
 ```
 
@@ -54246,7 +58056,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "label": "释放文件资源",
   "synonyms": [
     "释放文件资源",
@@ -54297,7 +58107,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "RESOURCE_EXPIRED",
     "RESOURCE_BUSY"
   ],
-  "docsHash": "sha256:0c32582d892461611243bc0222fdb2feb938791ebbd21b8581e89f85c2c7521d"
+  "docsHash": "sha256:076943094f872fb5f16ea92c2941701943e7da26735bca74e84ce367699eb622"
 }
 ```
 
@@ -54309,14 +58119,14 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "IGES/IGS 导入",
   "description": "当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。",
   "category": "unavailable",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
   "errorCodes": [
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:f5730acdeeb64638602d8fff33793f42417927945c218bdde5484bba772390b7"
+  "docsHash": "sha256:c482f037a7b0db2dcee7c4454caceec065342c224ad543c1425c73d3f7cc2472"
 }
 ```
 
@@ -54328,13 +58138,13 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
   "description": "当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。",
   "category": "unavailable",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
   "errorCodes": [
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:cde060bd98d73d6eeabd2b3d038c14d2b3f375df36c67203bdde2c1599099baa"
+  "docsHash": "sha256:34c12cb52ef6c1c0e591de8c0de0922dd3f05306c6f6ae8e52d7063d8bbf31d5"
 }
 ```

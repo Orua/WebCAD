@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "Sweep round wire along a half-wire outward offset of a true inner ellipse, then cut a bottom-center parallel flat gap. Source drawings with a true outer ellipse need another tool.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "ellipseOpenWire"
@@ -168,7 +209,7 @@
       }
     }
   },
-  "schemaHash": "sha256:7f860ae884b91285bbd5df3211901159c35bf9a8fc7b694351f9a70f49f450de",
+  "schemaHash": "sha256:3b82d629a7f157707ed16100821e20dd7217d3452d28cdb76e1e0c60f4303df2",
   "defaults": {
     "innerWidth": 15,
     "innerHeight": 20,
@@ -243,5 +284,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:a45dcc3a70a1c68a05c4f909478c26b46c54ea1db6c6e43ebe2bcbeae021b329"
+  "docsHash": "sha256:00a673271183c820608bca463dc9237cafccb1e7d5021d808c517d543d4a761b"
 }

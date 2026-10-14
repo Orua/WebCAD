@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "Coaxial tube; defaults 13.4 outer diameter, 12.4 inner diameter and 3 height for the user C-part.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "tube"
@@ -166,7 +207,7 @@
       }
     }
   },
-  "schemaHash": "sha256:5cdff819f4d488afd9f47de8d98d91467e5f705ebd6bf424d034afe113027fb0",
+  "schemaHash": "sha256:debdba438db593c2cd46e9977203bce6fda6821627b9628f936dbc64d0f906ec",
   "defaults": {
     "outerDiameter": 13.4,
     "innerDiameter": 12.4,
@@ -231,5 +272,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:e24b308d6dbb9a8af89afa998aee983acad8cc259b3ba04ff8fcc424d6901c8a"
+  "docsHash": "sha256:b8e50d5d634510f0c72840f32db4d1d7f317d5bb6b7281eb91684e435dd498b1"
 }

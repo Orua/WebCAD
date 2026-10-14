@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "Open gable frame with straight legs, sloped shoulders and rounded open ends. Independent inner/outer widths, shoulder and peak heights, depth and end radius.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "gableOpenFrame"
@@ -194,7 +235,7 @@
       }
     }
   },
-  "schemaHash": "sha256:1238a80d5f98f2c2b4e76a9847de67e601215f81d887807ba95cc55f9e056a25",
+  "schemaHash": "sha256:4c427589642b4fe9803f7b07fdd751ade82c684c598fded5dea57201ed48e3d3",
   "defaults": {
     "outerWidth": 25,
     "innerWidth": 20,
@@ -309,5 +350,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:e9013898709687c2df6c6acaae97c12677218d4704596c62f9fca4c0032dc758"
+  "docsHash": "sha256:e343a2ca698189f88954845ab50e1aac8c5b2a37e345eb610437f808f7656bf4"
 }

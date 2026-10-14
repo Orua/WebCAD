@@ -13,6 +13,47 @@
         "additionalProperties": false,
         "description": "同心圆恒截面单圈；开缝为底部正中平行平切。",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "ring"
@@ -62,6 +103,47 @@
         "additionalProperties": false,
         "description": "平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "washer"
@@ -91,6 +173,47 @@
         "additionalProperties": false,
         "description": "Coaxial tube; defaults 13.4 outer diameter, 12.4 inner diameter and 3 height for the user C-part.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "tube"
@@ -123,6 +246,47 @@
         "additionalProperties": false,
         "description": "平底、光滑凸面；直径和高度独立设置，可以调整拱高，不限于半球。",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "domedPin"
@@ -153,6 +317,47 @@
         "additionalProperties": false,
         "description": "圆线沿精确螺旋路径扫掠。螺距大于线径；半径是中心线半径。",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "spring"
@@ -204,6 +409,47 @@
         "additionalProperties": false,
         "description": "头在参考位置下端，牙杆朝本地 +Z。沉头外缘固定直升位 0.20 mm。M 使用常用粗牙螺距，真实 V 型牙槽；不含配合公差。",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "screw"
@@ -272,6 +518,47 @@
         "additionalProperties": false,
         "description": "底面在参考位置，面端朝本地 -Z；从下方面端向上攻牙。牙径采用支持的名义 M 粗牙直径，不含配合公差。",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "threadedSleeve"
@@ -311,6 +598,47 @@
         "additionalProperties": false,
         "description": "One solid combining a round badge plate, raised front rim and two rear mounting posts. Posts may be hollow. Brand artwork, knurling, doming and production dimensions are excluded.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "roundBadge"
@@ -371,6 +699,47 @@
         "additionalProperties": false,
         "description": "Two symmetric X-axis holes with independent center spacing. Plain through holes only; no threads, countersinks or counterbores.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "mountingPlate"
@@ -430,6 +799,47 @@
         "additionalProperties": false,
         "description": "Rectangular plate with four through holes. Set X/Y edge insets and optional outer corner radius; no threads or counterbores.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "fourHolePlate"
@@ -494,6 +904,47 @@
         "additionalProperties": false,
         "description": "Independent inner/outer outlines and thickness. Half-short-side radii allow capsule frames. A parametric tool, not a complete reconstruction of an IGS part.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "flatFrame"
@@ -546,6 +997,47 @@
         "additionalProperties": false,
         "description": "A flat frame with independent inner and outer corner radii, then one exact fillet of every sharp edge. The specified edge radius fails atomically if unsolvable. Near half-thickness can approximate a round section but is not certified as a semicircle.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "roundedFlatFrame"
@@ -603,6 +1095,47 @@
         "additionalProperties": false,
         "description": "半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "dBuckle"
@@ -662,6 +1195,47 @@
         "additionalProperties": false,
         "description": "Constant-section rounded rectangular frame. A closed round-wire frame supports an inner short side at least 2.5 times the wire diameter; other variants require four times the section size.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "rectBuckle"
@@ -721,6 +1295,47 @@
         "additionalProperties": false,
         "description": "四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "ovalBuckle"
@@ -780,6 +1395,47 @@
         "additionalProperties": false,
         "description": "The inner height spans the full frame; the fused round bar has an editable vertical offset and no opening. Compact round-wire frames require an inner short side at least 2.5 wire diameters and each window at least one wire diameter high.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "sliderBuckle"
@@ -849,6 +1505,47 @@
         "additionalProperties": false,
         "description": "圆角方线 U 主体与固定圆杆融合；杆底与脚底齐平。",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "dBarBuckle"
@@ -903,6 +1600,47 @@
         "additionalProperties": false,
         "description": "A coaxial flange and cylindrical bushing with a straight bore through the full length. Generic parametric geometry, with no threads or source-product feature reconstruction.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "flangedBushing"
@@ -942,6 +1680,47 @@
         "additionalProperties": false,
         "description": "A rounded plate with two symmetric hollow cylindrical bosses; each bore passes through both boss and plate. Generic parametric geometry, not a threaded, counterbored, or source-product reconstruction.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "bossPlate"
@@ -1008,6 +1787,47 @@
         "additionalProperties": false,
         "description": "One fused solid, centered in XY, bottom at Z=0, open top. Clear cavity width/depth = outer width/depth minus twice wall thickness; clear height = height minus floor thickness. Two X-symmetric bosses rise from the inner floor; bores pass through bosses and floor. Straight walls/corners only; no draft, fillets, threads or assembly relationships.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "thinWallTray"
@@ -1073,6 +1893,47 @@
         "additionalProperties": false,
         "description": "Open rounded-rectangle tray with two hollow bosses on the inner floor. Outer corner radius, wall/floor thickness and boss dimensions are editable. Straight walls only; no draft, clips, lettering or texture.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "roundedBossTray"
@@ -1146,6 +2007,47 @@
         "additionalProperties": false,
         "description": "Constant-section circular arc with an adjustable opening angle for C rings, hook rings and open circular frames. End balls, hinges and variable sections are excluded.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "openArcRing"
@@ -1195,6 +2097,47 @@
         "additionalProperties": false,
         "description": "Tool solid: entry at Z=0, extending along +Z. Position at the workpiece surface, rotate 180 degrees if needed, then select the body first and subtract the tool.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "counterboreTool"
@@ -1244,6 +2187,47 @@
         "additionalProperties": false,
         "description": "A flat plate with two equal symmetric rounded windows and an integral center bridge. Independent outline, window and front/back edge radii. No round bar, offset windows or side arch.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "twinWindowPlate"
@@ -1306,6 +2290,47 @@
         "additionalProperties": false,
         "description": "One flat U plate with concentric semicircular crowns, equal-width straight legs and one through-hole at each end. No second assembly component, thread or round-wire section.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "uEndHolePlate"
@@ -1356,6 +2381,47 @@
         "additionalProperties": false,
         "description": "Circular ring swept from an elliptical section with independent front band width and side depth. Section shape is an editable candidate to verify against the source.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "ellipseSectionRing"
@@ -1385,6 +2451,47 @@
         "additionalProperties": false,
         "description": "Annular band segment with editable sweep, plate thickness, symmetric end-hole inset and optional counterbores. Threads and mating parts are separate.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "arcBandPlate"
@@ -1450,6 +2557,47 @@
         "additionalProperties": false,
         "description": "Open gable frame with straight legs, sloped shoulders and rounded open ends. Independent inner/outer widths, shoulder and peak heights, depth and end radius.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "gableOpenFrame"
@@ -1510,6 +2658,47 @@
         "additionalProperties": false,
         "description": "Sweep an elliptical cross-section around a rounded rectangular centerline. Front band width and side depth are independent; the inner planar radius is separate from section shape.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "ellipseSectionRectFrame"
@@ -1549,6 +2738,47 @@
         "additionalProperties": false,
         "description": "Flat D frame with semicircular crown, straight legs, independent inner/outer bottom radii and optional measured bottom gap. Thickness is a flat plate depth, not a round-wire section.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "dFlatFrame"
@@ -1606,6 +2836,47 @@
         "additionalProperties": false,
         "description": "Intersect a rounded twin-window footprint with a coaxial cylindrical wall to create an arched plate. Set outer bend radius and radial thickness independently. Projected strip construction without source-specific edge treatment; round-wire frames need another tool.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "archedTwinWindowPlate"
@@ -1665,6 +2936,47 @@
         "additionalProperties": false,
         "description": "A flat plate with straight top/bottom, tangent bowed sides and four small corner arcs, plus two symmetric capsule windows. Optional edge fillet. Symmetric parameter model only.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "bowedTwinWindowPlate"
@@ -1730,6 +3042,47 @@
         "additionalProperties": false,
         "description": "A constant-section circular frame fused to one round X-axis crossbar. The bar has editable Y and depth Z offsets. Moving bars, hinges and exact joint transitions are excluded.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "ringBar"
@@ -1789,6 +3142,47 @@
         "additionalProperties": false,
         "description": "Offset a true inner ellipse for a round-wire sweep and fuse one centered fixed round bar. Read back exact bounds; source spline and joint continuity still require comparison.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "ellipseBar"
@@ -1828,6 +3222,47 @@
         "additionalProperties": false,
         "description": "Sweep round wire along a half-wire outward offset of a true inner ellipse, then cut a bottom-center parallel flat gap. Source drawings with a true outer ellipse need another tool.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "ellipseOpenWire"
@@ -1862,6 +3297,47 @@
         "additionalProperties": false,
         "description": "Closed capsule loop with semicircular ends and straight runs. Front width, side depth and section radius are independent; a half-short-side radius forms an exact stadium section.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "profileLoop"
@@ -1901,6 +3377,47 @@
         "additionalProperties": false,
         "description": "Closed round-wire capsule loop with exact semicircular ends and straight runs. Set inner width, inner height and wire diameter; an unmarked seam is not guessed.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "capsuleWire"
@@ -1930,6 +3447,47 @@
         "additionalProperties": false,
         "description": "Separate tongue: X-axis pivot loop and a rounded flat strip along +Y. Length is pivot-center to tip. Approximate loop-head flat tongue only; no stamping bends, knurling, artwork or assembly motion validation.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "buckleTongue"
@@ -1978,6 +3536,47 @@
         "additionalProperties": false,
         "description": "Separate crossbar with two open Y-axis rolled eyes and independently tangent inner/outer transitions into the center strip. For regular pull buckles; it remains separate from the frame.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "pullCoreBar"
@@ -2043,8 +3642,49 @@
           "kind"
         ],
         "additionalProperties": false,
-        "description": "A rounded rectangular strip uses two planar circular layers joined by a local transition. Inner/outer diameters define the band; total side depth is split evenly between the layers plus the gap. Turns are limited to >1 and <2; the transition angle must fit within the open tip sector. Four section corners are R0.5; product-specific tip outlines, attachments and patterns are not included.",
+        "description": "Three dimensions: inner diameter, outer diameter and total thickness. Winding, layer gap, transition and section R are fitted automatically; both tips have circular outlines with rounded edges. Legacy explicit winding recipes remain supported.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "keyRing"
@@ -2062,12 +3702,22 @@
           "totalDepthMm": {
             "type": "number",
             "default": 3,
-            "description": "Total side depth"
+            "description": "Total thickness"
+          },
+          "autoFit": {
+            "type": "boolean",
+            "default": true,
+            "description": "autoFit"
+          },
+          "roundedTips": {
+            "type": "boolean",
+            "default": true,
+            "description": "roundedTips"
           },
           "turns": {
             "type": "number",
             "default": 1.9,
-            "description": "Turns",
+            "description": "turns",
             "unit": "1",
             "quantityKind": "scalar",
             "quantizationPolicy": "none"
@@ -2075,22 +3725,22 @@
           "layerGapMm": {
             "type": "number",
             "default": 0.01,
-            "description": "Layer gap"
+            "description": "layerGapMm"
           },
           "sectionCornerRadiusMm": {
             "type": "number",
             "default": 0.5,
-            "description": "Section corner radius"
+            "description": "sectionCornerRadiusMm"
           },
           "transitionAngleDeg": {
             "type": "number",
             "default": 36,
-            "description": "Transition angle"
+            "description": "transitionAngleDeg"
           },
           "leftHanded": {
             "type": "boolean",
             "default": false,
-            "description": "Left handed"
+            "description": "leftHanded"
           }
         }
       },
@@ -2102,6 +3752,47 @@
         "additionalProperties": false,
         "description": "A horizontal rounded rod joined to an elliptical-section U eye that narrows in Z depth from root to top.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "hangingRod"
@@ -2156,6 +3847,47 @@
         "additionalProperties": false,
         "description": "A regular round-section U bridge with straight legs, an exact semicircular crown, and optional coaxial holes in both end faces.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "archedBridge"
@@ -2195,6 +3927,47 @@
         "additionalProperties": false,
         "description": "A parameterized two-piece mushroom rivet with a spherical cap, hollow socket, rounded waisted post and base flange. Supports assembled or exploded display, with a blind post bore depth and direction.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "mushroomRivet"
@@ -2309,6 +4082,47 @@
         "additionalProperties": false,
         "description": "Two-piece nipple stud with an arc-profiled flat-top body, radiused base, blind M2 nominal clearance bore, crowned screw head, stem, and parameterized six-lobe drive. Threads and standardized drive dimensions are not modeled.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "nippleStud"
@@ -2433,6 +4247,47 @@
         "additionalProperties": false,
         "description": "A parameterized two-piece thin-wall eyelet with exact revolved flange bends. Part A has a long shank and Part B is its mating ring. Supports static coaxial fit or exploded display; riveting deformation, logos and lettering are not modeled.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "twoPieceEyelet"
@@ -2512,6 +4367,47 @@
         "additionalProperties": false,
         "description": "One exact circular or rounded rectangular frame with an optional constant-wall collar, symmetric mounting posts and plain straight holes. Collar and posts extend along local +Z from a flange at Z=0. Hole depth 0 means through; positive depth is blind from the post top. 0/2/4 posts; two posts lie on Y. Zero collar/post heights make a backplate. No threads, taper, riveting, decoration or 3D edge blends. Circular mode requires matching width/height pairs; corner radii apply only to rectangular mode.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "frameEyelet"
@@ -2615,6 +4511,47 @@
         "additionalProperties": false,
         "description": "Constant-wall open U clip of uniform X width, independent front/back heights and exact tangent bend arcs. An inner radius equal to half the gap makes a semicircular bottom. Bottom Z=0, opening +Z, back wall +Y. Optional 0/1/2 plain back-wall through holes; two holes lie on X. Not a closed cap. No threads, decorations, end blends or elastic deformation. Holes must fit entirely within the straight back wall.",
         "properties": {
+          "modelScript": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "op"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "quickModel",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "transform"
+                  ]
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
           "kind": {
             "type": "string",
             "const": "uStrapClip"
@@ -3034,6 +4971,8 @@
       "innerDiameterMm": 25,
       "outerDiameterMm": 33,
       "totalDepthMm": 3,
+      "autoFit": true,
+      "roundedTips": true,
       "turns": 1.9,
       "layerGapMm": 0.01,
       "sectionCornerRadiusMm": 0.5,
@@ -3168,7 +5107,7 @@
     "快捷模型"
   ],
   "description": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-  "schemaHash": "sha256:de9756b418ea854f8469fb9a4f262a1de24d41743a956ef0a3fd4123cca4ed75",
+  "schemaHash": "sha256:295358f6bc129acb6c6be0764bacd3123654eddf39a03e210814d458bd18918c",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -6700,11 +8639,13 @@
     {
       "kind": "keyRing",
       "title": "Flat split key ring",
-      "description": "A rounded rectangular strip uses two planar circular layers joined by a local transition. Inner/outer diameters define the band; total side depth is split evenly between the layers plus the gap. Turns are limited to >1 and <2; the transition angle must fit within the open tip sector. Four section corners are R0.5; product-specific tip outlines, attachments and patterns are not included.",
+      "description": "Three dimensions: inner diameter, outer diameter and total thickness. Winding, layer gap, transition and section R are fitted automatically; both tips have circular outlines with rounded edges. Legacy explicit winding recipes remain supported.",
       "defaults": {
         "innerDiameterMm": 25,
         "outerDiameterMm": 33,
         "totalDepthMm": 3,
+        "autoFit": true,
+        "roundedTips": true,
         "turns": 1.9,
         "layerGapMm": 0.01,
         "sectionCornerRadiusMm": 0.5,
@@ -6732,55 +8673,12 @@
         },
         {
           "key": "totalDepthMm",
-          "label": "侧向总厚",
-          "labelEn": "Total side depth",
+          "label": "总厚度",
+          "labelEn": "Total thickness",
           "type": "number",
           "min": 0.1,
           "step": 0.1,
           "unit": "mm"
-        },
-        {
-          "key": "turns",
-          "label": "绕卷圈数",
-          "labelEn": "Turns",
-          "type": "number",
-          "min": 1.01,
-          "max": 2,
-          "step": 0.05
-        },
-        {
-          "key": "layerGapMm",
-          "label": "相邻层间隙",
-          "labelEn": "Layer gap",
-          "type": "number",
-          "min": 0,
-          "step": 0.1,
-          "unit": "mm"
-        },
-        {
-          "key": "sectionCornerRadiusMm",
-          "label": "截面圆角",
-          "labelEn": "Section corner radius",
-          "type": "number",
-          "min": 0.1,
-          "step": 0.1,
-          "unit": "mm"
-        },
-        {
-          "key": "transitionAngleDeg",
-          "label": "跨层角",
-          "labelEn": "Transition angle",
-          "type": "number",
-          "min": 0.1,
-          "max": 180,
-          "step": 1,
-          "unit": "degrees"
-        },
-        {
-          "key": "leftHanded",
-          "label": "左旋",
-          "labelEn": "Left handed",
-          "type": "boolean"
         }
       ],
       "knownUnsupportedCases": [
@@ -6794,6 +8692,8 @@
         "innerDiameterMm": 25,
         "outerDiameterMm": 33,
         "totalDepthMm": 3,
+        "autoFit": true,
+        "roundedTips": true,
         "turns": 1.9,
         "layerGapMm": 0.01,
         "sectionCornerRadiusMm": 0.5,
@@ -8007,5 +9907,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:7e61245a4396e79e58b289c0080afd41cbf0ff4c5e241e2f27b7f598b422b555"
+  "docsHash": "sha256:d85b5ec9afe2c981f952fcbda8359f8c937253cccf401f579643486f375c4f0e"
 }

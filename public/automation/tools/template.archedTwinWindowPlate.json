@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "Intersect a rounded twin-window footprint with a coaxial cylindrical wall to create an arched plate. Set outer bend radius and radial thickness independently. Projected strip construction without source-specific edge treatment; round-wire frames need another tool.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "archedTwinWindowPlate"
@@ -193,7 +234,7 @@
       }
     }
   },
-  "schemaHash": "sha256:726ebe97a743251282d155561fd6e3920731fdf0a6dc0389f3324f0485c80da0",
+  "schemaHash": "sha256:05c33422382186273e88ba732de2ff39044bf5f7014c4d28a3895d2ef8bca9c0",
   "defaults": {
     "outerWidth": 32.9,
     "outerHeight": 25.5,
@@ -318,5 +359,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:4f84427dab716ba70aab6d55a8e5598e971c7dc34170750c9a7f1da05fbccef6"
+  "docsHash": "sha256:04e1e702226444e40d0f4d52c2f44618690d8c096763d27e8ee23a9936dae85a"
 }

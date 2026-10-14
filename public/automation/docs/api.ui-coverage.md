@@ -380,10 +380,11 @@
       "getModelLibrary",
       "resolveModelLibrary",
       "quickModel",
-      "run"
+      "run",
+      "preview.start"
     ],
     "method": "setView",
-    "usage": "实体→快捷模型打开画布中央浮动选择菜单：setView({context,workspace:\"library\"})；返回画布用workspace:\"modeling\"。getModelLibrary读取配置，resolveModelLibrary解析后run/add生成。"
+    "usage": "实体→快捷模型打开画布中央浮动选择菜单：setView({context,workspace:\"library\"})；选择后在浮动对话框设置参数。getModelLibrary读取字段和完整script；resolveModelLibrary解析后run/add生成，params.modelScript冻结脚本。实体缩略图和参数引线示意不提交工程，实际模型可preview.start或quickModel生成并measure核对。"
   },
   "referenceExtrude": {
     "tools": [
@@ -741,6 +742,15 @@
     "method": "readVector",
     "usage": "选择文件或粘贴矢量文本，框选完整轮廓；connectVector 诊断和组环，sketchProfile 经同一命令服务成面。"
   },
+  "modelLibraryEdit": {
+    "tools": [
+      "getModelLibrary",
+      "updateModelLibrary",
+      "resolveModelLibrary"
+    ],
+    "method": "updateModelLibrary",
+    "usage": "浮动编辑层维护工具名称、默认参数和script。getModelLibrary读取后upsert，唯一id新增、已有id修改；script步骤及引用按api.model-library验证；expectedLibraryRevision拒绝陈旧库写入。"
+  },
   "quickModelFavorites": {
     "tools": [
       "setView",
@@ -890,10 +900,12 @@
     "tools": [
       "getAgentPanel",
       "configureAgentPanel",
-      "setAgentPanel"
+      "setAgentPanel",
+      "getUILayout",
+      "setView"
     ],
     "method": "setAgentPanel",
-    "usage": "configureAgentPanel({context,url})保存助手页面地址；setAgentPanel({context,visible:true/false})接入当前工程或退出并解锁；getAgentPanel()读取visible/phase/connected/error/release_pending。工程、历史、相机和dirty保留。"
+    "usage": "configureAgentPanel({context,url})保存助手页面地址；setAgentPanel({context,visible:true/false})接入当前工程或退出并解锁。Agent入口及连接成功自动focus:true、toolbar:false；退出恢复原布局，活动任务保留并在完成后进入专注。getAgentPanel和getUILayout读回连接及布局。工程、历史、相机和dirty保留。"
   },
   "servicesSettings": {
     "tools": [

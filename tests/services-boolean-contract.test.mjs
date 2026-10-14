@@ -97,11 +97,11 @@ test('consumed hidden inputs remain authoritative for routing; changed dependenc
  assert.equal(classifyComplexity({operation:'cut',source:summaries.get('cut')}).complex,true);
  const newSources=await collectRoutingSources(features,{hasSource:()=>false,readSource:()=>assert.fail('uncommitted sources cannot be read')});
  assert.equal(newSources.get('cut').sourceSnapshotReady,false);
- assert.ok(classifyComplexity({operation:'cut',source:newSources.get('cut')}).reasons.includes('changed-or-unmeasured-source'));
+ assert.equal(classifyComplexity({operation:'cut',source:newSources.get('cut')}).complex,false,'unmeasured sources alone cannot justify Services');
 });
 
 test('local mesh routing never reads a BRep snapshot while exact operations still require it',async()=>{
- const features=[{id:'plate',op:'meshReliefPlate',refs:[]},{id:'edit',op:'meshReliefEdit',refs:['raw-mesh']}];
+ const features=[{id:'plate',op:'meshReliefPlate',refs:[]},{id:'edit',op:'meshReliefEdit',refs:['raw-mesh']},{id:'move',op:'transform',refs:['huge-source']},{id:'thread',op:'thread',refs:['huge-source']},{id:'preset',op:'quickModel',params:{kind:'threadedSleeve'},refs:[]}];
  const r=await collectRoutingSources(features,{hasSource:()=>true,readSource:()=>assert.fail('raw mesh cannot be converted to BRep')});assert.equal(r.size,0);
  await assert.rejects(collectRoutingSources([{id:'cut',op:'cut',refs:['raw-mesh']}],{hasSource:()=>true,readSource:async()=>{throw Object.assign(Error('raw mesh'),{code:'MESH_BREP_UNAVAILABLE'});}}),{code:'MESH_BREP_UNAVAILABLE'});
 });

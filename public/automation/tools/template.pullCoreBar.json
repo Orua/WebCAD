@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "Separate crossbar with two open Y-axis rolled eyes and independently tangent inner/outer transitions into the center strip. For regular pull buckles; it remains separate from the frame.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "pullCoreBar"
@@ -201,7 +242,7 @@
       }
     }
   },
-  "schemaHash": "sha256:9ddca39907c55bc306198e8c043b08abb9b7e9a06c7d7b2bb9bef71f06f84144",
+  "schemaHash": "sha256:62f0bd38fd093cfee877dfb824d08482389cf60fa489c1805e02cc5d02ef9bbb",
   "defaults": {
     "eyePitchMm": 45.5,
     "eyeInnerDiameterMm": 5.5,
@@ -347,5 +388,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:9850ad7dfc2e28f4cfcd028c066e05920a8ee251f5ae8c72301ffb883ebe55ab"
+  "docsHash": "sha256:650187eef2d4080126d7dde06d0df539ca8e59a51d36f179cd55aae5553c65b5"
 }

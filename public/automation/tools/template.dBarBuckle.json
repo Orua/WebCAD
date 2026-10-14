@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "圆角方线 U 主体与固定圆杆融合；杆底与脚底齐平。",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "dBarBuckle"
@@ -188,7 +229,7 @@
       }
     }
   },
-  "schemaHash": "sha256:d34dc010471b3b4da89308376612b4ca0ff1c9396bd3e86f1d8be17b6cdc0b19",
+  "schemaHash": "sha256:c911046414de7020de2b9f1f4f562436bcf300f3d5d9a173808af999299f89b9",
   "defaults": {
     "section": "square",
     "sectionSize": 6,
@@ -279,5 +320,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:dff80df95d3edaa80aee9dc5c313fc387a53c05eafe6cf0f5e77a2e758c38ba6"
+  "docsHash": "sha256:fb739d3ff3e6d4d6b97d0efef6694d5bc211caa00e6e2e3f95e2096f57beeb78"
 }

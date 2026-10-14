@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "Flat D frame with semicircular crown, straight legs, independent inner/outer bottom radii and optional measured bottom gap. Thickness is a flat plate depth, not a round-wire section.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "dFlatFrame"
@@ -191,7 +232,7 @@
       }
     }
   },
-  "schemaHash": "sha256:1f98eacaacf016b9943d7f619d534ff8453a9a1738c66fbda10360a20d986e8c",
+  "schemaHash": "sha256:9cef5cadbdbc1496d17b73fc001fa158cdcc5acf70153df223471c90d1c7a185",
   "defaults": {
     "outerWidth": 28,
     "outerHeight": 25,
@@ -306,5 +347,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:7d9f467a84e592439d7ac94168955aee51a63747bb1f5466479d32dafb535276"
+  "docsHash": "sha256:a10e6af5882af1e8c5117bb2fdc93b556cf44cf00cab6a9eb026d72fe2bec293"
 }

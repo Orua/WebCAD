@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.43.0 · 操作目录 sha256:2ac46e220449ea50c2e5d0288b038859575adb295432f3a8e0153d2785d2a97d
+API 1.46.0 · 操作目录 sha256:53022dd7b6b123769e516381007fcf7631d02dfc860c9a0eae8815a07b21e15c
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -215,7 +215,7 @@ API 1.43.0 · 操作目录 sha256:2ac46e220449ea50c2e5d0288b038859575adb295432f3
 - `template.capsuleWire` · advisory · 闭合圆线长圈：两端精确半圆、上下直段，内宽高与圆线直径独立输入。未标缝宽时不猜接缝。
 - `template.buckleTongue` · advisory · 独立扣针：沿X的轴孔环头、沿+Y的圆头扁针。长度从轴心至针尖；不与扣身融合。用于已确认环头扁针的近似形状，不包含冲压弯曲、滚花、LOGO或装配活动验证。
 - `template.pullCoreBar` · advisory · 独立活动芯：沿X横跨、两端为Y轴开放卷眼，中间扁带由独立内外相切圆弧接入卷眼。适合常规拉心扣芯；不与外框融合。
-- `template.keyRing` · advisory · 圆角矩形扁线由两段平面圆弧层和一段局部跨层过渡连续构成。内外径控制环带，侧向总厚由两层各半厚及层间隙组成。圈数只支持大于1且小于2；跨层角可调，须位于两端错开的扇区。截面四角R0.5；不包含端头专属轮廓、钥匙链附件或花纹。
+- `template.keyRing` · advisory · 只需内径、外径与总厚度。双层扁线、跨层过渡、层间隙和截面 R 角自动拟合，两端采用圆弧收口并带边缘 R 角。旧工程的显式绕卷参数仍可重建；不包含附件或花纹。
 - `template.hangingRod` · advisory · 常规吊杆：水平圆杆两端做圆角，上方居中融合一个Z深度由根部向顶部收窄的椭圆截面U形吊环。杆长、杆径、端部圆角、吊环内宽、根部深度、根部圆角和净高均可调；不包含文字、花纹或多个吊环。
 - `template.archedBridge` · advisory · 常规 U 形拱桥：圆截面直腿与精确半圆连续成型，两端可开同轴底孔。外宽、外高、线径和底孔尺寸可调；不包含螺纹牙型、底片、装饰或异形截面。
 - `template.mushroomRivet` · advisory · 参数化的两件式单面蘑菇撞钉：球面盖带空心套筒，配浅腰圆角钉脚和底盘。支持同轴装配或分开展示；孔深与开孔方向可调，不包含 LOGO、文字和装饰纹。
@@ -226,7 +226,7 @@ API 1.43.0 · 操作目录 sha256:2ac46e220449ea50c2e5d0288b038859575adb295432f3
 - `recoverKernel` · page-method · recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。
 - `sampleMeshRelief` · page-method · sampleMeshRelief({context,bodyId,inputGeometryHash,support:{originMm,xAxis,normal},pointsMm:[[U,V],…]})；明确毫米支撑，1–256个点，点数乘三角面数不得超过1200万。
 - `getModelLibrary` · page-method · getModelLibrary()
-- `updateModelLibrary` · page-method · updateModelLibrary({context,expectedLibraryRevision,operation:upsert|remove|move|restore|import,entry?,id?,index?,library?})。upsert entry={id,kind,label,description?,defaults?}，id为字母开头80位以内字母数字_-，kind必须已安装，defaults仅含该类型原参数。move的index为移动后零起始位置。import全量替换，library={format:webcad-model-library,version:1,entries:[entry]}；restore全量恢复默认目录、默认参数和顺序。
+- `updateModelLibrary` · page-method · updateModelLibrary({context,expectedLibraryRevision,operation:upsert|remove|move|restore|import,entry?,id?,index?,library?})。upsert entry={id,kind,label,description?,defaults?,script?}，id为字母开头80位以内字母数字_-，kind必须已安装，defaults仅含该类型原参数。move的index为移动后零起始位置。import全量替换，library={format:webcad-model-library,version:1,entries:[entry]}；restore全量恢复默认目录、默认参数和顺序。
 - `resolveModelLibrary` · page-method · resolveModelLibrary({context,id,expectedLibraryRevision,params?:参数覆盖})
 - `planPatternMachining` · page-method · planPatternMachining({context,intent})，intent 为 version:1 加工意图；只读规划，不推断图片深度。
 - `decideServicesWait` · page-method · decideServicesWait({jobId,decision:"continue"|"stop"})，可在工程忙碌时调用；jobId必须是getServicesRouting().pendingWait中的当前任务。

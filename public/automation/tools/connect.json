@@ -2,7 +2,7 @@
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.",
   "synonyms": [
     "connect",
@@ -22,5 +22,5 @@
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:57f16c789db6c472ca311e0c9a5ee60e3aaf583daee062b6972f3eddd85d91af"
+  "docsHash": "sha256:158665b641d2f1e7a76792d678514fc540aed5c88d9e3e68a96018d4228afac6"
 }

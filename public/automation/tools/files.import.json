@@ -2,7 +2,7 @@
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "label": "导入",
   "synonyms": [
     "导入",
@@ -85,5 +85,5 @@
     "MESH_ASSET_CORRUPT",
     "MESH_DISPLAY_CAPACITY"
   ],
-  "docsHash": "sha256:b6f49e1f4130210052b9819078258f2350c03888091c8866d5c89511a302afb0"
+  "docsHash": "sha256:fed1cb3418e942e6967d099045cb38ad1d6e60dc6085391e2dfed2bb83228adf"
 }

@@ -1,6 +1,7 @@
 import {QUICK_MODELS, QUICK_MODEL_VISIBLE_KINDS} from './quick-models.js';
 import {getOperation} from './operation-registry.js';
 import {assertJsonValue,validateSchema} from './contracts/operation-schema.js';
+import {validateModelScript} from './quick-models/model-script.js';
 
 export const MODEL_LIBRARY_KEY = 'webcad.model-library.v1';
 const fail = (code, message) => { throw Object.assign(new Error(message), {code}); };
@@ -19,13 +20,13 @@ function validateParams(kind,params){
 export const defaultModelLibrary = () => QUICK_MODEL_VISIBLE_KINDS.map(kind => ({id:kind, kind, label:QUICK_MODELS[kind].label, description:QUICK_MODELS[kind].description || '', defaults:structuredClone(QUICK_MODELS[kind].defaults)}));
 
 export function validateLibraryEntry(entry) {
-  keys(entry, ['id','kind','label','description','defaults']);
+  keys(entry, ['id','kind','label','description','defaults','script']);
   if (!/^[a-zA-Z][a-zA-Z0-9_-]{0,79}$/.test(entry.id) || !Object.hasOwn(QUICK_MODELS, entry.kind)) fail('PARAM_SCHEMA_INVALID', '模型 ID 或几何类型无效');
   if (typeof entry.label !== 'string' || !entry.label.trim() || entry.label.length > 100 || typeof (entry.description ?? '') !== 'string' || (entry.description || '').length > 1000) fail('PARAM_SCHEMA_INVALID', '模型名称必填且不超过 100 字');
   keys(entry.defaults ?? {}, Object.keys(QUICK_MODELS[entry.kind].defaults));
   const defaults = {...structuredClone(QUICK_MODELS[entry.kind].defaults), ...entry.defaults};
   validateParams(entry.kind,{kind:entry.kind,...defaults});
-  return {id:entry.id, kind:entry.kind, label:entry.label.trim(), description:entry.description || '', defaults};
+  return {id:entry.id, kind:entry.kind, label:entry.label.trim(), description:entry.description || '', defaults,...(entry.script?{script:validateModelScript(entry.script,defaults,QUICK_MODELS)}:{})};
 }
 
 export function createModelLibrary(storageProvider = () => globalThis.localStorage) {
@@ -79,13 +80,13 @@ export function createModelLibrary(storageProvider = () => globalThis.localStora
     const entry = library.entries.find(item => item.id === input.id);
     if (!entry) fail('LIBRARY_ENTRY_NOT_FOUND', '模型条目不存在');
     keys(input.params ?? {}, Object.keys(QUICK_MODELS[entry.kind].defaults));
-    const params = {...entry.defaults, ...input.params, kind:entry.kind};
+    const params = {...entry.defaults, ...input.params, kind:entry.kind,...(entry.script?{modelScript:entry.script}:{})};
     validateParams(entry.kind,params);
     return {libraryRevision:library.revision, entryId:entry.id, op:'quickModel', params, refs:[], name:entry.label};
   }
   function contracts() {
     const data = read(), parent = quickContract;
-    return {...data, entries:data.entries.map(entry => ({...entry, fields:structuredClone(QUICK_MODELS[entry.kind].fields), inputSchema:structuredClone(parent.inputSchema.oneOf.find(schema => schema.properties.kind.const === entry.kind)), toolId:'template.' + entry.kind, execution:{method:'add', args:{op:'quickModel', params:{...entry.defaults, kind:entry.kind}, refs:[], name:entry.label}}, knownUnsupportedCases:parent.templates?.find(template => template.kind === entry.kind)?.knownUnsupportedCases || []}))};
+    return {...data, entries:data.entries.map(entry => ({...entry, fields:structuredClone(QUICK_MODELS[entry.kind].fields), inputSchema:structuredClone(parent.inputSchema.oneOf.find(schema => schema.properties.kind.const === entry.kind)), toolId:'template.' + entry.kind, execution:{method:'add', args:{op:'quickModel', params:{...entry.defaults, kind:entry.kind,...(entry.script?{modelScript:entry.script}:{})}, refs:[], name:entry.label}}, knownUnsupportedCases:parent.templates?.find(template => template.kind === entry.kind)?.knownUnsupportedCases || []}))};
   }
   return {read, update, resolve, contracts};
 }

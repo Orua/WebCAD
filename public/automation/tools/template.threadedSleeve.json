@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "底面在参考位置，面端朝本地 -Z；从下方面端向上攻牙。牙径采用支持的名义 M 粗牙直径，不含配合公差。",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "threadedSleeve"
@@ -173,7 +214,7 @@
       }
     }
   },
-  "schemaHash": "sha256:972929944241722e089340991ce2dafab2ee40a8e75255aa0fa3b55f1fa7a22d",
+  "schemaHash": "sha256:a70a5fd8c52b2f1c3323c40145bffb4e3ce0976b30010f892173c8bf4b39fe05",
   "defaults": {
     "bottomDiameterMm": 8,
     "faceDiameterMm": 6,
@@ -253,5 +294,5 @@
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:a8af5c46ef67cf86c217f67c4287adb3253c27f85700dc7e5c3097db53e5c0fa"
+  "docsHash": "sha256:0d4d25a66ddff62caf968226691cbff24a31fc70671d66ad6a603f2b42c86c3e"
 }

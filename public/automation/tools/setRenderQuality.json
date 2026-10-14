@@ -2,7 +2,7 @@
   "id": "setRenderQuality",
   "title": "setRenderQuality",
   "category": "page-method",
-  "version": "1.43.0",
+  "version": "1.46.0",
   "description": "setRenderQuality({context,quality:\"draft\"|\"standard\"|\"fine\"|\"ultra\"})",
   "synonyms": [
     "setRenderQuality",
@@ -26,5 +26,5 @@
     "DISPLAY_FAILED"
   ],
   "docs": "api.workspace",
-  "docsHash": "sha256:170f2764a0d7b47d7d63e0f23adbb90290671b33997ca3f95dddc8fe39c15801"
+  "docsHash": "sha256:f5acea34c113dee4f3369c7af0fac62d11d870dacae5d79889a59189ac82291a"
 }

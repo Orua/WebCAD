@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "Open rounded-rectangle tray with two hollow bosses on the inner floor. Outer corner radius, wall/floor thickness and boss dimensions are editable. Straight walls only; no draft, clips, lettering or texture.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "roundedBossTray"
@@ -207,7 +248,7 @@
       }
     }
   },
-  "schemaHash": "sha256:2e890611becae040327bd6c60d4ca334f192595f17cc955fbca1d43adced3c32",
+  "schemaHash": "sha256:3a8e6d6f1c5281a3bfd2222103c8c307fa858147d9d2d94b7873ff86a50c3cd2",
   "defaults": {
     "outerWidth": 60,
     "outerDepth": 38,
@@ -342,5 +383,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:aee7f11610e03b65343a1e7ddc2a7436d2e3bdca45081c8184ca80e7a320db35"
+  "docsHash": "sha256:f65c4946e5b60fc65a91933d5e8ec3fe27b74f834e41f0b4ef911a6fce5a10ef"
 }

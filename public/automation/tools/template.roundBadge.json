@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "One solid combining a round badge plate, raised front rim and two rear mounting posts. Posts may be hollow. Brand artwork, knurling, doming and production dimensions are excluded.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "roundBadge"
@@ -194,7 +235,7 @@
       }
     }
   },
-  "schemaHash": "sha256:a4fd4fb02ab51a17e548784f36576296d4cb52193dfed660a1e1d47ae59d81d9",
+  "schemaHash": "sha256:a5c68bad0754433e7f01e8bca2a80a6e2a09d556d786296c2c2b8919568d6405",
   "defaults": {
     "diameter": 40,
     "thickness": 2,
@@ -309,5 +350,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:d32cacb1bedeb2f66b628aeede113dbcb5de479d71a2ce0d56d6bf549788ac0f"
+  "docsHash": "sha256:d7c20b9cfb71226fb2535f102af445d544356eda26c86500af2c3cf7f6304365"
 }

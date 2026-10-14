@@ -1,3 +1,6 @@
+## 部署与仓库同步（用户要求，2026-10-14）
+
+今后本项目执行已授权部署时，同时提交并推送对应源码到 GitHub 的 main 分支；部署和推送作为同一次交付。保留已有修改，只提交本项目对应源码、测试和正常生成的 API 文档，不提交构建包、图片、缓存、日志或备份。发布使用已验证的同一个构建包，记录发布 buildId、源码指纹及推送提交号。部署或推送任一失败须明确报告，不宣称全部完成。本条不授权未经用户要求的生产发布，也不允许强制推送或覆盖其他修改。
 ## Current user deployment override (2026-10-10)
 
 Follow the existing LogoVector deployment pattern: ASHX references compiled DLLs and the DLL invokes controlled Logo/OCCT workers. Do not require or reinstall the independent Windows Host service, named-pipe transport or Host installer. Older Host-only rules below are superseded for the current deployment. The canonical IIS entry is Gateway.IisHandler; package with scripts/package-iis-dll.ps1. Preserve authorization, persistent jobs, cancellation, artifact identity, timeouts and source geometry; no server deployment to 10.121.11.8 is authorized in the current scope.

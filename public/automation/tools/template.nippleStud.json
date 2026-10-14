@@ -142,6 +142,47 @@
     "additionalProperties": false,
     "description": "Two-piece nipple stud with an arc-profiled flat-top body, radiused base, blind M2 nominal clearance bore, crowned screw head, stem, and parameterized six-lobe drive. Threads and standardized drive dimensions are not modeled.",
     "properties": {
+      "modelScript": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "op"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "box",
+                "cylinder",
+                "sphere",
+                "quickModel",
+                "union",
+                "cut",
+                "intersect",
+                "transform"
+              ]
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "kind": {
         "type": "string",
         "const": "nippleStud"
@@ -258,7 +299,7 @@
       }
     }
   },
-  "schemaHash": "sha256:a840ed0a7d97b61b6237d11d6b1a789965837013e2312e6e4d8d3550b1a45e5c",
+  "schemaHash": "sha256:00415cde2395817d89c8050753e2f280fa213df31c57a98ee25a70e9b26c73f9",
   "defaults": {
     "headDiameterMm": 5,
     "overallHeightMm": 9.1,
@@ -535,5 +576,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:ab2532fa202054c447d7c0336b2db10e1864fa91a57261cd857b5a1aa148a194"
+  "docsHash": "sha256:364ea90be847b4516a56cd37f3742ce561893c1c7531ed172fd89cd01848fb7e"
 }
