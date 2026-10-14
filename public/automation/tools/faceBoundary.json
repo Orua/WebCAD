@@ -61,6 +61,7 @@
     "faceBoundary",
     "先选中一张面。all 提取包括内孔在内的全部边界；outer 明确只提取外环，不带孔。保留源模型，生成精确线框。单闭环可接参考轮廓拉伸",
     "放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。",
+    "face Boundary operation",
     "提取面边界"
   ],
   "description": "先选中一张面。all 提取包括内孔在内的全部边界；outer 明确只提取外环，不带孔。保留源模型，生成精确线框。单闭环可接参考轮廓拉伸/放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。",
@@ -331,6 +332,9 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "planeSection",
+      "referenceExtrude",
+      "referenceLoft",
       "queryGeometry",
       "measure",
       "files.export"
@@ -338,7 +342,8 @@
     "synonyms": [
       "faceBoundary",
       "先选中一张面。all 提取包括内孔在内的全部边界；outer 明确只提取外环，不带孔。保留源模型，生成精确线框。单闭环可接参考轮廓拉伸",
-      "放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。"
+      "放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。",
+      "face Boundary operation"
     ],
     "status": "experimental"
   },
@@ -436,5 +441,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:97438fa5d54ec78cc24c431d86891d204d166cf28ee0a9a7e752ea593f81622c"
+  "docsHash": "sha256:4ee84d749b72fd4b0823ce074e7a6d3c6138d70b4522937bb3b8b517430db6af"
 }

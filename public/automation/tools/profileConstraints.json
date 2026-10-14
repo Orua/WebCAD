@@ -860,6 +860,7 @@
     "profileConstraints",
     "Solve common saved line",
     "circle profile constraints and derive a new profile while preserving the source, entity IDs and ordered paths",
+    "profile Constraints operation",
     "约束尺寸"
   ],
   "description": "Solve common saved line/circle profile constraints and derive a new profile while preserving the source, entity IDs and ordered paths",
@@ -1221,6 +1222,13 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileOffset",
+      "profileRepair",
+      "profileExtrude",
+      "profileSweep",
+      "profileLoft",
+      "profileRevolve",
       "queryGeometry",
       "measure",
       "files.export"
@@ -1228,7 +1236,8 @@
     "synonyms": [
       "profileConstraints",
       "Solve common saved line",
-      "circle profile constraints and derive a new profile while preserving the source, entity IDs and ordered paths"
+      "circle profile constraints and derive a new profile while preserving the source, entity IDs and ordered paths",
+      "profile Constraints operation"
     ],
     "status": "experimental"
   },
@@ -1357,5 +1366,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:a233ef8701dea91df21f8b7c2378924c2a859d803247d481577d8e33393af9cc"
+  "docsHash": "sha256:eca787c8e804f5c9bb6cbcc846d0a0e71f88a4a04f29886b79878ea7ef184dc9"
 }

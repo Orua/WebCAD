@@ -376,6 +376,7 @@
     "rounding",
     "自动打磨",
     "Smooth selected sharp edges",
+    "rounding operation",
     "打磨",
     "圆润",
     "去利角",
@@ -798,6 +799,12 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fillet",
+      "chamfer",
+      "round",
+      "roundEnd",
+      "autoRound",
+      "smoothTransition",
       "queryGeometry",
       "measure",
       "files.export"
@@ -805,7 +812,8 @@
     "synonyms": [
       "rounding",
       "自动打磨",
-      "Smooth selected sharp edges"
+      "Smooth selected sharp edges",
+      "rounding operation"
     ],
     "status": "experimental"
   },
@@ -938,5 +946,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:34c402b8be5f9f63430477eeca1939cfceae824b3e7812035b414197c7242d04"
+  "docsHash": "sha256:510575eeb240c2c7c7639061bfefb691d97c7cb2ffb3055546ae4a7e02e88d0a"
 }

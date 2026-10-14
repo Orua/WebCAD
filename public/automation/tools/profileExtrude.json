@@ -123,6 +123,7 @@
   "synonyms": [
     "profileExtrude",
     "Extrude a placed exact profile into a new solid, join, cut or intersection",
+    "profile Extrude operation",
     "轮廓拉伸",
     "加工"
   ],
@@ -465,6 +466,13 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileOffset",
+      "profileRepair",
+      "profileSweep",
+      "profileLoft",
+      "profileRevolve",
+      "profileConstraints",
       "queryGeometry",
       "measure",
       "files.export"
@@ -472,7 +480,8 @@
     "synonyms": [
       "profileExtrude",
       "Extrude a placed exact profile into a new solid, join, cut or intersection",
-      "Extrude a placed exact profile into a new solid, join, cut or intersection"
+      "Extrude a placed exact profile into a new solid, join, cut or intersection",
+      "profile Extrude operation"
     ],
     "status": "experimental"
   },
@@ -571,5 +580,5 @@
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:04544e8c3f44c465a2ce74ae384796b61d980f102c177a2950e9a9da1f20c928"
+  "docsHash": "sha256:1e0e070f15e69866899321de73f3c31fe0d50396ca62f68d394c969d67d637dc"
 }

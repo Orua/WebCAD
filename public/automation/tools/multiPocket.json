@@ -142,6 +142,7 @@
   "synonyms": [
     "multiPocket",
     "Cut multiple exact rectangular or rounded rectangular pockets",
+    "multi Pocket operation",
     "多凹槽",
     "批量凹刻",
     "rectangular pocket",
@@ -555,6 +556,12 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "hole",
+      "holeWizard",
+      "faceHole",
+      "multiHole",
+      "multiBoss",
+      "slot",
       "queryGeometry",
       "measure",
       "files.export"
@@ -562,7 +569,8 @@
     "synonyms": [
       "multiPocket",
       "Cut multiple exact rectangular or rounded rectangular pockets",
-      "Cut multiple exact rectangular or rounded rectangular pockets"
+      "Cut multiple exact rectangular or rounded rectangular pockets",
+      "multi Pocket operation"
     ],
     "status": "experimental"
   },
@@ -664,5 +672,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:f1e78c961cc0b416dcd5cf9faa43ea5a7e9e2a8c4786fa552c2d743609dafe01"
+  "docsHash": "sha256:fbe192f63c02fb4e5df7bfc8d6082e337bc5a0e6d6e15de23b8ea85e0e8a328a"
 }

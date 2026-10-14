@@ -133,6 +133,7 @@
   "synonyms": [
     "sweep",
     "Sweep profile along a 3D polyline",
+    "sweep operation",
     "扫掠"
   ],
   "description": "Sweep profile along a 3D polyline",
@@ -525,6 +526,8 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -532,7 +535,8 @@
     "synonyms": [
       "sweep",
       "Sweep profile along a 3D polyline",
-      "Sweep profile along a 3D polyline"
+      "Sweep profile along a 3D polyline",
+      "sweep operation"
     ],
     "status": "experimental"
   },
@@ -629,5 +633,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:7eeb81c34e5a540a6919f188c1f12a44d7e46776bb6f9e85cd1ff4e7c45c9b55"
+  "docsHash": "sha256:6cc5740dc2dc3cb2cee5156465dd01381c6cfae62513e074acb329c0c8d2b692"
 }

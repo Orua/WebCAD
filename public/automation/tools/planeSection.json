@@ -57,6 +57,7 @@
   "synonyms": [
     "planeSection",
     "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
+    "plane Section operation",
     "提取真实截面"
   ],
   "description": "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
@@ -334,6 +335,9 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "faceBoundary",
+      "referenceExtrude",
+      "referenceLoft",
       "queryGeometry",
       "measure",
       "files.export"
@@ -341,7 +345,8 @@
     "synonyms": [
       "planeSection",
       "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
-      "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。"
+      "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
+      "plane Section operation"
     ],
     "status": "experimental"
   },
@@ -438,5 +443,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:579f581d5f4fc7bd95fcc14e076eb41c15df82e0b1086b9fa2575328ad54bcaf"
+  "docsHash": "sha256:8c2840d6c42ea3b43c75c1fd1e7b002a82ddbe041de11ae1f187118eb8302c2a"
 }

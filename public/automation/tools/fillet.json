@@ -126,6 +126,7 @@
   "synonyms": [
     "fillet",
     "Round sharp edges, shared face edges, face boundaries or the whole solid",
+    "fillet operation",
     "圆角",
     "标准圆角",
     "倒圆",
@@ -473,6 +474,12 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "chamfer",
+      "round",
+      "roundEnd",
+      "rounding",
+      "autoRound",
+      "smoothTransition",
       "queryGeometry",
       "measure",
       "files.export"
@@ -480,7 +487,8 @@
     "synonyms": [
       "fillet",
       "Round sharp edges, shared face edges, face boundaries or the whole solid",
-      "Round sharp edges, shared face edges, face boundaries or the whole solid"
+      "Round sharp edges, shared face edges, face boundaries or the whole solid",
+      "fillet operation"
     ],
     "status": "experimental"
   },
@@ -593,5 +601,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:10137976b2d1601e4262c4060794359b7869573da57044e1226af325bb711fc2"
+  "docsHash": "sha256:33b7852f8d53fa4885d10564a7a26b2bbe49b69526ff46dd592d92b5f96c631b"
 }

@@ -47,6 +47,7 @@
   "synonyms": [
     "union",
     "Fuse bodies",
+    "union operation",
     "合并",
     "并集",
     "布尔合并",
@@ -311,6 +312,10 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "cut",
+      "intersect",
+      "split",
+      "meshBoolean",
       "queryGeometry",
       "measure",
       "files.export"
@@ -318,7 +323,8 @@
     "synonyms": [
       "union",
       "Fuse bodies",
-      "Fuse bodies"
+      "Fuse bodies",
+      "union operation"
     ],
     "status": "experimental"
   },
@@ -416,5 +422,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:d629a02e4c6e3a9b8e3d2b7be3653c31a16cf3996bb9e872a2f596b95181b6c8"
+  "docsHash": "sha256:6744eaec36b8d25a0d0285836fc07c00aadf2f12e12de40d2c435a031569e20f"
 }

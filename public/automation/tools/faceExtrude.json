@@ -63,6 +63,7 @@
     "faceExtrude",
     "Push",
     "pull a planar face along its normal",
+    "face Extrude operation",
     "面上拉伸"
   ],
   "description": "Push/pull a planar face along its normal",
@@ -335,6 +336,8 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -342,7 +345,8 @@
     "synonyms": [
       "faceExtrude",
       "Push",
-      "pull a planar face along its normal"
+      "pull a planar face along its normal",
+      "face Extrude operation"
     ],
     "status": "experimental"
   },
@@ -440,5 +444,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:5eed797201db6ee06b623c4bdcdfd36a49cfd63384c17d49d75d6b92ead681f0"
+  "docsHash": "sha256:b06024f35e39a48932aebb16e49db469f275932565adeb894d43546f93cd546b"
 }

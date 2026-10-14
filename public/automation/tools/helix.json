@@ -80,6 +80,7 @@
   "synonyms": [
     "helix",
     "Create an exact helical wire in the creation frame",
+    "helix operation",
     "螺旋线"
   ],
   "description": "Create an exact helical wire in the creation frame",
@@ -372,6 +373,8 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -379,7 +382,8 @@
     "synonyms": [
       "helix",
       "Create an exact helical wire in the creation frame",
-      "Create an exact helical wire in the creation frame"
+      "Create an exact helical wire in the creation frame",
+      "helix operation"
     ],
     "status": "experimental"
   },
@@ -477,5 +481,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:44ecbc55d4a4e34362e419cb0b0ecadc98e3f367f8eace14f5cce99806b10591"
+  "docsHash": "sha256:3e018ea7ea5f0d33a888eb7ba2210e2dc49f9982a2f205ced6f6a7dc0b5a1042"
 }

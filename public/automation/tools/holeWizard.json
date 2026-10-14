@@ -180,6 +180,7 @@
   "synonyms": [
     "holeWizard",
     "Exact plain, counterbore, or countersink hole with flat or angled blind drill point",
+    "hole Wizard operation",
     "孔向导"
   ],
   "description": "Exact plain, counterbore, or countersink hole with flat or angled blind drill point",
@@ -636,6 +637,12 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "hole",
+      "faceHole",
+      "multiHole",
+      "multiPocket",
+      "multiBoss",
+      "slot",
       "queryGeometry",
       "measure",
       "files.export"
@@ -643,7 +650,8 @@
     "synonyms": [
       "holeWizard",
       "Exact plain, counterbore, or countersink hole with flat or angled blind drill point",
-      "Exact plain, counterbore, or countersink hole with flat or angled blind drill point"
+      "Exact plain, counterbore, or countersink hole with flat or angled blind drill point",
+      "hole Wizard operation"
     ],
     "status": "experimental"
   },
@@ -740,5 +748,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:99e60d7764b3300849687c60c5bb525e76c67c6e7f666ef48e18c8713578ef8e"
+  "docsHash": "sha256:efdaecf63fa95119f12fbb0cc0c6e89493922e33e7d361d4a6933d10e8767353"
 }

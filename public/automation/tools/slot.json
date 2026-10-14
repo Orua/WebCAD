@@ -119,6 +119,7 @@
   "synonyms": [
     "slot",
     "Cut an exact capsule slot (two semicircles and two straight sides)",
+    "slot operation",
     "长圆槽"
   ],
   "description": "Cut an exact capsule slot (two semicircles and two straight sides)",
@@ -485,6 +486,12 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "hole",
+      "holeWizard",
+      "faceHole",
+      "multiHole",
+      "multiPocket",
+      "multiBoss",
       "queryGeometry",
       "measure",
       "files.export"
@@ -492,7 +499,8 @@
     "synonyms": [
       "slot",
       "Cut an exact capsule slot (two semicircles and two straight sides)",
-      "Cut an exact capsule slot (two semicircles and two straight sides)"
+      "Cut an exact capsule slot (two semicircles and two straight sides)",
+      "slot operation"
     ],
     "status": "experimental"
   },
@@ -589,5 +597,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:a001b9c4254c54364913b671ff28e43007200fade2b953eb106795ca191f9366"
+  "docsHash": "sha256:6fd6544b47f80a42b1bc1e0dde9ae993f84ac68d28e320a6fbc4138caa5dc563"
 }

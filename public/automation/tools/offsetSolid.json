@@ -64,6 +64,7 @@
   "synonyms": [
     "offsetSolid",
     "Exact signed offset of all boundary faces of one solid",
+    "offset Solid operation",
     "实体偏置"
   ],
   "description": "Exact signed offset of all boundary faces of one solid",
@@ -341,6 +342,13 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fittedSurface",
+      "thickenFace",
+      "sewFaces",
+      "surfaceTrim",
+      "extractFaces",
+      "extractShell",
+      "offsetSurface",
       "queryGeometry",
       "measure",
       "files.export"
@@ -348,7 +356,8 @@
     "synonyms": [
       "offsetSolid",
       "Exact signed offset of all boundary faces of one solid",
-      "Exact signed offset of all boundary faces of one solid"
+      "Exact signed offset of all boundary faces of one solid",
+      "offset Solid operation"
     ],
     "status": "experimental"
   },
@@ -447,5 +456,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:e49254dad0f256bcc541c502d654a55b005e241df5a38b4d40470f4dd31079f0"
+  "docsHash": "sha256:bb25a392a02dc93dcae745ce0a30a794e3beb23cc853b27b8fe6b9ae630226ec"
 }

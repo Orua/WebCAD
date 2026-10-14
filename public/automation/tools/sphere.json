@@ -54,6 +54,7 @@
   "synonyms": [
     "sphere",
     "Sphere centered at origin",
+    "sphere operation",
     "球体"
   ],
   "description": "Sphere centered at origin",
@@ -308,6 +309,11 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "cone",
+      "torus",
+      "quickModel",
       "queryGeometry",
       "measure",
       "files.export"
@@ -315,7 +321,8 @@
     "synonyms": [
       "sphere",
       "Sphere centered at origin",
-      "Sphere centered at origin"
+      "Sphere centered at origin",
+      "sphere operation"
     ],
     "status": "experimental"
   },
@@ -412,5 +419,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:9199f0d97ad2932bfa2ac6d6a8bcbbcb8f9ed3a421c990f93c5bd2527e714fe3"
+  "docsHash": "sha256:e60c4ce2893a50ef27282a2302174542206a6a07e42886ac1cee98ca043432bc"
 }

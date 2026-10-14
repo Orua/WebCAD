@@ -156,6 +156,7 @@
   "synonyms": [
     "revolve",
     "Revolve a closed profile",
+    "revolve operation",
     "旋转成型"
   ],
   "description": "Revolve a closed profile",
@@ -548,6 +549,8 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -555,7 +558,8 @@
     "synonyms": [
       "revolve",
       "Revolve a closed profile",
-      "Revolve a closed profile"
+      "Revolve a closed profile",
+      "revolve operation"
     ],
     "status": "experimental"
   },
@@ -652,5 +656,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:0ee166368cfa391d4f858dda41c8c9aa0573a8727f2a875a674deb5dda6c66bf"
+  "docsHash": "sha256:051be7b4739e2c8ae6613d31e0356b7c6ecf26ca780c2963c701fd9bc6906c27"
 }

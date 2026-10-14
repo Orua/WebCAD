@@ -54,7 +54,8 @@
   "synonyms": [
     "autoRound",
     "整件圆边",
-    "Round every sharp edge of one solid"
+    "Round every sharp edge of one solid",
+    "auto Round operation"
   ],
   "description": "整件圆边 / Round every sharp edge of one solid",
   "schemaHash": "sha256:87faa92279ffe94694ca7d5a2f99d89c16f11fa6bf1f69619d5d36fc1e409b0c",
@@ -317,6 +318,12 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fillet",
+      "chamfer",
+      "round",
+      "roundEnd",
+      "rounding",
+      "smoothTransition",
       "queryGeometry",
       "measure",
       "files.export"
@@ -324,7 +331,8 @@
     "synonyms": [
       "autoRound",
       "整件圆边",
-      "Round every sharp edge of one solid"
+      "Round every sharp edge of one solid",
+      "auto Round operation"
     ],
     "status": "experimental"
   },
@@ -422,5 +430,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:5f342bab332e3bdda1d8c4f029312692145e6e5e0413366a53c03d0e359c46d0"
+  "docsHash": "sha256:916dc3ab43cc2cb3277623cb0f8b2a07166acb6e677ea6b3df95fe6d3155b687"
 }

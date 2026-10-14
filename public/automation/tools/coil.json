@@ -89,6 +89,7 @@
   "synonyms": [
     "coil",
     "Sweep a circular wire section along an exact helix to create a single spring solid",
+    "coil operation",
     "圆线弹簧"
   ],
   "description": "Sweep a circular wire section along an exact helix to create a single spring solid",
@@ -395,6 +396,8 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -402,7 +405,8 @@
     "synonyms": [
       "coil",
       "Sweep a circular wire section along an exact helix to create a single spring solid",
-      "Sweep a circular wire section along an exact helix to create a single spring solid"
+      "Sweep a circular wire section along an exact helix to create a single spring solid",
+      "coil operation"
     ],
     "status": "experimental"
   },
@@ -500,5 +504,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:b086bf0bf6c3e45606455fe2beed6e3d64974dd88b403835fbf90ee181c5f31c"
+  "docsHash": "sha256:3ac7e1a00cadcc05858735f97c2b498c5539768a6804c59307430fc037e0c3ef"
 }

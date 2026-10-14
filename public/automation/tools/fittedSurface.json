@@ -85,6 +85,7 @@
   "synonyms": [
     "fittedSurface",
     "Fit a single B-spline face to a structured point grid",
+    "fitted Surface operation",
     "拟合曲面"
   ],
   "description": "Fit a single B-spline face to a structured point grid",
@@ -555,6 +556,13 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "thickenFace",
+      "sewFaces",
+      "surfaceTrim",
+      "extractFaces",
+      "extractShell",
+      "offsetSurface",
+      "offsetSolid",
       "queryGeometry",
       "measure",
       "files.export"
@@ -562,7 +570,8 @@
     "synonyms": [
       "fittedSurface",
       "Fit a single B-spline face to a structured point grid",
-      "Fit a single B-spline face to a structured point grid"
+      "Fit a single B-spline face to a structured point grid",
+      "fitted Surface operation"
     ],
     "status": "experimental"
   },
@@ -659,5 +668,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:265ab160dc1054f84420865e9185df964705a0680aee26e44eb3eae0565b020b"
+  "docsHash": "sha256:8c460c25316bed948b448e9e2e05f89b7259bbb724f55a52411f0358b9fa189a"
 }

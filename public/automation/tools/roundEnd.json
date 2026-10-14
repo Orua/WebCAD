@@ -109,6 +109,7 @@
     "roundEnd",
     "端头圆润",
     "Round free end",
+    "round End operation",
     "针尖",
     "圆头",
     "自由端",
@@ -469,6 +470,12 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fillet",
+      "chamfer",
+      "round",
+      "rounding",
+      "autoRound",
+      "smoothTransition",
       "queryGeometry",
       "measure",
       "files.export"
@@ -476,7 +483,8 @@
     "synonyms": [
       "roundEnd",
       "端头圆润",
-      "Round free end"
+      "Round free end",
+      "round End operation"
     ],
     "status": "experimental"
   },
@@ -589,5 +597,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:8a3539895501d290939f4ec202e4a7744fd9e925a06d98dfa55c4183a19ff979"
+  "docsHash": "sha256:b8553b53bfe9f860b3edd9d89666c3c6a08cf85fdf35af745804823dab981d6b"
 }

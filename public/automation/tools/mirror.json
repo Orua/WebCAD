@@ -71,6 +71,7 @@
   "synonyms": [
     "mirror",
     "Mirror across a coordinate plane at an explicit offset",
+    "mirror operation",
     "镜像"
   ],
   "description": "Mirror across a coordinate plane at an explicit offset",
@@ -353,6 +354,12 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "transform",
+      "copy",
+      "linearPattern",
+      "circularPattern",
+      "group",
+      "extractSolid",
       "queryGeometry",
       "measure",
       "files.export"
@@ -360,7 +367,8 @@
     "synonyms": [
       "mirror",
       "Mirror across a coordinate plane at an explicit offset",
-      "Mirror across a coordinate plane at an explicit offset"
+      "Mirror across a coordinate plane at an explicit offset",
+      "mirror operation"
     ],
     "status": "experimental"
   },
@@ -457,5 +465,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:56341a78571f4e694c0ac1d9c742fd66a1f8317da1656a410bf82be657f59121"
+  "docsHash": "sha256:16e0c5eb311e2a7a0d36eb5715cd8101fb60caa7e454affb90cef6142dbc923e"
 }

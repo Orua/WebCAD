@@ -94,6 +94,7 @@
     "reliefShoulder",
     "浮雕中央肩部",
     "Central relief shoulder",
+    "relief Shoulder operation",
     "浮雕肩部",
     "中央肩部",
     "cylindrical shoulder",
@@ -504,12 +505,16 @@
       "meshHeightfieldRelief",
       "meshReliefPlate",
       "meshReliefEdit",
-      "meshBoolean"
+      "meshBoolean",
+      "queryGeometry",
+      "measure",
+      "files.export"
     ],
     "synonyms": [
       "reliefShoulder",
       "浮雕中央肩部",
-      "Central relief shoulder"
+      "Central relief shoulder",
+      "relief Shoulder operation"
     ],
     "status": "experimental"
   },
@@ -632,5 +637,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:f1af480709cab695f6fb8f31e77df1ca766449ba50c362a3bf9ee7db256d5c29"
+  "docsHash": "sha256:fb93b7be74471c3bed2fc20e49c44e96145dd3f2491c2cb82861c8bf6807dd95"
 }

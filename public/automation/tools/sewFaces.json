@@ -53,6 +53,7 @@
   "synonyms": [
     "sewFaces",
     "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
+    "sew Faces operation",
     "曲面缝合"
   ],
   "description": "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
@@ -332,6 +333,13 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fittedSurface",
+      "thickenFace",
+      "surfaceTrim",
+      "extractFaces",
+      "extractShell",
+      "offsetSurface",
+      "offsetSolid",
       "queryGeometry",
       "measure",
       "files.export"
@@ -339,7 +347,8 @@
     "synonyms": [
       "sewFaces",
       "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
-      "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。"
+      "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
+      "sew Faces operation"
     ],
     "status": "experimental"
   },
@@ -437,5 +446,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:eae0a7bf40ef4dae5702d9951a7bc48569c3a8e056b4a1507f605e7f469e91bd"
+  "docsHash": "sha256:c45ddf00d7f4c9b77cf61e3e43b6d8e0e7dee7c19706765893f5bcb58032b4cb"
 }

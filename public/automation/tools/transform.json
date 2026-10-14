@@ -235,6 +235,7 @@
     "transform",
     "Scale, rotate X",
     "Z about origin, then translate",
+    "transform operation",
     "移动",
     "旋转",
     "平移",
@@ -754,6 +755,12 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "copy",
+      "mirror",
+      "linearPattern",
+      "circularPattern",
+      "group",
+      "extractSolid",
       "queryGeometry",
       "measure",
       "files.export"
@@ -761,7 +768,8 @@
     "synonyms": [
       "transform",
       "Scale, rotate X",
-      "Z about origin, then translate"
+      "Z about origin, then translate",
+      "transform operation"
     ],
     "status": "experimental"
   },
@@ -859,5 +867,5 @@
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:ee786a9bf357e62c40fe2f4aeac9f915318ee2e497c7a0fa55ce93d4b9e10f01"
+  "docsHash": "sha256:78cbd551a221752a7a1adfd2a6ffd6b6fdba3e7693dcacc7380bb88260e1b312"
 }

@@ -63,6 +63,7 @@
   "synonyms": [
     "torus",
     "Torus around Z axis",
+    "torus operation",
     "圆环"
   ],
   "description": "Torus around Z axis",
@@ -347,6 +348,11 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "quickModel",
       "queryGeometry",
       "measure",
       "files.export"
@@ -354,7 +360,8 @@
     "synonyms": [
       "torus",
       "Torus around Z axis",
-      "Torus around Z axis"
+      "Torus around Z axis",
+      "torus operation"
     ],
     "status": "experimental"
   },
@@ -451,5 +458,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:cc58f8ffa4aa3bc02a5698d06898e29fca807a494838bd0b8540c92b8f63f328"
+  "docsHash": "sha256:53688dbec4220069db44b1640b59e3d22df958e77c2b1be3ff7fc82fe8d31d0f"
 }

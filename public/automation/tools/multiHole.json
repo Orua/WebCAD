@@ -111,6 +111,7 @@
   "synonyms": [
     "multiHole",
     "Cut cylindrical holes sequentially at multiple global start points",
+    "multi Hole operation",
     "多孔",
     "孔位",
     "mounting plate",
@@ -569,6 +570,12 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "hole",
+      "holeWizard",
+      "faceHole",
+      "multiPocket",
+      "multiBoss",
+      "slot",
       "queryGeometry",
       "measure",
       "files.export"
@@ -576,7 +583,8 @@
     "synonyms": [
       "multiHole",
       "Cut cylindrical holes sequentially at multiple global start points",
-      "Cut cylindrical holes sequentially at multiple global start points"
+      "Cut cylindrical holes sequentially at multiple global start points",
+      "multi Hole operation"
     ],
     "status": "experimental"
   },
@@ -678,5 +686,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:fcf73389c4d538bab1136ddb08a72a06aa33e781f2d8da8f25e901f8acd1f396"
+  "docsHash": "sha256:ec7cd7f2fae360363bc166d73f788ec4998d6215490a266bcba4698a290d8ce6"
 }

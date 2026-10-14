@@ -114,6 +114,7 @@
   "synonyms": [
     "hole",
     "Cylindrical cut starting at global coordinates",
+    "hole operation",
     "孔",
     "钻孔",
     "radius",
@@ -477,6 +478,12 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "holeWizard",
+      "faceHole",
+      "multiHole",
+      "multiPocket",
+      "multiBoss",
+      "slot",
       "queryGeometry",
       "measure",
       "files.export"
@@ -484,7 +491,8 @@
     "synonyms": [
       "hole",
       "Cylindrical cut starting at global coordinates",
-      "Cylindrical cut starting at global coordinates"
+      "Cylindrical cut starting at global coordinates",
+      "hole operation"
     ],
     "status": "experimental"
   },
@@ -586,5 +594,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:f600c4586c0d881c01e860f68fc89ea8061a974a3d9f60c50aa7c5231821f6c0"
+  "docsHash": "sha256:8848b887db7f7bacebd20379124989293ba8b4583a897ffb8285e9f4096d88a5"
 }

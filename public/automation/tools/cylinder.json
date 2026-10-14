@@ -63,6 +63,7 @@
   "synonyms": [
     "cylinder",
     "Cylinder on +Z from origin",
+    "cylinder operation",
     "圆柱"
   ],
   "description": "Cylinder on +Z from origin",
@@ -331,6 +332,11 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "sphere",
+      "cone",
+      "torus",
+      "quickModel",
       "queryGeometry",
       "measure",
       "files.export"
@@ -338,7 +344,8 @@
     "synonyms": [
       "cylinder",
       "Cylinder on +Z from origin",
-      "Cylinder on +Z from origin"
+      "Cylinder on +Z from origin",
+      "cylinder operation"
     ],
     "status": "experimental"
   },
@@ -435,5 +442,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:ec587293c93764ec825fe5e56ced5f77891ea93a3685df13a95f071d2de2a35d"
+  "docsHash": "sha256:e0101d09e5857fdf66ed677476fc1495785e2ce94b95af08f0c2898ef734f9a8"
 }

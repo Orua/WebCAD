@@ -68,6 +68,7 @@
     "referenceExtrude",
     "选择一个闭合平面线框或单张平面面。直接复用精确圆弧",
     "样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。",
+    "reference Extrude operation",
     "参考轮廓",
     "精确曲线",
     "拉伸",
@@ -359,6 +360,9 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "planeSection",
+      "faceBoundary",
+      "referenceLoft",
       "queryGeometry",
       "measure",
       "files.export"
@@ -366,7 +370,8 @@
     "synonyms": [
       "referenceExtrude",
       "选择一个闭合平面线框或单张平面面。直接复用精确圆弧",
-      "样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。"
+      "样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。",
+      "reference Extrude operation"
     ],
     "status": "experimental"
   },
@@ -463,5 +468,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:612f84e4d5eb7e03103b3cf3faaa67a25fcdbcfe3782dabbef99ba2c80d281bb"
+  "docsHash": "sha256:6f56f4d3bbd7fa8650e0bc28a81e9faae071025a0f0d5f72d85bf93d0d719515"
 }

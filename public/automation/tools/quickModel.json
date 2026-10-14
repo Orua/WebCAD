@@ -5105,6 +5105,7 @@
   "synonyms": [
     "quickModel",
     "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+    "quick Model operation",
     "快捷模型"
   ],
   "description": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
@@ -10017,6 +10018,11 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -10024,7 +10030,8 @@
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -10121,5 +10128,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:ca67b949da24048006e3f13bfc8f2a21e90e2f72d9135014728377bf325ac290"
+  "docsHash": "sha256:d13bab34550bee028b34200942146bd15f7e08ba8116ae4dde0ae51af2c27d41"
 }

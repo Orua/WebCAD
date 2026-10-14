@@ -60,6 +60,7 @@
   "synonyms": [
     "split",
     "Split body by an offset global plane",
+    "split operation",
     "分割"
   ],
   "description": "Split body by an offset global plane",
@@ -338,6 +339,10 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "union",
+      "cut",
+      "intersect",
+      "meshBoolean",
       "queryGeometry",
       "measure",
       "files.export"
@@ -345,7 +350,8 @@
     "synonyms": [
       "split",
       "Split body by an offset global plane",
-      "Split body by an offset global plane"
+      "Split body by an offset global plane",
+      "split operation"
     ],
     "status": "experimental"
   },
@@ -442,5 +448,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:ca6c716eddfe4e18e3143d2bb5f99efae08c8e4f4ddae61d592f3e04aebdd32a"
+  "docsHash": "sha256:99669c0b279bf31b19610d004340dbd6a9ef0e85e4ec4818baf77021742a5f4f"
 }
