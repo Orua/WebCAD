@@ -62,6 +62,7 @@
   "category": "creation",
   "synonyms": [
     "cylinder",
+    "Cylinder on +Z from origin",
     "圆柱"
   ],
   "description": "Cylinder on +Z from origin",
@@ -111,7 +112,18 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
   ],
   "knownUnsupportedCases": [
     "Cylinder on +Z from origin"
@@ -177,6 +189,230 @@
     "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
+  "contract": {
+    "purpose": "Cylinder on +Z from origin",
+    "whenToUse": [
+      "Cylinder on +Z from origin"
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "radius": {
+        "meaning": "Radius (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "height": {
+        "meaning": "Height (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      }
+    },
+    "refs": {
+      "min": 0,
+      "max": 0,
+      "meaning": "独立创建，不引用已有实体"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": false,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "cylinder",
+        "params": {
+          "radius": 10,
+          "height": 20
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "cylinder",
+        "params": {
+          "radius": 10,
+          "height": 20
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "radius": 10,
+            "height": 20,
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "cylinder",
+      "Cylinder on +Z from origin",
+      "Cylinder on +Z from origin"
+    ],
+    "status": "experimental"
+  },
+  "purpose": "Cylinder on +Z from origin",
+  "whenToUse": [
+    "Cylinder on +Z from origin"
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
   "label": "圆柱",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -199,5 +435,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:5a3eb907d854d64bf993d0878b8b79bda670e05127b806afa66397e1f06e9e0d"
+  "docsHash": "sha256:ed4737b0e1d301dea169620ba28e8d8bf8de4607b7d47a39e34ddb68589d4ccd"
 }

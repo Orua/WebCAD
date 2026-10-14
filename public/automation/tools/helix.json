@@ -78,8 +78,9 @@
   "title": "Create an exact helical wire in the creation frame",
   "category": "creation",
   "synonyms": [
-    "螺旋线",
-    "helix"
+    "helix",
+    "Create an exact helical wire in the creation frame",
+    "螺旋线"
   ],
   "description": "Create an exact helical wire in the creation frame",
   "schemaHash": "sha256:b25fb7578328ff74c64457e24078be44b9abd41351e98513aa1050240260647d",
@@ -128,7 +129,18 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
   ],
   "knownUnsupportedCases": [
     "精确螺旋路径，起点在局部 +X，轴沿局部 +Z；可使用工作基准。半径指中心线，螺距是每圈轴向前进距离。"
@@ -198,6 +210,250 @@
     "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
+  "contract": {
+    "purpose": "Create an exact helical wire in the creation frame",
+    "whenToUse": [
+      "精确螺旋路径，起点在局部 +X，轴沿局部 +Z；可使用工作基准。半径指中心线，螺距是每圈轴向前进距离。"
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "radiusMm": {
+        "meaning": "Helix centerline radius, mm; not outer radius",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "pitchMm": {
+        "meaning": "Positive axial advance per full turn, mm",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "turns": {
+        "meaning": "Positive number of turns, fractional turns permitted",
+        "unit": "1",
+        "range": [
+          0,
+          100
+        ]
+      },
+      "leftHanded": {
+        "meaning": "False is right-handed; true is left-handed",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": false
+      }
+    },
+    "refs": {
+      "min": 0,
+      "max": 0,
+      "meaning": "独立创建，不引用已有实体"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": false,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "helix",
+        "params": {
+          "radiusMm": 10,
+          "pitchMm": 3,
+          "turns": 4
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "helix",
+        "params": {
+          "radiusMm": 10,
+          "pitchMm": 3,
+          "turns": 4
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "radiusMm": 10,
+            "pitchMm": 3,
+            "turns": 4,
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "helix",
+      "Create an exact helical wire in the creation frame",
+      "Create an exact helical wire in the creation frame"
+    ],
+    "status": "experimental"
+  },
+  "purpose": "Create an exact helical wire in the creation frame",
+  "whenToUse": [
+    "精确螺旋路径，起点在局部 +X，轴沿局部 +Z；可使用工作基准。半径指中心线，螺距是每圈轴向前进距离。"
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
   "label": "螺旋线",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -221,5 +477,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:4f3a783ba66f8023063f576d086516c1e12b440dc2e3ef5aac031700794c9d3a"
+  "docsHash": "sha256:44ecbc55d4a4e34362e419cb0b0ecadc98e3f367f8eace14f5cce99806b10591"
 }

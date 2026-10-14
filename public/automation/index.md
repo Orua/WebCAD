@@ -1,10 +1,10 @@
 # WebCAD 页面 API 索引
 
-API 1.47.0 · 操作目录 sha256:f87ab57e9732f51ddb7ef5c01fa7e1c9d7e0da7766e925733fb0a2a4439f4a29
+API 1.47.0 · 操作目录 sha256:259f7c718a2e00cfdfcf1ff463119c7d35091bdf3659daeb99c3c3f337694486
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
-长度 mm、角度 degrees、体积 mm³。严格契约：reliefShoulder、meshReliefPlate、meshReliefEdit、box、cylinder、sphere、cone、torus、mirror、linearPattern、circularPattern、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、faceHole、round、roundEnd、rounding、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude、profileRevolve、profileSweep、profileLoft、offsetSolid、offsetSurface、draftByPlane、helix、coil、thread、profileConstraints、faceGroove、innerTurn、outerTurn、refineShape、relief；其余操作为 advisory。
+长度 mm、角度 degrees、体积 mm³。严格契约：meshHeightfieldRelief、meshBoolean、logo、union、cut、intersect、transform、copy、reliefShoulder、meshReliefPlate、meshReliefEdit、box、cylinder、sphere、cone、torus、mirror、linearPattern、circularPattern、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、faceHole、round、roundEnd、rounding、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude、profileRevolve、profileSweep、profileLoft、offsetSolid、offsetSurface、draftByPlane、helix、coil、thread、profileConstraints、faceGroove、innerTurn、outerTurn、refineShape、relief；其余操作为 advisory。
 
 ## 页面方法
 
@@ -108,10 +108,10 @@ API 1.47.0 · 操作目录 sha256:f87ab57e9732f51ddb7ef5c01fa7e1c9d7e0da7766e925
 - `circularPattern` · migrated · Rotated copies as a compound or explicitly fused solid
 - `coil` · migrated · Sweep a circular wire section along an exact helix to create a single spring solid
 - `cone` · migrated · Cone/frustum along +Z
-- `copy` · advisory · Copy with scale, rotation and translation
+- `copy` · migrated · Copy with scale, rotation and translation
 - `curveSweep` · advisory · Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections
 - `curvedLogo` · advisory · Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work
-- `cut` · advisory · Subtract other bodies from first
+- `cut` · migrated · Subtract other bodies from first
 - `cylinder` · migrated · Cylinder on +Z from origin
 - `draftByPlane` · migrated · Draft explicitly selected analytic faces about an explicit neutral plane
 - `draftFaces` · migrated · Exact restricted four-side planar prism draft around one fixed bottom plane
@@ -130,12 +130,12 @@ API 1.47.0 · 操作目录 sha256:f87ab57e9732f51ddb7ef5c01fa7e1c9d7e0da7766e925
 - `hole` · migrated · Cylindrical cut starting at global coordinates
 - `holeWizard` · migrated · Exact plain, counterbore, or countersink hole with flat or angled blind drill point
 - `innerTurn` · migrated · Bore inside a selected planar section
-- `intersect` · advisory · Common volume of bodies
+- `intersect` · migrated · Common volume of bodies
 - `linearPattern` · migrated · Linear copies as a compound or explicitly fused solid
 - `loft` · advisory · Ruled loft between parallel XY profiles
-- `logo` · advisory · Unified reviewed LOGO on one exact face; legacy entries remain planar
-- `meshBoolean` · advisory · 网格布尔合并 / Mesh boolean
-- `meshHeightfieldRelief` · advisory · 高度图浮雕 / Heightfield relief
+- `logo` · migrated · Unified reviewed LOGO on one exact face; legacy entries remain planar
+- `meshBoolean` · migrated · 网格布尔合并 / Mesh boolean
+- `meshHeightfieldRelief` · migrated · 高度图浮雕 / Heightfield relief
 - `meshReliefEdit` · migrated · 网格局部修高 / Local mesh relief height
 - `meshReliefPlate` · migrated · 浮雕网格底板 / Relief mesh plate
 - `mirror` · migrated · Mirror across a coordinate plane at an explicit offset
@@ -175,8 +175,8 @@ API 1.47.0 · 操作目录 sha256:f87ab57e9732f51ddb7ef5c01fa7e1c9d7e0da7766e925
 - `thickenFace` · advisory · Normal offset of one face into a new solid
 - `thread` · migrated · Cut an explicit symmetric helical V groove on a selected cylindrical material face
 - `torus` · migrated · Torus around Z axis
-- `transform` · advisory · Scale, rotate X/Y/Z about origin, then translate
-- `union` · advisory · Fuse bodies
+- `transform` · migrated · Scale, rotate X/Y/Z about origin, then translate
+- `union` · migrated · Fuse bodies
 - `vectorProfile` · advisory · Create independent planar faces or solids from closed vector regions
 - `template.ring` · advisory · 同心圆恒截面单圈；开缝为底部正中平行平切。
 - `template.washer` · advisory · 平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。

@@ -8,6 +8,7 @@ import { UI_API_ROUTES } from '../src/ui-api-coverage.js';
 import {createHash} from 'node:crypto';
 import {isDeepStrictEqual} from 'node:util';
 import {AGENT_ONBOARDING} from '../src/agent-onboarding.js';
+import {verifyOperationContracts} from './verify-operation-contracts.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const json = async path => JSON.parse(await readFile(resolve(root, path), 'utf8'));
@@ -71,4 +72,5 @@ for(const file of [...kit.files,kit.installer]){
 }
 const routes=await outputJson('automation/routes.json');
 if(!isDeepStrictEqual(routes.routes,UI_API_ROUTES))throw new Error('Agent operation routes differ from UI API routes');
-console.log(`Release gate passed: ${report.operations.length} operations, ${report.executeActions.length} actions, ${report.uiRoutes.length} UI routes; agent entry and kit verified`);
+verifyOperationContracts();
+console.log(`Release gate passed: ${report.operations.length} operations, ${report.executeActions.length} actions, ${report.uiRoutes.length} UI routes; agent entry, kit and operation contracts verified`);

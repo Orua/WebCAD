@@ -106,7 +106,9 @@
   "title": "端头圆润 / Round free end",
   "category": "modification",
   "synonyms": [
+    "roundEnd",
     "端头圆润",
+    "Round free end",
     "针尖",
     "圆头",
     "自由端",
@@ -165,7 +167,18 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
   ],
   "knownUnsupportedCases": [
     "Rebuild the whole end containing every selected edge by revolving its actual half section 180 degrees. Explicit axis/direction and profileAxis; no fixed R. Supports a single solid with a symmetric, stable straight LINE/CIRCLE section and no profile corner over 1 degree; ellipse and spline sections are unsupported. Preserves smaller inherited profile creases and reports them; not a whole-body G1/G2 claim. New body connection must meet 0.1 degrees; sampled position tolerance 1e-5 mm. Replaces material only inside the declared end region, may add and remove material, never extends overall length. Use preview.start/commit to inspect the full changed end. getState bodies[].endRoundingReport reports section checks, source/head/join angles, residual seams, target displacement, length and separate material changes. Wrong target, taper, asymmetry, insufficient depth, already rounded or invalid solid rejects atomically. World principal axes only; edit rebuilds from the original upstream body."
@@ -253,6 +266,306 @@
     "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
+  "contract": {
+    "purpose": "端头圆润 / Round free end",
+    "whenToUse": [
+      "Rebuild the whole end containing every selected edge by revolving its actual half section 180 degrees. Explicit axis/direction and profileAxis; no fixed R. Supports a single solid with a symmetric, stable straight LINE/CIRCLE section and no profile corner over 1 degree; ellipse and spline sections are unsupported. Preserves smaller inherited profile creases and reports them; not a whole-body G1/G2 claim. New body connection must meet 0.1 degrees; sampled position tolerance 1e-5 mm. Replaces material only inside the declared end region, may add and remove material, never extends overall length. Use preview.start/commit to inspect the full changed end. getState bodies[].endRoundingReport reports section checks, source/head/join angles, residual seams, target displacement, length and separate material changes. Wrong target, taper, asymmetry, insufficient depth, already rounded or invalid solid rejects atomically. World principal axes only; edit rebuilds from the original upstream body."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "edgeIds": {
+        "meaning": "edgeIds: 端头圆润 / Round free end",
+        "unit": "1",
+        "range": [
+          1,
+          32
+        ]
+      },
+      "axis": {
+        "meaning": "Global axis",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": "Y"
+      },
+      "direction": {
+        "meaning": "End direction along the world axis",
+        "unit": "1",
+        "range": [
+          null,
+          null
+        ],
+        "default": 1
+      },
+      "profileAxis": {
+        "meaning": "Cross-section thickness / rotation axis; different from axis",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": "Z"
+      },
+      "depthMm": {
+        "meaning": "Distance from the actual extreme end back to the connection section (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      }
+    },
+    "refs": {
+      "min": 1,
+      "max": 1,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "END_ROUNDING_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "KERNEL_BUILD_FAILED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "NO_CHANGE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "roundEnd",
+        "params": {
+          "axis": "Y",
+          "direction": 1,
+          "profileAxis": "Z",
+          "depthMm": 2,
+          "edgeIds": [
+            0
+          ]
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "roundEnd",
+        "params": {
+          "axis": "Y",
+          "direction": 1,
+          "profileAxis": "Z",
+          "depthMm": 2,
+          "edgeIds": [
+            0
+          ]
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "axis": "Y",
+            "direction": 1,
+            "profileAxis": "Z",
+            "depthMm": 2,
+            "edgeIds": [
+              0
+            ],
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "services-eligible",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "roundEnd",
+      "端头圆润",
+      "Round free end"
+    ],
+    "status": "experimental"
+  },
+  "purpose": "端头圆润 / Round free end",
+  "whenToUse": [
+    "Rebuild the whole end containing every selected edge by revolving its actual half section 180 degrees. Explicit axis/direction and profileAxis; no fixed R. Supports a single solid with a symmetric, stable straight LINE/CIRCLE section and no profile corner over 1 degree; ellipse and spline sections are unsupported. Preserves smaller inherited profile creases and reports them; not a whole-body G1/G2 claim. New body connection must meet 0.1 degrees; sampled position tolerance 1e-5 mm. Replaces material only inside the declared end region, may add and remove material, never extends overall length. Use preview.start/commit to inspect the full changed end. getState bodies[].endRoundingReport reports section checks, source/head/join angles, residual seams, target displacement, length and separate material changes. Wrong target, taper, asymmetry, insufficient depth, already rounded or invalid solid rejects atomically. World principal axes only; edit rebuilds from the original upstream body."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "END_ROUNDING_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "KERNEL_BUILD_FAILED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "NO_CHANGE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "services-eligible",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
   "label": "端头圆润",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -276,5 +589,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:ba28a7206c27799fa1d42bb8e91d7d218bd47f38a1404c1678861628542f95df"
+  "docsHash": "sha256:8a3539895501d290939f4ec202e4a7744fd9e925a06d98dfa55c4183a19ff979"
 }

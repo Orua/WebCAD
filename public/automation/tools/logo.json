@@ -1,6 +1,6 @@
 {
   "id": "logo",
-  "version": "legacy-1",
+  "version": "1.0.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -373,20 +373,23 @@
   "title": "Unified reviewed LOGO on one exact face; legacy entries remain planar",
   "category": "modification",
   "synonyms": [
+    "恒深LOGO",
+    "文字刻字",
+    "logo engraving",
     "logo",
     "LOGO"
   ],
   "description": "Unified reviewed LOGO on one exact face; legacy entries remain planar",
-  "schemaHash": "sha256:ea48a6e79206239d21c27f75fc0e7b474f250609c4bd8cf3e59fa3d8db85c140",
+  "schemaHash": "sha256:811fd579823ae33f95192bc27360bebba62e43833f0b4614f33beac5c21fcd3e",
   "apiCompatibility": [
-    "page-advisory"
+    "page-v2"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
-  "strictContract": false,
+  "strictContract": true,
   "v2Executable": true,
-  "contractStatus": "advisory",
+  "contractStatus": "migrated",
   "outputSchema": {
     "type": "object",
     "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
@@ -424,11 +427,21 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
   ],
   "knownUnsupportedCases": [
-    "New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. Reject boundary, seam, invalid geometry or stale face.",
-    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
+    "New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. Reject boundary, seam, invalid geometry or stale face."
   ],
   "minimalExample": {
     "op": "logo",
@@ -476,7 +489,7 @@
       "<current-bodyId-1>"
     ],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "normalExample": {
     "op": "logo",
@@ -524,7 +537,7 @@
       "<current-bodyId-1>"
     ],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "invalidExamples": [
     {
@@ -564,7 +577,7 @@
         "__unknownField": true
       },
       "errorCode": "PARAM_SCHEMA_INVALID",
-      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+      "explanation": "Rejected before kernel execution."
     }
   ],
   "errorCodes": [
@@ -590,13 +603,551 @@
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
   "verification": {
-    "contract": "not_migrated",
+    "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
+  "contract": {
+    "purpose": "Unified reviewed LOGO on one exact face; legacy entries remain planar",
+    "whenToUse": [
+      "New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. Reject boundary, seam, invalid geometry or stale face."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "faceId": {
+        "meaning": "Current selected face index",
+        "unit": "1",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "point": {
+        "meaning": "World coordinate [x,y,z] in mm",
+        "unit": "mm",
+        "range": [
+          3,
+          3
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "placementVersion": {
+        "meaning": "placementVersion: Unified reviewed LOGO on one exact face; legacy entries remain planar",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "targetSurfaceType": {
+        "meaning": "targetSurfaceType: Unified reviewed LOGO on one exact face; legacy entries remain planar",
+        "unit": "none",
+        "range": [
+          1,
+          40
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "targetFaceArea": {
+        "meaning": "Area of target face at placement (mm^2)",
+        "unit": "dimensionless",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "targetFaceCenter": {
+        "meaning": "World coordinate [x,y,z] in mm",
+        "unit": "none",
+        "range": [
+          3,
+          3
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "targetFaceSignature": {
+        "meaning": "targetFaceSignature: Unified reviewed LOGO on one exact face; legacy entries remain planar",
+        "unit": "none",
+        "range": [
+          12,
+          100
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "targetGeometryFingerprint": {
+        "meaning": "targetGeometryFingerprint: Unified reviewed LOGO on one exact face; legacy entries remain planar",
+        "unit": "none",
+        "range": [
+          12,
+          100
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "mode": {
+        "meaning": "Material operation",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "depth": {
+        "meaning": "Explicit engraving depth or emboss height (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "draftAngle": {
+        "meaning": "Draft angle degrees; legacy missing value means 0; unified UI initially 0",
+        "unit": "deg",
+        "range": [
+          0,
+          45
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "scale": {
+        "meaning": "Uniform outline scale",
+        "unit": "1",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "angle": {
+        "meaning": "Local rotation in degrees",
+        "unit": "deg",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "offsetX": {
+        "meaning": "Offset along local face X (mm)",
+        "unit": "dimensionless",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "offsetY": {
+        "meaning": "Offset along local face Y (mm)",
+        "unit": "dimensionless",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "mirrorX": {
+        "meaning": "Mirror outline local X before rotation",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "regions": {
+        "meaning": "regions: Unified reviewed LOGO on one exact face; legacy entries remain planar",
+        "unit": "none",
+        "range": [
+          1,
+          150
+        ]
+      },
+      "source": {
+        "meaning": "New v2 requires source.reviewed=true after contour/size/hole review; preserve original provenance",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "name": {
+        "meaning": "name: Unified reviewed LOGO on one exact face; legacy entries remain planar",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "sizeMm": {
+        "meaning": "sizeMm: Unified reviewed LOGO on one exact face; legacy entries remain planar",
+        "unit": "mm",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "machiningIntent": {
+        "meaning": "machiningIntent",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; source default"
+        }
+      }
+    },
+    "refs": {
+      "min": 1,
+      "max": 1,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "logo",
+        "params": {
+          "placementVersion": 2,
+          "faceId": 0,
+          "point": [
+            5,
+            5,
+            3
+          ],
+          "mode": "engrave",
+          "depth": 0.2,
+          "draftAngle": 0,
+          "regions": [
+            {
+              "outer": [
+                [
+                  -1,
+                  -1
+                ],
+                [
+                  1,
+                  -1
+                ],
+                [
+                  0,
+                  1
+                ]
+              ]
+            }
+          ],
+          "source": {
+            "kind": "reviewed-contours",
+            "reviewed": true
+          },
+          "machiningIntent": {
+            "version": 1,
+            "requestedGeometry": "constantDepthContours",
+            "sourceInterpretation": "reviewedVectors",
+            "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
+          }
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "logo",
+        "params": {
+          "placementVersion": 2,
+          "faceId": 0,
+          "point": [
+            5,
+            5,
+            3
+          ],
+          "mode": "engrave",
+          "depth": 0.2,
+          "draftAngle": 0,
+          "regions": [
+            {
+              "outer": [
+                [
+                  -1,
+                  -1
+                ],
+                [
+                  1,
+                  -1
+                ],
+                [
+                  0,
+                  1
+                ]
+              ]
+            }
+          ],
+          "source": {
+            "kind": "reviewed-contours",
+            "reviewed": true
+          },
+          "machiningIntent": {
+            "version": 1,
+            "requestedGeometry": "constantDepthContours",
+            "sourceInterpretation": "reviewedVectors",
+            "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
+          }
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "placementVersion": 2,
+            "faceId": 0,
+            "point": [
+              5,
+              5,
+              3
+            ],
+            "mode": "engrave",
+            "depth": 0.2,
+            "draftAngle": 0,
+            "regions": [
+              {
+                "outer": [
+                  [
+                    -1,
+                    -1
+                  ],
+                  [
+                    1,
+                    -1
+                  ],
+                  [
+                    0,
+                    1
+                  ]
+                ]
+              }
+            ],
+            "source": {
+              "kind": "reviewed-contours",
+              "reviewed": true
+            },
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "relief",
+      "reliefShoulder",
+      "meshHeightfieldRelief",
+      "meshReliefPlate",
+      "meshReliefEdit",
+      "meshBoolean"
+    ],
+    "synonyms": [
+      "恒深LOGO",
+      "文字刻字",
+      "logo engraving"
+    ],
+    "status": "experimental"
+  },
+  "purpose": "Unified reviewed LOGO on one exact face; legacy entries remain planar",
+  "whenToUse": [
+    "New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. Reject boundary, seam, invalid geometry or stale face."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
   "label": "LOGO",
-  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -616,6 +1167,6 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:36d249dc26ec7e4fe142cde42a30a423a6660613724f244f5f5f60f3a356b6f2"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:09758f62852b10a406b860d980e42179b5c47769f4d74473c79aab9c81fb70c7"
 }

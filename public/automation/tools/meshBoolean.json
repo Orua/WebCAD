@@ -1,6 +1,6 @@
 {
   "id": "meshBoolean",
-  "version": "legacy-1",
+  "version": "1.0.0",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -65,20 +65,23 @@
   "title": "网格布尔合并 / Mesh boolean",
   "category": "modification",
   "synonyms": [
+    "合并 网格",
+    "STL 布尔",
+    "mesh boolean",
     "meshBoolean",
     "网格布尔合并"
   ],
   "description": "网格布尔合并 / Mesh boolean",
-  "schemaHash": "sha256:6e48a671d33294695857caf9429924b733bd48d8364b24e39a5af5544d4c864b",
+  "schemaHash": "sha256:e312f38c42afe9e78925afae160a4695898493aead6f9225572b525e63ce8d8e",
   "apiCompatibility": [
-    "page-advisory"
+    "page-v2"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
-  "strictContract": false,
+  "strictContract": true,
   "v2Executable": true,
-  "contractStatus": "advisory",
+  "contractStatus": "migrated",
   "outputSchema": {
     "type": "object",
     "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
@@ -116,11 +119,39 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    {
+      "name": "minRefs",
+      "value": 2,
+      "unit": "count",
+      "source": "src/limits.js#meshBoolean.minRefs"
+    },
+    {
+      "name": "maxRefs",
+      "value": 16,
+      "unit": "count",
+      "source": "src/limits.js#meshBoolean.maxRefs"
+    },
+    {
+      "name": "minToleranceMm",
+      "value": 0.005,
+      "unit": "mm",
+      "source": "src/limits.js#meshBoolean.minToleranceMm"
+    },
+    {
+      "name": "maxToleranceMm",
+      "value": 1,
+      "unit": "mm",
+      "source": "src/limits.js#meshBoolean.maxToleranceMm"
+    },
+    {
+      "name": "defaultToleranceMm",
+      "value": 0.05,
+      "unit": "mm",
+      "source": "src/limits.js#meshBoolean.defaultToleranceMm"
+    }
   ],
   "knownUnsupportedCases": [
-    "refs: 2–16 bodies in order; subtract removes refs[1..] from refs[0]. Mesh bodies are used as-is (with placement); exact BRep bodies are tessellated at toleranceMm (default 0.05 mm). Every input must be a closed, manifold mesh. Result is a closed raw mesh (STL export), not a BRep/STEP; refs are consumed.",
-    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
+    "refs: 2–16 bodies in order; subtract removes refs[1..] from refs[0]. Mesh bodies are used as-is (with placement); exact BRep bodies are tessellated at toleranceMm (default 0.05 mm). Every input must be a closed, manifold mesh. Result is a closed raw mesh (STL export), not a BRep/STEP; refs are consumed."
   ],
   "minimalExample": {
     "op": "meshBoolean",
@@ -134,7 +165,7 @@
       "<current-bodyId-2>"
     ],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "normalExample": {
     "op": "meshBoolean",
@@ -148,18 +179,14 @@
       "<current-bodyId-2>"
     ],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "invalidExamples": [
     {
       "params": {
-        "version": 1,
-        "operation": "union",
-        "toleranceMm": 0.05,
-        "__unknownField": true
+        "__invalid": true
       },
-      "errorCode": "PARAM_SCHEMA_INVALID",
-      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+      "errorCode": "MESH_BOOLEAN_INVALID"
     }
   ],
   "errorCodes": [
@@ -170,7 +197,11 @@
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
-    "SIZE_LIMIT"
+    "SIZE_LIMIT",
+    "MESH_BOOLEAN_INVALID",
+    "MESH_BOOLEAN_EMPTY",
+    "MESH_BOOLEAN_UNAVAILABLE",
+    "MESH_NOT_MANIFOLD"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -185,13 +216,312 @@
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
   "verification": {
-    "contract": "not_migrated",
+    "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
+  "contract": {
+    "purpose": "网格布尔合并 / Mesh boolean",
+    "whenToUse": [
+      "refs: 2–16 bodies in order; subtract removes refs[1..] from refs[0]. Mesh bodies are used as-is (with placement); exact BRep bodies are tessellated at toleranceMm (default 0.05 mm). Every input must be a closed, manifold mesh. Result is a closed raw mesh (STL export), not a BRep/STEP; refs are consumed."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "需要精确曲面和STEP交换",
+        "use": "relief"
+      }
+    ],
+    "params": {
+      "version": {
+        "meaning": "version: 网格布尔合并 / Mesh boolean",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "operation": {
+        "meaning": "operation: 网格布尔合并 / Mesh boolean",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "toleranceMm": {
+        "meaning": "toleranceMm: 网格布尔合并 / Mesh boolean",
+        "unit": "mm",
+        "range": [
+          0.005,
+          1
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      }
+    },
+    "refs": {
+      "min": 2,
+      "max": 2,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "minRefs",
+        "value": 2,
+        "unit": "count",
+        "source": "src/limits.js#meshBoolean.minRefs"
+      },
+      {
+        "name": "maxRefs",
+        "value": 16,
+        "unit": "count",
+        "source": "src/limits.js#meshBoolean.maxRefs"
+      },
+      {
+        "name": "minToleranceMm",
+        "value": 0.005,
+        "unit": "mm",
+        "source": "src/limits.js#meshBoolean.minToleranceMm"
+      },
+      {
+        "name": "maxToleranceMm",
+        "value": 1,
+        "unit": "mm",
+        "source": "src/limits.js#meshBoolean.maxToleranceMm"
+      },
+      {
+        "name": "defaultToleranceMm",
+        "value": 0.05,
+        "unit": "mm",
+        "source": "src/limits.js#meshBoolean.defaultToleranceMm"
+      }
+    ],
+    "outputs": {
+      "geometryType": "rawMesh",
+      "exportFormats": [
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "MESH_BOOLEAN_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "MESH_BOOLEAN_EMPTY",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "MESH_BOOLEAN_UNAVAILABLE",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "MESH_NOT_MANIFOLD",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "meshBoolean",
+        "params": {
+          "version": 1,
+          "operation": "union",
+          "toleranceMm": 0.05
+        },
+        "refs": [
+          "<current-bodyId-1>",
+          "<current-bodyId-2>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "meshBoolean",
+        "params": {
+          "version": 1,
+          "operation": "union",
+          "toleranceMm": 0.05
+        },
+        "refs": [
+          "<current-bodyId-1>",
+          "<current-bodyId-2>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "__invalid": true
+          },
+          "errorCode": "MESH_BOOLEAN_INVALID"
+        }
+      ]
+    },
+    "routing": {
+      "class": "bounded-mesh",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "relief",
+      "reliefShoulder",
+      "logo",
+      "meshHeightfieldRelief",
+      "meshReliefPlate",
+      "meshReliefEdit"
+    ],
+    "synonyms": [
+      "合并 网格",
+      "STL 布尔",
+      "mesh boolean"
+    ],
+    "status": "experimental"
+  },
+  "purpose": "网格布尔合并 / Mesh boolean",
+  "whenToUse": [
+    "refs: 2–16 bodies in order; subtract removes refs[1..] from refs[0]. Mesh bodies are used as-is (with placement); exact BRep bodies are tessellated at toleranceMm (default 0.05 mm). Every input must be a closed, manifold mesh. Result is a closed raw mesh (STL export), not a BRep/STEP; refs are consumed."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "需要精确曲面和STEP交换",
+      "use": "relief"
+    }
+  ],
+  "outputs": {
+    "geometryType": "rawMesh",
+    "exportFormats": [
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "MESH_BOOLEAN_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "MESH_BOOLEAN_EMPTY",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "MESH_BOOLEAN_UNAVAILABLE",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "MESH_NOT_MANIFOLD",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    }
+  ],
+  "routing": {
+    "class": "bounded-mesh",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
   "label": "网格布尔合并",
-  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -212,6 +542,6 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:5392451f8eddd94a10b71264716dc222fe27458da481f2ad825745cff141c83b"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:b33bd954b5f85056c9fe173c1fb758fa2e8fa449a43edb36352c93b775d3f990"
 }

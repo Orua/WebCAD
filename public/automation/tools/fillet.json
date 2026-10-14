@@ -124,11 +124,12 @@
   "title": "Round sharp edges, shared face edges, face boundaries or the whole solid",
   "category": "modification",
   "synonyms": [
+    "fillet",
+    "Round sharp edges, shared face edges, face boundaries or the whole solid",
     "圆角",
     "标准圆角",
     "倒圆",
-    "半径",
-    "fillet"
+    "半径"
   ],
   "description": "Round sharp edges, shared face edges, face boundaries or the whole solid",
   "schemaHash": "sha256:6a30edc68970a527e9e6155563f5b79edfb5db35d7a984dd7e958f33f8ccc69b",
@@ -179,7 +180,18 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
   ],
   "knownUnsupportedCases": [
     "Choose exactly one scope: edgeIds, faceIds, or allEdges=true. For two or more faces use sharedFaces:true to round only shared edges. UI multi-face selection uses sharedFaces:true; one face selects its boundary including holes. Tangent seams, periodic seams and degenerate edges are excluded. Exact BRep p-curves determine surface normals. Failure reports target/failing edge IDs and commits nothing. For up to eight target edges, a failed radius can trigger bounded read-only trials of smaller radii; the error may report one sampled radius that produced a valid solid. It is not a maximum and is never silently applied. Convex corners remove material; concave corners add a blend inside the recess. getState().bodies[].blendReport returns processed/skipped edges."
@@ -258,6 +270,306 @@
     "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
+  "contract": {
+    "purpose": "Round sharp edges, shared face edges, face boundaries or the whole solid",
+    "whenToUse": [
+      "Choose exactly one scope: edgeIds, faceIds, or allEdges=true. For two or more faces use sharedFaces:true to round only shared edges. UI multi-face selection uses sharedFaces:true; one face selects its boundary including holes. Tangent seams, periodic seams and degenerate edges are excluded. Exact BRep p-curves determine surface normals. Failure reports target/failing edge IDs and commits nothing. For up to eight target edges, a failed radius can trigger bounded read-only trials of smaller radii; the error may report one sampled radius that produced a valid solid. It is not a maximum and is never silently applied. Convex corners remove material; concave corners add a blend inside the recess. getState().bodies[].blendReport returns processed/skipped edges."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "radius": {
+        "meaning": "Fillet radius (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "edgeIds": {
+        "meaning": "edgeIds: Round sharp edges, shared face edges, face boundaries or the whole solid",
+        "unit": "1",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "faceIds": {
+        "meaning": "faceIds: Round sharp edges, shared face edges, face boundaries or the whole solid",
+        "unit": "1",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "sharedFaces": {
+        "meaning": "With at least two faceIds, process only their common sharp edges; omitted/false preserves historical face-boundary scope",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "allEdges": {
+        "meaning": "Explicitly process every sharp edge of the body",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      }
+    },
+    "refs": {
+      "min": 1,
+      "max": 1,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SELECTION_CONFLICT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "STALE_REFERENCE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNSAFE_LEGACY_REFERENCE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "fillet",
+        "params": {
+          "radius": 0.5,
+          "edgeIds": [
+            0
+          ]
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "fillet",
+        "params": {
+          "radius": 0.5,
+          "edgeIds": [
+            0
+          ]
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "radius": 0.5,
+            "edgeIds": [
+              0
+            ],
+            "allEdges": true
+          },
+          "errorCode": "SELECTION_CONFLICT",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "services-eligible",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "fillet",
+      "Round sharp edges, shared face edges, face boundaries or the whole solid",
+      "Round sharp edges, shared face edges, face boundaries or the whole solid"
+    ],
+    "status": "experimental"
+  },
+  "purpose": "Round sharp edges, shared face edges, face boundaries or the whole solid",
+  "whenToUse": [
+    "Choose exactly one scope: edgeIds, faceIds, or allEdges=true. For two or more faces use sharedFaces:true to round only shared edges. UI multi-face selection uses sharedFaces:true; one face selects its boundary including holes. Tangent seams, periodic seams and degenerate edges are excluded. Exact BRep p-curves determine surface normals. Failure reports target/failing edge IDs and commits nothing. For up to eight target edges, a failed radius can trigger bounded read-only trials of smaller radii; the error may report one sampled radius that produced a valid solid. It is not a maximum and is never silently applied. Convex corners remove material; concave corners add a blend inside the recess. getState().bodies[].blendReport returns processed/skipped edges."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SELECTION_CONFLICT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "STALE_REFERENCE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNSAFE_LEGACY_REFERENCE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "services-eligible",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
   "label": "圆角",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -281,5 +593,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:d1d0ece833313ddbde59ae2da87e8bd4f6c7556ce6ad74307d9b378a5913f8fa"
+  "docsHash": "sha256:10137976b2d1601e4262c4060794359b7869573da57044e1226af325bb711fc2"
 }

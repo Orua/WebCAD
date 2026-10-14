@@ -155,6 +155,7 @@
   "category": "creation",
   "synonyms": [
     "revolve",
+    "Revolve a closed profile",
     "旋转成型"
   ],
   "description": "Revolve a closed profile",
@@ -205,7 +206,18 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
   ],
   "knownUnsupportedCases": [
     "XY revolves about global Y; XZ/YZ about global Z. Defaults angle=360,offset=10; avoid crossing rotation axis.",
@@ -240,15 +252,9 @@
   "invalidExamples": [
     {
       "params": {
-        "profile": "rectangle",
-        "width": 2,
-        "depth": 3,
-        "offset": 10,
-        "angle": 360,
-        "__unknownField": true
+        "__invalid": true
       },
-      "errorCode": "PARAM_SCHEMA_INVALID",
-      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+      "errorCode": "PARAM_SCHEMA_INVALID"
     }
   ],
   "errorCodes": [
@@ -274,11 +280,356 @@
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-contract.test.mjs"
+  ],
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
+  "contract": {
+    "purpose": "Revolve a closed profile",
+    "whenToUse": [
+      "XY revolves about global Y; XZ/YZ about global Z. Defaults angle=360,offset=10; avoid crossing rotation axis."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "profile": {
+        "meaning": "Closed cross-section",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "width": {
+        "meaning": "Width (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "depth": {
+        "meaning": "Depth (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "radius": {
+        "meaning": "Circle/arc radius (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "cornerRadius": {
+        "meaning": "Rounded rectangle corner radius; less than half shorter side (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "points": {
+        "meaning": "points: Revolve a closed profile",
+        "unit": "mm",
+        "range": [
+          3,
+          1000
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "startAngle": {
+        "meaning": "Arc start (degrees)",
+        "unit": "deg",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "endAngle": {
+        "meaning": "Arc end (degrees); absolute span > 0 and < 360",
+        "unit": "deg",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "closure": {
+        "meaning": "Arc closure",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "plane": {
+        "meaning": "Global plane",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "offset": {
+        "meaning": "Horizontal in-plane offset from rotation axis (mm)",
+        "unit": "mm",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "angle": {
+        "meaning": "Degrees",
+        "unit": "deg",
+        "range": [
+          0,
+          360
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      }
+    },
+    "refs": {
+      "min": 0,
+      "max": 0,
+      "meaning": "独立创建，不引用已有实体"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": false,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "revolve",
+        "params": {
+          "profile": "rectangle",
+          "width": 2,
+          "depth": 3,
+          "offset": 10,
+          "angle": 360
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "normal": {
+        "op": "revolve",
+        "params": {
+          "profile": "rectangle",
+          "width": 2,
+          "depth": 3,
+          "offset": 10,
+          "angle": 360
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "invalid": [
+        {
+          "params": {
+            "__invalid": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID"
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "revolve",
+      "Revolve a closed profile",
+      "Revolve a closed profile"
+    ],
+    "status": "experimental"
+  },
+  "purpose": "Revolve a closed profile",
+  "whenToUse": [
+    "XY revolves about global Y; XZ/YZ about global Z. Defaults angle=360,offset=10; avoid crossing rotation axis."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
   "label": "旋转成型",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -301,5 +652,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:ae42480fdf0ec0634ec1cf776610d354a06bc9b533645b01cce4eb9ca3dad613"
+  "docsHash": "sha256:0ee166368cfa391d4f858dda41c8c9aa0573a8727f2a875a674deb5dda6c66bf"
 }

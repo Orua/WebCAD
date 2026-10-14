@@ -61,6 +61,8 @@
   "category": "modification",
   "synonyms": [
     "faceExtrude",
+    "Push",
+    "pull a planar face along its normal",
     "面上拉伸"
   ],
   "description": "Push/pull a planar face along its normal",
@@ -111,7 +113,18 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
   ],
   "knownUnsupportedCases": [
     "Positive fuses outward material; negative cuts inward.",
@@ -144,12 +157,9 @@
   "invalidExamples": [
     {
       "params": {
-        "faceId": 0,
-        "height": 2,
-        "__unknownField": true
+        "__invalid": true
       },
-      "errorCode": "PARAM_SCHEMA_INVALID",
-      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+      "errorCode": "PARAM_SCHEMA_INVALID"
     }
   ],
   "errorCodes": [
@@ -175,11 +185,238 @@
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-contract.test.mjs"
+  ],
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
+  "contract": {
+    "purpose": "Push/pull a planar face along its normal",
+    "whenToUse": [
+      "Positive fuses outward material; negative cuts inward."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "faceId": {
+        "meaning": "Planar face index",
+        "unit": "1",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "height": {
+        "meaning": "Signed nonzero height (mm)",
+        "unit": "mm",
+        "range": [
+          null,
+          null
+        ]
+      }
+    },
+    "refs": {
+      "min": 1,
+      "max": 1,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "faceExtrude",
+        "params": {
+          "faceId": 0,
+          "height": 2
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "normal": {
+        "op": "faceExtrude",
+        "params": {
+          "faceId": 0,
+          "height": 2
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "invalid": [
+        {
+          "params": {
+            "__invalid": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID"
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "faceExtrude",
+      "Push",
+      "pull a planar face along its normal"
+    ],
+    "status": "experimental"
+  },
+  "purpose": "Push/pull a planar face along its normal",
+  "whenToUse": [
+    "Positive fuses outward material; negative cuts inward."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
   "label": "面上拉伸",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -203,5 +440,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:74a6a80285d6c1c4267e6251af5e3b8160693799dc820ba7fdeca0c3a826a632"
+  "docsHash": "sha256:5eed797201db6ee06b623c4bdcdfd36a49cfd63384c17d49d75d6b92ead681f0"
 }

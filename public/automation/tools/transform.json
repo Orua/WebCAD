@@ -1,6 +1,6 @@
 {
   "id": "transform",
-  "version": "legacy-1",
+  "version": "1.0.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -233,6 +233,8 @@
   "category": "organization",
   "synonyms": [
     "transform",
+    "Scale, rotate X",
+    "Z about origin, then translate",
     "移动",
     "旋转",
     "平移",
@@ -246,16 +248,16 @@
     "rotation"
   ],
   "description": "Scale, rotate X/Y/Z about origin, then translate",
-  "schemaHash": "sha256:2839a269021b344ab8d7ab14c43f0b2ff40575cba29d41f9eec5756202336a05",
+  "schemaHash": "sha256:b90c0ce65f67894d1743f86a590abc95c5f6c70c86f70bfebdfeb91999e9aacc",
   "apiCompatibility": [
-    "page-advisory"
+    "page-v2"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
-  "strictContract": false,
+  "strictContract": true,
   "v2Executable": true,
-  "contractStatus": "advisory",
+  "contractStatus": "migrated",
   "outputSchema": {
     "type": "object",
     "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
@@ -293,11 +295,21 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
   ],
   "knownUnsupportedCases": [
-    "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. Replaces original.",
-    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
+    "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. Replaces original."
   ],
   "minimalExample": {
     "op": "transform",
@@ -308,7 +320,7 @@
       "<current-bodyId-1>"
     ],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "normalExample": {
     "op": "transform",
@@ -319,7 +331,7 @@
       "<current-bodyId-1>"
     ],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "invalidExamples": [
     {
@@ -328,7 +340,7 @@
         "__unknownField": true
       },
       "errorCode": "PARAM_SCHEMA_INVALID",
-      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+      "explanation": "Rejected before kernel execution."
     }
   ],
   "errorCodes": [
@@ -355,13 +367,477 @@
     "run"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
   "verification": {
-    "contract": "not_migrated",
+    "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
+  "contract": {
+    "purpose": "Scale, rotate X/Y/Z about origin, then translate",
+    "whenToUse": [
+      "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. Replaces original."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "positionMode": {
+        "meaning": "relative offset or absolute bounding-box center after rotation/scaling",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "x": {
+        "meaning": "X translation (mm)",
+        "unit": "mm",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "y": {
+        "meaning": "Y translation (mm)",
+        "unit": "mm",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "z": {
+        "meaning": "Z translation (mm)",
+        "unit": "mm",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "rx": {
+        "meaning": "X rotation (degrees)",
+        "unit": "deg",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "ry": {
+        "meaning": "Y rotation (degrees)",
+        "unit": "deg",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "rz": {
+        "meaning": "Z rotation (degrees)",
+        "unit": "deg",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "scale": {
+        "meaning": "Uniform dimensionless scale",
+        "unit": "1",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "mode": {
+        "meaning": "Explicit spatial mode",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "delta": {
+        "meaning": "World coordinate [x,y,z] in mm",
+        "unit": "none",
+        "range": [
+          3,
+          3
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "targetPoint": {
+        "meaning": "World coordinate [x,y,z] in mm",
+        "unit": "none",
+        "range": [
+          3,
+          3
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "orientation": {
+        "meaning": "Preserve or align to work frame",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "pivot": {
+        "meaning": "World coordinate [x,y,z] in mm",
+        "unit": "none",
+        "range": [
+          3,
+          3
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "axisVector": {
+        "meaning": "World coordinate [x,y,z] in mm",
+        "unit": "1",
+        "range": [
+          3,
+          3
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "angleDeg": {
+        "meaning": "Signed rotation angle (degrees)",
+        "unit": "deg",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "sourcePoint": {
+        "meaning": "World coordinate [x,y,z] in mm",
+        "unit": "none",
+        "range": [
+          3,
+          3
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "sourceAxis": {
+        "meaning": "World coordinate [x,y,z] in mm",
+        "unit": "none",
+        "range": [
+          3,
+          3
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "sourceUp": {
+        "meaning": "World coordinate [x,y,z] in mm",
+        "unit": "none",
+        "range": [
+          3,
+          3
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "targetAxis": {
+        "meaning": "World coordinate [x,y,z] in mm",
+        "unit": "none",
+        "range": [
+          3,
+          3
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "targetUp": {
+        "meaning": "World coordinate [x,y,z] in mm",
+        "unit": "none",
+        "range": [
+          3,
+          3
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "axisRelation": {
+        "meaning": "Same or opposite axis direction",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "gapMm": {
+        "meaning": "Signed gap along target axis (mm)",
+        "unit": "mm",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "twistAngleDeg": {
+        "meaning": "Explicit in-plane twist angle (degrees)",
+        "unit": "dimensionless",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      }
+    },
+    "refs": {
+      "min": 1,
+      "max": 1,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "transform",
+        "params": {
+          "x": 10
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "transform",
+        "params": {
+          "x": 10
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "x": 10,
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "transform",
+      "Scale, rotate X",
+      "Z about origin, then translate"
+    ],
+    "status": "experimental"
+  },
+  "purpose": "Scale, rotate X/Y/Z about origin, then translate",
+  "whenToUse": [
+    "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. Replaces original."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
   "label": "移动 / 旋转",
-  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -382,6 +858,6 @@
   },
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:28063260b6df202356856076b9823daf5b03ef9fad57b4019950fb9edbae97c5"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:ee786a9bf357e62c40fe2f4aeac9f915318ee2e497c7a0fa55ce93d4b9e10f01"
 }

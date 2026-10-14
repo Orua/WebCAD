@@ -857,8 +857,10 @@
   "title": "Solve common saved line/circle profile constraints and derive a new profile while preserving the source, entity IDs and ordered paths",
   "category": "modification",
   "synonyms": [
-    "约束尺寸",
-    "profileConstraints"
+    "profileConstraints",
+    "Solve common saved line",
+    "circle profile constraints and derive a new profile while preserving the source, entity IDs and ordered paths",
+    "约束尺寸"
   ],
   "description": "Solve common saved line/circle profile constraints and derive a new profile while preserving the source, entity IDs and ordered paths",
   "schemaHash": "sha256:a30a7eec08f3b9390f34a9d72ab2181e3c91138653d74f136e9674f0116fdf58",
@@ -908,7 +910,18 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
   ],
   "knownUnsupportedCases": [
     "One saved sketchProfile-derived analytic profile source. Line/circle supported; rectangle is explicitly expanded only in the derived result into sourceId_0..3 line IDs, with primitiveConversion mapping and intrinsic horizontal/vertical relations. profile.constraintMetadata preserves those intrinsic relations for later solves; no origin or size is secretly fixed. At most 64 derived entities, 128 independent scalar variables, 128 user constraints and 64 intrinsic relations; minimum supported line length/radius 1e-7 mm. Coordinates and dimensions are in its frozen local plane, not current world/work-frame coordinates. Bounded local numerical solver; reports residuals, Jacobian rank and remaining degrees of freedom. Closed-loop/open-chain endpoint connections are preserved structurally. Underconstrained solutions are allowed and reported; redundant equations are reported. Axis/parallel/perpendicular constraints choose the nearest valid directed branch from initial geometry. Conflicting/unsatisfied, nonconvergent or invalid/degenerate geometry rejects without altering the source. No arc/spline/rounded-primitive solving, global uniqueness proof, automatic conflict minimization or full mainstream Sketcher claim."
@@ -1013,6 +1026,313 @@
     "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
+  "contract": {
+    "purpose": "Solve common saved line/circle profile constraints and derive a new profile while preserving the source, entity IDs and ordered paths",
+    "whenToUse": [
+      "One saved sketchProfile-derived analytic profile source. Line/circle supported; rectangle is explicitly expanded only in the derived result into sourceId_0..3 line IDs, with primitiveConversion mapping and intrinsic horizontal/vertical relations. profile.constraintMetadata preserves those intrinsic relations for later solves; no origin or size is secretly fixed. At most 64 derived entities, 128 independent scalar variables, 128 user constraints and 64 intrinsic relations; minimum supported line length/radius 1e-7 mm. Coordinates and dimensions are in its frozen local plane, not current world/work-frame coordinates. Bounded local numerical solver; reports residuals, Jacobian rank and remaining degrees of freedom. Closed-loop/open-chain endpoint connections are preserved structurally. Underconstrained solutions are allowed and reported; redundant equations are reported. Axis/parallel/perpendicular constraints choose the nearest valid directed branch from initial geometry. Conflicting/unsatisfied, nonconvergent or invalid/degenerate geometry rejects without altering the source. No arc/spline/rounded-primitive solving, global uniqueness proof, automatic conflict minimization or full mainstream Sketcher claim."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "constraints": {
+        "meaning": "Line/circle constraints in saved local 2D mm coordinates. IDs refer to existing entities, never topology indices. An empty array only diagnoses remaining degrees of freedom.",
+        "unit": "none",
+        "range": [
+          0,
+          128
+        ]
+      }
+    },
+    "refs": {
+      "min": 1,
+      "max": 1,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "PROFILE_CONSTRAINT_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "PROFILE_CONSTRAINT_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "PROFILE_CONSTRAINT_LIMIT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "PROFILE_CONSTRAINT_NUMERICAL",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "PROFILE_CONSTRAINT_UNSATISFIED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "PROFILE_CONSTRAINT_GEOMETRY_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "profileConstraints",
+        "params": {
+          "constraints": [
+            {
+              "type": "horizontal",
+              "entityId": "bottom"
+            },
+            {
+              "type": "length",
+              "entityId": "bottom",
+              "lengthMm": 40
+            }
+          ]
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "profileConstraints",
+        "params": {
+          "constraints": [
+            {
+              "type": "horizontal",
+              "entityId": "bottom"
+            },
+            {
+              "type": "length",
+              "entityId": "bottom",
+              "lengthMm": 40
+            }
+          ]
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "constraints": [
+              {
+                "type": "horizontal",
+                "entityId": "bottom"
+              },
+              {
+                "type": "length",
+                "entityId": "bottom",
+                "lengthMm": 40
+              }
+            ],
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "profileConstraints",
+      "Solve common saved line",
+      "circle profile constraints and derive a new profile while preserving the source, entity IDs and ordered paths"
+    ],
+    "status": "experimental"
+  },
+  "purpose": "Solve common saved line/circle profile constraints and derive a new profile while preserving the source, entity IDs and ordered paths",
+  "whenToUse": [
+    "One saved sketchProfile-derived analytic profile source. Line/circle supported; rectangle is explicitly expanded only in the derived result into sourceId_0..3 line IDs, with primitiveConversion mapping and intrinsic horizontal/vertical relations. profile.constraintMetadata preserves those intrinsic relations for later solves; no origin or size is secretly fixed. At most 64 derived entities, 128 independent scalar variables, 128 user constraints and 64 intrinsic relations; minimum supported line length/radius 1e-7 mm. Coordinates and dimensions are in its frozen local plane, not current world/work-frame coordinates. Bounded local numerical solver; reports residuals, Jacobian rank and remaining degrees of freedom. Closed-loop/open-chain endpoint connections are preserved structurally. Underconstrained solutions are allowed and reported; redundant equations are reported. Axis/parallel/perpendicular constraints choose the nearest valid directed branch from initial geometry. Conflicting/unsatisfied, nonconvergent or invalid/degenerate geometry rejects without altering the source. No arc/spline/rounded-primitive solving, global uniqueness proof, automatic conflict minimization or full mainstream Sketcher claim."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "PROFILE_CONSTRAINT_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "PROFILE_CONSTRAINT_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "PROFILE_CONSTRAINT_LIMIT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "PROFILE_CONSTRAINT_NUMERICAL",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "PROFILE_CONSTRAINT_UNSATISFIED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "PROFILE_CONSTRAINT_GEOMETRY_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
   "label": "约束尺寸",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -1037,5 +1357,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:3a373601f9f338b34eb04b670a1c7dfc3b29c7c590ac1d3e16f0af2f2b7cf9f3"
+  "docsHash": "sha256:a233ef8701dea91df21f8b7c2378924c2a859d803247d481577d8e33393af9cc"
 }

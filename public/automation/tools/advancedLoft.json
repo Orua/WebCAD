@@ -98,6 +98,7 @@
   "category": "surface",
   "synonyms": [
     "advancedLoft",
+    "Solid or open shell through hand-defined XY sections",
     "高级放样"
   ],
   "description": "Solid or open shell through hand-defined XY sections",
@@ -149,7 +150,18 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
   ],
   "knownUnsupportedCases": [
     "Z must increase. Same vertex count, winding and corresponding start vertex. Default smooth solid. Shell has no caps and is not a closed solid.",
@@ -246,46 +258,9 @@
   "invalidExamples": [
     {
       "params": {
-        "sections": [
-          {
-            "z": 0,
-            "points": [
-              [
-                -1,
-                -1
-              ],
-              [
-                1,
-                -1
-              ],
-              [
-                0,
-                1
-              ]
-            ]
-          },
-          {
-            "z": 10,
-            "points": [
-              [
-                -1,
-                -1
-              ],
-              [
-                1,
-                -1
-              ],
-              [
-                0,
-                1
-              ]
-            ]
-          }
-        ],
-        "__unknownField": true
+        "__invalid": true
       },
-      "errorCode": "PARAM_SCHEMA_INVALID",
-      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+      "errorCode": "PARAM_SCHEMA_INVALID"
     }
   ],
   "errorCodes": [
@@ -311,11 +286,316 @@
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-contract.test.mjs"
+  ],
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
+  "contract": {
+    "purpose": "Solid or open shell through hand-defined XY sections",
+    "whenToUse": [
+      "Z must increase. Same vertex count, winding and corresponding start vertex. Default smooth solid. Shell has no caps and is not a closed solid."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "sections": {
+        "meaning": "sections: Solid or open shell through hand-defined XY sections",
+        "unit": "none",
+        "range": [
+          2,
+          12
+        ]
+      },
+      "ruled": {
+        "meaning": "ruled: Solid or open shell through hand-defined XY sections",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "output": {
+        "meaning": "output: Solid or open shell through hand-defined XY sections",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      }
+    },
+    "refs": {
+      "min": 0,
+      "max": 0,
+      "meaning": "独立创建，不引用已有实体"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": false,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "advancedLoft",
+        "params": {
+          "sections": [
+            {
+              "z": 0,
+              "points": [
+                [
+                  -1,
+                  -1
+                ],
+                [
+                  1,
+                  -1
+                ],
+                [
+                  0,
+                  1
+                ]
+              ]
+            },
+            {
+              "z": 10,
+              "points": [
+                [
+                  -1,
+                  -1
+                ],
+                [
+                  1,
+                  -1
+                ],
+                [
+                  0,
+                  1
+                ]
+              ]
+            }
+          ]
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "normal": {
+        "op": "advancedLoft",
+        "params": {
+          "sections": [
+            {
+              "z": 0,
+              "points": [
+                [
+                  -1,
+                  -1
+                ],
+                [
+                  1,
+                  -1
+                ],
+                [
+                  0,
+                  1
+                ]
+              ]
+            },
+            {
+              "z": 10,
+              "points": [
+                [
+                  -1,
+                  -1
+                ],
+                [
+                  1,
+                  -1
+                ],
+                [
+                  0,
+                  1
+                ]
+              ]
+            }
+          ]
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "invalid": [
+        {
+          "params": {
+            "__invalid": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID"
+        }
+      ]
+    },
+    "routing": {
+      "class": "services-eligible",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "advancedLoft",
+      "Solid or open shell through hand-defined XY sections",
+      "Solid or open shell through hand-defined XY sections"
+    ],
+    "status": "experimental"
+  },
+  "purpose": "Solid or open shell through hand-defined XY sections",
+  "whenToUse": [
+    "Z must increase. Same vertex count, winding and corresponding start vertex. Default smooth solid. Shell has no caps and is not a closed solid."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "services-eligible",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
   "label": "高级放样",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -338,5 +618,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:9a00789a83d05a76841f299db634dde845f99504b3c3661c45cfdc1b62765cfa"
+  "docsHash": "sha256:e92b557e223c23f7dac498813a63189c600a6f30a4ced5caf6b16f1386abaab5"
 }

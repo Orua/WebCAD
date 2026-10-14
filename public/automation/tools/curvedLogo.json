@@ -331,6 +331,7 @@
   "category": "surface",
   "synonyms": [
     "curvedLogo",
+    "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
     "曲面 LOGO"
   ],
   "description": "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
@@ -381,7 +382,18 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
   ],
   "knownUnsupportedCases": [
     "Single closed solid. Pick a point on the face; tangent frame uses projected world X or Y. Orthographic projection of reviewed polygonal contours, then actual normal offset. Reject boundaries, holes, seams, grazing, invalid offsets and breakthrough. No emboss/draft/multi-face wrap. Imported contour approximation is retained.",
@@ -472,35 +484,9 @@
   "invalidExamples": [
     {
       "params": {
-        "faceId": 0,
-        "point": [
-          10,
-          0,
-          5
-        ],
-        "depth": 0.2,
-        "regions": [
-          {
-            "outer": [
-              [
-                -1,
-                -1
-              ],
-              [
-                1,
-                -1
-              ],
-              [
-                0,
-                1
-              ]
-            ]
-          }
-        ],
-        "__unknownField": true
+        "__invalid": true
       },
-      "errorCode": "PARAM_SCHEMA_INVALID",
-      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+      "errorCode": "PARAM_SCHEMA_INVALID"
     }
   ],
   "errorCodes": [
@@ -526,11 +512,444 @@
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-contract.test.mjs"
+  ],
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
+  "contract": {
+    "purpose": "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+    "whenToUse": [
+      "Single closed solid. Pick a point on the face; tangent frame uses projected world X or Y. Orthographic projection of reviewed polygonal contours, then actual normal offset. Reject boundaries, holes, seams, grazing, invalid offsets and breakthrough. No emboss/draft/multi-face wrap. Imported contour approximation is retained."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "faceId": {
+        "meaning": "faceId: Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+        "unit": "1",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "point": {
+        "meaning": "point: Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+        "unit": "mm",
+        "range": [
+          3,
+          3
+        ]
+      },
+      "depth": {
+        "meaning": "depth: Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "scale": {
+        "meaning": "scale: Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+        "unit": "1",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "angle": {
+        "meaning": "angle: Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+        "unit": "deg",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "offsetX": {
+        "meaning": "offsetX: Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+        "unit": "dimensionless",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "offsetY": {
+        "meaning": "offsetY: Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+        "unit": "dimensionless",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "mirrorX": {
+        "meaning": "mirrorX: Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "regions": {
+        "meaning": "regions: Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+        "unit": "none",
+        "range": [
+          1,
+          150
+        ]
+      },
+      "mode": {
+        "meaning": "mode: Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "draftAngle": {
+        "meaning": "draftAngle: Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+        "unit": "deg",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "source": {
+        "meaning": "source: Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "name": {
+        "meaning": "name: Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "sizeMm": {
+        "meaning": "sizeMm: Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+        "unit": "mm",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "areaMm2": {
+        "meaning": "areaMm2: Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+        "unit": "dimensionless",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "machiningIntent": {
+        "meaning": "machiningIntent",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; source default"
+        }
+      }
+    },
+    "refs": {
+      "min": 1,
+      "max": 1,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "curvedLogo",
+        "params": {
+          "faceId": 0,
+          "point": [
+            10,
+            0,
+            5
+          ],
+          "depth": 0.2,
+          "regions": [
+            {
+              "outer": [
+                [
+                  -1,
+                  -1
+                ],
+                [
+                  1,
+                  -1
+                ],
+                [
+                  0,
+                  1
+                ]
+              ]
+            }
+          ],
+          "machiningIntent": {
+            "version": 1,
+            "requestedGeometry": "constantDepthContours",
+            "sourceInterpretation": "reviewedVectors",
+            "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
+          }
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "normal": {
+        "op": "curvedLogo",
+        "params": {
+          "faceId": 0,
+          "point": [
+            10,
+            0,
+            5
+          ],
+          "depth": 0.2,
+          "regions": [
+            {
+              "outer": [
+                [
+                  -1,
+                  -1
+                ],
+                [
+                  1,
+                  -1
+                ],
+                [
+                  0,
+                  1
+                ]
+              ]
+            }
+          ],
+          "machiningIntent": {
+            "version": 1,
+            "requestedGeometry": "constantDepthContours",
+            "sourceInterpretation": "reviewedVectors",
+            "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
+          }
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "invalid": [
+        {
+          "params": {
+            "__invalid": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID"
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "curvedLogo",
+      "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+      "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work"
+    ],
+    "status": "experimental"
+  },
+  "purpose": "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+  "whenToUse": [
+    "Single closed solid. Pick a point on the face; tangent frame uses projected world X or Y. Orthographic projection of reviewed polygonal contours, then actual normal offset. Reject boundaries, holes, seams, grazing, invalid offsets and breakthrough. No emboss/draft/multi-face wrap. Imported contour approximation is retained."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
   "label": "曲面 LOGO",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -554,5 +973,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:b49d04268fd51c16f0943e7d560ba9b46d64f130b3004fd61dbcfc6c953f3c52"
+  "docsHash": "sha256:6c60e52be760a427750d8f36b43bac11c8ebf8fa4fd4deed6ca55b86da84ea34"
 }
