@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {LIMITS} from '../src/limits.js';
 import {AGENT_CONTRACT} from '../src/agent/protocol.js';
-import {FILE_TYPED_BYTE_BUDGETS} from '../src/browser-file-contracts.js';
+import {FILE_TYPED_BYTE_BUDGETS,FILE_LIMITS,fileByteBudget} from '../src/browser-file-contracts.js';
 import {createCommandService} from '../src/command-service.js';
 import {getOperation} from '../src/operation-registry.js';
 import {createReferenceSystem} from '../src/work-frame.js';
@@ -13,9 +13,14 @@ test('batch step cap is 40 and published in the agent contract',()=>{
   assert.equal(AGENT_CONTRACT.limits.batch.maxSteps,40);
   assert.equal(AGENT_CONTRACT.limits.transport.waitMaxMs,25000);
 });
-test('every typed file budget and mesh budget is 100 MiB',()=>{
-  for(const v of Object.values(FILE_TYPED_BYTE_BUDGETS))assert.equal(v,100*1024*1024);
-  for(const k of ['maxSourceBytes','maxAssetBytes','maxProjectBytes'])assert.equal(LIMITS.mesh[k],100*1024*1024);
+test('existing per-format capacities are kept; 100 MiB is only the default for untyped inputs',()=>{
+  const M=1024*1024;
+  assert.deepEqual({...FILE_TYPED_BYTE_BUDGETS},{step:128*M,stp:128*M,brep:128*M,brp:128*M,stl:128*M,mesh:384*M,webcad:512*M});
+  assert.equal(LIMITS.mesh.maxSourceBytes,128*M);assert.equal(LIMITS.mesh.maxAssetBytes,384*M);assert.equal(LIMITS.mesh.maxProjectBytes,512*M);
+  assert.equal(FILE_LIMITS.maxBytes,100*M);assert.equal(FILE_LIMITS.maxTotalBytes,512*M);
+  assert.equal(fileByteBudget('a.step'),128*M);assert.equal(fileByteBudget('a.webcad'),512*M);assert.equal(fileByteBudget('a.dxf'),100*M);
+  assert.equal(LIMITS.transport.maxArtifactBytes,100*M);assert.equal(LIMITS.transport.chunkBytes,4*M);
+  assert.equal(LIMITS.transport.maxResultBytes,6*M);assert.equal(LIMITS.transport.commandTimeoutMs,90000);
 });
 test('page-batch reads the published cap rather than a literal 20',()=>{
   const src=readFileSync(new URL('../src/page-batch.js',import.meta.url),'utf8');

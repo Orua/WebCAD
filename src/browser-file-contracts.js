@@ -7,8 +7,8 @@ export const FILE_ARGUMENT_KEYS=Object.freeze(Object.fromEntries(Object.entries(
   export:['context','format','ids','name'],read:['resourceId','as'],download:['resourceId'],
   write:['resourceId','handle'],confirmWritten:['resourceId','size','sha256'],release:['resourceId'],
 }).map(([key,value])=>[key,Object.freeze(value)])));
-export const FILE_LIMITS=Object.freeze({maxBytes:LIMITS.transport.maxInputBytes,maxResources:32,maxTotalBytes:100*1024*1024*8,ttlSeconds:1800});
-export const FILE_TYPED_BYTE_BUDGETS=Object.freeze({step:100*1024*1024,stp:100*1024*1024,brep:100*1024*1024,brp:100*1024*1024,stl:100*1024*1024,mesh:100*1024*1024,webcad:100*1024*1024});
+export const FILE_LIMITS=Object.freeze({maxBytes:LIMITS.transport.maxInputBytes,maxResources:32,maxTotalBytes:512*1024*1024,ttlSeconds:1800});
+export const FILE_TYPED_BYTE_BUDGETS=Object.freeze({step:128*1024*1024,stp:128*1024*1024,brep:128*1024*1024,brp:128*1024*1024,stl:128*1024*1024,mesh:384*1024*1024,webcad:512*1024*1024});
 export const CONTEXTUAL_FILE_METHODS=Object.freeze(['new','open','import','save','export']);
 const commandErrors=['CAPABILITY_UNAVAILABLE','REVISION_CONFLICT','INSTANCE_MISMATCH','DOCUMENT_MISMATCH','UNSAVED_REPLACEMENT','FILE_COMMAND_FAILED','SIZE_LIMIT'];
 const resourceErrors=['RESOURCE_EXPIRED','ASSET_INVALID'];

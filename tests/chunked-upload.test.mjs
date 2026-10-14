@@ -24,3 +24,9 @@ test('broker client maps to codexagent upload routes and surfaces Chinese 413 er
   await c.start({name:'a.step',size:3,sha256:'f'.repeat(64),chunkBytes:4});await c.putChunk('a'.repeat(32),0,new Uint8Array(3),'e'.repeat(64));
   await assert.rejects(c.complete('a'.repeat(32)),e=>e.code==='RESOURCE_LIMIT'&&e.status===413);
   assert.equal(calls[0][1],'https://h/x/api/webcad/sessions/s%201/artifacts/uploads');assert.equal(calls[1][0],'PUT');assert.match(calls[1][1],/chunks\/0\?commandId=c$/);assert.equal(calls[1][2],'e'.repeat(64));});
+
+test('existing per-format artifact budgets are kept; 100 MiB is only the default',async()=>{
+  const {artifactByteBudget}=await import('../src/transfer/chunked-upload.js');const M=1024*1024;
+  assert.equal(artifactByteBudget('a.step'),128*M);assert.equal(artifactByteBudget('a.STL'),128*M);
+  assert.equal(artifactByteBudget('p.webcad'),512*M);assert.equal(artifactByteBudget('d.dxf'),100*M);assert.equal(artifactByteBudget('v.png'),100*M);
+});
