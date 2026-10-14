@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.47.0 · sha256:cdb31b2ab8bdf88d96a17836a72b12ccdbe1a469d3732fc6cef381a9d1d0f8e8
+API 1.47.0 · sha256:fab3903c5443d08258148a138ab18ff2b5dada37bbe7fd3c468a9b0f90e30724
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -33365,16 +33365,16 @@ files.release: contextPolicy=none
 ```json
 {
   "id": "meshHeightfieldRelief",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
     "required": [
       "version",
-      "widthMm",
-      "depthMm",
-      "baseMm",
-      "heightMm",
+      "sizeXMm",
+      "sizeYMm",
+      "baseThicknessMm",
+      "reliefHeightMm",
       "columns",
       "rows",
       "heights"
@@ -33382,33 +33382,32 @@ files.release: contextPolicy=none
     "properties": {
       "version": {
         "type": "integer",
-        "const": 1
+        "const": 2
       },
-      "widthMm": {
+      "sizeXMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "unit": "mm",
-        "quantityKind": "length",
-        "quantizationPolicy": "none"
+        "description": "X 方向图案/平板宽度 (mm)",
+        "unit": "mm"
       },
-      "depthMm": {
+      "sizeYMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "unit": "mm",
-        "quantityKind": "length",
-        "quantizationPolicy": "none"
+        "description": "Y 方向图案/平板长度 (mm)",
+        "unit": "mm"
       },
-      "baseMm": {
+      "baseThicknessMm": {
         "type": "number",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "description": "平板底部厚度 (mm)",
+        "unit": "mm"
       },
-      "heightMm": {
+      "reliefHeightMm": {
         "type": "number",
         "exclusiveMinimum": 0,
         "maximum": 100,
-        "unit": "mm",
-        "quantityKind": "length",
-        "quantizationPolicy": "none"
+        "description": "相对支撑面最大起伏高度 (mm)",
+        "unit": "mm"
       },
       "columns": {
         "type": "integer",
@@ -33561,7 +33560,7 @@ files.release: contextPolicy=none
     "高度图浮雕"
   ],
   "description": "高度图浮雕 / Heightfield relief",
-  "schemaHash": "sha256:942859af9a698f53d74d94c38503005b40b7e034fda59092b60772d84405f74e",
+  "schemaHash": "sha256:c9ee5d7b68a314347f9d419f67858e0babc1d92ec0b6825db327146858495541",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -33657,11 +33656,7 @@ files.release: contextPolicy=none
   "minimalExample": {
     "op": "meshHeightfieldRelief",
     "params": {
-      "version": 1,
-      "widthMm": 20,
-      "depthMm": 20,
-      "baseMm": 1,
-      "heightMm": 1.5,
+      "version": 2,
       "columns": 3,
       "rows": 3,
       "heights": {
@@ -33671,7 +33666,11 @@ files.release: contextPolicy=none
       "invert": false,
       "gamma": 1,
       "smoothing": 0,
-      "edgeFadeMm": 0
+      "edgeFadeMm": 0,
+      "sizeXMm": 20,
+      "sizeYMm": 20,
+      "reliefHeightMm": 1.5,
+      "baseThicknessMm": 1
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -33680,11 +33679,7 @@ files.release: contextPolicy=none
   "normalExample": {
     "op": "meshHeightfieldRelief",
     "params": {
-      "version": 1,
-      "widthMm": 20,
-      "depthMm": 20,
-      "baseMm": 1,
-      "heightMm": 1.5,
+      "version": 2,
       "columns": 3,
       "rows": 3,
       "heights": {
@@ -33694,7 +33689,11 @@ files.release: contextPolicy=none
       "invert": false,
       "gamma": 1,
       "smoothing": 0,
-      "edgeFadeMm": 0
+      "edgeFadeMm": 0,
+      "sizeXMm": 20,
+      "sizeYMm": 20,
+      "reliefHeightMm": 1.5,
+      "baseThicknessMm": 1
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -33761,32 +33760,32 @@ files.release: contextPolicy=none
           null
         ]
       },
-      "widthMm": {
-        "meaning": "widthMm: 高度图浮雕 / Heightfield relief",
+      "sizeXMm": {
+        "meaning": "X 方向图案/平板宽度 (mm)",
         "unit": "mm",
         "range": [
           0,
           null
         ]
       },
-      "depthMm": {
-        "meaning": "depthMm: 高度图浮雕 / Heightfield relief",
+      "sizeYMm": {
+        "meaning": "Y 方向图案/平板长度 (mm)",
         "unit": "mm",
         "range": [
           0,
           null
         ]
       },
-      "baseMm": {
-        "meaning": "baseMm: 高度图浮雕 / Heightfield relief",
+      "baseThicknessMm": {
+        "meaning": "平板底部厚度 (mm)",
         "unit": "mm",
         "range": [
           0,
           null
         ]
       },
-      "heightMm": {
-        "meaning": "heightMm: 高度图浮雕 / Heightfield relief",
+      "reliefHeightMm": {
+        "meaning": "相对支撑面最大起伏高度 (mm)",
         "unit": "mm",
         "range": [
           0,
@@ -33995,11 +33994,7 @@ files.release: contextPolicy=none
       "minimal": {
         "op": "meshHeightfieldRelief",
         "params": {
-          "version": 1,
-          "widthMm": 20,
-          "depthMm": 20,
-          "baseMm": 1,
-          "heightMm": 1.5,
+          "version": 2,
           "columns": 3,
           "rows": 3,
           "heights": {
@@ -34009,7 +34004,11 @@ files.release: contextPolicy=none
           "invert": false,
           "gamma": 1,
           "smoothing": 0,
-          "edgeFadeMm": 0
+          "edgeFadeMm": 0,
+          "sizeXMm": 20,
+          "sizeYMm": 20,
+          "reliefHeightMm": 1.5,
+          "baseThicknessMm": 1
         },
         "refs": [],
         "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
@@ -34018,11 +34017,7 @@ files.release: contextPolicy=none
       "normal": {
         "op": "meshHeightfieldRelief",
         "params": {
-          "version": 1,
-          "widthMm": 20,
-          "depthMm": 20,
-          "baseMm": 1,
-          "heightMm": 1.5,
+          "version": 2,
           "columns": 3,
           "rows": 3,
           "heights": {
@@ -34032,7 +34027,11 @@ files.release: contextPolicy=none
           "invert": false,
           "gamma": 1,
           "smoothing": 0,
-          "edgeFadeMm": 0
+          "edgeFadeMm": 0,
+          "sizeXMm": 20,
+          "sizeYMm": 20,
+          "reliefHeightMm": 1.5,
+          "baseThicknessMm": 1
         },
         "refs": [],
         "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
@@ -34175,7 +34174,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:27d7c62e216b3bb50926891c1f076131f48f92f5d7c5db508d6c873f4536e6f4"
+  "docsHash": "sha256:36e7294d3399d3ee7531072ee6713d6413564cd7075cfeed02ee0e01de715982"
 }
 ```
 
@@ -36246,43 +36245,40 @@ files.release: contextPolicy=none
 ```json
 {
   "id": "meshReliefPlate",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
     "required": [
       "version",
-      "widthMm",
-      "depthMm",
-      "thicknessMm",
+      "sizeXMm",
+      "sizeYMm",
+      "baseThicknessMm",
       "spacingMm",
       "bumps"
     ],
     "properties": {
       "version": {
         "type": "integer",
-        "const": 1
+        "const": 2
       },
-      "widthMm": {
+      "sizeXMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "unit": "mm",
-        "quantityKind": "length",
-        "quantizationPolicy": "none"
+        "description": "X 方向图案/平板宽度 (mm)",
+        "unit": "mm"
       },
-      "depthMm": {
+      "sizeYMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "unit": "mm",
-        "quantityKind": "length",
-        "quantizationPolicy": "none"
+        "description": "Y 方向图案/平板长度 (mm)",
+        "unit": "mm"
       },
-      "thicknessMm": {
+      "baseThicknessMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "unit": "mm",
-        "quantityKind": "length",
-        "quantizationPolicy": "none"
+        "description": "平板底部厚度 (mm)",
+        "unit": "mm"
       },
       "spacingMm": {
         "type": "number",
@@ -36296,7 +36292,7 @@ files.release: contextPolicy=none
           "additionalProperties": false,
           "required": [
             "centerMm",
-            "heightMm",
+            "reliefHeightMm",
             "plateauRadiusMm",
             "outerRadiusMm"
           ],
@@ -36315,11 +36311,10 @@ files.release: contextPolicy=none
               "quantityKind": "length",
               "quantizationPolicy": "none"
             },
-            "heightMm": {
+            "reliefHeightMm": {
               "type": "number",
-              "unit": "mm",
-              "quantityKind": "length",
-              "quantizationPolicy": "none"
+              "description": "当前层/起伏点的起伏高度 (mm)",
+              "unit": "mm"
             },
             "plateauRadiusMm": {
               "type": "number",
@@ -36375,7 +36370,7 @@ files.release: contextPolicy=none
     "浮雕网格底板"
   ],
   "description": "浮雕网格底板 / Relief mesh plate",
-  "schemaHash": "sha256:9e306b7604dd58dcd36c094197d1ca01b02c95d961bf23f2cea4aa2198f5ba76",
+  "schemaHash": "sha256:0723842e7b12fb6286b91925dd28111159db33e4eff902310e63bee826627cca",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -36434,10 +36429,7 @@ files.release: contextPolicy=none
   "minimalExample": {
     "op": "meshReliefPlate",
     "params": {
-      "version": 1,
-      "widthMm": 30,
-      "depthMm": 20,
-      "thicknessMm": 2,
+      "version": 2,
       "spacingMm": 0.25,
       "bumps": [
         {
@@ -36445,11 +36437,14 @@ files.release: contextPolicy=none
             0,
             0
           ],
-          "heightMm": 1,
           "plateauRadiusMm": 1,
-          "outerRadiusMm": 3
+          "outerRadiusMm": 3,
+          "reliefHeightMm": 1
         }
-      ]
+      ],
+      "sizeXMm": 30,
+      "sizeYMm": 20,
+      "baseThicknessMm": 2
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -36458,10 +36453,7 @@ files.release: contextPolicy=none
   "normalExample": {
     "op": "meshReliefPlate",
     "params": {
-      "version": 1,
-      "widthMm": 30,
-      "depthMm": 20,
-      "thicknessMm": 2,
+      "version": 2,
       "spacingMm": 0.25,
       "bumps": [
         {
@@ -36469,11 +36461,14 @@ files.release: contextPolicy=none
             0,
             0
           ],
-          "heightMm": 1,
           "plateauRadiusMm": 1,
-          "outerRadiusMm": 3
+          "outerRadiusMm": 3,
+          "reliefHeightMm": 1
         }
-      ]
+      ],
+      "sizeXMm": 30,
+      "sizeYMm": 20,
+      "baseThicknessMm": 2
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -36557,24 +36552,24 @@ files.release: contextPolicy=none
           null
         ]
       },
-      "widthMm": {
-        "meaning": "widthMm: 浮雕网格底板 / Relief mesh plate",
+      "sizeXMm": {
+        "meaning": "X 方向图案/平板宽度 (mm)",
         "unit": "mm",
         "range": [
           0,
           null
         ]
       },
-      "depthMm": {
-        "meaning": "depthMm: 浮雕网格底板 / Relief mesh plate",
+      "sizeYMm": {
+        "meaning": "Y 方向图案/平板长度 (mm)",
         "unit": "mm",
         "range": [
           0,
           null
         ]
       },
-      "thicknessMm": {
-        "meaning": "thicknessMm: 浮雕网格底板 / Relief mesh plate",
+      "baseThicknessMm": {
+        "meaning": "平板底部厚度 (mm)",
         "unit": "mm",
         "range": [
           0,
@@ -36684,10 +36679,7 @@ files.release: contextPolicy=none
       "minimal": {
         "op": "meshReliefPlate",
         "params": {
-          "version": 1,
-          "widthMm": 30,
-          "depthMm": 20,
-          "thicknessMm": 2,
+          "version": 2,
           "spacingMm": 0.25,
           "bumps": [
             {
@@ -36695,11 +36687,14 @@ files.release: contextPolicy=none
                 0,
                 0
               ],
-              "heightMm": 1,
               "plateauRadiusMm": 1,
-              "outerRadiusMm": 3
+              "outerRadiusMm": 3,
+              "reliefHeightMm": 1
             }
-          ]
+          ],
+          "sizeXMm": 30,
+          "sizeYMm": 20,
+          "baseThicknessMm": 2
         },
         "refs": [],
         "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
@@ -36708,10 +36703,7 @@ files.release: contextPolicy=none
       "normal": {
         "op": "meshReliefPlate",
         "params": {
-          "version": 1,
-          "widthMm": 30,
-          "depthMm": 20,
-          "thicknessMm": 2,
+          "version": 2,
           "spacingMm": 0.25,
           "bumps": [
             {
@@ -36719,11 +36711,14 @@ files.release: contextPolicy=none
                 0,
                 0
               ],
-              "heightMm": 1,
               "plateauRadiusMm": 1,
-              "outerRadiusMm": 3
+              "outerRadiusMm": 3,
+              "reliefHeightMm": 1
             }
-          ]
+          ],
+          "sizeXMm": 30,
+          "sizeYMm": 20,
+          "baseThicknessMm": 2
         },
         "refs": [],
         "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
@@ -36880,7 +36875,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:241eaefeb951e430f8108abdda64121d1c16e25db34e457a97061060b13427b0"
+  "docsHash": "sha256:1d8edcbb2b2e2e2a487c4e5705d3761650074d32dd08379ca72912109fd400b1"
 }
 ```
 
@@ -57166,15 +57161,15 @@ files.release: contextPolicy=none
 ```json
 {
   "id": "relief",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
     "required": [
       "faceId",
-      "widthMm",
-      "heightMm",
-      "depthMm"
+      "sizeXMm",
+      "sizeYMm",
+      "reliefHeightMm"
     ],
     "anyOf": [
       {
@@ -57197,7 +57192,7 @@ files.release: contextPolicy=none
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "heightMm"
+            "reliefHeightMm"
           ],
           "anyOf": [
             {
@@ -57330,14 +57325,12 @@ files.release: contextPolicy=none
               "minimum": 0,
               "maximum": 20
             },
-            "heightMm": {
+            "reliefHeightMm": {
               "type": "number",
-              "description": "Absolute height/depth from the original host surface (mm)",
+              "description": "当前层/起伏点的起伏高度 (mm)",
               "minimum": 0.01,
               "maximum": 20,
-              "unit": "mm",
-              "quantityKind": "length",
-              "quantizationPolicy": "none"
+              "unit": "mm"
             },
             "mode": {
               "type": "string",
@@ -57741,38 +57734,33 @@ files.release: contextPolicy=none
         "quantityKind": "length",
         "quantizationPolicy": "none"
       },
-      "baseMm": {
+      "cylinderBaseMm": {
         "type": "number",
-        "description": "Explicit rectangular cylindrical base layer; total height is baseMm + depthMm (mm)",
+        "description": "仅外凸圆柱的基底层厚度 (mm)",
         "minimum": 0.005,
-        "maximum": 1
+        "maximum": 1,
+        "unit": "mm"
       },
-      "widthMm": {
+      "sizeXMm": {
         "type": "number",
-        "description": "Full image rectangle width in local face X (mm)",
+        "description": "X 方向图案/平板宽度 (mm)",
         "exclusiveMinimum": 0,
         "maximum": 1000,
-        "unit": "mm",
-        "quantityKind": "length",
-        "quantizationPolicy": "none"
+        "unit": "mm"
       },
-      "heightMm": {
+      "sizeYMm": {
         "type": "number",
-        "description": "Full image rectangle height in local face Y (mm)",
+        "description": "Y 方向图案/平板长度 (mm)",
         "exclusiveMinimum": 0,
         "maximum": 1000,
-        "unit": "mm",
-        "quantityKind": "length",
-        "quantizationPolicy": "none"
+        "unit": "mm"
       },
-      "depthMm": {
+      "reliefHeightMm": {
         "type": "number",
-        "description": "Maximum control height or depth (mm)",
+        "description": "相对支撑面最大起伏高度 (mm)",
         "minimum": 0.01,
         "maximum": 20,
-        "unit": "mm",
-        "quantityKind": "length",
-        "quantizationPolicy": "none"
+        "unit": "mm"
       },
       "mode": {
         "type": "string",
@@ -57869,6 +57857,10 @@ files.release: contextPolicy=none
             "minimum": 1
           }
         }
+      },
+      "schemaVersion": {
+        "type": "integer",
+        "const": 2
       },
       "machiningIntent": {
         "type": "object",
@@ -58076,7 +58068,7 @@ files.release: contextPolicy=none
     "relief"
   ],
   "description": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
-  "schemaHash": "sha256:6a419be56616f14a50ed68bb39c178f425ee8722fa7731b360b7bb2bb0b56d13",
+  "schemaHash": "sha256:5c296fec487dc73cd65ce2926e191017a94856fcc00461b847ea1cb4943a2b6f",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -58154,9 +58146,6 @@ files.release: contextPolicy=none
     "op": "relief",
     "params": {
       "faceId": 0,
-      "widthMm": 10,
-      "heightMm": 10,
-      "depthMm": 0.8,
       "values": [
         [
           0,
@@ -58199,7 +58188,11 @@ files.release: contextPolicy=none
         "requestedGeometry": "continuousRelief",
         "sourceInterpretation": "authoredHeightMap",
         "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
-      }
+      },
+      "sizeXMm": 10,
+      "sizeYMm": 10,
+      "reliefHeightMm": 0.8,
+      "schemaVersion": 2
     },
     "refs": [
       "<current-bodyId-1>"
@@ -58211,9 +58204,6 @@ files.release: contextPolicy=none
     "op": "relief",
     "params": {
       "faceId": 0,
-      "widthMm": 10,
-      "heightMm": 10,
-      "depthMm": 0.8,
       "values": [
         [
           0,
@@ -58256,7 +58246,11 @@ files.release: contextPolicy=none
         "requestedGeometry": "continuousRelief",
         "sourceInterpretation": "authoredHeightMap",
         "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
-      }
+      },
+      "sizeXMm": 10,
+      "sizeYMm": 10,
+      "reliefHeightMm": 0.8,
+      "schemaVersion": 2
     },
     "refs": [
       "<current-bodyId-1>"
@@ -58509,8 +58503,8 @@ files.release: contextPolicy=none
           "behavior": "omitted; retain the operation source default"
         }
       },
-      "baseMm": {
-        "meaning": "Explicit rectangular cylindrical base layer; total height is baseMm + depthMm (mm)",
+      "cylinderBaseMm": {
+        "meaning": "仅外凸圆柱的基底层厚度 (mm)",
         "unit": "mm",
         "range": [
           0.005,
@@ -58520,24 +58514,24 @@ files.release: contextPolicy=none
           "behavior": "omitted; retain the operation source default"
         }
       },
-      "widthMm": {
-        "meaning": "Full image rectangle width in local face X (mm)",
+      "sizeXMm": {
+        "meaning": "X 方向图案/平板宽度 (mm)",
         "unit": "mm",
         "range": [
           0,
           1000
         ]
       },
-      "heightMm": {
-        "meaning": "Full image rectangle height in local face Y (mm)",
+      "sizeYMm": {
+        "meaning": "Y 方向图案/平板长度 (mm)",
         "unit": "mm",
         "range": [
           0,
           1000
         ]
       },
-      "depthMm": {
-        "meaning": "Maximum control height or depth (mm)",
+      "reliefHeightMm": {
+        "meaning": "相对支撑面最大起伏高度 (mm)",
         "unit": "mm",
         "range": [
           0.01,
@@ -58599,6 +58593,17 @@ files.release: contextPolicy=none
       },
       "source": {
         "meaning": "source: 浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "schemaVersion": {
+        "meaning": "schemaVersion: 浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
         "unit": "none",
         "range": [
           null,
@@ -58772,9 +58777,6 @@ files.release: contextPolicy=none
         "op": "relief",
         "params": {
           "faceId": 0,
-          "widthMm": 10,
-          "heightMm": 10,
-          "depthMm": 0.8,
           "values": [
             [
               0,
@@ -58817,7 +58819,11 @@ files.release: contextPolicy=none
             "requestedGeometry": "continuousRelief",
             "sourceInterpretation": "authoredHeightMap",
             "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
-          }
+          },
+          "sizeXMm": 10,
+          "sizeYMm": 10,
+          "reliefHeightMm": 0.8,
+          "schemaVersion": 2
         },
         "refs": [
           "<current-bodyId-1>"
@@ -58829,9 +58835,6 @@ files.release: contextPolicy=none
         "op": "relief",
         "params": {
           "faceId": 0,
-          "widthMm": 10,
-          "heightMm": 10,
-          "depthMm": 0.8,
           "values": [
             [
               0,
@@ -58874,7 +58877,11 @@ files.release: contextPolicy=none
             "requestedGeometry": "continuousRelief",
             "sourceInterpretation": "authoredHeightMap",
             "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
-          }
+          },
+          "sizeXMm": 10,
+          "sizeYMm": 10,
+          "reliefHeightMm": 0.8,
+          "schemaVersion": 2
         },
         "refs": [
           "<current-bodyId-1>"
@@ -59107,7 +59114,7 @@ files.release: contextPolicy=none
   "docs": "api.relief",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:05bff5577bffa06e1e48057c9d38d812cb7e19b9b958563ff8a8c94e1318f156"
+  "docsHash": "sha256:e183cacea2bd5cd7a00d8a80fff573c5124106811fbd7c983da64c4bff2658b8"
 }
 ```
 

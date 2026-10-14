@@ -1,9 +1,11 @@
 import {meshError} from './mesh-contract.js';
+import {legacyReliefParams} from '../relief-param-migration.js';
 const point2={type:'array',items:{type:'number'},minItems:2,maxItems:2};
 const positive={type:'number',exclusiveMinimum:0};
 export const reliefPlateExample={version:1,widthMm:30,depthMm:20,thicknessMm:2,spacingMm:.25,bumps:[{centerMm:[0,0],heightMm:1,plateauRadiusMm:1,outerRadiusMm:3}]};
 export const reliefPlateOperation={description:'浮雕网格底板 / Relief mesh plate',refs:0,paramsSchema:{type:'object',additionalProperties:false,required:['version','widthMm','depthMm','thicknessMm','spacingMm','bumps'],properties:{version:{type:'integer',const:1},widthMm:positive,depthMm:positive,thicknessMm:positive,spacingMm:positive,bumps:{type:'array',maxItems:64,items:{type:'object',additionalProperties:false,required:['centerMm','heightMm','plateauRadiusMm','outerRadiusMm'],properties:{centerMm:point2,heightMm:{type:'number'},plateauRadiusMm:{type:'number',minimum:0},outerRadiusMm:positive}}}}},notes:'Centered XY plate, support z=0 and back z=-thicknessMm. Explicit radial profiles use plateau plus cubic smoothstep shoulder, add signed heights; overlapping contributions add. Float64 regular triangulated surface; spacing is physical maximum cell size, not precision guarantee. No hidden normalization. Preserve this recipe in native project; output mesh, not BRep or STEP. Bumps must remain inside the plate, height must leave positive material, and total mesh is capped at 200000 triangles. New object placement uses the normal shared creation frame.'};
 export function makeReliefPlate(p){
+ p=legacyReliefParams('meshReliefPlate',p);
  if(p.version!==1||['widthMm','depthMm','thicknessMm','spacingMm'].some(k=>!Number.isFinite(p[k])||p[k]<=0)||!Array.isArray(p.bumps)||p.bumps.length>64)throw meshError('RELIEF_PLATE_INVALID','Explicit positive plate dimensions, spacing and version 1 required.');
  const nx=Math.ceil(p.widthMm/p.spacingMm),ny=Math.ceil(p.depthMm/p.spacingMm);
  if(nx<1||ny<1||nx*ny*4+4*(nx+ny)>200000)throw meshError('RELIEF_EDIT_CAPACITY','Plate resolution exceeds 200000 triangles.');

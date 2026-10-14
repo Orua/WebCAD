@@ -1,42 +1,39 @@
 {
   "id": "meshReliefPlate",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
     "required": [
       "version",
-      "widthMm",
-      "depthMm",
-      "thicknessMm",
+      "sizeXMm",
+      "sizeYMm",
+      "baseThicknessMm",
       "spacingMm",
       "bumps"
     ],
     "properties": {
       "version": {
         "type": "integer",
-        "const": 1
+        "const": 2
       },
-      "widthMm": {
+      "sizeXMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "unit": "mm",
-        "quantityKind": "length",
-        "quantizationPolicy": "none"
+        "description": "X 方向图案/平板宽度 (mm)",
+        "unit": "mm"
       },
-      "depthMm": {
+      "sizeYMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "unit": "mm",
-        "quantityKind": "length",
-        "quantizationPolicy": "none"
+        "description": "Y 方向图案/平板长度 (mm)",
+        "unit": "mm"
       },
-      "thicknessMm": {
+      "baseThicknessMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "unit": "mm",
-        "quantityKind": "length",
-        "quantizationPolicy": "none"
+        "description": "平板底部厚度 (mm)",
+        "unit": "mm"
       },
       "spacingMm": {
         "type": "number",
@@ -50,7 +47,7 @@
           "additionalProperties": false,
           "required": [
             "centerMm",
-            "heightMm",
+            "reliefHeightMm",
             "plateauRadiusMm",
             "outerRadiusMm"
           ],
@@ -69,11 +66,10 @@
               "quantityKind": "length",
               "quantizationPolicy": "none"
             },
-            "heightMm": {
+            "reliefHeightMm": {
               "type": "number",
-              "unit": "mm",
-              "quantityKind": "length",
-              "quantizationPolicy": "none"
+              "description": "当前层/起伏点的起伏高度 (mm)",
+              "unit": "mm"
             },
             "plateauRadiusMm": {
               "type": "number",
@@ -129,7 +125,7 @@
     "浮雕网格底板"
   ],
   "description": "浮雕网格底板 / Relief mesh plate",
-  "schemaHash": "sha256:9e306b7604dd58dcd36c094197d1ca01b02c95d961bf23f2cea4aa2198f5ba76",
+  "schemaHash": "sha256:0723842e7b12fb6286b91925dd28111159db33e4eff902310e63bee826627cca",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -188,10 +184,7 @@
   "minimalExample": {
     "op": "meshReliefPlate",
     "params": {
-      "version": 1,
-      "widthMm": 30,
-      "depthMm": 20,
-      "thicknessMm": 2,
+      "version": 2,
       "spacingMm": 0.25,
       "bumps": [
         {
@@ -199,11 +192,14 @@
             0,
             0
           ],
-          "heightMm": 1,
           "plateauRadiusMm": 1,
-          "outerRadiusMm": 3
+          "outerRadiusMm": 3,
+          "reliefHeightMm": 1
         }
-      ]
+      ],
+      "sizeXMm": 30,
+      "sizeYMm": 20,
+      "baseThicknessMm": 2
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -212,10 +208,7 @@
   "normalExample": {
     "op": "meshReliefPlate",
     "params": {
-      "version": 1,
-      "widthMm": 30,
-      "depthMm": 20,
-      "thicknessMm": 2,
+      "version": 2,
       "spacingMm": 0.25,
       "bumps": [
         {
@@ -223,11 +216,14 @@
             0,
             0
           ],
-          "heightMm": 1,
           "plateauRadiusMm": 1,
-          "outerRadiusMm": 3
+          "outerRadiusMm": 3,
+          "reliefHeightMm": 1
         }
-      ]
+      ],
+      "sizeXMm": 30,
+      "sizeYMm": 20,
+      "baseThicknessMm": 2
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -311,24 +307,24 @@
           null
         ]
       },
-      "widthMm": {
-        "meaning": "widthMm: 浮雕网格底板 / Relief mesh plate",
+      "sizeXMm": {
+        "meaning": "X 方向图案/平板宽度 (mm)",
         "unit": "mm",
         "range": [
           0,
           null
         ]
       },
-      "depthMm": {
-        "meaning": "depthMm: 浮雕网格底板 / Relief mesh plate",
+      "sizeYMm": {
+        "meaning": "Y 方向图案/平板长度 (mm)",
         "unit": "mm",
         "range": [
           0,
           null
         ]
       },
-      "thicknessMm": {
-        "meaning": "thicknessMm: 浮雕网格底板 / Relief mesh plate",
+      "baseThicknessMm": {
+        "meaning": "平板底部厚度 (mm)",
         "unit": "mm",
         "range": [
           0,
@@ -438,10 +434,7 @@
       "minimal": {
         "op": "meshReliefPlate",
         "params": {
-          "version": 1,
-          "widthMm": 30,
-          "depthMm": 20,
-          "thicknessMm": 2,
+          "version": 2,
           "spacingMm": 0.25,
           "bumps": [
             {
@@ -449,11 +442,14 @@
                 0,
                 0
               ],
-              "heightMm": 1,
               "plateauRadiusMm": 1,
-              "outerRadiusMm": 3
+              "outerRadiusMm": 3,
+              "reliefHeightMm": 1
             }
-          ]
+          ],
+          "sizeXMm": 30,
+          "sizeYMm": 20,
+          "baseThicknessMm": 2
         },
         "refs": [],
         "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
@@ -462,10 +458,7 @@
       "normal": {
         "op": "meshReliefPlate",
         "params": {
-          "version": 1,
-          "widthMm": 30,
-          "depthMm": 20,
-          "thicknessMm": 2,
+          "version": 2,
           "spacingMm": 0.25,
           "bumps": [
             {
@@ -473,11 +466,14 @@
                 0,
                 0
               ],
-              "heightMm": 1,
               "plateauRadiusMm": 1,
-              "outerRadiusMm": 3
+              "outerRadiusMm": 3,
+              "reliefHeightMm": 1
             }
-          ]
+          ],
+          "sizeXMm": 30,
+          "sizeYMm": 20,
+          "baseThicknessMm": 2
         },
         "refs": [],
         "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
@@ -634,5 +630,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:241eaefeb951e430f8108abdda64121d1c16e25db34e457a97061060b13427b0"
+  "docsHash": "sha256:1d8edcbb2b2e2e2a487c4e5705d3761650074d32dd08379ca72912109fd400b1"
 }

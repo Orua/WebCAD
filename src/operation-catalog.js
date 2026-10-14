@@ -1,4 +1,5 @@
 import {sourceOperationContract} from './operation-contracts.js';
+import {canonicalReliefSchema} from './relief-param-migration.js';
 /** Machine-readable help only; the existing browser/kernel remains the operation authority. */
 import { advancedOperations } from './advanced-operation-catalog.js';
 import { referenceOperations } from './reference-tool-fields.js';
@@ -120,4 +121,4 @@ operationCatalog.operations.rounding=op('自动打磨 / Smooth selected sharp ed
 },['specVersion','scope'],'Select current source edges and preview automatic local grinding. No sizeMm or exact-radius target is required. Optional strength is a dimensionless fraction in (0,1], default 1; the solver derives local dimensions from the source geometry. Related edges and support faces may follow only within the reported source-derived local region. The preview and committed roundingReport.region expose sourceBodyId, requestedEdgeIds, expandedEdgeIds and affectedFaceIds; verify this explicit expansion before committing the same preview. Every generated contact, inter-patch and terminal boundary must meet the original strict G0/G1, material and locality checks. Multiple smooth curved patches are permitted; valid topology alone is not acceptance. Unsupported geometry or failed evidence leaves the source unchanged. Historical specVersion:1 and specVersion:2 features retain their original parameters and solver semantics; do not reinterpret them as automatic grinding.');
 
 // Source contracts accompany each registered operation.
-for(const [id,source] of Object.entries(operationCatalog.operations))source.contract=sourceOperationContract(id,source);
+for(const [id,source] of Object.entries(operationCatalog.operations)){const current={...source,legacyParamsSchema:structuredClone(source.paramsSchema),paramsSchema:canonicalReliefSchema(id,source.paramsSchema)};current.contract=sourceOperationContract(id,current);operationCatalog.operations[id]=current;}

@@ -2,6 +2,7 @@
 // Resolution is bounded by MESH_LIMITS (millions of samples), not by the 4–65
 // B-spline control grid used by the exact-BRep relief.
 import {meshError} from './mesh-contract.js';
+import {legacyReliefParams} from '../relief-param-migration.js';
 import {MESH_LIMITS} from './mesh-contract.js';
 const positive={type:'number',exclusiveMinimum:0};
 export const HEIGHTFIELD_LIMITS=Object.freeze({minSide:2,maxSide:2049,maxSamples:1900000,maxSmoothing:8,maxHeightMm:100,maxStrokes:512,maxStrokePoints:20000});
@@ -25,6 +26,7 @@ function blur(h,c,r){const out=new Float32Array(h.length);
  for(let j=0;j<r;j++)for(let i=0;i<c;i++){let s=0,n=0;for(let dj=-1;dj<=1;dj++){const y=j+dj;if(y<0||y>=r)continue;for(let di=-1;di<=1;di++){const x=i+di;if(x<0||x>=c)continue;s+=h[y*c+x];n++;}}out[j*c+i]=s/n;}
  return out;}
 export function heightfieldSamples(p,assetBytes){
+ p=legacyReliefParams('meshHeightfieldRelief',p);
  const fail=m=>{throw meshError('HEIGHTFIELD_INVALID',m);};
  if(p.version!==1)fail('version must be 1');
  for(const k of ['widthMm','depthMm','baseMm','heightMm'])if(!Number.isFinite(p[k])||p[k]<=0)fail(`${k} must be positive`);
@@ -45,6 +47,7 @@ export function heightfieldSamples(p,assetBytes){
  return h;
 }
 export function makeHeightfieldRelief(p,assetBytes){
+ p=legacyReliefParams('meshHeightfieldRelief',p);
  const h=heightfieldSamples(p,assetBytes),{columns:c,rows:r}=p,top=c*r;
  const rim=[];for(let i=0;i<c-1;i++)rim.push(i);for(let j=0;j<r-1;j++)rim.push(j*c+c-1);for(let i=c-1;i>0;i--)rim.push((r-1)*c+i);for(let j=r-1;j>0;j--)rim.push(j*c);
  const vertexCount=top+rim.length+1,triangles=2*(c-1)*(r-1)+3*rim.length;

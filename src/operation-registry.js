@@ -9,6 +9,7 @@ import {mechanicalIds,mechanicalDefaults,mechanicalExamples,mechanicalNames,mech
 import { assertJsonValue, contractError, contractHash, validateSchema } from './contracts/operation-schema.js';
 import { annotateParameterSchema, numericInputPolicy } from './parameter-metadata.js';
 import {heightfieldSamples} from './mesh/heightfield-relief.js';
+import {migrateReliefParams,legacyReliefParams,reliefParamOperations} from './relief-param-migration.js';
 
 export const apiVersion = '2.0';
 export const migratedOperationIds = Object.freeze(['meshHeightfieldRelief','meshBoolean','logo','union','cut','intersect','transform','copy','reliefShoulder','meshReliefPlate','meshReliefEdit','box', 'cylinder', 'sphere', 'cone', 'torus', 'mirror', 'linearPattern', 'circularPattern', 'hole', 'holeWizard', 'draftFaces', 'multiHole', 'multiPocket', 'multiBoss', 'faceHole', 'round', 'roundEnd', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell','sketchProfile','profileOffset','profileRepair','profileExtrude',...mechanicalIds]);
@@ -74,7 +75,7 @@ const names = {reliefShoulder:['浮雕肩部','中央肩部','cylindrical should
 
 function buildCard(id, source) {
   const strict = migrated.has(id), special = source.mcpAddFeature === false;
-  const version = id==='rounding'?'3.0.0':id==='mirror'?'1.2.0':['mirror','linearPattern','circularPattern','chamfer','holeWizard','profileConstraints'].includes(id)?'1.1.0':strict ? '1.0.0' : 'legacy-1';
+  const version = reliefParamOperations.includes(id)?'2.0.0':id==='rounding'?'3.0.0':id==='mirror'?'1.2.0':['mirror','linearPattern','circularPattern','chamfer','holeWizard','profileConstraints'].includes(id)?'1.1.0':strict ? '1.0.0' : 'legacy-1';
   const inputSchema = schemaFor(id, source), refsSchema = refsFor(source.refs);
   if (id === 'profileExtrude') refsSchema.maxItems = 2;
   if (id === 'referenceLoft') refsSchema.maxItems = 12;
@@ -90,6 +91,7 @@ function buildCard(id, source) {
     referenceInstructions: 'Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.',
     validation: strict ? 'strict-parameter-schema' : special ? 'dedicated-entry-only' : 'advisory-schema-only; kernel prerequisites are not certified by this example' };
   if(PATTERN_OPERATIONS.includes(id))example.params.machiningIntent={version:1,requestedGeometry:id==='relief'?'continuousRelief':'constantDepthContours',sourceInterpretation:id==='relief'?'authoredHeightMap':'reviewedVectors',userIntentEvidence:'Example only: replace with the actual confirmed user request and source identity'};
+  example.params=migrateReliefParams(id,example.params);
   const invalidParams = id === 'box' ? { ...examples[id], width: -1 }
     : ['hole', 'multiHole', 'faceHole'].includes(id) ? { ...examples[id], diameter: 4 }
       : id === 'shell' ? { ...examples[id], thickness: 0 }
@@ -196,6 +198,7 @@ export function assertOperationContract(op, { opVersion, schemaHash } = {}) {
 }
 
 export function normalizeOperationParams(op, params, { selectionToken, phase = 'resolved' } = {}) {
+  params=migrateReliefParams(op,params);
   const card = getOperation(op);
   if (!card.strictContract) contractError('CAPABILITY_UNAVAILABLE', 'args.op', 'Strict normalization is available only for migrated operations.', 'READ_TOOL_CONTRACT');
   assertJsonValue(params);
@@ -215,7 +218,7 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
     if(params.sharedFaces===true&&!(params.faceIds?.length>=2))contractError('SELECTION_CONFLICT','params.sharedFaces','sharedFaces=true requires at least two adjacent faceIds.');
   }
   try{validateSchema(schema, params);}catch(error){if(op==='meshHeightfieldRelief')error.code='HEIGHTFIELD_INVALID';if(op==='meshBoolean')error.code='MESH_BOOLEAN_INVALID';throw error;}
-  if(op==='meshHeightfieldRelief'&&!params.heights?.importKey)heightfieldSamples(params);
+  if(op==='meshHeightfieldRelief'&&!params.heights?.importKey)heightfieldSamples(legacyReliefParams(op,params));
   if(op==='chamfer'){
     const mode=params.mode||'equalDistance';
     if(mode==='twoDistances'&&!Object.hasOwn(params,'distance2'))contractError('PARAM_SCHEMA_INVALID','params.distance2','Two-distance chamfer requires distance2.');

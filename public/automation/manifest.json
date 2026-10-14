@@ -1,9 +1,9 @@
 {
   "version": "1.47.0",
-  "buildId": "6214c8a8c6caa6697df385c30f70bd0eb0737b21-src-46bc69dcd1a3b79c-working",
+  "buildId": "e8951d893196113d0eec3378d5b68323100686c6-src-ee536f45284f8fa1-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:cdb31b2ab8bdf88d96a17836a72b12ccdbe1a469d3732fc6cef381a9d1d0f8e8",
-  "docsHash": "sha256:e2bf8fc3183c2e423c899860b168775c39d8bb4bb71d5d9896ef6dde478d068c",
+  "catalogHash": "sha256:fab3903c5443d08258148a138ab18ff2b5dada37bbe7fd3c468a9b0f90e30724",
+  "docsHash": "sha256:b78b089ca41fb5e82b7e34a40d9e8c9f4b7ff01f07fc2817b4a66025728e4be4",
   "apiMethods": [
     "recoverKernel",
     "sampleMeshRelief",
@@ -401,8 +401,8 @@
       "title": "高度图浮雕 / Heightfield relief",
       "label": "高度图浮雕",
       "category": "creation",
-      "version": "1.0.0",
-      "docsHash": "sha256:27d7c62e216b3bb50926891c1f076131f48f92f5d7c5db508d6c873f4536e6f4",
+      "version": "2.0.0",
+      "docsHash": "sha256:36e7294d3399d3ee7531072ee6713d6413564cd7075cfeed02ee0e01de715982",
       "url": "tools/meshHeightfieldRelief.json"
     },
     {
@@ -419,8 +419,8 @@
       "title": "浮雕网格底板 / Relief mesh plate",
       "label": "浮雕网格底板",
       "category": "creation",
-      "version": "1.0.0",
-      "docsHash": "sha256:241eaefeb951e430f8108abdda64121d1c16e25db34e457a97061060b13427b0",
+      "version": "2.0.0",
+      "docsHash": "sha256:1d8edcbb2b2e2e2a487c4e5705d3761650074d32dd08379ca72912109fd400b1",
       "url": "tools/meshReliefPlate.json"
     },
     {
@@ -599,8 +599,8 @@
       "title": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
       "label": "浮雕",
       "category": "modification",
-      "version": "1.0.0",
-      "docsHash": "sha256:05bff5577bffa06e1e48057c9d38d812cb7e19b9b958563ff8a8c94e1318f156",
+      "version": "2.0.0",
+      "docsHash": "sha256:e183cacea2bd5cd7a00d8a80fff573c5124106811fbd7c983da64c4bff2658b8",
       "url": "tools/relief.json"
     },
     {

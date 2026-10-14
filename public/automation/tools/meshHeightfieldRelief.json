@@ -1,15 +1,15 @@
 {
   "id": "meshHeightfieldRelief",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
     "required": [
       "version",
-      "widthMm",
-      "depthMm",
-      "baseMm",
-      "heightMm",
+      "sizeXMm",
+      "sizeYMm",
+      "baseThicknessMm",
+      "reliefHeightMm",
       "columns",
       "rows",
       "heights"
@@ -17,33 +17,32 @@
     "properties": {
       "version": {
         "type": "integer",
-        "const": 1
+        "const": 2
       },
-      "widthMm": {
+      "sizeXMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "unit": "mm",
-        "quantityKind": "length",
-        "quantizationPolicy": "none"
+        "description": "X 方向图案/平板宽度 (mm)",
+        "unit": "mm"
       },
-      "depthMm": {
+      "sizeYMm": {
         "type": "number",
         "exclusiveMinimum": 0,
-        "unit": "mm",
-        "quantityKind": "length",
-        "quantizationPolicy": "none"
+        "description": "Y 方向图案/平板长度 (mm)",
+        "unit": "mm"
       },
-      "baseMm": {
+      "baseThicknessMm": {
         "type": "number",
-        "exclusiveMinimum": 0
+        "exclusiveMinimum": 0,
+        "description": "平板底部厚度 (mm)",
+        "unit": "mm"
       },
-      "heightMm": {
+      "reliefHeightMm": {
         "type": "number",
         "exclusiveMinimum": 0,
         "maximum": 100,
-        "unit": "mm",
-        "quantityKind": "length",
-        "quantizationPolicy": "none"
+        "description": "相对支撑面最大起伏高度 (mm)",
+        "unit": "mm"
       },
       "columns": {
         "type": "integer",
@@ -196,7 +195,7 @@
     "高度图浮雕"
   ],
   "description": "高度图浮雕 / Heightfield relief",
-  "schemaHash": "sha256:942859af9a698f53d74d94c38503005b40b7e034fda59092b60772d84405f74e",
+  "schemaHash": "sha256:c9ee5d7b68a314347f9d419f67858e0babc1d92ec0b6825db327146858495541",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -292,11 +291,7 @@
   "minimalExample": {
     "op": "meshHeightfieldRelief",
     "params": {
-      "version": 1,
-      "widthMm": 20,
-      "depthMm": 20,
-      "baseMm": 1,
-      "heightMm": 1.5,
+      "version": 2,
       "columns": 3,
       "rows": 3,
       "heights": {
@@ -306,7 +301,11 @@
       "invert": false,
       "gamma": 1,
       "smoothing": 0,
-      "edgeFadeMm": 0
+      "edgeFadeMm": 0,
+      "sizeXMm": 20,
+      "sizeYMm": 20,
+      "reliefHeightMm": 1.5,
+      "baseThicknessMm": 1
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -315,11 +314,7 @@
   "normalExample": {
     "op": "meshHeightfieldRelief",
     "params": {
-      "version": 1,
-      "widthMm": 20,
-      "depthMm": 20,
-      "baseMm": 1,
-      "heightMm": 1.5,
+      "version": 2,
       "columns": 3,
       "rows": 3,
       "heights": {
@@ -329,7 +324,11 @@
       "invert": false,
       "gamma": 1,
       "smoothing": 0,
-      "edgeFadeMm": 0
+      "edgeFadeMm": 0,
+      "sizeXMm": 20,
+      "sizeYMm": 20,
+      "reliefHeightMm": 1.5,
+      "baseThicknessMm": 1
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -396,32 +395,32 @@
           null
         ]
       },
-      "widthMm": {
-        "meaning": "widthMm: 高度图浮雕 / Heightfield relief",
+      "sizeXMm": {
+        "meaning": "X 方向图案/平板宽度 (mm)",
         "unit": "mm",
         "range": [
           0,
           null
         ]
       },
-      "depthMm": {
-        "meaning": "depthMm: 高度图浮雕 / Heightfield relief",
+      "sizeYMm": {
+        "meaning": "Y 方向图案/平板长度 (mm)",
         "unit": "mm",
         "range": [
           0,
           null
         ]
       },
-      "baseMm": {
-        "meaning": "baseMm: 高度图浮雕 / Heightfield relief",
+      "baseThicknessMm": {
+        "meaning": "平板底部厚度 (mm)",
         "unit": "mm",
         "range": [
           0,
           null
         ]
       },
-      "heightMm": {
-        "meaning": "heightMm: 高度图浮雕 / Heightfield relief",
+      "reliefHeightMm": {
+        "meaning": "相对支撑面最大起伏高度 (mm)",
         "unit": "mm",
         "range": [
           0,
@@ -630,11 +629,7 @@
       "minimal": {
         "op": "meshHeightfieldRelief",
         "params": {
-          "version": 1,
-          "widthMm": 20,
-          "depthMm": 20,
-          "baseMm": 1,
-          "heightMm": 1.5,
+          "version": 2,
           "columns": 3,
           "rows": 3,
           "heights": {
@@ -644,7 +639,11 @@
           "invert": false,
           "gamma": 1,
           "smoothing": 0,
-          "edgeFadeMm": 0
+          "edgeFadeMm": 0,
+          "sizeXMm": 20,
+          "sizeYMm": 20,
+          "reliefHeightMm": 1.5,
+          "baseThicknessMm": 1
         },
         "refs": [],
         "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
@@ -653,11 +652,7 @@
       "normal": {
         "op": "meshHeightfieldRelief",
         "params": {
-          "version": 1,
-          "widthMm": 20,
-          "depthMm": 20,
-          "baseMm": 1,
-          "heightMm": 1.5,
+          "version": 2,
           "columns": 3,
           "rows": 3,
           "heights": {
@@ -667,7 +662,11 @@
           "invert": false,
           "gamma": 1,
           "smoothing": 0,
-          "edgeFadeMm": 0
+          "edgeFadeMm": 0,
+          "sizeXMm": 20,
+          "sizeYMm": 20,
+          "reliefHeightMm": 1.5,
+          "baseThicknessMm": 1
         },
         "refs": [],
         "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
@@ -810,5 +809,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:27d7c62e216b3bb50926891c1f076131f48f92f5d7c5db508d6c873f4536e6f4"
+  "docsHash": "sha256:36e7294d3399d3ee7531072ee6713d6413564cd7075cfeed02ee0e01de715982"
 }

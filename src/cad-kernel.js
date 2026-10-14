@@ -4,6 +4,7 @@ import {MeshShape} from './mesh/mesh-shape.js';
 import {makeReliefPlate} from './mesh/relief-plate.js';
 import {makeHeightfieldRelief} from './mesh/heightfield-relief.js';
 import {meshBoolean} from './mesh/mesh-boolean.js';
+import {legacyReliefParams} from './relief-param-migration.js';
 import {editMeshRelief} from './mesh/relief-edit.js';
 import {assertPatternExecution} from './machining-intent.js';
 import {meshError} from './mesh/mesh-contract.js';
@@ -216,7 +217,7 @@ export class CadKernel {
   constructor(oc) { cad.setOC(oc); this.oc = oc; this.shapes = new Map(); this.active = new Map(); this.renderCache = new Map();this.geometryMetrics=new WeakMap();this.geometrySourceSnapshots=new WeakMap();this.reliefLayerCache=new ReliefLayerCache(); this.historySignature = []; this.importsSignature = ''; this.renderVersion = 0; }
   async operation(feature, shapes, imports, historyFeatures=[],execution={}) {
     assertPatternExecution(feature.op,feature.params);
-    const original=feature.params||{},targetFrame=feature.placement?.frameSnapshot;
+    const original=legacyReliefParams(feature.op,feature.params||{}),targetFrame=feature.placement?.frameSnapshot;
     const p=targetFrame&&['faceHole','logo'].includes(feature.op)?{...original,point:worldPoint(targetFrame,original.point),frameX:rotateVector(targetFrame.quaternion,[1,0,0]),frameNormal:rotateVector(targetFrame.quaternion,[0,0,1])}:original;
     const refs = feature.refs || [];
     const frame=feature.placement?.frameSnapshot,point=value=>frame?worldPoint(frame,value):value,vector=value=>frame?rotateVector(frame.quaternion,value):value;
