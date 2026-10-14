@@ -11,7 +11,7 @@ const groups = {
     'remote-agent-adapter',
     'agent-knowledge', 'services-settings', 'services-routing', 'services-wait-policy', 'services-boolean-contract', 'project-container', 'geometry-cache',
     'design-inspection-contract',
-    'agent-interface-coverage', 'relief-layers', 'relief-profile', 'relief-edit', 'mesh-assets', 'exact-source-assets', 'display-lod', 'pattern-machining', 'relief-contract', 'relief-sculpt',
+    'agent-interface-coverage', 'relief-layers', 'relief-profile', 'relief-edit', 'mesh-assets', 'heightfield-relief', 'exact-source-assets', 'display-lod', 'pattern-machining', 'relief-contract', 'relief-sculpt',
     'document-capacity',
     'generated-file-write',
     'rectangle-selection',

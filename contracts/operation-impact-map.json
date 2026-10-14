@@ -685,6 +685,22 @@
       ]
     },
     {
+      "operation": "meshHeightfieldRelief",
+      "semanticVersion": "mesh-heightfield-relief-1",
+      "localImpact": "Worker Float64 closed heightfield mesh from author-made grayscale samples (up to 1.9 M samples)",
+      "servicesImpact": "Explicit boundedMeshOperations shared policy: strict local mesh capacity gate; no native conversion or fallback",
+      "logoImpact": "none; existing intent routing unchanged",
+      "contractImpact": "strict dimensions, sample grid, base64 u8/u16le samples, gamma/smoothing/edge fade, Agent/UI operation",
+      "documentImpact": "feature recipe stores resampled samples; unchanged format",
+      "cacheImpact": "full feature params, regenerated tool docs",
+      "requiredTests": [
+        "tests/heightfield-relief.test.mjs",
+        "tests/operation-registry.test.mjs",
+        "tests/agent-interface-coverage.test.mjs",
+        "tests/services-routing.test.mjs"
+      ]
+    },
+    {
       "operation": "sampleMeshRelief",
       "semanticVersion": "mesh-relief-sample-1",
       "localImpact": "Read-only authoritative Float64 mesh normal-line intersections",

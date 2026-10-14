@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
   "pageApiVersion": "1.47.0",
-  "buildId": "aa49eaadebce3c07dc6214b63090d7cb775aea4b-src-00a6eae9469ba060-working",
-  "catalogHash": "sha256:77beeeb11611773363d55e7e12708aac413bbc7eea06f9c3f3ee06352c56b442",
-  "docsHash": "sha256:a91f366cfc4ae821efed9f44ea094beca82ca26cf20ecfd1d9e22677b69a7881",
+  "buildId": "c3bb72ac092a1fe55b4065ca870f49b3c58685d9-src-22cb8b11ee0fed38-working",
+  "catalogHash": "sha256:f308a32b25ed5076f982ee09aeed740e9c35db44d3ae5005bc1e4fff381b56ed",
+  "docsHash": "sha256:15667836b4b0590054f4dd7ae0c507cce78898e16b0fe0282e9f5ceecee4adc1",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -541,6 +541,18 @@
       ],
       "method": "measureRelation",
       "usage": "显式选择两个实体/边/面，或点与有限面，读取精确几何关系与见证点。"
+    },
+    "meshHeightfieldRelief": {
+      "tools": [
+        "meshHeightfieldRelief",
+        "preview.start",
+        "preview.commit",
+        "preview.cancel",
+        "feature.edit",
+        "getState"
+      ],
+      "method": "execute",
+      "usage": "由作者制作的灰度高度图（行优先 u8/u16le base64）生成封闭网格浮雕：宽、长、底厚、浮雕高度、平滑、gamma、边缘渐隐；最多约190万采样点，输出可导出STL，不是BRep/STEP。"
     },
     "meshReliefEdit": {
       "tools": [
@@ -1347,6 +1359,7 @@
     "linearPattern": "直线阵列",
     "loft": "放样 / 轮廓放样",
     "logo": "LOGO",
+    "meshHeightfieldRelief": "高度图浮雕 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数 / getState",
     "meshReliefEdit": "网格局部修高 / sampleMeshRelief / 修改参数 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销 / 重做 / getState",
     "meshReliefPlate": "浮雕网格底板 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数 / getState",
     "mirror": "镜像",

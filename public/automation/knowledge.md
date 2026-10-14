@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.47.0 · sha256:77beeeb11611773363d55e7e12708aac413bbc7eea06f9c3f3ee06352c56b442
+API 1.47.0 · sha256:f308a32b25ed5076f982ee09aeed740e9c35db44d3ae5005bc1e4fff381b56ed
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -493,6 +493,18 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
     ],
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
+  "meshHeightfieldRelief": {
+    "tools": [
+      "meshHeightfieldRelief",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel",
+      "feature.edit",
+      "getState"
+    ],
+    "method": "execute",
+    "usage": "由作者制作的灰度高度图（行优先 u8/u16le base64）生成封闭网格浮雕：宽、长、底厚、浮雕高度、平滑、gamma、边缘渐隐；最多约190万采样点，输出可导出STL，不是BRep/STEP。"
   },
   "meshReliefEdit": {
     "tools": [
@@ -11900,6 +11912,321 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
   "docsHash": "sha256:36d249dc26ec7e4fe142cde42a30a423a6660613724f244f5f5f60f3a356b6f2"
+}
+```
+
+## 工具 meshHeightfieldRelief · 高度图浮雕 / Heightfield relief
+
+```json
+{
+  "id": "meshHeightfieldRelief",
+  "version": "legacy-1",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "version",
+      "widthMm",
+      "depthMm",
+      "baseMm",
+      "heightMm",
+      "columns",
+      "rows",
+      "heights"
+    ],
+    "properties": {
+      "version": {
+        "type": "integer",
+        "const": 1
+      },
+      "widthMm": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "depthMm": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "baseMm": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "heightMm": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "maximum": 100,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "columns": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 2049
+      },
+      "rows": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 2049
+      },
+      "heights": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "encoding",
+          "data"
+        ],
+        "properties": {
+          "encoding": {
+            "type": "string",
+            "enum": [
+              "u8",
+              "u16le"
+            ]
+          },
+          "data": {
+            "type": "string",
+            "maxLength": 8388608
+          }
+        }
+      },
+      "invert": {
+        "type": "boolean"
+      },
+      "gamma": {
+        "type": "number",
+        "minimum": 0.2,
+        "maximum": 5
+      },
+      "smoothing": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 8
+      },
+      "edgeFadeMm": {
+        "type": "number",
+        "minimum": 0
+      }
+    },
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles).",
+  "title": "高度图浮雕 / Heightfield relief",
+  "category": "creation",
+  "synonyms": [
+    "meshHeightfieldRelief",
+    "高度图浮雕"
+  ],
+  "description": "高度图浮雕 / Heightfield relief",
+  "schemaHash": "sha256:17ab1086d41ce90282e2db5e335fedbf1c33ad6dafed4b10aaf94de38437a7b9",
+  "apiCompatibility": [
+    "page-advisory"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": true,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles).",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
+  ],
+  "minimalExample": {
+    "op": "meshHeightfieldRelief",
+    "params": {
+      "version": 1,
+      "widthMm": 20,
+      "depthMm": 20,
+      "baseMm": 1,
+      "heightMm": 1.5,
+      "columns": 3,
+      "rows": 3,
+      "heights": {
+        "encoding": "u8",
+        "data": "AAAAAP8AAAAA"
+      },
+      "invert": false,
+      "gamma": 1,
+      "smoothing": 0,
+      "edgeFadeMm": 0
+    },
+    "refs": [],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
+  "normalExample": {
+    "op": "meshHeightfieldRelief",
+    "params": {
+      "version": 1,
+      "widthMm": 20,
+      "depthMm": 20,
+      "baseMm": 1,
+      "heightMm": 1.5,
+      "columns": 3,
+      "rows": 3,
+      "heights": {
+        "encoding": "u8",
+        "data": "AAAAAP8AAAAA"
+      },
+      "invert": false,
+      "gamma": 1,
+      "smoothing": 0,
+      "edgeFadeMm": 0
+    },
+    "refs": [],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "version": 1,
+        "widthMm": 20,
+        "depthMm": 20,
+        "baseMm": 1,
+        "heightMm": 1.5,
+        "columns": 3,
+        "rows": 3,
+        "heights": {
+          "encoding": "u8",
+          "data": "AAAAAP8AAAAA"
+        },
+        "invert": false,
+        "gamma": 1,
+        "smoothing": 0,
+        "edgeFadeMm": 0,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "高度图浮雕",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:7140df66e711252a907bb0ffc7bf1d0ef5d90156311a8d325cf032bbb5315be3"
 }
 ```
 
