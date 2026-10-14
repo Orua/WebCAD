@@ -10,7 +10,7 @@
   "inputContract": "execute({context,idempotencyKey,action:\"feature.edit\",args}); args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:a0da4ca50dfe717403993101254dbaadc63d961a9cfa1db23c5235d1ff03a265"
+  "docsHash": "sha256:11acacec5af4d1812ed839d08dfe040a0ecc0e5ebd00b2e4defda935e67f4fe8"
 }

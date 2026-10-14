@@ -10,7 +10,7 @@
   "inputContract": "execute({context,idempotencyKey,action:\"preview.cancel\",args}); 新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:eda93b01c76e2e658b4985eacdf2264954e4720da1a72d8c303970a755a007dd"
+  "docsHash": "sha256:5e7911c367ec8c290b027a6916b5d400513a4265705bbeab22ce08015e582a61"
 }

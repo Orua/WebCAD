@@ -10,7 +10,7 @@
   "inputContract": "execute({context,idempotencyKey,action:\"reference.resetWorkFrame\",args}); args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:418403bd50bb6b85dbf4ff2449ae0bd2e9003e99b81fa13122c4bdda9a098d22"
+  "docsHash": "sha256:f8a2ffa9ed2154602fb55e5d6b13f0980239d376b0a7cd67f2cede8441c2077c"
 }

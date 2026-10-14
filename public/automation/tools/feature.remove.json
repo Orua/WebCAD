@@ -10,7 +10,7 @@
   "inputContract": "execute({context,idempotencyKey,action:\"feature.remove\",args}); args:{bodyIds}，不可使用历史已替换 ID。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:3cb1585204f0073b89451770072f0c0d8011db3db7272cc1c9352c35b4d70ad6"
+  "docsHash": "sha256:5f9981858411ce28db9183c56c9354bb76f216baea0622b8d6c871b55e26af57"
 }

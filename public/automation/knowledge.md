@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.48.0 · sha256:7a381fefba853da45d7ea3de8544af350c3e59840f313069b837a49fc36d7851
+API 1.48.0 · sha256:5ca5f07462ac9c495c6679a9665ecb4d4afc0b7950ddef6dc2ebb96ae451dcaf
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -36,6 +36,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -146,6 +147,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -262,6 +264,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -358,6 +361,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -450,6 +454,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -542,6 +547,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -634,6 +640,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -726,6 +733,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -819,6 +827,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -914,6 +923,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1006,6 +1016,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1098,6 +1109,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1191,6 +1203,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1288,6 +1301,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1386,6 +1400,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1484,6 +1499,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1577,6 +1593,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1669,6 +1686,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1761,6 +1779,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1854,6 +1873,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1965,6 +1985,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2057,6 +2078,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2156,6 +2178,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2248,6 +2271,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2340,6 +2364,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2432,6 +2457,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2524,6 +2550,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2623,6 +2650,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2715,6 +2743,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2807,6 +2836,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2899,6 +2929,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2997,6 +3028,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -3102,6 +3134,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -3194,6 +3227,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -3291,6 +3325,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -3383,6 +3418,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -3475,6 +3511,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -3567,6 +3604,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5001,6 +5039,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5093,6 +5132,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5185,6 +5225,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5297,6 +5338,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5389,6 +5431,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5506,6 +5549,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5602,6 +5646,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5698,6 +5743,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5794,6 +5840,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5890,6 +5937,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5986,6 +6034,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -6082,6 +6131,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -6178,6 +6228,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -6274,6 +6325,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -6370,6 +6422,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -6466,6 +6519,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -6562,6 +6616,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -6658,6 +6713,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -6754,6 +6810,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -6850,6 +6907,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -6946,6 +7004,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7042,6 +7101,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7138,6 +7198,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7234,6 +7295,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7330,6 +7392,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7426,6 +7489,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7522,6 +7586,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7618,6 +7683,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7714,6 +7780,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7810,6 +7877,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7906,6 +7974,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8002,6 +8071,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8098,6 +8168,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8194,6 +8265,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8290,6 +8362,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8352,7 +8425,7 @@ files.release: contextPolicy=none
 
 ## recipe.examples
 
-打开用户提供的 .webcad 工程：经授权取得文件字节，await api.files.register({name,data}) 后调用 files.open({context,resourceId})。context 在读文件前取得；遇并发修改拒绝，未保存工程不能替换。读取卡片 files.write 了解真实磁盘保存；仅 files.save 生成字节不清除 dirty。正式界面不提供预置示例。
+打开用户提供的 .webcad 工程：经授权取得文件字节，await api.files.register({name,data}) 后调用 files.open({context,resourceId,unsaved:"fail"})。context 在读文件前取得；遇并发修改拒绝，未保存工程不能替换。读取卡片 files.write 了解真实磁盘保存；仅 files.save 生成字节不清除 dirty。正式界面不提供预置示例。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
 recoverKernel: contextPolicy=revision
@@ -8382,6 +8455,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8444,7 +8518,7 @@ files.release: contextPolicy=none
 
 ## recipe.file-workflow
 
-浏览器文件流程：先调用 api.files.capabilities() 读取格式和限制。api.files.register({name,data,mime?}) 登记 File/Blob/ArrayBuffer/Uint8Array 真实字节，返回 resourceId。api.files.new({context})、open({context,resourceId})或import({context,resourceId,units?,placement?,idempotencyKey?})；网格须明确units和idempotencyKey，先读api.mesh-assets 操作当前工程；save({context,name?})、export({context,format,ids?,name?}) 返回 status=generated 的资源描述。STEP 保留当前实体设计原色；未设实体颜色时使用当前默认颜色。材质灯光效果属于视口显示，STEP 不保存 PBR 渲染效果；改色后导出无需重建几何。read({resourceId,as:"blob"|"bytes"}) 返回实际 Blob 或 Uint8Array。download({resourceId}) 返回 download_initiated；write({resourceId,handle}) 仅在已授权句柄写入、关闭与 SHA-256/大小回读匹配后返回 write_verified。release({resourceId}) 释放页面资源；已启动下载的 Object URL 由定时器回收，不因 release 立即撤销。
+浏览器文件流程：先调用 api.files.capabilities() 读取格式和限制。api.files.register({name,data,mime?}) 登记 File/Blob/ArrayBuffer/Uint8Array 真实字节，返回 resourceId。api.files.new({context})、open({context,resourceId,unsaved})或import({context,resourceId,units?,placement?,idempotencyKey?})；网格须明确units和idempotencyKey，先读api.mesh-assets 操作当前工程；save({context,name?})、export({context,format,ids?,name?}) 返回 status=generated 的资源描述。STEP 保留当前实体设计原色；未设实体颜色时使用当前默认颜色。材质灯光效果属于视口显示，STEP 不保存 PBR 渲染效果；改色后导出无需重建几何。read({resourceId,as:"blob"|"bytes"}) 返回实际 Blob 或 Uint8Array。download({resourceId}) 返回 download_initiated；write({resourceId,handle}) 仅在已授权句柄写入、关闭与 SHA-256/大小回读匹配后返回 write_verified。release({resourceId}) 释放页面资源；已启动下载的 Object URL 由定时器回收，不因 release 立即撤销。
 普通单资源20MiB；STEP/STP/BREP/BRP/STL128MiB、mesh384MiB、v4工程512MiB（按扩展名预检、内容仍须核验），最多32个、总计512MiB、有效期 30 分钟。生成 Blob 不等于写盘，下载启动不等于写盘成功。旧快照写入不能清除新 revision 的 dirty。页面 API 的新建/打开遇 dirty 一律拒绝 UNSAVED_REPLACEMENT；UI 的真实用户确认是独立路径。File/Blob 不保证能跨侧边栏 JSON 通道传递；宿主不能传字节时由用户在页面选择文件。当前静态版不含本机 IGES 转换器及服务端矢量转换器。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
@@ -8475,6 +8549,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8567,6 +8642,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8659,6 +8735,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8751,6 +8828,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8843,6 +8921,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8935,6 +9014,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9027,6 +9107,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9119,6 +9200,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9211,6 +9293,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9303,6 +9386,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9395,6 +9479,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9487,6 +9572,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9579,6 +9665,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9671,6 +9758,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9763,6 +9851,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9855,6 +9944,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9947,6 +10037,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10039,6 +10130,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10131,6 +10223,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10223,6 +10316,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10315,6 +10409,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10407,6 +10502,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10499,6 +10595,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10591,6 +10688,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10683,6 +10781,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10776,6 +10875,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10868,6 +10968,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10960,6 +11061,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11052,6 +11154,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11144,6 +11247,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11236,6 +11340,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11328,6 +11433,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11420,6 +11526,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11512,6 +11619,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11606,6 +11714,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11698,6 +11807,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11790,6 +11900,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11882,6 +11993,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11974,6 +12086,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -12066,6 +12179,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -12158,6 +12272,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -12250,6 +12365,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -12342,6 +12458,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -12434,6 +12551,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -12526,6 +12644,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -12618,6 +12737,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -12710,6 +12830,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -12804,6 +12925,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -13474,7 +13596,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -13492,7 +13614,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:70041c9e7a6db742d18afd7214dabae04d7dc42b49f4648b1ed3175d9463e1ae"
+  "docsHash": "sha256:ea112bfa85a48426d92260e98ebbe9981bdc6425c90b082a84611e9c6ed35eaa"
 }
 ```
 
@@ -14244,7 +14366,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -14262,7 +14384,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:867f4d3ba1186c221ec49fb0717fe515c19ed249f64870d9ee337a2fd7089a01"
+  "docsHash": "sha256:0b409f4f723627b23f3f2abb54ecf6e7be82e64c927d5709bec9896ae17913ac"
 }
 ```
 
@@ -14683,7 +14805,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -14702,7 +14824,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:5c524ac29ce7e57961cf2b3070a864149090219d00a1d3ace44e87f6c1c9ca07"
+  "docsHash": "sha256:42f8154a3a47d1a567bcc6da5d9f167c690f1b845c5274ff114eb0cada747c44"
 }
 ```
 
@@ -15161,7 +15283,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -15179,7 +15301,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:63e1ed30bf093d8291c95402aedab42a20fa955b280786c5c418d28ccb7c31a9"
+  "docsHash": "sha256:33e5a299b30f323b2425ed1149b43bccf4d00df3e43acd182b2a2d563a674b1a"
 }
 ```
 
@@ -15861,7 +15983,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -15880,7 +16002,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:89d83ab57a870754b717d55d2b92e77cfac5ae27e5d1374c0436e029f03c1698"
+  "docsHash": "sha256:5803ec103b4d63aa6156c2fd769accdf47a7b366fc56a93d830160cef2fad258"
 }
 ```
 
@@ -16429,7 +16551,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -16447,7 +16569,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:2b6626ce523a72767eaa8cd78fbd1280511c0c2bc93d66a5efeb257b55325270"
+  "docsHash": "sha256:9d584a2828d21da51e018e008fb1bb3f040bce83efbe5f50a59f4dd86fe7044a"
 }
 ```
 
@@ -16942,7 +17064,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -16961,7 +17083,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:118834d5676cc2722780441c571925979bf567798a8f06d613c746754a517dac"
+  "docsHash": "sha256:f77366ee1164da10a8dcc0bdff4a2a376e7fc16599f2528839f7b3ec5eec7368"
 }
 ```
 
@@ -17442,7 +17564,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -17460,7 +17582,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:2e2fc7afa340ab4c5d162f3a9eb2a821dc36f58d60e7139b8a6c2b1978b81db4"
+  "docsHash": "sha256:3d9d5825f10e4c090584a897f13719caff29c2f93c5adaf41535cee44bdb4b1a"
 }
 ```
 
@@ -18306,7 +18428,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -18324,7 +18446,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:0864ad5fe0987239b21243b7ebda86f2049f6fae4e62ea09b3dfda7575bcc929"
+  "docsHash": "sha256:b99a854b315c139ea3b729f62901d661027ebfe4ff067107bd28b798d16854ac"
 }
 ```
 
@@ -19138,7 +19260,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -19156,7 +19278,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:b05e261d412f842d00325f12fc37384836ea4fc09b79a8075124e845412839c1"
+  "docsHash": "sha256:73dcda08d1e5e2cd5eaf1179b4e0a86a693efb924751cf0396517255f091f893"
 }
 ```
 
@@ -20127,7 +20249,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -20146,7 +20268,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:180a820c6e50d185dd563bcc6bd482939ba25d9699b0668f3ff82165ee73cf81"
+  "docsHash": "sha256:2e7e61dc48758452e91a7a755db414b304f17f587b1a74b6162364027454725a"
 }
 ```
 
@@ -20563,7 +20685,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -20582,7 +20704,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:83c787a197cea3ca4b522434e3134d47702ee6d777abc3bf52270fcdc79a4c47"
+  "docsHash": "sha256:91accd8fb20aa261b30dc1f769f18efe683ab304861ed906e19e4c58de0e87e9"
 }
 ```
 
@@ -21016,7 +21138,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -21034,7 +21156,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:530e55bdbc60c1121e8e3e26670074d81f58eaa01a1ebfe9e2168926d2ed0fa8"
+  "docsHash": "sha256:a65e745d6608744823aa648b204a0d1e9b937a9b8a0548d62ab0f22f6d987187"
 }
 ```
 
@@ -21647,7 +21769,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -21667,7 +21789,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:8266d417b94a6976cac455607dca7f2fb1f140cdd4c3200f69f4cfffd724ac98"
+  "docsHash": "sha256:a8d3ee01efe298a9f10f53f8a75b313e6fd01eae76a6a33f2f23068ef153e950"
 }
 ```
 
@@ -22221,7 +22343,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -22240,7 +22362,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:23f9b6665a9f8815a99c9b2700d29c95798f892dab4e7d627a5b5b65d7c11cb2"
+  "docsHash": "sha256:7d4161732f86af2bbd461cc81e015f1d666a33997c74ea804d6114e9a358ff63"
 }
 ```
 
@@ -22681,7 +22803,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -22700,7 +22822,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:c3c19b5de9efced7a1cbd366e2045075094bac1a3e165b5edc12ca57ebca4251"
+  "docsHash": "sha256:8a794066446d5a9e996db4fff9a34c657a84b793d709f5e4c56a8d2703b620d1"
 }
 ```
 
@@ -23120,7 +23242,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -23139,7 +23261,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:f2b7b0d7ca02e98bc2f1d79987f39a8acbd951e0d22a97e471543560df4a2b2e"
+  "docsHash": "sha256:f0cec69dc7e76706c7f97b720ffdff644c65e65ad79bac380035232381fe671d"
 }
 ```
 
@@ -23573,7 +23695,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -23592,7 +23714,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:6b17c2c63f6e951dadcc0a23a8a0a9b9e2e182024f300277f2545f00dca4a077"
+  "docsHash": "sha256:464111db2174e2fe807c565bc4739d6ec8f159a7dae0e93d6faf5964e2ad55d8"
 }
 ```
 
@@ -24215,7 +24337,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -24233,7 +24355,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:6f90dbc38d05d35b650a731646da4fde4e9a3b1044bc612dfa3571f0ce2201bf"
+  "docsHash": "sha256:aba4c09451332a95ec723e1acc7e3d3a8f147bea561f0600f7b30d4af28c0ea8"
 }
 ```
 
@@ -24665,7 +24787,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -24684,7 +24806,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:f589e5f70e0b82a49fbf35e5f245364b1cb9983d3baeb11511ed7224b2a217e6"
+  "docsHash": "sha256:3a6dc3e19233a739c22733d1151c58898b1e64fb10f72f2acbd74766e74d4372"
 }
 ```
 
@@ -25119,7 +25241,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -25138,7 +25260,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:f5f03ae111a113332aac31b877b2bfdbf70de34f910fcca99b18cf45ec7aa036"
+  "docsHash": "sha256:673a7395d373ee5a7efdfe3990561eec7519999c7cfdd079cf991dfd916fdaaf"
 }
 ```
 
@@ -25635,7 +25757,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -25655,7 +25777,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:18e4caa24f062b9d4be581475df619db8c5ad122d94ed61432d7bda8e8659028"
+  "docsHash": "sha256:6bf4d9ac0d87e8659e0e93164d3089a716c8b849ad0ec635d009d8c55bee6e34"
 }
 ```
 
@@ -26268,7 +26390,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -26286,7 +26408,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:76947ff96c976b1370573ff63f920b058ccfabe783d3c19abb3693ca4b6f9eb2"
+  "docsHash": "sha256:61ad4effe8c0b9f8a76f503952ce48e3b0e73a21a238201c50598e2bb8bec9aa"
 }
 ```
 
@@ -26878,7 +27000,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -26897,7 +27019,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:1fbdc2ddbb62adcea45c0f00c8a457c9727f1a959a4c75aec41e56d128e18001"
+  "docsHash": "sha256:f5679a50265fde444dbee8061cfe791e71bdb06fec1a50d323d4e82294889495"
 }
 ```
 
@@ -27557,7 +27679,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -27575,7 +27697,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:29e39348d135da6cba407b8e736d9348463f9e3b0dab39d3afacb99878a27976"
+  "docsHash": "sha256:5300544983caab546081ff634a69e3a9db39ca31bec767fba615e8404c849364"
 }
 ```
 
@@ -27968,7 +28090,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -27987,7 +28109,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:87d86f8ee1ebb740ac6903c8bae37f732765f32c09eb5f1e0b51086909dac6fa"
+  "docsHash": "sha256:755fe48185d0aa373da41e26110d651b317ccfb2455dce6e2e15eaedeb3b79fb"
 }
 ```
 
@@ -28459,7 +28581,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -28478,7 +28600,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:d12595df9bc64d69c740db6ab365b4a7fe680422dacea3336384aa220a78224b"
+  "docsHash": "sha256:e298e51b7ed3a242d63b0a7ce403ed1ffd0f590e33ebcba26bb5e5466b237a8c"
 }
 ```
 
@@ -29064,7 +29186,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -29082,7 +29204,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:02f048ad73a6cd702e422436f46e0f3b67431bab85441caabba6aeca364fb27d"
+  "docsHash": "sha256:3933624baca6624363eaaaf03397f7105c45bea6ad161a681bb1daaef6931a19"
 }
 ```
 
@@ -29822,7 +29944,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -29840,7 +29962,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:52d5bc6ff0633c276a0d16fa555db8811fda7159fd76c18703149375991dc6db"
+  "docsHash": "sha256:3d4828f4878ab76fed28fb1e86ba3b53cb63a84a096df5a4afe1f2d15770729b"
 }
 ```
 
@@ -30215,7 +30337,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -30235,7 +30357,7 @@ files.release: contextPolicy=none
   "executableOperation": false,
   "contextPolicy": "revision",
   "usage": "用files.register和files.import；不要调用add op:import",
-  "docsHash": "sha256:94e2a72f10f0b6fc13ada22d16d80e198bc2145965d3a37f666f523807866fb8"
+  "docsHash": "sha256:bef26779683bda80cbd36c99f751f0049b20d235ecb5ff7e810939ea842bdee4"
 }
 ```
 
@@ -30709,7 +30831,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -30729,7 +30851,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:b9dfc1a46c04b9a8e69b2ce3413ed5e9d622e5d560c8dfcd5c037f0be8b76c02"
+  "docsHash": "sha256:cc452e1df58634a2d23cc3b10794c290f65d4c666911d96f67d64d3f03a6dd03"
 }
 ```
 
@@ -31142,7 +31264,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -31161,7 +31283,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:e7931d45ac52e36133637d04952f9a576ea0aad683530c84ffc181508d3f4b05"
+  "docsHash": "sha256:c69f502226ff0e255549d25b479e68d398917b20782f00a60aaf0bf8e98e9b08"
 }
 ```
 
@@ -31664,7 +31786,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -31682,7 +31804,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:c203c8634b3c307b25f2957f40000cda7f12e0fd2c7cecbaf3fbfae12a19ce7b"
+  "docsHash": "sha256:4c69e6d03ec53d394ecc920c7969eb59895b6ac9d137f1a605f9fa5e562448e5"
 }
 ```
 
@@ -32260,7 +32382,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -32278,7 +32400,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:db37a72bf2d666e91d6ea05ee6389572ea850bfead6c2b83971961616f48bb3f"
+  "docsHash": "sha256:a975205ec74e084d61d32ee1e94928956d5c74b902b2d07f94a41b6781db267a"
 }
 ```
 
@@ -33458,7 +33580,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -33476,7 +33598,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:0121d9fac3820b9c4f145537f6e15c739e26d0c19f297872b89bff45b047a468"
+  "docsHash": "sha256:77e9aea4b97909d5282aef7a7c5bbe898175e31d35824901fad8713eeda16625"
 }
 ```
 
@@ -34010,7 +34132,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -34029,7 +34151,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:7560343b176839fdaabe8b316021253abb9466710b75d339b29162a6a0160af7"
+  "docsHash": "sha256:9416fd9e0ec606bb35f38b8424d510e34fad62f37040b94082036b4d54fe49c6"
 }
 ```
 
@@ -34829,7 +34951,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -34847,7 +34969,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:65f199b715b0add2ad9225e80144ca78ff0aec057a1527655a3ad2d0b519fd11"
+  "docsHash": "sha256:85ef1e8f5dccdf99aec15a6014a43682e108019bfad5d1082aca4d0ae0ae0ffa"
 }
 ```
 
@@ -36927,7 +37049,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -36946,7 +37068,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:ba82be2ca496cc81e4497d706fbb733cfc945fab2875fe23f927b2eefdf79fce"
+  "docsHash": "sha256:38974a811d45239bff28ff1f2e6907467e4b90f927274d4158dd35ee061918c7"
 }
 ```
 
@@ -37567,7 +37689,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -37585,7 +37707,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:b7e9c81a3a31d36ac414276249dc081f2ce279cc856a2ffbc6d32772f633feaa"
+  "docsHash": "sha256:eec9a29a1155cae836e39fb10b7a373225c8d82eb8cb64aa3bc79222d052a43f"
 }
 ```
 
@@ -38042,7 +38164,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -38060,7 +38182,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:8d5d94f77100b41674c820d7bedcbfe271c508da5fad9db4d9cc3459b1ff9949"
+  "docsHash": "sha256:4f8c77f427f74e7118735081d8fcd9c89a6f5f6768b685101d4a65ca01251e0d"
 }
 ```
 
@@ -38675,7 +38797,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -38693,7 +38815,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:3a1fce1c871a308e2efdffea2a53d5fea0fbb03485da12be0ebf6043d13b3f54"
+  "docsHash": "sha256:4ccfe2e8d4c382f5b57a5868fb8ee1b92c9f04e368fbba4ead395b95d072d748"
 }
 ```
 
@@ -39371,7 +39493,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -39389,7 +39511,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:629410ee191ef8f70fa2bf8a11ae6a43b43646b5b15a6a9250ff32c4c787057d"
+  "docsHash": "sha256:c2757b07113cf7bf1589f99cc381400c6d7ab3d8ee89b81c0c787011e781555f"
 }
 ```
 
@@ -40053,7 +40175,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -40071,7 +40193,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:d21ec3d83547ebd2cc9a69af27e16a419236b36482a6e4915e37f8e4b06e44d4"
+  "docsHash": "sha256:3d612e08fef5a42380133afd933326ac1a20a07dea373716f21794656e97ff4f"
 }
 ```
 
@@ -40517,7 +40639,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -40537,7 +40659,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:3e41bd3e3ae8b5c59ee041ad1ec213e805b2d2c3c9effd551ea5c05536811b58"
+  "docsHash": "sha256:a1fd57a724f1cbbf712627695e7332d2e986922b38440173805dd8ade437e3ea"
 }
 ```
 
@@ -40983,7 +41105,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -41003,7 +41125,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:984441e71ee29d314246005b7fea3808a62480110f4ed88184e6a35ca6f1b49c"
+  "docsHash": "sha256:4dd19fc8cd8c0b35c90cc48afcd118d6bcc0404dac50d89a59c6cf3b37f1d768"
 }
 ```
 
@@ -41477,7 +41599,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -41497,7 +41619,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:888f092e5486ec4d8c931d988a5fd100d2fa454e0dd087e402dba9150cf38053"
+  "docsHash": "sha256:3bb2b004bc78f3f873c31e5657cd34107c529eac30ff827bc117baec0863c074"
 }
 ```
 
@@ -41932,7 +42054,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -41950,7 +42072,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:1304a99fb736b338df365e7005045b0fb8e9511cccc7c01ffa2513e170ebde18"
+  "docsHash": "sha256:1898463c666f93c565253eb8bf1709a706ea31d84c39a4f803e8c69a549229ac"
 }
 ```
 
@@ -43306,7 +43428,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -43326,7 +43448,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:baef3570685d5ae25f5820996eb442517d6e5a7e7fe423dd62d14ad63084e421"
+  "docsHash": "sha256:a2a4c37b18138c12207bb91bad571703bf1dc91a11b5fa4ba067bdc3a10e6fc9"
 }
 ```
 
@@ -43896,7 +44018,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -43916,7 +44038,7 @@ files.release: contextPolicy=none
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:d8d1b2482a0576756e4c1c05957d4acdeb68d1f15a2bd87f4cade9bd79b2a75d"
+  "docsHash": "sha256:e9b34f9cda81f5c0e3ea4571249d9a4d49d85e144be104e8d9beac5ee7037368"
 }
 ```
 
@@ -44390,7 +44512,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -44410,7 +44532,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:8f1b0e120aa587c6c26880ff1eb95123243819cfbab3fdb05853bbceddbc312f"
+  "docsHash": "sha256:2478692e63861b5cca2287c751fccdb81ab8539f87c6b28bc3c4ec3d0d7b93a1"
 }
 ```
 
@@ -44903,7 +45025,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -44922,7 +45044,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:5264b2bc36da0e78519de296f6b5500c121356dc6150ac581f8244ee58473aad"
+  "docsHash": "sha256:e1c16baaf05482a1b15b266ce8dfab496ba67aba2dc31dbab97d0839d68d8573"
 }
 ```
 
@@ -45365,7 +45487,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -45385,7 +45507,7 @@ files.release: contextPolicy=none
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:cc3278dcef1088b5730597c8ea8c4866790123a3a52b4a6dca3dcf5eb4deba6c"
+  "docsHash": "sha256:f438a596e09cebe29b7e701f6258e23ff2d9c280b77793bfd945dd0e509f90b6"
 }
 ```
 
@@ -45970,7 +46092,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -45990,7 +46112,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:6493dc59dc2feaac29e38d5180d3ca1f4e4736b06d48bea2b16fad6a0adde2e4"
+  "docsHash": "sha256:7366213cd186ed8db023c85c57ca33e50bfb844d4b38301e27d94b7d08245e5a"
 }
 ```
 
@@ -46489,7 +46611,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -46509,7 +46631,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:e04f8daac50276047420c19cac558c59f0dd3193900a8e898945aadba188b59f"
+  "docsHash": "sha256:8ef0d3ef0c825c346493c24daea486a7a52cc4e6f75e879d4bb8d70194fd5501"
 }
 ```
 
@@ -56629,7 +56751,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -56647,7 +56769,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:ceee047fd3d187084ad6c61ff969189cbf34502038aa6d378ae3156ec7385202"
+  "docsHash": "sha256:0891f42e35556ba1d3b595b8fd6f1ca774ac6951c62f39f9a27a14aa7dc40093"
 }
 ```
 
@@ -57107,7 +57229,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -57125,7 +57247,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:01b9c0605806f5a31d17d0c1d120693d2cf4ad9b7f6b432b1cf4f03cc1bee707"
+  "docsHash": "sha256:0295908e38e76e13fe3a11492f6757c411197e3c96729ebac876d89b6ca05ed2"
 }
 ```
 
@@ -57543,7 +57665,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -57562,7 +57684,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:6799ee5f1e9dee5258622b17ae07a7125b125e32a6cb7e8b3cbcc3984211db88"
+  "docsHash": "sha256:06d897abb8241f276bae1802dd6ff79fe9243294fb955705bf836ca872b82980"
 }
 ```
 
@@ -58004,7 +58126,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -58024,7 +58146,7 @@ files.release: contextPolicy=none
   "docs": "api.refine",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:06161ccd182947731a532aeb20976f14f78c69f2bdace1cbcabbcd2dfb73de6c"
+  "docsHash": "sha256:f5c452e406d8b6b88ca131c49a7f91c1419f827ccbc9ae9800629e6810737964"
 }
 ```
 
@@ -60018,7 +60140,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -60038,7 +60160,7 @@ files.release: contextPolicy=none
   "docs": "api.relief",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:0e9919e52ac9030b3c27b331042e5af89c8ce229ce28a238718b738a1fe0dd29"
+  "docsHash": "sha256:16f1921a2017d3bf602fc05fa90cf7fac4f643e2935249fd57a8d687556538e1"
 }
 ```
 
@@ -60660,7 +60782,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -60679,7 +60801,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:d9f0ec8a713fdf4747f1eb39ba26a2d91d3235376533b1367c74452ae8cced4c"
+  "docsHash": "sha256:8f218c1a22702582b3d56e1fbbd10a521b99d3bf939cfd3e45d4a5ffc80fa445"
 }
 ```
 
@@ -61061,7 +61183,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -61082,7 +61204,7 @@ files.release: contextPolicy=none
   "executableOperation": false,
   "contextPolicy": "revision",
   "usage": "用execute action:feature.remove；不要调用add op:remove",
-  "docsHash": "sha256:c2711e29231ec61dbd3380fb9704d94b3d516ee2d010ab0c78375a7f0037a95c"
+  "docsHash": "sha256:4d0c26ac0a5ae2e08d5375ccd2b625dfadf4e12a851b3251fd5f97d803b8c94e"
 }
 ```
 
@@ -61730,7 +61852,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -61748,7 +61870,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:0ea4bad87efa07fa0793a893fb9a64f64e945b8284254b735210d7d03dd39f80"
+  "docsHash": "sha256:4b8f8015f0f233334c071bc5be6670b33def77d7059dcd1b35754b8444929f17"
 }
 ```
 
@@ -62445,7 +62567,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -62464,7 +62586,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:3f46bd02cdbfebd3fe7c09c408688584a96d19daafbaf34bfe6d444b3b8441e9"
+  "docsHash": "sha256:2bd848171ea6f327ab2273a2a92e988e1fd9bf2d3c0e85913cd195cf2c757da2"
 }
 ```
 
@@ -63052,7 +63174,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -63071,7 +63193,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:5e78e20674113befff2b4db7194f4564b48074801ee1bfdfb9231ba2c28f69bd"
+  "docsHash": "sha256:2a0180b9205bb2d6827d53cccb657d9b8c129ceac715932bc02fdcbafb2357f3"
 }
 ```
 
@@ -64008,7 +64130,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -64027,7 +64149,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:4a4e56bbcf2b9919f027ef7c2524eb0b2131132e83fa3421ca7b7aa30da1d841"
+  "docsHash": "sha256:73f6a017b02079a14a19d1b450fe0ad48df761612ba069a048c4d2fc2a71dd5f"
 }
 ```
 
@@ -64464,7 +64586,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -64483,7 +64605,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:90097c7ed744755f125851f61ee59e51db2b1bccd355e26da205a5486761f0f9"
+  "docsHash": "sha256:0b7c5ca8d820b9514004095dfc4a3394adc52659da197315a372e34f0cc18149"
 }
 ```
 
@@ -64988,7 +65110,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -65007,7 +65129,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:bbf9b6d57eae48a7e6c3a8f785d6344e67191c106301bd42bebe3fec9d2956cb"
+  "docsHash": "sha256:6452831f48f0fe0747323752c5aa01f63ba317211243d03bbf694b11df41293f"
 }
 ```
 
@@ -65917,7 +66039,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "closedPrimitiveRefs": {
@@ -65950,7 +66072,7 @@ files.release: contextPolicy=none
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:f447b5a7776460923a56937a6e20d0bbb8981094bfbcb8fa8336dc8425c9e72b"
+  "docsHash": "sha256:8ab20a8106ed56a29b2918e34200d624d5d34ed305bb0ed25cec971a1fe18310"
 }
 ```
 
@@ -66539,7 +66661,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -66557,7 +66679,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:1f8f3b22b51fbd7c02f550e3514f140023172ef100d7644f20b05dc91c62f269"
+  "docsHash": "sha256:6ad1ea92dd4b769dd55f07b5d6350d2e1d91a56ece359950d7162d515fd88b4b"
 }
 ```
 
@@ -67075,7 +67197,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -67094,7 +67216,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:f55f679c5e97cffb55fcbfbf23a586ecaedda21f3f476ef354ae227c1f9f44ce"
+  "docsHash": "sha256:bfd6e7eae5f0cc138fe2a26ba6c356a68dc16cfea4c69ff25208a70d05817a7b"
 }
 ```
 
@@ -67505,7 +67627,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -67523,7 +67645,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:890bef2ff68079079a8b8d7aa448fc193c260ba1686a17403c278c62bb7ebbdd"
+  "docsHash": "sha256:08c2cb1d94ca623a9a4e022becc205863693f3eb90be481eed7198e00169a594"
 }
 ```
 
@@ -67963,7 +68085,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -67981,7 +68103,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:b164609e086d06ddb65e47bc1eff2f731944faaace5cccbb1f7146d93f741ee0"
+  "docsHash": "sha256:db6bdb5025aac1fd356efd7ccf8e5586522cbe5f491c8060cc39f74bd511f93a"
 }
 ```
 
@@ -68426,7 +68548,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -68445,7 +68567,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:3324d0b56799d8ac2ce44eb25a9bd5e8bedc55eeb82789e886848d54e7e25f28"
+  "docsHash": "sha256:c4855eff243141b8e54c22283876ee41e220b200033f52fcf0c805c9030d3f3d"
 }
 ```
 
@@ -69070,7 +69192,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -69088,7 +69210,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:8c439d4d65a70c06a88caa10032780e165b183fd0ef1cb7db288f847ad50d86f"
+  "docsHash": "sha256:e7b934437a4bf6eac372723484831deab3a55f2f3644714dca3c31ca306de9f9"
 }
 ```
 
@@ -69525,7 +69647,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -69544,7 +69666,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:fd7390ce0cf9edf9f653d11f7e00fd3ab796b906ac3e9001a79b8384f06cbbe4"
+  "docsHash": "sha256:91b44a701c3ff57f2a94fe9598a14d96d683b8f7ac08973fb573e0048ec80015"
 }
 ```
 
@@ -70120,7 +70242,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -70140,7 +70262,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:e2fa7ff740601e09980c4075d5d770a5fd54af3e3494cfcf5e3f0d356da48ccf"
+  "docsHash": "sha256:b824e238435a36b2ddc91d352431d9e29be441a26b7695e36dd2ad79bf39d6c3"
 }
 ```
 
@@ -70590,7 +70712,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -70608,7 +70730,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:b87ab6c391b12d97825ceb38bcce0d1c9962c4702dff3680b4e675e12d4c7af3"
+  "docsHash": "sha256:92fe0d4ba6e8bdd5c244b0507dd247fe9e3453c793929a44582bf0fb0bd9b35e"
 }
 ```
 
@@ -71466,7 +71588,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -71485,7 +71607,7 @@ files.release: contextPolicy=none
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:999faf67601dc3de8f7a1a6e6e728a7358ed7312ffe80cc782998258f662cd55"
+  "docsHash": "sha256:bd21ccf2b6f2a2bdc4d6118565c3301e919952fc4c310d6e528d414f1caf59e2"
 }
 ```
 
@@ -71898,7 +72020,7 @@ files.release: contextPolicy=none
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -71917,7 +72039,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:59ceb46e980f6691b931b2bc1888aca9b9889425adb790b0d1d1061479072354"
+  "docsHash": "sha256:79d092d1b431f03efa8928fb5a4567c3ba7e8e36d156c5677b6dfacb8f48e601"
 }
 ```
 
@@ -72639,7 +72761,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -72657,7 +72779,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:a81861e5d8b9f342d1ef5de6beb4802172ab41967db155e7ff8c56d800cbf053"
+  "docsHash": "sha256:e99fa536f560fa3b19c0ea50caf3993ffc8ed3699e7bddd6bbd1df2253bb6054"
 }
 ```
 
@@ -73075,7 +73197,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -73280,7 +73402,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:242aabb12d9d04fcdf7012288f8414a211153b7ff2566cff7edec74447677a8e"
+  "docsHash": "sha256:192e66e2091e9cec6aa60d4ba3a5faa7c45c05bc95eff739e03b97f528d41f4f"
 }
 ```
 
@@ -73640,7 +73762,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -73780,7 +73902,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:54ba7be89918e5107abbd5e76bb66665342ac7cca3008e4b2ebdb95d92f5b078"
+  "docsHash": "sha256:d50b351e66678c7270145dff8d7ca45ed2d5050fd94bc463c749a3f69c66bff6"
 }
 ```
 
@@ -74140,7 +74262,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -74283,7 +74405,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:b382c812241896668fa0447f6089a6f1285bbcd23f7c97b500d4097afbadda44"
+  "docsHash": "sha256:4fbe3808f8962ddc8a425ef61b9932e83ab9166dc8d1496d3f34dace714b1613"
 }
 ```
 
@@ -74643,7 +74765,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -74772,7 +74894,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:082553442687300b64c81c082262003a7d1e5167f87b1f0eada4cda1c5879aeb"
+  "docsHash": "sha256:c7af3eb3ce89cd6dbafefb617a525ba18b0bd85e949f27522f674d7905c3f24b"
 }
 ```
 
@@ -75132,7 +75254,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -75307,7 +75429,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:34fc8940bbeda0f746f38645d9557615ea8a3f6f9e900c14855a1c7b9cd68342"
+  "docsHash": "sha256:1a1bd662fa90d99e3a93ea44a360fc01dd6ce91a6bab8fa915c3f83a59529d7e"
 }
 ```
 
@@ -75667,7 +75789,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -75942,7 +76064,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:2b0e02bd57ed3b90cb580dbeb634297b609992af069728bf60a86178b8198197"
+  "docsHash": "sha256:62a6cfaac43fad46ff74ab99453ecfc901acebb65e774737339d414463c7fcac"
 }
 ```
 
@@ -76302,7 +76424,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -76467,7 +76589,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:1561a4f4b01100eea1145df49a68d4a1ff4dbafba3e7732df7a37dc157368124"
+  "docsHash": "sha256:a15d441f827e4493059ea7b3e3bfda277535bf005708e870ea26728fb48ba2d8"
 }
 ```
 
@@ -76827,7 +76949,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -77048,7 +77170,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:7cd80404e390813e7543b550412d1d4e7d0bb53096deb0e81fccea26f06bd3b3"
+  "docsHash": "sha256:92b27d2b0e82c0e2fb33bb0601440cda4132c05277dde6efc0d2f7e1d35c0b19"
 }
 ```
 
@@ -77408,7 +77530,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -77608,7 +77730,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:b9fed8c1c8cf7223c04f34127c82477dc9180dfc44cc8293864b5dd1dc1ba4fb"
+  "docsHash": "sha256:b6388bb47e658fc6f55fd908fbbd4aebefd5cd89c02801ab136d637cdf616d2a"
 }
 ```
 
@@ -77968,7 +78090,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -78183,7 +78305,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3b9c6ee4e87659afbd1f8fb5a17bfdf16d465bd5125f29805b6486ca0bb18558"
+  "docsHash": "sha256:9b2be934f120b007214c29bc9b026c057a2e147bf8f09ba78bbe06014b7c630f"
 }
 ```
 
@@ -78543,7 +78665,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -78746,7 +78868,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:404620989be72a43dc02a1d9ab62033421d9f65e6357a4951bfcdda464eee806"
+  "docsHash": "sha256:6b32cd1a3dfcdbecaad84dd4c104994dc9581f27c0f0e6e52f9bdbed850bc876"
 }
 ```
 
@@ -79106,7 +79228,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -79324,7 +79446,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:cf4ff135756b74ae7a17f37a37dace5fb8edf177ef65fc0bb89f51cb6c719b30"
+  "docsHash": "sha256:3a7270275b5cb94c5df74be9897eb130e2267524e41cd7744f9774cbaec5ed69"
 }
 ```
 
@@ -79684,7 +79806,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -79919,7 +80041,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:5ae0656593e25eb9de2a295f1709afb339d7fff0ef6cd60452e5c1a5b50bed2c"
+  "docsHash": "sha256:b62e89251c7ef75ab4971065ec7db2a9ce71a165466f2c0f4a29efce407b7792"
 }
 ```
 
@@ -80279,7 +80401,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -80514,7 +80636,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:39d9eae1b5c71091dbb617dadef3064dc42c67f29cdedb146636a5fa6d114694"
+  "docsHash": "sha256:b4d4b3014a6787549f345d98bc265b1d6f013d6f61bed6eac6a0c97430def840"
 }
 ```
 
@@ -80874,7 +80996,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -81109,7 +81231,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:ba5e11a68a16ed0e50e01a62b16add77b2dcd4cc0ca2904493d8adfa2afaaf34"
+  "docsHash": "sha256:b89e7e3d40112bf1e58b8174c10da04974254939bf830437df1ffd7efc39ddd8"
 }
 ```
 
@@ -81469,7 +81591,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -81726,7 +81848,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:e55ce0883bc0313782911b191bc877f45490369dd3ee2375ba0b1994f84803cb"
+  "docsHash": "sha256:67ea505b427f6bc98a7a0030f6ba721b20a385e34f12eef7b0fbe8f8d1718682"
 }
 ```
 
@@ -82086,7 +82208,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -82277,7 +82399,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:c5207c47c33b0d717d007468b23718481c9e828e1ae49b24af3dad9633f11335"
+  "docsHash": "sha256:1c1fe683d7f5a7c770dd8cddc68f6df9e1a58c64a1e875e6a1b5bc13d9f204f9"
 }
 ```
 
@@ -82637,7 +82759,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -82807,7 +82929,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:a663d65840da9677c59eaffa95c83010aad8f926bb312a71757406fe28e94342"
+  "docsHash": "sha256:79e5e83fe3ff8d075479ad34f12474521f6f99d17c3174a316dcc4ad21393094"
 }
 ```
 
@@ -83167,7 +83289,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -83394,7 +83516,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:8e2c4479e041e5ae86899a86350333fb8e6e7afd9ac363ee271b187265fdaa40"
+  "docsHash": "sha256:bde276209bcb64a959e2b3dfd96e0c35b1487a1bd2a94183351ff49fd1f355c4"
 }
 ```
 
@@ -83754,7 +83876,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -83990,7 +84112,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:1d8a5c00740de83fa363a5a1b396cd6dfdcbe8cd36824714d8c674fe170e416d"
+  "docsHash": "sha256:d58f470d550276a562d12eecb62a3a8fa25c142e949444e14ead94cb8debae5d"
 }
 ```
 
@@ -84350,7 +84472,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -84604,7 +84726,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:6f8aac0f59aa3ea53d59c0c0369b006fd49fe480dd57920639f0284a7a4b62ba"
+  "docsHash": "sha256:8f46d366c60f6fbed912729e2de299fe520b9aafde3891bdd5dc2fefb1bc73e9"
 }
 ```
 
@@ -84964,7 +85086,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -85169,7 +85291,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:58804b5e7db9d7506ef4351fc50b84adcfc7c54fa8d22e3e955efa31fa3160c9"
+  "docsHash": "sha256:6522111f32de308113cd5cd148187a7dd07048e4e32a4e7025e008451839efd6"
 }
 ```
 
@@ -85529,7 +85651,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -85719,7 +85841,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:028c736670c78595a1b17d88b769031b39ae6f3ad810ce575072903ee0c3e383"
+  "docsHash": "sha256:fa39a4844499e7361ab6db23c636fe7d1f83a0c793bff2c055fbe5ec5f25986d"
 }
 ```
 
@@ -86079,7 +86201,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -86312,7 +86434,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:69730be3dc289819e1d51bd20af4918d8c21fcf84acb5bce96ef418c30c94c29"
+  "docsHash": "sha256:bee5d27bb5acdd07a8663839a3d53aec32426da29c44dfd8c4d5e9e27ca471d8"
 }
 ```
 
@@ -86672,7 +86794,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -86863,7 +86985,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:c5c1bfba088ba80d97a33603529273a80a374e7e92e248c5b2974bcfa90f658d"
+  "docsHash": "sha256:5fccba674ab42c55c5c7c937ec181f27e70e2dd1b007cfcd51eb8394db8bb7ab"
 }
 ```
 
@@ -87223,7 +87345,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -87363,7 +87485,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:0f45fd47d30f85c6b5be614598318bf4e0a49eda77b4df1b5e9b22c8e259d569"
+  "docsHash": "sha256:5131cbd739b4318c05446129e7f44cf381a6262babe0e96b0fb7265547e3a683"
 }
 ```
 
@@ -87723,7 +87845,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -87959,7 +88081,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:c2a505d8290943ced80db66836c186a74b869ec3f704ef9ca4558bee2df4c313"
+  "docsHash": "sha256:b302c9bff6b61bdbf012d25f2f9603ae84bef0677817e0701436898c91f625ae"
 }
 ```
 
@@ -88319,7 +88441,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -88540,7 +88662,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:aa47ee9cda20994de97933d794f5f0b1b6f0376b513018aac988c85e679c4b75"
+  "docsHash": "sha256:acf8c56f471a12baf9462621468dbea6b3575445124fc6ed3c5cdcf9d9c88383"
 }
 ```
 
@@ -88900,7 +89022,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -89070,7 +89192,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:295c5d740159ff432a8a9677683fe12740949c4b49f966414591ee27fdb79c16"
+  "docsHash": "sha256:dda00a6afe932e4ca92e0f8fff91363c9df0d59203247b30449ac039aefbe710"
 }
 ```
 
@@ -89430,7 +89552,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -89648,7 +89770,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:32066664634b30a11b960ab9bd41d778b38b2c44b4cb536eb6061c4f9c819e58"
+  "docsHash": "sha256:529f85ed84543f4634595a2feb9476df31c81a6641d18beaaa4a50490556daee"
 }
 ```
 
@@ -90008,7 +90130,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -90238,7 +90360,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:42c6f33a53c0558996d5eb276cf5cb2e2ca11330154e42dc09c145edf879cfe5"
+  "docsHash": "sha256:65307f6fc07283746d508ebe16215172b757f36ca952cff79f22cd209a3bbaf6"
 }
 ```
 
@@ -90598,7 +90720,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -90834,7 +90956,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:9b84b1dd1edd22fd8c9356ee6a3acaa89e882e1ace28f54c69b0676ae9540143"
+  "docsHash": "sha256:089109edc62029562aaa74d5ec908d6fd564282aed62fa3c32526ff8d0bd4e43"
 }
 ```
 
@@ -91194,7 +91316,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -91429,7 +91551,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:a9f3cc37fcf7ce05becc13b49ac35ee1e696c072c6212f1e60008313ec394b2a"
+  "docsHash": "sha256:b817b10fc897445179a2cebd392a5923490610a351bff8759f88d84c178d3630"
 }
 ```
 
@@ -91789,7 +91911,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -91959,7 +92081,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3b74b3677ad6aceef7dd3f9ceccdd1c28d14c511b7c4715bca37728ce40e6d3f"
+  "docsHash": "sha256:1c57f97ff3c78c871e31f24e10bac6855020b26dd5e5de454cd531a3402698c2"
 }
 ```
 
@@ -92319,7 +92441,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -92474,7 +92596,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:d4e94acec3c42d9e9be072040e2a63ff143217d094b98a202755d45e220b1458"
+  "docsHash": "sha256:5a8ba79b4baf06734aa9b33a55fae786c3e3b7650c7d7029a8fac4a027b64ff3"
 }
 ```
 
@@ -92834,7 +92956,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -93004,7 +93126,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3932b65ca355161e7bb68577b7ee620099fccfe71a512209097fca3e3e40b0af"
+  "docsHash": "sha256:c74dedb55a3811685ce236741d7982df076707ec6c59811d326985f0b168083f"
 }
 ```
 
@@ -93364,7 +93486,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -93504,7 +93626,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:0b363e54b4c2ac10f9339837cd4a90a262cbbe7b32f45e359ee047d4551843ae"
+  "docsHash": "sha256:c55f33711b8c94b5bda86cf1c050902081b96413d3c284ba3c528e6d8aac68a5"
 }
 ```
 
@@ -93864,7 +93986,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -94048,7 +94170,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:e0c71d114608d8cc3df60f1c9a9cddec9d2cea2d170b2bb12a56dcbac5dab2b4"
+  "docsHash": "sha256:fad13a343675a94a546a593779bbd90e7c09f6be8dc61407be407f734c5a4f46"
 }
 ```
 
@@ -94408,7 +94530,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -94667,7 +94789,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:fe844c7e014414a370dc8833162ae67444877cabcc802d7425a68608c90d2821"
+  "docsHash": "sha256:28812f31e89169c6e1dce7fd5c09f8a3e708de15956e2553fc08df07eed10253"
 }
 ```
 
@@ -95027,7 +95149,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -95222,7 +95344,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:7485b80ec4ba0e0363f3b5599015c497eb89c48e283337007e42b433278bff96"
+  "docsHash": "sha256:e6a6ef1ca6e608304050fec189d703f9e238f86494e8e6dd0a57b5eb3c34fe09"
 }
 ```
 
@@ -95582,7 +95704,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -95805,7 +95927,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:457e8799e51aa791762fa4fef3caab2e134d3dcbe7605544c0581de0f9b49bc3"
+  "docsHash": "sha256:825ab13fb1321ddbdf7d07cc164cad1a23531dcb2c093bf8485a85fe8bdce290"
 }
 ```
 
@@ -96165,7 +96287,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -96340,7 +96462,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:be9e61b91a0d82ceaeb3e69cc12e167503060e098beb4a6e573f75c262c20057"
+  "docsHash": "sha256:0dc0fa7261722f93bdbb5f371838b89aa1225d7e6a6b8fdadc36ae90d08baf12"
 }
 ```
 
@@ -96700,7 +96822,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -97112,7 +97234,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:01090c6a66311855e12d5d76e37c16e8345c8f0ca0adf9813d039c1e5874f43c"
+  "docsHash": "sha256:44c5d433bdc0913356f486f704a3233f654d7547a3052309a4955701aa267090"
 }
 ```
 
@@ -97472,7 +97594,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -97919,7 +98041,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:b914b97c0a1b6ccf90fa65584fee5041c1aa0e9f144e49ac6a5e9e58c64dd375"
+  "docsHash": "sha256:d3de4fc18f1a463423b6183e3bd7888723ff9205b1ecc656e50e5a36936aa2de"
 }
 ```
 
@@ -98279,7 +98401,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -98582,7 +98704,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3147071dfb02a1560cf7658fee730e17b0f0ce2ebce97bbb8ef9682024c9204a"
+  "docsHash": "sha256:3dd9067fe130e1d013508d1512c950e29b8a7e1408f4ccfac969522ff89b3822"
 }
 ```
 
@@ -98942,7 +99064,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -99323,7 +99445,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-installation",
-  "docsHash": "sha256:414a40898d2ff3b8620174825f911a56181c326a63f7b74d769cb84f1c50d817"
+  "docsHash": "sha256:c360fcc79c7f229cb3468a6c1d493b1671727eb88276cc984cf101f88fe85a48"
 }
 ```
 
@@ -99683,7 +99805,7 @@ files.release: contextPolicy=none
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -99942,7 +100064,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-installation",
-  "docsHash": "sha256:d2533dedb9a7523edeb9e7b21d11ca07b2fac0adc05fdc1e486c2f0c9d62bd7e"
+  "docsHash": "sha256:03cc7c2a8ae2b52c08078bde4225a484b9d96a79a9c8441222b5a9c4c6c1d4b9"
 }
 ```
 
@@ -100941,10 +101063,10 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:2cd4119d94aa94228c02fa998b6fe65e59a85a0c8d6c563a9f1d315ee08e4bab"
+  "docsHash": "sha256:caad45c6915f4ea7f81d2d67e543c7ddd81de14d167d402c85d299415832179b"
 }
 ```
 
@@ -101170,6 +101292,42 @@ files.release: contextPolicy=none
   ],
   "docs": "api.reliability",
   "docsHash": "sha256:29903ce7acdf690e2295307c32d98e747027953924d396b95a4b0f7c4a8c88b9"
+}
+```
+
+## 工具 waitFor · waitFor
+
+```json
+{
+  "id": "waitFor",
+  "title": "waitFor",
+  "category": "page-method",
+  "version": "1.48.0",
+  "contextPolicy": "none",
+  "description": "waitFor({afterRevision}|{jobId},timeoutMs?,documentInstanceId?)。二选一；timeoutMs≤LIMITS.transport.waitMaxMs(25000)。替代客户端轮询 getState/getJob。",
+  "synonyms": [
+    "waitFor",
+    "等待",
+    "长等待",
+    "推送",
+    "修订",
+    "任务完成",
+    "wait",
+    "revision",
+    "job"
+  ],
+  "inputContract": "waitFor({afterRevision}|{jobId},timeoutMs?,documentInstanceId?)。二选一；timeoutMs≤LIMITS.transport.waitMaxMs(25000)。替代客户端轮询 getState/getJob。",
+  "outputContract": "status=read、satisfied、reason=REVISION_ADVANCED|JOB_TERMINAL|DOCUMENT_REPLACED|TIMEOUT、context、job?。超时不取消任务，可用相同参数再次调用。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "JOB_NOT_FOUND"
+  ],
+  "docsHash": "sha256:dabaf664dccd747bd63c014933dcbc189a1f0f10c21427829890db0748a410e5"
 }
 ```
 
@@ -101525,10 +101683,10 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:fed7247b3978c1f055f4bc32582b5c25ae4889a274cd63c2f6800f5323c6385d"
+  "docsHash": "sha256:cef94fb4d57e19464184b9f7dcd1e195e634f1d5dc4ae3c23c722f875ed58a0a"
 }
 ```
 
@@ -103056,10 +103214,10 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:a2856a667ab762f3f9528fc4509113f9c8f1608a30b17ef3df3ea05e86542f61"
+  "docsHash": "sha256:f33a3c853629d115ecd168da75eaad71e8c0e38a709d426f16c0eb17392fbb34"
 }
 ```
 
@@ -103082,7 +103240,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -103112,7 +103270,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:5dc286af187ce8abeaee840890e94242a73749a1ee42288fc3a8fa97531c7ca2"
+  "docsHash": "sha256:a4a47cd1c0f5bb3042023de7b8758bb9b3acf38957e137a4cbf289207b9f4079"
 }
 ```
 
@@ -103140,7 +103298,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -103182,7 +103340,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:324640a79c46a9acc4e35f2d2b3f0531bc86530f12a9e6f5e18be65ebc3b4db2"
+  "docsHash": "sha256:c40ebf8541753b09b3f42a2a8a626f965d838fec3ec5585df19fa821f9896379"
 }
 ```
 
@@ -103204,7 +103362,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -103230,7 +103388,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:745993f732e013b36611a2bf0b499aa10dababc47d3b792d3fec4235de290d9a"
+  "docsHash": "sha256:f5ad06c1b9f0df02ea9f257685f0c9b6edb6f2fa63a90175754b72674ab6f7a6"
 }
 ```
 
@@ -103252,7 +103410,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -103281,7 +103439,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:8afcc055ba1faa252e5afb193fd556b4a6b57d6f16483b5f490ed92a6f7a449d"
+  "docsHash": "sha256:f8fe51e809279d0b0dddd84cf37b1874a77c775f8b2f419a22535f7a32c78dd4"
 }
 ```
 
@@ -103304,7 +103462,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -103334,7 +103492,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:932384cc95dfd7fe3accccf1e523108b1623086b960e4d8b9544a05e1ea19901"
+  "docsHash": "sha256:bca1445068f0163b75dcc7cac3594f96277f56886203c589835235d43998161b"
 }
 ```
 
@@ -103357,7 +103515,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -103389,7 +103547,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:2575c147e461cd7fd890d059b9782637a1ce2e707b6a02bcfcf38fe65df05f6e"
+  "docsHash": "sha256:8327cc6752447dcb3240d6d1d1b1cd3728db9b9cee82329458b78e103c1b2388"
 }
 ```
 
@@ -103413,7 +103571,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -103459,7 +103617,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:0f18cf737c3af3ea2440df46817a5e119453e4e5abd7e8c14f827e40fe19a782"
+  "docsHash": "sha256:2350f0bbd8afe117f5668ef1f261f304d32adc84974aaf2533d223f6892f2a10"
 }
 ```
 
@@ -103481,7 +103639,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -103523,7 +103681,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:804061f9745a55608aeed4e4196863422c05659dcab027e862db6f7c9804b415"
+  "docsHash": "sha256:8bfc47f4c79a55384e1d1b47ce5fe64c0855bbcc9261bf1b86eb7b422af26ed3"
 }
 ```
 
@@ -103545,7 +103703,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -103574,7 +103732,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:81935f4445353324594b40ee09d318ee75b4f0daf0aa6df974a335ba8944a515"
+  "docsHash": "sha256:a6242a6e96da014f5093bb56123aaed25302aaf7d6b6f1d0452e4de3a305bcf9"
 }
 ```
 
@@ -103593,7 +103751,7 @@ files.release: contextPolicy=none
   "inputContract": "execute({context,idempotencyKey,action:\"reference.setWorkFrame\",args}); args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -103624,7 +103782,7 @@ files.release: contextPolicy=none
     "工作基准",
     "基准点"
   ],
-  "docsHash": "sha256:b3e4a588ddf401c681dc0a00dfd005a9876e7d629aa073d70cdadbfcffafd010"
+  "docsHash": "sha256:88c33265412a2a28314fc7ae25babb91cab66fa2b6232e572e701ccf88a04917"
 }
 ```
 
@@ -103643,7 +103801,7 @@ files.release: contextPolicy=none
   "inputContract": "execute({context,idempotencyKey,action:\"reference.resetWorkFrame\",args}); args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -103666,7 +103824,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:418403bd50bb6b85dbf4ff2449ae0bd2e9003e99b81fa13122c4bdda9a098d22"
+  "docsHash": "sha256:f8a2ffa9ed2154602fb55e5d6b13f0980239d376b0a7cd67f2cede8441c2077c"
 }
 ```
 
@@ -103685,7 +103843,7 @@ files.release: contextPolicy=none
   "inputContract": "execute({context,idempotencyKey,action:\"reference.setLocked\",args}); args:{locked:boolean}；可撤销的元数据操作。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -103708,7 +103866,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:788d5a1469021f4742fa5b6563a45980bcd8550294ef1a848812c7fb6f224c73"
+  "docsHash": "sha256:0b424847df8b3f73de3b37e8d000b7d31cba92c78b75302cb987ae7a5e1ae7fe"
 }
 ```
 
@@ -103727,7 +103885,7 @@ files.release: contextPolicy=none
   "inputContract": "execute({context,idempotencyKey,action:\"reference.saveFrame\",args}); args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -103750,7 +103908,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:c8c4cb45f79f3dcb4c8a697d342d9e6123809d52201bd4265a0902bc00bc6f3d"
+  "docsHash": "sha256:a00866b48540fe1dcf7237d4e86192d5ac6db109d4b56fcc8284b1719f8463d0"
 }
 ```
 
@@ -103769,7 +103927,7 @@ files.release: contextPolicy=none
   "inputContract": "execute({context,idempotencyKey,action:\"reference.activateFrame\",args}); args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -103792,7 +103950,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:ee96f0b63f1ef91f254ee951473036316cc711787af2c95be048e1bda8aad84c"
+  "docsHash": "sha256:c2eff5d1e6f73e6646f14f4f3d1c0f5f2bf114ce15f0b58c735313b69117a6a6"
 }
 ```
 
@@ -103811,7 +103969,7 @@ files.release: contextPolicy=none
   "inputContract": "execute({context,idempotencyKey,action:\"reference.renameFrame\",args}); args:{frameId,expectedFrameVersion,name}。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -103834,7 +103992,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:bccdea81e23b7da008972438f32d682323fe0b6a2c600b1d30368dec753d40ed"
+  "docsHash": "sha256:94df12b29ffbc065a6cf6e5c43218488439e1303c8a9772813ecfe6086bfd28c"
 }
 ```
 
@@ -103853,7 +104011,7 @@ files.release: contextPolicy=none
   "inputContract": "execute({context,idempotencyKey,action:\"reference.deleteFrame\",args}); args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -103876,7 +104034,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:a62ed8f9c5b18ffd3f1e810a30fb4dc6b74ecc4675ed043c67b33b9a9b67c304"
+  "docsHash": "sha256:71aa602e89888825ce5b86c2951ab9a72dd2249c0fc0d6c1d52291be2a29d17e"
 }
 ```
 
@@ -103895,7 +104053,7 @@ files.release: contextPolicy=none
   "inputContract": "execute({context,idempotencyKey,action:\"reference.setBodyAnchor\",args}); args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -103922,7 +104080,7 @@ files.release: contextPolicy=none
     "对象锚点",
     "实体锚点"
   ],
-  "docsHash": "sha256:82d961bd73e03cf54b6c54cb78807ceebc07a4d9bae03bcf2ebac0aa810eadfd"
+  "docsHash": "sha256:9ac9dc13c6f53765c346ac90372f7d8ad738cf4d1c6ea3fcec5df5f4a933eee1"
 }
 ```
 
@@ -103941,7 +104099,7 @@ files.release: contextPolicy=none
   "inputContract": "execute({context,idempotencyKey,action:\"reference.deleteBodyAnchor\",args}); args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -103964,7 +104122,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:9f0a74759b2d72aaabfe3c2d7bb3a97e51a97aae0880f7610b76304139c88c16"
+  "docsHash": "sha256:8cd65b59881897aeced22e8713bfa81015bdabaf369af9883b90f7e017942154"
 }
 ```
 
@@ -103983,7 +104141,7 @@ files.release: contextPolicy=none
   "inputContract": "execute({context,idempotencyKey,action:\"feature.add\",args}); args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -104006,7 +104164,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:1decfa7597ea5ed451b4ca2407de9f0781ea2692754f24900e0f26cd54cfc0b5"
+  "docsHash": "sha256:cc2064f486607a659410ebdf4e8f8fee88654b1d8bcb82f0c02b74b68a7b4a85"
 }
 ```
 
@@ -104141,7 +104299,7 @@ files.release: contextPolicy=none
   "inputContract": "execute({context,idempotencyKey,action:\"feature.addMany\",args}); args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -104163,7 +104321,7 @@ files.release: contextPolicy=none
     "getState"
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
-  "docsHash": "sha256:6710dc2ffcbb69195cd36c38978c07360b2948409cb6a411802b6ab03f4e3bf9"
+  "docsHash": "sha256:28548af03c962b0ea8322010584e0b9537aad641a0f0bfe7b9d545382f0521eb"
 }
 ```
 
@@ -104182,7 +104340,7 @@ files.release: contextPolicy=none
   "inputContract": "execute({context,idempotencyKey,action:\"feature.edit\",args}); args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -104205,7 +104363,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:a0da4ca50dfe717403993101254dbaadc63d961a9cfa1db23c5235d1ff03a265"
+  "docsHash": "sha256:11acacec5af4d1812ed839d08dfe040a0ecc0e5ebd00b2e4defda935e67f4fe8"
 }
 ```
 
@@ -104224,7 +104382,7 @@ files.release: contextPolicy=none
   "inputContract": "execute({context,idempotencyKey,action:\"feature.remove\",args}); args:{bodyIds}，不可使用历史已替换 ID。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -104247,7 +104405,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:3cb1585204f0073b89451770072f0c0d8011db3db7272cc1c9352c35b4d70ad6"
+  "docsHash": "sha256:5f9981858411ce28db9183c56c9354bb76f216baea0622b8d6c871b55e26af57"
 }
 ```
 
@@ -104266,7 +104424,7 @@ files.release: contextPolicy=none
   "inputContract": "execute({context,idempotencyKey,action:\"history.undo\",args}); args:{}；撤销一个已提交步骤。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -104289,7 +104447,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:c76e7b17ef5187839de344308ac983f78dafe60ed44eafa266cc4d49b6a2cec6"
+  "docsHash": "sha256:4fe34052d9b2c0442847aeccb7157a1f79d4f4313b3c2b165f68f34040c8a6c6"
 }
 ```
 
@@ -104308,7 +104466,7 @@ files.release: contextPolicy=none
   "inputContract": "execute({context,idempotencyKey,action:\"history.redo\",args}); args:{}；重做一个步骤。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -104331,7 +104489,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:4fe80e4a0ce2e807ccd757996f2733999a43acdba5278329ad8c84e50b27a67b"
+  "docsHash": "sha256:f0ead0554aa28950266f6de978a1d063facedbc9b8d9d3ae73bbad574034176b"
 }
 ```
 
@@ -104350,7 +104508,7 @@ files.release: contextPolicy=none
   "inputContract": "execute({context,idempotencyKey,action:\"document.refresh\",args}); args:{}；重建当前历史。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -104373,7 +104531,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:e2ebda1c97d0e9abff983425bb701ce8a488faad5d64e44195fec7fb44d7653c"
+  "docsHash": "sha256:4b73e51cbacca49d7c1a15ace0e2733e3cba1e7a991893042fe2df57fa745e4f"
 }
 ```
 
@@ -104392,7 +104550,7 @@ files.release: contextPolicy=none
   "inputContract": "execute({context,idempotencyKey,action:\"preview.start\",args}); 普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision，提交前工程 revision 不变。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -104415,7 +104573,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:87ba331f2b548fe150618d409b257d30486b9098845f6da61057fc200858b88b"
+  "docsHash": "sha256:9f49dbac072459bdc355e691d8db05982dc44dd61f4ec9dc8328c0951c30dd51"
 }
 ```
 
@@ -104434,7 +104592,7 @@ files.release: contextPolicy=none
   "inputContract": "execute({context,idempotencyKey,action:\"preview.update\",args}); args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -104457,7 +104615,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:871c45bd9b1aadab0ec2d12ffb1d0e6edc3a8ef778daab3d34103423531314f8"
+  "docsHash": "sha256:901e7ab7954ad8f4ec774ed1fb6988a0db450c1f2c9df9e455904b4ee82e97c0"
 }
 ```
 
@@ -104476,7 +104634,7 @@ files.release: contextPolicy=none
   "inputContract": "execute({context,idempotencyKey,action:\"preview.commit\",args}); 新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -104499,7 +104657,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:80aec8247abc96ab7a7399befee19e483c78f93e7772d0f7b23fd4c9ed999307"
+  "docsHash": "sha256:340e800f53b7452ae1d6cce40a7f1ef67a984e3185e12bb1a9f7facaa7409468"
 }
 ```
 
@@ -104518,7 +104676,7 @@ files.release: contextPolicy=none
   "inputContract": "execute({context,idempotencyKey,action:\"preview.cancel\",args}); 新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -104541,7 +104699,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:eda93b01c76e2e658b4985eacdf2264954e4720da1a72d8c303970a755a007dd"
+  "docsHash": "sha256:5e7911c367ec8c290b027a6916b5d400513a4265705bbeab22ce08015e582a61"
 }
 ```
 
@@ -104624,7 +104782,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "knownUnsupportedCases": [
@@ -104632,7 +104790,7 @@ files.release: contextPolicy=none
     "Indexed face/edge references downstream of a changed feature are rejected when stability cannot be proven."
   ],
   "docs": "api.named-parameters",
-  "docsHash": "sha256:9e851557ca88989ae1748e2e0c1cde7ea43f1fb8b9ad8311e3fafbace3a9a8d8"
+  "docsHash": "sha256:44dc252c6c84f0e2664ad1f7993275c14c7a973411b0e684aba78b2551fc85a9"
 }
 ```
 
@@ -104664,7 +104822,7 @@ files.release: contextPolicy=none
   "unknownFields": "rejected",
   "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.capabilities\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "maxResources": 32,
     "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
@@ -104684,14 +104842,14 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "caveats": [],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
-  "docsHash": "sha256:e584c4a0fc78d0bc8d30774f838fb56a129e7eb4e38b9c764bb28e69594fc384"
+  "docsHash": "sha256:9b2d5e43e19b48de42cecb25a3908c0e59f1209140e72091b838910a8724fa7d"
 }
 ```
 
@@ -104727,7 +104885,7 @@ files.release: contextPolicy=none
   "unknownFields": "rejected",
   "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.register\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "maxResources": 32,
     "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
@@ -104747,7 +104905,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "caveats": [],
@@ -104758,7 +104916,7 @@ files.release: contextPolicy=none
     "SIZE_LIMIT",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:7a8000c54ea12b18c54a5839b139f171764ab2c3b7a0a3c82ad7583535e84ec7"
+  "docsHash": "sha256:84900b73145fef889701243342f40ce3aae5fa26a3f13ef910717babb7ce0b01"
 }
 ```
 
@@ -104792,7 +104950,7 @@ files.release: contextPolicy=none
   "unknownFields": "rejected",
   "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.new\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "maxResources": 32,
     "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
@@ -104812,7 +104970,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "caveats": [],
@@ -104826,7 +104984,7 @@ files.release: contextPolicy=none
     "FILE_COMMAND_FAILED",
     "SIZE_LIMIT"
   ],
-  "docsHash": "sha256:25b55f574b2a5fad7feb8048e9017b3218abdcc68ddadd9d0ac186acf7557f3e"
+  "docsHash": "sha256:807d1ae8a5bb84f1850007b6b0445fa3b8267febe51756e0afb5c8ea70d51673"
 }
 ```
 
@@ -104844,9 +105002,9 @@ files.release: contextPolicy=none
     "打开工程",
     "open"
   ],
-  "description": "open({context,resourceId}); registered .webcad/.json resource; dirty replacement is rejected.",
-  "inputContract": "open({context,resourceId}); registered .webcad/.json resource; dirty replacement is rejected.",
-  "outputContract": "Rebuilt document with new documentInstanceId.",
+  "description": "open({context,resourceId,unsaved:\"fail\"|\"discard\",units?}); 打开=替换当前设计，从不合并。.webcad/.json 工程或单个 STEP/BREP/STL 模型（放入新文档；STL 需 units）。unsaved 必填：fail 在未保存时返回 UNSAVED_REPLACEMENT，discard 放弃修改。要加入当前设计请用 files.import。",
+  "inputContract": "open({context,resourceId,unsaved:\"fail\"|\"discard\",units?}); 打开=替换当前设计，从不合并。.webcad/.json 工程或单个 STEP/BREP/STL 模型（放入新文档；STL 需 units）。unsaved 必填：fail 在未保存时返回 UNSAVED_REPLACEMENT，discard 放弃修改。要加入当前设计请用 files.import。",
+  "outputContract": "Rebuilt document with new documentInstanceId; undo history cleared.",
   "units": {
     "length": "mm",
     "angle": "degrees"
@@ -104856,12 +105014,14 @@ files.release: contextPolicy=none
   "runtimeAvailability": "requires_ready_page",
   "argumentKeys": [
     "context",
-    "resourceId"
+    "resourceId",
+    "unsaved",
+    "units"
   ],
   "unknownFields": "rejected",
   "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.open\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "maxResources": 32,
     "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
@@ -104881,7 +105041,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "caveats": [],
@@ -104896,9 +105056,10 @@ files.release: contextPolicy=none
     "SIZE_LIMIT",
     "RESOURCE_EXPIRED",
     "ASSET_INVALID",
-    "FORMAT_UNSUPPORTED"
+    "FORMAT_UNSUPPORTED",
+    "MESH_UNITS_REQUIRED"
   ],
-  "docsHash": "sha256:fb1b2009466a77a37debec679f3877d23b167b22d4aab62c832c5b48e2cb9919"
+  "docsHash": "sha256:d07c0af2d8b01d0e3808a914d71e3bee402c658faee699b155a5cdc06a2d941b"
 }
 ```
 
@@ -104936,7 +105097,7 @@ files.release: contextPolicy=none
   "unknownFields": "rejected",
   "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.import\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "maxResources": 32,
     "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
@@ -104956,7 +105117,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -104993,7 +105154,7 @@ files.release: contextPolicy=none
     "MESH_ASSET_CORRUPT",
     "MESH_DISPLAY_CAPACITY"
   ],
-  "docsHash": "sha256:e505be0215a11b62743824990a1d116c7dd404629bb358b592ded11dd3d552d0"
+  "docsHash": "sha256:14a717bee19a39da44213c9b790b83c55507b3dc3dfc0141628f783a480e47cb"
 }
 ```
 
@@ -105028,7 +105189,7 @@ files.release: contextPolicy=none
   "unknownFields": "rejected",
   "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.save\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "maxResources": 32,
     "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
@@ -105048,7 +105209,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "caveats": [],
@@ -105065,7 +105226,7 @@ files.release: contextPolicy=none
     "NAME_INVALID",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:59890c52fe51f2252e5033c42b6ae18a4b5b4c61150b53d6ab0bc1ae55d4198c"
+  "docsHash": "sha256:fb8f296477db82a8d598c3b4e7ed9788bc0ae6dc5243291337ba2da8eb4966c7"
 }
 ```
 
@@ -105102,7 +105263,7 @@ files.release: contextPolicy=none
   "unknownFields": "rejected",
   "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.export\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "maxResources": 32,
     "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
@@ -105122,7 +105283,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "caveats": [],
@@ -105140,7 +105301,7 @@ files.release: contextPolicy=none
     "RESOURCE_LIMIT",
     "FORMAT_UNSUPPORTED"
   ],
-  "docsHash": "sha256:9b51b3752824c3f67ed195f3856deefa82920285556305cb731c0af1d57cce37"
+  "docsHash": "sha256:bf8e265714afaf50e56d202908fbfe84b44eaf67477409752f9dfb073e594f41"
 }
 ```
 
@@ -105175,7 +105336,7 @@ files.release: contextPolicy=none
   "unknownFields": "rejected",
   "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.read\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "maxResources": 32,
     "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
@@ -105195,7 +105356,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "caveats": [],
@@ -105203,7 +105364,7 @@ files.release: contextPolicy=none
     "PARAM_SCHEMA_INVALID",
     "RESOURCE_EXPIRED"
   ],
-  "docsHash": "sha256:d68c82054d47adbe311e5aa6199a81bc3612a1a89e772a8f5dcc857fc6b5c67d"
+  "docsHash": "sha256:d083181e68365bbc927a6e2ac41c7e992bc9fcb289db7fa507fef92544721aab"
 }
 ```
 
@@ -105237,7 +105398,7 @@ files.release: contextPolicy=none
   "unknownFields": "rejected",
   "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.download\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "maxResources": 32,
     "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
@@ -105257,7 +105418,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "caveats": [],
@@ -105267,7 +105428,7 @@ files.release: contextPolicy=none
     "ASSET_INVALID",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:a81e9a962d97aa9c823dc10f347960475167a5377a21ca0f7274b1bc65d35894"
+  "docsHash": "sha256:67d0edf638318a33229860bc579e678e36f64b96bdf92eacabad74abe8fd68cf"
 }
 ```
 
@@ -105302,7 +105463,7 @@ files.release: contextPolicy=none
   "unknownFields": "rejected",
   "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.write\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "maxResources": 32,
     "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
@@ -105322,7 +105483,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "caveats": [],
@@ -105336,7 +105497,7 @@ files.release: contextPolicy=none
     "HASH_MISMATCH",
     "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:4f225971d8142ba82d88e7c0d7faa62bb06baea54b63273c73194b54f554b21c"
+  "docsHash": "sha256:7c67feb6e6fd3ade4e1554c3394bf921259706a35391e56c762c02e18d749058"
 }
 ```
 
@@ -105372,7 +105533,7 @@ files.release: contextPolicy=none
   "unknownFields": "rejected",
   "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.confirmWritten\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "maxResources": 32,
     "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
@@ -105392,7 +105553,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "caveats": [],
@@ -105405,7 +105566,7 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT",
     "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:b0466c853cb2e13dd9e87a4e28edeb6821432b920da9a14ecafe21031edfc128"
+  "docsHash": "sha256:8ecdb02fa685be027b9ce8523abdd4efe25795779793fd57a9de661387548548"
 }
 ```
 
@@ -105439,7 +105600,7 @@ files.release: contextPolicy=none
   "unknownFields": "rejected",
   "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.release\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "maxResources": 32,
     "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
@@ -105459,7 +105620,7 @@ files.release: contextPolicy=none
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "caveats": [],
@@ -105468,7 +105629,7 @@ files.release: contextPolicy=none
     "RESOURCE_EXPIRED",
     "RESOURCE_BUSY"
   ],
-  "docsHash": "sha256:b714e8fc7377fd7ee4c7e5deb468c4932c27fcbd90a50a8a9e12f16cf3798a39"
+  "docsHash": "sha256:9ea092a0de742742b83c185431278438d3c81bdd19d493a56b8231f8020517cc"
 }
 ```
 

@@ -28,8 +28,8 @@
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:fed7247b3978c1f055f4bc32582b5c25ae4889a274cd63c2f6800f5323c6385d"
+  "docsHash": "sha256:cef94fb4d57e19464184b9f7dcd1e195e634f1d5dc4ae3c23c722f875ed58a0a"
 }

@@ -10,7 +10,7 @@
   "inputContract": "execute({context,idempotencyKey,action:\"reference.saveFrame\",args}); args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:c8c4cb45f79f3dcb4c8a697d342d9e6123809d52201bd4265a0902bc00bc6f3d"
+  "docsHash": "sha256:a00866b48540fe1dcf7237d4e86192d5ac6db109d4b56fcc8284b1719f8463d0"
 }

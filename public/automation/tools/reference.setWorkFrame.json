@@ -10,7 +10,7 @@
   "inputContract": "execute({context,idempotencyKey,action:\"reference.setWorkFrame\",args}); args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -41,5 +41,5 @@
     "工作基准",
     "基准点"
   ],
-  "docsHash": "sha256:b3e4a588ddf401c681dc0a00dfd005a9876e7d629aa073d70cdadbfcffafd010"
+  "docsHash": "sha256:88c33265412a2a28314fc7ae25babb91cab66fa2b6232e572e701ccf88a04917"
 }

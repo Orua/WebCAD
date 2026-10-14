@@ -13,7 +13,7 @@
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -42,5 +42,5 @@
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:81935f4445353324594b40ee09d318ee75b4f0daf0aa6df974a335ba8944a515"
+  "docsHash": "sha256:a6242a6e96da014f5093bb56123aaed25302aaf7d6b6f1d0452e4de3a305bcf9"
 }

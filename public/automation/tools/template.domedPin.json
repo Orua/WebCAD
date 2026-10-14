@@ -351,7 +351,7 @@
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -480,5 +480,5 @@
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:082553442687300b64c81c082262003a7d1e5167f87b1f0eada4cda1c5879aeb"
+  "docsHash": "sha256:c7af3eb3ce89cd6dbafefb617a525ba18b0bd85e949f27522f674d7905c3f24b"
 }

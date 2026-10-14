@@ -1372,6 +1372,7 @@ invoke: contextPolicy=none
 submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none

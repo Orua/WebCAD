@@ -10,7 +10,7 @@
   "inputContract": "execute({context,idempotencyKey,action:\"history.redo\",args}); args:{}；重做一个步骤。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:4fe80e4a0ce2e807ccd757996f2733999a43acdba5278329ad8c84e50b27a67b"
+  "docsHash": "sha256:f0ead0554aa28950266f6de978a1d063facedbc9b8d9d3ae73bbad574034176b"
 }

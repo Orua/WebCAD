@@ -1,9 +1,9 @@
 {
   "product": "WebCAD",
   "pageApiVersion": "1.48.0",
-  "buildId": "f255ad5d4a3024031a1564cedaea4fb4b63824dd-src-ae79579fb5406f9b",
-  "catalogHash": "sha256:7a381fefba853da45d7ea3de8544af350c3e59840f313069b837a49fc36d7851",
-  "docsHash": "sha256:0a8c76bb7a62acc65768461c5aa980df43a8e0fa95d25c004fef3b96577e58ca",
+  "buildId": "8561bba16db6e50334b38a0db83ee873627ecefb-src-d71a674cb6e42479",
+  "catalogHash": "sha256:5ca5f07462ac9c495c6679a9665ecb4d4afc0b7950ddef6dc2ebb96ae451dcaf",
+  "docsHash": "sha256:5d7bc778401a0e309a2bbf28f29535c58e11846d20241c8e26284d58d8a1854e",
   "version": 1,
   "entrypoint": "window.webcad.api.connect",
   "startUrl": "automation/agent-start.html",
@@ -91,6 +91,34 @@
   ],
   "linkBase": "page deployment root; resolve paths against the CAD page URL",
   "firstCall": "window.webcad.api.connect({queries:[\"本次任务能力\"],limit:2,includeContracts:true})",
+  "limits": {
+    "transport": {
+      "maxInputBytes": 104857600,
+      "maxArtifactBytes": 104857600,
+      "maxResultBytes": 6291456,
+      "commandTimeoutMs": 90000,
+      "chunkBytes": 4194304,
+      "chunkConcurrency": 2,
+      "chunkRetries": 3,
+      "uploadSessionTtlSeconds": 1800,
+      "waitMaxMs": 25000
+    }
+  },
+  "entrypoints": {
+    "script": "window.webcad.api (page script / CDP Runtime.evaluate)",
+    "broker": "Goldenluck codexagent /api/webcad (adapter v2)",
+    "mcp": "not in production yet"
+  },
+  "fileIntent": {
+    "open": "files.open({context,resourceId,unsaved:\"fail\"|\"discard\"}) replaces the document and never merges",
+    "insert": "files.import({context,resourceId,idempotencyKey,...}) adds into the current document"
+  },
+  "domFallback": {
+    "when": "No script channel: operate only through visible UI and report the limitation.",
+    "open": "文件 → 打开…（替换当前设计）; unsaved prompt: 保存 / 不保存 / 取消",
+    "insert": "文件 → 插入模型到当前设计…",
+    "drop": "Dropping onto a non-empty design asks 打开（替换当前设计） / 插入到当前设计 / 取消 (default 取消)."
+  },
   "documentation": {
     "quickstart": "automation/quickstart.md",
     "routes": "automation/routes.json",

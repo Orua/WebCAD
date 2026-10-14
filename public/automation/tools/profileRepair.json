@@ -434,7 +434,7 @@
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -454,5 +454,5 @@
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:cc3278dcef1088b5730597c8ea8c4866790123a3a52b4a6dca3dcf5eb4deba6c"
+  "docsHash": "sha256:f438a596e09cebe29b7e701f6258e23ff2d9c280b77793bfd945dd0e509f90b6"
 }

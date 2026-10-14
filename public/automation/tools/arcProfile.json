@@ -743,7 +743,7 @@
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -761,5 +761,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:867f4d3ba1186c221ec49fb0717fe515c19ed249f64870d9ee337a2fd7089a01"
+  "docsHash": "sha256:0b409f4f723627b23f3f2abb54ecf6e7be82e64c927d5709bec9896ae17913ac"
 }

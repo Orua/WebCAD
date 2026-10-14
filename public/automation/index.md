@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.48.0 · 操作目录 sha256:7a381fefba853da45d7ea3de8544af350c3e59840f313069b837a49fc36d7851
+API 1.48.0 · 操作目录 sha256:5ca5f07462ac9c495c6679a9665ecb4d4afc0b7950ddef6dc2ebb96ae451dcaf
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -35,6 +35,7 @@ API 1.48.0 · 操作目录 sha256:7a381fefba853da45d7ea3de8544af350c3e59840f3130
 - `submit`
 - `getJob`
 - `cancelJob`
+- `waitFor`
 - `connect`
 - `info`
 - `getState`
@@ -256,6 +257,7 @@ API 1.48.0 · 操作目录 sha256:7a381fefba853da45d7ea3de8544af350c3e59840f3130
 - `submit` · page-method · submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/inspectConstraints/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.
 - `getJob` · page-method · getJob({jobId})
 - `cancelJob` · page-method · cancelJob({jobId})
+- `waitFor` · page-method · waitFor({afterRevision}|{jobId},timeoutMs?,documentInstanceId?)。二选一；timeoutMs≤LIMITS.transport.waitMaxMs(25000)。替代客户端轮询 getState/getJob。
 - `connect` · page-method · connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.
 - `info` · page-method · info() 无参数。
 - `getState` · page-method · getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities/references。
@@ -336,7 +338,7 @@ API 1.48.0 · 操作目录 sha256:7a381fefba853da45d7ea3de8544af350c3e59840f3130
 - `files.capabilities` · browser-file-adapter · capabilities(); no arguments.
 - `files.register` · browser-file-adapter · register({name,data,mime?}); data is File, Blob, ArrayBuffer or Uint8Array; name is a safe basename.
 - `files.new` · browser-file-adapter · new({context}); complete current context; dirty replacement is always rejected by page API. Default name: 新建工程YYYYMMDD-NNN using the current local date and a daily browser-persisted sequence (minimum three digits); no explicit name argument.
-- `files.open` · browser-file-adapter · open({context,resourceId}); registered .webcad/.json resource; dirty replacement is rejected.
+- `files.open` · browser-file-adapter · open({context,resourceId,unsaved:"fail"|"discard",units?}); 打开=替换当前设计，从不合并。.webcad/.json 工程或单个 STEP/BREP/STL 模型（放入新文档；STL 需 units）。unsaved 必填：fail 在未保存时返回 UNSAVED_REPLACEMENT，discard 放弃修改。要加入当前设计请用 files.import。
 - `files.import` · browser-file-adapter · import({context,resourceId,units?,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP or binary STL/mesh resource. Mesh requires explicit units and idempotencyKey; read api.mesh-assets. Exact-source typed imports preserve optional legacy key behavior; supply idempotencyKey for replay protection; read api.exact-source-assets. When placement is present, idempotencyKey is required; run batch injects its own step key.
 - `files.save` · browser-file-adapter · save({context,name?}); complete current context.
 - `files.export` · browser-file-adapter · export({context,format,ids?,name?}); format step/stl/brep/png.

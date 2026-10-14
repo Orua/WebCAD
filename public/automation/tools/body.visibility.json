@@ -14,7 +14,7 @@
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -46,5 +46,5 @@
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:2575c147e461cd7fd890d059b9782637a1ce2e707b6a02bcfcf38fe65df05f6e"
+  "docsHash": "sha256:8327cc6752447dcb3240d6d1d1b1cd3728db9b9cee82329458b78e103c1b2388"
 }
