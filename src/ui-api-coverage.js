@@ -3,6 +3,8 @@ import { listOperations } from './operation-registry.js';
 // This is the UI-to-public-API inventory, also used by the UI and build gate.
 export const UI_API_ROUTES = Object.freeze({
   ...Object.fromEntries(listOperations().filter(c=>!['round','roundEnd','rounding','fillet'].includes(c.id)).map(c=>[c.id,{tools:[c.id],method:'execute',usage:'feature.add；按工具卡传显式 params/refs，或 run 的 add。'}])),
+ heightfieldSculpt:{tools:['feature.edit','meshHeightfieldRelief','history.undo','history.redo','getState'],method:'execute',usage:'在高度图浮雕的采样网格上用笔刷精修（抬高/压低/平滑/压平，半径、强度、目标高度）；笔画按顺序存入 params.sculpt，重建确定，撤销用 history.undo 或删除最后一笔。'},
+ meshBoolean:{tools:['meshBoolean','preview.start','preview.commit','preview.cancel','getState','files.export'],method:'execute',usage:'选择2–16个实体按顺序做网格并集/差集/交集（manifold-3d）；精确实体先按 toleranceMm 细分，结果为封闭网格，可导出STL，不是BRep/STEP。'},
  meshHeightfieldRelief:{tools:['meshHeightfieldRelief','preview.start','preview.commit','preview.cancel','feature.edit','getState'],method:'execute',usage:'由作者制作的灰度高度图（行优先 u8/u16le base64）生成封闭网格浮雕：宽、长、底厚、浮雕高度、平滑、gamma、边缘渐隐；最多约190万采样点，输出可导出STL，不是BRep/STEP。'},
  meshReliefPlate:{tools:['meshReliefPlate','preview.start','preview.commit','preview.cancel','feature.edit','getState'],method:'execute',usage:'创建中心XY网格底板，显式宽长厚度、间距、圆形起伏中心/高度/平顶及外半径。参数保留于工程，UI/API同一创建路径，网格不冒充曲面BRep。'},
   meshReliefEdit:{tools:['meshReliefEdit','sampleMeshRelief','feature.edit','preview.start','preview.commit','preview.cancel','history.undo','history.redo','getState'],method:'execute',usage:'面加工→网格局部修高。选择原生网格，读取meshReport.geometryHash；明确支撑坐标、表面种子、核心/过渡/硬保护圆域、scaleHeight/offset/flatten/replace及最小厚度，replace用毫米目标网格或路径profile的横纵截面替换核心并混合过渡。UI和API同一路径，预览后应用。结果回读meshReport.edit；网格不冒充精确STEP。'},

@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.47.0 · sha256:f308a32b25ed5076f982ee09aeed740e9c35db44d3ae5005bc1e4fff381b56ed
+API 1.47.0 · sha256:eae1c8a3cc777949c26a2f3a7d73b640cc049bc66084a0b27bef9540bde95205
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -494,6 +494,18 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "meshBoolean": {
+    "tools": [
+      "meshBoolean",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel",
+      "getState",
+      "files.export"
+    ],
+    "method": "execute",
+    "usage": "选择2–16个实体按顺序做网格并集/差集/交集（manifold-3d）；精确实体先按 toleranceMm 细分，结果为封闭网格，可导出STL，不是BRep/STEP。"
+  },
   "meshHeightfieldRelief": {
     "tools": [
       "meshHeightfieldRelief",
@@ -821,6 +833,17 @@ executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口�
     ],
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
+  "heightfieldSculpt": {
+    "tools": [
+      "feature.edit",
+      "meshHeightfieldRelief",
+      "history.undo",
+      "history.redo",
+      "getState"
+    ],
+    "method": "execute",
+    "usage": "在高度图浮雕的采样网格上用笔刷精修（抬高/压低/平滑/压平，半径、强度、目标高度）；笔画按顺序存入 params.sculpt，重建确定，撤销用 history.undo 或删除最后一笔。"
   },
   "servicesWaitDecision": {
     "tools": [
@@ -11915,6 +11938,228 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 }
 ```
 
+## 工具 meshBoolean · 网格布尔合并 / Mesh boolean
+
+```json
+{
+  "id": "meshBoolean",
+  "version": "legacy-1",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "version",
+      "operation"
+    ],
+    "properties": {
+      "version": {
+        "type": "integer",
+        "const": 1
+      },
+      "operation": {
+        "type": "string",
+        "enum": [
+          "union",
+          "subtract",
+          "intersect"
+        ]
+      },
+      "toleranceMm": {
+        "type": "number",
+        "minimum": 0.005,
+        "maximum": 1,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      }
+    },
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 2,
+    "maxItems": 2
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs: 2–16 bodies in order; subtract removes refs[1..] from refs[0]. Mesh bodies are used as-is (with placement); exact BRep bodies are tessellated at toleranceMm (default 0.05 mm). Every input must be a closed, manifold mesh. Result is a closed raw mesh (STL export), not a BRep/STEP; refs are consumed.",
+  "title": "网格布尔合并 / Mesh boolean",
+  "category": "modification",
+  "synonyms": [
+    "meshBoolean",
+    "网格布尔合并"
+  ],
+  "description": "网格布尔合并 / Mesh boolean",
+  "schemaHash": "sha256:6e48a671d33294695857caf9429924b733bd48d8364b24e39a5af5544d4c864b",
+  "apiCompatibility": [
+    "page-advisory"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": true,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    "Schema advisory only; existing operation/kernel restrictions apply."
+  ],
+  "knownUnsupportedCases": [
+    "refs: 2–16 bodies in order; subtract removes refs[1..] from refs[0]. Mesh bodies are used as-is (with placement); exact BRep bodies are tessellated at toleranceMm (default 0.05 mm). Every input must be a closed, manifold mesh. Result is a closed raw mesh (STL export), not a BRep/STEP; refs are consumed.",
+    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
+  ],
+  "minimalExample": {
+    "op": "meshBoolean",
+    "params": {
+      "version": 1,
+      "operation": "union",
+      "toleranceMm": 0.05
+    },
+    "refs": [
+      "<current-bodyId-1>",
+      "<current-bodyId-2>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
+  "normalExample": {
+    "op": "meshBoolean",
+    "params": {
+      "version": 1,
+      "operation": "union",
+      "toleranceMm": 0.05
+    },
+    "refs": [
+      "<current-bodyId-1>",
+      "<current-bodyId-2>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "version": 1,
+        "operation": "union",
+        "toleranceMm": 0.05,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "label": "网格布尔合并",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 20971520,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "docsHash": "sha256:5392451f8eddd94a10b71264716dc222fe27458da481f2ad825745cff141c83b"
+}
+```
+
 ## 工具 meshHeightfieldRelief · 高度图浮雕 / Heightfield relief
 
 ```json
@@ -11979,8 +12224,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "encoding",
-          "data"
+          "encoding"
         ],
         "properties": {
           "encoding": {
@@ -11993,6 +12237,64 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
           "data": {
             "type": "string",
             "maxLength": 8388608
+          },
+          "importKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        }
+      },
+      "sculpt": {
+        "type": "array",
+        "maxItems": 512,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "radiusMm",
+            "strength",
+            "points"
+          ],
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "raise",
+                "lower",
+                "smooth",
+                "flatten"
+              ]
+            },
+            "radiusMm": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            "strength": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10
+            },
+            "targetMm": {
+              "type": "number"
+            },
+            "points": {
+              "type": "array",
+              "maxItems": 20000,
+              "items": {
+                "type": "number",
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            }
           }
         }
       },
@@ -12045,7 +12347,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles).",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. heights is inline base64 data or importKey of a binary project asset (format heightmap). sculpt: ordered brush strokes {mode raise|lower (strength mm per dab)|smooth|flatten (strength 0–1, flatten to targetMm), radiusMm, points [x,y,...] mm in relief-local XY} replayed deterministically after gamma/fade. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles).",
   "title": "高度图浮雕 / Heightfield relief",
   "category": "creation",
   "synonyms": [
@@ -12053,7 +12355,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "高度图浮雕"
   ],
   "description": "高度图浮雕 / Heightfield relief",
-  "schemaHash": "sha256:17ab1086d41ce90282e2db5e335fedbf1c33ad6dafed4b10aaf94de38437a7b9",
+  "schemaHash": "sha256:1353033ef6f168508b0e408effc97db11aeffb21c1171a6c4d4944d5a2a39fd9",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -12103,7 +12405,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles).",
+    "Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. heights is inline base64 data or importKey of a binary project asset (format heightmap). sculpt: ordered brush strokes {mode raise|lower (strength mm per dab)|smooth|flatten (strength 0–1, flatten to targetMm), radiusMm, points [x,y,...] mm in relief-local XY} replayed deterministically after gamma/fade. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles).",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
@@ -12226,7 +12528,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:7140df66e711252a907bb0ffc7bf1d0ef5d90156311a8d325cf032bbb5315be3"
+  "docsHash": "sha256:d84b1d7e2ac688eda8c1b9285624118f70d197a735a52e40c30ebc4439285d5f"
 }
 ```
 

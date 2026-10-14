@@ -241,6 +241,18 @@
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "meshBoolean": {
+    "tools": [
+      "meshBoolean",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel",
+      "getState",
+      "files.export"
+    ],
+    "method": "execute",
+    "usage": "选择2–16个实体按顺序做网格并集/差集/交集（manifold-3d）；精确实体先按 toleranceMm 细分，结果为封闭网格，可导出STL，不是BRep/STEP。"
+  },
   "meshHeightfieldRelief": {
     "tools": [
       "meshHeightfieldRelief",
@@ -568,6 +580,17 @@
     ],
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
+  "heightfieldSculpt": {
+    "tools": [
+      "feature.edit",
+      "meshHeightfieldRelief",
+      "history.undo",
+      "history.redo",
+      "getState"
+    ],
+    "method": "execute",
+    "usage": "在高度图浮雕的采样网格上用笔刷精修（抬高/压低/平滑/压平，半径、强度、目标高度）；笔画按顺序存入 params.sculpt，重建确定，撤销用 history.undo 或删除最后一笔。"
   },
   "servicesWaitDecision": {
     "tools": [

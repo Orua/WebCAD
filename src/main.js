@@ -10,6 +10,7 @@ import {meshScale} from './mesh/mesh-contract.js';
 import {attachExactSource} from './exact-source.js';
 import {fileByteBudget} from './browser-file-contracts.js';
 import {binaryHash} from './contracts/operation-schema.js';
+import {heightfieldSamples} from './mesh/heightfield-relief.js';
 import {decodeProject} from './project-container.js';
 import {servicesClient} from './services/client.js';
 import {getServicesConfig,serviceError} from './services/settings.js';
@@ -68,7 +69,7 @@ const emptyDocument = () => ({version:2,documentId:crypto.randomUUID(),name:next
 const pageSessionId=crypto.randomUUID();
 let documentInstanceId=crypto.randomUUID(),lastWarnings=[],persistenceCheckpoint='pending';
 const clone = cloneAssetDocument;
-const labels = {meshReliefPlate:'浮雕网格底板',meshHeightfieldRelief:'高度图浮雕',meshReliefEdit:'网格局部修高',round:'圆润',roundEnd:'端头圆润',rounding:'自动打磨',autoRound:'整件圆边',smoothTransition:'平滑过渡',box:'长方体',cylinder:'圆柱',sphere:'球体',cone:'圆锥',torus:'圆环',extrude:'拉伸',revolve:'旋转成型',transform:'变换',copy:'复制',mirror:'镜像',union:'合并',cut:'切除',intersect:'求交',fillet:'圆角',chamfer:'倒角',shell:'抽壳',hole:'打孔',linearPattern:'直线阵列',circularPattern:'环形阵列',import:'导入',remove:'删除'};
+const labels = {meshReliefPlate:'浮雕网格底板',meshHeightfieldRelief:'高度图浮雕',meshBoolean:'网格布尔合并',meshReliefEdit:'网格局部修高',round:'圆润',roundEnd:'端头圆润',rounding:'自动打磨',autoRound:'整件圆边',smoothTransition:'平滑过渡',box:'长方体',cylinder:'圆柱',sphere:'球体',cone:'圆锥',torus:'圆环',extrude:'拉伸',revolve:'旋转成型',transform:'变换',copy:'复制',mirror:'镜像',union:'合并',cut:'切除',intersect:'求交',fillet:'圆角',chamfer:'倒角',shell:'抽壳',hole:'打孔',linearPattern:'直线阵列',circularPattern:'环形阵列',import:'导入',remove:'删除'};
 let documentModel=emptyDocument(),bodies=[],selectedIds=[],selectedTopology=null,busy=false,kernelReady=false,dirty=false;
 const servicesExecutionHistory=createExecutionHistory();let lastServicesDecision=null;
 let qualityKey='standard';
@@ -156,6 +157,7 @@ const ui=createUI(document.getElementById('app'),{
   initialDocumentName:documentModel.name,
   onAction:(action,params)=>performAction(action,params).catch(error=>{reportError(error);return false;}),
   onRoundGuide:(report,handlers)=>viewport.setRoundGuide(report,handlers),
+  heightfieldPreview:id=>{const feature=documentModel.features.find(f=>f.id===id&&f.op==='meshHeightfieldRelief');if(!feature)return null;const item=documentModel.imports?.[feature.params.heights?.importKey];return {params:clone(feature.params),heights:heightfieldSamples(feature.params,item?documentModel.binaryAssets?.[item.assetHash]:undefined)};},
   onSelection:(id,additive)=>selectBody(id,additive),
   onPickCandidate:hit=>pick(hit,false),
   onEditFeature:(id,params,name)=>{assertHumanEditing();const feature=documentModel.features.find(f=>f.id===id);params=intentForUIParameterEdit(feature?.op,{...feature?.params,...params});return editFeature(id,params,name).then(result=>{ui.clearPropertyDraft();return result;});},
@@ -352,7 +354,7 @@ function featureDocument(op,params={},explicitRefs=[],name,placement){
     if(selection.length!==1||!bodies.some(b=>b.id===selection[0]))throw new Error('请先选择一个当前实体。');
     refs.push(selection[0]);
   }
-  if(['group','union','cut','intersect'].includes(op)){
+  if(['group','union','cut','intersect','meshBoolean'].includes(op)){
     if(selection.length<2)throw new Error('请按住 Shift 依次选择至少两个实体。切除时先选保留的主体，再选刀具。');
     refs.push(...selection);
   }
@@ -437,6 +439,13 @@ async function navigateHistory(direction,options={}){
   }else await rebuild(clone(next),{...options,record:false,restoring:true});source.pop();(direction==='undo'?redoStack:undoStack).push(old);try{refresh();}catch(error){lastWarnings.push({code:'DISPLAY_FAILED',message:error.message});}
 }
 function checkTransaction(signal,expectedRevision){if(signal?.aborted)throw Object.assign(new Error('AI request cancelled before commit'),{code:'CANCELLED',path:'context',recoveryAction:'READ_STATE_AND_REPLAN'});if(expectedRevision!==undefined&&expectedRevision!==revision)throw Object.assign(new Error(`Revision conflict: expected ${expectedRevision}, current ${revision}. Read state and retry.`),{code:'REVISION_CONFLICT',path:'context.expectedRevision',recoveryAction:'READ_STATE_AND_REPLAN'});}
+// Heightmap samples from the UI dialog travel as a binary v4 asset (format
+// heightmap) referenced by params.heights.importKey, not as inline base64.
+let pendingHeightmap=null;
+function attachPendingHeightmap(next,params){
+  const key=params?.heights?.importKey;if(!key||next.imports?.[key]||pendingHeightmap?.key!==key)return;
+  next.version=4;next.binaryAssets={...next.binaryAssets,[pendingHeightmap.hash]:pendingHeightmap.bytes};next.imports={...next.imports,[key]:{format:'heightmap',assetHash:pendingHeightmap.hash,name:pendingHeightmap.name}};
+}
 async function previewFeature(op,params,explicitRefs,name,placement,identity=null,editId=null){
   if(busy)throw new Error('Please wait for the current operation.');
   if(!Object.hasOwn(labels,op)||op==='import')throw new Error('Unsupported preview operation');
@@ -446,7 +455,7 @@ async function previewFeature(op,params,explicitRefs,name,placement,identity=nul
   const resolved=await resolveLogoParams(op,migratedOperationIds.includes(op)?normalizeOperationParams(op,uiParams):uiParams,refs);
   let next;
   if(editId){next=clone(documentModel);const edited=next.features.find(f=>f.id===editId);if(!edited)throw Object.assign(new Error('预览编辑特征已失效'),{code:'STALE_REFERENCE'});if(Object.keys(resolved).some(key=>JSON.stringify(resolved[key])!==JSON.stringify(edited.params[key])&&Object.keys(edited.expressions||{}).some(path=>path===key||path.startsWith(key+'.'))))throw Object.assign(new Error('该尺寸已绑定命名参数，请在参数表中修改。'),{code:'PARAMETER_BOUND'});edited.params=resolved;if(name!==undefined)edited.name=name;if(placement)edited.placement=placement;assertHistoryEditSafe(documentModel,next);}
-  else ({next}=featureDocument(op,resolved,refs,name,placement));assertDocumentCapacity(next,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});
+  else ({next}=featureDocument(op,resolved,refs,name,placement));attachPendingHeightmap(next,resolved);assertDocumentCapacity(next,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});
   if(!identity||identity.owner==='ui')assertHumanEditing();
   const generation=++previewGeneration;previewComputing=true;previewComputingOwner=identity?.owner??'ui';setBusy(true,'预览 / Preview…');
   try{const routed=await routeChangedFeature(next,{expectedRevision:revision});next=routed.next;const result=await request('rebuild',{document:next});
@@ -601,6 +610,15 @@ async function performAction(action,params={}){
   if(action==='language'){viewport.updateLanguage();refresh();return;}
   if(action==='cancelPreview'){await cancelPreview();return;}
   if(action==='commitPreview'){if(!previewNext)throw new Error('No preview to apply');await rebuild(clone(previewNext),{select:previewNext.features.at(-1)?.id});return true;}
+  if(action==='heightfieldSculpt'){
+    const feature=documentModel.features.find(f=>f.id===params.featureId);if(feature?.op!=='meshHeightfieldRelief')throw new Error('请选择一个高度图浮雕实体。');
+    const sculpt=params.undo?(feature.params.sculpt||[]).slice(0,-1):[...(feature.params.sculpt||[]),...params.strokes];
+    return editFeature(feature.id,{...feature.params,sculpt},undefined,{historyLabel:params.undo?'撤销精修笔画':'高度图精修'});
+  }
+  if(action==='preview'&&params.heightmapAsset){
+    const {bytes,name}=params.heightmapAsset,hash=binaryHash(bytes).slice(7),key='heightmap-'+hash.slice(0,16);pendingHeightmap={key,hash,bytes,name};
+    params={...params,params:{...params.params,heights:{encoding:params.params.heights.encoding,importKey:key}}};delete params.heightmapAsset;
+  }
   if(action==='preview'){
     const input=clone(params.params),useFrame=input.useWorkFrame===true,sourceAnchor=input.placementSourceAnchor,taskRefs=input._targetRefs,taskTopology=input._targetTopology,frameSnapshot=input._placementFrameSnapshot;delete input.useWorkFrame;delete input.placementSourceAnchor;delete input._targetRefs;delete input._targetTopology;delete input._placementFrameSnapshot;
     const placement=useFrame?resolvePlacement({version:1,frame:frameSnapshot?{kind:'snapshot',origin:[...frameSnapshot.origin],quaternion:[...frameSnapshot.quaternion]}:{kind:'work',expectedFrameVersion:documentModel.referenceSystem.workFrame.frameVersion},sourceAnchor:sourceAnchor||{kind:params.op==='box'?'bottom-center':'model-origin'}},documentModel.referenceSystem,params.op,input):undefined;
