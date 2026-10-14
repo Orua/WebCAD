@@ -1,0 +1,31 @@
+{
+  "id": "waitFor",
+  "title": "waitFor",
+  "category": "page-method",
+  "version": "1.48.0",
+  "contextPolicy": "none",
+  "description": "waitFor({afterRevision}|{jobId},timeoutMs?,documentInstanceId?)。二选一；timeoutMs≤LIMITS.transport.waitMaxMs(25000)。替代客户端轮询 getState/getJob。",
+  "synonyms": [
+    "waitFor",
+    "等待",
+    "长等待",
+    "推送",
+    "修订",
+    "任务完成",
+    "wait",
+    "revision",
+    "job"
+  ],
+  "inputContract": "waitFor({afterRevision}|{jobId},timeoutMs?,documentInstanceId?)。二选一；timeoutMs≤LIMITS.transport.waitMaxMs(25000)。替代客户端轮询 getState/getJob。",
+  "outputContract": "status=read、satisfied、reason=REVISION_ADVANCED|JOB_TERMINAL|DOCUMENT_REPLACED|TIMEOUT、context、job?。超时不取消任务，可用相同参数再次调用。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "JOB_NOT_FOUND"
+  ],
+  "docsHash": "sha256:dabaf664dccd747bd63c014933dcbc189a1f0f10c21427829890db0748a410e5"
+}

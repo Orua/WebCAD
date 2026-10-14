@@ -26,7 +26,7 @@
   "unknownFields": "rejected",
   "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.save\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "maxResources": 32,
     "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
@@ -46,7 +46,7 @@
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "caveats": [],
@@ -63,5 +63,5 @@
     "NAME_INVALID",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:59890c52fe51f2252e5033c42b6ae18a4b5b4c61150b53d6ab0bc1ae55d4198c"
+  "docsHash": "sha256:fb8f296477db82a8d598c3b4e7ed9788bc0ae6dc5243291337ba2da8eb4966c7"
 }

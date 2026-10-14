@@ -10,7 +10,7 @@
   "inputContract": "execute({context,idempotencyKey,action:\"feature.add\",args}); args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:1decfa7597ea5ed451b4ca2407de9f0781ea2692754f24900e0f26cd54cfc0b5"
+  "docsHash": "sha256:cc2064f486607a659410ebdf4e8f8fee88654b1d8bcb82f0c02b74b68a7b4a85"
 }

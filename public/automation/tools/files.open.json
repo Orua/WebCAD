@@ -9,9 +9,9 @@
     "打开工程",
     "open"
   ],
-  "description": "open({context,resourceId}); registered .webcad/.json resource; dirty replacement is rejected.",
-  "inputContract": "open({context,resourceId}); registered .webcad/.json resource; dirty replacement is rejected.",
-  "outputContract": "Rebuilt document with new documentInstanceId.",
+  "description": "open({context,resourceId,unsaved:\"fail\"|\"discard\",units?}); 打开=替换当前设计，从不合并。.webcad/.json 工程或单个 STEP/BREP/STL 模型（放入新文档；STL 需 units）。unsaved 必填：fail 在未保存时返回 UNSAVED_REPLACEMENT，discard 放弃修改。要加入当前设计请用 files.import。",
+  "inputContract": "open({context,resourceId,unsaved:\"fail\"|\"discard\",units?}); 打开=替换当前设计，从不合并。.webcad/.json 工程或单个 STEP/BREP/STL 模型（放入新文档；STL 需 units）。unsaved 必填：fail 在未保存时返回 UNSAVED_REPLACEMENT，discard 放弃修改。要加入当前设计请用 files.import。",
+  "outputContract": "Rebuilt document with new documentInstanceId; undo history cleared.",
   "units": {
     "length": "mm",
     "angle": "degrees"
@@ -21,12 +21,14 @@
   "runtimeAvailability": "requires_ready_page",
   "argumentKeys": [
     "context",
-    "resourceId"
+    "resourceId",
+    "unsaved",
+    "units"
   ],
   "unknownFields": "rejected",
   "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.open\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "maxResources": 32,
     "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
@@ -46,7 +48,7 @@
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "caveats": [],
@@ -61,7 +63,8 @@
     "SIZE_LIMIT",
     "RESOURCE_EXPIRED",
     "ASSET_INVALID",
-    "FORMAT_UNSUPPORTED"
+    "FORMAT_UNSUPPORTED",
+    "MESH_UNITS_REQUIRED"
   ],
-  "docsHash": "sha256:fb1b2009466a77a37debec679f3877d23b167b22d4aab62c832c5b48e2cb9919"
+  "docsHash": "sha256:d07c0af2d8b01d0e3808a914d71e3bee402c658faee699b155a5cdc06a2d941b"
 }

@@ -10,7 +10,7 @@
   "inputContract": "execute({context,idempotencyKey,action:\"reference.setBodyAnchor\",args}); args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -37,5 +37,5 @@
     "对象锚点",
     "实体锚点"
   ],
-  "docsHash": "sha256:82d961bd73e03cf54b6c54cb78807ceebc07a4d9bae03bcf2ebac0aa810eadfd"
+  "docsHash": "sha256:9ac9dc13c6f53765c346ac90372f7d8ad738cf4d1c6ea3fcec5df5f4a933eee1"
 }

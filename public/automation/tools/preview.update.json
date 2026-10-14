@@ -10,7 +10,7 @@
   "inputContract": "execute({context,idempotencyKey,action:\"preview.update\",args}); args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:871c45bd9b1aadab0ec2d12ffb1d0e6edc3a8ef778daab3d34103423531314f8"
+  "docsHash": "sha256:901e7ab7954ad8f4ec774ed1fb6988a0db450c1f2c9df9e455904b4ee82e97c0"
 }

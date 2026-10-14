@@ -23,7 +23,7 @@
   "unknownFields": "rejected",
   "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.capabilities\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "maxResources": 32,
     "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
@@ -43,12 +43,12 @@
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "caveats": [],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
-  "docsHash": "sha256:e584c4a0fc78d0bc8d30774f838fb56a129e7eb4e38b9c764bb28e69594fc384"
+  "docsHash": "sha256:9b2d5e43e19b48de42cecb25a3908c0e59f1209140e72091b838910a8724fa7d"
 }

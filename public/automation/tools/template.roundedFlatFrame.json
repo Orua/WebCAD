@@ -351,7 +351,7 @@
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -569,5 +569,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:cf4ff135756b74ae7a17f37a37dace5fb8edf177ef65fc0bb89f51cb6c719b30"
+  "docsHash": "sha256:3a7270275b5cb94c5df74be9897eb130e2267524e41cd7744f9774cbaec5ed69"
 }

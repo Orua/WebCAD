@@ -25,7 +25,7 @@
   "unknownFields": "rejected",
   "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.download\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "maxResources": 32,
     "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
@@ -45,7 +45,7 @@
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "caveats": [],
@@ -55,5 +55,5 @@
     "ASSET_INVALID",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:a81e9a962d97aa9c823dc10f347960475167a5377a21ca0f7274b1bc65d35894"
+  "docsHash": "sha256:67d0edf638318a33229860bc579e678e36f64b96bdf92eacabad74abe8fd68cf"
 }

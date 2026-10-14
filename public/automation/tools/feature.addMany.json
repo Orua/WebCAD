@@ -126,7 +126,7 @@
   "inputContract": "execute({context,idempotencyKey,action:\"feature.addMany\",args}); args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -148,5 +148,5 @@
     "getState"
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
-  "docsHash": "sha256:6710dc2ffcbb69195cd36c38978c07360b2948409cb6a411802b6ab03f4e3bf9"
+  "docsHash": "sha256:28548af03c962b0ea8322010584e0b9537aad641a0f0bfe7b9d545382f0521eb"
 }

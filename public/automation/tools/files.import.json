@@ -29,7 +29,7 @@
   "unknownFields": "rejected",
   "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.import\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "maxResources": 32,
     "maxTotalBytes": 536870912,
     "ttlSeconds": 1800
@@ -49,7 +49,7 @@
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -86,5 +86,5 @@
     "MESH_ASSET_CORRUPT",
     "MESH_DISPLAY_CAPACITY"
   ],
-  "docsHash": "sha256:e505be0215a11b62743824990a1d116c7dd404629bb358b592ded11dd3d552d0"
+  "docsHash": "sha256:14a717bee19a39da44213c9b790b83c55507b3dc3dfc0141628f783a480e47cb"
 }

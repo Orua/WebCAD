@@ -366,7 +366,7 @@
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -386,5 +386,5 @@
   "executableOperation": false,
   "contextPolicy": "revision",
   "usage": "用files.register和files.import；不要调用add op:import",
-  "docsHash": "sha256:94e2a72f10f0b6fc13ada22d16d80e198bc2145965d3a37f666f523807866fb8"
+  "docsHash": "sha256:bef26779683bda80cbd36c99f751f0049b20d235ecb5ff7e810939ea842bdee4"
 }

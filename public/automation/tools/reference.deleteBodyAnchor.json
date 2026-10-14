@@ -10,7 +10,7 @@
   "inputContract": "execute({context,idempotencyKey,action:\"reference.deleteBodyAnchor\",args}); args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:9f0a74759b2d72aaabfe3c2d7bb3a97e51a97aae0880f7610b76304139c88c16"
+  "docsHash": "sha256:8cd65b59881897aeced22e8713bfa81015bdabaf369af9883b90f7e017942154"
 }

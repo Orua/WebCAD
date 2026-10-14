@@ -10,7 +10,7 @@
   "inputContract": "execute({context,idempotencyKey,action:\"history.undo\",args}); args:{}；撤销一个已提交步骤。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 20971520,
+    "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:c76e7b17ef5187839de344308ac983f78dafe60ed44eafa266cc4d49b6a2cec6"
+  "docsHash": "sha256:4fe34052d9b2c0442847aeccb7157a1f79d4f4313b3c2b165f68f34040c8a6c6"
 }
