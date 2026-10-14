@@ -43,6 +43,7 @@
   "synonyms": [
     "refineShape",
     "Refine same-domain faces and remove redundant splitter edges",
+    "refine Shape operation",
     "清理分割线"
   ],
   "description": "Refine same-domain faces and remove redundant splitter edges",
@@ -317,6 +318,8 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -324,7 +327,8 @@
     "synonyms": [
       "refineShape",
       "Refine same-domain faces and remove redundant splitter edges",
-      "Refine same-domain faces and remove redundant splitter edges"
+      "Refine same-domain faces and remove redundant splitter edges",
+      "refine Shape operation"
     ],
     "status": "experimental"
   },
@@ -448,5 +452,5 @@
   "docs": "api.refine",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:78b65be1e1615744ef770ff5bf04551399304a94a8a8f82eaf5c8c4ccd721f44"
+  "docsHash": "sha256:90f99e72bb3252a3f0d9c179938f72bbc6a3ba95929c7ffd3d1606c142cd5230"
 }

@@ -332,6 +332,7 @@
   "synonyms": [
     "curvedLogo",
     "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+    "curved Logo operation",
     "曲面 LOGO"
   ],
   "description": "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
@@ -868,6 +869,8 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -875,7 +878,8 @@
     "synonyms": [
       "curvedLogo",
       "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
-      "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work"
+      "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+      "curved Logo operation"
     ],
     "status": "experimental"
   },
@@ -973,5 +977,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:6c60e52be760a427750d8f36b43bac11c8ebf8fa4fd4deed6ca55b86da84ea34"
+  "docsHash": "sha256:f5cfaca70dc7d478c07eefa537e1add457db0af7246df0cde213739c8ccf8e08"
 }

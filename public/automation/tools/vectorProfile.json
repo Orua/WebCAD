@@ -164,6 +164,7 @@
   "synonyms": [
     "vectorProfile",
     "Create independent planar faces or solids from closed vector regions",
+    "vector Profile operation",
     "导入路径"
   ],
   "description": "Create independent planar faces or solids from closed vector regions",
@@ -622,6 +623,8 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -629,7 +632,8 @@
     "synonyms": [
       "vectorProfile",
       "Create independent planar faces or solids from closed vector regions",
-      "Create independent planar faces or solids from closed vector regions"
+      "Create independent planar faces or solids from closed vector regions",
+      "vector Profile operation"
     ],
     "status": "experimental"
   },
@@ -726,5 +730,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:7592018581c1c10174d9a8eabe8612de647046594f9b61d292bf8a98895d3fe5"
+  "docsHash": "sha256:e40cd06176905fdc542b9bc811d4476fefdba91f4aa8930cc3125cc407c1854a"
 }

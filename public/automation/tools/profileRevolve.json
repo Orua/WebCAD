@@ -100,6 +100,7 @@
   "synonyms": [
     "profileRevolve",
     "Rotate a saved exact planar section around an explicit world axis, with new-body, additive, subtractive or intersection result",
+    "profile Revolve operation",
     "轮廓旋转"
   ],
   "description": "Rotate a saved exact planar section around an explicit world axis, with new-body, additive, subtractive or intersection result",
@@ -475,6 +476,13 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileOffset",
+      "profileRepair",
+      "profileExtrude",
+      "profileSweep",
+      "profileLoft",
+      "profileConstraints",
       "queryGeometry",
       "measure",
       "files.export"
@@ -482,7 +490,8 @@
     "synonyms": [
       "profileRevolve",
       "Rotate a saved exact planar section around an explicit world axis, with new-body, additive, subtractive or intersection result",
-      "Rotate a saved exact planar section around an explicit world axis, with new-body, additive, subtractive or intersection result"
+      "Rotate a saved exact planar section around an explicit world axis, with new-body, additive, subtractive or intersection result",
+      "profile Revolve operation"
     ],
     "status": "experimental"
   },
@@ -586,5 +595,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:808666bf08d159f16b13d123cdf806dc7bb9aa40d626c5358f2a56fc00ff294c"
+  "docsHash": "sha256:d99dffae55484794a64bfb69c7b4a75b1ba00bd7e0442450e3a361fdd54c6d23"
 }

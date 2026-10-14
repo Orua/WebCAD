@@ -164,6 +164,7 @@
   "synonyms": [
     "chamfer",
     "Equal-distance, two-distance or distance-angle chamfer of sharp edges",
+    "chamfer operation",
     "倒角"
   ],
   "description": "Equal-distance, two-distance or distance-angle chamfer of sharp edges",
@@ -563,6 +564,12 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fillet",
+      "round",
+      "roundEnd",
+      "rounding",
+      "autoRound",
+      "smoothTransition",
       "queryGeometry",
       "measure",
       "files.export"
@@ -570,7 +577,8 @@
     "synonyms": [
       "chamfer",
       "Equal-distance, two-distance or distance-angle chamfer of sharp edges",
-      "Equal-distance, two-distance or distance-angle chamfer of sharp edges"
+      "Equal-distance, two-distance or distance-angle chamfer of sharp edges",
+      "chamfer operation"
     ],
     "status": "experimental"
   },
@@ -683,5 +691,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:bc71007ba22974f0f59ddae93f0798a370dfaf497188cc04bc790de06db94fb3"
+  "docsHash": "sha256:19db3b40e39529b7063c8c79140e7156af3e36e1a6f7e022f4449228a215e4ba"
 }

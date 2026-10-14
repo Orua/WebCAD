@@ -318,6 +318,7 @@
   "synonyms": [
     "sketchProfile",
     "Create an editable exact 2D wire or planar face from stable analytic entities",
+    "sketch Profile operation",
     "绘制轮廓"
   ],
   "description": "Create an editable exact 2D wire or planar face from stable analytic entities",
@@ -805,6 +806,13 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "profileOffset",
+      "profileRepair",
+      "profileExtrude",
+      "profileSweep",
+      "profileLoft",
+      "profileRevolve",
+      "profileConstraints",
       "queryGeometry",
       "measure",
       "files.export"
@@ -812,7 +820,8 @@
     "synonyms": [
       "sketchProfile",
       "Create an editable exact 2D wire or planar face from stable analytic entities",
-      "Create an editable exact 2D wire or planar face from stable analytic entities"
+      "Create an editable exact 2D wire or planar face from stable analytic entities",
+      "sketch Profile operation"
     ],
     "status": "experimental"
   },
@@ -924,5 +933,5 @@
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:f6f9aad9447f321124c496c24b592ff26b4a87de7784fac3472887bd704a6707"
+  "docsHash": "sha256:ecc912eb4e1f686385a1f1a1363b840476abc9cfcadba247d4789ecc038302a9"
 }

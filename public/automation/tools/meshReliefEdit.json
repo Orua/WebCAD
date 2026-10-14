@@ -1856,7 +1856,10 @@
       "logo",
       "meshHeightfieldRelief",
       "meshReliefPlate",
-      "meshBoolean"
+      "meshBoolean",
+      "queryGeometry",
+      "measure",
+      "files.export"
     ],
     "synonyms": [
       "网格修高",
@@ -2077,5 +2080,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:9dd50e20da8b4f96f1473831f908d6a7c5be0a7c9ee8e5db8fc676b222c1f170"
+  "docsHash": "sha256:22c714b2838a65f6a27b21ec8f9c8d00ebdb87830d84174c700017489f53046f"
 }

@@ -234,6 +234,7 @@
   "synonyms": [
     "copy",
     "Copy with scale, rotation and translation",
+    "copy operation",
     "复制"
   ],
   "description": "Copy with scale, rotation and translation",
@@ -742,6 +743,12 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "transform",
+      "mirror",
+      "linearPattern",
+      "circularPattern",
+      "group",
+      "extractSolid",
       "queryGeometry",
       "measure",
       "files.export"
@@ -749,7 +756,8 @@
     "synonyms": [
       "copy",
       "Copy with scale, rotation and translation",
-      "Copy with scale, rotation and translation"
+      "Copy with scale, rotation and translation",
+      "copy operation"
     ],
     "status": "experimental"
   },
@@ -846,5 +854,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:36ff80496dfce0b6a8c9a7316789bc3a9af1a480bcdef5e801607a4d2ee87418"
+  "docsHash": "sha256:fc9851400a3b4f6357d727ef3fe11f5d83804b5251bf3aaa0e143c415413fe2a"
 }

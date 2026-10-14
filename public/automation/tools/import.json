@@ -43,6 +43,7 @@
     "import",
     "Open STEP",
     "BREP through browser file picker; MCP has no arbitrary filesystem access",
+    "import operation",
     "导入"
   ],
   "description": "Open STEP/BREP through browser file picker; MCP has no arbitrary filesystem access",
@@ -275,6 +276,8 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -282,7 +285,8 @@
     "synonyms": [
       "import",
       "Open STEP",
-      "BREP through browser file picker; MCP has no arbitrary filesystem access"
+      "BREP through browser file picker; MCP has no arbitrary filesystem access",
+      "import operation"
     ],
     "status": "experimental"
   },
@@ -381,5 +385,5 @@
   "executableOperation": false,
   "contextPolicy": "revision",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:746104bcdd21b8a1cd0f23d86eac684ee4fa7289be17421f591b587865168c08"
+  "docsHash": "sha256:72c98c364c5915332283aca2dbdc51c9456a2519b70ae251a34669980de1e55a"
 }

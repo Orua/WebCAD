@@ -121,6 +121,7 @@
   "synonyms": [
     "faceHole",
     "Drill inward from a planar face",
+    "face Hole operation",
     "面钻孔",
     "贯穿",
     "面上打孔"
@@ -489,6 +490,12 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "hole",
+      "holeWizard",
+      "multiHole",
+      "multiPocket",
+      "multiBoss",
+      "slot",
       "queryGeometry",
       "measure",
       "files.export"
@@ -496,7 +503,8 @@
     "synonyms": [
       "faceHole",
       "Drill inward from a planar face",
-      "Drill inward from a planar face"
+      "Drill inward from a planar face",
+      "face Hole operation"
     ],
     "status": "experimental"
   },
@@ -613,5 +621,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:f2532db07183bae4f5f57f536f216f987362511b06e58cdca1c4209139c2c7b1"
+  "docsHash": "sha256:820d03d18f62c39db6f250313c37f502d17a714fc68bc7d9f815daa386b967e9"
 }

@@ -99,6 +99,7 @@
   "synonyms": [
     "advancedLoft",
     "Solid or open shell through hand-defined XY sections",
+    "advanced Loft operation",
     "高级放样"
   ],
   "description": "Solid or open shell through hand-defined XY sections",
@@ -514,6 +515,8 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -521,7 +524,8 @@
     "synonyms": [
       "advancedLoft",
       "Solid or open shell through hand-defined XY sections",
-      "Solid or open shell through hand-defined XY sections"
+      "Solid or open shell through hand-defined XY sections",
+      "advanced Loft operation"
     ],
     "status": "experimental"
   },
@@ -618,5 +622,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:e92b557e223c23f7dac498813a63189c600a6f30a4ced5caf6b16f1386abaab5"
+  "docsHash": "sha256:1a7dbfaa3ef7671a4bd77d768116520ceb5c0ff2927285adcfbf314a2130038f"
 }

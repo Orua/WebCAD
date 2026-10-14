@@ -72,6 +72,7 @@
   "synonyms": [
     "innerTurn",
     "Bore inside a selected planar section",
+    "inner Turn operation",
     "内车"
   ],
   "description": "Bore inside a selected planar section",
@@ -369,6 +370,8 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -376,7 +379,8 @@
     "synonyms": [
       "innerTurn",
       "Bore inside a selected planar section",
-      "Bore inside a selected planar section"
+      "Bore inside a selected planar section",
+      "inner Turn operation"
     ],
     "status": "experimental"
   },
@@ -480,5 +484,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:fde8f709785971818e0fba8c78e69bd770f196db0d2e46b46b86e818c05e63e4"
+  "docsHash": "sha256:c672c0bf43fff4a86fb8b55963d292cef610c0a85bc6b84841f8a67d3093bed2"
 }

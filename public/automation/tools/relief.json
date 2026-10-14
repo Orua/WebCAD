@@ -1791,7 +1791,10 @@
       "meshHeightfieldRelief",
       "meshReliefPlate",
       "meshReliefEdit",
-      "meshBoolean"
+      "meshBoolean",
+      "queryGeometry",
+      "measure",
+      "files.export"
     ],
     "synonyms": [
       "圆柱 浮雕",
@@ -1955,5 +1958,5 @@
   "docs": "api.relief",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:707ce7435df90d0203b4954b5fab1972eae6c0d49d68ce912a62a3affd4fca64"
+  "docsHash": "sha256:6a19f1b59dd20f5674af3cd7640ff0ca2201c4754f2db4c44fc656fa0a1608f4"
 }

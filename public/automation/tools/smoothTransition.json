@@ -83,6 +83,7 @@
     "smoothTransition",
     "平滑过渡",
     "Smooth shared seams of adjacent faces together",
+    "smooth Transition operation",
     "接缝",
     "利角",
     "blend"
@@ -399,6 +400,12 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fillet",
+      "chamfer",
+      "round",
+      "roundEnd",
+      "rounding",
+      "autoRound",
       "queryGeometry",
       "measure",
       "files.export"
@@ -406,7 +413,8 @@
     "synonyms": [
       "smoothTransition",
       "平滑过渡",
-      "Smooth shared seams of adjacent faces together"
+      "Smooth shared seams of adjacent faces together",
+      "smooth Transition operation"
     ],
     "status": "experimental"
   },
@@ -519,5 +527,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:a87c04131c2b34d6c777f6d86137e4b1475077d68da14a51b4a8c4233338d1a9"
+  "docsHash": "sha256:1b7c547754ebc2b6f8169abe0646ba35fd9f453afeb4623f1ba554ce09371f05"
 }

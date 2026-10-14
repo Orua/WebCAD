@@ -41,6 +41,7 @@
   "synonyms": [
     "remove",
     "Use dedicated webcad_remove tool with ids, not add_feature",
+    "remove operation",
     "删除"
   ],
   "description": "Use dedicated webcad_remove tool with ids, not add_feature",
@@ -282,6 +283,8 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -289,7 +292,8 @@
     "synonyms": [
       "remove",
       "Use dedicated webcad_remove tool with ids, not add_feature",
-      "Use dedicated webcad_remove tool with ids, not add_feature"
+      "Use dedicated webcad_remove tool with ids, not add_feature",
+      "remove operation"
     ],
     "status": "experimental"
   },
@@ -389,5 +393,5 @@
   "executableOperation": false,
   "contextPolicy": "revision",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:00d25ae29fd7042486aa44f418ded8e10c086e33c5c13ab720f0f8b37cce6acb"
+  "docsHash": "sha256:3b04bade6f1a3f0c600dd3ede1a0c9d7d218dec8846904ef3a1a56ba43bc3a93"
 }

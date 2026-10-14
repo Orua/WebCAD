@@ -110,6 +110,7 @@
   "synonyms": [
     "draftByPlane",
     "Draft explicitly selected analytic faces about an explicit neutral plane",
+    "draft By Plane operation",
     "平面拔模"
   ],
   "description": "Draft explicitly selected analytic faces about an explicit neutral plane",
@@ -513,6 +514,8 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -520,7 +523,8 @@
     "synonyms": [
       "draftByPlane",
       "Draft explicitly selected analytic faces about an explicit neutral plane",
-      "Draft explicitly selected analytic faces about an explicit neutral plane"
+      "Draft explicitly selected analytic faces about an explicit neutral plane",
+      "draft By Plane operation"
     ],
     "status": "experimental"
   },
@@ -619,5 +623,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:ebaf0a0b9408ebd9db4b0c078982bac20160f807127446786c1dfa8b88699775"
+  "docsHash": "sha256:c7c1c5a18c351ada9b890130f87437d9abcf1404457c9b28eab1b3bc3208c1e7"
 }

@@ -95,6 +95,7 @@
   "synonyms": [
     "draftFaces",
     "Exact restricted four-side planar prism draft around one fixed bottom plane",
+    "draft Faces operation",
     "受限拔模"
   ],
   "description": "Exact restricted four-side planar prism draft around one fixed bottom plane",
@@ -454,6 +455,8 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -461,7 +464,8 @@
     "synonyms": [
       "draftFaces",
       "Exact restricted four-side planar prism draft around one fixed bottom plane",
-      "Exact restricted four-side planar prism draft around one fixed bottom plane"
+      "Exact restricted four-side planar prism draft around one fixed bottom plane",
+      "draft Faces operation"
     ],
     "status": "experimental"
   },
@@ -559,5 +563,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:21a219947cda99540d9d4b54f91e1b820263395ebe057770e0b069fe406d644d"
+  "docsHash": "sha256:9f41de3c4fe5f40a53a28cc746959c092e4a9211465b9f7289da5025c46b0dc6"
 }

@@ -72,6 +72,7 @@
   "synonyms": [
     "profileSweep",
     "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
+    "profile Sweep operation",
     "轮廓扫掠"
   ],
   "description": "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
@@ -389,6 +390,13 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileOffset",
+      "profileRepair",
+      "profileExtrude",
+      "profileLoft",
+      "profileRevolve",
+      "profileConstraints",
       "queryGeometry",
       "measure",
       "files.export"
@@ -396,7 +404,8 @@
     "synonyms": [
       "profileSweep",
       "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
-      "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result"
+      "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
+      "profile Sweep operation"
     ],
     "status": "experimental"
   },
@@ -500,5 +509,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:16f93aa63a5a3bccf4b19ebc7732db4f171e1ebff138b735ee4f0b2ed9bf2a2d"
+  "docsHash": "sha256:9181fe3d962cc14b8f618474bb5a746994ce23d3f64a543eee87b3d9c2545eb1"
 }

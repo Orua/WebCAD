@@ -81,6 +81,7 @@
   "synonyms": [
     "faceGroove",
     "Mill a rectangular recess from a selected planar face",
+    "face Groove operation",
     "锣槽"
   ],
   "description": "Mill a rectangular recess from a selected planar face",
@@ -392,6 +393,8 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -399,7 +402,8 @@
     "synonyms": [
       "faceGroove",
       "Mill a rectangular recess from a selected planar face",
-      "Mill a rectangular recess from a selected planar face"
+      "Mill a rectangular recess from a selected planar face",
+      "face Groove operation"
     ],
     "status": "experimental"
   },
@@ -503,5 +507,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:68fad9d0c6860f7916084e99658f176e6cf746556f120293cae39fca1bdafb60"
+  "docsHash": "sha256:c197b69924159d457a45215e5216ff0652e2d05b183eec9b39178ebafda286d0"
 }

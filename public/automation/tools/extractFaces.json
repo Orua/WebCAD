@@ -61,6 +61,7 @@
   "synonyms": [
     "extractFaces",
     "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。",
+    "extract Faces operation",
     "提取指定面"
   ],
   "description": "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。",
@@ -336,6 +337,13 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fittedSurface",
+      "thickenFace",
+      "sewFaces",
+      "surfaceTrim",
+      "extractShell",
+      "offsetSurface",
+      "offsetSolid",
       "queryGeometry",
       "measure",
       "files.export"
@@ -343,7 +351,8 @@
     "synonyms": [
       "extractFaces",
       "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。",
-      "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。"
+      "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。",
+      "extract Faces operation"
     ],
     "status": "experimental"
   },
@@ -441,5 +450,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:bf7be556a7fa3130775e3432456ce6174ab04f74901e8e50f7ac965885a27035"
+  "docsHash": "sha256:0f7a69a8d60b7a6febf8fedd46ed725a8635e0b76d38645888725421d5192921"
 }

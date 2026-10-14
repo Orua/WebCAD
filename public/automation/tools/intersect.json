@@ -47,6 +47,7 @@
   "synonyms": [
     "intersect",
     "Common volume of bodies",
+    "intersect operation",
     "相交",
     "交集",
     "布尔交集",
@@ -311,6 +312,10 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "union",
+      "cut",
+      "split",
+      "meshBoolean",
       "queryGeometry",
       "measure",
       "files.export"
@@ -318,7 +323,8 @@
     "synonyms": [
       "intersect",
       "Common volume of bodies",
-      "Common volume of bodies"
+      "Common volume of bodies",
+      "intersect operation"
     ],
     "status": "experimental"
   },
@@ -416,5 +422,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:0924202cd839e9bc6991c6c44af1c555c594a9050a1e8d5aa60ed7f1dd5a3f14"
+  "docsHash": "sha256:2ee677b10642b81dbc011aa27543962400943f229c3e708cc83b3a4ad882152b"
 }

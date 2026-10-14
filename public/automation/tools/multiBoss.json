@@ -111,6 +111,7 @@
   "synonyms": [
     "multiBoss",
     "Fuse multiple exact solid cylindrical bosses onto one body",
+    "multi Boss operation",
     "多凸台",
     "批量圆柱凸台",
     "cylindrical boss"
@@ -506,6 +507,12 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "hole",
+      "holeWizard",
+      "faceHole",
+      "multiHole",
+      "multiPocket",
+      "slot",
       "queryGeometry",
       "measure",
       "files.export"
@@ -513,7 +520,8 @@
     "synonyms": [
       "multiBoss",
       "Fuse multiple exact solid cylindrical bosses onto one body",
-      "Fuse multiple exact solid cylindrical bosses onto one body"
+      "Fuse multiple exact solid cylindrical bosses onto one body",
+      "multi Boss operation"
     ],
     "status": "experimental"
   },
@@ -615,5 +623,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:59eca250ec039fb5f266f344d8d46ae2de8d4a1b4565f93666e50fe7abc30e72"
+  "docsHash": "sha256:69dcbba032001f7ce4fd7bbae7561d40b1345487a004bbc0241408e5b2965481"
 }

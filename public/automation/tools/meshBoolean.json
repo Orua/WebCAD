@@ -422,7 +422,10 @@
       "logo",
       "meshHeightfieldRelief",
       "meshReliefPlate",
-      "meshReliefEdit"
+      "meshReliefEdit",
+      "queryGeometry",
+      "measure",
+      "files.export"
     ],
     "synonyms": [
       "合并 网格",
@@ -543,5 +546,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:9bcf994461100d5634e17ef5d32afc1742e4c2c01645a64dc32ad85e8e893f5b"
+  "docsHash": "sha256:6d57979e0e38056f51407bc1ca05945dde38b279205f579922915ff78bae93c7"
 }

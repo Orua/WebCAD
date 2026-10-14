@@ -61,6 +61,7 @@
   "synonyms": [
     "profileRepair",
     "Derive a repaired analytic profile by moving one explicitly identified endpoint within the stated maximum displacement",
+    "profile Repair operation",
     "修复轮廓"
   ],
   "description": "Derive a repaired analytic profile by moving one explicitly identified endpoint within the stated maximum displacement",
@@ -338,6 +339,13 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileOffset",
+      "profileExtrude",
+      "profileSweep",
+      "profileLoft",
+      "profileRevolve",
+      "profileConstraints",
       "queryGeometry",
       "measure",
       "files.export"
@@ -345,7 +353,8 @@
     "synonyms": [
       "profileRepair",
       "Derive a repaired analytic profile by moving one explicitly identified endpoint within the stated maximum displacement",
-      "Derive a repaired analytic profile by moving one explicitly identified endpoint within the stated maximum displacement"
+      "Derive a repaired analytic profile by moving one explicitly identified endpoint within the stated maximum displacement",
+      "profile Repair operation"
     ],
     "status": "experimental"
   },
@@ -444,5 +453,5 @@
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:2264eb2f34163d40ed4ac692a85356a823e7289b7c427f18ef6ef1f310e9fc15"
+  "docsHash": "sha256:8924ffd7e4cd2e4c00c7fe7b43a766db102d1c719a991f5d50b15d11154bf8ed"
 }

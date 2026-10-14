@@ -60,6 +60,7 @@
   "synonyms": [
     "thickenFace",
     "Normal offset of one face into a new solid",
+    "thicken Face operation",
     "选面增厚"
   ],
   "description": "Normal offset of one face into a new solid",
@@ -332,6 +333,13 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fittedSurface",
+      "sewFaces",
+      "surfaceTrim",
+      "extractFaces",
+      "extractShell",
+      "offsetSurface",
+      "offsetSolid",
       "queryGeometry",
       "measure",
       "files.export"
@@ -339,7 +347,8 @@
     "synonyms": [
       "thickenFace",
       "Normal offset of one face into a new solid",
-      "Normal offset of one face into a new solid"
+      "Normal offset of one face into a new solid",
+      "thicken Face operation"
     ],
     "status": "experimental"
   },
@@ -437,5 +446,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:7f4a824fffa8ee3fdc70659c7f2018f7be581fe40268acd750480c4574924706"
+  "docsHash": "sha256:29743d6b8762bff5b1e2478b43567abb757053efba1342bbb7eb6ba2f2a3dd6d"
 }

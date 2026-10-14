@@ -249,6 +249,7 @@
   "synonyms": [
     "curveSweep",
     "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+    "curve Sweep operation",
     "曲线扫掠"
   ],
   "description": "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
@@ -714,6 +715,8 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -721,7 +724,8 @@
     "synonyms": [
       "curveSweep",
       "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
-      "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections"
+      "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+      "curve Sweep operation"
     ],
     "status": "experimental"
   },
@@ -818,5 +822,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:8d42f4e5d5ef6974ee24e1e60a827e512f0ae8a465151223292145ea6623aafc"
+  "docsHash": "sha256:8831815cdc19e77221cfb3f6fb35c31418253f9b80007c0bcac7ba269bde1d3b"
 }

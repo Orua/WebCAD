@@ -1066,7 +1066,10 @@
       "meshHeightfieldRelief",
       "meshReliefPlate",
       "meshReliefEdit",
-      "meshBoolean"
+      "meshBoolean",
+      "queryGeometry",
+      "measure",
+      "files.export"
     ],
     "synonyms": [
       "恒深LOGO",
@@ -1168,5 +1171,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:09758f62852b10a406b860d980e42179b5c47769f4d74473c79aab9c81fb70c7"
+  "docsHash": "sha256:8741e7fd53ffcac35dcd9eb046fc9fa730e7e67a645661d12ea07f3983f59b77"
 }

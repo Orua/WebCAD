@@ -56,6 +56,7 @@
   "synonyms": [
     "extractSolid",
     "Extract one solid from a compound",
+    "extract Solid operation",
     "提取实体"
   ],
   "description": "Extract one solid from a compound",
@@ -330,6 +331,12 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "transform",
+      "copy",
+      "mirror",
+      "linearPattern",
+      "circularPattern",
+      "group",
       "queryGeometry",
       "measure",
       "files.export"
@@ -337,7 +344,8 @@
     "synonyms": [
       "extractSolid",
       "Extract one solid from a compound",
-      "Extract one solid from a compound"
+      "Extract one solid from a compound",
+      "extract Solid operation"
     ],
     "status": "experimental"
   },
@@ -435,5 +443,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:c835690b42422488b7f6e8152b0d04326f55d890b8d2540592e789049d66f393"
+  "docsHash": "sha256:0202210a5520f1c346fc15acb9b2db712586916b202968c46c8af9bc7a90a580"
 }

@@ -76,6 +76,7 @@
     "cone",
     "Cone",
     "frustum along +Z",
+    "cone operation",
     "圆锥"
   ],
   "description": "Cone/frustum along +Z",
@@ -378,6 +379,11 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "torus",
+      "quickModel",
       "queryGeometry",
       "measure",
       "files.export"
@@ -385,7 +391,8 @@
     "synonyms": [
       "cone",
       "Cone",
-      "frustum along +Z"
+      "frustum along +Z",
+      "cone operation"
     ],
     "status": "experimental"
   },
@@ -482,5 +489,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:8093c1c572c400102ae71c581777a844193465a273ec6c9082e021b64a32acb6"
+  "docsHash": "sha256:8059a18888bfbe1ffbf05f4de6560b6d698d91683cde8c09a84aee82ad329c6e"
 }

@@ -47,6 +47,7 @@
   "synonyms": [
     "cut",
     "Subtract other bodies from first",
+    "cut operation",
     "相减",
     "差集",
     "减法",
@@ -315,6 +316,10 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "union",
+      "intersect",
+      "split",
+      "meshBoolean",
       "queryGeometry",
       "measure",
       "files.export"
@@ -322,7 +327,8 @@
     "synonyms": [
       "cut",
       "Subtract other bodies from first",
-      "Subtract other bodies from first"
+      "Subtract other bodies from first",
+      "cut operation"
     ],
     "status": "experimental"
   },
@@ -420,5 +426,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:437c24887652e6811ee95929e8a2c9c2013ccdf22d73e5fff3e8c42ef9d21463"
+  "docsHash": "sha256:2970a01228378a14fef8376628a26fc14ba8d00915c2c92da52ee33d662abd5a"
 }

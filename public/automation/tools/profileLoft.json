@@ -62,6 +62,7 @@
   "synonyms": [
     "profileLoft",
     "Loft 2–12 saved exact sections in explicit order, with new-body or material-operation result",
+    "profile Loft operation",
     "轮廓放样"
   ],
   "description": "Loft 2–12 saved exact sections in explicit order, with new-body or material-operation result",
@@ -364,6 +365,13 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileOffset",
+      "profileRepair",
+      "profileExtrude",
+      "profileSweep",
+      "profileRevolve",
+      "profileConstraints",
       "queryGeometry",
       "measure",
       "files.export"
@@ -371,7 +379,8 @@
     "synonyms": [
       "profileLoft",
       "Loft 2–12 saved exact sections in explicit order, with new-body or material-operation result",
-      "Loft 2–12 saved exact sections in explicit order, with new-body or material-operation result"
+      "Loft 2–12 saved exact sections in explicit order, with new-body or material-operation result",
+      "profile Loft operation"
     ],
     "status": "experimental"
   },
@@ -475,5 +484,5 @@
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:fb2918ac8b871f82f0c9c2e9498d92c041071f2a6fdb67095651f02e08d6509a"
+  "docsHash": "sha256:02affa6d76196912cb74259a9b90bbb92febbe3337aed7dafeedef4243d308b6"
 }

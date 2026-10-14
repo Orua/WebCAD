@@ -72,6 +72,7 @@
   "synonyms": [
     "box",
     "Box from [0,0,0] to [width,depth,height]",
+    "box operation",
     "长方体",
     "安装板",
     "plate"
@@ -356,6 +357,11 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
+      "quickModel",
       "queryGeometry",
       "measure",
       "files.export"
@@ -363,7 +369,8 @@
     "synonyms": [
       "box",
       "Box from [0,0,0] to [width,depth,height]",
-      "Box from [0,0,0] to [width,depth,height]"
+      "Box from [0,0,0] to [width,depth,height]",
+      "box operation"
     ],
     "status": "experimental"
   },
@@ -460,5 +467,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:6f414522cfec0584f7a5a0a77b1e1725f98829e006819a9ffbdf226e56b39bff"
+  "docsHash": "sha256:b2848961a62b631275f57e5387455d27c20b874928a972962b600ec64cfe3812"
 }

@@ -515,7 +515,10 @@
       "logo",
       "meshHeightfieldRelief",
       "meshReliefEdit",
-      "meshBoolean"
+      "meshBoolean",
+      "queryGeometry",
+      "measure",
+      "files.export"
     ],
     "synonyms": [
       "网格底板",
@@ -630,5 +633,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:bf7631218abcb8c37f8420f5ea7785f1d626bd1197ac157e07a859741c10bff2"
+  "docsHash": "sha256:c0afaf212a8a06955df75023fab96bb16c642a79cc72ab82e6441805e18c0669"
 }

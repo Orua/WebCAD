@@ -259,6 +259,11 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -266,7 +271,8 @@
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -535,5 +541,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:26d558536c88a3ad6c1628b0f8ca1683c81197a67948ca6f18b1a1c4a4e27ed2"
+  "docsHash": "sha256:dbd9826e16dd765399d151b74401cb47dd6832953286c0746e944996f35a8098"
 }

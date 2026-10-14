@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.47.0 · sha256:45f49a5cae531e647bf8608e04b6d5a3f5873140d90ede435d72f14d0ca4cb43
+API 1.47.0 · sha256:abc5001de5c13def47655dc7092052c96f2d7f59c9f161b6992391f6e979aacf
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -12953,6 +12953,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "advancedLoft",
     "Solid or open shell through hand-defined XY sections",
+    "advanced Loft operation",
     "高级放样"
   ],
   "description": "Solid or open shell through hand-defined XY sections",
@@ -13368,6 +13369,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -13375,7 +13378,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "advancedLoft",
       "Solid or open shell through hand-defined XY sections",
-      "Solid or open shell through hand-defined XY sections"
+      "Solid or open shell through hand-defined XY sections",
+      "advanced Loft operation"
     ],
     "status": "experimental"
   },
@@ -13472,7 +13476,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:e92b557e223c23f7dac498813a63189c600a6f30a4ced5caf6b16f1386abaab5"
+  "docsHash": "sha256:1a7dbfaa3ef7671a4bd77d768116520ceb5c0ff2927285adcfbf314a2130038f"
 }
 ```
 
@@ -13635,6 +13639,7 @@ files.release: contextPolicy=none
     "arcProfile",
     "Extrude exact closed XY LINE",
     "ARC boundaries with optional holes",
+    "arc Profile operation",
     "解析线弧轮廓"
   ],
   "description": "Extrude exact closed XY LINE/ARC boundaries with optional holes",
@@ -14133,6 +14138,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -14140,7 +14147,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "arcProfile",
       "Extrude exact closed XY LINE",
-      "ARC boundaries with optional holes"
+      "ARC boundaries with optional holes",
+      "arc Profile operation"
     ],
     "status": "experimental"
   },
@@ -14237,7 +14245,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:b27d9ab460718abbb45daffe202e40cb3b70ab5036ad3584d2e3f0953ed736d8"
+  "docsHash": "sha256:6ae890eadfbe3eb5e5840cf2941475278ff606e12346c91b7ffdd1b053047446"
 }
 ```
 
@@ -14300,7 +14308,8 @@ files.release: contextPolicy=none
   "synonyms": [
     "autoRound",
     "整件圆边",
-    "Round every sharp edge of one solid"
+    "Round every sharp edge of one solid",
+    "auto Round operation"
   ],
   "description": "整件圆边 / Round every sharp edge of one solid",
   "schemaHash": "sha256:87faa92279ffe94694ca7d5a2f99d89c16f11fa6bf1f69619d5d36fc1e409b0c",
@@ -14563,6 +14572,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fillet",
+      "chamfer",
+      "round",
+      "roundEnd",
+      "rounding",
+      "smoothTransition",
       "queryGeometry",
       "measure",
       "files.export"
@@ -14570,7 +14585,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "autoRound",
       "整件圆边",
-      "Round every sharp edge of one solid"
+      "Round every sharp edge of one solid",
+      "auto Round operation"
     ],
     "status": "experimental"
   },
@@ -14668,7 +14684,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:5f342bab332e3bdda1d8c4f029312692145e6e5e0413366a53c03d0e359c46d0"
+  "docsHash": "sha256:916dc3ab43cc2cb3277623cb0f8b2a07166acb6e677ea6b3df95fe6d3155b687"
 }
 ```
 
@@ -14749,6 +14765,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "box",
     "Box from [0,0,0] to [width,depth,height]",
+    "box operation",
     "长方体",
     "安装板",
     "plate"
@@ -15033,6 +15050,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
+      "quickModel",
       "queryGeometry",
       "measure",
       "files.export"
@@ -15040,7 +15062,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "box",
       "Box from [0,0,0] to [width,depth,height]",
-      "Box from [0,0,0] to [width,depth,height]"
+      "Box from [0,0,0] to [width,depth,height]",
+      "box operation"
     ],
     "status": "experimental"
   },
@@ -15137,7 +15160,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:6f414522cfec0584f7a5a0a77b1e1725f98829e006819a9ffbdf226e56b39bff"
+  "docsHash": "sha256:b2848961a62b631275f57e5387455d27c20b874928a972962b600ec64cfe3812"
 }
 ```
 
@@ -15310,6 +15333,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "chamfer",
     "Equal-distance, two-distance or distance-angle chamfer of sharp edges",
+    "chamfer operation",
     "倒角"
   ],
   "description": "Equal-distance, two-distance or distance-angle chamfer of sharp edges",
@@ -15709,6 +15733,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fillet",
+      "round",
+      "roundEnd",
+      "rounding",
+      "autoRound",
+      "smoothTransition",
       "queryGeometry",
       "measure",
       "files.export"
@@ -15716,7 +15746,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "chamfer",
       "Equal-distance, two-distance or distance-angle chamfer of sharp edges",
-      "Equal-distance, two-distance or distance-angle chamfer of sharp edges"
+      "Equal-distance, two-distance or distance-angle chamfer of sharp edges",
+      "chamfer operation"
     ],
     "status": "experimental"
   },
@@ -15829,7 +15860,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:bc71007ba22974f0f59ddae93f0798a370dfaf497188cc04bc790de06db94fb3"
+  "docsHash": "sha256:19db3b40e39529b7063c8c79140e7156af3e36e1a6f7e022f4449228a215e4ba"
 }
 ```
 
@@ -15953,6 +15984,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "circularPattern",
     "Rotated copies as a compound or explicitly fused solid",
+    "circular Pattern operation",
     "环形阵列"
   ],
   "description": "Rotated copies as a compound or explicitly fused solid",
@@ -16283,6 +16315,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "transform",
+      "copy",
+      "mirror",
+      "linearPattern",
+      "group",
+      "extractSolid",
       "queryGeometry",
       "measure",
       "files.export"
@@ -16290,7 +16328,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "circularPattern",
       "Rotated copies as a compound or explicitly fused solid",
-      "Rotated copies as a compound or explicitly fused solid"
+      "Rotated copies as a compound or explicitly fused solid",
+      "circular Pattern operation"
     ],
     "status": "experimental"
   },
@@ -16387,7 +16426,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:d3350cf1ca16cc78df71b935be381147e02d72c15f308e28dcfd43a8e158a24c"
+  "docsHash": "sha256:fd4855a381114d1c5c53998206a484b305d6eabad92897b26e8de3d73a81eb7e"
 }
 ```
 
@@ -16485,6 +16524,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "coil",
     "Sweep a circular wire section along an exact helix to create a single spring solid",
+    "coil operation",
     "圆线弹簧"
   ],
   "description": "Sweep a circular wire section along an exact helix to create a single spring solid",
@@ -16791,6 +16831,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -16798,7 +16840,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "coil",
       "Sweep a circular wire section along an exact helix to create a single spring solid",
-      "Sweep a circular wire section along an exact helix to create a single spring solid"
+      "Sweep a circular wire section along an exact helix to create a single spring solid",
+      "coil operation"
     ],
     "status": "experimental"
   },
@@ -16896,7 +16939,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:b086bf0bf6c3e45606455fe2beed6e3d64974dd88b403835fbf90ee181c5f31c"
+  "docsHash": "sha256:3ac7e1a00cadcc05858735f97c2b498c5539768a6804c59307430fc037e0c3ef"
 }
 ```
 
@@ -16981,6 +17024,7 @@ files.release: contextPolicy=none
     "cone",
     "Cone",
     "frustum along +Z",
+    "cone operation",
     "圆锥"
   ],
   "description": "Cone/frustum along +Z",
@@ -17283,6 +17327,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "torus",
+      "quickModel",
       "queryGeometry",
       "measure",
       "files.export"
@@ -17290,7 +17339,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "cone",
       "Cone",
-      "frustum along +Z"
+      "frustum along +Z",
+      "cone operation"
     ],
     "status": "experimental"
   },
@@ -17387,7 +17437,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:8093c1c572c400102ae71c581777a844193465a273ec6c9082e021b64a32acb6"
+  "docsHash": "sha256:8059a18888bfbe1ffbf05f4de6560b6d698d91683cde8c09a84aee82ad329c6e"
 }
 ```
 
@@ -17630,6 +17680,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "copy",
     "Copy with scale, rotation and translation",
+    "copy operation",
     "复制"
   ],
   "description": "Copy with scale, rotation and translation",
@@ -18138,6 +18189,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "transform",
+      "mirror",
+      "linearPattern",
+      "circularPattern",
+      "group",
+      "extractSolid",
       "queryGeometry",
       "measure",
       "files.export"
@@ -18145,7 +18202,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "copy",
       "Copy with scale, rotation and translation",
-      "Copy with scale, rotation and translation"
+      "Copy with scale, rotation and translation",
+      "copy operation"
     ],
     "status": "experimental"
   },
@@ -18242,7 +18300,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:36ff80496dfce0b6a8c9a7316789bc3a9af1a480bcdef5e801607a4d2ee87418"
+  "docsHash": "sha256:fc9851400a3b4f6357d727ef3fe11f5d83804b5251bf3aaa0e143c415413fe2a"
 }
 ```
 
@@ -18500,6 +18558,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "curveSweep",
     "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+    "curve Sweep operation",
     "曲线扫掠"
   ],
   "description": "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
@@ -18965,6 +19024,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -18972,7 +19033,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "curveSweep",
       "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
-      "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections"
+      "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+      "curve Sweep operation"
     ],
     "status": "experimental"
   },
@@ -19069,7 +19131,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:8d42f4e5d5ef6974ee24e1e60a827e512f0ae8a465151223292145ea6623aafc"
+  "docsHash": "sha256:8831815cdc19e77221cfb3f6fb35c31418253f9b80007c0bcac7ba269bde1d3b"
 }
 ```
 
@@ -19410,6 +19472,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "curvedLogo",
     "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+    "curved Logo operation",
     "曲面 LOGO"
   ],
   "description": "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
@@ -19946,6 +20009,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -19953,7 +20018,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "curvedLogo",
       "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
-      "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work"
+      "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+      "curved Logo operation"
     ],
     "status": "experimental"
   },
@@ -20051,7 +20117,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:6c60e52be760a427750d8f36b43bac11c8ebf8fa4fd4deed6ca55b86da84ea34"
+  "docsHash": "sha256:f5cfaca70dc7d478c07eefa537e1add457db0af7246df0cde213739c8ccf8e08"
 }
 ```
 
@@ -20107,6 +20173,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "cut",
     "Subtract other bodies from first",
+    "cut operation",
     "相减",
     "差集",
     "减法",
@@ -20375,6 +20442,10 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "union",
+      "intersect",
+      "split",
+      "meshBoolean",
       "queryGeometry",
       "measure",
       "files.export"
@@ -20382,7 +20453,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "cut",
       "Subtract other bodies from first",
-      "Subtract other bodies from first"
+      "Subtract other bodies from first",
+      "cut operation"
     ],
     "status": "experimental"
   },
@@ -20480,7 +20552,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:437c24887652e6811ee95929e8a2c9c2013ccdf22d73e5fff3e8c42ef9d21463"
+  "docsHash": "sha256:2970a01228378a14fef8376628a26fc14ba8d00915c2c92da52ee33d662abd5a"
 }
 ```
 
@@ -20552,6 +20624,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "cylinder",
     "Cylinder on +Z from origin",
+    "cylinder operation",
     "圆柱"
   ],
   "description": "Cylinder on +Z from origin",
@@ -20820,6 +20893,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "sphere",
+      "cone",
+      "torus",
+      "quickModel",
       "queryGeometry",
       "measure",
       "files.export"
@@ -20827,7 +20905,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "cylinder",
       "Cylinder on +Z from origin",
-      "Cylinder on +Z from origin"
+      "Cylinder on +Z from origin",
+      "cylinder operation"
     ],
     "status": "experimental"
   },
@@ -20924,7 +21003,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:ec587293c93764ec825fe5e56ced5f77891ea93a3685df13a95f071d2de2a35d"
+  "docsHash": "sha256:e0101d09e5857fdf66ed677476fc1495785e2ce94b95af08f0c2898ef734f9a8"
 }
 ```
 
@@ -21043,6 +21122,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "draftByPlane",
     "Draft explicitly selected analytic faces about an explicit neutral plane",
+    "draft By Plane operation",
     "平面拔模"
   ],
   "description": "Draft explicitly selected analytic faces about an explicit neutral plane",
@@ -21446,6 +21526,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -21453,7 +21535,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "draftByPlane",
       "Draft explicitly selected analytic faces about an explicit neutral plane",
-      "Draft explicitly selected analytic faces about an explicit neutral plane"
+      "Draft explicitly selected analytic faces about an explicit neutral plane",
+      "draft By Plane operation"
     ],
     "status": "experimental"
   },
@@ -21552,7 +21635,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:ebaf0a0b9408ebd9db4b0c078982bac20160f807127446786c1dfa8b88699775"
+  "docsHash": "sha256:c7c1c5a18c351ada9b890130f87437d9abcf1404457c9b28eab1b3bc3208c1e7"
 }
 ```
 
@@ -21656,6 +21739,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "draftFaces",
     "Exact restricted four-side planar prism draft around one fixed bottom plane",
+    "draft Faces operation",
     "受限拔模"
   ],
   "description": "Exact restricted four-side planar prism draft around one fixed bottom plane",
@@ -22015,6 +22099,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -22022,7 +22108,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "draftFaces",
       "Exact restricted four-side planar prism draft around one fixed bottom plane",
-      "Exact restricted four-side planar prism draft around one fixed bottom plane"
+      "Exact restricted four-side planar prism draft around one fixed bottom plane",
+      "draft Faces operation"
     ],
     "status": "experimental"
   },
@@ -22120,7 +22207,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:21a219947cda99540d9d4b54f91e1b820263395ebe057770e0b069fe406d644d"
+  "docsHash": "sha256:9f41de3c4fe5f40a53a28cc746959c092e4a9211465b9f7289da5025c46b0dc6"
 }
 ```
 
@@ -22190,6 +22277,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "extractFaces",
     "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。",
+    "extract Faces operation",
     "提取指定面"
   ],
   "description": "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。",
@@ -22465,6 +22553,13 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fittedSurface",
+      "thickenFace",
+      "sewFaces",
+      "surfaceTrim",
+      "extractShell",
+      "offsetSurface",
+      "offsetSolid",
       "queryGeometry",
       "measure",
       "files.export"
@@ -22472,7 +22567,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "extractFaces",
       "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。",
-      "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。"
+      "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。",
+      "extract Faces operation"
     ],
     "status": "experimental"
   },
@@ -22570,7 +22666,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:bf7be556a7fa3130775e3432456ce6174ab04f74901e8e50f7ac965885a27035"
+  "docsHash": "sha256:0f7a69a8d60b7a6febf8fedd46ed725a8635e0b76d38645888725421d5192921"
 }
 ```
 
@@ -22632,6 +22728,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "extractShell",
     "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。",
+    "extract Shell operation",
     "提取壳"
   ],
   "description": "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。",
@@ -22894,6 +22991,13 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fittedSurface",
+      "thickenFace",
+      "sewFaces",
+      "surfaceTrim",
+      "extractFaces",
+      "offsetSurface",
+      "offsetSolid",
       "queryGeometry",
       "measure",
       "files.export"
@@ -22901,7 +23005,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "extractShell",
       "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。",
-      "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。"
+      "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。",
+      "extract Shell operation"
     ],
     "status": "experimental"
   },
@@ -22999,7 +23104,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:89053e4a777918101cacee711f0f30431eb3432a4a8dd86c4b7513c419f63162"
+  "docsHash": "sha256:db568f7ff4a0dfcbb8f0e80f115cef26a24b37f68f60858bc70816e2a7204e01"
 }
 ```
 
@@ -23064,6 +23169,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "extractSolid",
     "Extract one solid from a compound",
+    "extract Solid operation",
     "提取实体"
   ],
   "description": "Extract one solid from a compound",
@@ -23338,6 +23444,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "transform",
+      "copy",
+      "mirror",
+      "linearPattern",
+      "circularPattern",
+      "group",
       "queryGeometry",
       "measure",
       "files.export"
@@ -23345,7 +23457,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "extractSolid",
       "Extract one solid from a compound",
-      "Extract one solid from a compound"
+      "Extract one solid from a compound",
+      "extract Solid operation"
     ],
     "status": "experimental"
   },
@@ -23443,7 +23556,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:c835690b42422488b7f6e8152b0d04326f55d890b8d2540592e789049d66f393"
+  "docsHash": "sha256:0202210a5520f1c346fc15acb9b2db712586916b202968c46c8af9bc7a90a580"
 }
 ```
 
@@ -23601,6 +23714,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "extrude",
     "Extrude a closed profile normal to the chosen plane",
+    "extrude operation",
     "拉伸"
   ],
   "description": "Extrude a closed profile normal to the chosen plane",
@@ -23975,6 +24089,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -23982,7 +24098,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "extrude",
       "Extrude a closed profile normal to the chosen plane",
-      "Extrude a closed profile normal to the chosen plane"
+      "Extrude a closed profile normal to the chosen plane",
+      "extrude operation"
     ],
     "status": "experimental"
   },
@@ -24079,7 +24196,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:734a6a2bb865f58da649c7cb46c78908b00e17e43fb37bfcc1e40586c6ec8abc"
+  "docsHash": "sha256:2634d87bb3f298a744f8e1f7e81a309c573160245286bd1b38a8bee7d0030e51"
 }
 ```
 
@@ -24149,6 +24266,7 @@ files.release: contextPolicy=none
     "faceBoundary",
     "先选中一张面。all 提取包括内孔在内的全部边界；outer 明确只提取外环，不带孔。保留源模型，生成精确线框。单闭环可接参考轮廓拉伸",
     "放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。",
+    "face Boundary operation",
     "提取面边界"
   ],
   "description": "先选中一张面。all 提取包括内孔在内的全部边界；outer 明确只提取外环，不带孔。保留源模型，生成精确线框。单闭环可接参考轮廓拉伸/放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。",
@@ -24419,6 +24537,9 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "planeSection",
+      "referenceExtrude",
+      "referenceLoft",
       "queryGeometry",
       "measure",
       "files.export"
@@ -24426,7 +24547,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "faceBoundary",
       "先选中一张面。all 提取包括内孔在内的全部边界；outer 明确只提取外环，不带孔。保留源模型，生成精确线框。单闭环可接参考轮廓拉伸",
-      "放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。"
+      "放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。",
+      "face Boundary operation"
     ],
     "status": "experimental"
   },
@@ -24524,7 +24646,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:97438fa5d54ec78cc24c431d86891d204d166cf28ee0a9a7e752ea593f81622c"
+  "docsHash": "sha256:4ee84d749b72fd4b0823ce074e7a6d3c6138d70b4522937bb3b8b517430db6af"
 }
 ```
 
@@ -24596,6 +24718,7 @@ files.release: contextPolicy=none
     "faceExtrude",
     "Push",
     "pull a planar face along its normal",
+    "face Extrude operation",
     "面上拉伸"
   ],
   "description": "Push/pull a planar face along its normal",
@@ -24868,6 +24991,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -24875,7 +25000,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "faceExtrude",
       "Push",
-      "pull a planar face along its normal"
+      "pull a planar face along its normal",
+      "face Extrude operation"
     ],
     "status": "experimental"
   },
@@ -24973,7 +25099,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:5eed797201db6ee06b623c4bdcdfd36a49cfd63384c17d49d75d6b92ead681f0"
+  "docsHash": "sha256:b06024f35e39a48932aebb16e49db469f275932565adeb894d43546f93cd546b"
 }
 ```
 
@@ -25063,6 +25189,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "faceGroove",
     "Mill a rectangular recess from a selected planar face",
+    "face Groove operation",
     "锣槽"
   ],
   "description": "Mill a rectangular recess from a selected planar face",
@@ -25374,6 +25501,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -25381,7 +25510,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "faceGroove",
       "Mill a rectangular recess from a selected planar face",
-      "Mill a rectangular recess from a selected planar face"
+      "Mill a rectangular recess from a selected planar face",
+      "face Groove operation"
     ],
     "status": "experimental"
   },
@@ -25485,7 +25615,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:68fad9d0c6860f7916084e99658f176e6cf746556f120293cae39fca1bdafb60"
+  "docsHash": "sha256:c197b69924159d457a45215e5216ff0652e2d05b183eec9b39178ebafda286d0"
 }
 ```
 
@@ -25615,6 +25745,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "faceHole",
     "Drill inward from a planar face",
+    "face Hole operation",
     "面钻孔",
     "贯穿",
     "面上打孔"
@@ -25983,6 +26114,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "hole",
+      "holeWizard",
+      "multiHole",
+      "multiPocket",
+      "multiBoss",
+      "slot",
       "queryGeometry",
       "measure",
       "files.export"
@@ -25990,7 +26127,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "faceHole",
       "Drill inward from a planar face",
-      "Drill inward from a planar face"
+      "Drill inward from a planar face",
+      "face Hole operation"
     ],
     "status": "experimental"
   },
@@ -26107,7 +26245,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:f2532db07183bae4f5f57f536f216f987362511b06e58cdca1c4209139c2c7b1"
+  "docsHash": "sha256:820d03d18f62c39db6f250313c37f502d17a714fc68bc7d9f815daa386b967e9"
 }
 ```
 
@@ -26242,6 +26380,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "fillet",
     "Round sharp edges, shared face edges, face boundaries or the whole solid",
+    "fillet operation",
     "圆角",
     "标准圆角",
     "倒圆",
@@ -26589,6 +26728,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "chamfer",
+      "round",
+      "roundEnd",
+      "rounding",
+      "autoRound",
+      "smoothTransition",
       "queryGeometry",
       "measure",
       "files.export"
@@ -26596,7 +26741,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "fillet",
       "Round sharp edges, shared face edges, face boundaries or the whole solid",
-      "Round sharp edges, shared face edges, face boundaries or the whole solid"
+      "Round sharp edges, shared face edges, face boundaries or the whole solid",
+      "fillet operation"
     ],
     "status": "experimental"
   },
@@ -26709,7 +26855,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:10137976b2d1601e4262c4060794359b7869573da57044e1226af325bb711fc2"
+  "docsHash": "sha256:33b7852f8d53fa4885d10564a7a26b2bbe49b69526ff46dd592d92b5f96c631b"
 }
 ```
 
@@ -26803,6 +26949,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "fittedSurface",
     "Fit a single B-spline face to a structured point grid",
+    "fitted Surface operation",
     "拟合曲面"
   ],
   "description": "Fit a single B-spline face to a structured point grid",
@@ -27273,6 +27420,13 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "thickenFace",
+      "sewFaces",
+      "surfaceTrim",
+      "extractFaces",
+      "extractShell",
+      "offsetSurface",
+      "offsetSolid",
       "queryGeometry",
       "measure",
       "files.export"
@@ -27280,7 +27434,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "fittedSurface",
       "Fit a single B-spline face to a structured point grid",
-      "Fit a single B-spline face to a structured point grid"
+      "Fit a single B-spline face to a structured point grid",
+      "fitted Surface operation"
     ],
     "status": "experimental"
   },
@@ -27377,7 +27532,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:265ab160dc1054f84420865e9185df964705a0680aee26e44eb3eae0565b020b"
+  "docsHash": "sha256:8c460c25316bed948b448e9e2e05f89b7259bbb724f55a52411f0358b9fa189a"
 }
 ```
 
@@ -27428,6 +27583,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "group",
     "Group bodies as a compound without fusing",
+    "group operation",
     "组合"
   ],
   "description": "Group bodies as a compound without fusing",
@@ -27675,6 +27831,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "transform",
+      "copy",
+      "mirror",
+      "linearPattern",
+      "circularPattern",
+      "extractSolid",
       "queryGeometry",
       "measure",
       "files.export"
@@ -27682,7 +27844,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "group",
       "Group bodies as a compound without fusing",
-      "Group bodies as a compound without fusing"
+      "Group bodies as a compound without fusing",
+      "group operation"
     ],
     "status": "experimental"
   },
@@ -27780,7 +27943,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:06d9a0fb664aaa024f356c9a62357e93cca9f264d938d9e08f868421cc0e5c8c"
+  "docsHash": "sha256:02a6478be68b30bf8c2db8ec0fa171ab10af0394c290d9fdc42e06831ba81c87"
 }
 ```
 
@@ -27869,6 +28032,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "helix",
     "Create an exact helical wire in the creation frame",
+    "helix operation",
     "螺旋线"
   ],
   "description": "Create an exact helical wire in the creation frame",
@@ -28161,6 +28325,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -28168,7 +28334,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "helix",
       "Create an exact helical wire in the creation frame",
-      "Create an exact helical wire in the creation frame"
+      "Create an exact helical wire in the creation frame",
+      "helix operation"
     ],
     "status": "experimental"
   },
@@ -28266,7 +28433,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:44ecbc55d4a4e34362e419cb0b0ecadc98e3f367f8eace14f5cce99806b10591"
+  "docsHash": "sha256:3e018ea7ea5f0d33a888eb7ba2210e2dc49f9982a2f205ced6f6a7dc0b5a1042"
 }
 ```
 
@@ -28389,6 +28556,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "hole",
     "Cylindrical cut starting at global coordinates",
+    "hole operation",
     "孔",
     "钻孔",
     "radius",
@@ -28752,6 +28920,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "holeWizard",
+      "faceHole",
+      "multiHole",
+      "multiPocket",
+      "multiBoss",
+      "slot",
       "queryGeometry",
       "measure",
       "files.export"
@@ -28759,7 +28933,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "hole",
       "Cylindrical cut starting at global coordinates",
-      "Cylindrical cut starting at global coordinates"
+      "Cylindrical cut starting at global coordinates",
+      "hole operation"
     ],
     "status": "experimental"
   },
@@ -28861,7 +29036,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:f600c4586c0d881c01e860f68fc89ea8061a974a3d9f60c50aa7c5231821f6c0"
+  "docsHash": "sha256:8848b887db7f7bacebd20379124989293ba8b4583a897ffb8285e9f4096d88a5"
 }
 ```
 
@@ -29050,6 +29225,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "holeWizard",
     "Exact plain, counterbore, or countersink hole with flat or angled blind drill point",
+    "hole Wizard operation",
     "孔向导"
   ],
   "description": "Exact plain, counterbore, or countersink hole with flat or angled blind drill point",
@@ -29506,6 +29682,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "hole",
+      "faceHole",
+      "multiHole",
+      "multiPocket",
+      "multiBoss",
+      "slot",
       "queryGeometry",
       "measure",
       "files.export"
@@ -29513,7 +29695,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "holeWizard",
       "Exact plain, counterbore, or countersink hole with flat or angled blind drill point",
-      "Exact plain, counterbore, or countersink hole with flat or angled blind drill point"
+      "Exact plain, counterbore, or countersink hole with flat or angled blind drill point",
+      "hole Wizard operation"
     ],
     "status": "experimental"
   },
@@ -29610,7 +29793,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:99e60d7764b3300849687c60c5bb525e76c67c6e7f666ef48e18c8713578ef8e"
+  "docsHash": "sha256:efdaecf63fa95119f12fbb0cc0c6e89493922e33e7d361d4a6933d10e8767353"
 }
 ```
 
@@ -29662,6 +29845,7 @@ files.release: contextPolicy=none
     "import",
     "Open STEP",
     "BREP through browser file picker; MCP has no arbitrary filesystem access",
+    "import operation",
     "导入"
   ],
   "description": "Open STEP/BREP through browser file picker; MCP has no arbitrary filesystem access",
@@ -29894,6 +30078,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -29901,7 +30087,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "import",
       "Open STEP",
-      "BREP through browser file picker; MCP has no arbitrary filesystem access"
+      "BREP through browser file picker; MCP has no arbitrary filesystem access",
+      "import operation"
     ],
     "status": "experimental"
   },
@@ -30000,7 +30187,7 @@ files.release: contextPolicy=none
   "executableOperation": false,
   "contextPolicy": "revision",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:746104bcdd21b8a1cd0f23d86eac684ee4fa7289be17421f591b587865168c08"
+  "docsHash": "sha256:72c98c364c5915332283aca2dbdc51c9456a2519b70ae251a34669980de1e55a"
 }
 ```
 
@@ -30081,6 +30268,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "innerTurn",
     "Bore inside a selected planar section",
+    "inner Turn operation",
     "内车"
   ],
   "description": "Bore inside a selected planar section",
@@ -30378,6 +30566,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -30385,7 +30575,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "innerTurn",
       "Bore inside a selected planar section",
-      "Bore inside a selected planar section"
+      "Bore inside a selected planar section",
+      "inner Turn operation"
     ],
     "status": "experimental"
   },
@@ -30489,7 +30680,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:fde8f709785971818e0fba8c78e69bd770f196db0d2e46b46b86e818c05e63e4"
+  "docsHash": "sha256:c672c0bf43fff4a86fb8b55963d292cef610c0a85bc6b84841f8a67d3093bed2"
 }
 ```
 
@@ -30545,6 +30736,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "intersect",
     "Common volume of bodies",
+    "intersect operation",
     "相交",
     "交集",
     "布尔交集",
@@ -30809,6 +31001,10 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "union",
+      "cut",
+      "split",
+      "meshBoolean",
       "queryGeometry",
       "measure",
       "files.export"
@@ -30816,7 +31012,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "intersect",
       "Common volume of bodies",
-      "Common volume of bodies"
+      "Common volume of bodies",
+      "intersect operation"
     ],
     "status": "experimental"
   },
@@ -30914,7 +31111,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:0924202cd839e9bc6991c6c44af1c555c594a9050a1e8d5aa60ed7f1dd5a3f14"
+  "docsHash": "sha256:2ee677b10642b81dbc011aa27543962400943f229c3e708cc83b3a4ad882152b"
 }
 ```
 
@@ -31016,6 +31213,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "linearPattern",
     "Linear copies as a compound or explicitly fused solid",
+    "linear Pattern operation",
     "直线阵列"
   ],
   "description": "Linear copies as a compound or explicitly fused solid",
@@ -31322,6 +31520,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "transform",
+      "copy",
+      "mirror",
+      "circularPattern",
+      "group",
+      "extractSolid",
       "queryGeometry",
       "measure",
       "files.export"
@@ -31329,7 +31533,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "linearPattern",
       "Linear copies as a compound or explicitly fused solid",
-      "Linear copies as a compound or explicitly fused solid"
+      "Linear copies as a compound or explicitly fused solid",
+      "linear Pattern operation"
     ],
     "status": "experimental"
   },
@@ -31426,7 +31631,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:59db7a8b27d0c59fb9a28a497c6c9c528bf2271e6b9c15c7cd7f165e2a7c4c54"
+  "docsHash": "sha256:1e968538445a059010c847057020bb34d3897ad93b95723d72ca19cfcb2af16d"
 }
 ```
 
@@ -31553,6 +31758,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "loft",
     "Ruled loft between parallel XY profiles",
+    "loft operation",
     "放样"
   ],
   "description": "Ruled loft between parallel XY profiles",
@@ -31913,6 +32119,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -31920,7 +32128,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "loft",
       "Ruled loft between parallel XY profiles",
-      "Ruled loft between parallel XY profiles"
+      "Ruled loft between parallel XY profiles",
+      "loft operation"
     ],
     "status": "experimental"
   },
@@ -32017,7 +32226,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:679e60bbcb480a9d95b1f3072057a6a42d0663a867ee6d71893a397e220553dc"
+  "docsHash": "sha256:7ddd19ddaa28182126434e45a1fe46a193305fce56e453987019040184ccf7d1"
 }
 ```
 
@@ -33092,7 +33301,10 @@ files.release: contextPolicy=none
       "meshHeightfieldRelief",
       "meshReliefPlate",
       "meshReliefEdit",
-      "meshBoolean"
+      "meshBoolean",
+      "queryGeometry",
+      "measure",
+      "files.export"
     ],
     "synonyms": [
       "恒深LOGO",
@@ -33194,7 +33406,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:09758f62852b10a406b860d980e42179b5c47769f4d74473c79aab9c81fb70c7"
+  "docsHash": "sha256:8741e7fd53ffcac35dcd9eb046fc9fa730e7e67a645661d12ea07f3983f59b77"
 }
 ```
 
@@ -33625,7 +33837,10 @@ files.release: contextPolicy=none
       "logo",
       "meshHeightfieldRelief",
       "meshReliefPlate",
-      "meshReliefEdit"
+      "meshReliefEdit",
+      "queryGeometry",
+      "measure",
+      "files.export"
     ],
     "synonyms": [
       "合并 网格",
@@ -33746,7 +33961,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:9bcf994461100d5634e17ef5d32afc1742e4c2c01645a64dc32ad85e8e893f5b"
+  "docsHash": "sha256:6d57979e0e38056f51407bc1ca05945dde38b279205f579922915ff78bae93c7"
 }
 ```
 
@@ -34446,7 +34661,10 @@ files.release: contextPolicy=none
       "logo",
       "meshReliefPlate",
       "meshReliefEdit",
-      "meshBoolean"
+      "meshBoolean",
+      "queryGeometry",
+      "measure",
+      "files.export"
     ],
     "synonyms": [
       "高度图",
@@ -34564,7 +34782,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:3f750151ad7a27ce2b349996df011d1b1aa35b020963f65677b5992740184b27"
+  "docsHash": "sha256:ea3b7875fd9d5495294f1c439d888327fa9351e8a0800c3350e5c0a8af8423e8"
 }
 ```
 
@@ -36429,7 +36647,10 @@ files.release: contextPolicy=none
       "logo",
       "meshHeightfieldRelief",
       "meshReliefPlate",
-      "meshBoolean"
+      "meshBoolean",
+      "queryGeometry",
+      "measure",
+      "files.export"
     ],
     "synonyms": [
       "网格修高",
@@ -36650,7 +36871,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:9dd50e20da8b4f96f1473831f908d6a7c5be0a7c9ee8e5db8fc676b222c1f170"
+  "docsHash": "sha256:22c714b2838a65f6a27b21ec8f9c8d00ebdb87830d84174c700017489f53046f"
 }
 ```
 
@@ -37174,7 +37395,10 @@ files.release: contextPolicy=none
       "logo",
       "meshHeightfieldRelief",
       "meshReliefEdit",
-      "meshBoolean"
+      "meshBoolean",
+      "queryGeometry",
+      "measure",
+      "files.export"
     ],
     "synonyms": [
       "网格底板",
@@ -37289,7 +37513,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:bf7631218abcb8c37f8420f5ea7785f1d626bd1197ac157e07a859741c10bff2"
+  "docsHash": "sha256:c0afaf212a8a06955df75023fab96bb16c642a79cc72ab82e6441805e18c0669"
 }
 ```
 
@@ -37369,6 +37593,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "mirror",
     "Mirror across a coordinate plane at an explicit offset",
+    "mirror operation",
     "镜像"
   ],
   "description": "Mirror across a coordinate plane at an explicit offset",
@@ -37651,6 +37876,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "transform",
+      "copy",
+      "linearPattern",
+      "circularPattern",
+      "group",
+      "extractSolid",
       "queryGeometry",
       "measure",
       "files.export"
@@ -37658,7 +37889,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "mirror",
       "Mirror across a coordinate plane at an explicit offset",
-      "Mirror across a coordinate plane at an explicit offset"
+      "Mirror across a coordinate plane at an explicit offset",
+      "mirror operation"
     ],
     "status": "experimental"
   },
@@ -37755,7 +37987,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:56341a78571f4e694c0ac1d9c742fd66a1f8317da1656a410bf82be657f59121"
+  "docsHash": "sha256:16e0c5eb311e2a7a0d36eb5715cd8101fb60caa7e454affb90cef6142dbc923e"
 }
 ```
 
@@ -37875,6 +38107,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "multiBoss",
     "Fuse multiple exact solid cylindrical bosses onto one body",
+    "multi Boss operation",
     "多凸台",
     "批量圆柱凸台",
     "cylindrical boss"
@@ -38270,6 +38503,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "hole",
+      "holeWizard",
+      "faceHole",
+      "multiHole",
+      "multiPocket",
+      "slot",
       "queryGeometry",
       "measure",
       "files.export"
@@ -38277,7 +38516,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "multiBoss",
       "Fuse multiple exact solid cylindrical bosses onto one body",
-      "Fuse multiple exact solid cylindrical bosses onto one body"
+      "Fuse multiple exact solid cylindrical bosses onto one body",
+      "multi Boss operation"
     ],
     "status": "experimental"
   },
@@ -38379,7 +38619,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:59eca250ec039fb5f266f344d8d46ae2de8d4a1b4565f93666e50fe7abc30e72"
+  "docsHash": "sha256:69dcbba032001f7ce4fd7bbae7561d40b1345487a004bbc0241408e5b2965481"
 }
 ```
 
@@ -38499,6 +38739,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "multiHole",
     "Cut cylindrical holes sequentially at multiple global start points",
+    "multi Hole operation",
     "多孔",
     "孔位",
     "mounting plate",
@@ -38957,6 +39198,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "hole",
+      "holeWizard",
+      "faceHole",
+      "multiPocket",
+      "multiBoss",
+      "slot",
       "queryGeometry",
       "measure",
       "files.export"
@@ -38964,7 +39211,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "multiHole",
       "Cut cylindrical holes sequentially at multiple global start points",
-      "Cut cylindrical holes sequentially at multiple global start points"
+      "Cut cylindrical holes sequentially at multiple global start points",
+      "multi Hole operation"
     ],
     "status": "experimental"
   },
@@ -39066,7 +39314,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:fcf73389c4d538bab1136ddb08a72a06aa33e781f2d8da8f25e901f8acd1f396"
+  "docsHash": "sha256:ec7cd7f2fae360363bc166d73f788ec4998d6215490a266bcba4698a290d8ce6"
 }
 ```
 
@@ -39217,6 +39465,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "multiPocket",
     "Cut multiple exact rectangular or rounded rectangular pockets",
+    "multi Pocket operation",
     "多凹槽",
     "批量凹刻",
     "rectangular pocket",
@@ -39630,6 +39879,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "hole",
+      "holeWizard",
+      "faceHole",
+      "multiHole",
+      "multiBoss",
+      "slot",
       "queryGeometry",
       "measure",
       "files.export"
@@ -39637,7 +39892,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "multiPocket",
       "Cut multiple exact rectangular or rounded rectangular pockets",
-      "Cut multiple exact rectangular or rounded rectangular pockets"
+      "Cut multiple exact rectangular or rounded rectangular pockets",
+      "multi Pocket operation"
     ],
     "status": "experimental"
   },
@@ -39739,7 +39995,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:f1e78c961cc0b416dcd5cf9faa43ea5a7e9e2a8c4786fa552c2d743609dafe01"
+  "docsHash": "sha256:fbe192f63c02fb4e5df7bfc8d6082e337bc5a0e6d6e15de23b8ea85e0e8a328a"
 }
 ```
 
@@ -39812,6 +40068,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "offsetSolid",
     "Exact signed offset of all boundary faces of one solid",
+    "offset Solid operation",
     "实体偏置"
   ],
   "description": "Exact signed offset of all boundary faces of one solid",
@@ -40089,6 +40346,13 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fittedSurface",
+      "thickenFace",
+      "sewFaces",
+      "surfaceTrim",
+      "extractFaces",
+      "extractShell",
+      "offsetSurface",
       "queryGeometry",
       "measure",
       "files.export"
@@ -40096,7 +40360,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "offsetSolid",
       "Exact signed offset of all boundary faces of one solid",
-      "Exact signed offset of all boundary faces of one solid"
+      "Exact signed offset of all boundary faces of one solid",
+      "offset Solid operation"
     ],
     "status": "experimental"
   },
@@ -40195,7 +40460,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:e49254dad0f256bcc541c502d654a55b005e241df5a38b4d40470f4dd31079f0"
+  "docsHash": "sha256:bb25a392a02dc93dcae745ce0a30a794e3beb23cc853b27b8fe6b9ae630226ec"
 }
 ```
 
@@ -40268,6 +40533,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "offsetSurface",
     "Create one exact normal-offset face while preserving its source body",
+    "offset Surface operation",
     "偏置面"
   ],
   "description": "Create one exact normal-offset face while preserving its source body",
@@ -40545,6 +40811,13 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fittedSurface",
+      "thickenFace",
+      "sewFaces",
+      "surfaceTrim",
+      "extractFaces",
+      "extractShell",
+      "offsetSolid",
       "queryGeometry",
       "measure",
       "files.export"
@@ -40552,7 +40825,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "offsetSurface",
       "Create one exact normal-offset face while preserving its source body",
-      "Create one exact normal-offset face while preserving its source body"
+      "Create one exact normal-offset face while preserving its source body",
+      "offset Surface operation"
     ],
     "status": "experimental"
   },
@@ -40651,7 +40925,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:5c153a147f4d59e7c2661226dd303158d34aeccea363b33bcccd010d208adf49"
+  "docsHash": "sha256:7aedb72141f949d6d20f94ebdb6e399b0701b8a2598efc7abae0f86462bcc53c"
 }
 ```
 
@@ -40732,6 +41006,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "outerTurn",
     "Turn the outside of a selected planar section to diameter",
+    "outer Turn operation",
     "外车"
   ],
   "description": "Turn the outside of a selected planar section to diameter",
@@ -41029,6 +41304,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -41036,7 +41313,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "outerTurn",
       "Turn the outside of a selected planar section to diameter",
-      "Turn the outside of a selected planar section to diameter"
+      "Turn the outside of a selected planar section to diameter",
+      "outer Turn operation"
     ],
     "status": "experimental"
   },
@@ -41140,7 +41418,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:bb91c28667ac88a47ff904a8a0d7a9b1c3c53ba4d6bfcc7b0e474734d5ef6753"
+  "docsHash": "sha256:c2fcb053db85f6b5f9e4e419dcb17e41626b38685aad6a82b2aea95c2b1365bc"
 }
 ```
 
@@ -41206,6 +41484,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "planeSection",
     "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
+    "plane Section operation",
     "提取真实截面"
   ],
   "description": "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
@@ -41483,6 +41762,9 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "faceBoundary",
+      "referenceExtrude",
+      "referenceLoft",
       "queryGeometry",
       "measure",
       "files.export"
@@ -41490,7 +41772,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "planeSection",
       "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
-      "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。"
+      "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
+      "plane Section operation"
     ],
     "status": "experimental"
   },
@@ -41587,7 +41870,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:579f581d5f4fc7bd95fcc14e076eb41c15df82e0b1086b9fa2575328ad54bcaf"
+  "docsHash": "sha256:8c2840d6c42ea3b43c75c1fd1e7b002a82ddbe041de11ae1f187118eb8302c2a"
 }
 ```
 
@@ -42456,6 +42739,7 @@ files.release: contextPolicy=none
     "profileConstraints",
     "Solve common saved line",
     "circle profile constraints and derive a new profile while preserving the source, entity IDs and ordered paths",
+    "profile Constraints operation",
     "约束尺寸"
   ],
   "description": "Solve common saved line/circle profile constraints and derive a new profile while preserving the source, entity IDs and ordered paths",
@@ -42817,6 +43101,13 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileOffset",
+      "profileRepair",
+      "profileExtrude",
+      "profileSweep",
+      "profileLoft",
+      "profileRevolve",
       "queryGeometry",
       "measure",
       "files.export"
@@ -42824,7 +43115,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "profileConstraints",
       "Solve common saved line",
-      "circle profile constraints and derive a new profile while preserving the source, entity IDs and ordered paths"
+      "circle profile constraints and derive a new profile while preserving the source, entity IDs and ordered paths",
+      "profile Constraints operation"
     ],
     "status": "experimental"
   },
@@ -42953,7 +43245,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:a233ef8701dea91df21f8b7c2378924c2a859d803247d481577d8e33393af9cc"
+  "docsHash": "sha256:eca787c8e804f5c9bb6cbcc846d0a0e71f88a4a04f29886b79878ea7ef184dc9"
 }
 ```
 
@@ -43085,6 +43377,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "profileExtrude",
     "Extrude a placed exact profile into a new solid, join, cut or intersection",
+    "profile Extrude operation",
     "轮廓拉伸",
     "加工"
   ],
@@ -43427,6 +43720,13 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileOffset",
+      "profileRepair",
+      "profileSweep",
+      "profileLoft",
+      "profileRevolve",
+      "profileConstraints",
       "queryGeometry",
       "measure",
       "files.export"
@@ -43434,7 +43734,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "profileExtrude",
       "Extrude a placed exact profile into a new solid, join, cut or intersection",
-      "Extrude a placed exact profile into a new solid, join, cut or intersection"
+      "Extrude a placed exact profile into a new solid, join, cut or intersection",
+      "profile Extrude operation"
     ],
     "status": "experimental"
   },
@@ -43533,7 +43834,7 @@ files.release: contextPolicy=none
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:04544e8c3f44c465a2ce74ae384796b61d980f102c177a2950e9a9da1f20c928"
+  "docsHash": "sha256:1e0e070f15e69866899321de73f3c31fe0d50396ca62f68d394c969d67d637dc"
 }
 ```
 
@@ -43604,6 +43905,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "profileLoft",
     "Loft 2–12 saved exact sections in explicit order, with new-body or material-operation result",
+    "profile Loft operation",
     "轮廓放样"
   ],
   "description": "Loft 2–12 saved exact sections in explicit order, with new-body or material-operation result",
@@ -43906,6 +44208,13 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileOffset",
+      "profileRepair",
+      "profileExtrude",
+      "profileSweep",
+      "profileRevolve",
+      "profileConstraints",
       "queryGeometry",
       "measure",
       "files.export"
@@ -43913,7 +44222,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "profileLoft",
       "Loft 2–12 saved exact sections in explicit order, with new-body or material-operation result",
-      "Loft 2–12 saved exact sections in explicit order, with new-body or material-operation result"
+      "Loft 2–12 saved exact sections in explicit order, with new-body or material-operation result",
+      "profile Loft operation"
     ],
     "status": "experimental"
   },
@@ -44017,7 +44327,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:fb2918ac8b871f82f0c9c2e9498d92c041071f2a6fdb67095651f02e08d6509a"
+  "docsHash": "sha256:02affa6d76196912cb74259a9b90bbb92febbe3337aed7dafeedef4243d308b6"
 }
 ```
 
@@ -44108,6 +44418,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "profileOffset",
     "Create an exact planar equidistant offset or band from one closed face",
+    "profile Offset operation",
     "等距偏移",
     "边框"
   ],
@@ -44414,6 +44725,13 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileRepair",
+      "profileExtrude",
+      "profileSweep",
+      "profileLoft",
+      "profileRevolve",
+      "profileConstraints",
       "queryGeometry",
       "measure",
       "files.export"
@@ -44421,7 +44739,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "profileOffset",
       "Create an exact planar equidistant offset or band from one closed face",
-      "Create an exact planar equidistant offset or band from one closed face"
+      "Create an exact planar equidistant offset or band from one closed face",
+      "profile Offset operation"
     ],
     "status": "experimental"
   },
@@ -44519,7 +44838,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:6565240732f8f78c9282e34852abd2bc02ab2cd03ac1b94438f14f782f7aba05"
+  "docsHash": "sha256:52b00de0fdbb1f8aec20a0f5eb8f1f921064e0066b79d7e9f1f701c1b377a72f"
 }
 ```
 
@@ -44589,6 +44908,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "profileRepair",
     "Derive a repaired analytic profile by moving one explicitly identified endpoint within the stated maximum displacement",
+    "profile Repair operation",
     "修复轮廓"
   ],
   "description": "Derive a repaired analytic profile by moving one explicitly identified endpoint within the stated maximum displacement",
@@ -44866,6 +45186,13 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileOffset",
+      "profileExtrude",
+      "profileSweep",
+      "profileLoft",
+      "profileRevolve",
+      "profileConstraints",
       "queryGeometry",
       "measure",
       "files.export"
@@ -44873,7 +45200,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "profileRepair",
       "Derive a repaired analytic profile by moving one explicitly identified endpoint within the stated maximum displacement",
-      "Derive a repaired analytic profile by moving one explicitly identified endpoint within the stated maximum displacement"
+      "Derive a repaired analytic profile by moving one explicitly identified endpoint within the stated maximum displacement",
+      "profile Repair operation"
     ],
     "status": "experimental"
   },
@@ -44972,7 +45300,7 @@ files.release: contextPolicy=none
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:2264eb2f34163d40ed4ac692a85356a823e7289b7c427f18ef6ef1f310e9fc15"
+  "docsHash": "sha256:8924ffd7e4cd2e4c00c7fe7b43a766db102d1c719a991f5d50b15d11154bf8ed"
 }
 ```
 
@@ -45081,6 +45409,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "profileRevolve",
     "Rotate a saved exact planar section around an explicit world axis, with new-body, additive, subtractive or intersection result",
+    "profile Revolve operation",
     "轮廓旋转"
   ],
   "description": "Rotate a saved exact planar section around an explicit world axis, with new-body, additive, subtractive or intersection result",
@@ -45456,6 +45785,13 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileOffset",
+      "profileRepair",
+      "profileExtrude",
+      "profileSweep",
+      "profileLoft",
+      "profileConstraints",
       "queryGeometry",
       "measure",
       "files.export"
@@ -45463,7 +45799,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "profileRevolve",
       "Rotate a saved exact planar section around an explicit world axis, with new-body, additive, subtractive or intersection result",
-      "Rotate a saved exact planar section around an explicit world axis, with new-body, additive, subtractive or intersection result"
+      "Rotate a saved exact planar section around an explicit world axis, with new-body, additive, subtractive or intersection result",
+      "profile Revolve operation"
     ],
     "status": "experimental"
   },
@@ -45567,7 +45904,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:808666bf08d159f16b13d123cdf806dc7bb9aa40d626c5358f2a56fc00ff294c"
+  "docsHash": "sha256:d99dffae55484794a64bfb69c7b4a75b1ba00bd7e0442450e3a361fdd54c6d23"
 }
 ```
 
@@ -45648,6 +45985,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "profileSweep",
     "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
+    "profile Sweep operation",
     "轮廓扫掠"
   ],
   "description": "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
@@ -45965,6 +46303,13 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileOffset",
+      "profileRepair",
+      "profileExtrude",
+      "profileLoft",
+      "profileRevolve",
+      "profileConstraints",
       "queryGeometry",
       "measure",
       "files.export"
@@ -45972,7 +46317,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "profileSweep",
       "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
-      "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result"
+      "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
+      "profile Sweep operation"
     ],
     "status": "experimental"
   },
@@ -46076,7 +46422,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:16f93aa63a5a3bccf4b19ebc7732db4f171e1ebff138b735ee4f0b2ed9bf2a2d"
+  "docsHash": "sha256:9181fe3d962cc14b8f618474bb5a746994ce23d3f64a543eee87b3d9c2545eb1"
 }
 ```
 
@@ -51190,6 +51536,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "quickModel",
     "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+    "quick Model operation",
     "快捷模型"
   ],
   "description": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
@@ -56102,6 +56449,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -56109,7 +56461,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -56206,7 +56559,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:ca67b949da24048006e3f13bfc8f2a21e90e2f72d9135014728377bf325ac290"
+  "docsHash": "sha256:d13bab34550bee028b34200942146bd15f7e08ba8116ae4dde0ae51af2c27d41"
 }
 ```
 
@@ -56283,6 +56636,7 @@ files.release: contextPolicy=none
     "referenceExtrude",
     "选择一个闭合平面线框或单张平面面。直接复用精确圆弧",
     "样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。",
+    "reference Extrude operation",
     "参考轮廓",
     "精确曲线",
     "拉伸",
@@ -56574,6 +56928,9 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "planeSection",
+      "faceBoundary",
+      "referenceLoft",
       "queryGeometry",
       "measure",
       "files.export"
@@ -56581,7 +56938,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "referenceExtrude",
       "选择一个闭合平面线框或单张平面面。直接复用精确圆弧",
-      "样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。"
+      "样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。",
+      "reference Extrude operation"
     ],
     "status": "experimental"
   },
@@ -56678,7 +57036,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:612f84e4d5eb7e03103b3cf3faaa67a25fcdbcfe3782dabbef99ba2c80d281bb"
+  "docsHash": "sha256:6f56f4d3bbd7fa8650e0bc28a81e9faae071025a0f0d5f72d85bf93d0d719515"
 }
 ```
 
@@ -56734,6 +57092,7 @@ files.release: contextPolicy=none
     "referenceLoft",
     "按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置",
     "尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。",
+    "reference Loft operation",
     "参考截面",
     "精确曲线",
     "放样",
@@ -57004,6 +57363,9 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "planeSection",
+      "faceBoundary",
+      "referenceExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -57011,7 +57373,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "referenceLoft",
       "按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置",
-      "尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。"
+      "尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。",
+      "reference Loft operation"
     ],
     "status": "experimental"
   },
@@ -57109,7 +57472,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:80e6fcf9c8d4a1e42487ba9b672329cc34c24a7a26547a66c03b59d6f4058df0"
+  "docsHash": "sha256:6312c7a5759cace047eed225c1d2076b73c08d7aa0867570e5297a854253f147"
 }
 ```
 
@@ -57161,6 +57524,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "refineShape",
     "Refine same-domain faces and remove redundant splitter edges",
+    "refine Shape operation",
     "清理分割线"
   ],
   "description": "Refine same-domain faces and remove redundant splitter edges",
@@ -57435,6 +57799,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -57442,7 +57808,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "refineShape",
       "Refine same-domain faces and remove redundant splitter edges",
-      "Refine same-domain faces and remove redundant splitter edges"
+      "Refine same-domain faces and remove redundant splitter edges",
+      "refine Shape operation"
     ],
     "status": "experimental"
   },
@@ -57566,7 +57933,7 @@ files.release: contextPolicy=none
   "docs": "api.refine",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:78b65be1e1615744ef770ff5bf04551399304a94a8a8f82eaf5c8c4ccd721f44"
+  "docsHash": "sha256:90f99e72bb3252a3f0d9c179938f72bbc6a3ba95929c7ffd3d1606c142cd5230"
 }
 ```
 
@@ -59366,7 +59733,10 @@ files.release: contextPolicy=none
       "meshHeightfieldRelief",
       "meshReliefPlate",
       "meshReliefEdit",
-      "meshBoolean"
+      "meshBoolean",
+      "queryGeometry",
+      "measure",
+      "files.export"
     ],
     "synonyms": [
       "圆柱 浮雕",
@@ -59530,7 +59900,7 @@ files.release: contextPolicy=none
   "docs": "api.relief",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:707ce7435df90d0203b4954b5fab1972eae6c0d49d68ce912a62a3affd4fca64"
+  "docsHash": "sha256:6a19f1b59dd20f5674af3cd7640ff0ca2201c4754f2db4c44fc656fa0a1608f4"
 }
 ```
 
@@ -59633,6 +60003,7 @@ files.release: contextPolicy=none
     "reliefShoulder",
     "浮雕中央肩部",
     "Central relief shoulder",
+    "relief Shoulder operation",
     "浮雕肩部",
     "中央肩部",
     "cylindrical shoulder",
@@ -60043,12 +60414,16 @@ files.release: contextPolicy=none
       "meshHeightfieldRelief",
       "meshReliefPlate",
       "meshReliefEdit",
-      "meshBoolean"
+      "meshBoolean",
+      "queryGeometry",
+      "measure",
+      "files.export"
     ],
     "synonyms": [
       "reliefShoulder",
       "浮雕中央肩部",
-      "Central relief shoulder"
+      "Central relief shoulder",
+      "relief Shoulder operation"
     ],
     "status": "experimental"
   },
@@ -60171,7 +60546,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:f1af480709cab695f6fb8f31e77df1ca766449ba50c362a3bf9ee7db256d5c29"
+  "docsHash": "sha256:fb93b7be74471c3bed2fc20e49c44e96145dd3f2491c2cb82861c8bf6807dd95"
 }
 ```
 
@@ -60221,6 +60596,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "remove",
     "Use dedicated webcad_remove tool with ids, not add_feature",
+    "remove operation",
     "删除"
   ],
   "description": "Use dedicated webcad_remove tool with ids, not add_feature",
@@ -60462,6 +60838,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -60469,7 +60847,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "remove",
       "Use dedicated webcad_remove tool with ids, not add_feature",
-      "Use dedicated webcad_remove tool with ids, not add_feature"
+      "Use dedicated webcad_remove tool with ids, not add_feature",
+      "remove operation"
     ],
     "status": "experimental"
   },
@@ -60569,7 +60948,7 @@ files.release: contextPolicy=none
   "executableOperation": false,
   "contextPolicy": "revision",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:00d25ae29fd7042486aa44f418ded8e10c086e33c5c13ab720f0f8b37cce6acb"
+  "docsHash": "sha256:3b04bade6f1a3f0c600dd3ede1a0c9d7d218dec8846904ef3a1a56ba43bc3a93"
 }
 ```
 
@@ -60734,6 +61113,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "revolve",
     "Revolve a closed profile",
+    "revolve operation",
     "旋转成型"
   ],
   "description": "Revolve a closed profile",
@@ -61126,6 +61506,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -61133,7 +61515,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "revolve",
       "Revolve a closed profile",
-      "Revolve a closed profile"
+      "Revolve a closed profile",
+      "revolve operation"
     ],
     "status": "experimental"
   },
@@ -61230,7 +61613,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:0ee166368cfa391d4f858dda41c8c9aa0573a8727f2a875a674deb5dda6c66bf"
+  "docsHash": "sha256:051be7b4739e2c8ae6613d31e0356b7c6ecf26ca780c2963c701fd9bc6906c27"
 }
 ```
 
@@ -61397,6 +61780,7 @@ files.release: contextPolicy=none
     "round",
     "圆润",
     "Round",
+    "round operation",
     "自动圆润",
     "磨边",
     "圆头",
@@ -61807,6 +62191,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fillet",
+      "chamfer",
+      "roundEnd",
+      "rounding",
+      "autoRound",
+      "smoothTransition",
       "queryGeometry",
       "measure",
       "files.export"
@@ -61814,7 +62204,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "round",
       "圆润",
-      "Round"
+      "Round",
+      "round operation"
     ],
     "status": "experimental"
   },
@@ -61937,7 +62328,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:11dfca66f52d7fa1600a63cdeb539e91f56d41aee67d2ed3bddf8dddca0b816e"
+  "docsHash": "sha256:65da03968273a9093703a5558ad1c8fe17a1deba0ab3a76ed64dd6aaec22c179"
 }
 ```
 
@@ -62055,6 +62446,7 @@ files.release: contextPolicy=none
     "roundEnd",
     "端头圆润",
     "Round free end",
+    "round End operation",
     "针尖",
     "圆头",
     "自由端",
@@ -62415,6 +62807,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fillet",
+      "chamfer",
+      "round",
+      "rounding",
+      "autoRound",
+      "smoothTransition",
       "queryGeometry",
       "measure",
       "files.export"
@@ -62422,7 +62820,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "roundEnd",
       "端头圆润",
-      "Round free end"
+      "Round free end",
+      "round End operation"
     ],
     "status": "experimental"
   },
@@ -62535,7 +62934,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:8a3539895501d290939f4ec202e4a7744fd9e925a06d98dfa55c4183a19ff979"
+  "docsHash": "sha256:b8553b53bfe9f860b3edd9d89666c3c6a08cf85fdf35af745804823dab981d6b"
 }
 ```
 
@@ -62920,6 +63319,7 @@ files.release: contextPolicy=none
     "rounding",
     "自动打磨",
     "Smooth selected sharp edges",
+    "rounding operation",
     "打磨",
     "圆润",
     "去利角",
@@ -63342,6 +63742,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fillet",
+      "chamfer",
+      "round",
+      "roundEnd",
+      "autoRound",
+      "smoothTransition",
       "queryGeometry",
       "measure",
       "files.export"
@@ -63349,7 +63755,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "rounding",
       "自动打磨",
-      "Smooth selected sharp edges"
+      "Smooth selected sharp edges",
+      "rounding operation"
     ],
     "status": "experimental"
   },
@@ -63482,7 +63889,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:34c402b8be5f9f63430477eeca1939cfceae824b3e7812035b414197c7242d04"
+  "docsHash": "sha256:510575eeb240c2c7c7639061bfefb691d97c7cb2ffb3055546ae4a7e02e88d0a"
 }
 ```
 
@@ -63544,6 +63951,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "sewFaces",
     "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
+    "sew Faces operation",
     "曲面缝合"
   ],
   "description": "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
@@ -63823,6 +64231,13 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fittedSurface",
+      "thickenFace",
+      "surfaceTrim",
+      "extractFaces",
+      "extractShell",
+      "offsetSurface",
+      "offsetSolid",
       "queryGeometry",
       "measure",
       "files.export"
@@ -63830,7 +64245,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "sewFaces",
       "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
-      "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。"
+      "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
+      "sew Faces operation"
     ],
     "status": "experimental"
   },
@@ -63928,7 +64344,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:eae0a7bf40ef4dae5702d9951a7bc48569c3a8e056b4a1507f605e7f469e91bd"
+  "docsHash": "sha256:c45ddf00d7f4c9b77cf61e3e43b6d8e0e7dee7c19706765893f5bcb58032b4cb"
 }
 ```
 
@@ -64020,6 +64436,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "shell",
     "Hollow body removing selected faces",
+    "shell operation",
     "抽壳",
     "壁厚"
   ],
@@ -64327,6 +64744,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -64334,7 +64753,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "shell",
       "Hollow body removing selected faces",
-      "Hollow body removing selected faces"
+      "Hollow body removing selected faces",
+      "shell operation"
     ],
     "status": "experimental"
   },
@@ -64447,7 +64867,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:82a8f9a55113ad0025b6aaac365bbe77344f9d1476f7fb677ca0ec190c502900"
+  "docsHash": "sha256:b0eea766501a42ba163a933b7e74cdc5a2442ab3cdb8a99d625e5b59e88ba2ff"
 }
 ```
 
@@ -64774,6 +65194,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "sketchProfile",
     "Create an editable exact 2D wire or planar face from stable analytic entities",
+    "sketch Profile operation",
     "绘制轮廓"
   ],
   "description": "Create an editable exact 2D wire or planar face from stable analytic entities",
@@ -65261,6 +65682,13 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "profileOffset",
+      "profileRepair",
+      "profileExtrude",
+      "profileSweep",
+      "profileLoft",
+      "profileRevolve",
+      "profileConstraints",
       "queryGeometry",
       "measure",
       "files.export"
@@ -65268,7 +65696,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "sketchProfile",
       "Create an editable exact 2D wire or planar face from stable analytic entities",
-      "Create an editable exact 2D wire or planar face from stable analytic entities"
+      "Create an editable exact 2D wire or planar face from stable analytic entities",
+      "sketch Profile operation"
     ],
     "status": "experimental"
   },
@@ -65380,7 +65809,7 @@ files.release: contextPolicy=none
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:f6f9aad9447f321124c496c24b592ff26b4a87de7784fac3472887bd704a6707"
+  "docsHash": "sha256:ecc912eb4e1f686385a1f1a1363b840476abc9cfcadba247d4789ecc038302a9"
 }
 ```
 
@@ -65508,6 +65937,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "slot",
     "Cut an exact capsule slot (two semicircles and two straight sides)",
+    "slot operation",
     "长圆槽"
   ],
   "description": "Cut an exact capsule slot (two semicircles and two straight sides)",
@@ -65874,6 +66304,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "hole",
+      "holeWizard",
+      "faceHole",
+      "multiHole",
+      "multiPocket",
+      "multiBoss",
       "queryGeometry",
       "measure",
       "files.export"
@@ -65881,7 +66317,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "slot",
       "Cut an exact capsule slot (two semicircles and two straight sides)",
-      "Cut an exact capsule slot (two semicircles and two straight sides)"
+      "Cut an exact capsule slot (two semicircles and two straight sides)",
+      "slot operation"
     ],
     "status": "experimental"
   },
@@ -65978,7 +66415,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:a001b9c4254c54364913b671ff28e43007200fade2b953eb106795ca191f9366"
+  "docsHash": "sha256:6fd6544b47f80a42b1bc1e0dde9ae993f84ac68d28e320a6fbc4138caa5dc563"
 }
 ```
 
@@ -66070,6 +66507,7 @@ files.release: contextPolicy=none
     "smoothTransition",
     "平滑过渡",
     "Smooth shared seams of adjacent faces together",
+    "smooth Transition operation",
     "接缝",
     "利角",
     "blend"
@@ -66386,6 +66824,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fillet",
+      "chamfer",
+      "round",
+      "roundEnd",
+      "rounding",
+      "autoRound",
       "queryGeometry",
       "measure",
       "files.export"
@@ -66393,7 +66837,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "smoothTransition",
       "平滑过渡",
-      "Smooth shared seams of adjacent faces together"
+      "Smooth shared seams of adjacent faces together",
+      "smooth Transition operation"
     ],
     "status": "experimental"
   },
@@ -66506,7 +66951,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:a87c04131c2b34d6c777f6d86137e4b1475077d68da14a51b4a8c4233338d1a9"
+  "docsHash": "sha256:1b7c547754ebc2b6f8169abe0646ba35fd9f453afeb4623f1ba554ce09371f05"
 }
 ```
 
@@ -66569,6 +67014,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "sphere",
     "Sphere centered at origin",
+    "sphere operation",
     "球体"
   ],
   "description": "Sphere centered at origin",
@@ -66823,6 +67269,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "cone",
+      "torus",
+      "quickModel",
       "queryGeometry",
       "measure",
       "files.export"
@@ -66830,7 +67281,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "sphere",
       "Sphere centered at origin",
-      "Sphere centered at origin"
+      "Sphere centered at origin",
+      "sphere operation"
     ],
     "status": "experimental"
   },
@@ -66927,7 +67379,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:9199f0d97ad2932bfa2ac6d6a8bcbbcb8f9ed3a421c990f93c5bd2527e714fe3"
+  "docsHash": "sha256:e60c4ce2893a50ef27282a2302174542206a6a07e42886ac1cee98ca043432bc"
 }
 ```
 
@@ -66996,6 +67448,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "split",
     "Split body by an offset global plane",
+    "split operation",
     "分割"
   ],
   "description": "Split body by an offset global plane",
@@ -67274,6 +67727,10 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "union",
+      "cut",
+      "intersect",
+      "meshBoolean",
       "queryGeometry",
       "measure",
       "files.export"
@@ -67281,7 +67738,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "split",
       "Split body by an offset global plane",
-      "Split body by an offset global plane"
+      "Split body by an offset global plane",
+      "split operation"
     ],
     "status": "experimental"
   },
@@ -67378,7 +67836,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:ca6c716eddfe4e18e3143d2bb5f99efae08c8e4f4ddae61d592f3e04aebdd32a"
+  "docsHash": "sha256:99669c0b279bf31b19610d004340dbd6a9ef0e85e4ec4818baf77021742a5f4f"
 }
 ```
 
@@ -67447,6 +67905,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "surfaceTrim",
     "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。",
+    "surface Trim operation",
     "实体修剪面"
   ],
   "description": "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。",
@@ -67727,6 +68186,13 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fittedSurface",
+      "thickenFace",
+      "sewFaces",
+      "extractFaces",
+      "extractShell",
+      "offsetSurface",
+      "offsetSolid",
       "queryGeometry",
       "measure",
       "files.export"
@@ -67734,7 +68200,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "surfaceTrim",
       "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。",
-      "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。"
+      "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。",
+      "surface Trim operation"
     ],
     "status": "experimental"
   },
@@ -67832,7 +68299,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:355f2f6914c876e0da65440f09785b01a33ddaaffede7d42a96df32d4bb83461"
+  "docsHash": "sha256:2895a11fcff399bed5a4f07d228082af4350a1f10c75516c78eaddccbc5ddb8d"
 }
 ```
 
@@ -67974,6 +68441,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "sweep",
     "Sweep profile along a 3D polyline",
+    "sweep operation",
     "扫掠"
   ],
   "description": "Sweep profile along a 3D polyline",
@@ -68366,6 +68834,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -68373,7 +68843,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "sweep",
       "Sweep profile along a 3D polyline",
-      "Sweep profile along a 3D polyline"
+      "Sweep profile along a 3D polyline",
+      "sweep operation"
     ],
     "status": "experimental"
   },
@@ -68470,7 +68941,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:7eeb81c34e5a540a6919f188c1f12a44d7e46776bb6f9e85cd1ff4e7c45c9b55"
+  "docsHash": "sha256:6cc5740dc2dc3cb2cee5156465dd01381c6cfae62513e074acb329c0c8d2b692"
 }
 ```
 
@@ -68539,6 +69010,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "thickenFace",
     "Normal offset of one face into a new solid",
+    "thicken Face operation",
     "选面增厚"
   ],
   "description": "Normal offset of one face into a new solid",
@@ -68811,6 +69283,13 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "fittedSurface",
+      "sewFaces",
+      "surfaceTrim",
+      "extractFaces",
+      "extractShell",
+      "offsetSurface",
+      "offsetSolid",
       "queryGeometry",
       "measure",
       "files.export"
@@ -68818,7 +69297,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "thickenFace",
       "Normal offset of one face into a new solid",
-      "Normal offset of one face into a new solid"
+      "Normal offset of one face into a new solid",
+      "thicken Face operation"
     ],
     "status": "experimental"
   },
@@ -68916,7 +69396,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:7f4a824fffa8ee3fdc70659c7f2018f7be581fe40268acd750480c4574924706"
+  "docsHash": "sha256:29743d6b8762bff5b1e2478b43567abb757053efba1342bbb7eb6ba2f2a3dd6d"
 }
 ```
 
@@ -69037,6 +69517,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "thread",
     "Cut an explicit symmetric helical V groove on a selected cylindrical material face",
+    "thread operation",
     "螺纹 V 槽"
   ],
   "description": "Cut an explicit symmetric helical V groove on a selected cylindrical material face",
@@ -69401,6 +69882,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -69408,7 +69891,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "thread",
       "Cut an explicit symmetric helical V groove on a selected cylindrical material face",
-      "Cut an explicit symmetric helical V groove on a selected cylindrical material face"
+      "Cut an explicit symmetric helical V groove on a selected cylindrical material face",
+      "thread operation"
     ],
     "status": "experimental"
   },
@@ -69507,7 +69991,7 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:e776b2285a93d59e3336e8d790c062d2bd83aabbc5f3fc7577a6fcda28498722"
+  "docsHash": "sha256:49070c658ddef64fd650e356e4a1b651b8c2afba248311da3e876c264a53a7a8"
 }
 ```
 
@@ -69579,6 +70063,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "torus",
     "Torus around Z axis",
+    "torus operation",
     "圆环"
   ],
   "description": "Torus around Z axis",
@@ -69863,6 +70348,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "quickModel",
       "queryGeometry",
       "measure",
       "files.export"
@@ -69870,7 +70360,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "torus",
       "Torus around Z axis",
-      "Torus around Z axis"
+      "Torus around Z axis",
+      "torus operation"
     ],
     "status": "experimental"
   },
@@ -69967,7 +70458,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:cc58f8ffa4aa3bc02a5698d06898e29fca807a494838bd0b8540c92b8f63f328"
+  "docsHash": "sha256:53688dbec4220069db44b1640b59e3d22df958e77c2b1be3ff7fc82fe8d31d0f"
 }
 ```
 
@@ -70211,6 +70702,7 @@ files.release: contextPolicy=none
     "transform",
     "Scale, rotate X",
     "Z about origin, then translate",
+    "transform operation",
     "移动",
     "旋转",
     "平移",
@@ -70730,6 +71222,12 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "copy",
+      "mirror",
+      "linearPattern",
+      "circularPattern",
+      "group",
+      "extractSolid",
       "queryGeometry",
       "measure",
       "files.export"
@@ -70737,7 +71235,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "transform",
       "Scale, rotate X",
-      "Z about origin, then translate"
+      "Z about origin, then translate",
+      "transform operation"
     ],
     "status": "experimental"
   },
@@ -70835,7 +71334,7 @@ files.release: contextPolicy=none
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:ee786a9bf357e62c40fe2f4aeac9f915318ee2e497c7a0fa55ce93d4b9e10f01"
+  "docsHash": "sha256:78cbd551a221752a7a1adfd2a6ffd6b6fdba3e7693dcacc7380bb88260e1b312"
 }
 ```
 
@@ -70891,6 +71390,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "union",
     "Fuse bodies",
+    "union operation",
     "合并",
     "并集",
     "布尔合并",
@@ -71155,6 +71655,10 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "cut",
+      "intersect",
+      "split",
+      "meshBoolean",
       "queryGeometry",
       "measure",
       "files.export"
@@ -71162,7 +71666,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "union",
       "Fuse bodies",
-      "Fuse bodies"
+      "Fuse bodies",
+      "union operation"
     ],
     "status": "experimental"
   },
@@ -71260,7 +71765,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:d629a02e4c6e3a9b8e3d2b7be3653c31a16cf3996bb9e872a2f596b95181b6c8"
+  "docsHash": "sha256:6744eaec36b8d25a0d0285836fc07c00aadf2f12e12de40d2c435a031569e20f"
 }
 ```
 
@@ -71433,6 +71938,7 @@ files.release: contextPolicy=none
   "synonyms": [
     "vectorProfile",
     "Create independent planar faces or solids from closed vector regions",
+    "vector Profile operation",
     "导入路径"
   ],
   "description": "Create independent planar faces or solids from closed vector regions",
@@ -71891,6 +72397,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -71898,7 +72406,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "vectorProfile",
       "Create independent planar faces or solids from closed vector regions",
-      "Create independent planar faces or solids from closed vector regions"
+      "Create independent planar faces or solids from closed vector regions",
+      "vector Profile operation"
     ],
     "status": "experimental"
   },
@@ -71995,7 +72504,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:7592018581c1c10174d9a8eabe8612de647046594f9b61d292bf8a98895d3fe5"
+  "docsHash": "sha256:e40cd06176905fdc542b9bc811d4476fefdba91f4aa8930cc3125cc407c1854a"
 }
 ```
 
@@ -72321,6 +72830,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -72328,7 +72842,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -72611,7 +73126,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:8c34382868c1d57c99d792e50bc9208d46211cb8217d5da2c6069f5b5beb5f29"
+  "docsHash": "sha256:62be9e10dd9eb934ad29c39d0091ea949ffb4949b08ed3a7cd6b49d9ab7ee49a"
 }
 ```
 
@@ -72879,6 +73394,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -72886,7 +73406,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -73104,7 +73625,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:fa5da48c6fade1e360d924725fcbe97a902741dad5a8b4cd03f0a54934bfe332"
+  "docsHash": "sha256:668f662f37201f5895859970e507e031765eb95d37a084db638c0b0d8ae41209"
 }
 ```
 
@@ -73372,6 +73893,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -73379,7 +73905,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -73600,7 +74127,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:fb380306d95e94ee45f618b327fdb9717018f40599fb8e04813e8252ae1cffdd"
+  "docsHash": "sha256:8276b3cd6cb4e001f160ad22ce96c82061b60eada2f8e2c3524c1e9c830fbb61"
 }
 ```
 
@@ -73868,6 +74395,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -73875,7 +74407,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -74082,7 +74615,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:50d533e66d91bbdf2bef328a5004496f109b48102b0645be070a27742cdebd61"
+  "docsHash": "sha256:72601bcac2e435a0e2862cadf6351b5f2948e343287fb7badf8c0c71fe1584b0"
 }
 ```
 
@@ -74350,6 +74883,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -74357,7 +74895,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -74610,7 +75149,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:50ba4c4539e841f210522bad3b44f00c7931a857cda40f26ebd0432519c9d2cf"
+  "docsHash": "sha256:525b86ec1d2330cc04205dc3f29b62a5aec563063286089e14b05d94a1858a11"
 }
 ```
 
@@ -74878,6 +75417,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -74885,7 +75429,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -75238,7 +75783,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:45385202141799b1100e2c8406bbc0bb5c35e82b0c49914fa9370960f5b3ccf9"
+  "docsHash": "sha256:a449648cf49495cbe214eea841cb6a2977e4e1a5082f651576aa98c2bb7feed6"
 }
 ```
 
@@ -75506,6 +76051,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -75513,7 +76063,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -75756,7 +76307,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:4168f3ff53f32d3306c3314002c36707b221f10f44e364de9dd31e2e363d9a6c"
+  "docsHash": "sha256:60ecc2ab0fe1c179d80bd283056aafb9c6d2044a3358a823e04f2c620636314e"
 }
 ```
 
@@ -76024,6 +76575,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -76031,7 +76587,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -76330,7 +76887,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:5fea554f82620c7ac29b7f34c89586c03a2c3030b7c87e9ae4b816309a88cb16"
+  "docsHash": "sha256:c94d298d9801476e52ff141470cdd50b3865c27dc903a5f1904fc361e04e55b8"
 }
 ```
 
@@ -76598,6 +77155,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -76605,7 +77167,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -76883,7 +77446,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:452d70c59f11b3de49e4a39e6c01ab7f9bf994ade36cb38fa8d01b9c7eb8d75c"
+  "docsHash": "sha256:07fdddc767cb5574ad38c3f006db55043014003f9d8288abb79d563681fdb5e0"
 }
 ```
 
@@ -77151,6 +77714,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -77158,7 +77726,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -77451,7 +78020,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3467fd41f321985343654ec9b0173525460729feb755c1931d44db043ea0155f"
+  "docsHash": "sha256:6a96ad8bd9b03f9f2b663be9b1bd818188e0bb5b0374ddea8160439aa15c8c85"
 }
 ```
 
@@ -77719,6 +78288,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -77726,7 +78300,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -78007,7 +78582,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:f06e594ec8dac4892c7f717ded9abaccc2ff9561430b755cc295adbb722a58d3"
+  "docsHash": "sha256:42b13c6554bce860a5cedc01f663e7dcdb66047bc437b4e242b2e6e20e6ea221"
 }
 ```
 
@@ -78275,6 +78850,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -78282,7 +78862,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -78578,7 +79159,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:34932051cc416573a8950e99722e07dbad351061c0e2c3e0085c5d9aecfb49fc"
+  "docsHash": "sha256:d3a8f4ae5d12d90f23eff2001dc2e06e65b934ef98cfa0ad52733a5dea0139e8"
 }
 ```
 
@@ -78846,6 +79427,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -78853,7 +79439,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -79166,7 +79753,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:14a3bd698e616ca314cbc966386bbbc949f261d420f9263a4fc79a72b421699e"
+  "docsHash": "sha256:2574354140363a46d3f5badcd48a86c2836929f80474a549555fd98537d9de54"
 }
 ```
 
@@ -79434,6 +80021,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -79441,7 +80033,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -79754,7 +80347,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:67cae608f166a007b33170655861a14ea6c8139cd7cc062ef32d4a0769e56bc8"
+  "docsHash": "sha256:032d37b64df94ad65f0d22eae4c8e4742be3886c2d50513c526e6338aceb5691"
 }
 ```
 
@@ -80022,6 +80615,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -80029,7 +80627,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -80342,7 +80941,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:c1f03745243de502cd3d21583c920ba1f9bc34949fd00183c6163a7c8fb1a053"
+  "docsHash": "sha256:9660cba14010d7872f21abac4f97a3df0701f31ce51d85a5b9a1b63589d8cbbe"
 }
 ```
 
@@ -80610,6 +81209,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -80617,7 +81221,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -80952,7 +81557,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:aae45b4f166c21400d9ecee822ee859304f8b5bf7d178493d6034238ac6997a3"
+  "docsHash": "sha256:57150e52c68a7453ab7715de1f2b1a402b6d59e5384c23a68704c74a33b4d4ba"
 }
 ```
 
@@ -81220,6 +81825,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -81227,7 +81837,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -81496,7 +82107,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:26d558536c88a3ad6c1628b0f8ca1683c81197a67948ca6f18b1a1c4a4e27ed2"
+  "docsHash": "sha256:dbd9826e16dd765399d151b74401cb47dd6832953286c0746e944996f35a8098"
 }
 ```
 
@@ -81764,6 +82375,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -81771,7 +82387,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -82019,7 +82636,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:59176a1d6cbb3615a3475cfdab3a77e5ee6654aef14c8ab98533aa7705ad8dac"
+  "docsHash": "sha256:4752acb67b2cd0f475b7d9d6dac2cd2c7b5ae4ed7a2bcafbc067f0d018c40d1f"
 }
 ```
 
@@ -82287,6 +82904,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -82294,7 +82916,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -82599,7 +83222,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3aa86e258812c784664ca430d1c555612fd0e821e53b29c9801c2356bb43a1bc"
+  "docsHash": "sha256:7970651f70bdad24fbe962eb4f250331ae15e84959fac2ea530fc31e78a9b51c"
 }
 ```
 
@@ -82867,6 +83490,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -82874,7 +83502,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -83188,7 +83817,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3512ed5721a24bea95879a0687d03d3976652d8fe7707de1546d4605dc628605"
+  "docsHash": "sha256:74adb18bd429793f267c3ab761b39d4a65efb3681caf77b102bf4397070f1882"
 }
 ```
 
@@ -83456,6 +84085,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -83463,7 +84097,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -83795,7 +84430,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:b0c2ed0e5d3710a469a511c30fb94beecb501b425a54924b26cca0397ec2aeb4"
+  "docsHash": "sha256:41e1f4bce98e9cfa1c756821873c44c5eafb2d14a410774070c3e11608a50604"
 }
 ```
 
@@ -84063,6 +84698,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -84070,7 +84710,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -84353,7 +84994,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:90d5f0fc38e9bab92840f4d40c93d8dcffdaa15196d313be847a2283635cd133"
+  "docsHash": "sha256:0a6eb99ece1661d9c7741ebea480b5e563e0ba14c820bdf406df9e6bbac88083"
 }
 ```
 
@@ -84621,6 +85262,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -84628,7 +85274,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -84896,7 +85543,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:f1f540317227c650d8577753946c3f1e9cdff6478c175fe49e44b6ba2d599bb5"
+  "docsHash": "sha256:54356079c0c83991dd0dddcce188b3376c938617524dcbe2b0244acb6d87b0cc"
 }
 ```
 
@@ -85164,6 +85811,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -85171,7 +85823,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -85482,7 +86135,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:d52c80fe64acb242a9386f8a716fc7e5bb314bd47e2c43710b852bfa0f48b71c"
+  "docsHash": "sha256:f71fc72b3929b8c202b15c0ce34f4c30f50a3342ac207711ebc2c3348aadefc5"
 }
 ```
 
@@ -85750,6 +86403,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -85757,7 +86415,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -86026,7 +86685,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:b2633babdca8fddafa779374623d68aaa2a1ffbd0e18e6e64ff65727efbf3a35"
+  "docsHash": "sha256:7360b70a15b45eef183b5d310b2b4be6a3c37bdf84d3012c0793abca859ead34"
 }
 ```
 
@@ -86294,6 +86953,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -86301,7 +86965,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -86519,7 +87184,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:e8687742f2ff7358281d810f37ff7167f77ff04cadf73bb59a94b6bca44c11ad"
+  "docsHash": "sha256:bc404b9346b1b53a0a9194b94a5311cb36365b28e8c5297e86e7bf6af1c23809"
 }
 ```
 
@@ -86787,6 +87452,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -86794,7 +87464,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -87108,7 +87779,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:719b0640911abb0725a7137e3f063b5f09f5dff27656c5a439d54fb37b6f7253"
+  "docsHash": "sha256:5aece785dc13e36300dcc0fb0ed402605c2c98940891e52c386c8ecc84568efe"
 }
 ```
 
@@ -87376,6 +88047,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -87383,7 +88059,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -87682,7 +88359,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:9c1b6aa328fd06b0463545072f186511bd7b5be0e25b9d16890d631591a3bb08"
+  "docsHash": "sha256:2c7acc5362c2effc7f5513464c595f8bfdb734cd31354b6803305e1aa2ba2301"
 }
 ```
 
@@ -87950,6 +88627,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -87957,7 +88639,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -88205,7 +88888,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:dd2a68ad5328b043ad6860f6a0d5d72b7b58015e9160476c8ca61c2f377e258f"
+  "docsHash": "sha256:6d0f531008e0d147c54454d5c7e712170495c1b830e6f6c04dbccbc8a2ec7e42"
 }
 ```
 
@@ -88473,6 +89156,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -88480,7 +89168,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -88776,7 +89465,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:f5f138553d73a8107798db0751d10e8034fd6da7a11795c8e3b2fb8c76fc0f1a"
+  "docsHash": "sha256:56fe053cf3ebaad9f3cd15f08dc333f6fbaac17f93abe627be6b9bb50160905f"
 }
 ```
 
@@ -89044,6 +89733,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -89051,7 +89745,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -89359,7 +90054,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:057f42366b7368f3e61cb5944baa8e383f58c7444b61b68fc0ff61329663ad62"
+  "docsHash": "sha256:4fd1dc12b0c74c67328f9df1a33753bea3774285b3c41379af116f20ffc17a16"
 }
 ```
 
@@ -89627,6 +90322,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -89634,7 +90334,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -89948,7 +90649,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:0c8eaec07a926934da65cba1b688adc9b6aa43a1944fb99c03ebcb61240ff994"
+  "docsHash": "sha256:f43c7100a126ba416d2ef69e11ba2cf59150722ffab42fdf90257f9db5c8fddd"
 }
 ```
 
@@ -90216,6 +90917,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -90223,7 +90929,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -90536,7 +91243,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:39136cef1cad109c72cb1879a672f0965e9fdd222070652dd73be979c96162fd"
+  "docsHash": "sha256:6c1efe106e74cad803413f7f2503684e40abee317e66b2ca3bd6bbfc6b481b95"
 }
 ```
 
@@ -90804,6 +91511,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -90811,7 +91523,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -91059,7 +91772,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:55d3c2faffae85ee4e3c1028035c51cafbe0af958ad71f30b20a0278d659ee03"
+  "docsHash": "sha256:8d06665a72d75cfe3be4c1bf152a03e4412005ebc07c3805263b556bfc742b05"
 }
 ```
 
@@ -91327,6 +92040,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -91334,7 +92052,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -91567,7 +92286,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:518b60145b2f47b0f6b4962bbdb16c9c49c6e178b6068ee03643bc59221d55eb"
+  "docsHash": "sha256:e4dbe0735a41ba26d6783be526cd448743f30a6cd746dfd24dc1c38e76ffe286"
 }
 ```
 
@@ -91835,6 +92554,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -91842,7 +92566,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -92090,7 +92815,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:c26b15efe8e640dbea90a6d7b45526ca000e055f6b0366f373093c872c2c27ac"
+  "docsHash": "sha256:aecfa1a2ed19ede9d1b832a53f68ec31d06b46ed4e30735c20eee587561c419a"
 }
 ```
 
@@ -92358,6 +93083,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -92365,7 +93095,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -92583,7 +93314,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3d25f4313776a48e28da2f0fc73fc1cef55c15cfe1e3b8cbfdd898beeef0086f"
+  "docsHash": "sha256:ac280134c35fc814301cdf3965acd698774a1b5d30c456e8d926e37844c0ebd6"
 }
 ```
 
@@ -92851,6 +93582,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -92858,7 +93594,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -93120,7 +93857,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:5f7ade9ae1b019829e5117015d191823a9b4ba42a099ff6fcc32cd9da6cd5d32"
+  "docsHash": "sha256:358fdee246ded1937b0d322009292b92cbe2725af1cfb0ccb4db50b7f44f0faf"
 }
 ```
 
@@ -93388,6 +94125,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -93395,7 +94137,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -93732,7 +94475,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:5e32ef849d83cda4e948163c2cf0f96a18c957b67135ddc70bda44018eee432d"
+  "docsHash": "sha256:b4753b56caf43a38413e780b2e3904730247b66af37106386a5eee9abe0a2909"
 }
 ```
 
@@ -94000,6 +94743,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -94007,7 +94755,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -94280,7 +95029,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:d02c41b69608a9ec7266ca3584082ee3a611dac9dd837029f5394b2be2b69e4c"
+  "docsHash": "sha256:84d642902079aab7332fef9063be1c3e12c26ef7d8541e0d5d320ed4656b4e86"
 }
 ```
 
@@ -94548,6 +95297,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -94555,7 +95309,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -94856,7 +95611,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:16023613c97010cb2bda124858d97ab906254dff45a0a8febb49e0eb43d3a0de"
+  "docsHash": "sha256:ca09bb49aa9e17bdb23882d1b100acf513008d71327434d90b966b963b3a657b"
 }
 ```
 
@@ -95124,6 +95879,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -95131,7 +95891,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -95384,7 +96145,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:dc5fc2a702ac9422e8b7b44de255dde66333e309694024fdb99e4f72ccaa9a7e"
+  "docsHash": "sha256:7a556b0f02758f79a1d6a30ba2e4e24bde69324ff6d845f18d4cfbb3e7d30a6f"
 }
 ```
 
@@ -95652,6 +96413,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -95659,7 +96425,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -96149,7 +96916,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:14f220ea6cc7842a4460eb5a2713298ed419f6259af43e500eeef18bf5f6fa10"
+  "docsHash": "sha256:94c9c325e0551f966ea602373d807ba23c22ddaa3844209e5c258bc401e8263c"
 }
 ```
 
@@ -96417,6 +97184,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -96424,7 +97196,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -96949,7 +97722,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:9a5c90012164455b8e73114194b30b8feff969d25e1ed4e86cc9fb8eb73a1454"
+  "docsHash": "sha256:80319bd0339a2454e089df878f78246301fbf2954c8f5303a8b824946625749e"
 }
 ```
 
@@ -97217,6 +97990,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -97224,7 +98002,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -97605,7 +98384,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:dd19bf90c83571158e595710f125bf1938809585c1c4954c7846774b433ab6bf"
+  "docsHash": "sha256:99d17ab484a8051ce2f173e62b5afcb87a49027ac5493190d08cf2a79733ab29"
 }
 ```
 
@@ -97873,6 +98652,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -97880,7 +98664,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -98339,7 +99124,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-installation",
-  "docsHash": "sha256:1bd61e1403c082d876c3e5b94c6464f6e6ea4fd95f47ae6d200813fb6af950ab"
+  "docsHash": "sha256:1680ab18cce81c88000f1f7ff3eb0522db7795bac1eb6589126c83669c9c0f5c"
 }
 ```
 
@@ -98607,6 +99392,11 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
       "queryGeometry",
       "measure",
       "files.export"
@@ -98614,7 +99404,8 @@ files.release: contextPolicy=none
     "synonyms": [
       "quickModel",
       "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)"
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
     ],
     "status": "experimental"
   },
@@ -98951,7 +99742,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-installation",
-  "docsHash": "sha256:36410b1303cac15a840a3d5d0c3ddd38521904e4455e243479876c8df1c548d8"
+  "docsHash": "sha256:7da60c8e2137224d803474f8777efde68c1dfd96b221adc3e2cf814725cbcf06"
 }
 ```
 

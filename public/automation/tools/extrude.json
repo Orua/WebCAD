@@ -149,6 +149,7 @@
   "synonyms": [
     "extrude",
     "Extrude a closed profile normal to the chosen plane",
+    "extrude operation",
     "拉伸"
   ],
   "description": "Extrude a closed profile normal to the chosen plane",
@@ -523,6 +524,8 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "sketchProfile",
+      "profileExtrude",
       "queryGeometry",
       "measure",
       "files.export"
@@ -530,7 +533,8 @@
     "synonyms": [
       "extrude",
       "Extrude a closed profile normal to the chosen plane",
-      "Extrude a closed profile normal to the chosen plane"
+      "Extrude a closed profile normal to the chosen plane",
+      "extrude operation"
     ],
     "status": "experimental"
   },
@@ -627,5 +631,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:734a6a2bb865f58da649c7cb46c78908b00e17e43fb37bfcc1e40586c6ec8abc"
+  "docsHash": "sha256:2634d87bb3f298a744f8e1f7e81a309c573160245286bd1b38a8bee7d0030e51"
 }
