@@ -65,13 +65,18 @@ export function createCommandService(adapter) {
   async function verifyNamedPlacement(placement,s,refs){const a=placement?.sourceAnchor;if(a?.kind!=='named')return;const anchor=s.referenceSystem?.bodyAnchors?.find(item=>item.anchorId===a.anchorId&&item.status==='valid');if(!anchor||!refs.includes(anchor.bodyId)||!s.bodies.some(body=>body.id===anchor.bodyId))fail('STALE_REFERENCE','args.placement.sourceAnchor','Named source anchor is not on the current source body');const current=await adapter.query({bodyId:anchor.bodyId,kind:'edge',filter:{}});if(current.geometryFingerprint!==anchor.geometryFingerprint)fail('STALE_REFERENCE','args.placement.sourceAnchor','Named source anchor geometry changed','QUERY_REFERENCES_AGAIN');}
   function getState(input={}){
     const requestId=uid();let s;
-    try{s=snapshot();object(input,['sessionId','include'],'input');string(input.sessionId,'sessionId');if(input.sessionId!==s.sessionId)fail('INSTANCE_MISMATCH','sessionId','Unknown current session');
-      const include=input.include??['summary','bodies','capabilities'];
-      if(!Array.isArray(include)||include.some(x=>!['summary','features','bodies','selection','capabilities','references'].includes(x)))fail('PARAM_SCHEMA_INVALID','include','Unknown state field');
-      const r={status:'read',context:contextOf(s),persistence:s.persistence,preview:{active:!!s.preview,computing:!!s.previewComputing}};
+    try{s=snapshot();object(input,['sessionId','include','compact'],'input');string(input.sessionId,'sessionId');if(input.sessionId!==s.sessionId)fail('INSTANCE_MISMATCH','sessionId','Unknown current session');
+      if(input.compact!==undefined&&typeof input.compact!=='boolean')fail('PARAM_SCHEMA_INVALID','compact','Expected boolean');
+      // compact=true: identity + summary + body id/name/kind only. Agents reuse requestContext for the next write.
+      const include=input.include??(input.compact?['summary','bodiesLite','selection']:['summary','bodies','capabilities']);
+      const allowed=['summary','features','bodies','bodiesLite','selection','capabilities','references'];
+      if(!Array.isArray(include)||include.some(x=>!allowed.includes(x)))fail('PARAM_SCHEMA_INVALID','include','Unknown state field');
+      const ctx=contextOf(s);
+      const r={status:'read',context:ctx,requestContext:{sessionId:ctx.sessionId,documentId:ctx.documentId,documentInstanceId:ctx.documentInstanceId,expectedRevision:ctx.revision},persistence:s.persistence,preview:{active:!!s.preview,computing:!!s.previewComputing}};
       if(include.includes('summary'))r.summary={name:s.documentName,featureCount:s.features.length,bodyCount:s.bodies.length,busy:s.busy,kernelReady:s.kernelReady,dirty:!!s.dirty};
       if(include.includes('features'))r.features=clone(s.features);
       if(include.includes('bodies'))r.bodies=clone(s.bodies);
+      if(include.includes('bodiesLite'))r.bodies=(s.bodies||[]).map(({id,name,kind,bounds})=>({id,...(name?{name}:{}),...(kind?{kind}:{}),...(bounds?{bounds:clone(bounds)}:{})}));
       if(include.includes('selection'))r.selection={bodyIds:clone(s.selectedIds),topology:clone(s.selectedTopology)};
       if(include.includes('references'))r.references=clone(s.referenceSystem);
       if(include.includes('capabilities'))r.capabilities={runtimeAvailability:s.kernelReady&&!s.busy&&!s.preview&&!s.previewComputing?'available':'not_ready',executeV2Operations:[...migratedOperationIds],geometryQuery:{faces:['plane'],edges:['line','circle'],loopRole:false,bounds:true,adjacentSurfaceTypes:true,boundaryLoopIndices:true,expectedCount:true},idempotencyGuarantee:'same document runtime instance; memory only; no cross-reload guarantee'};
@@ -191,13 +196,13 @@ export function createCommandService(adapter) {
       context(input.context,snapshot());available(snapshot(),allowPreview);revisionBefore=s.revision;
       await adapter.execute(command,args,{signal:options.signal,expectedRevision:s.revision});
       const after=snapshot();let result;
-      if(after.revision===revisionBefore)result={status:'no_change',requestId,context:contextOf(after),commitState:'not_committed'};
+      if(after.revision===revisionBefore){const afterCtx0=contextOf(after);result={status:'no_change',requestId,context:afterCtx0,requestContext:{sessionId:afterCtx0.sessionId,documentId:afterCtx0.documentId,documentInstanceId:afterCtx0.documentInstanceId,expectedRevision:afterCtx0.revision},commitState:'not_committed'};}
       else{
         const createdFeatureIds=after.features.filter(f=>!s.features.some(x=>x.id===f.id)).map(f=>f.id);
         const createdBodyIds=after.bodies.filter(b=>!s.bodies.some(x=>x.id===b.id)).map(b=>b.id);
         const removedIds=new Set(s.bodies.filter(b=>!after.bodies.some(x=>x.id===b.id)).map(b=>b.id));
         const replacements=after.features.filter(f=>createdFeatureIds.includes(f.id)&&createdBodyIds.includes(f.id)).flatMap(f=>(f.refs||[]).filter(id=>removedIds.has(id)).map(id=>({before:id,after:f.id})));
-        result={status:'committed',requestId,transactionId:uid(),documentId:after.documentId,documentInstanceId:after.documentInstanceId,revisionBefore,revisionAfter:after.revision,createdFeatureIds,createdBodyIds,replacements,validation:{geometry:'passed',...(args?.placement?{placement:'passed'}:{}),...(['hole','multiHole','multiPocket','faceHole'].includes(op)?{materialRemoved:true}:{}),...(op==='multiBoss'?{materialAdded:true}:{})},persistence:after.persistence,warnings:after.warnings??[]};
+        const afterCtx=contextOf(after);result={status:'committed',requestId,transactionId:uid(),documentId:after.documentId,documentInstanceId:after.documentInstanceId,revisionBefore,revisionAfter:after.revision,context:afterCtx,requestContext:{sessionId:afterCtx.sessionId,documentId:afterCtx.documentId,documentInstanceId:afterCtx.documentInstanceId,expectedRevision:after.revision},createdFeatureIds,createdBodyIds,replacements,validation:{geometry:'passed',...(args?.placement?{placement:'passed'}:{}),...(['hole','multiHole','multiPocket','faceHole'].includes(op)?{materialRemoved:true}:{}),...(op==='multiBoss'?{materialAdded:true}:{})},persistence:after.persistence,warnings:after.warnings??[]};
       }
       if(command==='editor_action')result.validation={geometry:result.status==='committed'&&['body.explode','body.align','history.restore','feature.compileServices'].includes(input.action)?'passed':'unchanged',editor:'passed'};
       if(command==='add_features')result.featurePlan={atomic:true,featureCount:args.features.length,featureIds:clone(args.featureIds)};

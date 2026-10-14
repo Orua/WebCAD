@@ -348,7 +348,14 @@ export class CADViewport {
     const key=JSON.stringify(stamp);if(forceFine||key!==this.lastFrameKey){this.renderer.render(this.scene,this.camera);this.lastFrameKey=key;this.cachedFrameReused=false;this.lastRenderedTriangles=this.renderer.info.render.triangles;}else this.cachedFrameReused=true;this.displayDetail.actualRenderedTriangles=this.lastRenderedTriangles;const position=this.anchorProxy.position.clone().project(this.camera),width=this.host.clientWidth,height=this.host.clientHeight;this.anchorMarker.style.transform=`translate(${(position.x+1)*width/2}px,${(1-position.y)*height/2}px)`;this.anchorMarker.hidden=!this.anchorVisible||position.z>1;this.renderedContext=this.modelContext?{...this.modelContext}:null;this.frameSequence++;this.displayError=null;}
   async frame(){await new Promise(resolve=>requestAnimationFrame(resolve));this.renderFrame();return this.displayState();}
   displayState(){return {model:this.modelContext||null,rendered:this.renderedContext||null,frame:this.frameSequence,status:this.displayError?'failed':this.renderedContext?'rendered':'pending',error:this.displayError||null,detail:this.displayDetail||null,cachedFrameReused:!!this.cachedFrameReused,camera:{projection:this.camera.isOrthographicCamera?'orthographic':'perspective',position:this.camera.position.toArray(),target:this.controls.target.toArray(),up:this.camera.up.toArray()}};}
-  screenshot(){this.renderFrame(true);return this.renderer.domElement.toDataURL('image/png');}
+  screenshot(opts={}){
+    this.renderFrame(true);
+    const canvas=this.renderer.domElement,format=opts.format==='webp'?'image/webp':'image/png',quality=opts.quality;
+    if(!opts.maxWidth||canvas.width<=opts.maxWidth)return {mime:format,dataUrl:canvas.toDataURL(format,quality)};
+    const scale=opts.maxWidth/canvas.width,w=Math.max(1,Math.round(canvas.width*scale)),h=Math.max(1,Math.round(canvas.height*scale));
+    const off=document.createElement('canvas');off.width=w;off.height=h;off.getContext('2d').drawImage(canvas,0,0,w,h);
+    return {mime:format,dataUrl:off.toDataURL(format,quality)};
+  }
   destroy(){this.disposeRectangleSelection?.();this.resizeObserver.disconnect();this.renderer.setAnimationLoop(null);this.controls.dispose();this.gizmo.dispose();for(const entry of this.objects.values())this.exactDisplayDetail.release(entry);this.disposeObject(this.scene);this.metals.dispose();this.renderer.dispose();}
 }
 

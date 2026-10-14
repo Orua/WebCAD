@@ -26,7 +26,7 @@ const contract={schemaVersion:1,adapterVersion:2,protocol:PROTOCOL,
   discoveryMethods:[...DISCOVERY_METHODS].sort(),editActions:[...EDIT_ACTIONS].sort(),
   editMethods:[...EDIT_METHODS].sort(),exportMethods:[...EXPORT_METHODS].sort(),
   // Hosts read timeouts and byte limits from here; WebCAD is their single source.
-  limits:{transport:{...LIMITS.transport}}};
+  limits:{transport:{...LIMITS.transport},batch:{...LIMITS.batch}}};
 export const AGENT_CONTRACT=Object.freeze({...contract,contractHash:contractHash(contract)});
 // A task may think/read for minutes; only a command that changes the document
 // needs exclusive manual editing control. Page revision guards remain active.
@@ -73,7 +73,7 @@ export function validatePayload(payload, binding, scopes) {
   const {method,args}=payload;
   if (!scopes.includes('cad.read')) throw failure('scope_denied','CAD read access required');
   if (method==='run') {
-    if (Object.keys(args).sort().join(',')!=='context,idempotencyKey,steps' || typeof args.idempotencyKey!=='string' || !args.idempotencyKey.length || args.idempotencyKey.length>80 || !Array.isArray(args.steps) || !args.steps.length || args.steps.length>20) throw failure('PARAM_SCHEMA_INVALID','Bounded native run required');
+    if (Object.keys(args).sort().join(',')!=='context,idempotencyKey,steps' || typeof args.idempotencyKey!=='string' || !args.idempotencyKey.length || args.idempotencyKey.length>80 || !Array.isArray(args.steps) || !args.steps.length || args.steps.length>LIMITS.batch.maxSteps) throw failure('PARAM_SCHEMA_INVALID',`A run requires 1..${LIMITS.batch.maxSteps} steps`);
     const ids=new Set();
     for(const step of args.steps) {
       if (!plain(step) || !['args,id,method','args,id,method,stage'].includes(Object.keys(step).sort().join(',')) || (step.stage!==undefined&&(typeof step.stage!=='string'||!step.stage.trim()||step.stage.length>80)) || typeof step.id!=='string' || !step.id.length || ids.has(step.id) || step.method==='run') throw failure('PARAM_SCHEMA_INVALID','Unique bounded steps required');

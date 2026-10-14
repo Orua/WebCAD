@@ -108,7 +108,7 @@ export function createPageAPI(host){
         bodies:(s.bodies||[]).slice(0,20).map(({id,name,kind})=>({id,...(name?{name}:{}),...(kind?{kind}:{})})),
         bodyCount:(s.bodies||[]).length,bodiesTruncated:(s.bodies||[]).length>20,
         cache:{catalogChanged:input.knownCatalogHash!==metadata.catalogHash,docsChanged:input.knownDocsHash!==metadata.docsHash},
-        limits:{transport:{...LIMITS.transport}},results};
+        limits:{transport:{...LIMITS.transport},batch:{...LIMITS.batch}},results};
       if((input.includeContracts||toolIds.length)&&ids.length){
         const contracts=getTools({ids:ids.slice(0,20),knownHashes:input.knownHashes});
         const omissions=ids.slice(20).map(id=>({id,reason:'ITEM_LIMIT'}));let automaticChars=0;
@@ -135,7 +135,18 @@ export function createPageAPI(host){
       if(typeof host.recoverKernel!=='function')fail('CAPABILITY_UNAVAILABLE','This host cannot recover the kernel');
       return host.recoverKernel({stopRunning});
     }),
-    getState:(input={})=>{const state=host.state(input);return {...state,requestContext:requestContext(state.context),display:host.display()};},
+    getState:(input={})=>{
+      if(input&&typeof input==='object'&&!Array.isArray(input)){
+        const keys=Object.keys(input);
+        if(keys.some(k=>!['include','compact'].includes(k)))fail('PARAM_SCHEMA_INVALID','getState accepts include and compact only');
+        if(input.compact!==undefined&&typeof input.compact!=='boolean')fail('PARAM_SCHEMA_INVALID','compact must be boolean');
+        if(input.include!==undefined&&(!Array.isArray(input.include)||input.include.some(x=>!['summary','features','bodies','bodiesLite','selection','capabilities','references'].includes(x))))fail('PARAM_SCHEMA_INVALID','Unknown include field');
+      }else if(input&&(typeof input!=='object'||Array.isArray(input)))fail('PARAM_SCHEMA_INVALID','getState takes an object');
+      const state=host.state(input||{});
+      const req=state.requestContext||requestContext(state.context);
+      // compact omits the heavy display descriptor (agents only need it for capture/redraw).
+      return input?.compact?{...state,requestContext:req}:{...state,requestContext:req,display:host.display()};
+    },
     getQuickModelUsage:guarded(input=>{if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).length)fail('PARAM_SCHEMA_INVALID','getQuickModelUsage takes no fields');return {status:'read',...structuredClone(host.quickModelUsage()),context:current().context};}),
     getUILayout:(input={})=>{if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(key=>key!=='includeModelLibrary')||input.includeModelLibrary!==undefined&&typeof input.includeModelLibrary!=='boolean')fail('PARAM_SCHEMA_INVALID','getUILayout takes includeModelLibrary:boolean only');return {...structuredClone(UI_LAYOUT),current:structuredClone(current().view.workspaceLayout),...(input.includeModelLibrary?{modelLibrary:{status:'read',...modelLibrary.contracts(),context:current().context}}:{})};},
     getModelLibrary:guarded(input=>{if(!input||Object.keys(input).length)fail('PARAM_SCHEMA_INVALID','getModelLibrary takes no fields');return {status:'read',...modelLibrary.contracts(),context:current().context};}),
@@ -411,11 +422,19 @@ export function createPageAPI(host){
     convertLogoPdf:guarded(async input=>{check(input,['context','name','data','targetWidthMm','page','sizeConfirmed','allowUpload']);if(typeof input.name!=='string'||!input.name.toLowerCase().endsWith('.pdf')||!(input.data instanceof Uint8Array||input.data instanceof ArrayBuffer||input.data instanceof Blob))fail('PARAM_SCHEMA_INVALID','Provide PDF bytes and filename');const file=new File([input.data],input.name,{type:'application/pdf'});const logo=await readBrowserLogo(file,x=>x,{targetWidthMm:input.targetWidthMm,page:input.page,sizeConfirmed:input.sizeConfirmed,allowUpload:input.allowUpload});return {status:'read',context:current().context,logo};}),
     redraw:guarded(async input=>{check(input,['context']);await host.redraw();check(input,['context']);return {status:'read',context:current().context,display:host.display()};}),
     capture:guarded(async input=>{
-      check(input,['context']);await host.frame();check(input,['context']);
+      check(input,['context','maxWidth','format','quality']);
+      const format=input.format??'png';
+      if(!['png','webp'].includes(format))fail('PARAM_SCHEMA_INVALID','format must be png or webp');
+      if(input.maxWidth!==undefined&&(!Number.isInteger(input.maxWidth)||input.maxWidth<64||input.maxWidth>4096))fail('PARAM_RANGE_INVALID','maxWidth must be 64..4096');
+      if(input.quality!==undefined&&!(typeof input.quality==='number'&&input.quality>0&&input.quality<=1))fail('PARAM_RANGE_INVALID','quality must be 0..1');
+      await host.frame();check(input,['context','maxWidth','format','quality']);
       const display=host.display(),state=current();
       if(display.status!=='rendered'||['documentId','documentInstanceId','revision'].some(k=>display.rendered?.[k]!==state.context[k]))fail('DISPLAY_FAILED','Rendered frame does not match the committed model; call redraw');
-      const dataUrl=host.capture();
-      return {status:'read',mime:'image/png',dataUrl,context:current().context,display:host.display()};
+      const shot=host.capture({maxWidth:input.maxWidth,format,quality:input.quality??(format==='webp'?0.8:undefined)});
+      const dataUrl=typeof shot==='string'?shot:shot.dataUrl;
+      const mime=typeof shot==='string'?'image/png':shot.mime;
+      return {status:'read',mime,dataUrl,context:current().context,requestContext:requestContext(current().context),display:host.display(),
+        ...(input.maxWidth?{maxWidth:input.maxWidth}:{}),format};
     }),files:Object.freeze(files),
   };
   const run=createPageBatch(api,{display:host.displayBatch});
