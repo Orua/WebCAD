@@ -1,3 +1,4 @@
+import {LIMITS} from '../../limits.js';
 // A rational circular base with radial height controls. A declared base layer
 // keeps zero-valued image areas off the coincident analytic cylinder surface.
 import {validateLocalPatch} from '../../relief-local-patch.js';
@@ -78,14 +79,14 @@ export function straightShoulderCutter(frame,{start,end,lowHeightMm,highHeightMm
 export function cylindricalReliefTool(face,p,oc,cad,{sculptFlat=false,startHeightMm=0}={}){
  if(face.geomType!=='CYLINDRE')fail('RELIEF_UNSUPPORTED','浮雕目前支持平面和外凸圆柱面');
  if(!Array.isArray(p.point)||p.point.length!==3||p.point.some(v=>!Number.isFinite(v)))fail('RELIEF_UNSUPPORTED','柱面浮雕需要在目标面点击放置点');
- if(!(p.baseMm>=.005&&p.baseMm<=1))fail('RELIEF_LIMIT','柱面需要明确的 0.005–1 mm 基底层厚度');
+ if(!(p.baseMm>=LIMITS.cylindricalRelief.minBaseMm&&p.baseMm<=LIMITS.cylindricalRelief.maxBaseMm))fail('RELIEF_LIMIT','柱面需要明确的 0.005–1 mm 基底层厚度');
  if((p.angleDeg??0)!==0)fail('RELIEF_UNSUPPORTED','柱面浮雕暂不支持图案旋转，请设为 0°');
  const owned=[],hold=x=>(owned.push(x),x);let tool;
  try{
   const adapter=hold(new oc.BRepAdaptor_Surface(face.wrapped,true)),cylinder=hold(adapter.Cylinder()),axes=hold(cylinder.Position());
   const tuple=point=>{try{return [point.X(),point.Y(),point.Z()];}finally{dispose(point);}};
   const radius=cylinder.Radius(),origin=tuple(axes.Location()),x=tuple(axes.XDirection()),y=tuple(axes.YDirection()),z=tuple(axes.Direction());
-  if(radius<1||radius>10000||p.widthMm/radius>Math.PI/2||p.depthMm+p.baseMm>radius*.2)fail('RELIEF_LIMIT','柱面半径须为 1–10000 mm，图案角宽≤90°，总起伏≤半径的20%');
+  if(radius<LIMITS.cylindricalRelief.minRadiusMm||radius>LIMITS.cylindricalRelief.maxRadiusMm||p.widthMm/radius>LIMITS.cylindricalRelief.maxAngleRad||p.depthMm+p.baseMm>radius*LIMITS.cylindricalRelief.maxHeightRadiusFraction)fail('RELIEF_LIMIT','柱面半径须为 1–10000 mm，图案角宽≤90°，总起伏≤半径的20%');
   const anchor=hold(cad.makeVertex(p.point)),query=hold(new cad.DistanceQuery(face));
   if(query.distanceTo(anchor)>.1)fail('RELIEF_OUTSIDE_FACE','放置点不在目标柱面内（允许0.1 mm显示网格吸附）');
   const snapped=tuple(query.wrapped.PointOnShape1(1)),local=snapped.map((v,i)=>v-origin[i]),theta=Math.atan2(dot(local,y),dot(local,x))+(p.offsetX??0)/radius,heightCenter=dot(local,z)+(p.offsetY??0);
@@ -109,7 +110,7 @@ export function cylindricalReliefTool(face,p,oc,cad,{sculptFlat=false,startHeigh
    if(solids.length!==1)fail('RELIEF_INVALID','等高柱面层未形成单个刀具体');
    let patched=solids[0].clone();
    if(p.localPatches){
-    try{for(const patch of p.localPatches){validateLocalPatch(patch,p);if(Math.min(...patch.deltaMm.flat())+p.depthMm<startHeightMm||Math.max(...patch.deltaMm.flat())+h>20||h+Math.max(...patch.deltaMm.flat())>radius*.2)fail('RELIEF_PATCH_INVALID','局部精修高度越过本层起点或柱面起伏限制');protectedPatch(p,patch,radius,h);const zero=patch.deltaMm.map(row=>row.map(()=>0)),carve=hold(localPatchSolid(radius,patch.domainMm,h+.001,startHeightMm-.002,zero,center,radial,z,tangent,oc,cad)),replacement=hold(localPatchSolid(radius,patch.domainMm,h,startHeightMm-.001,patch.deltaMm,center,radial,z,tangent,oc,cad)),cleared=hold(patched.cut(carve)),next=cleared.fuse(replacement);dispose(patched);patched=next;}}
+    try{for(const patch of p.localPatches){validateLocalPatch(patch,p);if(Math.min(...patch.deltaMm.flat())+p.depthMm<startHeightMm||Math.max(...patch.deltaMm.flat())+h>20||h+Math.max(...patch.deltaMm.flat())>radius*LIMITS.cylindricalRelief.maxHeightRadiusFraction)fail('RELIEF_PATCH_INVALID','局部精修高度越过本层起点或柱面起伏限制');protectedPatch(p,patch,radius,h);const zero=patch.deltaMm.map(row=>row.map(()=>0)),carve=hold(localPatchSolid(radius,patch.domainMm,h+.001,startHeightMm-.002,zero,center,radial,z,tangent,oc,cad)),replacement=hold(localPatchSolid(radius,patch.domainMm,h,startHeightMm-.001,patch.deltaMm,center,radial,z,tangent,oc,cad)),cleared=hold(patched.cut(carve)),next=cleared.fuse(replacement);dispose(patched);patched=next;}}
     catch(error){dispose(patched);throw error;}
    }
    return{tool:patched,frame,report:{...report,kind:p.localPatches?'cylindrical-local-patch-relief':'cylindrical-analytic-relief',...(p.localPatches?{localPatches:p.localPatches.map(patch=>({id:patch.id,domainMm:patch.domainMm,protectionMm:patch.protectionMm,rows:patch.deltaMm.length,columns:patch.deltaMm[0].length,boundary:'two zero control rows; exact original circular boundary and tangent'}))}:{})}};

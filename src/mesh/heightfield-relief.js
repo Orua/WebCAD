@@ -5,14 +5,15 @@ import {meshError} from './mesh-contract.js';
 import {legacyReliefParams} from '../relief-param-migration.js';
 import {MESH_LIMITS} from './mesh-contract.js';
 const positive={type:'number',exclusiveMinimum:0};
-export const HEIGHTFIELD_LIMITS=Object.freeze({minSide:2,maxSide:2049,maxSamples:1900000,maxSmoothing:8,maxHeightMm:100,maxStrokes:512,maxStrokePoints:20000});
+import {LIMITS} from '../limits.js';
+export const HEIGHTFIELD_LIMITS=LIMITS.heightfield;
 export const SCULPT_MODES=Object.freeze(['raise','lower','smooth','flatten']);
 export const heightfieldReliefExample={version:1,widthMm:20,depthMm:20,baseMm:1,heightMm:1.5,columns:3,rows:3,heights:{encoding:'u8',data:'AAAAAP8AAAAA'},invert:false,gamma:1,smoothing:0,edgeFadeMm:0};
 export const heightfieldReliefOperation={description:'高度图浮雕 / Heightfield relief',refs:0,paramsSchema:{type:'object',additionalProperties:false,required:['version','widthMm','depthMm','baseMm','heightMm','columns','rows','heights'],properties:{
  version:{type:'integer',const:1},widthMm:positive,depthMm:positive,baseMm:positive,heightMm:{type:'number',exclusiveMinimum:0,maximum:HEIGHTFIELD_LIMITS.maxHeightMm},
  columns:{type:'integer',minimum:HEIGHTFIELD_LIMITS.minSide,maximum:HEIGHTFIELD_LIMITS.maxSide},rows:{type:'integer',minimum:HEIGHTFIELD_LIMITS.minSide,maximum:HEIGHTFIELD_LIMITS.maxSide},
  heights:{type:'object',additionalProperties:false,required:['encoding'],properties:{encoding:{type:'string',enum:['u8','u16le']},data:{type:'string',maxLength:8*1024*1024},importKey:{type:'string',minLength:1,maxLength:64}}},
- sculpt:{type:'array',maxItems:512,items:{type:'object',additionalProperties:false,required:['mode','radiusMm','strength','points'],properties:{mode:{type:'string',enum:['raise','lower','smooth','flatten']},radiusMm:positive,strength:{type:'number',minimum:0,maximum:10},targetMm:{type:'number'},points:{type:'array',maxItems:20000,items:{type:'number'}}}}},
+ sculpt:{type:'array',maxItems:HEIGHTFIELD_LIMITS.maxStrokes,items:{type:'object',additionalProperties:false,required:['mode','radiusMm','strength','points'],properties:{mode:{type:'string',enum:['raise','lower','smooth','flatten']},radiusMm:positive,strength:{type:'number',minimum:0,maximum:10},targetMm:{type:'number'},points:{type:'array',maxItems:HEIGHTFIELD_LIMITS.maxStrokePoints,items:{type:'number'}}}}},
  invert:{type:'boolean'},gamma:{type:'number',minimum:.2,maximum:5},smoothing:{type:'integer',minimum:0,maximum:HEIGHTFIELD_LIMITS.maxSmoothing},edgeFadeMm:{type:'number',minimum:0}}},
  notes:'Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. heights is inline base64 data or importKey of a binary project asset (format heightmap). sculpt: ordered brush strokes {mode raise|lower (strength mm per dab)|smooth|flatten (strength 0–1, flatten to targetMm), radiusMm, points [x,y,...] mm in relief-local XY} replayed deterministically after gamma/fade. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles).'};
 function decodeHeights({encoding,data},count,assetBytes){

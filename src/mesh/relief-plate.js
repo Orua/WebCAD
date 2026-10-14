@@ -1,3 +1,4 @@
+import {LIMITS} from '../limits.js';
 import {meshError} from './mesh-contract.js';
 import {legacyReliefParams} from '../relief-param-migration.js';
 const point2={type:'array',items:{type:'number'},minItems:2,maxItems:2};
@@ -8,7 +9,7 @@ export function makeReliefPlate(p){
  p=legacyReliefParams('meshReliefPlate',p);
  if(p.version!==1||['widthMm','depthMm','thicknessMm','spacingMm'].some(k=>!Number.isFinite(p[k])||p[k]<=0)||!Array.isArray(p.bumps)||p.bumps.length>64)throw meshError('RELIEF_PLATE_INVALID','Explicit positive plate dimensions, spacing and version 1 required.');
  const nx=Math.ceil(p.widthMm/p.spacingMm),ny=Math.ceil(p.depthMm/p.spacingMm);
- if(nx<1||ny<1||nx*ny*4+4*(nx+ny)>200000)throw meshError('RELIEF_EDIT_CAPACITY','Plate resolution exceeds 200000 triangles.');
+ if(nx<1||ny<1||nx*ny*4+4*(nx+ny)>LIMITS.meshReliefPlate.maxTriangles)throw meshError('RELIEF_EDIT_CAPACITY','Plate resolution exceeds 200000 triangles.');
  for(const b of p.bumps)if(!Array.isArray(b.centerMm)||b.centerMm.length!==2||!b.centerMm.every(Number.isFinite)||!Number.isFinite(b.heightMm)||!Number.isFinite(b.plateauRadiusMm)||b.plateauRadiusMm<0||!Number.isFinite(b.outerRadiusMm)||b.outerRadiusMm<=b.plateauRadiusMm||Math.abs(b.centerMm[0])+b.outerRadiusMm>p.widthMm/2||Math.abs(b.centerMm[1])+b.outerRadiusMm>p.depthMm/2)throw meshError('RELIEF_PLATE_INVALID','Radial profiles require a finite center, outer radius above plateau radius, and room inside the plate.');
  const row=nx+1,count=row*(ny+1),positions=new Float64Array(count*6),indices=[];
  for(let j=0;j<=ny;j++)for(let i=0;i<=nx;i++){const x=-p.widthMm/2+p.widthMm*i/nx,y=-p.depthMm/2+p.depthMm*j/ny;let z=0;

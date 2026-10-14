@@ -1,3 +1,4 @@
+import {LIMITS} from '../limits.js';
 import {checkedMesh,meshError} from './mesh-contract.js';
 import {binaryHash} from '../contracts/operation-schema.js';
 import {encodeMesh} from './mesh-codec.js';
@@ -24,7 +25,7 @@ function clippedSegment(a,b,triangle){
  return [lo,(lo+hi)/2,hi].map(t=>a.map((v,k)=>v+t*(b[k]-v)));
 }
 export const meshGeometryHash=mesh=>binaryHash(encodeMesh(mesh));
-export const RELIEF_EDIT_LIMITS=Object.freeze({maxTriangles:200000,maxAffectedVertices:20000,maxRayTests:12000000});
+export const RELIEF_EDIT_LIMITS=LIMITS.meshReliefEdit;
 
 // Selection is resolved from physical support coordinates and an on-surface seed.
 // Coordinate welding is an adjacency view only: source buffers/order stay intact.

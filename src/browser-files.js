@@ -1,3 +1,4 @@
+import {LIMITS} from './limits.js';
 // Browser-only transfer boundary for the existing document file commands.
 // File handles are selected by the UI before calling write; this module never opens a picker.
 import {fileByteBudget,FILE_LIMITS,FILE_TYPED_BYTE_BUDGETS} from './browser-file-contracts.js';
@@ -141,7 +142,7 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
 
   return Object.freeze({
     generated:input=>add({...input,kind:"output"}),
-    capabilities() { return Object.freeze({ maxBytes: MAX_BYTES, maxResources: MAX_RESOURCES,
+    capabilities() { return Object.freeze({ limits:LIMITS, maxBytes: MAX_BYTES, maxResources: MAX_RESOURCES,
       maxTotalBytes: MAX_TOTAL_BYTES, ttlSeconds: TTL_MS / 1000,
       imports: ['step', 'stp', 'brep', 'brp','stl','mesh'], typedByteBudgets:FILE_TYPED_BYTE_BUDGETS, meshUnits:['mm','cm','m','in'],meshCodec:'webcad-mesh-f64-u32-v1', exports: ['step', 'stl', 'brep', 'png'],
       native: 'webcad', iges: 'unavailable_in_static_browser', transport: 'in-page' }); },

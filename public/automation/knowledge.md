@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.47.0 · sha256:641b4b426f7dabe8143732e8348321acfb1baf889beecfcd5b6116b67dbb3777
+API 1.47.0 · sha256:6b4e16cded1b4010f3b958a2bdb08413fc1a31c7ba1470fec793eba6a6439f77
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -35312,6 +35312,18 @@ files.release: contextPolicy=none
       "value": 200000,
       "unit": "count",
       "source": "src/limits.js#meshReliefEdit.maxTriangles"
+    },
+    {
+      "name": "maxAffectedVertices",
+      "value": 20000,
+      "unit": "count",
+      "source": "src/limits.js#meshReliefEdit.maxAffectedVertices"
+    },
+    {
+      "name": "maxRayTests",
+      "value": 12000000,
+      "unit": "count",
+      "source": "src/limits.js#meshReliefEdit.maxRayTests"
     }
   ],
   "knownUnsupportedCases": [
@@ -35684,6 +35696,18 @@ files.release: contextPolicy=none
         "value": 200000,
         "unit": "count",
         "source": "src/limits.js#meshReliefEdit.maxTriangles"
+      },
+      {
+        "name": "maxAffectedVertices",
+        "value": 20000,
+        "unit": "count",
+        "source": "src/limits.js#meshReliefEdit.maxAffectedVertices"
+      },
+      {
+        "name": "maxRayTests",
+        "value": 12000000,
+        "unit": "count",
+        "source": "src/limits.js#meshReliefEdit.maxRayTests"
       }
     ],
     "outputs": {
@@ -36236,7 +36260,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:50f4c96bb19330e0c8bf5eeffb6633221135c8c6d2cc196d69d0cd1b2ac2d170"
+  "docsHash": "sha256:9dd50e20da8b4f96f1473831f908d6a7c5be0a7c9ee8e5db8fc676b222c1f170"
 }
 ```
 
