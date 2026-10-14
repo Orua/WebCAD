@@ -23,5 +23,4 @@ export function makeReliefPlate(p){
 }
 
 import {sourceOperationContract as declaredSourceContract} from '../operation-contracts.js';
-import {canonicalReliefSchema as declaredSchema,migrateReliefParams as declaredParams} from '../relief-param-migration.js';
-Object.defineProperty(reliefPlateOperation,'contract',{get(){const source=reliefPlateOperation;return declaredSourceContract('meshReliefPlate',{description:source.description,refs:source.refs,notes:source.notes,paramsSchema:declaredSchema('meshReliefPlate',source.paramsSchema)},{exampleParams:declaredParams('meshReliefPlate',reliefPlateExample)});}});
+Object.defineProperty(reliefPlateOperation,'contract',{get(){const source=reliefPlateOperation;return declaredSourceContract('meshReliefPlate',{description:source.description,refs:source.refs,notes:source.notes,paramsSchema:source.paramsSchema},{exampleParams:reliefPlateExample});}});

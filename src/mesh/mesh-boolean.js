@@ -30,5 +30,4 @@ export async function meshBoolean(meshes,operation){
 }
 
 import {sourceOperationContract as declaredSourceContract} from '../operation-contracts.js';
-import {canonicalReliefSchema as declaredSchema,migrateReliefParams as declaredParams} from '../relief-param-migration.js';
-Object.defineProperty(meshBooleanOperation,'contract',{get(){const source=meshBooleanOperation;return declaredSourceContract('meshBoolean',{description:source.description,refs:source.refs,notes:source.notes,paramsSchema:declaredSchema('meshBoolean',source.paramsSchema)},{exampleParams:declaredParams('meshBoolean',meshBooleanExample)});}});
+Object.defineProperty(meshBooleanOperation,'contract',{get(){const source=meshBooleanOperation;return declaredSourceContract('meshBoolean',{description:source.description,refs:source.refs,notes:source.notes,paramsSchema:source.paramsSchema},{exampleParams:meshBooleanExample});}});

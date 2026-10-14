@@ -37,5 +37,4 @@ export const reliefFields=[['widthMm','图案宽 mm',20,'positive'],['heightMm',
 
 
 import {sourceOperationContract as declaredSourceContract} from '../../operation-contracts.js';
-import {canonicalReliefSchema as declaredSchema,migrateReliefParams as declaredParams} from '../../relief-param-migration.js';
-Object.defineProperty(reliefOperations.relief,'contract',{get(){const source=reliefOperations.relief;return declaredSourceContract('relief',{description:source.description,refs:source.refs,notes:source.notes,paramsSchema:declaredSchema('relief',source.paramsSchema)},{exampleParams:declaredParams('relief',reliefExample)});}});
+Object.defineProperty(reliefOperations.relief,'contract',{get(){const source=reliefOperations.relief;return declaredSourceContract('relief',{description:source.description,refs:source.refs,notes:source.notes,paramsSchema:source.paramsSchema},{exampleParams:reliefExample});}});

@@ -95,5 +95,4 @@ export function applySculpt(h,p){
 }
 
 import {sourceOperationContract as declaredSourceContract} from '../operation-contracts.js';
-import {canonicalReliefSchema as declaredSchema,migrateReliefParams as declaredParams} from '../relief-param-migration.js';
-Object.defineProperty(heightfieldReliefOperation,'contract',{get(){const source=heightfieldReliefOperation;return declaredSourceContract('meshHeightfieldRelief',{description:source.description,refs:source.refs,notes:source.notes,paramsSchema:declaredSchema('meshHeightfieldRelief',source.paramsSchema)},{exampleParams:declaredParams('meshHeightfieldRelief',heightfieldReliefExample)});}});
+Object.defineProperty(heightfieldReliefOperation,'contract',{get(){const source=heightfieldReliefOperation;return declaredSourceContract('meshHeightfieldRelief',{description:source.description,refs:source.refs,notes:source.notes,paramsSchema:source.paramsSchema},{exampleParams:heightfieldReliefExample});}});
