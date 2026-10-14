@@ -36,7 +36,7 @@ test('partial receipts identify committed, failed and remaining steps without re
   assert.equal(r.recovery.action,'READ_STATE_AND_REPLAN_REMAINING');
   const count=f.count;assert.deepEqual(await f.run(req),r);assert.equal(f.count,count);
 });
-function fixture(){
+function fixture(display){
   let revision=0,count=0;
   const context=()=>({sessionId:'s',documentId:'d',documentInstanceId:'i',revision});
   const api={getState:()=>({context:context(),summary:{kernelReady:true,busy:false},preview:{active:false,computing:false}}),
@@ -44,7 +44,7 @@ function fixture(){
     execute:async req=>{assert.equal(req.context.expectedRevision,revision);count++;if(req.args.params?.bad)return {status:'failed',error:{code:'GEOMETRY_INVALID',message:'bad shape'}};revision++;return {status:'committed',revisionAfter:revision,createdBodyIds:[`b${revision}`]};},
     measure:async req=>({status:'read',bodyId:req.bodyId,context:context(),volume:42}),
     files:{export:async req=>({status:'generated',context:context(),ids:req.ids,resourceId:'artifact'})}};
-  const run=createPageBatch(api);
+  const run=createPageBatch(api,display?{display}:undefined);
   const request=()=>({context:{sessionId:'s',documentId:'d',documentInstanceId:'i',expectedRevision:revision},idempotencyKey:'test',steps:[
     {id:'ring',method:'add',args:{op:'torus',params:{majorRadius:15,minorRadius:2.5}}},
     {id:'size',method:'measure',args:{bodyId:{$ref:'ring.createdBodyIds.0'}}},
@@ -117,4 +117,12 @@ test('preview control batches remain blocked while the worker or preview compute
     const req=f.request(set,[previewStep('commit','preview.commit',{previewId:'p',expectedGeneration:1})]);
     assert.equal((await f.run(req)).error.code,'CAPABILITY_UNAVAILABLE');assert.equal(f.count,0);
   }
+});
+
+test('a batch defers display to one flush, flushing before view/export steps and on failure',async()=>{
+  const log=[];const display={begin:()=>log.push('begin'),end:()=>log.push('end'),flush:()=>log.push('flush')};
+  const f=fixture(display);const ok=await f.run(f.request());
+  assert.equal(ok.status,'completed');assert.deepEqual(log,['begin','flush','end']);
+  log.length=0;const req=f.request();req.idempotencyKey='fail';req.steps=[{id:'bad',method:'add',args:{op:'box',params:{bad:true}}}];
+  const bad=await f.run(req);assert.equal(bad.status,'failed');assert.deepEqual(log,['begin','end']);
 });
