@@ -122,7 +122,7 @@
     "起伏点",
     "relief plate",
     "meshReliefPlate",
-    "浮雕网格底板"
+    "网格底板（起伏点）"
   ],
   "description": "浮雕网格底板 / Relief mesh plate",
   "schemaHash": "sha256:0723842e7b12fb6286b91925dd28111159db33e4eff902310e63bee826627cca",
@@ -608,7 +608,7 @@
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
-  "label": "浮雕网格底板",
+  "label": "网格底板（起伏点）",
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -630,5 +630,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:1d8edcbb2b2e2e2a487c4e5705d3761650074d32dd08379ca72912109fd400b1"
+  "docsHash": "sha256:bf7631218abcb8c37f8420f5ea7785f1d626bd1197ac157e07a859741c10bff2"
 }

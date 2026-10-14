@@ -1,9 +1,9 @@
 {
   "version": "1.47.0",
-  "buildId": "e8951d893196113d0eec3378d5b68323100686c6-src-ee536f45284f8fa1-working",
+  "buildId": "a1905f96ea8692c5e9bec90feabbb22281d4e179-src-feaf44d8f932dc44-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:fab3903c5443d08258148a138ab18ff2b5dada37bbe7fd3c468a9b0f90e30724",
-  "docsHash": "sha256:b78b089ca41fb5e82b7e34a40d9e8c9f4b7ff01f07fc2817b4a66025728e4be4",
+  "catalogHash": "sha256:f0f0cd1ae6f0227ae38c49b7792950c7663ac0033977156f00954a472fe1db56",
+  "docsHash": "sha256:8966bfea8562250756bb99245b8eddd73277ba06676287e3ee1db738280b960d",
   "apiMethods": [
     "recoverKernel",
     "sampleMeshRelief",
@@ -390,19 +390,19 @@
     {
       "id": "meshBoolean",
       "title": "网格布尔合并 / Mesh boolean",
-      "label": "网格布尔合并",
+      "label": "网格布尔（STL）",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:b33bd954b5f85056c9fe173c1fb758fa2e8fa449a43edb36352c93b775d3f990",
+      "docsHash": "sha256:ff00995c0c3ceeea30db79f04c09499170a5ef09607fef288eecdaffb78fe660",
       "url": "tools/meshBoolean.json"
     },
     {
       "id": "meshHeightfieldRelief",
       "title": "高度图浮雕 / Heightfield relief",
-      "label": "高度图浮雕",
+      "label": "高度图浮雕（网格）",
       "category": "creation",
       "version": "2.0.0",
-      "docsHash": "sha256:36e7294d3399d3ee7531072ee6713d6413564cd7075cfeed02ee0e01de715982",
+      "docsHash": "sha256:3f750151ad7a27ce2b349996df011d1b1aa35b020963f65677b5992740184b27",
       "url": "tools/meshHeightfieldRelief.json"
     },
     {
@@ -417,10 +417,10 @@
     {
       "id": "meshReliefPlate",
       "title": "浮雕网格底板 / Relief mesh plate",
-      "label": "浮雕网格底板",
+      "label": "网格底板（起伏点）",
       "category": "creation",
       "version": "2.0.0",
-      "docsHash": "sha256:1d8edcbb2b2e2e2a487c4e5705d3761650074d32dd08379ca72912109fd400b1",
+      "docsHash": "sha256:bf7631218abcb8c37f8420f5ea7785f1d626bd1197ac157e07a859741c10bff2",
       "url": "tools/meshReliefPlate.json"
     },
     {
@@ -597,10 +597,10 @@
     {
       "id": "relief",
       "title": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
-      "label": "浮雕",
+      "label": "精确浮雕（矢量/小图）",
       "category": "modification",
       "version": "2.0.0",
-      "docsHash": "sha256:e183cacea2bd5cd7a00d8a80fff573c5124106811fbd7c983da64c4bff2658b8",
+      "docsHash": "sha256:707ce7435df90d0203b4954b5fab1972eae6c0d49d68ce912a62a3affd4fca64",
       "url": "tools/relief.json"
     },
     {

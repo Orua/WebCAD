@@ -13,6 +13,9 @@ test('face and solid machining preserve all tools once and keep batch tools in o
  const group=solid.groups.find(([name])=>name==='批量加工'),policy=ribbonGroupPolicy(UI_LAYOUT,solid,group[1],group[2]);
  assert.deepEqual(policy.overflowActions,['multiHole','multiPocket','multiBoss']);assert.equal(policy.folded,true);
  const actions=[face,solid].flatMap(t=>t.groups.flatMap(g=>g[1]));assert.equal(new Set(actions).size,actions.length);
+ for(const tab of UI_LAYOUT.tabs)for(const [,tools]of tab.groups)assert.ok(tools.length<=6,tab.id);
+ assert.ok(!face.groups.some(([,tools])=>tools.includes('meshBoolean')));
+ assert.deepEqual(face.groups.find(([name])=>name==='网格浮雕（STL）')[1],['meshHeightfieldRelief','heightfieldSculpt','meshReliefPlate','meshReliefEdit']);
  assert.deepEqual([...actions].sort(),['union','cut','intersect','split','hole','holeWizard','multiHole','thread','slot','faceGroove','faceHole','faceExtrude','multiPocket','multiBoss','outerTurn','innerTurn','logo','relief','reliefSculpt','meshReliefPlate','meshHeightfieldRelief','heightfieldSculpt','meshBoolean','meshReliefEdit','reliefShoulder'].sort());
 });
 
@@ -35,12 +38,13 @@ function fixture(){
   files:async input=>({status:'read',revision:7,extension:'webcad',encoding:'base64',data:'e30='}),confirmSaved:()=>({saved:false})});
  return {api,get calls(){return calls;},get received(){return received;}};
 }
-test('snapshot contexts adapt without mutation; stale or conflicting revisions never reach host',async()=>{
+test('identity views ignore revision drift while mismatched document instances reject',async()=>{
  const f=fixture(),original=structuredClone(context);
  assert.equal((await f.api.setView({context,fit:true})).status,'read');
  assert.equal(f.received.context.expectedRevision,7);assert.deepEqual(context,original);
- for(const c of [{...context,revision:6},{...context,expectedRevision:6},{...context,documentInstanceId:'other'}])assert.equal((await f.api.setView({context:c,fit:true})).status,'failed');
- assert.equal(f.calls,1);assert.deepEqual(f.api.getState().requestContext,requestContext(context));
+ for(const c of [{...context,revision:6},{...context,expectedRevision:6}])assert.equal((await f.api.setView({context:c,fit:true})).status,'read');
+ assert.equal((await f.api.setView({context:{...context,documentInstanceId:'other'},fit:true})).status,'failed');
+ assert.equal(f.calls,3);assert.deepEqual(f.api.getState().requestContext,requestContext(context));
  assert.equal((await f.api.files.save({context})).status,'generated');
  const result=await f.api.invoke({method:'files.read',args:{resourceId:'missing'}});
  assert.equal(result.status,'failed');assert.equal(result.error.code,'RESOURCE_EXPIRED');assert.equal(result.error.retryable,false);

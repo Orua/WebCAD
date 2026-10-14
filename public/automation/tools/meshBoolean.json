@@ -69,7 +69,7 @@
     "STL 布尔",
     "mesh boolean",
     "meshBoolean",
-    "网格布尔合并"
+    "网格布尔（STL）"
   ],
   "description": "网格布尔合并 / Mesh boolean",
   "schemaHash": "sha256:e312f38c42afe9e78925afae160a4695898493aead6f9225572b525e63ce8d8e",
@@ -520,7 +520,7 @@
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
-  "label": "网格布尔合并",
+  "label": "网格布尔（STL）",
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -543,5 +543,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:b33bd954b5f85056c9fe173c1fb758fa2e8fa449a43edb36352c93b775d3f990"
+  "docsHash": "sha256:ff00995c0c3ceeea30db79f04c09499170a5ef09607fef288eecdaffb78fe660"
 }

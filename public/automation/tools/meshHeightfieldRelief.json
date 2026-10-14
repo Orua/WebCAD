@@ -192,7 +192,7 @@
     "depth map",
     "photo relief",
     "meshHeightfieldRelief",
-    "高度图浮雕"
+    "高度图浮雕（网格）"
   ],
   "description": "高度图浮雕 / Heightfield relief",
   "schemaHash": "sha256:c9ee5d7b68a314347f9d419f67858e0babc1d92ec0b6825db327146858495541",
@@ -787,7 +787,7 @@
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
-  "label": "高度图浮雕",
+  "label": "高度图浮雕（网格）",
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -809,5 +809,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:36e7294d3399d3ee7531072ee6713d6413564cd7075cfeed02ee0e01de715982"
+  "docsHash": "sha256:3f750151ad7a27ce2b349996df011d1b1aa35b020963f65677b5992740184b27"
 }
