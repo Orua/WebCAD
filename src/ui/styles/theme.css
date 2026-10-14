@@ -104,3 +104,14 @@
 :is(.cad-dialog,.message-dialog) :is(button,input,textarea,select,a):focus-visible{outline-color:var(--accent-ink)}
 
 .webcad-app .selection-arrow{color:var(--accent-ink)}
+
+/* All coloured UI icons share the saved theme; neutral controls stay grayscale. */
+.webcad-app .tool-icon,.webcad-app .ui-vector-icon,
+:is(.cad-dialog,.message-dialog) .tool-icon,:is(.cad-dialog,.message-dialog) .ui-vector-icon{color:var(--accent-ink)}
+.webcad-app :is(.title-edit,.panel-toggle,.visibility-button,.tree-visibility,.feature-row,.close-button) .ui-vector-icon,
+:is(.cad-dialog,.message-dialog) .close-button .ui-vector-icon{color:#737373}
+.webcad-app .brand-mark .ui-vector-icon,.webcad-app .primary .ui-vector-icon,
+:is(.cad-dialog,.message-dialog) .primary .ui-vector-icon{color:var(--accent-contrast)}
+.webcad-app .host-control-status :is(.host-connection,.host-lock){color:#737373}
+.webcad-app .host-control-status[data-connected="true"] .host-connection,
+.webcad-app .host-control-status[data-locked="true"] .host-lock{color:var(--accent-ink)}

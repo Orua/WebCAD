@@ -2,6 +2,17 @@
   "version": 1,
   "operations": [
     {
+      "operation": "ui-icon-color",
+      "sourcePaths": ["src/ui/styles/theme.css"],
+      "localImpact": "All coloured UI icons inherit one saved theme accent; neutral controls remain grayscale",
+      "servicesImpact": "none: CSS only; runtime and protocols unchanged",
+      "logoImpact": "none: source geometry and conversion unchanged",
+      "contractImpact": "none: existing UI actions and public API unchanged",
+      "documentImpact": "none: document and saved appearance preserved",
+      "cacheImpact": "Rebuild frontend CSS and release identity; preserve theme cookie",
+      "requiredTests": ["workspace-theme", "build", "17674 icon colour check"]
+    },
+    {
       "operation": "agent-assistant-panel",
       "semanticVersion": "panel-1-page-api-1.43",
       "sourcePaths": ["src/agent/assistant-panel.js", "src/agent/protocol.js", "src/host-control.js", "src/ui.js", "src/ui/config/theme-colors.js", "src/page-api.js"],
