@@ -10,7 +10,7 @@
       "name": "index.json",
       "url": "index.json",
       "sizeBytes": 3873696,
-      "sha256": "sha256:bbed1687baec9380bbca89dfe9e04e7b8418cbf5b5070ceaf92aa55cc4a7d9d6"
+      "sha256": "sha256:5795066fc15cbfaf4f46a26c9a6f3a9212fce8fe5c084e5cbadb75826592a558"
     },
     {
       "name": "agent-routing.json",
@@ -22,7 +22,7 @@
       "name": "routes.json",
       "url": "routes.json",
       "sizeBytes": 55943,
-      "sha256": "sha256:db92c7b323465d3d61ca0060db496c60b688595b37965df0b7639dc50346750f"
+      "sha256": "sha256:d1d2ebe5f710d89168b0ef73de7f4a66ded9343ef4a4eaa7a70d74a40636a481"
     }
   ],
   "totalBytes": 3957281,

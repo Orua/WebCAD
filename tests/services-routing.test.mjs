@@ -72,7 +72,7 @@ test('surface tools require measured complexity; ordinary machining and presets 
 
 test('every registered tool has explicit routing; presets and ordinary tools remain local on huge sources',()=>{
  const eligible=EXECUTION_POLICY.servicesEligibleOperations,local=EXECUTION_POLICY.localOnlyOperations;
- for(const operation of listOperations())assert.equal(Number(eligible.includes(operation.id))+Number(local.includes(operation.id)),1,operation.id);
+ for(const operation of listOperations())assert.equal(Number(eligible.includes(operation.id))+Number(local.includes(operation.id))+Number(EXECUTION_POLICY.boundedMeshOperations.includes(operation.id)),1,operation.id);
  const source={bytes:128*1024*1024,faces:10000,edges:20000,complexityUnavailable:true};
  for(const operation of local)for(const explicitRemote of [false,true])assert.equal(chooseExecutor({servicesAvailable:true,operation,source,explicitRemote,capabilities:null}).executor,'local',operation);
  for(const [kind,params]of Object.entries(QUICK_MODELS))assert.equal(chooseExecutor({servicesAvailable:true,operation:'quickModel',params:{kind,...params.defaults},source,capabilities:null}).executor,'local',kind);
