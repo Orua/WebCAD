@@ -1,6 +1,8 @@
 import {writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {AGENT_ONBOARDING} from '../src/agent-onboarding.js';
+import {LIMITS} from '../src/limits.js';
+import {FILE_MENU_LABELS} from '../src/open-import-policy.js';
 
 const escape=value=>String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 
@@ -9,6 +11,13 @@ export async function generateAgentEntry({root,target,metadata}){
     catalogHash:metadata.catalogHash,docsHash:metadata.docsHash,...structuredClone(AGENT_ONBOARDING),
     linkBase:'page deployment root; resolve paths against the CAD page URL',
     firstCall:'window.webcad.api.connect({queries:["本次任务能力"],limit:2,includeContracts:true})',
+    // Hosts must read timeouts/byte limits from here (or connect().limits); WebCAD is the single source.
+    limits:{transport:{...LIMITS.transport}},
+    entrypoints:{script:'window.webcad.api (page script / CDP Runtime.evaluate)',broker:'Goldenluck codexagent /api/webcad (adapter v2)',mcp:'not in production yet'},
+    fileIntent:{open:'files.open({context,resourceId,unsaved:"fail"|"discard"}) replaces the document and never merges',insert:'files.import({context,resourceId,idempotencyKey,...}) adds into the current document'},
+    domFallback:{when:'No script channel: operate only through visible UI and report the limitation.',
+      open:`文件 → ${FILE_MENU_LABELS.open}; unsaved prompt: 保存 / 不保存 / 取消`,insert:`文件 → ${FILE_MENU_LABELS.importAtFrame}`,
+      drop:'Dropping onto a non-empty design asks 打开（替换当前设计） / 插入到当前设计 / 取消 (default 取消).'},
     documentation:{quickstart:'automation/quickstart.md',routes:'automation/routes.json',catalog:'automation/index.html'},
     installation:{automatic:false,steps:['Download and inspect installer from the trusted current page origin.','Run in a host with filesystem permission; installer verifies each file and backs up an existing skill.','Read the installed SKILL.md, use scripts/page-client.mjs only with an authorized transport adapter.'],defaultDestination:'~/.codex/skills/webcad-page-api'}};
   await writeFile(resolve(target,'agent-start.json'),JSON.stringify(bootstrap,null,2)+'\n','utf8');

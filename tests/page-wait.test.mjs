@@ -1,0 +1,8 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {createPageWait} from '../src/page-wait.js';
+const ctx=r=>({sessionId:'s',documentId:'d',documentInstanceId:'i',revision:r});
+test('returns as soon as the revision advances',async()=>{let rev=1;setTimeout(()=>{rev=2;},30);const w=createPageWait({getState:()=>({context:ctx(rev)}),getJob:()=>({}),tickMs:5});const r=await w({afterRevision:1,timeoutMs:2000});assert.equal(r.reason,'REVISION_ADVANCED');assert.ok(r.waitedMs<500);});
+test('waits for a terminal job',async()=>{let status='running';setTimeout(()=>{status='committed';},20);const w=createPageWait({getState:()=>({context:ctx(1)}),getJob:()=>({status}),tickMs:5});assert.equal((await w({jobId:'j',timeoutMs:2000})).reason,'JOB_TERMINAL');});
+test('timeout is reported, not thrown, and never cancels',async()=>{const w=createPageWait({getState:()=>({context:ctx(1)}),getJob:()=>({}),tickMs:5});const r=await w({afterRevision:1,timeoutMs:20});assert.equal(r.timedOut,true);assert.match(r.nextAction,/again/);});
+test('document replacement ends the wait',async()=>{const w=createPageWait({getState:()=>({context:{...ctx(1),documentInstanceId:'new'}}),getJob:()=>({}),tickMs:5});assert.equal((await w({afterRevision:5,documentInstanceId:'i'})).reason,'DOCUMENT_REPLACED');});
+test('validates arguments and caps timeout at waitMaxMs',async()=>{const w=createPageWait({getState:()=>({context:ctx(1)}),getJob:()=>({})});await assert.rejects(w({}),{code:'PARAM_SCHEMA_INVALID'});await assert.rejects(w({afterRevision:1,jobId:'x'}),{code:'PARAM_SCHEMA_INVALID'});await assert.rejects(w({afterRevision:1,timeoutMs:25001}),{code:'PARAM_RANGE_INVALID'});});

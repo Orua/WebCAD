@@ -6,7 +6,7 @@ const files=new Set(['capabilities','register','new','open','import','save','exp
 for(const name of ['getModelLibrary','updateModelLibrary','resolveModelLibrary'])methods.add(name);
 for(const name of ['getServices','setServices','getServicesCapabilities','clearServicesCredential','getServicesJob','getServicesRequest','getServicesRouting','decideServicesWait','prepareReliefTopologyUpgrade','recoverServicesJob','cancelServicesJob','sampleReliefHeight','prepareReliefSculpt','inspectRound'])methods.add(name);
 files.add('confirmWritten');
-for(const name of ['recoverKernel','sampleMeshRelief'])methods.add(name);
+for(const name of ['recoverKernel','sampleMeshRelief','waitFor'])methods.add(name);
 export const PAGE_CLIENT_METHODS=Object.freeze([...methods]);
 export const PAGE_CLIENT_FILE_METHODS=Object.freeze([...files]);
 function failure(code,message,details={}){return Object.assign(new Error(message),{code,...details});}

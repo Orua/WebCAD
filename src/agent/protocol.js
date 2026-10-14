@@ -1,7 +1,8 @@
 import {contractHash} from '../contracts/operation-schema.js';
+import {LIMITS} from '../limits.js';
 export const PROTOCOL = 'goldenluck.webcad/1';
 export const IDENTITY_KEYS = Object.freeze(['sessionId','documentId','documentInstanceId']);
-export const READ_METHODS = new Set(['connect','info','getState','getAgentPanel','getHistory','searchTools','getTools','getTool','readDocs',
+export const READ_METHODS = new Set(['connect','info','getState','waitFor','getAgentPanel','getHistory','searchTools','getTools','getTool','readDocs',
   'queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectDesign','inspectProfile',
   'inspectConstraints','inspectFit','inspectThickness','inspectDraft','inspectPrintability','files.capabilities',
   'planPatternMachining','prepareProfileEdit','projectProfile','sampleMeshRelief','sampleReliefHeight','prepareReliefSculpt','readRelief','readVector','connectVector',
@@ -23,7 +24,9 @@ JOB_METHODS.add('recoverKernel');
 const contract={schemaVersion:1,adapterVersion:2,protocol:PROTOCOL,
   readMethods:[...READ_METHODS].sort(),viewMethods:[...VIEW_METHODS].sort(),jobMethods:[...JOB_METHODS].sort(),
   discoveryMethods:[...DISCOVERY_METHODS].sort(),editActions:[...EDIT_ACTIONS].sort(),
-  editMethods:[...EDIT_METHODS].sort(),exportMethods:[...EXPORT_METHODS].sort()};
+  editMethods:[...EDIT_METHODS].sort(),exportMethods:[...EXPORT_METHODS].sort(),
+  // Hosts read timeouts and byte limits from here; WebCAD is their single source.
+  limits:{transport:{...LIMITS.transport}}};
 export const AGENT_CONTRACT=Object.freeze({...contract,contractHash:contractHash(contract)});
 // A task may think/read for minutes; only a command that changes the document
 // needs exclusive manual editing control. Page revision guards remain active.

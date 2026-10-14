@@ -17,6 +17,8 @@ import {traceTwinWindowProfile} from './dwg-spline-twin-window.js';
 import {normalizeRequest,requestContext} from './page-context.js';
 import {contextPolicy,identityContext} from './page-context-policy.js';
 import {createPageJobs} from './page-jobs.js';
+import {createPageWait} from './page-wait.js';
+import {LIMITS} from './limits.js';
 import {renderQuality} from './render-quality.js';
 import {UI_LAYOUT} from './ui-layout.js';
 import {validateReferenceQuery} from './reference-query.js';
@@ -105,7 +107,8 @@ export function createPageAPI(host){
         nextAction:blockers.includes('PREVIEW_ACTIVE')?'FINISH_PREVIEW':blockers.length?'WAIT_AND_RECONNECT':ids.length?'READ_CONTRACTS_AND_PLAN':'SEARCH_CAPABILITIES',
         bodies:(s.bodies||[]).slice(0,20).map(({id,name,kind})=>({id,...(name?{name}:{}),...(kind?{kind}:{})})),
         bodyCount:(s.bodies||[]).length,bodiesTruncated:(s.bodies||[]).length>20,
-        cache:{catalogChanged:input.knownCatalogHash!==metadata.catalogHash,docsChanged:input.knownDocsHash!==metadata.docsHash},results};
+        cache:{catalogChanged:input.knownCatalogHash!==metadata.catalogHash,docsChanged:input.knownDocsHash!==metadata.docsHash},
+        limits:{transport:{...LIMITS.transport}},results};
       if((input.includeContracts||toolIds.length)&&ids.length){
         const contracts=getTools({ids:ids.slice(0,20),knownHashes:input.knownHashes});
         const omissions=ids.slice(20).map(id=>({id,reason:'ITEM_LIMIT'}));let automaticChars=0;
@@ -426,7 +429,8 @@ export function createPageAPI(host){
     }catch(e){return e.result||failure(e);}
   };
   Object.assign(api,createPageJobs(api,{runBatch:(args,control)=>run(args,control)}));
-  for(const name of ['submit','getJob','cancelJob'])callable.add(name);
+  api.waitFor=createPageWait({getState:()=>api.getState(),getJob:input=>api.getJob(input)});
+  for(const name of ['submit','getJob','cancelJob','waitFor'])callable.add(name);
   for(const name of Object.keys(api))if(typeof api[name]==='function'&&contextPolicy(name)==='identity'){
     const original=api[name];api[name]=async(input={})=>{try{const c=identityContext(input.context),s=current();for(const key of ['sessionId','documentId','documentInstanceId'])if(c[key]!==s.context[key])fail('INSTANCE_MISMATCH',`Stale ${key}`);const request={...input,context:{...c,expectedRevision:s.context.revision}};requestPolicies.set(request,'identity');return await original(request);}catch(e){return failure(e);}};
   }
