@@ -1,9 +1,9 @@
 {
   "version": "1.47.0",
-  "buildId": "d829de20c26ff14e4b1d01e0b1883419e2ca9fc1-src-0e5fb9c531a6910f-working",
+  "buildId": "6214c8a8c6caa6697df385c30f70bd0eb0737b21-src-46bc69dcd1a3b79c-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:259f7c718a2e00cfdfcf1ff463119c7d35091bdf3659daeb99c3c3f337694486",
-  "docsHash": "sha256:87a063a2cc22dae430f68c3e5ded57adb0a7532ffa2f42c01e1189d81ffc4131",
+  "catalogHash": "sha256:cdb31b2ab8bdf88d96a17836a72b12ccdbe1a469d3732fc6cef381a9d1d0f8e8",
+  "docsHash": "sha256:e2bf8fc3183c2e423c899860b168775c39d8bb4bb71d5d9896ef6dde478d068c",
   "apiMethods": [
     "recoverKernel",
     "sampleMeshRelief",
@@ -402,7 +402,7 @@
       "label": "高度图浮雕",
       "category": "creation",
       "version": "1.0.0",
-      "docsHash": "sha256:1821b2d68efd1ccbfef546ac8afeff9bb20466b9a291d751e63f994605ee4474",
+      "docsHash": "sha256:27d7c62e216b3bb50926891c1f076131f48f92f5d7c5db508d6c873f4536e6f4",
       "url": "tools/meshHeightfieldRelief.json"
     },
     {
@@ -782,6 +782,24 @@
       "version": "legacy-1",
       "docsHash": "sha256:7592018581c1c10174d9a8eabe8612de647046594f9b61d292bf8a98895d3fe5",
       "url": "tools/vectorProfile.json"
+    },
+    {
+      "id": "heightfieldSculpt",
+      "title": "高度图浮雕精修",
+      "label": "高度图浮雕精修",
+      "category": "command",
+      "version": "1.47.0",
+      "docsHash": "sha256:10e89ce7bf84325eb5d218557e1fe7606c16f93278e7b0347c65e45c550f86cf",
+      "url": "tools/heightfieldSculpt.json"
+    },
+    {
+      "id": "reliefSculpt",
+      "title": "精确浮雕精修",
+      "label": "精确浮雕精修",
+      "category": "command",
+      "version": "1.47.0",
+      "docsHash": "sha256:d02ce01c1831b0ed9bab8cb75de400a41870f0ece997299ae4c40d6cae01a83a",
+      "url": "tools/reliefSculpt.json"
     },
     {
       "id": "template.ring",
@@ -2323,6 +2341,11 @@
       "id": "api.relief",
       "docsHash": "sha256:09080f76d7f2ad8714b36d3191d249ef77e84bec9f31562361585ecd3ca81d58",
       "url": "docs/api.relief.md"
+    },
+    {
+      "id": "api.relief-taxonomy",
+      "docsHash": "sha256:80f23a373c55b4fa8c5afd1bfeeaa946facaa0a332d05009fc5ccde7167894bd",
+      "url": "docs/api.relief-taxonomy.md"
     },
     {
       "id": "api.round-preflight",

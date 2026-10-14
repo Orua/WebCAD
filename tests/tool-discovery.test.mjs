@@ -1,4 +1,8 @@
 import test from 'node:test';
+import {searchTools as liveSearch} from '../src/page-api-docs.js';
+test('relief input and target semantics rank the matching tool first',()=>{
+ for(const [query,id]of [['照片 浮雕','meshHeightfieldRelief'],['灰度图 浮雕','meshHeightfieldRelief'],['heightmap','meshHeightfieldRelief'],['合并 网格','meshBoolean'],['STL 布尔','meshBoolean'],['圆柱 浮雕','relief'],['小图案 精确 STEP','relief']])assert.equal(liveSearch({query,limit:1}).items[0]?.id,id,query);
+});
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createPageAPI } from '../src/page-api.js';
@@ -152,8 +156,8 @@ test('generated manifest supports per-item invalidation and offline module match
 
 test('page advisory cards describe the actual browser execution and validation path',()=>{
   for(const id of ['union','quickModel','transform','extrude']){
-    const card=getTool({id});assert.equal(card.v2Executable,true);assert.equal(card.strictContract,false);
-    assert.equal(card.validationMode,'schema-validation-with-kernel-prerequisites');
+    const card=getTool({id});assert.equal(card.v2Executable,true);assert.equal(card.strictContract,['union','transform'].includes(id));
+    assert.equal(card.validationMode,card.strictContract?'strict-normalization':'schema-validation-with-kernel-prerequisites');
     assert(card.invalidExamples.every(e=>e.errorCode!=='NOT_A_STRICT_V2_OPERATION'));
     assert(!card.knownUnsupportedCases.some(s=>s.includes('use the documented legacy entry')));
   }

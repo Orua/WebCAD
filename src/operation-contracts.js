@@ -4,7 +4,7 @@ import {operationDefaults,operationExamples} from './operation-examples.js';
 import {annotateParameterSchema} from './parameter-metadata.js';
 const meshes=new Set(['meshHeightfieldRelief','meshReliefPlate','meshReliefEdit','meshBoolean']);
 const family=['relief','reliefShoulder','logo','meshHeightfieldRelief','meshReliefPlate','meshReliefEdit','meshBoolean'];
-const aliases={meshHeightfieldRelief:['高度图','灰度图','heightmap','depth map','photo relief'],meshBoolean:['合并 网格','STL 布尔','mesh boolean'],meshReliefPlate:['网格底板','起伏点','relief plate'],meshReliefEdit:['网格修高','STL 精修','mesh sculpt'],relief:['圆柱 浮雕','小图案 精确 STEP','vector relief'],logo:['恒深LOGO','文字刻字','logo engraving']};
+const aliases={meshHeightfieldRelief:['高度图','灰度图','照片 浮雕','heightmap','depth map','photo relief'],meshBoolean:['合并 网格','STL 布尔','mesh boolean'],meshReliefPlate:['网格底板','起伏点','relief plate'],meshReliefEdit:['网格修高','STL 精修','mesh sculpt'],relief:['圆柱 浮雕','小图案 精确 STEP','vector relief'],logo:['恒深LOGO','文字刻字','logo engraving']};
 const errors={meshHeightfieldRelief:['HEIGHTFIELD_INVALID','HEIGHTFIELD_SCULPT_INVALID','RELIEF_EDIT_CAPACITY'],meshBoolean:['MESH_BOOLEAN_INVALID','MESH_BOOLEAN_EMPTY','MESH_BOOLEAN_UNAVAILABLE','MESH_NOT_MANIFOLD']};
 export function operationRoutingClass(id){return policy.boundedMeshOperations.includes(id)?'bounded-mesh':policy.servicesEligibleOperations.includes(id)?'services-eligible':'local-only';}
 export function sourceOperationContract(id,source){
