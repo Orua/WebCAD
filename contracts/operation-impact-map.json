@@ -815,7 +815,7 @@
   },
   "cadWorkbenchFileCapacity20261014": {
     "localImpact": "CAD workbench attachment selection and registration match existing typed page file budgets; no geometry algorithm changes.",
-    "servicesImpact": "No Services/Native DLL, geometry source or compiled checkpoint capacity changes; Agent input/artifact transport and IIS workbench gateway updated together.",
+    "servicesImpact": "Synchronize previously divergent Services Gateway/Runtime to current canonical managed DLLs on both formal backends. Review shared Logo assembly public APIs and dependencies; retain the accepted Native worker, experimental capability gates, operational data and 20 MiB geometry/checkpoint budgets. Agent input/artifact transport and IIS workbench gateway updated together.",
     "logoImpact": "None: ordinary image/vector/PDF attachments and Logo conversion retain 20 MiB.",
     "contractImpact": "Page docs 1.47; documented host attachment and output transfer budgets. Agent enforces CAD capacity only for the persisted webcad task purpose.",
     "documentImpact": "Original source bytes/hash and v4 format preserved; no model replacement or implicit import.",
