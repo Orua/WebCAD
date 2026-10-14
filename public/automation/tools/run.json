@@ -3,6 +3,7 @@
   "title": "run",
   "category": "page-method",
   "version": "1.47.0",
+  "contextPolicy": "revision",
   "description": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}); addMany for one atomic feature plan: api.feature-plan.",
   "synonyms": [
     "run",
@@ -32,5 +33,5 @@
     "maxBytes": 20971520,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:6c96ba8ac4b35316065d986973404b5fef223f9e29e94fe0d2434cdd78ffd19a"
+  "docsHash": "sha256:5e06ade630ecd089bb1f5a442e47aa5d4c673c4934dbc3fda328bb2e4694f588"
 }

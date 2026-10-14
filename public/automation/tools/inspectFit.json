@@ -3,6 +3,7 @@
   "title": "inspectFit",
   "category": "page-method",
   "version": "1.47.0",
+  "contextPolicy": "identity",
   "description": "inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。",
   "synonyms": [
     "inspectFit",
@@ -25,5 +26,5 @@
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:4f74673a45ea61bbf9a273d41d6a66b72f7e6878b136234cb2b6af74029c03e6"
+  "docsHash": "sha256:87af4725c9feccf1ca512c0a57f4fe4702ea1d7cb0c52fca546f3389a777ae0b"
 }

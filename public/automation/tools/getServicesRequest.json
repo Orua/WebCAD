@@ -3,6 +3,7 @@
   "title": "getServicesRequest",
   "category": "page-method",
   "version": "1.47.0",
+  "contextPolicy": "none",
   "description": "getServicesRequest({idempotencyKey})；连接未知时先查既有接收记录。",
   "synonyms": [
     "getServicesRequest",
@@ -25,5 +26,5 @@
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_REQUEST_FAILED"
   ],
-  "docsHash": "sha256:325539fd05378f05c5dfd524ddabc2623bab5cd379ca2b49fb170bed193c8250"
+  "docsHash": "sha256:40397a9aa1db63a47fff7df818aad7580c8000159a4fc355ad7b7505430db4f0"
 }

@@ -3,6 +3,7 @@
   "title": "configureAgentPanel",
   "category": "page-method",
   "version": "1.47.0",
+  "contextPolicy": "revision",
   "description": "configureAgentPanel({context,url})；HTTP/HTTPS助手页面地址，不带query/hash/凭据；HTTPS页面只接受HTTPS。",
   "synonyms": [
     "configureAgentPanel",
@@ -17,5 +18,5 @@
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:e49b864488388a49a4be86d6445ec3981f18d402098861984656a37cdc53a63f"
+  "docsHash": "sha256:7b9f5957c9909eac8386a180b9a9d527d647d4414645dea8cb5ff62bc15f9e1c"
 }

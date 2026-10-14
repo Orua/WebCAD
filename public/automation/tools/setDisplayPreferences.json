@@ -3,6 +3,7 @@
   "title": "setDisplayPreferences",
   "category": "page-method",
   "version": "1.47.0",
+  "contextPolicy": "identity",
   "description": "setDisplayPreferences({context,values}); values 为部分配置，字段及范围见 api.display-preferences。",
   "synonyms": [
     "setDisplayPreferences",
@@ -27,5 +28,5 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.display-preferences",
-  "docsHash": "sha256:bb061e67863df7428d01a0cf8e67de74bdea5278030de653275fc911484b0bb2"
+  "docsHash": "sha256:3a6c8896092034d113ca50a7c0fa1fca0b33a8dd1f755993de68a17fd6a42a57"
 }

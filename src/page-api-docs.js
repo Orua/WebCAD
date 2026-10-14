@@ -1,4 +1,5 @@
 import {meshReliefSampleSchema} from './mesh/relief-sample.js';
+import {contextPolicy} from './page-context-policy.js';
 import {AGENT_CONTRACT} from './agent/protocol.js';
 import { apiVersion, getOperation, listOperations, migratedOperationIds } from './operation-registry.js';
 import {FILE_ARGUMENT_KEYS,FILE_ERROR_CODES,FILE_LIMITS,FILE_TYPED_BYTE_BUDGETS,CONTEXTUAL_FILE_METHODS} from './browser-file-contracts.js';
@@ -371,7 +372,7 @@ function methodCard(name) {
     redraw: ['REVISION_CONFLICT', 'CAPABILITY_UNAVAILABLE', 'DISPLAY_FAILED'],
     capture: ['REVISION_CONFLICT', 'CAPABILITY_UNAVAILABLE', 'DISPLAY_FAILED'],
   };
-  return { id: name, title: name, category: 'page-method', version: PAGE_DOC_VERSION,
+  return { id: name, title: name, category: 'page-method', version: PAGE_DOC_VERSION, contextPolicy:contextPolicy(name),
     description: input, synonyms: [name, ...synonyms.split(' ')], inputContract: input, outputContract: output,
     implementationStatus: 'implemented', contractStatus: 'page-method', runtimeAvailability: 'requires_page',
     errorModel: ['createRequestContext','getUILayout','submit','getJob','cancelJob','connect', 'info', 'getState', 'searchTools', 'getTools', 'getTool', 'readDocs'].includes(name) ? 'May throw a coded contract error; use api.invoke for a structured error envelope.'
@@ -590,7 +591,8 @@ export function readDocs(input) {
       text: body.slice(offset, offset + limit), nextCursor: offset + limit < body.length ? String(offset + limit) : null };
   };
   if (Object.hasOwn(PAGE_DOCS, id)) {
-    return page(PAGE_DOCS[id], PAGE_DOC_VERSION);
+    const policies=[...PAGE_METHODS,...FILE_METHODS.map(name=>'files.'+name)].map(name=>`${name}: contextPolicy=${contextPolicy(name)}`).join('\n');
+    return page(PAGE_DOCS[id]+'\n\nContext policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.\n'+policies, PAGE_DOC_VERSION);
   }
   if (LEGACY_READABLE.has(id)) {
     const { knownHash, ...request } = input;

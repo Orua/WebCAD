@@ -3,6 +3,7 @@
   "title": "queryGeometry",
   "category": "page-method",
   "version": "1.47.0",
+  "contextPolicy": "identity",
   "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry；多选仍须 requireUnique:false。",
   "synonyms": [
     "queryGeometry",
@@ -26,5 +27,5 @@
     "AMBIGUOUS_SELECTION"
   ],
   "docs": "api.query-geometry",
-  "docsHash": "sha256:4a184d9946ca9421ccf375e3d0ef9c011cece7e423edf94906e9f121d6bcf367"
+  "docsHash": "sha256:68d98f80effa847bd7012bd80c8779b578ebcfcfed39c1a3eaffddc0da05e627"
 }

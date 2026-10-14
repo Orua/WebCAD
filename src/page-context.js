@@ -9,7 +9,7 @@ export function requestContext(value) {
     throw Object.assign(new Error('revision and expectedRevision disagree'), {code:'REVISION_CONFLICT',path:'context.expectedRevision'});
   }
   const expected = expectedRevision ?? revision;
-  if (!Number.isSafeInteger(expected) || expected < 0) throw Object.assign(new Error('A nonnegative revision is required'), {code:'PARAM_SCHEMA_INVALID',path:'context.expectedRevision'});
+  if (!Number.isSafeInteger(expected) || expected < 0) throw Object.assign(new Error('A nonnegative revision is required: pass api.getState().context'), {code:expected===undefined?'REVISION_CONFLICT':'PARAM_SCHEMA_INVALID',path:'context.expectedRevision'});
   return {...identity,expectedRevision:expected};
 }
 export const normalizeRequest = input => input?.context ? {...input,context:requestContext(input.context)} : input;
