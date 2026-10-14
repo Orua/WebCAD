@@ -31,7 +31,7 @@ const groups = {
     'tool-state', 'viewport-transform', 'dfam-inspection', 'profile-fitting', 'text-commands',
   ],
   kernel: [
-    'relief-edit-kernel', 'mesh-kernel', 'mesh-boolean', 'adaptive-exact-display',
+    'relief-edit-kernel', 'mesh-kernel', 'mesh-boolean', 'adaptive-exact-display', 'relief-param-migration',
     'services-round-plan',
     'feature-plan',
     'design-inspection-kernel',

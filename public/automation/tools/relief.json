@@ -1,14 +1,14 @@
 {
   "id": "relief",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
     "required": [
       "faceId",
-      "widthMm",
-      "heightMm",
-      "depthMm"
+      "sizeXMm",
+      "sizeYMm",
+      "reliefHeightMm"
     ],
     "anyOf": [
       {
@@ -31,7 +31,7 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "heightMm"
+            "reliefHeightMm"
           ],
           "anyOf": [
             {
@@ -164,14 +164,12 @@
               "minimum": 0,
               "maximum": 20
             },
-            "heightMm": {
+            "reliefHeightMm": {
               "type": "number",
-              "description": "Absolute height/depth from the original host surface (mm)",
+              "description": "当前层/起伏点的起伏高度 (mm)",
               "minimum": 0.01,
               "maximum": 20,
-              "unit": "mm",
-              "quantityKind": "length",
-              "quantizationPolicy": "none"
+              "unit": "mm"
             },
             "mode": {
               "type": "string",
@@ -575,38 +573,33 @@
         "quantityKind": "length",
         "quantizationPolicy": "none"
       },
-      "baseMm": {
+      "cylinderBaseMm": {
         "type": "number",
-        "description": "Explicit rectangular cylindrical base layer; total height is baseMm + depthMm (mm)",
+        "description": "仅外凸圆柱的基底层厚度 (mm)",
         "minimum": 0.005,
-        "maximum": 1
+        "maximum": 1,
+        "unit": "mm"
       },
-      "widthMm": {
+      "sizeXMm": {
         "type": "number",
-        "description": "Full image rectangle width in local face X (mm)",
+        "description": "X 方向图案/平板宽度 (mm)",
         "exclusiveMinimum": 0,
         "maximum": 1000,
-        "unit": "mm",
-        "quantityKind": "length",
-        "quantizationPolicy": "none"
+        "unit": "mm"
       },
-      "heightMm": {
+      "sizeYMm": {
         "type": "number",
-        "description": "Full image rectangle height in local face Y (mm)",
+        "description": "Y 方向图案/平板长度 (mm)",
         "exclusiveMinimum": 0,
         "maximum": 1000,
-        "unit": "mm",
-        "quantityKind": "length",
-        "quantizationPolicy": "none"
+        "unit": "mm"
       },
-      "depthMm": {
+      "reliefHeightMm": {
         "type": "number",
-        "description": "Maximum control height or depth (mm)",
+        "description": "相对支撑面最大起伏高度 (mm)",
         "minimum": 0.01,
         "maximum": 20,
-        "unit": "mm",
-        "quantityKind": "length",
-        "quantizationPolicy": "none"
+        "unit": "mm"
       },
       "mode": {
         "type": "string",
@@ -703,6 +696,10 @@
             "minimum": 1
           }
         }
+      },
+      "schemaVersion": {
+        "type": "integer",
+        "const": 2
       },
       "machiningIntent": {
         "type": "object",
@@ -910,7 +907,7 @@
     "relief"
   ],
   "description": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
-  "schemaHash": "sha256:6a419be56616f14a50ed68bb39c178f425ee8722fa7731b360b7bb2bb0b56d13",
+  "schemaHash": "sha256:5c296fec487dc73cd65ce2926e191017a94856fcc00461b847ea1cb4943a2b6f",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -988,9 +985,6 @@
     "op": "relief",
     "params": {
       "faceId": 0,
-      "widthMm": 10,
-      "heightMm": 10,
-      "depthMm": 0.8,
       "values": [
         [
           0,
@@ -1033,7 +1027,11 @@
         "requestedGeometry": "continuousRelief",
         "sourceInterpretation": "authoredHeightMap",
         "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
-      }
+      },
+      "sizeXMm": 10,
+      "sizeYMm": 10,
+      "reliefHeightMm": 0.8,
+      "schemaVersion": 2
     },
     "refs": [
       "<current-bodyId-1>"
@@ -1045,9 +1043,6 @@
     "op": "relief",
     "params": {
       "faceId": 0,
-      "widthMm": 10,
-      "heightMm": 10,
-      "depthMm": 0.8,
       "values": [
         [
           0,
@@ -1090,7 +1085,11 @@
         "requestedGeometry": "continuousRelief",
         "sourceInterpretation": "authoredHeightMap",
         "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
-      }
+      },
+      "sizeXMm": 10,
+      "sizeYMm": 10,
+      "reliefHeightMm": 0.8,
+      "schemaVersion": 2
     },
     "refs": [
       "<current-bodyId-1>"
@@ -1343,8 +1342,8 @@
           "behavior": "omitted; retain the operation source default"
         }
       },
-      "baseMm": {
-        "meaning": "Explicit rectangular cylindrical base layer; total height is baseMm + depthMm (mm)",
+      "cylinderBaseMm": {
+        "meaning": "仅外凸圆柱的基底层厚度 (mm)",
         "unit": "mm",
         "range": [
           0.005,
@@ -1354,24 +1353,24 @@
           "behavior": "omitted; retain the operation source default"
         }
       },
-      "widthMm": {
-        "meaning": "Full image rectangle width in local face X (mm)",
+      "sizeXMm": {
+        "meaning": "X 方向图案/平板宽度 (mm)",
         "unit": "mm",
         "range": [
           0,
           1000
         ]
       },
-      "heightMm": {
-        "meaning": "Full image rectangle height in local face Y (mm)",
+      "sizeYMm": {
+        "meaning": "Y 方向图案/平板长度 (mm)",
         "unit": "mm",
         "range": [
           0,
           1000
         ]
       },
-      "depthMm": {
-        "meaning": "Maximum control height or depth (mm)",
+      "reliefHeightMm": {
+        "meaning": "相对支撑面最大起伏高度 (mm)",
         "unit": "mm",
         "range": [
           0.01,
@@ -1433,6 +1432,17 @@
       },
       "source": {
         "meaning": "source: 浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "schemaVersion": {
+        "meaning": "schemaVersion: 浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
         "unit": "none",
         "range": [
           null,
@@ -1606,9 +1616,6 @@
         "op": "relief",
         "params": {
           "faceId": 0,
-          "widthMm": 10,
-          "heightMm": 10,
-          "depthMm": 0.8,
           "values": [
             [
               0,
@@ -1651,7 +1658,11 @@
             "requestedGeometry": "continuousRelief",
             "sourceInterpretation": "authoredHeightMap",
             "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
-          }
+          },
+          "sizeXMm": 10,
+          "sizeYMm": 10,
+          "reliefHeightMm": 0.8,
+          "schemaVersion": 2
         },
         "refs": [
           "<current-bodyId-1>"
@@ -1663,9 +1674,6 @@
         "op": "relief",
         "params": {
           "faceId": 0,
-          "widthMm": 10,
-          "heightMm": 10,
-          "depthMm": 0.8,
           "values": [
             [
               0,
@@ -1708,7 +1716,11 @@
             "requestedGeometry": "continuousRelief",
             "sourceInterpretation": "authoredHeightMap",
             "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
-          }
+          },
+          "sizeXMm": 10,
+          "sizeYMm": 10,
+          "reliefHeightMm": 0.8,
+          "schemaVersion": 2
         },
         "refs": [
           "<current-bodyId-1>"
@@ -1941,5 +1953,5 @@
   "docs": "api.relief",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:05bff5577bffa06e1e48057c9d38d812cb7e19b9b958563ff8a8c94e1318f156"
+  "docsHash": "sha256:e183cacea2bd5cd7a00d8a80fff573c5124106811fbd7c983da64c4bff2658b8"
 }
