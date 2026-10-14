@@ -5,7 +5,7 @@ import {binaryHash} from './contracts/operation-schema.js';
 import {validateTimeline} from './document-timeline.js';
 const LEGACY_MAX_BYTES=20*1024*1024,MAX_BYTES=PROJECT_V4_LIMITS.maxBytes,MAX_ENTRIES=256,encoder=new TextEncoder(),decoder=new TextDecoder('utf-8',{fatal:true});
 const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
-const validName=name=>['manifest.json','document.json'].includes(name)||/^artifacts\/[a-f0-9]{64}\.brep$/.test(name)||/^assets\/[a-f0-9]{64}\.(stl|mesh|step|brep)$/.test(name);
+const validName=name=>['manifest.json','document.json'].includes(name)||/^artifacts\/[a-f0-9]{64}\.brep$/.test(name)||/^assets\/[a-f0-9]{64}\.(stl|mesh|step|brep|heightmap)$/.test(name);
 export function encodeProjectV4(document,options={}){if(options.includeTimeline!==false)validateTimeline(document);return packV4(document,options);}
 // Only called for a freshly decoded Worker-owned document. The main thread's
 // authoritative assets and undo history are never passed to this function.
