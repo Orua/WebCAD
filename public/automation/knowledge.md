@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.48.0 · sha256:5ca5f07462ac9c495c6679a9665ecb4d4afc0b7950ddef6dc2ebb96ae451dcaf
+API 1.48.0 · sha256:7d451e43c22bd3b032bbdccfcdca9fa4a63ada4b7c9a01d75ed75af9fea5c6bb
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -104824,17 +104824,17 @@ files.release: contextPolicy=none
   "limits": {
     "maxBytes": 104857600,
     "maxResources": 32,
-    "maxTotalBytes": 536870912,
+    "maxTotalBytes": 838860800,
     "ttlSeconds": 1800
   },
   "typedByteBudgets": {
-    "step": 134217728,
-    "stp": 134217728,
-    "brep": 134217728,
-    "brp": 134217728,
-    "stl": 134217728,
-    "mesh": 402653184,
-    "webcad": 536870912
+    "step": 104857600,
+    "stp": 104857600,
+    "brep": 104857600,
+    "brp": 104857600,
+    "stl": 104857600,
+    "mesh": 104857600,
+    "webcad": 104857600
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -104849,7 +104849,7 @@ files.release: contextPolicy=none
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
-  "docsHash": "sha256:9b2d5e43e19b48de42cecb25a3908c0e59f1209140e72091b838910a8724fa7d"
+  "docsHash": "sha256:459fb92ab4c1dbfa308eae8329698ccbf33b55442b9d60955bc17a960d2ac5a3"
 }
 ```
 
@@ -104887,17 +104887,17 @@ files.release: contextPolicy=none
   "limits": {
     "maxBytes": 104857600,
     "maxResources": 32,
-    "maxTotalBytes": 536870912,
+    "maxTotalBytes": 838860800,
     "ttlSeconds": 1800
   },
   "typedByteBudgets": {
-    "step": 134217728,
-    "stp": 134217728,
-    "brep": 134217728,
-    "brp": 134217728,
-    "stl": 134217728,
-    "mesh": 402653184,
-    "webcad": 536870912
+    "step": 104857600,
+    "stp": 104857600,
+    "brep": 104857600,
+    "brp": 104857600,
+    "stl": 104857600,
+    "mesh": 104857600,
+    "webcad": 104857600
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -104916,7 +104916,7 @@ files.release: contextPolicy=none
     "SIZE_LIMIT",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:84900b73145fef889701243342f40ce3aae5fa26a3f13ef910717babb7ce0b01"
+  "docsHash": "sha256:d4281b83b32cf8bd0c49a73f638f5c349569b83ecce8da7919d91686822c0990"
 }
 ```
 
@@ -104952,17 +104952,17 @@ files.release: contextPolicy=none
   "limits": {
     "maxBytes": 104857600,
     "maxResources": 32,
-    "maxTotalBytes": 536870912,
+    "maxTotalBytes": 838860800,
     "ttlSeconds": 1800
   },
   "typedByteBudgets": {
-    "step": 134217728,
-    "stp": 134217728,
-    "brep": 134217728,
-    "brp": 134217728,
-    "stl": 134217728,
-    "mesh": 402653184,
-    "webcad": 536870912
+    "step": 104857600,
+    "stp": 104857600,
+    "brep": 104857600,
+    "brp": 104857600,
+    "stl": 104857600,
+    "mesh": 104857600,
+    "webcad": 104857600
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -104984,7 +104984,7 @@ files.release: contextPolicy=none
     "FILE_COMMAND_FAILED",
     "SIZE_LIMIT"
   ],
-  "docsHash": "sha256:807d1ae8a5bb84f1850007b6b0445fa3b8267febe51756e0afb5c8ea70d51673"
+  "docsHash": "sha256:4f81fc875ac73de6901b99c81fbb0d0cbc4f7a1a6762d037d5af8a6cad0d8495"
 }
 ```
 
@@ -105023,17 +105023,17 @@ files.release: contextPolicy=none
   "limits": {
     "maxBytes": 104857600,
     "maxResources": 32,
-    "maxTotalBytes": 536870912,
+    "maxTotalBytes": 838860800,
     "ttlSeconds": 1800
   },
   "typedByteBudgets": {
-    "step": 134217728,
-    "stp": 134217728,
-    "brep": 134217728,
-    "brp": 134217728,
-    "stl": 134217728,
-    "mesh": 402653184,
-    "webcad": 536870912
+    "step": 104857600,
+    "stp": 104857600,
+    "brep": 104857600,
+    "brp": 104857600,
+    "stl": 104857600,
+    "mesh": 104857600,
+    "webcad": 104857600
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -105059,7 +105059,7 @@ files.release: contextPolicy=none
     "FORMAT_UNSUPPORTED",
     "MESH_UNITS_REQUIRED"
   ],
-  "docsHash": "sha256:d07c0af2d8b01d0e3808a914d71e3bee402c658faee699b155a5cdc06a2d941b"
+  "docsHash": "sha256:6fbc278a8ec8943bc22bb3c4c54bf0007cdecc24931459c4ca4a8f4a22b0a154"
 }
 ```
 
@@ -105099,17 +105099,17 @@ files.release: contextPolicy=none
   "limits": {
     "maxBytes": 104857600,
     "maxResources": 32,
-    "maxTotalBytes": 536870912,
+    "maxTotalBytes": 838860800,
     "ttlSeconds": 1800
   },
   "typedByteBudgets": {
-    "step": 134217728,
-    "stp": 134217728,
-    "brep": 134217728,
-    "brp": 134217728,
-    "stl": 134217728,
-    "mesh": 402653184,
-    "webcad": 536870912
+    "step": 104857600,
+    "stp": 104857600,
+    "brep": 104857600,
+    "brp": 104857600,
+    "stl": 104857600,
+    "mesh": 104857600,
+    "webcad": 104857600
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -105154,7 +105154,7 @@ files.release: contextPolicy=none
     "MESH_ASSET_CORRUPT",
     "MESH_DISPLAY_CAPACITY"
   ],
-  "docsHash": "sha256:14a717bee19a39da44213c9b790b83c55507b3dc3dfc0141628f783a480e47cb"
+  "docsHash": "sha256:0f38a43316a14a40e5d7c0638d0405a6baaac551e4a0ef3650ffc1e6dfbfc983"
 }
 ```
 
@@ -105191,17 +105191,17 @@ files.release: contextPolicy=none
   "limits": {
     "maxBytes": 104857600,
     "maxResources": 32,
-    "maxTotalBytes": 536870912,
+    "maxTotalBytes": 838860800,
     "ttlSeconds": 1800
   },
   "typedByteBudgets": {
-    "step": 134217728,
-    "stp": 134217728,
-    "brep": 134217728,
-    "brp": 134217728,
-    "stl": 134217728,
-    "mesh": 402653184,
-    "webcad": 536870912
+    "step": 104857600,
+    "stp": 104857600,
+    "brep": 104857600,
+    "brp": 104857600,
+    "stl": 104857600,
+    "mesh": 104857600,
+    "webcad": 104857600
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -105226,7 +105226,7 @@ files.release: contextPolicy=none
     "NAME_INVALID",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:fb8f296477db82a8d598c3b4e7ed9788bc0ae6dc5243291337ba2da8eb4966c7"
+  "docsHash": "sha256:613c6a54184efa8393046053d93a6c71227f78e3ed838367a010d8a93741161a"
 }
 ```
 
@@ -105265,17 +105265,17 @@ files.release: contextPolicy=none
   "limits": {
     "maxBytes": 104857600,
     "maxResources": 32,
-    "maxTotalBytes": 536870912,
+    "maxTotalBytes": 838860800,
     "ttlSeconds": 1800
   },
   "typedByteBudgets": {
-    "step": 134217728,
-    "stp": 134217728,
-    "brep": 134217728,
-    "brp": 134217728,
-    "stl": 134217728,
-    "mesh": 402653184,
-    "webcad": 536870912
+    "step": 104857600,
+    "stp": 104857600,
+    "brep": 104857600,
+    "brp": 104857600,
+    "stl": 104857600,
+    "mesh": 104857600,
+    "webcad": 104857600
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -105301,7 +105301,7 @@ files.release: contextPolicy=none
     "RESOURCE_LIMIT",
     "FORMAT_UNSUPPORTED"
   ],
-  "docsHash": "sha256:bf8e265714afaf50e56d202908fbfe84b44eaf67477409752f9dfb073e594f41"
+  "docsHash": "sha256:1d92447a130c906aa61b7346069423b552960fa8689f703bafeb871fcf8044d5"
 }
 ```
 
@@ -105338,17 +105338,17 @@ files.release: contextPolicy=none
   "limits": {
     "maxBytes": 104857600,
     "maxResources": 32,
-    "maxTotalBytes": 536870912,
+    "maxTotalBytes": 838860800,
     "ttlSeconds": 1800
   },
   "typedByteBudgets": {
-    "step": 134217728,
-    "stp": 134217728,
-    "brep": 134217728,
-    "brp": 134217728,
-    "stl": 134217728,
-    "mesh": 402653184,
-    "webcad": 536870912
+    "step": 104857600,
+    "stp": 104857600,
+    "brep": 104857600,
+    "brp": 104857600,
+    "stl": 104857600,
+    "mesh": 104857600,
+    "webcad": 104857600
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -105364,7 +105364,7 @@ files.release: contextPolicy=none
     "PARAM_SCHEMA_INVALID",
     "RESOURCE_EXPIRED"
   ],
-  "docsHash": "sha256:d083181e68365bbc927a6e2ac41c7e992bc9fcb289db7fa507fef92544721aab"
+  "docsHash": "sha256:7bec82a16a3e50b736a8b12ad4ebc8d12bd41dbcd10060f07b79b0e24880a284"
 }
 ```
 
@@ -105400,17 +105400,17 @@ files.release: contextPolicy=none
   "limits": {
     "maxBytes": 104857600,
     "maxResources": 32,
-    "maxTotalBytes": 536870912,
+    "maxTotalBytes": 838860800,
     "ttlSeconds": 1800
   },
   "typedByteBudgets": {
-    "step": 134217728,
-    "stp": 134217728,
-    "brep": 134217728,
-    "brp": 134217728,
-    "stl": 134217728,
-    "mesh": 402653184,
-    "webcad": 536870912
+    "step": 104857600,
+    "stp": 104857600,
+    "brep": 104857600,
+    "brp": 104857600,
+    "stl": 104857600,
+    "mesh": 104857600,
+    "webcad": 104857600
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -105428,7 +105428,7 @@ files.release: contextPolicy=none
     "ASSET_INVALID",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:67d0edf638318a33229860bc579e678e36f64b96bdf92eacabad74abe8fd68cf"
+  "docsHash": "sha256:d4b9cefad4badc9dcd13849c125e3e17075f64965e8fc88036fb57ed15825522"
 }
 ```
 
@@ -105465,17 +105465,17 @@ files.release: contextPolicy=none
   "limits": {
     "maxBytes": 104857600,
     "maxResources": 32,
-    "maxTotalBytes": 536870912,
+    "maxTotalBytes": 838860800,
     "ttlSeconds": 1800
   },
   "typedByteBudgets": {
-    "step": 134217728,
-    "stp": 134217728,
-    "brep": 134217728,
-    "brp": 134217728,
-    "stl": 134217728,
-    "mesh": 402653184,
-    "webcad": 536870912
+    "step": 104857600,
+    "stp": 104857600,
+    "brep": 104857600,
+    "brp": 104857600,
+    "stl": 104857600,
+    "mesh": 104857600,
+    "webcad": 104857600
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -105497,7 +105497,7 @@ files.release: contextPolicy=none
     "HASH_MISMATCH",
     "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:7c67feb6e6fd3ade4e1554c3394bf921259706a35391e56c762c02e18d749058"
+  "docsHash": "sha256:b19b6ffedb38296fb634db0101eb848bf478aaac420a9ddbbf34ee6b5715eacd"
 }
 ```
 
@@ -105535,17 +105535,17 @@ files.release: contextPolicy=none
   "limits": {
     "maxBytes": 104857600,
     "maxResources": 32,
-    "maxTotalBytes": 536870912,
+    "maxTotalBytes": 838860800,
     "ttlSeconds": 1800
   },
   "typedByteBudgets": {
-    "step": 134217728,
-    "stp": 134217728,
-    "brep": 134217728,
-    "brp": 134217728,
-    "stl": 134217728,
-    "mesh": 402653184,
-    "webcad": 536870912
+    "step": 104857600,
+    "stp": 104857600,
+    "brep": 104857600,
+    "brp": 104857600,
+    "stl": 104857600,
+    "mesh": 104857600,
+    "webcad": 104857600
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -105566,7 +105566,7 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT",
     "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:8ecdb02fa685be027b9ce8523abdd4efe25795779793fd57a9de661387548548"
+  "docsHash": "sha256:d2a80972b03c20bb7167fc0945a9cd621cbb6d8b29939d57868608c6beb54878"
 }
 ```
 
@@ -105602,17 +105602,17 @@ files.release: contextPolicy=none
   "limits": {
     "maxBytes": 104857600,
     "maxResources": 32,
-    "maxTotalBytes": 536870912,
+    "maxTotalBytes": 838860800,
     "ttlSeconds": 1800
   },
   "typedByteBudgets": {
-    "step": 134217728,
-    "stp": 134217728,
-    "brep": 134217728,
-    "brp": 134217728,
-    "stl": 134217728,
-    "mesh": 402653184,
-    "webcad": 536870912
+    "step": 104857600,
+    "stp": 104857600,
+    "brep": 104857600,
+    "brp": 104857600,
+    "stl": 104857600,
+    "mesh": 104857600,
+    "webcad": 104857600
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -105629,7 +105629,7 @@ files.release: contextPolicy=none
     "RESOURCE_EXPIRED",
     "RESOURCE_BUSY"
   ],
-  "docsHash": "sha256:9ea092a0de742742b83c185431278438d3c81bdd19d493a56b8231f8020517cc"
+  "docsHash": "sha256:986c393c2f9679d0646aa835e8a4c7edc978c6bcda6eb742dc0ef15b7e2ab259"
 }
 ```
 

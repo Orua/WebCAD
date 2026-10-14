@@ -27,17 +27,17 @@
   "limits": {
     "maxBytes": 104857600,
     "maxResources": 32,
-    "maxTotalBytes": 536870912,
+    "maxTotalBytes": 838860800,
     "ttlSeconds": 1800
   },
   "typedByteBudgets": {
-    "step": 134217728,
-    "stp": 134217728,
-    "brep": 134217728,
-    "brp": 134217728,
-    "stl": 134217728,
-    "mesh": 402653184,
-    "webcad": 536870912
+    "step": 104857600,
+    "stp": 104857600,
+    "brep": 104857600,
+    "brp": 104857600,
+    "stl": 104857600,
+    "mesh": 104857600,
+    "webcad": 104857600
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -54,5 +54,5 @@
     "RESOURCE_EXPIRED",
     "RESOURCE_BUSY"
   ],
-  "docsHash": "sha256:9ea092a0de742742b83c185431278438d3c81bdd19d493a56b8231f8020517cc"
+  "docsHash": "sha256:986c393c2f9679d0646aa835e8a4c7edc978c6bcda6eb742dc0ef15b7e2ab259"
 }
