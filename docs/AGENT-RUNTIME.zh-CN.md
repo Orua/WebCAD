@@ -11,6 +11,8 @@ WebCAD 维护 CAD 适配器、方法契约和有限数值规划器；Agent 保�
 
 ## 保存和恢复
 
+CAD 工作台附件登记、IIS 输入转发、Agent 文件接收和导出回传使用页面同一分类型容量：STEP/STP/BREP/BRP/STL 128 MiB、Float64 mesh 384 MiB、v4 webcad 512 MiB；每次最多5项，CAD任务附件合计512 MiB。普通聊天/浏览器及图像、PDF、矢量附件保留20 MiB。IIS较大的传输上限不放宽JSON命令、内容校验或Services来源/结果预算。Agent按已绑定任务的purpose=webcad决定容量，不接受上传者自行选择任务用途。登记、模型导入、生成、服务端写入和工程写入确认保持独立回执。
+
 files.save 读取最后提交的工程，不等待几何 Worker。未完成计算、预览、UI 草稿不写入这个快照。v4 用独立编码 Worker，保留原完整资产；其它版本按原容器编码。写入确认仍检查文件 SHA256、大小和工程修订，旧快照不能清除新修订的 dirty。
 
 内核错误先读取 getState。recoverKernel({context,stopRunning:false}) 只恢复未就绪内核；原计算仍运行时拒绝强行停止。经用户要求受控停止才用 stopRunning:true。恢复重建最后提交配方，保留几何和撤销历史，递增 revision 并清掉旧拓扑选择。恢复失败也能保存。恢复不是重新执行此前 Agent 命令。
