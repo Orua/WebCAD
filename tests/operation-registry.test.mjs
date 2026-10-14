@@ -10,6 +10,7 @@ import { canonicalJson, contractHash, validateSchema } from '../src/contracts/op
 import { bootstrap, searchTools, getTool, readDocs, docsHash } from '../src/ai-docs.js';
 
 const fails = (fn, code, path) => assert.throws(fn, error => error.code === code && (!path || error.path === path));
+test('mesh boolean accepts the actual ordered 2–16 reference range',()=>{const s=getOperation('meshBoolean').refsSchema;assert.equal(s.minItems,2);assert.equal(s.maxItems,16);assert.equal(getOperation('union').outputs.geometryType,'brep');assert.equal(getOperation('meshBoolean').outputs.geometryType,'rawMesh');});
 
 test('deterministic SHA-256 matches Node on ASCII, Unicode and multi-block canonical input', () => {
   for (const value of [{ b: 2, a: 1 }, '孔位坐标', { text: 'long'.repeat(1000) }]) {

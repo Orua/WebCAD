@@ -3,7 +3,7 @@
 // new closed Float64 mesh. Exact BRep/STEP is not produced.
 import {meshError} from './mesh-contract.js';
 export const meshBooleanExample={version:1,operation:'union',toleranceMm:.05};
-export const meshBooleanOperation={description:'网格布尔合并 / Mesh boolean',refs:2,paramsSchema:{type:'object',additionalProperties:false,required:['version','operation'],properties:{
+export const meshBooleanOperation={description:'网格布尔合并 / Mesh boolean',refs:{min:2,max:16},paramsSchema:{type:'object',additionalProperties:false,required:['version','operation'],properties:{
  version:{type:'integer',const:1},operation:{type:'string',enum:['union','subtract','intersect']},toleranceMm:{type:'number',minimum:.005,maximum:1}}},
  notes:'refs: 2–16 bodies in order; subtract removes refs[1..] from refs[0]. Mesh bodies are used as-is (with placement); exact BRep bodies are tessellated at toleranceMm (default 0.05 mm). Every input must be a closed, manifold mesh. Result is a closed raw mesh (STL export), not a BRep/STEP; refs are consumed.'};
 let modulePromise;
