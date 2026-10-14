@@ -609,13 +609,15 @@
         ],
         "default": "emboss"
       },
-      "offsetX": {
+      "offsetXMm": {
         "type": "number",
-        "description": "Offset from face centroid in local X (mm)"
+        "description": "图案平面内X方向偏移 (mm)",
+        "unit": "mm"
       },
-      "offsetY": {
+      "offsetYMm": {
         "type": "number",
-        "description": "Offset from face centroid in local Y (mm)"
+        "description": "图案平面内Y方向偏移 (mm)",
+        "unit": "mm"
       },
       "angleDeg": {
         "type": "number",
@@ -909,7 +911,7 @@
     "小图）"
   ],
   "description": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
-  "schemaHash": "sha256:5c296fec487dc73cd65ce2926e191017a94856fcc00461b847ea1cb4943a2b6f",
+  "schemaHash": "sha256:6c7abf7774ab9f388aae84156279366aa94917fda28f339d839ec8519c0fe298",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -1388,9 +1390,9 @@
         ],
         "default": "emboss"
       },
-      "offsetX": {
-        "meaning": "Offset from face centroid in local X (mm)",
-        "unit": "dimensionless",
+      "offsetXMm": {
+        "meaning": "图案平面内X方向偏移 (mm)",
+        "unit": "mm",
         "range": [
           null,
           null
@@ -1399,9 +1401,9 @@
           "behavior": "omitted; retain the operation source default"
         }
       },
-      "offsetY": {
-        "meaning": "Offset from face centroid in local Y (mm)",
-        "unit": "dimensionless",
+      "offsetYMm": {
+        "meaning": "图案平面内Y方向偏移 (mm)",
+        "unit": "mm",
         "range": [
           null,
           null
@@ -1958,5 +1960,5 @@
   "docs": "api.relief",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:6a19f1b59dd20f5674af3cd7640ff0ca2201c4754f2db4c44fc656fa0a1608f4"
+  "docsHash": "sha256:6bb405956a00e7f342920ef18a6a971b53f15718252ac804c217c3c992ea80a6"
 }

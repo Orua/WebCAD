@@ -178,6 +178,7 @@ function buildCard(id, source) {
   details.examples={minimal:clone(card.minimalExample),normal:clone(card.normalExample),invalid:clone(card.invalidExamples)};
   details.errors=[...new Set([...card.errorCodes,...details.errors.map(e=>e.code)])].map(code=>details.errors.find(e=>e.code===code)||{code,when:'该操作schema或执行流程拒绝输入',recovery:'读取当前工具卡并修正参数或来源'});
   Object.assign(card,{contract:details,purpose:details.purpose,whenToUse:details.whenToUse,whenNotToUse:details.whenNotToUse,limits:details.limits,outputs:details.outputs,errors:details.errors,routing:details.routing,status:details.status,relatedTools:details.related,synonyms:[...new Set([...details.synonyms,...card.synonyms])],errorCodes:details.errors.map(e=>e.code),testIds:card.testIds.length?card.testIds:['tests/operation-contract.test.mjs']});
+  if(id==='curvedLogo')Object.assign(card,{deprecated:true,replacement:'logo',status:'deprecated',contract:{...details,status:'deprecated',replacement:'logo'}});
   return card;
 }
 
