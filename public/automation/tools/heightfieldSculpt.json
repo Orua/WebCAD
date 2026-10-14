@@ -3,7 +3,7 @@
   "title": "高度图浮雕精修",
   "label": "高度图浮雕精修",
   "category": "command",
-  "version": "1.47.0",
+  "version": "1.48.0",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -20,5 +20,5 @@
     "浮雕精修",
     "sculpt"
   ],
-  "docsHash": "sha256:10e89ce7bf84325eb5d218557e1fe7606c16f93278e7b0347c65e45c550f86cf"
+  "docsHash": "sha256:07cd7eb026d7bf232c114f07b2b2a18b6f56ce92d5beb3216da44ac2cdfbb062"
 }

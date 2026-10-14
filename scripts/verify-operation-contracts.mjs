@@ -15,6 +15,7 @@ export function verifyOperationContracts(){
   for(const [key,schema]of Object.entries(card.inputSchema.properties||{})){const p=c.params[key];if(schema.unit==='mm'&&(p.unit!=='mm'||!Array.isArray(p.range)))throw Error(`${card.id}.${key}: missing mm range`);if(!(card.inputSchema.required||[]).includes(key)&&!Object.hasOwn(p,'default'))throw Error(`${card.id}.${key}: missing omission/default policy`);}
   if(c.routing.class!==operationRoutingClass(card.id))throw Error(`${card.id}: routing mismatch`);
   for(const item of c.whenNotToUse)if(!ids.has(item.use)&&!['measure','queryGeometry','files.export'].includes(item.use))throw Error(`${card.id}: unknown alternative ${item.use}`);
+  for(const path of c.sourcePaths||[]){const text=readFileSync(new URL('../'+path,import.meta.url),'utf8');for(const m of text.matchAll(/(?:meshError|fail|contractError)\(\s*['"]([A-Z][A-Z0-9_]+)['"]|code\s*:\s*['"]([A-Z][A-Z0-9_]+)['"]/g)){const code=m[1]||m[2];if(!c.errors.some(e=>e.code===code))throw Error(`${card.id}: source error ${code} missing from contract`);}}
   for(const ex of c.examples.invalid){let failure;try{card.strictContract?normalizeOperationParams(card.id,ex.params):validateSchema(card.inputSchema,ex.params);}catch(e){failure=e;}if(failure?.code!==ex.errorCode)throw Error(`${card.id}: invalid example expected ${ex.errorCode}, got ${failure?.code}`);}
  }
  return cards.length;

@@ -3,8 +3,12 @@ async (page) => {
   const network=[],sockets=[],responses=[];
   page.on('response',r=>responses.push({url:r.url(),status:r.status(),mime:r.headers()['content-type']}));
   page.on('request',r=>network.push({method:r.method(),url:r.url()}));page.on('websocket',s=>sockets.push(s.url()));
-  await page.goto('http://127.0.0.1:17670/');
+  await page.goto(process.env.WEBCAD_TEST_URL||'http://127.0.0.1:4173/');
   await page.waitForFunction(()=>window.webcad?.api.getState().summary?.kernelReady);
+  if(process.env.WEBCAD_TEST_CASE==='heightfield-contract'){
+    const {pathToFileURL}=await import('node:url'),{runHeightfieldContractE2E}=await import(pathToFileURL(process.cwd()+'/tests/heightfield-contract-e2e.js').href);
+    const result=await page.evaluate(runHeightfieldContractE2E);await page.screenshot({path:process.env.WEBCAD_TEST_SCREENSHOT||'G:/CAD-Workspace/WebCAD/agent-contract-20261014/reports/t9.png'});await testContext.close();return result;
+  }
   const result=await page.evaluate(async()=>{
     const api=window.webcad.api,records=[],files=[];
     const assert=(v,m)=>{if(!v)throw new Error(m);};

@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 667 --strictPort",
-    "build": "node scripts/generate-page-docs.mjs && node scripts/generate-reference-coverage.mjs && vite build && node scripts/verify-release.mjs",
+    "build": "node scripts/generate-operation-errors.mjs && node scripts/generate-page-docs.mjs && node scripts/generate-reference-coverage.mjs && vite build && node scripts/verify-release.mjs",
     "agent": "npm run build && node scripts/serve.mjs",
     "agent:cli": "node scripts/webcad-agent.mjs",
-    "preview": "vite preview --host 127.0.0.1 --port 667 --strictPort",
+    "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
     "test": "node scripts/test.mjs portable",
     "test:contracts": "node scripts/test.mjs contracts",
     "test:kernel": "node scripts/test.mjs kernel",
