@@ -15,7 +15,8 @@ export class ExactDisplayDetail {
       for(let i=start;i<start+count;i++)box.expandByPoint(point.fromBufferAttribute(positions,entry.body.indices[i]));
       geometry.boundingBox=box;geometry.boundingSphere=box.getBoundingSphere(new THREE.Sphere());
       const piece=new THREE.Mesh(geometry,entry.mesh.material);piece.userData={type:'display-only',faceId,bodyId:entry.body.id};group.add(piece);
-      return {faceId,exactPolygon,piece,base:geometry,fine:null,tolerance:EXACT_DISPLAY.initialTolerance,lastUsed:0,limited:false};
+      const heavy=!!entry.body.adaptiveDisplay.heavyFaceIds?.includes(faceId);
+      return {faceId,exactPolygon,piece,base:geometry,fine:null,tolerance:heavy?entry.body.adaptiveDisplay.initialTolerance:EXACT_DISPLAY.initialTolerance,lastUsed:0,limited:heavy};
     });
     entry.root.add(group);entry.exactDisplay={group,patches};
   }

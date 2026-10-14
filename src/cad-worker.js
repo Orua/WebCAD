@@ -13,12 +13,12 @@ self.onmessage = ({ data }) => {
     const { requestId, type } = data;
     try {
       const engine = await kernel;
-      engine.onProgress=progress=>self.postMessage({requestId,kind:'progress',progress});
+      engine.onProgress=progress=>{const p=progress.partial;self.postMessage({requestId,kind:'progress',progress},p?[p.positions.buffer,p.normals.buffer,p.indices.buffer]:[]);};
       let result;
       if(type==='ready')result={ready:true};
       else if(type==='encodeProject')result={bytes:encodeProjectV4(data.document)};
       else if(type==='decodeProject')result={document:await decodeProject(data.bytes)};
-      else if(type==='rebuild')result=await engine.rebuild(data.document);
+      else if(type==='rebuild')result=await engine.rebuild(data.document,{displayCoarsen:data.displayCoarsen||1});
       else if(type==='remesh')result=engine.remesh(data.quality);
       else if(type==='refineDisplay')result=refineExactDisplay(engine,data);
       else if(type==='export')result=await engine.export(data.format,data.ids,data.appearance);
