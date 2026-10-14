@@ -9,8 +9,8 @@
     {
       "name": "index.json",
       "url": "index.json",
-      "sizeBytes": 2211865,
-      "sha256": "sha256:c48277f8ac8154bd3478507ec249e0e74ce8faaf05f3559c0e7b7583c349bda8"
+      "sizeBytes": 2211873,
+      "sha256": "sha256:670f0e2cb32046764d7a6abd0635d6d45efd322235fe9e23aaab3b8216054b0a"
     },
     {
       "name": "agent-routing.json",
@@ -21,11 +21,11 @@
     {
       "name": "routes.json",
       "url": "routes.json",
-      "sizeBytes": 54105,
-      "sha256": "sha256:30129bd683a8a2b4ff220117d95a03e810ae24009c8022170b2c744baa69235b"
+      "sizeBytes": 54113,
+      "sha256": "sha256:a88986a7534bf710628d7e82bcf1b62e72dcc573641779142f898a038ba2bc7d"
     }
   ],
-  "totalBytes": 2292590,
+  "totalBytes": 2292606,
   "routing": "agent-routing.json",
   "index": "index.json",
   "uiRoutes": "routes.json",

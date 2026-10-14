@@ -48,6 +48,9 @@ export function refineExactDisplay(engine,{bodyId,renderVersion,faceIds,toleranc
   const faces=shape.faces;
   try{return {bodyId,renderVersion,tolerance,patches:faceIds.map(faceId=>{
     if(!Number.isInteger(faceId)||!faces[faceId])throw new Error('Invalid display face');
+    // Heavy spline faces stay at their budgeted import tolerance; finer BRepMesh
+    // passes on them are what exhausted the wasm heap.
+    if(cached.adaptiveDisplay.heavyFaceIds?.includes(faceId))return {faceId,limited:true};
     try{
       const mesh=faces[faceId].mesh({tolerance,angularTolerance:.45});
       if(mesh.triangles.length/3>250000)return {faceId,limited:true};

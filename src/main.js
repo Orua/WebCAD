@@ -87,28 +87,34 @@ Object.assign(labels,referenceNames);
 Object.assign(labels,mechanicalNames);
 Object.assign(labels,{sketchProfile:'绘制轮廓',profileOffset:'等距偏移 / 边框',profileRepair:'修复轮廓',profileExtrude:'轮廓拉伸 / 加工',holeWizard:'孔向导',draftFaces:'受限拔模'});
 const pending=new Map();
-let worker,recoveryPromise=null,kernelProgress=null,pendingServicesWait=null;
+let worker,recoveryPromise=null,kernelProgress=null,pendingServicesWait=null,displayCoarsen=1;
 function rejectPending(error){for(const job of pending.values()){clearTimeout(job.timer);job.reject(error);}pending.clear();}
 function createWorker(){
   const instance=new Worker(new URL('./cad-worker.js',import.meta.url),{type:'module'});
   instance.onmessage=event=>{if(instance!==worker)return;const result=event.data,job=pending.get(result.requestId);if(!job)return;if(result.kind==='progress'){
     kernelProgress={...result.progress,requestId:result.requestId,updatedAt:Date.now()};job.pulse();
     job.progress=kernelProgress;
-    if(result.progress.kind==='rebuild'){const p=result.progress;setStatus(`${p.label}${p.total?` ${p.completed}/${p.total}`:''}`);return;}
+    if(result.progress.kind==='rebuild'){const p=result.progress;if(p.partial){try{viewport.addProgressiveMesh(p.partial);}catch{}delete p.partial;}const text=`${p.label}${p.total?` ${p.completed}/${p.total}`:''}${p.triangles?` · ${p.triangles.toLocaleString()} 三角面`:''}`;if(busy)ui.setBusy(true,text);setStatus(text);return;}
     const p=result.progress,label=p.phase==='relief-contour'?`轮廓 ${p.completed}/${p.total}`:p.phase==='relief-boolean'?'合成实体':`层 ${p.completed}/${p.total}`;
     setStatus(`浮雕 ${p.layer??1}/${p.layerCount??1} · ${p.name??''} · ${label}`);return;
   }clearTimeout(job.timer);pending.delete(result.requestId);kernelProgress=null;if(result.ok)job.resolve(result);else job.reject(Object.assign(new Error(result.error||'建模操作失败'),{code:result.code,path:result.path,recoveryAction:result.recoveryAction,featureId:result.featureId,report:result.report}));};
-  instance.onerror=event=>{if(instance!==worker)return;const error=new Error(event.message||'CAD 内核异常，请保存工程后刷新页面。');rejectPending(error);kernelReady=false;ui?.showError(error.message);};
+  instance.onerror=event=>{if(instance!==worker)return;const error=Object.assign(new Error(event.message||'CAD 内核异常，请保存工程后刷新页面。'),{code:'KERNEL_CRASHED'});rejectPending(error);kernelReady=false;ui?.showError(error.message);};
   return instance;
 }
 worker=createWorker();
-function request(type,payload={}){return new Promise((resolve,reject)=>{
-  const requestId=++requestSequence,instance=worker,started=Date.now(),timeoutMs=type==='ready'?45000:getServicesConfig().localTimeoutMs;kernelProgress=null;
+function request(type,payload={},{hardTimeoutMs}={}){return new Promise((resolve,reject)=>{
+  if(type==='rebuild'&&displayCoarsen>1&&payload.displayCoarsen===undefined)payload={...payload,displayCoarsen};
+  const requestId=++requestSequence,instance=worker,started=Date.now(),timeoutMs=type==='ready'?45000:hardTimeoutMs||getServicesConfig().localTimeoutMs;kernelProgress=null;
   const job={resolve,reject,timer:null,pulse:()=>{
     if(job.reminded)return;
     clearTimeout(job.timer);
     job.timer=setTimeout(()=>{
       if(instance!==worker)return;
+      if(hardTimeoutMs){
+        // Large imports: a stalled worker holds the wasm heap; terminate it so recovery can retry coarser.
+        const error=Object.assign(new Error('本地计算超时，内核已终止'),{code:'KERNEL_TIMEOUT',commitState:'not_committed'});
+        worker.terminate();worker=createWorker();rejectPending(error);kernelReady=false;return;
+      }
       if(type!=='ready'){
         job.reminded=true;setStatus('本地计算已超过 '+timeoutMs/1000+' 秒，仍在执行原任务；可保存当前已提交工程。');return;
       }
@@ -293,7 +299,7 @@ async function routeChangedFeature(next,{signal,expectedRevision,featureId,expli
  }catch(error){if(!(error.code==='CANCELLED'&&error.submitted===false))servicesExecutionHistory.failure(executionKey,error);error.routingDecision=decision;throw error;}
 }
 
-async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,expectedRevision,newInstance=false,restoring=false,historyLabel}={}){
+async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,expectedRevision,newInstance=false,restoring=false,historyLabel,hardTimeoutMs}={}){
   if(busy)throw new Error('当前操作尚未完成，请稍候。');
   if(!kernelReady)throw new Error('建模内核尚未就绪。');
   setBusy(true,'正在计算精确实体…');
@@ -308,7 +314,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     assertDocumentCapacity(next,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});
     if(record&&!newInstance&&!restoring&&next.documentId===documentModel.documentId){routed=await routeChangedFeature(next,{signal,expectedRevision:expectedRevision??revision});next=routed.next;}
     localBegan=performance.now();
-    const result=await request('rebuild',{document:next});
+    const result=await request('rebuild',{document:next},{hardTimeoutMs});
     try{checkTransaction(signal,expectedRevision);}catch(error){await request('rebuild',{document:documentModel});throw error;}
     try{if(!restoring)await synchronizeBodyAnchors(documentModel,next,bodies,result.bodies,async bodyId=>(await request('queryGeometry',{bodyId,kind:'edge',filter:{}})).geometryFingerprint);checkTransaction(signal,expectedRevision);}catch(error){await request('rebuild',{document:documentModel});throw error;}
     // Automatic clearance belongs to the same geometry transaction. A locked
@@ -335,7 +341,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     if(routed?.record)servicesExecutionHistory.success(routed.record.input,routed.record.executor,routed.record.executor==='local'?{totalMs:performance.now()-localBegan}:routed.record.measurements);
     if(lastServicesDecision?.documentInstanceId===documentInstanceId&&lastServicesDecision.revision===revision-1){lastServicesDecision.revision=revision;setStatus(`就绪 · ${lastServicesDecision.executor==='remote'?'Services':'本地'} · ${lastServicesDecision.reason}`);}
     return result;
-  }catch(error){if(routed?.record)servicesExecutionHistory.failure(routed.record.executionKey,error);throw error;}
+  }catch(error){viewport.clearProgressiveMesh?.();if(routed?.record)servicesExecutionHistory.failure(routed.record.executionKey,error);throw error;}
   finally{try{setBusy(false);}catch(error){busy=false;lastWarnings.push({code:'DISPLAY_FAILED',message:error.message});}}
 }
 function featureDocument(op,params={},explicitRefs=[],name,placement){
@@ -537,8 +543,28 @@ async function openFiles(files,{confirmReplace=true,signal,expectedRevision,mcp=
       attachExactSource(next,{key,name:file.name,format,data:new Uint8Array(await file.arrayBuffer())});
       next.features.push({id,op:'import',name:file.name,params:{key},refs:[],...(placement?{placement,semanticsVersion:2}:{})});
       if(!next.features.slice(0,-1).length)next.name=file.name.replace(/\.[^.]+$/,'');
-      await rebuild(next,{fit:true,select:id,signal,expectedRevision});
+      await rebuildLargeImport(next,{fit:true,select:id,signal,expectedRevision});
       if(isIges&&!mcp){const d=next.imports[key].source;ui.showInfo('IGS 导入诊断',`源文件 ${d.name}：${d.topology?.faces??'?'} 面，${d.topology?.shells??'?'} 壳，${d.topology?.solids??'?'} 实体。未自动修复；散面请尝试曲面缝合，开放壳不能直接当实体加工。`);}
+    }
+  }
+}
+// STEP/BREP import: if the kernel crashes, runs out of wasm memory or stalls,
+// restart it (restoring the committed project) and retry once with a coarser
+// display tessellation before reporting a readable error.
+const kernelFailure=error=>['KERNEL_TIMEOUT','KERNEL_CRASHED'].includes(error?.code)||/memory access out of bounds|out of memory|Aborted|unreachable|RangeError/i.test(`${error?.message} ${error?.cause?.message||''}`);
+async function rebuildLargeImport(next,options){
+  const hardTimeoutMs=Math.max(getServicesConfig().localTimeoutMs,120000);
+  try{return await rebuild(next,{...options,hardTimeoutMs});}
+  catch(error){
+    if(!kernelFailure(error)||displayCoarsen>=16)throw error;
+    setStatus('模型过大，内核已重启，正在以较粗显示精度重试…');
+    try{await restartWorker(Object.assign(new Error('导入重试'),{code:'KERNEL_RECOVERY_REQUESTED'}));}catch{}
+    displayCoarsen*=4;
+    try{return await rebuild(next,{...options,hardTimeoutMs});}
+    catch(retry){
+      if(!kernelFailure(retry))throw retry;
+      try{await restartWorker(Object.assign(new Error('导入失败恢复'),{code:'KERNEL_RECOVERY_REQUESTED'}));}catch{}
+      throw Object.assign(new Error('模型过大，浏览器内核在较粗显示精度下仍无法完成导入（内存不足或超时）。原工程未改变；请在原 CAD 中简化曲面或拆分后再导入。'),{code:'IMPORT_TOO_LARGE',cause:retry});
     }
   }
 }
