@@ -146,6 +146,7 @@
   "boundedMeshOperations": [
     "meshReliefPlate",
     "meshHeightfieldRelief",
+    "meshBoolean",
     "meshReliefEdit"
   ],
   "servicesEligibleOperations": [
@@ -212,6 +213,7 @@
     "meshReliefEdit",
     "meshReliefPlate",
     "meshHeightfieldRelief",
+    "meshBoolean",
     "mirror",
     "multiBoss",
     "multiHole",

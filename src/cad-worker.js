@@ -2,6 +2,11 @@ import initOpenCascade from 'replicad-opencascadejs';
 import wasmURL from 'replicad-opencascadejs/wasm?url';
 import {encodeProjectV4,decodeProject,decodedProjectTransfers} from './project-container.js';
 import { CadKernel } from './cad-kernel.js';
+import initManifold from 'manifold-3d';
+import manifoldWasmURL from 'manifold-3d/manifold.wasm?url';
+import {setManifoldLoader} from './mesh/mesh-boolean.js';
+// Loaded lazily on the first mesh boolean.
+setManifoldLoader(()=>initManifold({locateFile:()=>manifoldWasmURL}));
 import {refineExactDisplay} from './modeling/io/adaptive-display.js';
 import {boundedDiagnosticReport} from './modeling/diagnostic-report.js';
 

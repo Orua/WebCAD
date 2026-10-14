@@ -701,6 +701,22 @@
       ]
     },
     {
+      "operation": "meshBoolean",
+      "semanticVersion": "mesh-boolean-1",
+      "localImpact": "Worker manifold-3d wasm union/subtract/intersect of closed meshes; exact BReps tessellated at toleranceMm",
+      "servicesImpact": "Explicit boundedMeshOperations shared policy: local only; no native conversion or fallback",
+      "logoImpact": "none; existing intent routing unchanged",
+      "contractImpact": "2-16 ordered refs, operation enum, tessellation tolerance; Agent/UI operation",
+      "documentImpact": "feature recipe only; inputs consumed",
+      "cacheImpact": "full feature params, regenerated tool docs",
+      "requiredTests": [
+        "tests/mesh-boolean.test.mjs",
+        "tests/operation-registry.test.mjs",
+        "tests/agent-interface-coverage.test.mjs",
+        "tests/services-routing.test.mjs"
+      ]
+    },
+    {
       "operation": "sampleMeshRelief",
       "semanticVersion": "mesh-relief-sample-1",
       "localImpact": "Read-only authoritative Float64 mesh normal-line intersections",

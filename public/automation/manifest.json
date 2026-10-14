@@ -1,9 +1,9 @@
 {
   "version": "1.47.0",
-  "buildId": "c3bb72ac092a1fe55b4065ca870f49b3c58685d9-src-22cb8b11ee0fed38-working",
+  "buildId": "fa707ac55f3528d5d4617ddb6da8c6a94a4da22b-src-ef5af9ff98c6d24f-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:f308a32b25ed5076f982ee09aeed740e9c35db44d3ae5005bc1e4fff381b56ed",
-  "docsHash": "sha256:15667836b4b0590054f4dd7ae0c507cce78898e16b0fe0282e9f5ceecee4adc1",
+  "catalogHash": "sha256:eae1c8a3cc777949c26a2f3a7d73b640cc049bc66084a0b27bef9540bde95205",
+  "docsHash": "sha256:4cda6a5038aa598f13dd5666e9aa6a283af78bc99a3fca2cb6c96595d62b41e8",
   "apiMethods": [
     "recoverKernel",
     "sampleMeshRelief",
@@ -388,12 +388,21 @@
       "url": "tools/logo.json"
     },
     {
+      "id": "meshBoolean",
+      "title": "网格布尔合并 / Mesh boolean",
+      "label": "网格布尔合并",
+      "category": "modification",
+      "version": "legacy-1",
+      "docsHash": "sha256:5392451f8eddd94a10b71264716dc222fe27458da481f2ad825745cff141c83b",
+      "url": "tools/meshBoolean.json"
+    },
+    {
       "id": "meshHeightfieldRelief",
       "title": "高度图浮雕 / Heightfield relief",
       "label": "高度图浮雕",
       "category": "creation",
       "version": "legacy-1",
-      "docsHash": "sha256:7140df66e711252a907bb0ffc7bf1d0ef5d90156311a8d325cf032bbb5315be3",
+      "docsHash": "sha256:d84b1d7e2ac688eda8c1b9285624118f70d197a735a52e40c30ebc4439285d5f",
       "url": "tools/meshHeightfieldRelief.json"
     },
     {
@@ -2342,7 +2351,7 @@
     },
     {
       "id": "api.ui-coverage",
-      "docsHash": "sha256:5bbd4426b55ad59e4163b0df2242ac49f1b0314926259d8447155ae60016ced2",
+      "docsHash": "sha256:fe50263edb841a8f14aad66587d79e18ea3f78b82f94c56a5df79c39d4be525a",
       "url": "docs/api.ui-coverage.md"
     },
     {

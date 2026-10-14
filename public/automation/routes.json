@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
   "pageApiVersion": "1.47.0",
-  "buildId": "c3bb72ac092a1fe55b4065ca870f49b3c58685d9-src-22cb8b11ee0fed38-working",
-  "catalogHash": "sha256:f308a32b25ed5076f982ee09aeed740e9c35db44d3ae5005bc1e4fff381b56ed",
-  "docsHash": "sha256:15667836b4b0590054f4dd7ae0c507cce78898e16b0fe0282e9f5ceecee4adc1",
+  "buildId": "fa707ac55f3528d5d4617ddb6da8c6a94a4da22b-src-ef5af9ff98c6d24f-working",
+  "catalogHash": "sha256:eae1c8a3cc777949c26a2f3a7d73b640cc049bc66084a0b27bef9540bde95205",
+  "docsHash": "sha256:4cda6a5038aa598f13dd5666e9aa6a283af78bc99a3fca2cb6c96595d62b41e8",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -392,6 +392,17 @@
       "method": "execute",
       "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
     },
+    "heightfieldSculpt": {
+      "tools": [
+        "feature.edit",
+        "meshHeightfieldRelief",
+        "history.undo",
+        "history.redo",
+        "getState"
+      ],
+      "method": "execute",
+      "usage": "在高度图浮雕的采样网格上用笔刷精修（抬高/压低/平滑/压平，半径、强度、目标高度）；笔画按顺序存入 params.sculpt，重建确定，撤销用 history.undo 或删除最后一笔。"
+    },
     "helix": {
       "tools": [
         "helix"
@@ -541,6 +552,18 @@
       ],
       "method": "measureRelation",
       "usage": "显式选择两个实体/边/面，或点与有限面，读取精确几何关系与见证点。"
+    },
+    "meshBoolean": {
+      "tools": [
+        "meshBoolean",
+        "preview.start",
+        "preview.commit",
+        "preview.cancel",
+        "getState",
+        "files.export"
+      ],
+      "method": "execute",
+      "usage": "选择2–16个实体按顺序做网格并集/差集/交集（manifold-3d）；精确实体先按 toleranceMm 细分，结果为封闭网格，可导出STL，不是BRep/STEP。"
     },
     "meshHeightfieldRelief": {
       "tools": [
@@ -1359,6 +1382,7 @@
     "linearPattern": "直线阵列",
     "loft": "放样 / 轮廓放样",
     "logo": "LOGO",
+    "meshBoolean": "网格布尔合并 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / getState / 导出文件",
     "meshHeightfieldRelief": "高度图浮雕 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数 / getState",
     "meshReliefEdit": "网格局部修高 / sampleMeshRelief / 修改参数 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销 / 重做 / getState",
     "meshReliefPlate": "浮雕网格底板 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数 / getState",
@@ -1400,6 +1424,7 @@
     "transform": "移动 / 旋转",
     "union": "合并",
     "vectorProfile": "导入路径",
+    "heightfieldSculpt": "高度图精修 / 修改参数 / 高度图浮雕 / 撤销 / 重做 / getState",
     "servicesWaitDecision": "decideServicesWait / getServicesRouting / getServicesJob",
     "reliefTopologyUpgrade": "prepareReliefTopologyUpgrade / 修改参数 / getState",
     "servicesJobRecovery": "getServicesJob / recoverServicesJob",

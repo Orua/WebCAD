@@ -1,6 +1,6 @@
 import {binaryHash} from '../contracts/operation-schema.js';
 import {MESH_LIMITS,meshError,meshScale} from './mesh-contract.js';
-export const BINARY_SOURCE_FORMATS=Object.freeze(['stl','mesh','step','brep']);
+export const BINARY_SOURCE_FORMATS=Object.freeze(['stl','mesh','step','brep','heightmap']);
 export const exactSourceFormat=format=>format==='step'||format==='brep';
 export const binaryAssetByteLimit=format=>format==='mesh'?MESH_LIMITS.maxAssetBytes:MESH_LIMITS.maxSourceBytes;
 const assetError=(format,message)=>meshError(exactSourceFormat(format)?'ARTIFACT_CORRUPT':'MESH_ASSET_CORRUPT',message);

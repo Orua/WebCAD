@@ -3,6 +3,7 @@ import {exactSourceBytes} from './exact-source.js';
 import {MeshShape} from './mesh/mesh-shape.js';
 import {makeReliefPlate} from './mesh/relief-plate.js';
 import {makeHeightfieldRelief} from './mesh/heightfield-relief.js';
+import {meshBoolean} from './mesh/mesh-boolean.js';
 import {editMeshRelief} from './mesh/relief-edit.js';
 import {assertPatternExecution} from './machining-intent.js';
 import {meshError} from './mesh/mesh-contract.js';
@@ -221,11 +222,21 @@ export class CadKernel {
     const frame=feature.placement?.frameSnapshot,point=value=>frame?worldPoint(frame,value):value,vector=value=>frame?rotateVector(frame.quaternion,value):value;
     const workPlane=(name,offset=0)=>{const basis=localPlaneBasis(name);return new cad.Plane(point(basis.offset(offset)),vector(basis.x),vector(basis.normal));};
     const sources = refs.map(id => { if (!shapes.has(id)) throw new Error(`找不到引用实体 ${id}`); return shapes.get(id); });
-    if(sources.some(s=>s.geometryType==='mesh')&&!['transform','copy','meshReliefEdit'].includes(feature.op))throw meshError('MESH_TOOL_UNAVAILABLE','This precise BRep tool does not operate on raw meshes; source is retained.');
+    if(sources.some(s=>s.geometryType==='mesh')&&!['transform','copy','meshReliefEdit','meshBoolean'].includes(feature.op))throw meshError('MESH_TOOL_UNAVAILABLE','This precise BRep tool does not operate on raw meshes; source is retained.');
     const source = () => { if (sources.length !== 1) throw new Error('此操作需要选择一个实体'); return sources[0]; };
     switch (feature.op) {
       case 'meshReliefPlate': return new MeshShape(makeReliefPlate(p),{units:'mm',sourceFormat:'generated-mesh',report:{authoritativeEditableKind:'mesh-f64',recipeVersion:1}});
-      case 'meshHeightfieldRelief': return new MeshShape(makeHeightfieldRelief(p),{units:'mm',sourceFormat:'generated-mesh',report:{authoritativeEditableKind:'heightfield',recipeVersion:1,closed:true}});
+      case 'meshHeightfieldRelief': {
+        const key=p.heights?.importKey,item=key?imports[key]:null;
+        if(key&&(item?.format!=='heightmap'||!(this.binaryAssets?.[item.assetHash] instanceof Uint8Array)))throw meshError('HEIGHTFIELD_INVALID','Heightmap asset is missing from the project.');
+        return new MeshShape(makeHeightfieldRelief(p,key?this.binaryAssets[item.assetHash]:undefined),{units:'mm',sourceFormat:'generated-mesh',report:{authoritativeEditableKind:'heightfield',recipeVersion:1,sculptStrokes:p.sculpt?.length||0}});
+      }
+      case 'meshBoolean': {
+        if(sources.length<2||sources.length>16)throw meshError('MESH_BOOLEAN_INVALID','Select 2–16 bodies.');
+        const tol=p.toleranceMm??.05,meshes=sources.map(s=>{if(s.geometryType==='mesh')return s.transformed();const m=s.mesh({tolerance:tol,angularTolerance:.2});return {positions:Float64Array.from(m.vertices),indices:Uint32Array.from(m.triangles)};});
+        const result=await meshBoolean(meshes,p.operation);
+        return new MeshShape(result.mesh,{units:'mm',sourceFormat:'generated-mesh',report:{authoritativeEditableKind:'mesh-f64',boolean:result.report}});
+      }
       case 'meshReliefEdit': {
         const original=source();if(original.geometryType!=='mesh')throw meshError('RELIEF_SOURCE_UNSUPPORTED','This operation edits a mesh; exact BRep requires its own surface operation.');
         const result=editMeshRelief(original.transformed(),p);

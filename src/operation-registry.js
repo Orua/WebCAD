@@ -1,5 +1,6 @@
 import {reliefPlateExample} from './mesh/relief-plate.js';
 import {heightfieldReliefExample} from './mesh/heightfield-relief.js';
+import {meshBooleanExample} from './mesh/mesh-boolean.js';
 import {reliefEditExample} from './mesh/relief-edit-contract.js';
 import {MACHINING_INTENT_SCHEMA,assertPatternExecution,PATTERN_OPERATIONS} from './machining-intent.js';
 import { operationCatalog, legacyRoundingOperation, legacyUnifiedRoundingOperation } from './operation-catalog.js';
@@ -19,7 +20,7 @@ const defaults = {reliefShoulder:{}, meshReliefEdit:{},meshReliefPlate:{}, cylin
   multiHole: { axis: 'Z', direction: 1 }, multiPocket:{axis:'Z',direction:-1}, multiBoss:{axis:'Z',direction:1}, faceHole: { through: false }, fillet: {}, chamfer: {}, shell: {}, draftFaces:{}, extractFaces:{}, extractShell:{}, sketchProfile:{}, profileOffset:{}, profileRepair:{}, profileExtrude:{},...mechanicalDefaults };
 const triangle = [[-1, -1], [1, -1], [0, 1]];
 const regions = [{ outer: triangle }];
-const examples = { reliefShoulder:{faceId:0,point:[0,50.25,7],widthMm:.3,endProtectionMm:.3,endPolicy:'retained-step-with-planar-caps'}, meshReliefEdit:reliefEditExample,meshReliefPlate:reliefPlateExample,meshHeightfieldRelief:heightfieldReliefExample, round:{edgeIds:[0]}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z',depthMm:2,edgeIds:[0]}, rounding:{specVersion:3,scope:{kind:'edges',edgeIds:[0]}}, autoRound:{radius:0.1}, smoothTransition:{radius:0.1,faceIds:[0,1]},
+const examples = { reliefShoulder:{faceId:0,point:[0,50.25,7],widthMm:.3,endProtectionMm:.3,endPolicy:'retained-step-with-planar-caps'}, meshReliefEdit:reliefEditExample,meshReliefPlate:reliefPlateExample,meshHeightfieldRelief:heightfieldReliefExample,meshBoolean:meshBooleanExample, round:{edgeIds:[0]}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z',depthMm:2,edgeIds:[0]}, rounding:{specVersion:3,scope:{kind:'edges',edgeIds:[0]}}, autoRound:{radius:0.1}, smoothTransition:{radius:0.1,faceIds:[0,1]},
   box: { width: 50, depth: 30, height: 3 }, cylinder: { radius: 10, height: 20 }, sphere: { radius: 10 },
   cone: { radius1: 10, radius2: 0, height: 20 }, torus: { majorRadius: 10, minorRadius: 2 },
   extrude: { profile: 'rectangle', width: 20, depth: 10, height: 5 },

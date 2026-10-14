@@ -75,3 +75,8 @@ The browser relief tool uses [polygon-clipping](https://github.com/mfogel/polygo
 ## Optional local vector-import dependencies
 
 Vector-logo file parsing runs in an installed local Python environment, separate from the browser bundle. tools/requirements-logo.txt records versions: ezdxf 1.4.4 (MIT), svgelements 1.9.6 (MIT), Shapely 2.1.2 (BSD-3-Clause), and PyMuPDF 1.26.4 (GNU AGPL-3.0 or Artifex commercial license, as declared by its installed metadata). PyMuPDF's unchanged notice is retained in LICENSES/PyMuPDF-1.26.4-COPYING.txt. These Python packages are not copied into dist. DWG parsing invokes a separately installed GNU LibreDWG executable; it is not bundled by this change. Existing viewer licenses and corresponding-source records remain applicable.
+
+## manifold-3d 3.5.4
+
+- Use: mesh boolean (union / subtract / intersect) for closed triangle meshes in the CAD Worker (`src/mesh/mesh-boolean.js`).
+- License: Apache-2.0, Copyright The Manifold Authors. https://github.com/elalish/manifold

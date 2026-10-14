@@ -59,8 +59,7 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "encoding",
-          "data"
+          "encoding"
         ],
         "properties": {
           "encoding": {
@@ -73,6 +72,64 @@
           "data": {
             "type": "string",
             "maxLength": 8388608
+          },
+          "importKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        }
+      },
+      "sculpt": {
+        "type": "array",
+        "maxItems": 512,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "radiusMm",
+            "strength",
+            "points"
+          ],
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "raise",
+                "lower",
+                "smooth",
+                "flatten"
+              ]
+            },
+            "radiusMm": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            "strength": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10
+            },
+            "targetMm": {
+              "type": "number"
+            },
+            "points": {
+              "type": "array",
+              "maxItems": 20000,
+              "items": {
+                "type": "number",
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            }
           }
         }
       },
@@ -125,7 +182,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles).",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. heights is inline base64 data or importKey of a binary project asset (format heightmap). sculpt: ordered brush strokes {mode raise|lower (strength mm per dab)|smooth|flatten (strength 0–1, flatten to targetMm), radiusMm, points [x,y,...] mm in relief-local XY} replayed deterministically after gamma/fade. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles).",
   "title": "高度图浮雕 / Heightfield relief",
   "category": "creation",
   "synonyms": [
@@ -133,7 +190,7 @@
     "高度图浮雕"
   ],
   "description": "高度图浮雕 / Heightfield relief",
-  "schemaHash": "sha256:17ab1086d41ce90282e2db5e335fedbf1c33ad6dafed4b10aaf94de38437a7b9",
+  "schemaHash": "sha256:1353033ef6f168508b0e408effc97db11aeffb21c1171a6c4d4944d5a2a39fd9",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -183,7 +240,7 @@
     "Schema advisory only; existing operation/kernel restrictions apply."
   ],
   "knownUnsupportedCases": [
-    "Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles).",
+    "Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. heights is inline base64 data or importKey of a binary project asset (format heightmap). sculpt: ordered brush strokes {mode raise|lower (strength mm per dab)|smooth|flatten (strength 0–1, flatten to targetMm), radiusMm, points [x,y,...] mm in relief-local XY} replayed deterministically after gamma/fade. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles).",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
@@ -306,5 +363,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:7140df66e711252a907bb0ffc7bf1d0ef5d90156311a8d325cf032bbb5315be3"
+  "docsHash": "sha256:d84b1d7e2ac688eda8c1b9285624118f70d197a735a52e40c30ebc4439285d5f"
 }
