@@ -1,6 +1,7 @@
 // Structured batches over an authorized page script channel (or explicit manual debugging).
 // Every mutation still goes through the existing page API / CommandService.
 import {contractHash} from './contracts/operation-schema.js';
+import {LIMITS} from './limits.js';
 const methods = new Set(['add','execute','connect','info','getState','searchTools','getTools','getTool','readDocs',
   'getQuickModelUsage','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','readVector','connectVector','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.capabilities','files.register',
   'files.import','files.save','files.export','files.release']);
@@ -78,7 +79,7 @@ export function createPageBatch(api,{display}={}){
         if(!s.summary.kernelReady||s.summary.busy||(s.preview.active&&!allowPreview)||s.preview.computing)bad('CAPABILITY_UNAVAILABLE','Wait for kernel/preview to finish');
       };
       check(true);
-      if(!Array.isArray(input.steps)||!input.steps.length||input.steps.length>20)bad('RESOURCE_LIMIT','Expected 1..20 steps');
+      const maxSteps=LIMITS.batch.maxSteps;if(!Array.isArray(input.steps)||!input.steps.length||input.steps.length>maxSteps)bad('RESOURCE_LIMIT',`Expected 1..${maxSteps} steps`);
       const names=new Set();
       for(const step of input.steps){
         keys(step,['id','stage','method','args']);
