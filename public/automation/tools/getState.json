@@ -2,7 +2,7 @@
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.46.0",
+  "version": "1.47.0",
   "description": "getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities/references。",
   "synonyms": [
     "getState",
@@ -23,5 +23,5 @@
     "PARAM_SCHEMA_INVALID",
     "INSTANCE_MISMATCH"
   ],
-  "docsHash": "sha256:a91b796c48eeba353e4c7a0f3400acc88e8ef9a3077384576eb0edede6b1139a"
+  "docsHash": "sha256:876753450809d249b995d85db4da9bcfae90d1b8584f780f5249e7f30c8a9dab"
 }

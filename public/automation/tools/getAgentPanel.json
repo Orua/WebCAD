@@ -2,7 +2,7 @@
   "id": "getAgentPanel",
   "title": "getAgentPanel",
   "category": "page-method",
-  "version": "1.46.0",
+  "version": "1.47.0",
   "description": "getAgentPanel()",
   "synonyms": [
     "getAgentPanel",
@@ -17,5 +17,5 @@
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:a8942585b3f418a4710afffb26099364692e33a265c6e3785e2b6c11374a5db7"
+  "docsHash": "sha256:9093af8e4c821005e0c2f91c536d1f9f741f89df8b0fe7de06a6151c8d9422a7"
 }

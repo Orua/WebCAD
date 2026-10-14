@@ -2,7 +2,7 @@
   "id": "cancelServicesJob",
   "title": "cancelServicesJob",
   "category": "page-method",
-  "version": "1.46.0",
+  "version": "1.47.0",
   "description": "cancelServicesJob({context,jobId})",
   "synonyms": [
     "cancelServicesJob",
@@ -25,5 +25,5 @@
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_REQUEST_FAILED"
   ],
-  "docsHash": "sha256:fb86e724d1f2af95f58d16b04ed96ff4faef68569e441ca566b2418654355a99"
+  "docsHash": "sha256:9f0c65fe9772d8f5c3b5878d2bed91719092ca94438ed7f13bf54e99ebc31997"
 }

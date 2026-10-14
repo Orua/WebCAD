@@ -2,7 +2,7 @@
   "id": "getServicesJob",
   "title": "getServicesJob",
   "category": "page-method",
-  "version": "1.46.0",
+  "version": "1.47.0",
   "description": "getServicesJob({jobId})",
   "synonyms": [
     "getServicesJob",
@@ -24,5 +24,5 @@
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_REQUEST_FAILED"
   ],
-  "docsHash": "sha256:5d651463e02e98aef5490dbab04f9f21b7a84716373ae2e51889228bedf2f15e"
+  "docsHash": "sha256:8c2a7f729c66798cbeefe2dcf1315dd580f303a3b85a50455dad73a191f66747"
 }

@@ -2,7 +2,7 @@
   "id": "measure",
   "title": "measure",
   "category": "page-method",
-  "version": "1.46.0",
+  "version": "1.47.0",
   "description": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需当前范围内的非负整数 topologyId；整个实体测量不接受 topologyId，坐标点模式不可混用实体字段。",
   "synonyms": [
     "measure",
@@ -31,5 +31,5 @@
     "area": "mm^2",
     "volume": "mm^3"
   },
-  "docsHash": "sha256:678a27198ca05d8a883cb7a5965b717b9682cf81117874b2c7effb3dac30d192"
+  "docsHash": "sha256:012d18e6918c0e8a28d1616a3fd25c76cb9ddaca70fe650e8b0f84e42c061caf"
 }
