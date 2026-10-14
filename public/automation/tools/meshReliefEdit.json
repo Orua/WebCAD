@@ -1071,6 +1071,9 @@
   "title": "网格局部修高 / Local mesh relief height",
   "category": "modification",
   "synonyms": [
+    "网格修高",
+    "STL 精修",
+    "mesh sculpt",
     "meshReliefEdit",
     "网格局部修高"
   ],
@@ -1121,7 +1124,12 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+    {
+      "name": "maxTriangles",
+      "value": 200000,
+      "unit": "count",
+      "source": "src/limits.js#meshReliefEdit.maxTriangles"
+    }
   ],
   "knownUnsupportedCases": [
     "Read current meshReport.geometryHash. Explicit physical support, on-surface seed, core/transition and hard-protection disks. replace uses field.originMm/sizeMm/heightsMm in support UV; rows increase V, entries are absolute heights in mm. Bilinear target replaces old heights in core and blends only in transition, never max; field must cover editable samples. Source facet spacing must resolve target field; this is a sampling gate, not an approximation-error certificate. Fixed topology Float64 direct edit; source remains immutable. Only closed oriented planar single-valued relief, at most 200000 triangles / 20000 affected vertices / 12000000 tests per clearance phase. Clearance uses projected facet overlaps and vertex/centroid rays; arbitrary 3D self-intersection is not certified. Output remains mesh, not BRep/STEP. History restores prior asset/recipe, not an inverse brush. Read bodies[].meshReport.edit. Missing support, ambiguous seed, stale hash, unavailable back support, boundary conflict, collision or thickness failure reject atomically. replace may instead take deformation:{pivotMm,translationMm,scale:[positiveU,positiveV],angleDeg,sourceRegion:{centerMm,radiusMm},baseHeightMm,maxSourceSpacingMm}. Inverse affine sampling of the same current selected source height surface moves/narrows/rotates its relief within the declared ROI; topology/XY positions and protected vertices remain fixed. Heights are barycentrically sampled from the immutable source, never from a previous partial output. Only sourceRegion contributes; inverse samples outside it use explicit baseHeightMm, preventing unrelated neighbors from being copied. The editable ROI must cover the old and new local relief, with unrelated geometry protected. This is resampling, not recovered analytic geometry; no approximation error is certified by the spacing gate. Domain misses, nonpositive scale or ambiguous height reject. Source interpolation must resolve the narrowest scaled axis. Read meshReport.edit.profile. Alternatively replace accepts profile (mutually exclusive with field/value): cubic Bezier segments in support UV, stations from at=0 to 1 along approximate arc length, sectionMm ordered [signed lateral offset,height] pairs with zero outer heights, baseHeightMm, endTaperMm, curveToleranceMm and maxSourceSpacingMm. Positive section offset is left of path direction. Sections and stations interpolate linearly without height overshoot; end taper is cubic smoothstep in mm, exterior end planes use base height. This replaces the declared ROI including old path positions, not an additive overlay. Hard protections take precedence. Read meshReport.edit.profile. No arbitrary undercuts or automatic remeshing. Optional targets:[{pointMm:[U,V],heightMm,toleranceMm}] are mandatory acceptance constraints, not soft brush requests. A protected point conflicting with a target fails RELIEF_CONSTRAINT_CONFLICT with params.targets index before commit; no hit fails RELIEF_TARGET_OUTSIDE. Read meshReport.edit.constraints. mode=layers composes 1..16 ordered layers with unique id and enabled. Surface layers declare role=macro|detail, region and blend: add/remove require positive heightMm and attachment=followHeight (relative normal height); replace requires attachment=absolute and exactly heightMm, field or profile. A freeze layer supplies hard-protection regions for subsequent layers. Global protections apply to every layer. Editing the whole layers array at the original feature recomputes from its immutable input; order and enabled state are part of the recipe. This is height-only following, not automatic tangent or lateral detail binding. Layer domains must lie inside the total ROI; accumulated freeze disks <=64, active layers times triangles <=1000000. Mandatory targets apply to the final composed surface. Failures discard the entire candidate. Read edit.layers, layerSemanticsVersion, continuationSeedMm; minimum thickness/clearance are conservative minima over affected regions at every applied layer, not global final-surface certificates."
@@ -1323,6 +1331,705 @@
     "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
+  "contract": {
+    "purpose": "网格局部修高 / Local mesh relief height",
+    "whenToUse": [
+      "Read current meshReport.geometryHash. Explicit physical support, on-surface seed, core/transition and hard-protection disks. replace uses field.originMm/sizeMm/heightsMm in support UV; rows increase V, entries are absolute heights in mm. Bilinear target replaces old heights in core and blends only in transition, never max; field must cover editable samples. Source facet spacing must resolve target field; this is a sampling gate, not an approximation-error certificate. Fixed topology Float64 direct edit; source remains immutable. Only closed oriented planar single-valued relief, at most 200000 triangles / 20000 affected vertices / 12000000 tests per clearance phase. Clearance uses projected facet overlaps and vertex/centroid rays; arbitrary 3D self-intersection is not certified. Output remains mesh, not BRep/STEP. History restores prior asset/recipe, not an inverse brush. Read bodies[].meshReport.edit. Missing support, ambiguous seed, stale hash, unavailable back support, boundary conflict, collision or thickness failure reject atomically. replace may instead take deformation:{pivotMm,translationMm,scale:[positiveU,positiveV],angleDeg,sourceRegion:{centerMm,radiusMm},baseHeightMm,maxSourceSpacingMm}. Inverse affine sampling of the same current selected source height surface moves/narrows/rotates its relief within the declared ROI; topology/XY positions and protected vertices remain fixed. Heights are barycentrically sampled from the immutable source, never from a previous partial output. Only sourceRegion contributes; inverse samples outside it use explicit baseHeightMm, preventing unrelated neighbors from being copied. The editable ROI must cover the old and new local relief, with unrelated geometry protected. This is resampling, not recovered analytic geometry; no approximation error is certified by the spacing gate. Domain misses, nonpositive scale or ambiguous height reject. Source interpolation must resolve the narrowest scaled axis. Read meshReport.edit.profile. Alternatively replace accepts profile (mutually exclusive with field/value): cubic Bezier segments in support UV, stations from at=0 to 1 along approximate arc length, sectionMm ordered [signed lateral offset,height] pairs with zero outer heights, baseHeightMm, endTaperMm, curveToleranceMm and maxSourceSpacingMm. Positive section offset is left of path direction. Sections and stations interpolate linearly without height overshoot; end taper is cubic smoothstep in mm, exterior end planes use base height. This replaces the declared ROI including old path positions, not an additive overlay. Hard protections take precedence. Read meshReport.edit.profile. No arbitrary undercuts or automatic remeshing. Optional targets:[{pointMm:[U,V],heightMm,toleranceMm}] are mandatory acceptance constraints, not soft brush requests. A protected point conflicting with a target fails RELIEF_CONSTRAINT_CONFLICT with params.targets index before commit; no hit fails RELIEF_TARGET_OUTSIDE. Read meshReport.edit.constraints. mode=layers composes 1..16 ordered layers with unique id and enabled. Surface layers declare role=macro|detail, region and blend: add/remove require positive heightMm and attachment=followHeight (relative normal height); replace requires attachment=absolute and exactly heightMm, field or profile. A freeze layer supplies hard-protection regions for subsequent layers. Global protections apply to every layer. Editing the whole layers array at the original feature recomputes from its immutable input; order and enabled state are part of the recipe. This is height-only following, not automatic tangent or lateral detail binding. Layer domains must lie inside the total ROI; accumulated freeze disks <=64, active layers times triangles <=1000000. Mandatory targets apply to the final composed surface. Failures discard the entire candidate. Read edit.layers, layerSemanticsVersion, continuationSeedMm; minimum thickness/clearance are conservative minima over affected regions at every applied layer, not global final-surface certificates."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "需要精确曲面和STEP交换",
+        "use": "relief"
+      }
+    ],
+    "params": {
+      "version": {
+        "meaning": "version: 网格局部修高 / Local mesh relief height",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "units": {
+        "meaning": "units: 网格局部修高 / Local mesh relief height",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "topologyEpoch": {
+        "meaning": "topologyEpoch: 网格局部修高 / Local mesh relief height",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "inputGeometryHash": {
+        "meaning": "inputGeometryHash: 网格局部修高 / Local mesh relief height",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "support": {
+        "meaning": "support: 网格局部修高 / Local mesh relief height",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "seedMm": {
+        "meaning": "seedMm: 网格局部修高 / Local mesh relief height",
+        "unit": "mm",
+        "range": [
+          3,
+          3
+        ]
+      },
+      "region": {
+        "meaning": "region: 网格局部修高 / Local mesh relief height",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "protectedRegions": {
+        "meaning": "protectedRegions: 网格局部修高 / Local mesh relief height",
+        "unit": "none",
+        "range": [
+          null,
+          64
+        ]
+      },
+      "targets": {
+        "meaning": "targets: 网格局部修高 / Local mesh relief height",
+        "unit": "none",
+        "range": [
+          null,
+          64
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "mode": {
+        "meaning": "mode: 网格局部修高 / Local mesh relief height",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "value": {
+        "meaning": "value: 网格局部修高 / Local mesh relief height",
+        "unit": "dimensionless",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "field": {
+        "meaning": "field: 网格局部修高 / Local mesh relief height",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "profile": {
+        "meaning": "profile: 网格局部修高 / Local mesh relief height",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "deformation": {
+        "meaning": "deformation: 网格局部修高 / Local mesh relief height",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "layers": {
+        "meaning": "layers: 网格局部修高 / Local mesh relief height",
+        "unit": "none",
+        "range": [
+          1,
+          16
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "minThicknessMm": {
+        "meaning": "minThicknessMm: 网格局部修高 / Local mesh relief height",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      }
+    },
+    "refs": {
+      "min": 1,
+      "max": 1,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxTriangles",
+        "value": 200000,
+        "unit": "count",
+        "source": "src/limits.js#meshReliefEdit.maxTriangles"
+      }
+    ],
+    "outputs": {
+      "geometryType": "rawMesh",
+      "exportFormats": [
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_FIELD_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_PROFILE_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_DEFORMATION_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_SAMPLE_OUTSIDE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_RESOLUTION_INSUFFICIENT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_TARGET_OUTSIDE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_CONSTRAINT_CONFLICT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_LAYERS_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_SOURCE_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_EDIT_CAPACITY",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_EDIT_VERSION",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_SUPPORT_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_REGION_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_CONSTRAINT_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_GEOMETRY_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_NOT_CLOSED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_SELECTION_AMBIGUOUS",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_BOUNDARY_CONFLICT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_MULTIVALUED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_THICKNESS_UNKNOWN",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_INTERSECTION",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_THICKNESS",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "STALE_REFERENCE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "NO_CHANGE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "meshReliefEdit",
+        "params": {
+          "version": 1,
+          "units": "mm",
+          "topologyEpoch": 0,
+          "inputGeometryHash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+          "support": {
+            "originMm": [
+              0,
+              0,
+              0
+            ],
+            "xAxis": [
+              1,
+              0,
+              0
+            ],
+            "normal": [
+              0,
+              0,
+              1
+            ]
+          },
+          "seedMm": [
+            0,
+            0,
+            1
+          ],
+          "region": {
+            "centerMm": [
+              0,
+              0
+            ],
+            "coreRadiusMm": 2,
+            "transitionMm": 1
+          },
+          "protectedRegions": [],
+          "mode": "scaleHeight",
+          "value": 0.8,
+          "minThicknessMm": 1
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "meshReliefEdit",
+        "params": {
+          "version": 1,
+          "units": "mm",
+          "topologyEpoch": 0,
+          "inputGeometryHash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+          "support": {
+            "originMm": [
+              0,
+              0,
+              0
+            ],
+            "xAxis": [
+              1,
+              0,
+              0
+            ],
+            "normal": [
+              0,
+              0,
+              1
+            ]
+          },
+          "seedMm": [
+            0,
+            0,
+            1
+          ],
+          "region": {
+            "centerMm": [
+              0,
+              0
+            ],
+            "coreRadiusMm": 2,
+            "transitionMm": 1
+          },
+          "protectedRegions": [],
+          "mode": "scaleHeight",
+          "value": 0.8,
+          "minThicknessMm": 1
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "version": 1,
+            "units": "mm",
+            "topologyEpoch": 0,
+            "inputGeometryHash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+            "support": {
+              "originMm": [
+                0,
+                0,
+                0
+              ],
+              "xAxis": [
+                1,
+                0,
+                0
+              ],
+              "normal": [
+                0,
+                0,
+                1
+              ]
+            },
+            "seedMm": [
+              0,
+              0,
+              1
+            ],
+            "region": {
+              "centerMm": [
+                0,
+                0
+              ],
+              "coreRadiusMm": 2,
+              "transitionMm": 1
+            },
+            "protectedRegions": [],
+            "mode": "scaleHeight",
+            "value": 0.8,
+            "minThicknessMm": 1,
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "bounded-mesh",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "relief",
+      "reliefShoulder",
+      "logo",
+      "meshHeightfieldRelief",
+      "meshReliefPlate",
+      "meshBoolean"
+    ],
+    "synonyms": [
+      "网格修高",
+      "STL 精修",
+      "mesh sculpt"
+    ],
+    "status": "experimental"
+  },
+  "purpose": "网格局部修高 / Local mesh relief height",
+  "whenToUse": [
+    "Read current meshReport.geometryHash. Explicit physical support, on-surface seed, core/transition and hard-protection disks. replace uses field.originMm/sizeMm/heightsMm in support UV; rows increase V, entries are absolute heights in mm. Bilinear target replaces old heights in core and blends only in transition, never max; field must cover editable samples. Source facet spacing must resolve target field; this is a sampling gate, not an approximation-error certificate. Fixed topology Float64 direct edit; source remains immutable. Only closed oriented planar single-valued relief, at most 200000 triangles / 20000 affected vertices / 12000000 tests per clearance phase. Clearance uses projected facet overlaps and vertex/centroid rays; arbitrary 3D self-intersection is not certified. Output remains mesh, not BRep/STEP. History restores prior asset/recipe, not an inverse brush. Read bodies[].meshReport.edit. Missing support, ambiguous seed, stale hash, unavailable back support, boundary conflict, collision or thickness failure reject atomically. replace may instead take deformation:{pivotMm,translationMm,scale:[positiveU,positiveV],angleDeg,sourceRegion:{centerMm,radiusMm},baseHeightMm,maxSourceSpacingMm}. Inverse affine sampling of the same current selected source height surface moves/narrows/rotates its relief within the declared ROI; topology/XY positions and protected vertices remain fixed. Heights are barycentrically sampled from the immutable source, never from a previous partial output. Only sourceRegion contributes; inverse samples outside it use explicit baseHeightMm, preventing unrelated neighbors from being copied. The editable ROI must cover the old and new local relief, with unrelated geometry protected. This is resampling, not recovered analytic geometry; no approximation error is certified by the spacing gate. Domain misses, nonpositive scale or ambiguous height reject. Source interpolation must resolve the narrowest scaled axis. Read meshReport.edit.profile. Alternatively replace accepts profile (mutually exclusive with field/value): cubic Bezier segments in support UV, stations from at=0 to 1 along approximate arc length, sectionMm ordered [signed lateral offset,height] pairs with zero outer heights, baseHeightMm, endTaperMm, curveToleranceMm and maxSourceSpacingMm. Positive section offset is left of path direction. Sections and stations interpolate linearly without height overshoot; end taper is cubic smoothstep in mm, exterior end planes use base height. This replaces the declared ROI including old path positions, not an additive overlay. Hard protections take precedence. Read meshReport.edit.profile. No arbitrary undercuts or automatic remeshing. Optional targets:[{pointMm:[U,V],heightMm,toleranceMm}] are mandatory acceptance constraints, not soft brush requests. A protected point conflicting with a target fails RELIEF_CONSTRAINT_CONFLICT with params.targets index before commit; no hit fails RELIEF_TARGET_OUTSIDE. Read meshReport.edit.constraints. mode=layers composes 1..16 ordered layers with unique id and enabled. Surface layers declare role=macro|detail, region and blend: add/remove require positive heightMm and attachment=followHeight (relative normal height); replace requires attachment=absolute and exactly heightMm, field or profile. A freeze layer supplies hard-protection regions for subsequent layers. Global protections apply to every layer. Editing the whole layers array at the original feature recomputes from its immutable input; order and enabled state are part of the recipe. This is height-only following, not automatic tangent or lateral detail binding. Layer domains must lie inside the total ROI; accumulated freeze disks <=64, active layers times triangles <=1000000. Mandatory targets apply to the final composed surface. Failures discard the entire candidate. Read edit.layers, layerSemanticsVersion, continuationSeedMm; minimum thickness/clearance are conservative minima over affected regions at every applied layer, not global final-surface certificates."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "需要精确曲面和STEP交换",
+      "use": "relief"
+    }
+  ],
+  "outputs": {
+    "geometryType": "rawMesh",
+    "exportFormats": [
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_FIELD_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_PROFILE_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_DEFORMATION_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_SAMPLE_OUTSIDE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_RESOLUTION_INSUFFICIENT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_TARGET_OUTSIDE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_CONSTRAINT_CONFLICT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_LAYERS_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_SOURCE_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_EDIT_CAPACITY",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_EDIT_VERSION",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_SUPPORT_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_REGION_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_CONSTRAINT_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_GEOMETRY_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_NOT_CLOSED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_SELECTION_AMBIGUOUS",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_BOUNDARY_CONFLICT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_MULTIVALUED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_THICKNESS_UNKNOWN",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_INTERSECTION",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_THICKNESS",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "STALE_REFERENCE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "NO_CHANGE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "bounded-mesh",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
   "label": "网格局部修高",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -1346,5 +2053,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:58d166cfb7c93cccaa49bfc68cb8aea6d4dcacbd2838d19a06cd6f6e45b87867"
+  "docsHash": "sha256:50f4c96bb19330e0c8bf5eeffb6633221135c8c6d2cc196d69d0cd1b2ac2d170"
 }

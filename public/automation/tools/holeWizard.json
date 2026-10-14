@@ -179,6 +179,7 @@
   "category": "modification",
   "synonyms": [
     "holeWizard",
+    "Exact plain, counterbore, or countersink hole with flat or angled blind drill point",
     "孔向导"
   ],
   "description": "Exact plain, counterbore, or countersink hole with flat or angled blind drill point",
@@ -229,7 +230,18 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
   ],
   "knownUnsupportedCases": [
     "One current solid target. Start point must lie on the boundary and direction enter continuous material. Blind depth including tip must stop before its first exit. Legacy/omitted drillPoint is flat. Angled blind tip height=diameter/(2*tan(drillPointAngleDeg/2)); default angle 118 deg, depthReference defaults cylindricalLength (tip is additional). tipDepth includes the tip and must leave positive cylinder length. Through holes reject angled tips. Recess must fit within cylindrical segment. Counterbore uses recessDepthMm; countersink derives depth (D-d)/(2*tan(includedAngle/2)). No modeled thread geometry."
@@ -326,6 +338,386 @@
     "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
+  "contract": {
+    "purpose": "Exact plain, counterbore, or countersink hole with flat or angled blind drill point",
+    "whenToUse": [
+      "One current solid target. Start point must lie on the boundary and direction enter continuous material. Blind depth including tip must stop before its first exit. Legacy/omitted drillPoint is flat. Angled blind tip height=diameter/(2*tan(drillPointAngleDeg/2)); default angle 118 deg, depthReference defaults cylindricalLength (tip is additional). tipDepth includes the tip and must leave positive cylinder length. Through holes reject angled tips. Recess must fit within cylindrical segment. Counterbore uses recessDepthMm; countersink derives depth (D-d)/(2*tan(includedAngle/2)). No modeled thread geometry."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "kind": {
+        "meaning": "Hole type",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "diameterMm": {
+        "meaning": "Small hole diameter (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "depthMm": {
+        "meaning": "Blind depth according to depthReference (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "through": {
+        "meaning": "Through body along drilling axis",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "drillPoint": {
+        "meaning": "Blind bottom shape; omitted means flat",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "drillPointAngleDeg": {
+        "meaning": "Drill tip included angle; angled default 118 degrees",
+        "unit": "deg",
+        "range": [
+          0,
+          179
+        ],
+        "default": 118
+      },
+      "depthReference": {
+        "meaning": "Angled blind depth: cylindrical segment length or total entrance-to-tip depth",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "recessDiameterMm": {
+        "meaning": "Counterbore/countersink opening diameter (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "recessDepthMm": {
+        "meaning": "Counterbore depth (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "includedAngleDeg": {
+        "meaning": "Countersink included angle in degrees",
+        "unit": "deg",
+        "range": [
+          0,
+          179
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "x": {
+        "meaning": "Cutter entrance X (mm)",
+        "unit": "mm",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "y": {
+        "meaning": "Cutter entrance Y (mm)",
+        "unit": "mm",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "z": {
+        "meaning": "Cutter entrance Z (mm)",
+        "unit": "mm",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "axis": {
+        "meaning": "Global axis",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": "Z"
+      },
+      "direction": {
+        "meaning": "direction: Exact plain, counterbore, or countersink hole with flat or angled blind drill point",
+        "unit": "1",
+        "range": [
+          null,
+          null
+        ],
+        "default": 1
+      }
+    },
+    "refs": {
+      "min": 1,
+      "max": 1,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "holeWizard",
+        "params": {
+          "kind": "counterbore",
+          "diameterMm": 4,
+          "depthMm": 6,
+          "through": false,
+          "recessDiameterMm": 7,
+          "recessDepthMm": 2,
+          "x": 10,
+          "y": 10,
+          "z": 10,
+          "axis": "Z",
+          "direction": -1
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "holeWizard",
+        "params": {
+          "kind": "counterbore",
+          "diameterMm": 4,
+          "depthMm": 6,
+          "through": false,
+          "recessDiameterMm": 7,
+          "recessDepthMm": 2,
+          "x": 10,
+          "y": 10,
+          "z": 10,
+          "axis": "Z",
+          "direction": -1
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "kind": "counterbore",
+            "diameterMm": 4,
+            "depthMm": 6,
+            "through": false,
+            "recessDiameterMm": 7,
+            "recessDepthMm": 2,
+            "x": 10,
+            "y": 10,
+            "z": 10,
+            "axis": "Z",
+            "direction": -1,
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "holeWizard",
+      "Exact plain, counterbore, or countersink hole with flat or angled blind drill point",
+      "Exact plain, counterbore, or countersink hole with flat or angled blind drill point"
+    ],
+    "status": "experimental"
+  },
+  "purpose": "Exact plain, counterbore, or countersink hole with flat or angled blind drill point",
+  "whenToUse": [
+    "One current solid target. Start point must lie on the boundary and direction enter continuous material. Blind depth including tip must stop before its first exit. Legacy/omitted drillPoint is flat. Angled blind tip height=diameter/(2*tan(drillPointAngleDeg/2)); default angle 118 deg, depthReference defaults cylindricalLength (tip is additional). tipDepth includes the tip and must leave positive cylinder length. Through holes reject angled tips. Recess must fit within cylindrical segment. Counterbore uses recessDepthMm; countersink derives depth (D-d)/(2*tan(includedAngle/2)). No modeled thread geometry."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
   "label": "孔向导",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -348,5 +740,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:16b2a27cc92833f01dddf4b64d94b464f7203e5dec90217801eb28075e9ee408"
+  "docsHash": "sha256:99e60d7764b3300849687c60c5bb525e76c67c6e7f666ef48e18c8713578ef8e"
 }

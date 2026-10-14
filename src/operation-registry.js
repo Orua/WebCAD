@@ -8,55 +8,15 @@ import { QUICK_MODELS } from './quick-models.js';
 import {mechanicalIds,mechanicalDefaults,mechanicalExamples,mechanicalNames,mechanicalRefCounts,mechanicalResultTypes,mechanicalPreservedIds,profileSolidIds,mechanicalErrorCodes} from './mechanical-tool-contracts.js';
 import { assertJsonValue, contractError, contractHash, validateSchema } from './contracts/operation-schema.js';
 import { annotateParameterSchema, numericInputPolicy } from './parameter-metadata.js';
+import {heightfieldSamples} from './mesh/heightfield-relief.js';
 
 export const apiVersion = '2.0';
-export const migratedOperationIds = Object.freeze(['reliefShoulder','meshReliefPlate','meshReliefEdit','box', 'cylinder', 'sphere', 'cone', 'torus', 'mirror', 'linearPattern', 'circularPattern', 'hole', 'holeWizard', 'draftFaces', 'multiHole', 'multiPocket', 'multiBoss', 'faceHole', 'round', 'roundEnd', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell','sketchProfile','profileOffset','profileRepair','profileExtrude',...mechanicalIds]);
+export const migratedOperationIds = Object.freeze(['meshHeightfieldRelief','meshBoolean','logo','union','cut','intersect','transform','copy','reliefShoulder','meshReliefPlate','meshReliefEdit','box', 'cylinder', 'sphere', 'cone', 'torus', 'mirror', 'linearPattern', 'circularPattern', 'hole', 'holeWizard', 'draftFaces', 'multiHole', 'multiPocket', 'multiBoss', 'faceHole', 'round', 'roundEnd', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell','sketchProfile','profileOffset','profileRepair','profileExtrude',...mechanicalIds]);
 const migrated = new Set(migratedOperationIds);
 const clone = value => JSON.parse(JSON.stringify(value));
 const topology = new Set(['faceHole', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition']);
 const topologyConvention = operationCatalog.topology;
-const defaults = {reliefShoulder:{}, meshReliefEdit:{},meshReliefPlate:{}, cylinder:{},sphere:{},cone:{radius1:10,radius2:0},torus:{},round:{mode:'auto',strength:.5}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z'}, rounding:{strength:1}, autoRound:{}, smoothTransition: {}, box: {}, hole: { x: 0, y: 0, z: 0, axis: 'Z', direction: 1 },holeWizard:{kind:'plain',axis:'Z',direction:1,through:false},
-  mirror:{plane:'XY',offsetMm:0,keepOriginal:false},linearPattern:{count:3,dx:0,dy:0,dz:0,outputMode:'compound'},circularPattern:{count:3,angle:360,axis:'Z',cx:0,cy:0,cz:0,outputMode:'compound'},
-  multiHole: { axis: 'Z', direction: 1 }, multiPocket:{axis:'Z',direction:-1}, multiBoss:{axis:'Z',direction:1}, faceHole: { through: false }, fillet: {}, chamfer: {}, shell: {}, draftFaces:{}, extractFaces:{}, extractShell:{}, sketchProfile:{}, profileOffset:{}, profileRepair:{}, profileExtrude:{},...mechanicalDefaults };
-const triangle = [[-1, -1], [1, -1], [0, 1]];
-const regions = [{ outer: triangle }];
-const examples = { reliefShoulder:{faceId:0,point:[0,50.25,7],widthMm:.3,endProtectionMm:.3,endPolicy:'retained-step-with-planar-caps'}, meshReliefEdit:reliefEditExample,meshReliefPlate:reliefPlateExample,meshHeightfieldRelief:heightfieldReliefExample,meshBoolean:meshBooleanExample, round:{edgeIds:[0]}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z',depthMm:2,edgeIds:[0]}, rounding:{specVersion:3,scope:{kind:'edges',edgeIds:[0]}}, autoRound:{radius:0.1}, smoothTransition:{radius:0.1,faceIds:[0,1]},
-  box: { width: 50, depth: 30, height: 3 }, cylinder: { radius: 10, height: 20 }, sphere: { radius: 10 },
-  cone: { radius1: 10, radius2: 0, height: 20 }, torus: { majorRadius: 10, minorRadius: 2 },
-  extrude: { profile: 'rectangle', width: 20, depth: 10, height: 5 },
-  revolve: { profile: 'rectangle', width: 2, depth: 3, offset: 10, angle: 360 },
-  sweep: { profile: 'circle', radius: 1, points: [[0, 0, 0], [0, 0, 10]] },
-  loft: { profile: 'circle', radius: 5, endRadius: 3, height: 10 },
-  transform: { x: 10 }, copy: { x: 10 }, mirror: { plane: 'YZ' },
-  hole: { radius: 2, depth: 5, x: 5, y: 5, z: 4, axis: 'Z', direction: -1 },
-  multiHole: { radius: 2, depth: 5, axis: 'Z', direction: -1, points: [[5, 5, 4], [45, 5, 4], [5, 25, 4], [45, 25, 4]] },
-  multiPocket:{depth:0.5,axis:'Z',direction:-1,pockets:[{x:10,y:10,z:3,width:6,height:4},{x:25,y:10,z:3,width:6,height:4,cornerRadius:0.5}]},
-  multiBoss:{radius:2,height:3,axis:'Z',direction:1,points:[[10,10,3],[30,10,3]]},
-  faceHole: { faceId: 0, point: [5, 5, 3], radius: 2, through: true },
-  faceExtrude: { faceId: 0, height: 2 }, fillet: { radius: 0.5, edgeIds: [0] },
-  chamfer: { distance: 0.5, edgeIds: [0] }, shell: { thickness: 1, faceIds: [0] },
-  slot: { length: 10, width: 3, depth: 5, x: 20, y: 15, z: 4, direction: -1 },
-  linearPattern: { count: 3, dx: 20 }, circularPattern: { count: 3, angle: 360, axis: 'Z' },
-  split: { plane: 'XY', offset: 1 }, extractSolid: { solidIndex: 0 }, group: {}, union: {}, cut: {}, intersect: {},
-  quickModel: { kind: 'tube' }, remove: {}, import: {},
-  logo: { placementVersion:2, faceId: 0, point:[5,5,3], mode: 'engrave', depth: 0.2, draftAngle:0, regions, source:{kind:'reviewed-contours',reviewed:true} },
-  vectorProfile: { regions, output: 'solid', height: 2 },
-  arcProfile: { outer:[{type:'line',points:[[0,0],[10,0]]},{type:'line',points:[[10,0],[10,5]]},{type:'line',points:[[10,5],[0,5]]},{type:'line',points:[[0,5],[0,0]]}],height:2 },
-  curveSweep: { pathType: 'arc', points: [[10, 0, 0], [7.071, 7.071, 0], [0, 10, 0]], radius: 1 },
-  advancedLoft: { sections: [{ z: 0, points: triangle }, { z: 10, points: triangle }] },
-  fittedSurface: { points: [0, 5, 10].map(y => [0, 5, 10].map(x => [x, y, 0])) },
-  thickenFace: { faceId: 0, thickness: 1 }, curvedLogo: { faceId: 0, point: [10, 0, 5], depth: 0.2, regions },
-  planeSection: { plane: 'XY', offset: 1 }, faceBoundary: { faceId: 0 }, extractFaces:{faceIds:[0]}, extractShell:{shellIndex:0},
-  sewFaces: { tolerance: 0.01, makeSolid: false }, surfaceTrim: { faceId: 0, mode: 'intersect' },
-  referenceExtrude: { direction: [0,0,1], distance: 3 }, referenceLoft: { ruled: false },
-  sketchProfile:{profileVersion:1,entities:[{id:'circle-1',type:'circle',centerMm:[0,0],diameterMm:20}],loops:[{id:'outer',edges:[{entityId:'circle-1',reversed:false}]}],regions:[{id:'region-1',outerLoopId:'outer',holeLoopIds:[]}],output:'face'},
-  profileOffset:{distanceMm:2,side:'inside',join:'intersection',output:'band'},
-  profileRepair:{issueId:'closure:outline',maxEndpointMoveMm:0.03},
-  profileExtrude:{operation:'newBody',extent:'distance',distanceMm:3,direction:1},
-  holeWizard:{kind:'counterbore',diameterMm:4,depthMm:6,through:false,recessDiameterMm:7,recessDepthMm:2,x:10,y:10,z:10,axis:'Z',direction:-1},
-  draftFaces:{faceIds:[0,1,2,3],neutralFaceId:4,pullDirection:[0,0,1],angleDeg:2},
-  ...mechanicalExamples,
-};
+import {operationDefaults as defaults,operationExamples as examples} from './operation-examples.js';
 
 function schemaFor(id, source) {
   const schema = clone(source.paramsSchema || { type: 'object', properties: {}, additionalProperties: false });
@@ -76,7 +36,7 @@ function schemaFor(id, source) {
     }) };
   }
   if (!migrated.has(id)) return schema;
-  for (const [key, value] of Object.entries(defaults[id])) schema.properties[key].default = value;
+  for (const [key, value] of Object.entries(defaults[id]||{})) schema.properties[key].default = value;
   if(id==='round')schema.oneOf=[{required:['edgeIds']},{required:['faceIds']}];
   if (id === 'fillet' || id === 'chamfer') {
     schema.properties.edgeIds.minItems = 1;
@@ -154,7 +114,7 @@ function buildCard(id, source) {
           : id==='multiBoss' ? 'Each world XYZ is a boss base center; shared radius and positive height extend along signed X/Y/Z. Each must fuse to one solid and add material. No bore.'
         : id === 'faceHole' ? 'World XYZ point on a planar face. Drill inward along the negative outward face normal. through computes depth from body bounds.'
           : `${topologyConvention} ${source.notes || source.description}` };
-  return { ...contract, title: source.description, category: categoryFor(id), synonyms: names[id] || (mechanicalNames[id]?[mechanicalNames[id],id]:[id]),
+  const card={ ...contract, title: source.description, category: categoryFor(id), synonyms: names[id] || (mechanicalNames[id]?[mechanicalNames[id],id]:[id]),
     description: source.description, schemaHash: contractHash(contract), apiCompatibility: strict ? ['legacy', '2.0'] : ['legacy'],
     implementationStatus: 'implemented', availability: 'requires_browser', unavailableReason: null,
     strictContract: strict, v2Executable: strict, contractStatus: strict ? 'migrated' : 'advisory',
@@ -208,6 +168,14 @@ function buildCard(id, source) {
       knownUnsupportedCases: ['Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid.'],
       minimalExample: { kind }, normalExample: { kind, ...clone(definition.defaults) } })) } : {}),
     verification: { contract: strict ? 'covered-by-contract-tests' : 'not_migrated', kernel: 'See test run report; card generation is not proof of kernel execution.' } };
+  const details=clone(source.contract);
+  details.params=Object.fromEntries(Object.entries(card.inputSchema.properties||{}).map(([key,schema])=>[key,details.params[key]||{meaning:schema.description||key,unit:schema.unit||'none',range:[schema.minimum??null,schema.maximum??null],default:{behavior:'omitted; source default'}}]));
+  if(['meshHeightfieldRelief','meshBoolean'].includes(id))card.invalidExamples=details.examples.invalid;
+  else if(!strict)card.invalidExamples=[{params:{__invalid:true},errorCode:'PARAM_SCHEMA_INVALID'}];
+  details.examples={minimal:clone(card.minimalExample),normal:clone(card.normalExample),invalid:clone(card.invalidExamples)};
+  details.errors=[...new Set([...card.errorCodes,...details.errors.map(e=>e.code)])].map(code=>details.errors.find(e=>e.code===code)||{code,when:'该操作schema或执行流程拒绝输入',recovery:'读取当前工具卡并修正参数或来源'});
+  Object.assign(card,{contract:details,purpose:details.purpose,whenToUse:details.whenToUse,whenNotToUse:details.whenNotToUse,limits:details.limits,outputs:details.outputs,errors:details.errors,routing:details.routing,status:details.status,relatedTools:details.related,synonyms:[...new Set([...details.synonyms,...card.synonyms])],errorCodes:details.errors.map(e=>e.code),testIds:card.testIds.length?card.testIds:['tests/operation-contract.test.mjs']});
+  return card;
 }
 
 const cards = Object.fromEntries(Object.keys(operationCatalog.operations).sort().map(id => [id, buildCard(id, operationCatalog.operations[id])]));
@@ -246,7 +214,8 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
     if (scopes > 1) contractError('SELECTION_CONFLICT', 'params', 'Choose exactly one of edgeIds, faceIds, or allEdges=true.');
     if(params.sharedFaces===true&&!(params.faceIds?.length>=2))contractError('SELECTION_CONFLICT','params.sharedFaces','sharedFaces=true requires at least two adjacent faceIds.');
   }
-  validateSchema(schema, params);
+  try{validateSchema(schema, params);}catch(error){if(op==='meshHeightfieldRelief')error.code='HEIGHTFIELD_INVALID';if(op==='meshBoolean')error.code='MESH_BOOLEAN_INVALID';throw error;}
+  if(op==='meshHeightfieldRelief'&&!params.heights?.importKey)heightfieldSamples(params);
   if(op==='chamfer'){
     const mode=params.mode||'equalDistance';
     if(mode==='twoDistances'&&!Object.hasOwn(params,'distance2'))contractError('PARAM_SCHEMA_INVALID','params.distance2','Two-distance chamfer requires distance2.');
@@ -282,7 +251,7 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
       if(!oneEdge&&!facePair)contractError('SELECTION_CONFLICT','params.scope','Width construction requires one edge or one explicitly ordered adjacent face pair.');
     }
   }
-  const normalized={ ...clone(op==='rounding'&&params.specVersion!==3?{}:defaults[op]), ...clone(params) };
+  const normalized={ ...clone(op==='rounding'&&params.specVersion!==3?{}:defaults[op]||{}), ...clone(params) };
   if(op==='holeWizard'&&normalized.drillPoint==='angled'){
     normalized.drillPointAngleDeg??=118;normalized.depthReference??='cylindricalLength';
   }

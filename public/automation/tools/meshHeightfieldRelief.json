@@ -1,6 +1,6 @@
 {
   "id": "meshHeightfieldRelief",
-  "version": "legacy-1",
+  "version": "1.0.0",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -186,20 +186,25 @@
   "title": "高度图浮雕 / Heightfield relief",
   "category": "creation",
   "synonyms": [
+    "高度图",
+    "灰度图",
+    "heightmap",
+    "depth map",
+    "photo relief",
     "meshHeightfieldRelief",
     "高度图浮雕"
   ],
   "description": "高度图浮雕 / Heightfield relief",
-  "schemaHash": "sha256:1353033ef6f168508b0e408effc97db11aeffb21c1171a6c4d4944d5a2a39fd9",
+  "schemaHash": "sha256:942859af9a698f53d74d94c38503005b40b7e034fda59092b60772d84405f74e",
   "apiCompatibility": [
-    "page-advisory"
+    "page-v2"
   ],
   "implementationStatus": "implemented",
   "availability": "requires_browser",
   "unavailableReason": null,
-  "strictContract": false,
+  "strictContract": true,
   "v2Executable": true,
-  "contractStatus": "advisory",
+  "contractStatus": "migrated",
   "outputSchema": {
     "type": "object",
     "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
@@ -237,11 +242,51 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    {
+      "name": "minSide",
+      "value": 2,
+      "unit": "count",
+      "source": "src/limits.js#heightfield.minSide"
+    },
+    {
+      "name": "maxSide",
+      "value": 2049,
+      "unit": "count",
+      "source": "src/limits.js#heightfield.maxSide"
+    },
+    {
+      "name": "maxSamples",
+      "value": 1900000,
+      "unit": "count",
+      "source": "src/limits.js#heightfield.maxSamples"
+    },
+    {
+      "name": "maxSmoothing",
+      "value": 8,
+      "unit": "count",
+      "source": "src/limits.js#heightfield.maxSmoothing"
+    },
+    {
+      "name": "maxHeightMm",
+      "value": 100,
+      "unit": "mm",
+      "source": "src/limits.js#heightfield.maxHeightMm"
+    },
+    {
+      "name": "maxStrokes",
+      "value": 512,
+      "unit": "count",
+      "source": "src/limits.js#heightfield.maxStrokes"
+    },
+    {
+      "name": "maxStrokePoints",
+      "value": 20000,
+      "unit": "count",
+      "source": "src/limits.js#heightfield.maxStrokePoints"
+    }
   ],
   "knownUnsupportedCases": [
-    "Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. heights is inline base64 data or importKey of a binary project asset (format heightmap). sculpt: ordered brush strokes {mode raise|lower (strength mm per dab)|smooth|flatten (strength 0–1, flatten to targetMm), radiusMm, points [x,y,...] mm in relief-local XY} replayed deterministically after gamma/fade. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles).",
-    "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
+    "Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. heights is inline base64 data or importKey of a binary project asset (format heightmap). sculpt: ordered brush strokes {mode raise|lower (strength mm per dab)|smooth|flatten (strength 0–1, flatten to targetMm), radiusMm, points [x,y,...] mm in relief-local XY} replayed deterministically after gamma/fade. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles)."
   ],
   "minimalExample": {
     "op": "meshHeightfieldRelief",
@@ -264,7 +309,7 @@
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "normalExample": {
     "op": "meshHeightfieldRelief",
@@ -287,30 +332,14 @@
     },
     "refs": [],
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "validation": "strict-parameter-schema"
   },
   "invalidExamples": [
     {
       "params": {
-        "version": 1,
-        "widthMm": 20,
-        "depthMm": 20,
-        "baseMm": 1,
-        "heightMm": 1.5,
-        "columns": 3,
-        "rows": 3,
-        "heights": {
-          "encoding": "u8",
-          "data": "AAAAAP8AAAAA"
-        },
-        "invert": false,
-        "gamma": 1,
-        "smoothing": 0,
-        "edgeFadeMm": 0,
-        "__unknownField": true
+        "__invalid": true
       },
-      "errorCode": "PARAM_SCHEMA_INVALID",
-      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+      "errorCode": "HEIGHTFIELD_INVALID"
     }
   ],
   "errorCodes": [
@@ -321,7 +350,10 @@
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
-    "SIZE_LIMIT"
+    "SIZE_LIMIT",
+    "HEIGHTFIELD_INVALID",
+    "HEIGHTFIELD_SCULPT_INVALID",
+    "RELIEF_EDIT_CAPACITY"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -336,13 +368,426 @@
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
   "verification": {
-    "contract": "not_migrated",
+    "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
+  "contract": {
+    "purpose": "高度图浮雕 / Heightfield relief",
+    "whenToUse": [
+      "Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. heights is inline base64 data or importKey of a binary project asset (format heightmap). sculpt: ordered brush strokes {mode raise|lower (strength mm per dab)|smooth|flatten (strength 0–1, flatten to targetMm), radiusMm, points [x,y,...] mm in relief-local XY} replayed deterministically after gamma/fade. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles)."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "需要精确曲面和STEP交换",
+        "use": "relief"
+      }
+    ],
+    "params": {
+      "version": {
+        "meaning": "version: 高度图浮雕 / Heightfield relief",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "widthMm": {
+        "meaning": "widthMm: 高度图浮雕 / Heightfield relief",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "depthMm": {
+        "meaning": "depthMm: 高度图浮雕 / Heightfield relief",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "baseMm": {
+        "meaning": "baseMm: 高度图浮雕 / Heightfield relief",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "heightMm": {
+        "meaning": "heightMm: 高度图浮雕 / Heightfield relief",
+        "unit": "mm",
+        "range": [
+          0,
+          100
+        ]
+      },
+      "columns": {
+        "meaning": "columns: 高度图浮雕 / Heightfield relief",
+        "unit": "none",
+        "range": [
+          2,
+          2049
+        ]
+      },
+      "rows": {
+        "meaning": "rows: 高度图浮雕 / Heightfield relief",
+        "unit": "none",
+        "range": [
+          2,
+          2049
+        ]
+      },
+      "heights": {
+        "meaning": "heights: 高度图浮雕 / Heightfield relief",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "sculpt": {
+        "meaning": "sculpt: 高度图浮雕 / Heightfield relief",
+        "unit": "none",
+        "range": [
+          null,
+          512
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "invert": {
+        "meaning": "invert: 高度图浮雕 / Heightfield relief",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "gamma": {
+        "meaning": "gamma: 高度图浮雕 / Heightfield relief",
+        "unit": "dimensionless",
+        "range": [
+          0.2,
+          5
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "smoothing": {
+        "meaning": "smoothing: 高度图浮雕 / Heightfield relief",
+        "unit": "none",
+        "range": [
+          0,
+          8
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "edgeFadeMm": {
+        "meaning": "edgeFadeMm: 高度图浮雕 / Heightfield relief",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      }
+    },
+    "refs": {
+      "min": 0,
+      "max": 0,
+      "meaning": "独立创建，不引用已有实体"
+    },
+    "limits": [
+      {
+        "name": "minSide",
+        "value": 2,
+        "unit": "count",
+        "source": "src/limits.js#heightfield.minSide"
+      },
+      {
+        "name": "maxSide",
+        "value": 2049,
+        "unit": "count",
+        "source": "src/limits.js#heightfield.maxSide"
+      },
+      {
+        "name": "maxSamples",
+        "value": 1900000,
+        "unit": "count",
+        "source": "src/limits.js#heightfield.maxSamples"
+      },
+      {
+        "name": "maxSmoothing",
+        "value": 8,
+        "unit": "count",
+        "source": "src/limits.js#heightfield.maxSmoothing"
+      },
+      {
+        "name": "maxHeightMm",
+        "value": 100,
+        "unit": "mm",
+        "source": "src/limits.js#heightfield.maxHeightMm"
+      },
+      {
+        "name": "maxStrokes",
+        "value": 512,
+        "unit": "count",
+        "source": "src/limits.js#heightfield.maxStrokes"
+      },
+      {
+        "name": "maxStrokePoints",
+        "value": 20000,
+        "unit": "count",
+        "source": "src/limits.js#heightfield.maxStrokePoints"
+      }
+    ],
+    "outputs": {
+      "geometryType": "rawMesh",
+      "exportFormats": [
+        "stl"
+      ],
+      "consumesRefs": false,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "HEIGHTFIELD_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "HEIGHTFIELD_SCULPT_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "RELIEF_EDIT_CAPACITY",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "meshHeightfieldRelief",
+        "params": {
+          "version": 1,
+          "widthMm": 20,
+          "depthMm": 20,
+          "baseMm": 1,
+          "heightMm": 1.5,
+          "columns": 3,
+          "rows": 3,
+          "heights": {
+            "encoding": "u8",
+            "data": "AAAAAP8AAAAA"
+          },
+          "invert": false,
+          "gamma": 1,
+          "smoothing": 0,
+          "edgeFadeMm": 0
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "meshHeightfieldRelief",
+        "params": {
+          "version": 1,
+          "widthMm": 20,
+          "depthMm": 20,
+          "baseMm": 1,
+          "heightMm": 1.5,
+          "columns": 3,
+          "rows": 3,
+          "heights": {
+            "encoding": "u8",
+            "data": "AAAAAP8AAAAA"
+          },
+          "invert": false,
+          "gamma": 1,
+          "smoothing": 0,
+          "edgeFadeMm": 0
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "__invalid": true
+          },
+          "errorCode": "HEIGHTFIELD_INVALID"
+        }
+      ]
+    },
+    "routing": {
+      "class": "bounded-mesh",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "relief",
+      "reliefShoulder",
+      "logo",
+      "meshReliefPlate",
+      "meshReliefEdit",
+      "meshBoolean"
+    ],
+    "synonyms": [
+      "高度图",
+      "灰度图",
+      "heightmap",
+      "depth map",
+      "photo relief"
+    ],
+    "status": "experimental"
+  },
+  "purpose": "高度图浮雕 / Heightfield relief",
+  "whenToUse": [
+    "Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. heights is inline base64 data or importKey of a binary project asset (format heightmap). sculpt: ordered brush strokes {mode raise|lower (strength mm per dab)|smooth|flatten (strength 0–1, flatten to targetMm), radiusMm, points [x,y,...] mm in relief-local XY} replayed deterministically after gamma/fade. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles)."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "需要精确曲面和STEP交换",
+      "use": "relief"
+    }
+  ],
+  "outputs": {
+    "geometryType": "rawMesh",
+    "exportFormats": [
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "HEIGHTFIELD_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "HEIGHTFIELD_SCULPT_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "RELIEF_EDIT_CAPACITY",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    }
+  ],
+  "routing": {
+    "class": "bounded-mesh",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
   "label": "高度图浮雕",
-  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 20971520,
@@ -362,6 +807,6 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:d84b1d7e2ac688eda8c1b9285624118f70d197a735a52e40c30ebc4439285d5f"
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:1821b2d68efd1ccbfef546ac8afeff9bb20466b9a291d751e63f994605ee4474"
 }

@@ -248,6 +248,7 @@
   "category": "creation",
   "synonyms": [
     "curveSweep",
+    "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
     "曲线扫掠"
   ],
   "description": "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
@@ -298,7 +299,18 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Schema advisory only; existing operation/kernel restrictions apply."
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
   ],
   "knownUnsupportedCases": [
     "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Set closed:true only for a closed segment chain. Round requires radius; chamferedSquare needs sectionSize and sectionChamfer; ellipse needs unequal sectionWidth and sectionDepth. roundedRectangle sweeps a flat strip: sectionWidth across the strip, sectionDepth along the in-plane bend normal, and 0<sectionCornerRadius<min(width,depth)/2. Non-round sweep sections need an XY-planar path. Sections mode requires 2–24 ordered stations with explicit centerMm, normal, perpendicular widthDirection, widthMm and depthMm; each station is an elliptical plane section. It allows varying width/depth and plane orientation, but no closed loop or automatic shape inference. Crossing station planes or sharp turns can fail. loftDegree (integer 2–8, default 8) bounds surface degree; 2 can reduce interpolation overshoot. Always measure the resulting envelope because a valid solid can exceed the station bounds. Result must be one valid positive-volume solid.",
@@ -361,29 +373,9 @@
   "invalidExamples": [
     {
       "params": {
-        "pathType": "arc",
-        "points": [
-          [
-            10,
-            0,
-            0
-          ],
-          [
-            7.071,
-            7.071,
-            0
-          ],
-          [
-            0,
-            10,
-            0
-          ]
-        ],
-        "radius": 1,
-        "__unknownField": true
+        "__invalid": true
       },
-      "errorCode": "PARAM_SCHEMA_INVALID",
-      "explanation": "Unknown fields are rejected by the current page adapter before kernel execution."
+      "errorCode": "PARAM_SCHEMA_INVALID"
     }
   ],
   "errorCodes": [
@@ -409,11 +401,401 @@
     "execute"
   ],
   "recipes": [],
-  "testIds": [],
+  "testIds": [
+    "tests/operation-contract.test.mjs"
+  ],
   "verification": {
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
+  "contract": {
+    "purpose": "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+    "whenToUse": [
+      "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Set closed:true only for a closed segment chain. Round requires radius; chamferedSquare needs sectionSize and sectionChamfer; ellipse needs unequal sectionWidth and sectionDepth. roundedRectangle sweeps a flat strip: sectionWidth across the strip, sectionDepth along the in-plane bend normal, and 0<sectionCornerRadius<min(width,depth)/2. Non-round sweep sections need an XY-planar path. Sections mode requires 2–24 ordered stations with explicit centerMm, normal, perpendicular widthDirection, widthMm and depthMm; each station is an elliptical plane section. It allows varying width/depth and plane orientation, but no closed loop or automatic shape inference. Crossing station planes or sharp turns can fail. loftDegree (integer 2–8, default 8) bounds surface degree; 2 can reduce interpolation overshoot. Always measure the resulting envelope because a valid solid can exceed the station bounds. Result must be one valid positive-volume solid."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "pathType": {
+        "meaning": "pathType: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "points": {
+        "meaning": "points: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "unit": "mm",
+        "range": [
+          3,
+          30
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "stations": {
+        "meaning": "stations: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "unit": "none",
+        "range": [
+          2,
+          24
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "loftDegree": {
+        "meaning": "loftDegree: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "unit": "none",
+        "range": [
+          2,
+          8
+        ],
+        "default": 8
+      },
+      "segments": {
+        "meaning": "segments: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "unit": "1",
+        "range": [
+          2,
+          64
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "radius": {
+        "meaning": "radius: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "section": {
+        "meaning": "section: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "sectionSize": {
+        "meaning": "sectionSize: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "unit": "dimensionless",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "sectionChamfer": {
+        "meaning": "sectionChamfer: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "unit": "dimensionless",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "sectionWidth": {
+        "meaning": "sectionWidth: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "unit": "dimensionless",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "sectionDepth": {
+        "meaning": "sectionDepth: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "unit": "dimensionless",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "sectionCornerRadius": {
+        "meaning": "sectionCornerRadius: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "unit": "dimensionless",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "closed": {
+        "meaning": "closed: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "tolerance": {
+        "meaning": "Millimetres; default 0.01",
+        "unit": "mm",
+        "range": [
+          0.00001,
+          0.5
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      }
+    },
+    "refs": {
+      "min": 0,
+      "max": 0,
+      "meaning": "独立创建，不引用已有实体"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": false,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "curveSweep",
+        "params": {
+          "pathType": "arc",
+          "points": [
+            [
+              10,
+              0,
+              0
+            ],
+            [
+              7.071,
+              7.071,
+              0
+            ],
+            [
+              0,
+              10,
+              0
+            ]
+          ],
+          "radius": 1
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "normal": {
+        "op": "curveSweep",
+        "params": {
+          "pathType": "arc",
+          "points": [
+            [
+              10,
+              0,
+              0
+            ],
+            [
+              7.071,
+              7.071,
+              0
+            ],
+            [
+              0,
+              10,
+              0
+            ]
+          ],
+          "radius": 1
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "invalid": [
+        {
+          "params": {
+            "__invalid": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID"
+        }
+      ]
+    },
+    "routing": {
+      "class": "services-eligible",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "curveSweep",
+      "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+      "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections"
+    ],
+    "status": "experimental"
+  },
+  "purpose": "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+  "whenToUse": [
+    "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Set closed:true only for a closed segment chain. Round requires radius; chamferedSquare needs sectionSize and sectionChamfer; ellipse needs unequal sectionWidth and sectionDepth. roundedRectangle sweeps a flat strip: sectionWidth across the strip, sectionDepth along the in-plane bend normal, and 0<sectionCornerRadius<min(width,depth)/2. Non-round sweep sections need an XY-planar path. Sections mode requires 2–24 ordered stations with explicit centerMm, normal, perpendicular widthDirection, widthMm and depthMm; each station is an elliptical plane section. It allows varying width/depth and plane orientation, but no closed loop or automatic shape inference. Crossing station planes or sharp turns can fail. loftDegree (integer 2–8, default 8) bounds surface degree; 2 can reduce interpolation overshoot. Always measure the resulting envelope because a valid solid can exceed the station bounds. Result must be one valid positive-volume solid."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "services-eligible",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
   "label": "曲线扫掠",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -436,5 +818,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:569615a56d06fe893d8a44579c40ede866ac6ffab899980bd25e0ab235266e74"
+  "docsHash": "sha256:8d42f4e5d5ef6974ee24e1e60a827e512f0ae8a465151223292145ea6623aafc"
 }

@@ -317,6 +317,7 @@
   "category": "reference",
   "synonyms": [
     "sketchProfile",
+    "Create an editable exact 2D wire or planar face from stable analytic entities",
     "绘制轮廓"
   ],
   "description": "Create an editable exact 2D wire or planar face from stable analytic entities",
@@ -367,7 +368,18 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
   ],
   "knownUnsupportedCases": [
     "Single planar sketch. Top-level placement freezes the current insertion frame; later anchor moves do not move this profile. Analytic line, three-point arc and circle remain exact. Rectangle, roundedRectangle and capsule store one parameter definition (originMm,widthMm,heightMm,cornerRadiusMm); stable analytic edges are derived, not separately edited until explicit conversion. Closed face requires explicit ordered loops and up to 16 disjoint regions; open wire uses ordered chains. Unsupported spline editing is rejected."
@@ -523,6 +535,358 @@
     "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
+  "contract": {
+    "purpose": "Create an editable exact 2D wire or planar face from stable analytic entities",
+    "whenToUse": [
+      "Single planar sketch. Top-level placement freezes the current insertion frame; later anchor moves do not move this profile. Analytic line, three-point arc and circle remain exact. Rectangle, roundedRectangle and capsule store one parameter definition (originMm,widthMm,heightMm,cornerRadiusMm); stable analytic edges are derived, not separately edited until explicit conversion. Closed face requires explicit ordered loops and up to 16 disjoint regions; open wire uses ordered chains. Unsupported spline editing is rejected."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "profileVersion": {
+        "meaning": "profileVersion: Create an editable exact 2D wire or planar face from stable analytic entities",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "entities": {
+        "meaning": "entities: Create an editable exact 2D wire or planar face from stable analytic entities",
+        "unit": "none",
+        "range": [
+          1,
+          500
+        ]
+      },
+      "loops": {
+        "meaning": "loops: Create an editable exact 2D wire or planar face from stable analytic entities",
+        "unit": "none",
+        "range": [
+          null,
+          50
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "chains": {
+        "meaning": "chains: Create an editable exact 2D wire or planar face from stable analytic entities",
+        "unit": "none",
+        "range": [
+          null,
+          50
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "regions": {
+        "meaning": "regions: Create an editable exact 2D wire or planar face from stable analytic entities",
+        "unit": "none",
+        "range": [
+          null,
+          16
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "output": {
+        "meaning": "Editable geometry",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      }
+    },
+    "refs": {
+      "min": 0,
+      "max": 0,
+      "meaning": "独立创建，不引用已有实体"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": false,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "sketchProfile",
+        "params": {
+          "profileVersion": 1,
+          "entities": [
+            {
+              "id": "circle-1",
+              "type": "circle",
+              "centerMm": [
+                0,
+                0
+              ],
+              "diameterMm": 20
+            }
+          ],
+          "loops": [
+            {
+              "id": "outer",
+              "edges": [
+                {
+                  "entityId": "circle-1",
+                  "reversed": false
+                }
+              ]
+            }
+          ],
+          "regions": [
+            {
+              "id": "region-1",
+              "outerLoopId": "outer",
+              "holeLoopIds": []
+            }
+          ],
+          "output": "face"
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "sketchProfile",
+        "params": {
+          "profileVersion": 1,
+          "entities": [
+            {
+              "id": "circle-1",
+              "type": "circle",
+              "centerMm": [
+                0,
+                0
+              ],
+              "diameterMm": 20
+            }
+          ],
+          "loops": [
+            {
+              "id": "outer",
+              "edges": [
+                {
+                  "entityId": "circle-1",
+                  "reversed": false
+                }
+              ]
+            }
+          ],
+          "regions": [
+            {
+              "id": "region-1",
+              "outerLoopId": "outer",
+              "holeLoopIds": []
+            }
+          ],
+          "output": "face"
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "profileVersion": 1,
+            "entities": [
+              {
+                "id": "circle-1",
+                "type": "circle",
+                "centerMm": [
+                  0,
+                  0
+                ],
+                "diameterMm": 20
+              }
+            ],
+            "loops": [
+              {
+                "id": "outer",
+                "edges": [
+                  {
+                    "entityId": "circle-1",
+                    "reversed": false
+                  }
+                ]
+              }
+            ],
+            "regions": [
+              {
+                "id": "region-1",
+                "outerLoopId": "outer",
+                "holeLoopIds": []
+              }
+            ],
+            "output": "face",
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "sketchProfile",
+      "Create an editable exact 2D wire or planar face from stable analytic entities",
+      "Create an editable exact 2D wire or planar face from stable analytic entities"
+    ],
+    "status": "experimental"
+  },
+  "purpose": "Create an editable exact 2D wire or planar face from stable analytic entities",
+  "whenToUse": [
+    "Single planar sketch. Top-level placement freezes the current insertion frame; later anchor moves do not move this profile. Analytic line, three-point arc and circle remain exact. Rectangle, roundedRectangle and capsule store one parameter definition (originMm,widthMm,heightMm,cornerRadiusMm); stable analytic edges are derived, not separately edited until explicit conversion. Closed face requires explicit ordered loops and up to 16 disjoint regions; open wire uses ordered chains. Unsupported spline editing is rejected."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
   "label": "绘制轮廓",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -560,5 +924,5 @@
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:23669151b4f7235a94efc33bbf0e1377722c3c5b20a6d81c89770e90438615b0"
+  "docsHash": "sha256:f6f9aad9447f321124c496c24b592ff26b4a87de7784fac3472887bd704a6707"
 }

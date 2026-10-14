@@ -122,6 +122,9 @@
   "title": "浮雕网格底板 / Relief mesh plate",
   "category": "creation",
   "synonyms": [
+    "网格底板",
+    "起伏点",
+    "relief plate",
     "meshReliefPlate",
     "浮雕网格底板"
   ],
@@ -172,7 +175,12 @@
   "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
   "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
   "limits": [
-    "Finite JSON values; no numeric strings, unknown fields, or implicit UI selection."
+    {
+      "name": "maxTriangles",
+      "value": 200000,
+      "unit": "count",
+      "source": "src/limits.js#meshReliefPlate.maxTriangles"
+    }
   ],
   "knownUnsupportedCases": [
     "Centered XY plate, support z=0 and back z=-thicknessMm. Explicit radial profiles use plateau plus cubic smoothstep shoulder, add signed heights; overlapping contributions add. Float64 regular triangulated surface; spacing is physical maximum cell size, not precision guarantee. No hidden normalization. Preserve this recipe in native project; output mesh, not BRep or STEP. Bumps must remain inside the plate, height must leave positive material, and total mesh is capped at 200000 triangles. New object placement uses the normal shared creation frame."
@@ -283,6 +291,327 @@
     "contract": "covered-by-contract-tests",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
+  "contract": {
+    "purpose": "浮雕网格底板 / Relief mesh plate",
+    "whenToUse": [
+      "Centered XY plate, support z=0 and back z=-thicknessMm. Explicit radial profiles use plateau plus cubic smoothstep shoulder, add signed heights; overlapping contributions add. Float64 regular triangulated surface; spacing is physical maximum cell size, not precision guarantee. No hidden normalization. Preserve this recipe in native project; output mesh, not BRep or STEP. Bumps must remain inside the plate, height must leave positive material, and total mesh is capped at 200000 triangles. New object placement uses the normal shared creation frame."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "需要精确曲面和STEP交换",
+        "use": "relief"
+      }
+    ],
+    "params": {
+      "version": {
+        "meaning": "version: 浮雕网格底板 / Relief mesh plate",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "widthMm": {
+        "meaning": "widthMm: 浮雕网格底板 / Relief mesh plate",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "depthMm": {
+        "meaning": "depthMm: 浮雕网格底板 / Relief mesh plate",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "thicknessMm": {
+        "meaning": "thicknessMm: 浮雕网格底板 / Relief mesh plate",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "spacingMm": {
+        "meaning": "spacingMm: 浮雕网格底板 / Relief mesh plate",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "bumps": {
+        "meaning": "bumps: 浮雕网格底板 / Relief mesh plate",
+        "unit": "none",
+        "range": [
+          null,
+          64
+        ]
+      }
+    },
+    "refs": {
+      "min": 0,
+      "max": 0,
+      "meaning": "独立创建，不引用已有实体"
+    },
+    "limits": [
+      {
+        "name": "maxTriangles",
+        "value": 200000,
+        "unit": "count",
+        "source": "src/limits.js#meshReliefPlate.maxTriangles"
+      }
+    ],
+    "outputs": {
+      "geometryType": "rawMesh",
+      "exportFormats": [
+        "stl"
+      ],
+      "consumesRefs": false,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_PLATE_INVALID",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_EDIT_CAPACITY",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_THICKNESS",
+        "when": "该操作schema或执行流程拒绝输入",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "meshReliefPlate",
+        "params": {
+          "version": 1,
+          "widthMm": 30,
+          "depthMm": 20,
+          "thicknessMm": 2,
+          "spacingMm": 0.25,
+          "bumps": [
+            {
+              "centerMm": [
+                0,
+                0
+              ],
+              "heightMm": 1,
+              "plateauRadiusMm": 1,
+              "outerRadiusMm": 3
+            }
+          ]
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "meshReliefPlate",
+        "params": {
+          "version": 1,
+          "widthMm": 30,
+          "depthMm": 20,
+          "thicknessMm": 2,
+          "spacingMm": 0.25,
+          "bumps": [
+            {
+              "centerMm": [
+                0,
+                0
+              ],
+              "heightMm": 1,
+              "plateauRadiusMm": 1,
+              "outerRadiusMm": 3
+            }
+          ]
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "version": 1,
+            "widthMm": 30,
+            "depthMm": 20,
+            "thicknessMm": 2,
+            "spacingMm": 0.25,
+            "bumps": [
+              {
+                "centerMm": [
+                  0,
+                  0
+                ],
+                "heightMm": 1,
+                "plateauRadiusMm": 1,
+                "outerRadiusMm": 3
+              }
+            ],
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "bounded-mesh",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "relief",
+      "reliefShoulder",
+      "logo",
+      "meshHeightfieldRelief",
+      "meshReliefEdit",
+      "meshBoolean"
+    ],
+    "synonyms": [
+      "网格底板",
+      "起伏点",
+      "relief plate"
+    ],
+    "status": "experimental"
+  },
+  "purpose": "浮雕网格底板 / Relief mesh plate",
+  "whenToUse": [
+    "Centered XY plate, support z=0 and back z=-thicknessMm. Explicit radial profiles use plateau plus cubic smoothstep shoulder, add signed heights; overlapping contributions add. Float64 regular triangulated surface; spacing is physical maximum cell size, not precision guarantee. No hidden normalization. Preserve this recipe in native project; output mesh, not BRep or STEP. Bumps must remain inside the plate, height must leave positive material, and total mesh is capped at 200000 triangles. New object placement uses the normal shared creation frame."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "需要精确曲面和STEP交换",
+      "use": "relief"
+    }
+  ],
+  "outputs": {
+    "geometryType": "rawMesh",
+    "exportFormats": [
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_PLATE_INVALID",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_EDIT_CAPACITY",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_THICKNESS",
+      "when": "该操作schema或执行流程拒绝输入",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "bounded-mesh",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
   "label": "浮雕网格底板",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -305,5 +634,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:a8a986761220df2e831d44b924470f11c5c71746da1293902daf3efd8cda35d8"
+  "docsHash": "sha256:241eaefeb951e430f8108abdda64121d1c16e25db34e457a97061060b13427b0"
 }

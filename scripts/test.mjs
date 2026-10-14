@@ -8,7 +8,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
   contracts: [
     'metal-materials', 'model-library', 'workspace-theme',
-    'remote-agent-adapter', 'agent-recovery-save', 'assistant-panel', 'runtime-uuid', 'model-script', 'page-context-policy',
+    'remote-agent-adapter', 'agent-recovery-save', 'assistant-panel', 'runtime-uuid', 'model-script', 'page-context-policy', 'operation-contract',
     'agent-knowledge', 'services-settings', 'services-routing', 'services-wait-policy', 'services-boolean-contract', 'project-container', 'geometry-cache',
     'design-inspection-contract',
     'agent-interface-coverage', 'relief-layers', 'relief-profile', 'relief-edit', 'mesh-assets', 'heightfield-relief', 'exact-source-assets', 'display-lod', 'pattern-machining', 'relief-contract', 'relief-sculpt',
