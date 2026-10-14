@@ -813,6 +813,15 @@
       "one browser batch: desktop and 905/768 embedded widths, floating menu, tooltip/icon semantics, visibility and theme persistence"
     ]
   },
+  "cadWorkbenchFileCapacity20261014": {
+    "localImpact": "CAD workbench attachment selection and registration match existing typed page file budgets; no geometry algorithm changes.",
+    "servicesImpact": "No Services/Native DLL, geometry source or compiled checkpoint capacity changes; Agent input/artifact transport and IIS workbench gateway updated together.",
+    "logoImpact": "None: ordinary image/vector/PDF attachments and Logo conversion retain 20 MiB.",
+    "contractImpact": "Page docs 1.47; documented host attachment and output transfer budgets. Agent enforces CAD capacity only for the persisted webcad task purpose.",
+    "documentImpact": "Original source bytes/hash and v4 format preserved; no model replacement or implicit import.",
+    "cacheImpact": "Regenerate static discovery and version workspace scripts; preserve settings, tasks and knowledge caches by release identity.",
+    "requiredTests": ["shared frontend capacity", "compiled IIS gateway policy", "Agent authenticated large STEP upload/readback and normal rejection", "typed artifact write/readback", "one real desktop tiger attachment via 17674", "formal HTTP release identity and scoped source push"]
+  },
   "largeExactSources20261013": {
     "localImpact": "UI/API/import preview use typed STEP/BREP source assets up to 128 MiB; exact OCCT geometry preserved; no sculpting algorithm changes.",
     "servicesImpact": "Retain v4 when installing compiled results; Services source/checkpoint 20 MiB budgets unchanged; no DLL/native/IIS change.",
