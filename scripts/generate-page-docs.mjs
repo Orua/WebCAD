@@ -94,7 +94,7 @@ const quickstart = [
   '- 建模使用 api.run 的 add/execute 步骤；返回的 connection.requestContext 可用于请求，后续实体用 $ref 引用回执。查询面边后再决定操作时重新核对 revision。',
   '- CDP 异步表达式使用 (async()=>JSON.stringify(await window.webcad.api.run(请求对象)))()，并设置 awaitPromise:true；不要直接使用顶层 await。',
   '- 检查逐步 status、partial/unknown 和 displayMatchesContext；批次不是全有全无事务。',
-  '- [建模与失败恢复流程](docs/api.workflow.md)：复杂模型分部件规划、每批最多20步、测量关键尺寸并检查画面。失败时按 progress 和 recovery 只规划剩余步骤，不重复创建已经提交的部件。',
+  '- [建模与失败恢复流程](docs/api.workflow.md)：复杂模型分部件规划、每批最多40步（LIMITS.batch.maxSteps）、测量关键尺寸并检查画面。失败时按 progress 和 recovery 只规划剩余步骤，不重复创建已经提交的部件。',
   '- 已持有完整卡时传 getTools 的 knownHashes，未变只返回 not_modified。文档可传 knownHash。禁止缓存工程状态、实体/面边编号作为下一次操作依据。',
   '- 首次握手必须下载 [Agent知识清单](agent-knowledge.json) 及其有限文件到宿主本地，逐文件验证SHA-256/大小。按页面base URL和catalogHash/docsHash缓存；重连哈希未变时复用。任务路由：[agent-routing.json](agent-routing.json)；精确UI路由：[routes.json](routes.json)。只读取命中的工作流和完整工具卡，不把全库送入模型上下文。详见[本地知识缓存](docs/api.knowledge-cache.md)。',
   '- 完整缓存说明：[api.discovery](docs/api.discovery.md)。无页面脚本能力时，目录：[manifest.json](manifest.json)；执行仍需宿主实际支持的通道。', '',

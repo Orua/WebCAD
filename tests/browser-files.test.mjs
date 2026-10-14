@@ -51,7 +51,7 @@ test('register copies bytes, applies basename and size limits, and forwards exac
   await assert.rejects(h.files.import({ context: context(), resourceId: iges.resourceId }), { code: 'CAPABILITY_UNAVAILABLE' });
   await assert.rejects(h.files.register({ name: '../outside.step', data: original }), { code: 'NAME_INVALID' });
   await assert.rejects(h.files.register({ name: 'https:evil.step', data: original }), { code: 'NAME_INVALID' });
-  await assert.rejects(h.files.register({ name: 'big.step', data: {byteLength:100 * 1024 * 1024 + 1} }), { code: 'SIZE_LIMIT' });
+  await assert.rejects(h.files.register({ name: 'big.step', data: {byteLength:128 * 1024 * 1024 + 1} }), { code: 'SIZE_LIMIT' });
   h.files.release({ resourceId: resource.resourceId });
   await assert.rejects(h.files.read({ resourceId: resource.resourceId }), { code: 'RESOURCE_EXPIRED' });
 });
@@ -222,8 +222,8 @@ test('large exact sources use typed import, preview and export without the legac
     files.release({resourceId:output.resourceId});
   }
   for (const ext of ['step','stp','brep','brp']) {
-    assert.equal(files.capabilities().typedByteBudgets[ext],100 * 1024 * 1024);
-    await assert.rejects(files.register({name:`oversized.${ext}`,data:{byteLength:100 * 1024 * 1024 + 1}}),{code:'SIZE_LIMIT'});
+    assert.equal(files.capabilities().typedByteBudgets[ext],128 * 1024 * 1024);
+    await assert.rejects(files.register({name:`oversized.${ext}`,data:{byteLength:128 * 1024 * 1024 + 1}}),{code:'SIZE_LIMIT'});
   }
   files.release({resourceId:resource.resourceId});
 });

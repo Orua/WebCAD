@@ -2,6 +2,7 @@
 // The page keeps ONE copy of the bytes and sends subarray views; no per-chunk copies.
 // Transport is injected so the page never owns host URLs or credentials.
 import {LIMITS} from '../limits.js';
+import {FILE_TYPED_BYTE_BUDGETS} from '../browser-file-contracts.js';
 
 const T=LIMITS.transport;
 const hex=buffer=>[...new Uint8Array(buffer)].map(b=>b.toString(16).padStart(2,'0')).join('');
@@ -13,6 +14,13 @@ export function transferError(code,message,extra={}){return Object.assign(new Er
 export function assertArtifactSize(size,limit=T.maxArtifactBytes){
   if(!Number.isInteger(size)||size<1)throw transferError('ASSET_INVALID','导出文件为空或大小无效。');
   if(size>limit)throw transferError('SIZE_LIMIT',`导出文件 ${mb(size)} MB 超过 ${mb(limit)} MB 上限；请降低网格精度、只导出所选实体或分体导出。`,{size,limit});
+}
+
+// Existing per-format budgets (STEP/BREP/STL 128 MiB, mesh 384 MiB, .webcad 512 MiB) are kept;
+// LIMITS.transport.maxArtifactBytes (100 MiB) is only the default for formats without an own budget.
+export function artifactByteBudget(name,limit=T.maxArtifactBytes){
+  const typed=FILE_TYPED_BYTE_BUDGETS[String(name??'').split('.').pop().toLowerCase()];
+  return typed?Math.max(limit,typed):limit;
 }
 
 export function planChunks(size,chunkBytes=T.chunkBytes){
@@ -28,7 +36,7 @@ export function planChunks(size,chunkBytes=T.chunkBytes){
  */
 export async function uploadChunked({bytes,name,client,limits=T,onProgress=()=>{},signal}={}){
   if(!(bytes instanceof Uint8Array))throw transferError('ASSET_INVALID','Upload requires Uint8Array bytes');
-  assertArtifactSize(bytes.byteLength,limits.maxArtifactBytes);
+  assertArtifactSize(bytes.byteLength,artifactByteBudget(name,limits.maxArtifactBytes));
   const chunkBytes=limits.chunkBytes,chunks=planChunks(bytes.byteLength,chunkBytes),sha256=await sha256Hex(bytes);
   const session=await client.start({name,size:bytes.byteLength,sha256,chunkBytes,chunkCount:chunks.length});
   const uploadId=session.uploadId;let received=new Set(session.received||[]);
