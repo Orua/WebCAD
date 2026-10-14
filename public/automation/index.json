@@ -2,34 +2,34 @@
   "generatedFrom": "src/page-api-docs.js and src/operation-registry.js",
   "metadata": {
     "product": "WebCAD",
-    "buildId": "16b196f55010e172594eb27778a0e3b85ba9511d-src-56b73e39075219e4-working",
+    "buildId": "049f47367d2fd7d4293151f31e01f3e9ba58d4ec-src-79971a95beacd824-working",
     "apiVersion": "2.0",
     "pageApiVersion": "1.47.0",
     "transport": "in-page",
     "entrypoint": "window.webcad.api",
-    "catalogHash": "sha256:6b4e16cded1b4010f3b958a2bdb08413fc1a31c7ba1470fec793eba6a6439f77",
-    "docsHash": "sha256:7b4cb7579072d0a9b46791700b6b6d78f40b854174551d35a636d1dc86077b72",
+    "catalogHash": "sha256:45f49a5cae531e647bf8608e04b6d5a3f5873140d90ede435d72f14d0ca4cb43",
+    "docsHash": "sha256:518d15709918ee4760fd8216ad409ea99101891c2816af532f425ee3824fcede",
     "discovery": {
       "searchVersion": "2",
       "pageApiVersion": "1.47.0",
       "apiVersion": "2.0",
       "entrypoint": "window.webcad.api.connect",
-      "toolCount": 245,
+      "toolCount": 247,
       "categories": [
         "surface",
         "creation",
         "modification",
         "organization",
         "reference",
+        "document",
         "command",
         "template",
         "page-method",
-        "document",
         "file",
         "unavailable"
       ],
-      "catalogHash": "sha256:6b4e16cded1b4010f3b958a2bdb08413fc1a31c7ba1470fec793eba6a6439f77",
-      "docsHash": "sha256:7b4cb7579072d0a9b46791700b6b6d78f40b854174551d35a636d1dc86077b72",
+      "catalogHash": "sha256:45f49a5cae531e647bf8608e04b6d5a3f5873140d90ede435d72f14d0ca4cb43",
+      "docsHash": "sha256:518d15709918ee4760fd8216ad409ea99101891c2816af532f425ee3824fcede",
       "agentProtocol": {
         "schemaVersion": 1,
         "adapterVersion": 2,
@@ -2704,7 +2704,7 @@
         }
       ],
       "knownUnsupportedCases": [
-        "Box from [0,0,0] to [width,depth,height]"
+        "显式X/Y/Z尺寸创建长方体；原点到width/depth/height。"
       ],
       "minimalExample": {
         "op": "box",
@@ -2774,7 +2774,7 @@
       "contract": {
         "purpose": "Box from [0,0,0] to [width,depth,height]",
         "whenToUse": [
-          "Box from [0,0,0] to [width,depth,height]"
+          "显式X/Y/Z尺寸创建长方体；原点到width/depth/height。"
         ],
         "whenNotToUse": [
           {
@@ -2936,7 +2936,7 @@
       },
       "purpose": "Box from [0,0,0] to [width,depth,height]",
       "whenToUse": [
-        "Box from [0,0,0] to [width,depth,height]"
+        "显式X/Y/Z尺寸创建长方体；原点到width/depth/height。"
       ],
       "whenNotToUse": [
         {
@@ -3027,7 +3027,7 @@
       },
       "runtimeAvailability": "requires_ready_page",
       "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-      "docsHash": "sha256:c6a670c5e5f736fe19c2264f20733334f63f18de28afd6d1d05c7ab224fd0e9c"
+      "docsHash": "sha256:6f414522cfec0584f7a5a0a77b1e1725f98829e006819a9ffbdf226e56b39bff"
     },
     {
       "id": "chamfer",
@@ -8460,7 +8460,7 @@
         }
       ],
       "knownUnsupportedCases": [
-        "Cylinder on +Z from origin"
+        "Z轴圆柱，radius是半径，height为轴向长度。"
       ],
       "minimalExample": {
         "op": "cylinder",
@@ -8526,7 +8526,7 @@
       "contract": {
         "purpose": "Cylinder on +Z from origin",
         "whenToUse": [
-          "Cylinder on +Z from origin"
+          "Z轴圆柱，radius是半径，height为轴向长度。"
         ],
         "whenNotToUse": [
           {
@@ -8678,7 +8678,7 @@
       },
       "purpose": "Cylinder on +Z from origin",
       "whenToUse": [
-        "Cylinder on +Z from origin"
+        "Z轴圆柱，radius是半径，height为轴向长度。"
       ],
       "whenNotToUse": [
         {
@@ -8769,7 +8769,7 @@
       },
       "runtimeAvailability": "requires_ready_page",
       "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-      "docsHash": "sha256:ed4737b0e1d301dea169620ba28e8d8bf8de4607b7d47a39e34ddb68589d4ccd"
+      "docsHash": "sha256:ec587293c93764ec825fe5e56ced5f77891ea93a3685df13a95f071d2de2a35d"
     },
     {
       "id": "draftByPlane",
@@ -10014,7 +10014,7 @@
         "volume": "mm^3",
         "scale": "dimensionless"
       },
-      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。",
+      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 按当前faceIds提取精确面并保留来源；不承诺生成闭合实体。",
       "title": "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。",
       "category": "reference",
       "synonyms": [
@@ -10023,7 +10023,7 @@
         "提取指定面"
       ],
       "description": "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。",
-      "schemaHash": "sha256:732b8165f6ccbb5abe8bbc268bb789ab5cee6280c97a0d52b4c55d79e638afda",
+      "schemaHash": "sha256:ef0f4f0fc3c23ef1214a5f15830e8f5f5f2190413308ecdcb8f82d7f92117f40",
       "apiCompatibility": [
         "page-v2"
       ],
@@ -10084,7 +10084,7 @@
         }
       ],
       "knownUnsupportedCases": [
-        "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。"
+        "按当前faceIds提取精确面并保留来源；不承诺生成闭合实体。"
       ],
       "minimalExample": {
         "op": "extractFaces",
@@ -10157,7 +10157,7 @@
       "contract": {
         "purpose": "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。",
         "whenToUse": [
-          "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。"
+          "按当前faceIds提取精确面并保留来源；不承诺生成闭合实体。"
         ],
         "whenNotToUse": [
           {
@@ -10308,7 +10308,7 @@
       },
       "purpose": "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。",
       "whenToUse": [
-        "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。"
+        "按当前faceIds提取精确面并保留来源；不承诺生成闭合实体。"
       ],
       "whenNotToUse": [
         {
@@ -10400,7 +10400,7 @@
       },
       "runtimeAvailability": "requires_ready_page",
       "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-      "docsHash": "sha256:a72d46c69840a25f6b3cedb96a29840d6439c32fa69b06e657a5fca04e02ff4b"
+      "docsHash": "sha256:bf7be556a7fa3130775e3432456ce6174ab04f74901e8e50f7ac965885a27035"
     },
     {
       "id": "extractShell",
@@ -10451,7 +10451,7 @@
         "volume": "mm^3",
         "scale": "dimensionless"
       },
-      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。",
+      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 按当前shellIndex提取壳，保留来源；开放壳不等于实体。",
       "title": "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。",
       "category": "reference",
       "synonyms": [
@@ -10460,7 +10460,7 @@
         "提取壳"
       ],
       "description": "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。",
-      "schemaHash": "sha256:d6644c387471d9072fe3946ec4e828ef163400484407c0a1b0f63d7ff459892c",
+      "schemaHash": "sha256:b8ed912d67a4c18369553844a69e5bdf0ea6bb911bb62e6e8a838b5b657d9410",
       "apiCompatibility": [
         "page-v2"
       ],
@@ -10520,7 +10520,7 @@
         }
       ],
       "knownUnsupportedCases": [
-        "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。"
+        "按当前shellIndex提取壳，保留来源；开放壳不等于实体。"
       ],
       "minimalExample": {
         "op": "extractShell",
@@ -10587,7 +10587,7 @@
       "contract": {
         "purpose": "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。",
         "whenToUse": [
-          "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。"
+          "按当前shellIndex提取壳，保留来源；开放壳不等于实体。"
         ],
         "whenNotToUse": [
           {
@@ -10732,7 +10732,7 @@
       },
       "purpose": "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。",
       "whenToUse": [
-        "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。"
+        "按当前shellIndex提取壳，保留来源；开放壳不等于实体。"
       ],
       "whenNotToUse": [
         {
@@ -10824,7 +10824,7 @@
       },
       "runtimeAvailability": "requires_ready_page",
       "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-      "docsHash": "sha256:5cb7bf83d7670d294a9bdd11d313e23864d315f8ef0c865d7332e7e79dc46d96"
+      "docsHash": "sha256:89053e4a777918101cacee711f0f30431eb3432a4a8dd86c4b7513c419f63162"
     },
     {
       "id": "extractSolid",
@@ -11952,7 +11952,7 @@
         "volume": "mm^3",
         "scale": "dimensionless"
       },
-      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 先选中一张面。all 提取包括内孔在内的全部边界；outer 明确只提取外环，不带孔。保留源模型，生成精确线框。单闭环可接参考轮廓拉伸/放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。",
+      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 提取当前faceId的精确边界；面号只在当前快照有效。",
       "title": "先选中一张面。all 提取包括内孔在内的全部边界；outer 明确只提取外环，不带孔。保留源模型，生成精确线框。单闭环可接参考轮廓拉伸/放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。",
       "category": "reference",
       "synonyms": [
@@ -11962,7 +11962,7 @@
         "提取面边界"
       ],
       "description": "先选中一张面。all 提取包括内孔在内的全部边界；outer 明确只提取外环，不带孔。保留源模型，生成精确线框。单闭环可接参考轮廓拉伸/放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。",
-      "schemaHash": "sha256:ebd862870fc3e2d7a2095a989fde20566256d983c5b2de6054f6097ce9f5ea8e",
+      "schemaHash": "sha256:33f97b81b8b5f1cb182d0ca5eb1ad0d85f1a515cea649f071e6f530d16cf2657",
       "apiCompatibility": [
         "page-advisory"
       ],
@@ -12022,7 +12022,7 @@
         }
       ],
       "knownUnsupportedCases": [
-        "先选中一张面。all 提取包括内孔在内的全部边界；outer 明确只提取外环，不带孔。保留源模型，生成精确线框。单闭环可接参考轮廓拉伸/放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。",
+        "提取当前faceId的精确边界；面号只在当前快照有效。",
         "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
       ],
       "minimalExample": {
@@ -12088,7 +12088,7 @@
       "contract": {
         "purpose": "先选中一张面。all 提取包括内孔在内的全部边界；outer 明确只提取外环，不带孔。保留源模型，生成精确线框。单闭环可接参考轮廓拉伸/放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。",
         "whenToUse": [
-          "先选中一张面。all 提取包括内孔在内的全部边界；outer 明确只提取外环，不带孔。保留源模型，生成精确线框。单闭环可接参考轮廓拉伸/放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。"
+          "提取当前faceId的精确边界；面号只在当前快照有效。"
         ],
         "whenNotToUse": [
           {
@@ -12242,7 +12242,7 @@
       },
       "purpose": "先选中一张面。all 提取包括内孔在内的全部边界；outer 明确只提取外环，不带孔。保留源模型，生成精确线框。单闭环可接参考轮廓拉伸/放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。",
       "whenToUse": [
-        "先选中一张面。all 提取包括内孔在内的全部边界；outer 明确只提取外环，不带孔。保留源模型，生成精确线框。单闭环可接参考轮廓拉伸/放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。"
+        "提取当前faceId的精确边界；面号只在当前快照有效。"
       ],
       "whenNotToUse": [
         {
@@ -12334,7 +12334,7 @@
       },
       "runtimeAvailability": "requires_ready_page",
       "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-      "docsHash": "sha256:561295f1359d16613ae582c1833baa4bbca3bb016a700b0b9e693033dfca2b98"
+      "docsHash": "sha256:97438fa5d54ec78cc24c431d86891d204d166cf28ee0a9a7e752ea593f81622c"
     },
     {
       "id": "faceExtrude",
@@ -17376,6 +17376,391 @@
       "runtimeAvailability": "requires_ready_page",
       "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
       "docsHash": "sha256:99e60d7764b3300849687c60c5bb525e76c67c6e7f666ef48e18c8713578ef8e"
+    },
+    {
+      "id": "import",
+      "version": "legacy-1",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false,
+        "$schema": "https://json-schema.org/draft/2020-12/schema"
+      },
+      "refsSchema": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 150
+        },
+        "uniqueItems": true,
+        "minItems": 0,
+        "maxItems": 0
+      },
+      "numericInputPolicy": {
+        "explicitValues": "exact",
+        "interactiveValues": "pointer-step",
+        "quantizationPolicy": "none",
+        "displayPreferencesAffectGeometry": false,
+        "kernelTolerance": "operation-specific; independent of display and pointer steps"
+      },
+      "defaults": {},
+      "selectionTokenSupport": {
+        "supported": false
+      },
+      "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+      "units": {
+        "length": "mm",
+        "angle": "degrees",
+        "volume": "mm^3",
+        "scale": "dimensionless"
+      },
+      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 用files.register/import登记真实STEP/BREP或网格字节；保留源资产，不恢复来源软件特征树。",
+      "title": "Open STEP/BREP through browser file picker; MCP has no arbitrary filesystem access",
+      "category": "document",
+      "synonyms": [
+        "import",
+        "Open STEP",
+        "BREP through browser file picker; MCP has no arbitrary filesystem access",
+        "导入"
+      ],
+      "description": "Open STEP/BREP through browser file picker; MCP has no arbitrary filesystem access",
+      "schemaHash": "sha256:5eba6672e5c76e997b3c5b80f85a0386552664411ac40bc18a02cca8bfab7b11",
+      "apiCompatibility": [
+        "page-advisory"
+      ],
+      "implementationStatus": "implemented",
+      "availability": "requires_browser",
+      "unavailableReason": null,
+      "strictContract": false,
+      "v2Executable": true,
+      "contractStatus": "advisory",
+      "outputSchema": {
+        "type": "object",
+        "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "committed",
+              "no_change",
+              "failed",
+              "unknown"
+            ]
+          }
+        }
+      },
+      "preconditions": [
+        "Use explicit empty refs for independent creation."
+      ],
+      "postconditions": [
+        "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+      ],
+      "resultShapeTypes": [],
+      "consumesInputs": false,
+      "preservesInputs": false,
+      "createsResults": true,
+      "sideEffects": [
+        "Updates active document history and derived view on commit."
+      ],
+      "permissions": [
+        "Authorized local modeling session; no external upload."
+      ],
+      "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+      "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+      "limits": [
+        {
+          "name": "maxFeatures",
+          "value": 2000,
+          "unit": "count",
+          "source": "src/limits.js#document.maxFeatures"
+        },
+        {
+          "name": "maxBytes",
+          "value": 20971520,
+          "unit": "count",
+          "source": "src/limits.js#document.maxBytes"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "用files.register/import登记真实STEP/BREP或网格字节；保留源资产，不恢复来源软件特征树。",
+        "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
+      ],
+      "minimalExample": {
+        "op": "import",
+        "params": {},
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+        "validation": "dedicated-entry-only"
+      },
+      "normalExample": {
+        "op": "import",
+        "params": {},
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+        "validation": "dedicated-entry-only"
+      },
+      "invalidExamples": [
+        {
+          "params": {
+            "__invalid": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID"
+        }
+      ],
+      "errorCodes": [
+        "PARAM_SCHEMA_INVALID",
+        "PARAM_RANGE_INVALID",
+        "UNKNOWN_OPERATION",
+        "OPERATION_VERSION_UNSUPPORTED",
+        "SCHEMA_MISMATCH",
+        "CAPABILITY_UNAVAILABLE",
+        "GEOMETRY_INVALID",
+        "SIZE_LIMIT"
+      ],
+      "recoveryActions": [
+        "CORRECT_PARAMETERS",
+        "READ_STATE_AND_REPLAN",
+        "READ_TOOL_CONTRACT",
+        "NONE"
+      ],
+      "relatedTools": [
+        "getState",
+        "getTool",
+        "queryGeometry",
+        "execute"
+      ],
+      "recipes": [],
+      "testIds": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "verification": {
+        "contract": "not_migrated",
+        "kernel": "See test run report; card generation is not proof of kernel execution."
+      },
+      "contract": {
+        "purpose": "Open STEP/BREP through browser file picker; MCP has no arbitrary filesystem access",
+        "whenToUse": [
+          "用files.register/import登记真实STEP/BREP或网格字节；保留源资产，不恢复来源软件特征树。"
+        ],
+        "whenNotToUse": [
+          {
+            "case": "输入是三角网格，需要网格加工",
+            "use": "meshBoolean"
+          }
+        ],
+        "params": {},
+        "refs": {
+          "min": 0,
+          "max": 0,
+          "meaning": "独立创建，不引用已有实体"
+        },
+        "limits": [
+          {
+            "name": "maxFeatures",
+            "value": 2000,
+            "unit": "count",
+            "source": "src/limits.js#document.maxFeatures"
+          },
+          {
+            "name": "maxBytes",
+            "value": 20971520,
+            "unit": "count",
+            "source": "src/limits.js#document.maxBytes"
+          }
+        ],
+        "outputs": {
+          "geometryType": "brep",
+          "exportFormats": [
+            "step",
+            "brep",
+            "stl"
+          ],
+          "consumesRefs": false,
+          "metrics": [
+            "bounds",
+            "area",
+            "volume (when available)"
+          ]
+        },
+        "errors": [
+          {
+            "code": "PARAM_SCHEMA_INVALID",
+            "when": "输入违反该操作源码的校验或几何约束",
+            "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+          },
+          {
+            "code": "PARAM_RANGE_INVALID",
+            "when": "该操作schema或执行流程拒绝输入",
+            "recovery": "读取当前工具卡并修正参数或来源"
+          },
+          {
+            "code": "UNKNOWN_OPERATION",
+            "when": "该操作schema或执行流程拒绝输入",
+            "recovery": "读取当前工具卡并修正参数或来源"
+          },
+          {
+            "code": "OPERATION_VERSION_UNSUPPORTED",
+            "when": "该操作schema或执行流程拒绝输入",
+            "recovery": "读取当前工具卡并修正参数或来源"
+          },
+          {
+            "code": "SCHEMA_MISMATCH",
+            "when": "该操作schema或执行流程拒绝输入",
+            "recovery": "读取当前工具卡并修正参数或来源"
+          },
+          {
+            "code": "CAPABILITY_UNAVAILABLE",
+            "when": "该操作schema或执行流程拒绝输入",
+            "recovery": "读取当前工具卡并修正参数或来源"
+          },
+          {
+            "code": "GEOMETRY_INVALID",
+            "when": "该操作schema或执行流程拒绝输入",
+            "recovery": "读取当前工具卡并修正参数或来源"
+          },
+          {
+            "code": "SIZE_LIMIT",
+            "when": "该操作schema或执行流程拒绝输入",
+            "recovery": "读取当前工具卡并修正参数或来源"
+          }
+        ],
+        "examples": {
+          "minimal": {
+            "op": "import",
+            "params": {},
+            "refs": [],
+            "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+            "validation": "dedicated-entry-only"
+          },
+          "normal": {
+            "op": "import",
+            "params": {},
+            "refs": [],
+            "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+            "validation": "dedicated-entry-only"
+          },
+          "invalid": [
+            {
+              "params": {
+                "__invalid": true
+              },
+              "errorCode": "PARAM_SCHEMA_INVALID"
+            }
+          ]
+        },
+        "routing": {
+          "class": "local-only",
+          "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+        },
+        "related": [
+          "queryGeometry",
+          "measure",
+          "files.export"
+        ],
+        "synonyms": [
+          "import",
+          "Open STEP",
+          "BREP through browser file picker; MCP has no arbitrary filesystem access"
+        ],
+        "status": "experimental"
+      },
+      "purpose": "Open STEP/BREP through browser file picker; MCP has no arbitrary filesystem access",
+      "whenToUse": [
+        "用files.register/import登记真实STEP/BREP或网格字节；保留源资产，不恢复来源软件特征树。"
+      ],
+      "whenNotToUse": [
+        {
+          "case": "输入是三角网格，需要网格加工",
+          "use": "meshBoolean"
+        }
+      ],
+      "outputs": {
+        "geometryType": "brep",
+        "exportFormats": [
+          "step",
+          "brep",
+          "stl"
+        ],
+        "consumesRefs": false,
+        "metrics": [
+          "bounds",
+          "area",
+          "volume (when available)"
+        ]
+      },
+      "errors": [
+        {
+          "code": "PARAM_SCHEMA_INVALID",
+          "when": "输入违反该操作源码的校验或几何约束",
+          "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+        },
+        {
+          "code": "PARAM_RANGE_INVALID",
+          "when": "该操作schema或执行流程拒绝输入",
+          "recovery": "读取当前工具卡并修正参数或来源"
+        },
+        {
+          "code": "UNKNOWN_OPERATION",
+          "when": "该操作schema或执行流程拒绝输入",
+          "recovery": "读取当前工具卡并修正参数或来源"
+        },
+        {
+          "code": "OPERATION_VERSION_UNSUPPORTED",
+          "when": "该操作schema或执行流程拒绝输入",
+          "recovery": "读取当前工具卡并修正参数或来源"
+        },
+        {
+          "code": "SCHEMA_MISMATCH",
+          "when": "该操作schema或执行流程拒绝输入",
+          "recovery": "读取当前工具卡并修正参数或来源"
+        },
+        {
+          "code": "CAPABILITY_UNAVAILABLE",
+          "when": "该操作schema或执行流程拒绝输入",
+          "recovery": "读取当前工具卡并修正参数或来源"
+        },
+        {
+          "code": "GEOMETRY_INVALID",
+          "when": "该操作schema或执行流程拒绝输入",
+          "recovery": "读取当前工具卡并修正参数或来源"
+        },
+        {
+          "code": "SIZE_LIMIT",
+          "when": "该操作schema或执行流程拒绝输入",
+          "recovery": "读取当前工具卡并修正参数或来源"
+        }
+      ],
+      "routing": {
+        "class": "local-only",
+        "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+      },
+      "status": "experimental",
+      "label": "导入",
+      "validationMode": "schema-validation-with-kernel-prerequisites",
+      "documentLimits": {
+        "maxFeatures": 2000,
+        "maxBytes": 20971520,
+        "preflightReserveBytes": 4096
+      },
+      "placementPolicy": {
+        "mode": "creation-frame",
+        "placementSupported": true,
+        "originUsage": "new-object-insertion",
+        "orientationUsage": "new-object-orientation",
+        "omittedPlacement": "current-work-frame-snapshot",
+        "legacyCoordinates": "world",
+        "newCoordinates": "frame-local",
+        "sourceAnchorRequired": true,
+        "defaultInsertionAnchor": "model-origin",
+        "historyBinding": "snapshot",
+        "previewSupported": "registered-file-only"
+      },
+      "runtimeAvailability": "requires_ready_page",
+      "executableOperation": false,
+      "contextPolicy": "revision",
+      "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+      "docsHash": "sha256:746104bcdd21b8a1cd0f23d86eac684ee4fa7289be17421f591b587865168c08"
     },
     {
       "id": "innerTurn",
@@ -28490,7 +28875,7 @@
         "volume": "mm^3",
         "scale": "dimensionless"
       },
-      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
+      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 在明确平面上提取当前精确实体截线；不消耗源实体。",
       "title": "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
       "category": "reference",
       "synonyms": [
@@ -28499,7 +28884,7 @@
         "提取真实截面"
       ],
       "description": "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
-      "schemaHash": "sha256:59f588c3f7b8a3cd6e9ccd3c2520d2b2a9f9ad7b402e358ca131ea164b9d89d9",
+      "schemaHash": "sha256:3b2851a9450dff831485745984f7442f05ef7b24dfc84377bcb1cbf1a1f96752",
       "apiCompatibility": [
         "page-advisory"
       ],
@@ -28559,7 +28944,7 @@
         }
       ],
       "knownUnsupportedCases": [
-        "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
+        "在明确平面上提取当前精确实体截线；不消耗源实体。",
         "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
       ],
       "minimalExample": {
@@ -28627,7 +29012,7 @@
       "contract": {
         "purpose": "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
         "whenToUse": [
-          "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。"
+          "在明确平面上提取当前精确实体截线；不消耗源实体。"
         ],
         "whenNotToUse": [
           {
@@ -28786,7 +29171,7 @@
       },
       "purpose": "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
       "whenToUse": [
-        "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。"
+        "在明确平面上提取当前精确实体截线；不消耗源实体。"
       ],
       "whenNotToUse": [
         {
@@ -28877,7 +29262,7 @@
       },
       "runtimeAvailability": "requires_ready_page",
       "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-      "docsHash": "sha256:b07d11b916b9e751188c63481fa79b75735d58ce2dea838759715e1a5e80ccc0"
+      "docsHash": "sha256:579f581d5f4fc7bd95fcc14e076eb41c15df82e0b1086b9fa2575328ad54bcaf"
     },
     {
       "id": "profileConstraints",
@@ -43521,7 +43906,7 @@
         "volume": "mm^3",
         "scale": "dimensionless"
       },
-      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 选择一个闭合平面线框或单张平面面。直接复用精确圆弧/样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。",
+      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 沿明确direction和distance拉伸参考轮廓，保留原来源。",
       "title": "选择一个闭合平面线框或单张平面面。直接复用精确圆弧/样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。",
       "category": "reference",
       "synonyms": [
@@ -43534,7 +43919,7 @@
         "参考轮廓拉伸"
       ],
       "description": "选择一个闭合平面线框或单张平面面。直接复用精确圆弧/样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。",
-      "schemaHash": "sha256:224bcca7539b44b6b9f02ec2d96d9cb0aca2e84d36df11d1e484f3f4f2dcdd79",
+      "schemaHash": "sha256:9bd3c573ba560e4018708e99ff5f0e81ca8495244fe1d59bb48acba1f836c07e",
       "apiCompatibility": [
         "page-advisory"
       ],
@@ -43595,7 +43980,7 @@
         }
       ],
       "knownUnsupportedCases": [
-        "选择一个闭合平面线框或单张平面面。直接复用精确圆弧/样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。",
+        "沿明确direction和distance拉伸参考轮廓，保留原来源。",
         "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
       ],
       "minimalExample": {
@@ -43671,7 +44056,7 @@
       "contract": {
         "purpose": "选择一个闭合平面线框或单张平面面。直接复用精确圆弧/样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。",
         "whenToUse": [
-          "选择一个闭合平面线框或单张平面面。直接复用精确圆弧/样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。"
+          "沿明确direction和distance拉伸参考轮廓，保留原来源。"
         ],
         "whenNotToUse": [
           {
@@ -43832,7 +44217,7 @@
       },
       "purpose": "选择一个闭合平面线框或单张平面面。直接复用精确圆弧/样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。",
       "whenToUse": [
-        "选择一个闭合平面线框或单张平面面。直接复用精确圆弧/样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。"
+        "沿明确direction和distance拉伸参考轮廓，保留原来源。"
       ],
       "whenNotToUse": [
         {
@@ -43923,7 +44308,7 @@
       },
       "runtimeAvailability": "requires_ready_page",
       "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-      "docsHash": "sha256:a0412d69b89f8f4d3af22e39f08f64853f42094d91bea9e4f895c5ea6acc035d"
+      "docsHash": "sha256:612f84e4d5eb7e03103b3cf3faaa67a25fcdbcfe3782dabbef99ba2c80d281bb"
     },
     {
       "id": "referenceLoft",
@@ -43967,7 +44352,7 @@
         "volume": "mm^3",
         "scale": "dimensionless"
       },
-      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。",
+      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 用有序参考截面放样；引用上限为12，保留原轮廓。",
       "title": "按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。",
       "category": "reference",
       "synonyms": [
@@ -43980,7 +44365,7 @@
         "参考截面放样"
       ],
       "description": "按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。",
-      "schemaHash": "sha256:cd92adb265af223c33b97b838ca1b2b3a9463758424cc0e84f9a551511fb3a07",
+      "schemaHash": "sha256:c3966533fb30cc690d3583c9c323823b7241493d2afa2e25944db8e0f36a978d",
       "apiCompatibility": [
         "page-advisory"
       ],
@@ -44041,7 +44426,7 @@
         }
       ],
       "knownUnsupportedCases": [
-        "按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。",
+        "用有序参考截面放样；引用上限为12，保留原轮廓。",
         "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
       ],
       "minimalExample": {
@@ -44109,7 +44494,7 @@
       "contract": {
         "purpose": "按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。",
         "whenToUse": [
-          "按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。"
+          "用有序参考截面放样；引用上限为12，保留原轮廓。"
         ],
         "whenNotToUse": [
           {
@@ -44257,7 +44642,7 @@
       },
       "purpose": "按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。",
       "whenToUse": [
-        "按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。"
+        "用有序参考截面放样；引用上限为12，保留原轮廓。"
       ],
       "whenNotToUse": [
         {
@@ -44349,7 +44734,7 @@
       },
       "runtimeAvailability": "requires_ready_page",
       "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-      "docsHash": "sha256:8739477603163a5f51833b0ca9d82d5cc833a25ecb8491a367f4b57b2697ed69"
+      "docsHash": "sha256:80e6fcf9c8d4a1e42487ba9b672329cc34c24a7a26547a66c03b59d6f4058df0"
     },
     {
       "id": "refineShape",
@@ -47399,6 +47784,399 @@
       "docsHash": "sha256:f1af480709cab695f6fb8f31e77df1ca766449ba50c362a3bf9ee7db256d5c29"
     },
     {
+      "id": "remove",
+      "version": "legacy-1",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false,
+        "$schema": "https://json-schema.org/draft/2020-12/schema"
+      },
+      "refsSchema": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 150
+        },
+        "uniqueItems": true,
+        "minItems": 1
+      },
+      "numericInputPolicy": {
+        "explicitValues": "exact",
+        "interactiveValues": "pointer-step",
+        "quantizationPolicy": "none",
+        "displayPreferencesAffectGeometry": false,
+        "kernelTolerance": "operation-specific; independent of display and pointer steps"
+      },
+      "defaults": {},
+      "selectionTokenSupport": {
+        "supported": false
+      },
+      "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+      "units": {
+        "length": "mm",
+        "angle": "degrees",
+        "volume": "mm^3",
+        "scale": "dimensionless"
+      },
+      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 删除明确的特征并检查下游依赖；使用feature.remove，可撤销。",
+      "title": "Use dedicated webcad_remove tool with ids, not add_feature",
+      "category": "document",
+      "synonyms": [
+        "remove",
+        "Use dedicated webcad_remove tool with ids, not add_feature",
+        "删除"
+      ],
+      "description": "Use dedicated webcad_remove tool with ids, not add_feature",
+      "schemaHash": "sha256:c3fd50825895332a137189693421731c62b29ed0183d4923842f09512cb8a2c7",
+      "apiCompatibility": [
+        "page-advisory"
+      ],
+      "implementationStatus": "implemented",
+      "availability": "requires_browser",
+      "unavailableReason": null,
+      "strictContract": false,
+      "v2Executable": true,
+      "contractStatus": "advisory",
+      "outputSchema": {
+        "type": "object",
+        "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "committed",
+              "no_change",
+              "failed",
+              "unknown"
+            ]
+          }
+        }
+      },
+      "preconditions": [
+        "Use current referenced bodies in the same document instance and revision."
+      ],
+      "postconditions": [
+        "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+      ],
+      "resultShapeTypes": [],
+      "consumesInputs": true,
+      "preservesInputs": false,
+      "createsResults": false,
+      "sideEffects": [
+        "Updates active document history and derived view on commit."
+      ],
+      "permissions": [
+        "Authorized local modeling session; no external upload."
+      ],
+      "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+      "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+      "limits": [
+        {
+          "name": "maxFeatures",
+          "value": 2000,
+          "unit": "count",
+          "source": "src/limits.js#document.maxFeatures"
+        },
+        {
+          "name": "maxBytes",
+          "value": 20971520,
+          "unit": "count",
+          "source": "src/limits.js#document.maxBytes"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "删除明确的特征并检查下游依赖；使用feature.remove，可撤销。",
+        "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result.",
+        "Use webcad_remove or v2 feature.remove; not feature.add."
+      ],
+      "minimalExample": {
+        "op": "remove",
+        "params": {},
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+        "validation": "dedicated-entry-only"
+      },
+      "normalExample": {
+        "op": "remove",
+        "params": {},
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+        "validation": "dedicated-entry-only"
+      },
+      "invalidExamples": [
+        {
+          "params": {
+            "__invalid": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID"
+        }
+      ],
+      "errorCodes": [
+        "PARAM_SCHEMA_INVALID",
+        "PARAM_RANGE_INVALID",
+        "UNKNOWN_OPERATION",
+        "OPERATION_VERSION_UNSUPPORTED",
+        "SCHEMA_MISMATCH",
+        "CAPABILITY_UNAVAILABLE",
+        "GEOMETRY_INVALID",
+        "SIZE_LIMIT"
+      ],
+      "recoveryActions": [
+        "CORRECT_PARAMETERS",
+        "READ_STATE_AND_REPLAN",
+        "READ_TOOL_CONTRACT",
+        "NONE"
+      ],
+      "relatedTools": [
+        "getState",
+        "getTool",
+        "queryGeometry",
+        "execute"
+      ],
+      "recipes": [],
+      "testIds": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "verification": {
+        "contract": "not_migrated",
+        "kernel": "See test run report; card generation is not proof of kernel execution."
+      },
+      "contract": {
+        "purpose": "Use dedicated webcad_remove tool with ids, not add_feature",
+        "whenToUse": [
+          "删除明确的特征并检查下游依赖；使用feature.remove，可撤销。"
+        ],
+        "whenNotToUse": [
+          {
+            "case": "输入是三角网格，需要网格加工",
+            "use": "meshBoolean"
+          }
+        ],
+        "params": {},
+        "refs": {
+          "min": 1,
+          "max": null,
+          "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+        },
+        "limits": [
+          {
+            "name": "maxFeatures",
+            "value": 2000,
+            "unit": "count",
+            "source": "src/limits.js#document.maxFeatures"
+          },
+          {
+            "name": "maxBytes",
+            "value": 20971520,
+            "unit": "count",
+            "source": "src/limits.js#document.maxBytes"
+          }
+        ],
+        "outputs": {
+          "geometryType": "brep",
+          "exportFormats": [
+            "step",
+            "brep",
+            "stl"
+          ],
+          "consumesRefs": true,
+          "metrics": [
+            "bounds",
+            "area",
+            "volume (when available)"
+          ]
+        },
+        "errors": [
+          {
+            "code": "PARAM_SCHEMA_INVALID",
+            "when": "输入违反该操作源码的校验或几何约束",
+            "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+          },
+          {
+            "code": "PARAM_RANGE_INVALID",
+            "when": "该操作schema或执行流程拒绝输入",
+            "recovery": "读取当前工具卡并修正参数或来源"
+          },
+          {
+            "code": "UNKNOWN_OPERATION",
+            "when": "该操作schema或执行流程拒绝输入",
+            "recovery": "读取当前工具卡并修正参数或来源"
+          },
+          {
+            "code": "OPERATION_VERSION_UNSUPPORTED",
+            "when": "该操作schema或执行流程拒绝输入",
+            "recovery": "读取当前工具卡并修正参数或来源"
+          },
+          {
+            "code": "SCHEMA_MISMATCH",
+            "when": "该操作schema或执行流程拒绝输入",
+            "recovery": "读取当前工具卡并修正参数或来源"
+          },
+          {
+            "code": "CAPABILITY_UNAVAILABLE",
+            "when": "该操作schema或执行流程拒绝输入",
+            "recovery": "读取当前工具卡并修正参数或来源"
+          },
+          {
+            "code": "GEOMETRY_INVALID",
+            "when": "该操作schema或执行流程拒绝输入",
+            "recovery": "读取当前工具卡并修正参数或来源"
+          },
+          {
+            "code": "SIZE_LIMIT",
+            "when": "该操作schema或执行流程拒绝输入",
+            "recovery": "读取当前工具卡并修正参数或来源"
+          }
+        ],
+        "examples": {
+          "minimal": {
+            "op": "remove",
+            "params": {},
+            "refs": [
+              "<current-bodyId-1>"
+            ],
+            "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+            "validation": "dedicated-entry-only"
+          },
+          "normal": {
+            "op": "remove",
+            "params": {},
+            "refs": [
+              "<current-bodyId-1>"
+            ],
+            "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+            "validation": "dedicated-entry-only"
+          },
+          "invalid": [
+            {
+              "params": {
+                "__invalid": true
+              },
+              "errorCode": "PARAM_SCHEMA_INVALID"
+            }
+          ]
+        },
+        "routing": {
+          "class": "local-only",
+          "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+        },
+        "related": [
+          "queryGeometry",
+          "measure",
+          "files.export"
+        ],
+        "synonyms": [
+          "remove",
+          "Use dedicated webcad_remove tool with ids, not add_feature",
+          "Use dedicated webcad_remove tool with ids, not add_feature"
+        ],
+        "status": "experimental"
+      },
+      "purpose": "Use dedicated webcad_remove tool with ids, not add_feature",
+      "whenToUse": [
+        "删除明确的特征并检查下游依赖；使用feature.remove，可撤销。"
+      ],
+      "whenNotToUse": [
+        {
+          "case": "输入是三角网格，需要网格加工",
+          "use": "meshBoolean"
+        }
+      ],
+      "outputs": {
+        "geometryType": "brep",
+        "exportFormats": [
+          "step",
+          "brep",
+          "stl"
+        ],
+        "consumesRefs": true,
+        "metrics": [
+          "bounds",
+          "area",
+          "volume (when available)"
+        ]
+      },
+      "errors": [
+        {
+          "code": "PARAM_SCHEMA_INVALID",
+          "when": "输入违反该操作源码的校验或几何约束",
+          "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+        },
+        {
+          "code": "PARAM_RANGE_INVALID",
+          "when": "该操作schema或执行流程拒绝输入",
+          "recovery": "读取当前工具卡并修正参数或来源"
+        },
+        {
+          "code": "UNKNOWN_OPERATION",
+          "when": "该操作schema或执行流程拒绝输入",
+          "recovery": "读取当前工具卡并修正参数或来源"
+        },
+        {
+          "code": "OPERATION_VERSION_UNSUPPORTED",
+          "when": "该操作schema或执行流程拒绝输入",
+          "recovery": "读取当前工具卡并修正参数或来源"
+        },
+        {
+          "code": "SCHEMA_MISMATCH",
+          "when": "该操作schema或执行流程拒绝输入",
+          "recovery": "读取当前工具卡并修正参数或来源"
+        },
+        {
+          "code": "CAPABILITY_UNAVAILABLE",
+          "when": "该操作schema或执行流程拒绝输入",
+          "recovery": "读取当前工具卡并修正参数或来源"
+        },
+        {
+          "code": "GEOMETRY_INVALID",
+          "when": "该操作schema或执行流程拒绝输入",
+          "recovery": "读取当前工具卡并修正参数或来源"
+        },
+        {
+          "code": "SIZE_LIMIT",
+          "when": "该操作schema或执行流程拒绝输入",
+          "recovery": "读取当前工具卡并修正参数或来源"
+        }
+      ],
+      "routing": {
+        "class": "local-only",
+        "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+      },
+      "status": "experimental",
+      "label": "删除",
+      "validationMode": "schema-validation-with-kernel-prerequisites",
+      "documentLimits": {
+        "maxFeatures": 2000,
+        "maxBytes": 20971520,
+        "preflightReserveBytes": 4096
+      },
+      "placementPolicy": {
+        "mode": "not-applicable",
+        "placementSupported": false,
+        "notApplicableReason": "Operation acts on existing topology without relocating it",
+        "originUsage": "target-topology-unchanged",
+        "orientationUsage": "none",
+        "omittedPlacement": "legacy-world",
+        "legacyCoordinates": "world",
+        "newCoordinates": "not-applicable",
+        "sourceAnchorRequired": false,
+        "defaultInsertionAnchor": null,
+        "historyBinding": "legacy",
+        "previewSupported": true
+      },
+      "runtimeAvailability": "requires_ready_page",
+      "executableOperation": false,
+      "contextPolicy": "revision",
+      "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+      "docsHash": "sha256:00d25ae29fd7042486aa44f418ded8e10c086e33c5c13ab720f0f8b37cce6acb"
+    },
+    {
       "id": "revolve",
       "version": "legacy-1",
       "inputSchema": {
@@ -50340,7 +51118,7 @@
         "volume": "mm^3",
         "scale": "dimensionless"
       },
-      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
+      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 按显式缝合公差连接精确面；makeSolid受实际闭合和有效性校验。",
       "title": "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
       "category": "surface",
       "synonyms": [
@@ -50349,7 +51127,7 @@
         "曲面缝合"
       ],
       "description": "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
-      "schemaHash": "sha256:c361e97df6b08cc4eb3e52153c058ffc20a803fd073bc6326734474c4b2d0c44",
+      "schemaHash": "sha256:f41f47c722a6b14a5b2bc371e199607856aae8c81fa9cdebca6d94ee44e22066",
       "apiCompatibility": [
         "page-advisory"
       ],
@@ -50411,7 +51189,7 @@
         }
       ],
       "knownUnsupportedCases": [
-        "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
+        "按显式缝合公差连接精确面；makeSolid受实际闭合和有效性校验。",
         "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
       ],
       "minimalExample": {
@@ -50479,7 +51257,7 @@
       "contract": {
         "purpose": "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
         "whenToUse": [
-          "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。"
+          "按显式缝合公差连接精确面；makeSolid受实际闭合和有效性校验。"
         ],
         "whenNotToUse": [
           {
@@ -50638,7 +51416,7 @@
       },
       "purpose": "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
       "whenToUse": [
-        "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。"
+        "按显式缝合公差连接精确面；makeSolid受实际闭合和有效性校验。"
       ],
       "whenNotToUse": [
         {
@@ -50730,7 +51508,7 @@
       },
       "runtimeAvailability": "requires_ready_page",
       "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-      "docsHash": "sha256:7586060d5eb18d7200c5dca12bf6b0c085f954f7cc676c41a1ed85b4d6ddefda"
+      "docsHash": "sha256:eae0a7bf40ef4dae5702d9951a7bc48569c3a8e056b4a1507f605e7f469e91bd"
     },
     {
       "id": "shell",
@@ -53409,7 +54187,7 @@
         }
       ],
       "knownUnsupportedCases": [
-        "Sphere centered at origin"
+        "原点球体，radius为半径。"
       ],
       "minimalExample": {
         "op": "sphere",
@@ -53472,7 +54250,7 @@
       "contract": {
         "purpose": "Sphere centered at origin",
         "whenToUse": [
-          "Sphere centered at origin"
+          "原点球体，radius为半径。"
         ],
         "whenNotToUse": [
           {
@@ -53613,7 +54391,7 @@
       },
       "purpose": "Sphere centered at origin",
       "whenToUse": [
-        "Sphere centered at origin"
+        "原点球体，radius为半径。"
       ],
       "whenNotToUse": [
         {
@@ -53704,7 +54482,7 @@
       },
       "runtimeAvailability": "requires_ready_page",
       "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-      "docsHash": "sha256:b3d83cf4f25c522ecf3706b0f722c71b92ad228533bebc1cffe8121e6812796b"
+      "docsHash": "sha256:9199f0d97ad2932bfa2ac6d6a8bcbbcb8f9ed3a421c990f93c5bd2527e714fe3"
     },
     {
       "id": "split",
@@ -54208,7 +54986,7 @@
         "volume": "mm^3",
         "scale": "dimensionless"
       },
-      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。",
+      "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 按指定faceId和明确剪裁来源裁剪精确面；不是网格裁剪。",
       "title": "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。",
       "category": "surface",
       "synonyms": [
@@ -54217,7 +54995,7 @@
         "实体修剪面"
       ],
       "description": "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。",
-      "schemaHash": "sha256:0f9f4654482e9c91c4f415b309f3af52d146d9a95447ebe6527c606aad4a9601",
+      "schemaHash": "sha256:dfc196da1c8adb8eee2e71fee265a29493ff598648e44b516f956cda7377c6b1",
       "apiCompatibility": [
         "page-advisory"
       ],
@@ -54279,7 +55057,7 @@
         }
       ],
       "knownUnsupportedCases": [
-        "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。",
+        "按指定faceId和明确剪裁来源裁剪精确面；不是网格裁剪。",
         "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
       ],
       "minimalExample": {
@@ -54349,7 +55127,7 @@
       "contract": {
         "purpose": "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。",
         "whenToUse": [
-          "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。"
+          "按指定faceId和明确剪裁来源裁剪精确面；不是网格裁剪。"
         ],
         "whenNotToUse": [
           {
@@ -54507,7 +55285,7 @@
       },
       "purpose": "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。",
       "whenToUse": [
-        "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。"
+        "按指定faceId和明确剪裁来源裁剪精确面；不是网格裁剪。"
       ],
       "whenNotToUse": [
         {
@@ -54599,7 +55377,7 @@
       },
       "runtimeAvailability": "requires_ready_page",
       "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-      "docsHash": "sha256:26747f429b154329b1470511f1afc769803f23ecb226b4040fe5ebcb7f17a314"
+      "docsHash": "sha256:355f2f6914c876e0da65440f09785b01a33ddaaffede7d42a96df32d4bb83461"
     },
     {
       "id": "sweep",

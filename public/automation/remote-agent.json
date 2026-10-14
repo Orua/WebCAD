@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "adapterVersion": 2,
-  "buildId": "16b196f55010e172594eb27778a0e3b85ba9511d-src-56b73e39075219e4-working",
-  "catalogHash": "sha256:6b4e16cded1b4010f3b958a2bdb08413fc1a31c7ba1470fec793eba6a6439f77",
-  "docsHash": "sha256:7b4cb7579072d0a9b46791700b6b6d78f40b854174551d35a636d1dc86077b72",
+  "buildId": "049f47367d2fd7d4293151f31e01f3e9ba58d4ec-src-79971a95beacd824-working",
+  "catalogHash": "sha256:45f49a5cae531e647bf8608e04b6d5a3f5873140d90ede435d72f14d0ca4cb43",
+  "docsHash": "sha256:518d15709918ee4760fd8216ad409ea99101891c2816af532f425ee3824fcede",
   "contractHash": "sha256:faa68db6d0fd89459575ab74c19d12a3dcaeb002a6f488b810aae6c4a3a0a971",
   "protocol": "goldenluck.webcad/1",
   "files": [

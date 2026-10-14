@@ -47,7 +47,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 按显式缝合公差连接精确面；makeSolid受实际闭合和有效性校验。",
   "title": "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
   "category": "surface",
   "synonyms": [
@@ -56,7 +56,7 @@
     "曲面缝合"
   ],
   "description": "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
-  "schemaHash": "sha256:c361e97df6b08cc4eb3e52153c058ffc20a803fd073bc6326734474c4b2d0c44",
+  "schemaHash": "sha256:f41f47c722a6b14a5b2bc371e199607856aae8c81fa9cdebca6d94ee44e22066",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -118,7 +118,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
+    "按显式缝合公差连接精确面；makeSolid受实际闭合和有效性校验。",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
@@ -186,7 +186,7 @@
   "contract": {
     "purpose": "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
     "whenToUse": [
-      "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。"
+      "按显式缝合公差连接精确面；makeSolid受实际闭合和有效性校验。"
     ],
     "whenNotToUse": [
       {
@@ -345,7 +345,7 @@
   },
   "purpose": "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
   "whenToUse": [
-    "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。"
+    "按显式缝合公差连接精确面；makeSolid受实际闭合和有效性校验。"
   ],
   "whenNotToUse": [
     {
@@ -437,5 +437,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:7586060d5eb18d7200c5dca12bf6b0c085f954f7cc676c41a1ed85b4d6ddefda"
+  "docsHash": "sha256:eae0a7bf40ef4dae5702d9951a7bc48569c3a8e056b4a1507f605e7f469e91bd"
 }

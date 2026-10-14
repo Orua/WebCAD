@@ -41,7 +41,7 @@ for (const op of listOperations()) {
   if(op.legacyOnly){
     const legacy=getTool({id:op.id});
     if(!legacy.legacyOnly||legacy.replacedBy!==op.replacedBy||!cards.has(op.replacedBy)||cards.has(op.id))throw new Error(`Legacy operation ${op.id} must remain addressable and expose only its replacement in new discovery`);
-  }else if (!cards.has(id)) throw new Error(`Operation ${op.id} has no discoverable route`);
+  }else if (!cards.has(id)||!cards.has(op.id)) throw new Error(`Operation ${op.id} has no discoverable card or route`);
   if (!report.operations.some(item => item.id === op.id && item.placementPolicy))
     throw new Error(`Operation ${op.id} absent from coverage`);
 }

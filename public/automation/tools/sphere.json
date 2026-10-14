@@ -117,7 +117,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Sphere centered at origin"
+    "原点球体，radius为半径。"
   ],
   "minimalExample": {
     "op": "sphere",
@@ -180,7 +180,7 @@
   "contract": {
     "purpose": "Sphere centered at origin",
     "whenToUse": [
-      "Sphere centered at origin"
+      "原点球体，radius为半径。"
     ],
     "whenNotToUse": [
       {
@@ -321,7 +321,7 @@
   },
   "purpose": "Sphere centered at origin",
   "whenToUse": [
-    "Sphere centered at origin"
+    "原点球体，radius为半径。"
   ],
   "whenNotToUse": [
     {
@@ -412,5 +412,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:b3d83cf4f25c522ecf3706b0f722c71b92ad228533bebc1cffe8121e6812796b"
+  "docsHash": "sha256:9199f0d97ad2932bfa2ac6d6a8bcbbcb8f9ed3a421c990f93c5bd2527e714fe3"
 }

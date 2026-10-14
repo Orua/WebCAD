@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.47.0 · 操作目录 sha256:6b4e16cded1b4010f3b958a2bdb08413fc1a31c7ba1470fec793eba6a6439f77
+API 1.47.0 · 操作目录 sha256:45f49a5cae531e647bf8608e04b6d5a3f5873140d90ede435d72f14d0ca4cb43
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -129,6 +129,7 @@ API 1.47.0 · 操作目录 sha256:6b4e16cded1b4010f3b958a2bdb08413fc1a31c7ba1470
 - `helix` · migrated · Create an exact helical wire in the creation frame
 - `hole` · migrated · Cylindrical cut starting at global coordinates
 - `holeWizard` · migrated · Exact plain, counterbore, or countersink hole with flat or angled blind drill point
+- `import` · advisory · Open STEP/BREP through browser file picker; MCP has no arbitrary filesystem access
 - `innerTurn` · migrated · Bore inside a selected planar section
 - `intersect` · migrated · Common volume of bodies
 - `linearPattern` · migrated · Linear copies as a compound or explicitly fused solid
@@ -159,6 +160,7 @@ API 1.47.0 · 操作目录 sha256:6b4e16cded1b4010f3b958a2bdb08413fc1a31c7ba1470
 - `refineShape` · migrated · Refine same-domain faces and remove redundant splitter edges
 - `relief` · migrated · 浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief
 - `reliefShoulder` · migrated · 浮雕中央肩部 / Central relief shoulder
+- `remove` · advisory · Use dedicated webcad_remove tool with ids, not add_feature
 - `revolve` · advisory · Revolve a closed profile
 - `round` · migrated · 圆润 / Round
 - `roundEnd` · migrated · 端头圆润 / Round free end

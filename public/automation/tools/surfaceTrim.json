@@ -54,7 +54,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 按指定faceId和明确剪裁来源裁剪精确面；不是网格裁剪。",
   "title": "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。",
   "category": "surface",
   "synonyms": [
@@ -63,7 +63,7 @@
     "实体修剪面"
   ],
   "description": "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。",
-  "schemaHash": "sha256:0f9f4654482e9c91c4f415b309f3af52d146d9a95447ebe6527c606aad4a9601",
+  "schemaHash": "sha256:dfc196da1c8adb8eee2e71fee265a29493ff598648e44b516f956cda7377c6b1",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -125,7 +125,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。",
+    "按指定faceId和明确剪裁来源裁剪精确面；不是网格裁剪。",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
@@ -195,7 +195,7 @@
   "contract": {
     "purpose": "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。",
     "whenToUse": [
-      "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。"
+      "按指定faceId和明确剪裁来源裁剪精确面；不是网格裁剪。"
     ],
     "whenNotToUse": [
       {
@@ -353,7 +353,7 @@
   },
   "purpose": "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。",
   "whenToUse": [
-    "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。"
+    "按指定faceId和明确剪裁来源裁剪精确面；不是网格裁剪。"
   ],
   "whenNotToUse": [
     {
@@ -445,5 +445,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:26747f429b154329b1470511f1afc769803f23ecb226b4040fe5ebcb7f17a314"
+  "docsHash": "sha256:355f2f6914c876e0da65440f09785b01a33ddaaffede7d42a96df32d4bb83461"
 }
