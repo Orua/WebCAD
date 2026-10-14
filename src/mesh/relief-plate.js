@@ -21,3 +21,7 @@ export function makeReliefPlate(p){
  for(let i=0;i<rim.length;i++){const a=rim[i],b=rim[(i+1)%rim.length];indices.push(a,count+a,count+b,a,count+b,b);}
  return {positions,indices:new Uint32Array(indices)};
 }
+
+import {sourceOperationContract as declaredSourceContract} from '../operation-contracts.js';
+import {canonicalReliefSchema as declaredSchema,migrateReliefParams as declaredParams} from '../relief-param-migration.js';
+Object.defineProperty(reliefPlateOperation,'contract',{get(){const source=reliefPlateOperation;return declaredSourceContract('meshReliefPlate',{description:source.description,refs:source.refs,notes:source.notes,paramsSchema:declaredSchema('meshReliefPlate',source.paramsSchema)},{exampleParams:declaredParams('meshReliefPlate',reliefPlateExample)});}});

@@ -226,12 +226,12 @@
   "contract": {
     "purpose": "网格布尔合并 / Mesh boolean",
     "whenToUse": [
-      "refs: 2–16 bodies in order; subtract removes refs[1..] from refs[0]. Mesh bodies are used as-is (with placement); exact BRep bodies are tessellated at toleranceMm (default 0.05 mm). Every input must be a closed, manifold mesh. Result is a closed raw mesh (STL export), not a BRep/STEP; refs are consumed."
+      "已定位的封闭网格与网格或精确实体做并集、差集或交集"
     ],
     "whenNotToUse": [
       {
-        "case": "需要精确曲面和STEP交换",
-        "use": "relief"
+        "case": "需要保留精确BRep和STEP输出",
+        "use": "union"
       }
     ],
     "params": {
@@ -355,23 +355,23 @@
       },
       {
         "code": "MESH_BOOLEAN_INVALID",
-        "when": "输入违反该操作源码的校验或几何约束",
-        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+        "when": "refs数量、布尔方式、公差或输入几何不合法",
+        "recovery": "提供2–16个明确实体，读取当前网格报告并修正operation/toleranceMm"
       },
       {
         "code": "MESH_BOOLEAN_EMPTY",
-        "when": "输入违反该操作源码的校验或几何约束",
-        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+        "when": "布尔运算没有非空闭合结果",
+        "recovery": "核对实体位置和运算方式；先measure或queryGeometry检查交叠"
       },
       {
         "code": "MESH_BOOLEAN_UNAVAILABLE",
-        "when": "输入违反该操作源码的校验或几何约束",
-        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+        "when": "当前宿主未加载Manifold网格布尔引擎",
+        "recovery": "确认已加载当前正式构建包及其WASM资源，再查询能力"
       },
       {
         "code": "MESH_NOT_MANIFOLD",
-        "when": "输入违反该操作源码的校验或几何约束",
-        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+        "when": "输入或结果未通过闭合、定向流形检查",
+        "recovery": "先提供符合网格报告检查的闭合来源；不自动修补来源"
       }
     ],
     "examples": {
@@ -417,14 +417,9 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
-      "relief",
-      "reliefShoulder",
-      "logo",
+      "transform",
       "meshHeightfieldRelief",
-      "meshReliefPlate",
       "meshReliefEdit",
-      "queryGeometry",
-      "measure",
       "files.export"
     ],
     "synonyms": [
@@ -439,12 +434,12 @@
   },
   "purpose": "网格布尔合并 / Mesh boolean",
   "whenToUse": [
-    "refs: 2–16 bodies in order; subtract removes refs[1..] from refs[0]. Mesh bodies are used as-is (with placement); exact BRep bodies are tessellated at toleranceMm (default 0.05 mm). Every input must be a closed, manifold mesh. Result is a closed raw mesh (STL export), not a BRep/STEP; refs are consumed."
+    "已定位的封闭网格与网格或精确实体做并集、差集或交集"
   ],
   "whenNotToUse": [
     {
-      "case": "需要精确曲面和STEP交换",
-      "use": "relief"
+      "case": "需要保留精确BRep和STEP输出",
+      "use": "union"
     }
   ],
   "outputs": {
@@ -502,23 +497,23 @@
     },
     {
       "code": "MESH_BOOLEAN_INVALID",
-      "when": "输入违反该操作源码的校验或几何约束",
-      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      "when": "refs数量、布尔方式、公差或输入几何不合法",
+      "recovery": "提供2–16个明确实体，读取当前网格报告并修正operation/toleranceMm"
     },
     {
       "code": "MESH_BOOLEAN_EMPTY",
-      "when": "输入违反该操作源码的校验或几何约束",
-      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      "when": "布尔运算没有非空闭合结果",
+      "recovery": "核对实体位置和运算方式；先measure或queryGeometry检查交叠"
     },
     {
       "code": "MESH_BOOLEAN_UNAVAILABLE",
-      "when": "输入违反该操作源码的校验或几何约束",
-      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      "when": "当前宿主未加载Manifold网格布尔引擎",
+      "recovery": "确认已加载当前正式构建包及其WASM资源，再查询能力"
     },
     {
       "code": "MESH_NOT_MANIFOLD",
-      "when": "输入违反该操作源码的校验或几何约束",
-      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      "when": "输入或结果未通过闭合、定向流形检查",
+      "recovery": "先提供符合网格报告检查的闭合来源；不自动修补来源"
     }
   ],
   "routing": {
@@ -549,5 +544,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:16b5398b269e3bc1bde7019bd340fc79351160c36ac3902c92a2b774db3a4ee8"
+  "docsHash": "sha256:7560343b176839fdaabe8b316021253abb9466710b75d339b29162a6a0160af7"
 }

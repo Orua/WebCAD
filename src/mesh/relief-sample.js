@@ -1,3 +1,4 @@
+import {LIMITS} from '../limits.js';
 import {meshError,checkedMesh} from './mesh-contract.js';
 import {meshGeometryHash} from './relief-edit.js';
 const point=n=>({type:'array',minItems:n,maxItems:n,items:{type:'number'}});
@@ -7,7 +8,7 @@ export function sampleMeshRelief(mesh,p){
  const dot=(a,b)=>a.reduce((sum,v,i)=>sum+v*b[i],0),{originMm:o,xAxis:x,normal:n}=p.support||{};
  if(![o,x,n].every(v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite))||Math.abs(dot(x,x)-1)>1e-10||Math.abs(dot(n,n)-1)>1e-10||Math.abs(dot(x,n))>1e-10)throw meshError('RELIEF_SUPPORT_INVALID','Explicit orthonormal support required.');
  if(!Array.isArray(p.pointsMm)||!p.pointsMm.length||p.pointsMm.length>256||p.pointsMm.some(q=>!Array.isArray(q)||q.length!==2||!q.every(Number.isFinite)))throw meshError('PARAM_SCHEMA_INVALID','Supply 1..256 support UV coordinates in mm.');
- if(p.pointsMm.length*mesh.indices.length/3>12000000)throw meshError('RELIEF_EDIT_CAPACITY','Point count times triangle count exceeds 12000000; split the read-only query.');
+ if(p.pointsMm.length*mesh.indices.length/3>LIMITS.meshReliefEdit.maxRayTests)throw meshError('RELIEF_EDIT_CAPACITY','Point count times triangle count exceeds 12000000; split the read-only query.');
  const y=[n[1]*x[2]-n[2]*x[1],n[2]*x[0]-n[0]*x[2],n[0]*x[1]-n[1]*x[0]],vertices=[];
  for(let i=0;i<mesh.positions.length;i+=3){const d=[mesh.positions[i]-o[0],mesh.positions[i+1]-o[1],mesh.positions[i+2]-o[2]];vertices.push([dot(d,x),dot(d,y),dot(d,n)]);}
  const samples=p.pointsMm.map(q=>({uvMm:[...q],heightsMm:[]}));

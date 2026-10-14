@@ -28,3 +28,7 @@ export async function meshBoolean(meshes,operation){
   return {mesh:{positions,indices:new Uint32Array(out.triVerts)},report:{engine:'manifold-3d',operation,volume:result.volume(),area:result.surfaceArea(),genus:result.genus(),inputs:meshes.length}};
  }finally{owned.forEach(o=>{try{o.delete();}catch{}});}
 }
+
+import {sourceOperationContract as declaredSourceContract} from '../operation-contracts.js';
+import {canonicalReliefSchema as declaredSchema,migrateReliefParams as declaredParams} from '../relief-param-migration.js';
+Object.defineProperty(meshBooleanOperation,'contract',{get(){const source=meshBooleanOperation;return declaredSourceContract('meshBoolean',{description:source.description,refs:source.refs,notes:source.notes,paramsSchema:declaredSchema('meshBoolean',source.paramsSchema)},{exampleParams:declaredParams('meshBoolean',meshBooleanExample)});}});

@@ -1,3 +1,4 @@
+import {LIMITS} from '../limits.js';
 import {meshError} from './mesh-contract.js';
 const point={type:'array',items:{type:'number'},minItems:2,maxItems:2};
 const positive={type:'number',exclusiveMinimum:0};
@@ -39,7 +40,7 @@ export function prepareReliefProfile(p){
  const smooth=t=>{const x=Math.max(0,Math.min(1,t));return x*x*(3-2*x);};
  return {spacingMm:[p.maxSourceSpacingMm,p.maxSourceSpacingMm],report:{pathLengthMm:total,curveChordToleranceMm:p.curveToleranceMm,pathIntervals:path.length-1,composition:'absolute-replacement',sectionInterpolation:'piecewise-linear-without-height-overshoot',endTaperMm:p.endTaperMm},sample(u,v){
   const point=[u,v];let best=null;
-  for(let i=1;i<path.length;i++){if(++queries>12000000)throw meshError('RELIEF_EDIT_CAPACITY','Path sampling exceeds the bounded edit budget.');const q=nearest(point,path[i-1],path[i]);if(!best||q.distance<best.distance)best={...q,i,distanceAlong:lengths[i-1]+q.t*(lengths[i]-lengths[i-1])};}
+  for(let i=1;i<path.length;i++){if(++queries>LIMITS.meshReliefEdit.maxRayTests)throw meshError('RELIEF_EDIT_CAPACITY','Path sampling exceeds the bounded edit budget.');const q=nearest(point,path[i-1],path[i]);if(!best||q.distance<best.distance)best={...q,i,distanceAlong:lengths[i-1]+q.t*(lengths[i]-lengths[i-1])};}
   // Outside end planes no extrapolated spur is created.
   const first=[path[1][0]-path[0][0],path[1][1]-path[0][1]],last=[path.at(-1)[0]-path.at(-2)[0],path.at(-1)[1]-path.at(-2)[1]];
   if(best.i===1&&best.t===0&&dot([u-path[0][0],v-path[0][1]],first)<0||best.i===path.length-1&&best.t===1&&dot([u-path.at(-1)[0],v-path.at(-1)[1]],last)>0)return p.baseHeightMm;

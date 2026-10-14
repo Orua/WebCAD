@@ -290,12 +290,12 @@
   "contract": {
     "purpose": "浮雕网格底板 / Relief mesh plate",
     "whenToUse": [
-      "Centered XY plate, support z=0 and back z=-thicknessMm. Explicit radial profiles use plateau plus cubic smoothstep shoulder, add signed heights; overlapping contributions add. Float64 regular triangulated surface; spacing is physical maximum cell size, not precision guarantee. No hidden normalization. Preserve this recipe in native project; output mesh, not BRep or STEP. Bumps must remain inside the plate, height must leave positive material, and total mesh is capped at 200000 triangles. New object placement uses the normal shared creation frame."
+      "用明确圆形起伏点和网格间距制作参数化测试底板"
     ],
     "whenNotToUse": [
       {
-        "case": "需要精确曲面和STEP交换",
-        "use": "relief"
+        "case": "输入是作者制作的高度图",
+        "use": "meshHeightfieldRelief"
       }
     ],
     "params": {
@@ -416,18 +416,18 @@
       },
       {
         "code": "RELIEF_PLATE_INVALID",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_EDIT_CAPACITY",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "三角面、受影响顶点或空间查询超出已声明预算",
+        "recovery": "降低来源网格规模或缩小明确的局部编辑范围"
       },
       {
         "code": "RELIEF_THICKNESS",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       }
     ],
     "examples": {
@@ -510,14 +510,8 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
-      "relief",
-      "reliefShoulder",
-      "logo",
-      "meshHeightfieldRelief",
       "meshReliefEdit",
       "meshBoolean",
-      "queryGeometry",
-      "measure",
       "files.export"
     ],
     "synonyms": [
@@ -532,12 +526,12 @@
   },
   "purpose": "浮雕网格底板 / Relief mesh plate",
   "whenToUse": [
-    "Centered XY plate, support z=0 and back z=-thicknessMm. Explicit radial profiles use plateau plus cubic smoothstep shoulder, add signed heights; overlapping contributions add. Float64 regular triangulated surface; spacing is physical maximum cell size, not precision guarantee. No hidden normalization. Preserve this recipe in native project; output mesh, not BRep or STEP. Bumps must remain inside the plate, height must leave positive material, and total mesh is capped at 200000 triangles. New object placement uses the normal shared creation frame."
+    "用明确圆形起伏点和网格间距制作参数化测试底板"
   ],
   "whenNotToUse": [
     {
-      "case": "需要精确曲面和STEP交换",
-      "use": "relief"
+      "case": "输入是作者制作的高度图",
+      "use": "meshHeightfieldRelief"
     }
   ],
   "outputs": {
@@ -595,18 +589,18 @@
     },
     {
       "code": "RELIEF_PLATE_INVALID",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_EDIT_CAPACITY",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "三角面、受影响顶点或空间查询超出已声明预算",
+      "recovery": "降低来源网格规模或缩小明确的局部编辑范围"
     },
     {
       "code": "RELIEF_THICKNESS",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     }
   ],
   "routing": {
@@ -636,5 +630,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:b6112546268b718300603062c60f6a59bf9a379131d2d92f81fb82dc206f0bd2"
+  "docsHash": "sha256:b7e9c81a3a31d36ac414276249dc081f2ce279cc856a2ffbc6d32772f633feaa"
 }

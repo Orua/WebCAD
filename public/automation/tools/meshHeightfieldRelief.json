@@ -378,11 +378,11 @@
   "contract": {
     "purpose": "高度图浮雕 / Heightfield relief",
     "whenToUse": [
-      "Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. heights is inline base64 data or importKey of a binary project asset (format heightmap). sculpt: ordered brush strokes {mode raise|lower (strength mm per dab)|smooth|flatten (strength 0–1, flatten to targetMm), radiusMm, points [x,y,...] mm in relief-local XY} replayed deterministically after gamma/fade. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles)."
+      "作者制作的白高黑低高度图，保留毛发或纹理细节并输出打印STL"
     ],
     "whenNotToUse": [
       {
-        "case": "需要精确曲面和STEP交换",
+        "case": "照片光影尚未人工转换成高度图，或目标必须为精确STEP",
         "use": "relief"
       }
     ],
@@ -611,18 +611,18 @@
       },
       {
         "code": "HEIGHTFIELD_INVALID",
-        "when": "输入违反该操作源码的校验或几何约束",
-        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+        "when": "尺寸、采样数量、编码或 heights 字节与 columns×rows 不匹配",
+        "recovery": "核对正尺寸及 columns×rows，并重新提供匹配的u8/u16le高度样本"
       },
       {
         "code": "HEIGHTFIELD_SCULPT_INVALID",
-        "when": "输入违反该操作源码的校验或几何约束",
-        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+        "when": "笔刷模式、半径、强度、点列或笔画总量不合法",
+        "recovery": "修正完整sculpt数组，遵守工具卡的笔数与点数上限"
       },
       {
         "code": "RELIEF_EDIT_CAPACITY",
-        "when": "输入违反该操作源码的校验或几何约束",
-        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+        "when": "三角面、受影响顶点或空间查询超出已声明预算",
+        "recovery": "降低来源网格规模或缩小明确的局部编辑范围"
       }
     ],
     "examples": {
@@ -686,14 +686,8 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
-      "relief",
-      "reliefShoulder",
-      "logo",
-      "meshReliefPlate",
-      "meshReliefEdit",
+      "heightfieldSculpt",
       "meshBoolean",
-      "queryGeometry",
-      "measure",
       "files.export"
     ],
     "synonyms": [
@@ -711,11 +705,11 @@
   },
   "purpose": "高度图浮雕 / Heightfield relief",
   "whenToUse": [
-    "Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. heights is inline base64 data or importKey of a binary project asset (format heightmap). sculpt: ordered brush strokes {mode raise|lower (strength mm per dab)|smooth|flatten (strength 0–1, flatten to targetMm), radiusMm, points [x,y,...] mm in relief-local XY} replayed deterministically after gamma/fade. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles)."
+    "作者制作的白高黑低高度图，保留毛发或纹理细节并输出打印STL"
   ],
   "whenNotToUse": [
     {
-      "case": "需要精确曲面和STEP交换",
+      "case": "照片光影尚未人工转换成高度图，或目标必须为精确STEP",
       "use": "relief"
     }
   ],
@@ -774,18 +768,18 @@
     },
     {
       "code": "HEIGHTFIELD_INVALID",
-      "when": "输入违反该操作源码的校验或几何约束",
-      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      "when": "尺寸、采样数量、编码或 heights 字节与 columns×rows 不匹配",
+      "recovery": "核对正尺寸及 columns×rows，并重新提供匹配的u8/u16le高度样本"
     },
     {
       "code": "HEIGHTFIELD_SCULPT_INVALID",
-      "when": "输入违反该操作源码的校验或几何约束",
-      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      "when": "笔刷模式、半径、强度、点列或笔画总量不合法",
+      "recovery": "修正完整sculpt数组，遵守工具卡的笔数与点数上限"
     },
     {
       "code": "RELIEF_EDIT_CAPACITY",
-      "when": "输入违反该操作源码的校验或几何约束",
-      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      "when": "三角面、受影响顶点或空间查询超出已声明预算",
+      "recovery": "降低来源网格规模或缩小明确的局部编辑范围"
     }
   ],
   "routing": {
@@ -815,5 +809,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:9e1750dd6907cda309fe6e98b7e6ed01008ddaa616160c2e285e86583131de6a"
+  "docsHash": "sha256:65f199b715b0add2ad9225e80144ca78ff0aec057a1527655a3ad2d0b519fd11"
 }

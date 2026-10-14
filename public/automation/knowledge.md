@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.48.0 · sha256:fe48c149a2290548cfb38780fe355db6d9933f2bbe7c28082a2f995a0aa411ff
+API 1.48.0 · sha256:7a381fefba853da45d7ea3de8544af350c3e59840f313069b837a49fc36d7851
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -1922,7 +1922,20 @@ planPatternMachining({context,intent})只读规划。intent.version=1；requeste
 新LOGO/relief创建和预览params必须携带machiningIntent；Worker执行端再次核对声明，UI明确修改已声明的深度/方向时同步数值声明；旧文件重建、编辑、撤销保留旧版本，无字段不自动升级。新LOGO需reviewedVectors及原孔/空白；照片浮雕标shadedReference，当前语义雕刻未启用，不得把亮度映射后报成品。readRelief显式提供sourceInterpretation；灰度只能用于authoredHeightMap。旧depthMm是控制点比例，不是实际峰值；targetPeakMm不走旧算法。自然圆滑不等于固定R。
 转换失败、超时或不支持保持原目标和原工程；不互换LOGO/浮雕，不去耳朵/封孔/改深度或盲目重提任务。任务completed、几何提交、生成文件、落盘、离线重开及造型验收分别报告；取消先读已提交revision和原commandId。
 
-浮雕工具分类与选择：读取 api.relief-taxonomy，按输入高度图、矢量或网格及 STEP/STL 输出分流。照片先制作高度图，亮度不代表深度。
+浮雕 Agent 决策表
+输入/目标 | 工具 | 输出 | 限制
+作者制作的灰度高度图，毛发/纹理、打印 | meshHeightfieldRelief | 封闭网格/STL | 2049/边，1900000采样
+高度图局部抬高/压低/平滑/压平 | heightfieldSculpt，feature.edit追加params.sculpt | 网格/STL | 512笔，20000点
+网格与实体合并/挖出 | transform定位，再meshBoolean | 网格/STL | 2–16封闭实体
+恒深矢量LOGO | logo | BRep/STEP | 单精确面
+小图案或分层矢量、精确STEP | readRelief→relief | BRep/STEP | 4–65采样，32层
+精确浮雕局部修整 | reliefSculpt，prepareReliefSculpt→feature.edit | BRep | 7–65局部网格，128笔
+外凸圆柱浮雕 | relief | BRep | 外凸、角宽≤90°、总高≤R×20%、无旋转
+层间肩部过渡 | reliefShoulder | BRep | 需要Services
+已有STL局部修高 | sampleMeshRelief→meshReliefEdit | 网格 | 200000三角面
+圆形起伏底板 | meshReliefPlate | 网格 | 200000三角面
+照片/光影参考 | 先人工制作高度图，再meshHeightfieldRelief | 不直接加工 | 禁止把照片亮度当几何深度
+heightfieldSculpt和reliefSculpt是发现入口，执行真实feature.edit/prepareReliefSculpt，并非独立建模op。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
 recoverKernel: contextPolicy=revision
@@ -32895,12 +32908,12 @@ files.release: contextPolicy=none
   "contract": {
     "purpose": "Unified reviewed LOGO on one exact face; legacy entries remain planar",
     "whenToUse": [
-      "New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. Reject boundary, seam, invalid geometry or stale face."
+      "明确矢量LOGO或文字，在单个精确面恒定深度凸起或凹刻"
     ],
     "whenNotToUse": [
       {
-        "case": "输入是三角网格，需要网格加工",
-        "use": "meshBoolean"
+        "case": "目标为连续起伏或分层高度",
+        "use": "relief"
       }
     ],
     "params": {
@@ -33356,14 +33369,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "readVector",
       "relief",
-      "reliefShoulder",
-      "meshHeightfieldRelief",
-      "meshReliefPlate",
-      "meshReliefEdit",
-      "meshBoolean",
-      "queryGeometry",
-      "measure",
       "files.export"
     ],
     "synonyms": [
@@ -33378,12 +33385,12 @@ files.release: contextPolicy=none
   },
   "purpose": "Unified reviewed LOGO on one exact face; legacy entries remain planar",
   "whenToUse": [
-    "New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. Reject boundary, seam, invalid geometry or stale face."
+    "明确矢量LOGO或文字，在单个精确面恒定深度凸起或凹刻"
   ],
   "whenNotToUse": [
     {
-      "case": "输入是三角网格，需要网格加工",
-      "use": "meshBoolean"
+      "case": "目标为连续起伏或分层高度",
+      "use": "relief"
     }
   ],
   "outputs": {
@@ -33469,7 +33476,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:da051aa318fd19ea289c257780fc905e09ba80a4a3ac21643f775cc8ec15ef13"
+  "docsHash": "sha256:0121d9fac3820b9c4f145537f6e15c739e26d0c19f297872b89bff45b047a468"
 }
 ```
 
@@ -33704,12 +33711,12 @@ files.release: contextPolicy=none
   "contract": {
     "purpose": "网格布尔合并 / Mesh boolean",
     "whenToUse": [
-      "refs: 2–16 bodies in order; subtract removes refs[1..] from refs[0]. Mesh bodies are used as-is (with placement); exact BRep bodies are tessellated at toleranceMm (default 0.05 mm). Every input must be a closed, manifold mesh. Result is a closed raw mesh (STL export), not a BRep/STEP; refs are consumed."
+      "已定位的封闭网格与网格或精确实体做并集、差集或交集"
     ],
     "whenNotToUse": [
       {
-        "case": "需要精确曲面和STEP交换",
-        "use": "relief"
+        "case": "需要保留精确BRep和STEP输出",
+        "use": "union"
       }
     ],
     "params": {
@@ -33833,23 +33840,23 @@ files.release: contextPolicy=none
       },
       {
         "code": "MESH_BOOLEAN_INVALID",
-        "when": "输入违反该操作源码的校验或几何约束",
-        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+        "when": "refs数量、布尔方式、公差或输入几何不合法",
+        "recovery": "提供2–16个明确实体，读取当前网格报告并修正operation/toleranceMm"
       },
       {
         "code": "MESH_BOOLEAN_EMPTY",
-        "when": "输入违反该操作源码的校验或几何约束",
-        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+        "when": "布尔运算没有非空闭合结果",
+        "recovery": "核对实体位置和运算方式；先measure或queryGeometry检查交叠"
       },
       {
         "code": "MESH_BOOLEAN_UNAVAILABLE",
-        "when": "输入违反该操作源码的校验或几何约束",
-        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+        "when": "当前宿主未加载Manifold网格布尔引擎",
+        "recovery": "确认已加载当前正式构建包及其WASM资源，再查询能力"
       },
       {
         "code": "MESH_NOT_MANIFOLD",
-        "when": "输入违反该操作源码的校验或几何约束",
-        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+        "when": "输入或结果未通过闭合、定向流形检查",
+        "recovery": "先提供符合网格报告检查的闭合来源；不自动修补来源"
       }
     ],
     "examples": {
@@ -33895,14 +33902,9 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
-      "relief",
-      "reliefShoulder",
-      "logo",
+      "transform",
       "meshHeightfieldRelief",
-      "meshReliefPlate",
       "meshReliefEdit",
-      "queryGeometry",
-      "measure",
       "files.export"
     ],
     "synonyms": [
@@ -33917,12 +33919,12 @@ files.release: contextPolicy=none
   },
   "purpose": "网格布尔合并 / Mesh boolean",
   "whenToUse": [
-    "refs: 2–16 bodies in order; subtract removes refs[1..] from refs[0]. Mesh bodies are used as-is (with placement); exact BRep bodies are tessellated at toleranceMm (default 0.05 mm). Every input must be a closed, manifold mesh. Result is a closed raw mesh (STL export), not a BRep/STEP; refs are consumed."
+    "已定位的封闭网格与网格或精确实体做并集、差集或交集"
   ],
   "whenNotToUse": [
     {
-      "case": "需要精确曲面和STEP交换",
-      "use": "relief"
+      "case": "需要保留精确BRep和STEP输出",
+      "use": "union"
     }
   ],
   "outputs": {
@@ -33980,23 +33982,23 @@ files.release: contextPolicy=none
     },
     {
       "code": "MESH_BOOLEAN_INVALID",
-      "when": "输入违反该操作源码的校验或几何约束",
-      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      "when": "refs数量、布尔方式、公差或输入几何不合法",
+      "recovery": "提供2–16个明确实体，读取当前网格报告并修正operation/toleranceMm"
     },
     {
       "code": "MESH_BOOLEAN_EMPTY",
-      "when": "输入违反该操作源码的校验或几何约束",
-      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      "when": "布尔运算没有非空闭合结果",
+      "recovery": "核对实体位置和运算方式；先measure或queryGeometry检查交叠"
     },
     {
       "code": "MESH_BOOLEAN_UNAVAILABLE",
-      "when": "输入违反该操作源码的校验或几何约束",
-      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      "when": "当前宿主未加载Manifold网格布尔引擎",
+      "recovery": "确认已加载当前正式构建包及其WASM资源，再查询能力"
     },
     {
       "code": "MESH_NOT_MANIFOLD",
-      "when": "输入违反该操作源码的校验或几何约束",
-      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      "when": "输入或结果未通过闭合、定向流形检查",
+      "recovery": "先提供符合网格报告检查的闭合来源；不自动修补来源"
     }
   ],
   "routing": {
@@ -34027,7 +34029,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:16b5398b269e3bc1bde7019bd340fc79351160c36ac3902c92a2b774db3a4ee8"
+  "docsHash": "sha256:7560343b176839fdaabe8b316021253abb9466710b75d339b29162a6a0160af7"
 }
 ```
 
@@ -34414,11 +34416,11 @@ files.release: contextPolicy=none
   "contract": {
     "purpose": "高度图浮雕 / Heightfield relief",
     "whenToUse": [
-      "Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. heights is inline base64 data or importKey of a binary project asset (format heightmap). sculpt: ordered brush strokes {mode raise|lower (strength mm per dab)|smooth|flatten (strength 0–1, flatten to targetMm), radiusMm, points [x,y,...] mm in relief-local XY} replayed deterministically after gamma/fade. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles)."
+      "作者制作的白高黑低高度图，保留毛发或纹理细节并输出打印STL"
     ],
     "whenNotToUse": [
       {
-        "case": "需要精确曲面和STEP交换",
+        "case": "照片光影尚未人工转换成高度图，或目标必须为精确STEP",
         "use": "relief"
       }
     ],
@@ -34647,18 +34649,18 @@ files.release: contextPolicy=none
       },
       {
         "code": "HEIGHTFIELD_INVALID",
-        "when": "输入违反该操作源码的校验或几何约束",
-        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+        "when": "尺寸、采样数量、编码或 heights 字节与 columns×rows 不匹配",
+        "recovery": "核对正尺寸及 columns×rows，并重新提供匹配的u8/u16le高度样本"
       },
       {
         "code": "HEIGHTFIELD_SCULPT_INVALID",
-        "when": "输入违反该操作源码的校验或几何约束",
-        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+        "when": "笔刷模式、半径、强度、点列或笔画总量不合法",
+        "recovery": "修正完整sculpt数组，遵守工具卡的笔数与点数上限"
       },
       {
         "code": "RELIEF_EDIT_CAPACITY",
-        "when": "输入违反该操作源码的校验或几何约束",
-        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+        "when": "三角面、受影响顶点或空间查询超出已声明预算",
+        "recovery": "降低来源网格规模或缩小明确的局部编辑范围"
       }
     ],
     "examples": {
@@ -34722,14 +34724,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
-      "relief",
-      "reliefShoulder",
-      "logo",
-      "meshReliefPlate",
-      "meshReliefEdit",
+      "heightfieldSculpt",
       "meshBoolean",
-      "queryGeometry",
-      "measure",
       "files.export"
     ],
     "synonyms": [
@@ -34747,11 +34743,11 @@ files.release: contextPolicy=none
   },
   "purpose": "高度图浮雕 / Heightfield relief",
   "whenToUse": [
-    "Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. heights is inline base64 data or importKey of a binary project asset (format heightmap). sculpt: ordered brush strokes {mode raise|lower (strength mm per dab)|smooth|flatten (strength 0–1, flatten to targetMm), radiusMm, points [x,y,...] mm in relief-local XY} replayed deterministically after gamma/fade. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles)."
+    "作者制作的白高黑低高度图，保留毛发或纹理细节并输出打印STL"
   ],
   "whenNotToUse": [
     {
-      "case": "需要精确曲面和STEP交换",
+      "case": "照片光影尚未人工转换成高度图，或目标必须为精确STEP",
       "use": "relief"
     }
   ],
@@ -34810,18 +34806,18 @@ files.release: contextPolicy=none
     },
     {
       "code": "HEIGHTFIELD_INVALID",
-      "when": "输入违反该操作源码的校验或几何约束",
-      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      "when": "尺寸、采样数量、编码或 heights 字节与 columns×rows 不匹配",
+      "recovery": "核对正尺寸及 columns×rows，并重新提供匹配的u8/u16le高度样本"
     },
     {
       "code": "HEIGHTFIELD_SCULPT_INVALID",
-      "when": "输入违反该操作源码的校验或几何约束",
-      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      "when": "笔刷模式、半径、强度、点列或笔画总量不合法",
+      "recovery": "修正完整sculpt数组，遵守工具卡的笔数与点数上限"
     },
     {
       "code": "RELIEF_EDIT_CAPACITY",
-      "when": "输入违反该操作源码的校验或几何约束",
-      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      "when": "三角面、受影响顶点或空间查询超出已声明预算",
+      "recovery": "降低来源网格规模或缩小明确的局部编辑范围"
     }
   ],
   "routing": {
@@ -34851,7 +34847,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:9e1750dd6907cda309fe6e98b7e6ed01008ddaa616160c2e285e86583131de6a"
+  "docsHash": "sha256:65f199b715b0add2ad9225e80144ca78ff0aec057a1527655a3ad2d0b519fd11"
 }
 ```
 
@@ -36001,6 +35997,12 @@ files.release: contextPolicy=none
       "value": 12000000,
       "unit": "count",
       "source": "src/limits.js#meshReliefEdit.maxRayTests"
+    },
+    {
+      "name": "maxSpatialEntries",
+      "value": 2000000,
+      "unit": "count",
+      "source": "src/limits.js#meshReliefEdit.maxSpatialEntries"
     }
   ],
   "knownUnsupportedCases": [
@@ -36206,12 +36208,12 @@ files.release: contextPolicy=none
   "contract": {
     "purpose": "网格局部修高 / Local mesh relief height",
     "whenToUse": [
-      "Read current meshReport.geometryHash. Explicit physical support, on-surface seed, core/transition and hard-protection disks. replace uses field.originMm/sizeMm/heightsMm in support UV; rows increase V, entries are absolute heights in mm. Bilinear target replaces old heights in core and blends only in transition, never max; field must cover editable samples. Source facet spacing must resolve target field; this is a sampling gate, not an approximation-error certificate. Fixed topology Float64 direct edit; source remains immutable. Only closed oriented planar single-valued relief, at most 200000 triangles / 20000 affected vertices / 12000000 tests per clearance phase. Clearance uses projected facet overlaps and vertex/centroid rays; arbitrary 3D self-intersection is not certified. Output remains mesh, not BRep/STEP. History restores prior asset/recipe, not an inverse brush. Read bodies[].meshReport.edit. Missing support, ambiguous seed, stale hash, unavailable back support, boundary conflict, collision or thickness failure reject atomically. replace may instead take deformation:{pivotMm,translationMm,scale:[positiveU,positiveV],angleDeg,sourceRegion:{centerMm,radiusMm},baseHeightMm,maxSourceSpacingMm}. Inverse affine sampling of the same current selected source height surface moves/narrows/rotates its relief within the declared ROI; topology/XY positions and protected vertices remain fixed. Heights are barycentrically sampled from the immutable source, never from a previous partial output. Only sourceRegion contributes; inverse samples outside it use explicit baseHeightMm, preventing unrelated neighbors from being copied. The editable ROI must cover the old and new local relief, with unrelated geometry protected. This is resampling, not recovered analytic geometry; no approximation error is certified by the spacing gate. Domain misses, nonpositive scale or ambiguous height reject. Source interpolation must resolve the narrowest scaled axis. Read meshReport.edit.profile. Alternatively replace accepts profile (mutually exclusive with field/value): cubic Bezier segments in support UV, stations from at=0 to 1 along approximate arc length, sectionMm ordered [signed lateral offset,height] pairs with zero outer heights, baseHeightMm, endTaperMm, curveToleranceMm and maxSourceSpacingMm. Positive section offset is left of path direction. Sections and stations interpolate linearly without height overshoot; end taper is cubic smoothstep in mm, exterior end planes use base height. This replaces the declared ROI including old path positions, not an additive overlay. Hard protections take precedence. Read meshReport.edit.profile. No arbitrary undercuts or automatic remeshing. Optional targets:[{pointMm:[U,V],heightMm,toleranceMm}] are mandatory acceptance constraints, not soft brush requests. A protected point conflicting with a target fails RELIEF_CONSTRAINT_CONFLICT with params.targets index before commit; no hit fails RELIEF_TARGET_OUTSIDE. Read meshReport.edit.constraints. mode=layers composes 1..16 ordered layers with unique id and enabled. Surface layers declare role=macro|detail, region and blend: add/remove require positive heightMm and attachment=followHeight (relative normal height); replace requires attachment=absolute and exactly heightMm, field or profile. A freeze layer supplies hard-protection regions for subsequent layers. Global protections apply to every layer. Editing the whole layers array at the original feature recomputes from its immutable input; order and enabled state are part of the recipe. This is height-only following, not automatic tangent or lateral detail binding. Layer domains must lie inside the total ROI; accumulated freeze disks <=64, active layers times triangles <=1000000. Mandatory targets apply to the final composed surface. Failures discard the entire candidate. Read edit.layers, layerSemanticsVersion, continuationSeedMm; minimum thickness/clearance are conservative minima over affected regions at every applied layer, not global final-surface certificates."
+      "对已有STL或网格做有明确支撑和保护区域的局部修高"
     ],
     "whenNotToUse": [
       {
-        "case": "需要精确曲面和STEP交换",
-        "use": "relief"
+        "case": "编辑保存的高度图笔刷配方",
+        "use": "meshHeightfieldRelief"
       }
     ],
     "params": {
@@ -36385,6 +36387,12 @@ files.release: contextPolicy=none
         "value": 12000000,
         "unit": "count",
         "source": "src/limits.js#meshReliefEdit.maxRayTests"
+      },
+      {
+        "name": "maxSpatialEntries",
+        "value": 2000000,
+        "unit": "count",
+        "source": "src/limits.js#meshReliefEdit.maxSpatialEntries"
       }
     ],
     "outputs": {
@@ -36452,33 +36460,33 @@ files.release: contextPolicy=none
       },
       {
         "code": "RELIEF_DEFORMATION_INVALID",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_SAMPLE_OUTSIDE",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_RESOLUTION_INSUFFICIENT",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_TARGET_OUTSIDE",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_CONSTRAINT_CONFLICT",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_LAYERS_INVALID",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_SOURCE_UNSUPPORTED",
@@ -36487,78 +36495,78 @@ files.release: contextPolicy=none
       },
       {
         "code": "RELIEF_EDIT_CAPACITY",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "三角面、受影响顶点或空间查询超出已声明预算",
+        "recovery": "降低来源网格规模或缩小明确的局部编辑范围"
       },
       {
         "code": "RELIEF_EDIT_VERSION",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_SUPPORT_INVALID",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_REGION_INVALID",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_CONSTRAINT_INVALID",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_GEOMETRY_INVALID",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_NOT_CLOSED",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_SELECTION_AMBIGUOUS",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_BOUNDARY_CONFLICT",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_MULTIVALUED",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_THICKNESS_UNKNOWN",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_INTERSECTION",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_THICKNESS",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "STALE_REFERENCE",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "NO_CHANGE",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       }
     ],
     "examples": {
@@ -36711,14 +36719,9 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
-      "relief",
-      "reliefShoulder",
-      "logo",
-      "meshHeightfieldRelief",
+      "sampleMeshRelief",
       "meshReliefPlate",
       "meshBoolean",
-      "queryGeometry",
-      "measure",
       "files.export"
     ],
     "synonyms": [
@@ -36733,12 +36736,12 @@ files.release: contextPolicy=none
   },
   "purpose": "网格局部修高 / Local mesh relief height",
   "whenToUse": [
-    "Read current meshReport.geometryHash. Explicit physical support, on-surface seed, core/transition and hard-protection disks. replace uses field.originMm/sizeMm/heightsMm in support UV; rows increase V, entries are absolute heights in mm. Bilinear target replaces old heights in core and blends only in transition, never max; field must cover editable samples. Source facet spacing must resolve target field; this is a sampling gate, not an approximation-error certificate. Fixed topology Float64 direct edit; source remains immutable. Only closed oriented planar single-valued relief, at most 200000 triangles / 20000 affected vertices / 12000000 tests per clearance phase. Clearance uses projected facet overlaps and vertex/centroid rays; arbitrary 3D self-intersection is not certified. Output remains mesh, not BRep/STEP. History restores prior asset/recipe, not an inverse brush. Read bodies[].meshReport.edit. Missing support, ambiguous seed, stale hash, unavailable back support, boundary conflict, collision or thickness failure reject atomically. replace may instead take deformation:{pivotMm,translationMm,scale:[positiveU,positiveV],angleDeg,sourceRegion:{centerMm,radiusMm},baseHeightMm,maxSourceSpacingMm}. Inverse affine sampling of the same current selected source height surface moves/narrows/rotates its relief within the declared ROI; topology/XY positions and protected vertices remain fixed. Heights are barycentrically sampled from the immutable source, never from a previous partial output. Only sourceRegion contributes; inverse samples outside it use explicit baseHeightMm, preventing unrelated neighbors from being copied. The editable ROI must cover the old and new local relief, with unrelated geometry protected. This is resampling, not recovered analytic geometry; no approximation error is certified by the spacing gate. Domain misses, nonpositive scale or ambiguous height reject. Source interpolation must resolve the narrowest scaled axis. Read meshReport.edit.profile. Alternatively replace accepts profile (mutually exclusive with field/value): cubic Bezier segments in support UV, stations from at=0 to 1 along approximate arc length, sectionMm ordered [signed lateral offset,height] pairs with zero outer heights, baseHeightMm, endTaperMm, curveToleranceMm and maxSourceSpacingMm. Positive section offset is left of path direction. Sections and stations interpolate linearly without height overshoot; end taper is cubic smoothstep in mm, exterior end planes use base height. This replaces the declared ROI including old path positions, not an additive overlay. Hard protections take precedence. Read meshReport.edit.profile. No arbitrary undercuts or automatic remeshing. Optional targets:[{pointMm:[U,V],heightMm,toleranceMm}] are mandatory acceptance constraints, not soft brush requests. A protected point conflicting with a target fails RELIEF_CONSTRAINT_CONFLICT with params.targets index before commit; no hit fails RELIEF_TARGET_OUTSIDE. Read meshReport.edit.constraints. mode=layers composes 1..16 ordered layers with unique id and enabled. Surface layers declare role=macro|detail, region and blend: add/remove require positive heightMm and attachment=followHeight (relative normal height); replace requires attachment=absolute and exactly heightMm, field or profile. A freeze layer supplies hard-protection regions for subsequent layers. Global protections apply to every layer. Editing the whole layers array at the original feature recomputes from its immutable input; order and enabled state are part of the recipe. This is height-only following, not automatic tangent or lateral detail binding. Layer domains must lie inside the total ROI; accumulated freeze disks <=64, active layers times triangles <=1000000. Mandatory targets apply to the final composed surface. Failures discard the entire candidate. Read edit.layers, layerSemanticsVersion, continuationSeedMm; minimum thickness/clearance are conservative minima over affected regions at every applied layer, not global final-surface certificates."
+    "对已有STL或网格做有明确支撑和保护区域的局部修高"
   ],
   "whenNotToUse": [
     {
-      "case": "需要精确曲面和STEP交换",
-      "use": "relief"
+      "case": "编辑保存的高度图笔刷配方",
+      "use": "meshHeightfieldRelief"
     }
   ],
   "outputs": {
@@ -36806,33 +36809,33 @@ files.release: contextPolicy=none
     },
     {
       "code": "RELIEF_DEFORMATION_INVALID",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_SAMPLE_OUTSIDE",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_RESOLUTION_INSUFFICIENT",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_TARGET_OUTSIDE",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_CONSTRAINT_CONFLICT",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_LAYERS_INVALID",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_SOURCE_UNSUPPORTED",
@@ -36841,78 +36844,78 @@ files.release: contextPolicy=none
     },
     {
       "code": "RELIEF_EDIT_CAPACITY",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "三角面、受影响顶点或空间查询超出已声明预算",
+      "recovery": "降低来源网格规模或缩小明确的局部编辑范围"
     },
     {
       "code": "RELIEF_EDIT_VERSION",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_SUPPORT_INVALID",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_REGION_INVALID",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_CONSTRAINT_INVALID",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_GEOMETRY_INVALID",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_NOT_CLOSED",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_SELECTION_AMBIGUOUS",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_BOUNDARY_CONFLICT",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_MULTIVALUED",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_THICKNESS_UNKNOWN",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_INTERSECTION",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_THICKNESS",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "STALE_REFERENCE",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "NO_CHANGE",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     }
   ],
   "routing": {
@@ -36943,7 +36946,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:b0282128f070449f1559563c755ec9cfa24f71cdb714fd831bc35a8adce3ed24"
+  "docsHash": "sha256:ba82be2ca496cc81e4497d706fbb733cfc945fab2875fe23f927b2eefdf79fce"
 }
 ```
 
@@ -37242,12 +37245,12 @@ files.release: contextPolicy=none
   "contract": {
     "purpose": "浮雕网格底板 / Relief mesh plate",
     "whenToUse": [
-      "Centered XY plate, support z=0 and back z=-thicknessMm. Explicit radial profiles use plateau plus cubic smoothstep shoulder, add signed heights; overlapping contributions add. Float64 regular triangulated surface; spacing is physical maximum cell size, not precision guarantee. No hidden normalization. Preserve this recipe in native project; output mesh, not BRep or STEP. Bumps must remain inside the plate, height must leave positive material, and total mesh is capped at 200000 triangles. New object placement uses the normal shared creation frame."
+      "用明确圆形起伏点和网格间距制作参数化测试底板"
     ],
     "whenNotToUse": [
       {
-        "case": "需要精确曲面和STEP交换",
-        "use": "relief"
+        "case": "输入是作者制作的高度图",
+        "use": "meshHeightfieldRelief"
       }
     ],
     "params": {
@@ -37368,18 +37371,18 @@ files.release: contextPolicy=none
       },
       {
         "code": "RELIEF_PLATE_INVALID",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_EDIT_CAPACITY",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "三角面、受影响顶点或空间查询超出已声明预算",
+        "recovery": "降低来源网格规模或缩小明确的局部编辑范围"
       },
       {
         "code": "RELIEF_THICKNESS",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       }
     ],
     "examples": {
@@ -37462,14 +37465,8 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
-      "relief",
-      "reliefShoulder",
-      "logo",
-      "meshHeightfieldRelief",
       "meshReliefEdit",
       "meshBoolean",
-      "queryGeometry",
-      "measure",
       "files.export"
     ],
     "synonyms": [
@@ -37484,12 +37481,12 @@ files.release: contextPolicy=none
   },
   "purpose": "浮雕网格底板 / Relief mesh plate",
   "whenToUse": [
-    "Centered XY plate, support z=0 and back z=-thicknessMm. Explicit radial profiles use plateau plus cubic smoothstep shoulder, add signed heights; overlapping contributions add. Float64 regular triangulated surface; spacing is physical maximum cell size, not precision guarantee. No hidden normalization. Preserve this recipe in native project; output mesh, not BRep or STEP. Bumps must remain inside the plate, height must leave positive material, and total mesh is capped at 200000 triangles. New object placement uses the normal shared creation frame."
+    "用明确圆形起伏点和网格间距制作参数化测试底板"
   ],
   "whenNotToUse": [
     {
-      "case": "需要精确曲面和STEP交换",
-      "use": "relief"
+      "case": "输入是作者制作的高度图",
+      "use": "meshHeightfieldRelief"
     }
   ],
   "outputs": {
@@ -37547,18 +37544,18 @@ files.release: contextPolicy=none
     },
     {
       "code": "RELIEF_PLATE_INVALID",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_EDIT_CAPACITY",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "三角面、受影响顶点或空间查询超出已声明预算",
+      "recovery": "降低来源网格规模或缩小明确的局部编辑范围"
     },
     {
       "code": "RELIEF_THICKNESS",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     }
   ],
   "routing": {
@@ -37588,7 +37585,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:b6112546268b718300603062c60f6a59bf9a379131d2d92f81fb82dc206f0bd2"
+  "docsHash": "sha256:b7e9c81a3a31d36ac414276249dc081f2ce279cc856a2ffbc6d32772f633feaa"
 }
 ```
 
@@ -59237,12 +59234,12 @@ files.release: contextPolicy=none
   "contract": {
     "purpose": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
     "whenToUse": [
-      "浮雕在单个有效实体的平面或外凸圆柱面上加工。新流程 readRelief 返回 values、regions、surfaceMode、source，全部传给 relief。regions 为独立图案轮廓，outer/holes 坐标归一化到图像中心的[-0.5,0.5]，按widthMm/heightMm缩放；孔和轮廓外保持原主体表面，不生成矩形底层。轮廓最多1024区、每环2000点、合计64000点，拒绝自交/相触。surfaceMode=flat 生成真正的解析平顶面，depthMm 从放置中心切平面计算；smooth 使用4–65行列的0–1高度控制网格拟合三次B样条，轮廓独立裁切，内部起伏仍为平滑近似。readRelief 的独立轮廓采样为257，约0.2像素简化，位图边界精度受原图限制；准确CAD轮廓可直接提供regions。平面以面质心加offsetX/Y放置，局部X为世界X投影（近共线改Y），Y=外法向叉X，可angleDeg旋转。柱面须point，局部X沿圆周弧长、Y沿轴；轮廓沿放置法向投影，angleDeg=0，半径1–10000mm、角宽≤90°、总起伏≤半径20%。平顶凹雕depthMm须超过图案范围弓高。有regions时检查实际图案，允许空白区跨孔；无regions的旧高度场仍检查完整矩形。mode=emboss/engrave，结果必须融合为一个有效实体；失败保留原件。旧工程不含regions时保持原矩形高度场语义，柱面仍须显式baseMm=0.005–1mm；新轮廓模式平滑肩部内部默认0.005mm，平顶忽略baseMm，外部背景不加工。图像亮度不是照片深度。参数与来源哈希存入历史，可改参、重建、预览、撤销。reliefReport回读surfaceMode、background、regionCount、smoothing、材料体积和限制。 分层矢量：layers最多32层，明确name、heightMm、mode及regions或strokes，各层以原始选面为共同基准，整个操作一次预览、提交和撤销。凸层按实体并集合成（重叠处取更高层）；凹层从原主体面向内刻。浅层肌理用完整低凸层加带细节孔的高凸层，不能把肌理内线全部当穿到底的孔。每层可选startHeightMm（默认0，须低于heightMm），用于从已存在的下层表面附近开始加工，避免复杂层完整重叠；须确保下层实际承托，否则拒绝不连续实体。每层可选values，否则为等高4×4网格。strokes包含points（归一化局部坐标，至少2点）与widthMm，形成圆端开放刻线，相交或重叠部分先在二维合并，再生成统一刀具；方向与深度由mode/heightMm决定。contourSnapMm为显式轮廓清理网格（mm，0关闭）；每轴最多移动半个网格，小于该精度的缝隙/孔可能合并。建议先对照原图选择0.005mm，保留原始参数可撤销。curveToleranceMm为显式曲线拟合公差0–0.05mm，0保留折线，推荐0.005mm；不推断CAD内线用途。UI和readRelief均可读取version:1、widthMm、heightMm、layers的.relief.json文件，UI逐层编辑高度和方向；AI也可直接传layers，getState及reliefReport.layers回读。分层回执不重复计算逐层材料体积，addedMm3/removedMm3为null，最终实体的测量仍正常提供。分层工程通过prepareReliefSculpt({context,featureId,layerIndex,strokes})选择单层，返回params.layers供feature.edit一次提交；各层sculpt独立保存。未有values/sculpt的等高层可显式samples=4–65初始化网格，已有网格不隐式重采样。精修保留轮廓和孔，仅改变该层高度，不保证消除相邻层台阶。timingsMs区分源复制、刀具、轮廓裁切、边界检查、精确布尔和最终有效性检查；最终仍须为有效单实体。 curveConversion回执记录清理后点列与结果边数、采样偏差、线圆弧面积及环孔数；参考对象不是未提供的原始样条。采样误差不是全域严格误差界，sourceSplineDeviation=unknown。环详情最多16项，超出用truncated/ringCount明确标记；偏差或面积变化越界返回RELIEF_CURVE_DEVIATION。详见api.source-curves。分层UI支持逐层笔刷、独立草稿和应用；初始无网格层显式选择4–65网格（默认33），已有网格不重采样。 独立局部精修：等高外凸柱面凸雕层可存 localPatches（当前最多一个），含稳定 id、domainMm:[uMin,vMin,uMax,vMax]、7–65 行列 deltaMm 和可选 mask、protectionMm；毫米域独立于全局网格，边界两排增量严格为零，保护带至少 0.02mm 与两倍轮廓拟合公差中的较大值。禁止跨越原轮廓或孔，禁止隐式改域/重采样，不保证消除层间台阶。prepareReliefSculpt 的 patch:{id,domainMm,samples,protectionMm} 启用独立域；strokes.points 仍是原图案归一化坐标。sampleReliefHeight 可用 patchId 读该域控制高度。精确预览使用 preview.start args:{featureEdit:{featureId,params:prepared.params}}，在原柱面及邻层内重建真实 BRep，preview.commit 一次提交或 preview.cancel 恢复；右侧小画布只是高度草稿。Services 使用独立语义 relief.compiled-contours-local-patch-1.1，旧服务不能冒称支持。"
+      "小图案、分层矢量或外凸圆柱面，需要精确曲面与STEP"
     ],
     "whenNotToUse": [
       {
-        "case": "输入是三角网格，需要网格加工",
-        "use": "meshBoolean"
+        "case": "百万采样高度图的毛发纹理用于打印",
+        "use": "meshHeightfieldRelief"
       }
     ],
     "params": {
@@ -59561,8 +59558,8 @@ files.release: contextPolicy=none
       },
       {
         "code": "PARAM_RANGE_INVALID",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "UNKNOWN_OPERATION",
@@ -59601,28 +59598,28 @@ files.release: contextPolicy=none
       },
       {
         "code": "RELIEF_PATCH_INVALID",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_PATCH_PROTECTION",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_PATCH_UNSUPPORTED",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_UNSUPPORTED",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_LIMIT",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_PLAN_LIMIT",
@@ -59631,18 +59628,18 @@ files.release: contextPolicy=none
       },
       {
         "code": "RELIEF_OUTSIDE_FACE",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_NO_CHANGE",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_INVALID",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_CURVE_DEVIATION",
@@ -59656,23 +59653,23 @@ files.release: contextPolicy=none
       },
       {
         "code": "RELIEF_SAMPLE_OUTSIDE",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_SHOULDER_INVALID",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "RELIEF_SHOULDER_UNSUPPORTED",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       },
       {
         "code": "STALE_REFERENCE",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       }
     ],
     "examples": {
@@ -59848,14 +59845,10 @@ files.release: contextPolicy=none
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "readRelief",
+      "prepareReliefSculpt",
       "reliefShoulder",
       "logo",
-      "meshHeightfieldRelief",
-      "meshReliefPlate",
-      "meshReliefEdit",
-      "meshBoolean",
-      "queryGeometry",
-      "measure",
       "files.export"
     ],
     "synonyms": [
@@ -59872,12 +59865,12 @@ files.release: contextPolicy=none
   },
   "purpose": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
   "whenToUse": [
-    "浮雕在单个有效实体的平面或外凸圆柱面上加工。新流程 readRelief 返回 values、regions、surfaceMode、source，全部传给 relief。regions 为独立图案轮廓，outer/holes 坐标归一化到图像中心的[-0.5,0.5]，按widthMm/heightMm缩放；孔和轮廓外保持原主体表面，不生成矩形底层。轮廓最多1024区、每环2000点、合计64000点，拒绝自交/相触。surfaceMode=flat 生成真正的解析平顶面，depthMm 从放置中心切平面计算；smooth 使用4–65行列的0–1高度控制网格拟合三次B样条，轮廓独立裁切，内部起伏仍为平滑近似。readRelief 的独立轮廓采样为257，约0.2像素简化，位图边界精度受原图限制；准确CAD轮廓可直接提供regions。平面以面质心加offsetX/Y放置，局部X为世界X投影（近共线改Y），Y=外法向叉X，可angleDeg旋转。柱面须point，局部X沿圆周弧长、Y沿轴；轮廓沿放置法向投影，angleDeg=0，半径1–10000mm、角宽≤90°、总起伏≤半径20%。平顶凹雕depthMm须超过图案范围弓高。有regions时检查实际图案，允许空白区跨孔；无regions的旧高度场仍检查完整矩形。mode=emboss/engrave，结果必须融合为一个有效实体；失败保留原件。旧工程不含regions时保持原矩形高度场语义，柱面仍须显式baseMm=0.005–1mm；新轮廓模式平滑肩部内部默认0.005mm，平顶忽略baseMm，外部背景不加工。图像亮度不是照片深度。参数与来源哈希存入历史，可改参、重建、预览、撤销。reliefReport回读surfaceMode、background、regionCount、smoothing、材料体积和限制。 分层矢量：layers最多32层，明确name、heightMm、mode及regions或strokes，各层以原始选面为共同基准，整个操作一次预览、提交和撤销。凸层按实体并集合成（重叠处取更高层）；凹层从原主体面向内刻。浅层肌理用完整低凸层加带细节孔的高凸层，不能把肌理内线全部当穿到底的孔。每层可选startHeightMm（默认0，须低于heightMm），用于从已存在的下层表面附近开始加工，避免复杂层完整重叠；须确保下层实际承托，否则拒绝不连续实体。每层可选values，否则为等高4×4网格。strokes包含points（归一化局部坐标，至少2点）与widthMm，形成圆端开放刻线，相交或重叠部分先在二维合并，再生成统一刀具；方向与深度由mode/heightMm决定。contourSnapMm为显式轮廓清理网格（mm，0关闭）；每轴最多移动半个网格，小于该精度的缝隙/孔可能合并。建议先对照原图选择0.005mm，保留原始参数可撤销。curveToleranceMm为显式曲线拟合公差0–0.05mm，0保留折线，推荐0.005mm；不推断CAD内线用途。UI和readRelief均可读取version:1、widthMm、heightMm、layers的.relief.json文件，UI逐层编辑高度和方向；AI也可直接传layers，getState及reliefReport.layers回读。分层回执不重复计算逐层材料体积，addedMm3/removedMm3为null，最终实体的测量仍正常提供。分层工程通过prepareReliefSculpt({context,featureId,layerIndex,strokes})选择单层，返回params.layers供feature.edit一次提交；各层sculpt独立保存。未有values/sculpt的等高层可显式samples=4–65初始化网格，已有网格不隐式重采样。精修保留轮廓和孔，仅改变该层高度，不保证消除相邻层台阶。timingsMs区分源复制、刀具、轮廓裁切、边界检查、精确布尔和最终有效性检查；最终仍须为有效单实体。 curveConversion回执记录清理后点列与结果边数、采样偏差、线圆弧面积及环孔数；参考对象不是未提供的原始样条。采样误差不是全域严格误差界，sourceSplineDeviation=unknown。环详情最多16项，超出用truncated/ringCount明确标记；偏差或面积变化越界返回RELIEF_CURVE_DEVIATION。详见api.source-curves。分层UI支持逐层笔刷、独立草稿和应用；初始无网格层显式选择4–65网格（默认33），已有网格不重采样。 独立局部精修：等高外凸柱面凸雕层可存 localPatches（当前最多一个），含稳定 id、domainMm:[uMin,vMin,uMax,vMax]、7–65 行列 deltaMm 和可选 mask、protectionMm；毫米域独立于全局网格，边界两排增量严格为零，保护带至少 0.02mm 与两倍轮廓拟合公差中的较大值。禁止跨越原轮廓或孔，禁止隐式改域/重采样，不保证消除层间台阶。prepareReliefSculpt 的 patch:{id,domainMm,samples,protectionMm} 启用独立域；strokes.points 仍是原图案归一化坐标。sampleReliefHeight 可用 patchId 读该域控制高度。精确预览使用 preview.start args:{featureEdit:{featureId,params:prepared.params}}，在原柱面及邻层内重建真实 BRep，preview.commit 一次提交或 preview.cancel 恢复；右侧小画布只是高度草稿。Services 使用独立语义 relief.compiled-contours-local-patch-1.1，旧服务不能冒称支持。"
+    "小图案、分层矢量或外凸圆柱面，需要精确曲面与STEP"
   ],
   "whenNotToUse": [
     {
-      "case": "输入是三角网格，需要网格加工",
-      "use": "meshBoolean"
+      "case": "百万采样高度图的毛发纹理用于打印",
+      "use": "meshHeightfieldRelief"
     }
   ],
   "outputs": {
@@ -59902,8 +59895,8 @@ files.release: contextPolicy=none
     },
     {
       "code": "PARAM_RANGE_INVALID",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "UNKNOWN_OPERATION",
@@ -59942,28 +59935,28 @@ files.release: contextPolicy=none
     },
     {
       "code": "RELIEF_PATCH_INVALID",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_PATCH_PROTECTION",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_PATCH_UNSUPPORTED",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_UNSUPPORTED",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_LIMIT",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_PLAN_LIMIT",
@@ -59972,18 +59965,18 @@ files.release: contextPolicy=none
     },
     {
       "code": "RELIEF_OUTSIDE_FACE",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_NO_CHANGE",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_INVALID",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_CURVE_DEVIATION",
@@ -59997,23 +59990,23 @@ files.release: contextPolicy=none
     },
     {
       "code": "RELIEF_SAMPLE_OUTSIDE",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_SHOULDER_INVALID",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "RELIEF_SHOULDER_UNSUPPORTED",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     },
     {
       "code": "STALE_REFERENCE",
-      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-      "recovery": "读取当前工具卡并修正参数或来源"
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     }
   ],
   "routing": {
@@ -60045,7 +60038,7 @@ files.release: contextPolicy=none
   "docs": "api.relief",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:85b2f992cf51e3e9102e3c140b872aca679775fd67c1b0692ab2e12750156d9d"
+  "docsHash": "sha256:0e9919e52ac9030b3c27b331042e5af89c8ce229ce28a238718b738a1fe0dd29"
 }
 ```
 
@@ -60329,12 +60322,12 @@ files.release: contextPolicy=none
   "contract": {
     "purpose": "浮雕中央肩部 / Central relief shoulder",
     "whenToUse": [
-      "Native Services required. Bounded coaxial outward cylindrical layer under rigid pose; select an interior point on its four-edge upper/lower step with circular boundaries, or a vertical side with straight boundaries. Source dimensions are inferred. Side width is at most twice the radial layer height and 10% of the support radius. Removes material only across the central transition; upper/lower steps use axial width and vertical sides use circumferential width. Central support seams are G1; protected planar end caps are G0, not a whole-boundary fillet or fixed radius. Holes and all unselected faces are preserved. Fragmented boundaries and ambiguous support reject without approximation. Save includes the compiled result for offline reopen; recomputation requires Services."
+      "已有精确分层浮雕需要层间肩部过渡，并已配置支持此操作的Services"
     ],
     "whenNotToUse": [
       {
-        "case": "输入是三角网格，需要网格加工",
-        "use": "meshBoolean"
+        "case": "高度图浮雕网格的笔刷平滑",
+        "use": "meshHeightfieldRelief"
       }
     ],
     "params": {
@@ -60555,13 +60548,7 @@ files.release: contextPolicy=none
     },
     "related": [
       "relief",
-      "logo",
-      "meshHeightfieldRelief",
-      "meshReliefPlate",
-      "meshReliefEdit",
-      "meshBoolean",
-      "queryGeometry",
-      "measure",
+      "prepareReliefTopologyUpgrade",
       "files.export"
     ],
     "synonyms": [
@@ -60575,12 +60562,12 @@ files.release: contextPolicy=none
   },
   "purpose": "浮雕中央肩部 / Central relief shoulder",
   "whenToUse": [
-    "Native Services required. Bounded coaxial outward cylindrical layer under rigid pose; select an interior point on its four-edge upper/lower step with circular boundaries, or a vertical side with straight boundaries. Source dimensions are inferred. Side width is at most twice the radial layer height and 10% of the support radius. Removes material only across the central transition; upper/lower steps use axial width and vertical sides use circumferential width. Central support seams are G1; protected planar end caps are G0, not a whole-boundary fillet or fixed radius. Holes and all unselected faces are preserved. Fragmented boundaries and ambiguous support reject without approximation. Save includes the compiled result for offline reopen; recomputation requires Services."
+    "已有精确分层浮雕需要层间肩部过渡，并已配置支持此操作的Services"
   ],
   "whenNotToUse": [
     {
-      "case": "输入是三角网格，需要网格加工",
-      "use": "meshBoolean"
+      "case": "高度图浮雕网格的笔刷平滑",
+      "use": "meshHeightfieldRelief"
     }
   ],
   "outputs": {
@@ -60692,7 +60679,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:1f7d78cb21c46e2be7eadfe540e505d4e4037e548a993634a1047761fb7a167e"
+  "docsHash": "sha256:d9f0ec8a713fdf4747f1eb39ba26a2d91d3235376533b1367c74452ae8cced4c"
 }
 ```
 

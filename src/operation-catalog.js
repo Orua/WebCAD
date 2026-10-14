@@ -1,3 +1,4 @@
+import {operationDefaults,operationExamples} from './operation-examples.js';
 import {sourceOperationContract} from './operation-contracts.js';
 import {canonicalReliefSchema} from './relief-param-migration.js';
 /** Machine-readable help only; the existing browser/kernel remains the operation authority. */
@@ -122,4 +123,4 @@ operationCatalog.operations.rounding=op('自动打磨 / Smooth selected sharp ed
 
 // Source contracts accompany each registered operation.
 const operationNotes={box:'显式X/Y/Z尺寸创建长方体；原点到width/depth/height。',cylinder:'Z轴圆柱，radius是半径，height为轴向长度。',sphere:'原点球体，radius为半径。',remove:'删除明确的特征并检查下游依赖；使用feature.remove，可撤销。',import:'用files.register/import登记真实STEP/BREP或网格字节；保留源资产，不恢复来源软件特征树。',planeSection:'在明确平面上提取当前精确实体截线；不消耗源实体。',faceBoundary:'提取当前faceId的精确边界；面号只在当前快照有效。',extractFaces:'按当前faceIds提取精确面并保留来源；不承诺生成闭合实体。',extractShell:'按当前shellIndex提取壳，保留来源；开放壳不等于实体。',sewFaces:'按显式缝合公差连接精确面；makeSolid受实际闭合和有效性校验。',surfaceTrim:'按指定faceId和明确剪裁来源裁剪精确面；不是网格裁剪。',referenceExtrude:'沿明确direction和distance拉伸参考轮廓，保留原来源。',referenceLoft:'用有序参考截面放样；引用上限为12，保留原轮廓。'};
-for(const [id,source] of Object.entries(operationCatalog.operations)){const current={...source,notes:source.notes||operationNotes[id],legacyParamsSchema:structuredClone(source.paramsSchema),paramsSchema:canonicalReliefSchema(id,source.paramsSchema)};current.contract=sourceOperationContract(id,current);operationCatalog.operations[id]=current;}
+for(const [id,source] of Object.entries(operationCatalog.operations)){const current={...source,notes:source.notes||operationNotes[id],legacyParamsSchema:structuredClone(source.paramsSchema),paramsSchema:canonicalReliefSchema(id,source.paramsSchema)};current.contract=sourceOperationContract(id,current,{defaults:operationDefaults[id],exampleParams:operationExamples[id]});operationCatalog.operations[id]=current;}
