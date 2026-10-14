@@ -2,110 +2,79 @@
   "version": 1,
   "operations": [
     {
-      "operation": "ribbon-uniform-icons-background-highlight",
-      "sourcePaths": ["src/workspace-upgrade.css"],
-      "localImpact": "All ribbon buttons use non-shrinking 34px slots and 20px icons; selection highlights use background only, without border space",
-      "servicesImpact": "none: CSS only",
-      "logoImpact": "none: source geometry and conversion unchanged",
-      "contractImpact": "none: actions and public AI routes unchanged; documentation release identity updated",
-      "documentImpact": "none: no project, camera, history or recipe changes",
-      "cacheImpact": "Rebuild frontend and matching discovery identity; user preferences retained",
-      "requiredTests": ["build", "17674 view/edit icon sizes, ribbon height and selected border"]
-    },
-    {
-      "operation": "agent-focus-uniform-ribbon",
-      "sourcePaths": ["src/ui.js", "src/workspace-layout.css"],
-      "localImpact": "View ribbon uses the same 44px height; Agent entry and connection activate existing focus mode and hide tools, exit restores prior layout",
-      "servicesImpact": "none: UI layout only; geometry routing and backend unchanged",
-      "logoImpact": "none: no conversion or source geometry change",
-      "contractImpact": "Page API 1.46; setAgentPanel and getUILayout document automatic focus; existing setView remains shared layout API",
-      "documentImpact": "No document, history, camera or geometry replacement; retain active tasks",
-      "cacheImpact": "Frontend build/catalog/docs hashes; existing preferences retained",
-      "requiredTests": ["workspace-theme", "assistant-panel", "build", "17674 view/edit height and Agent entry/connection/exit layout"]
-    },
-    {
-      "operation": "tool-execution-routing-2",
-      "sourcePaths": ["contracts/services/v1/execution-routing.json", "src/services/execution-router.js", "src/services/execution-context.js", "src/main.js"],
-      "localImpact": "All 47 quick models and ordinary tools remain local with configured Services; eligible complex geometry requires measured thresholds",
-      "servicesImpact": "Client selector only; no Native algorithm, DLL, protocol, job or codec change",
-      "logoImpact": "none: converter and source geometry unchanged",
-      "contractImpact": "Page API 1.45, complexity-routing-2.0, getServicesRouting.operationPolicy",
-      "documentImpact": "Recipes, checkpoints, undo, project data and unresolved physical-job guards retained",
-      "cacheImpact": "Frontend build/catalog/docs hashes change; preserve credentials and settings",
-      "requiredTests": ["services-routing", "services-boolean-contract", "build", "17674 threadedSleeve with Services configured and no backend requests"]
-    },
-    {
-  "operation": "quick-model-dialog-script-preview",
-  "sourcePaths": [
-    "src/quick-models",
-    "src/model-library.js",
-    "src/ui/model-library-workspace.js",
-    "src/ui/model-preview.js",
-    "src/ui.js"
-  ],
-  "localImpact": "Three-input key ring with circular R tips; modal creation/management; finite editable geometry recipes; lazy isolated generated solid previews and dimension leaders",
-  "servicesImpact": "none: quick models execute in existing local WASM; Services protocols, jobs and runtime unchanged",
-  "logoImpact": "none: logo converter and source geometry unchanged",
-  "contractImpact": "page API 1.44; entry.script / params.modelScript; existing update/resolve/run/add and preview APIs share full recipe",
-  "documentImpact": "Generated features freeze full script; legacy ring recipes without new flags retain explicit winding; no format change",
-  "cacheImpact": "new frontend/catalog/docs/build hashes; preserve cookies, local model library and project data",
-  "requiredTests": [
-    "key-ring",
-    "model-library",
-    "model-script",
-    "build",
-    "17674 modal/script/preview/create"
-  ]
-},
-
-    {
-      "operation": "ui-icon-color",
-      "sourcePaths": ["src/ui/styles/theme.css"],
-      "localImpact": "All coloured UI icons inherit one saved theme accent; neutral controls remain grayscale",
-      "servicesImpact": "none: CSS only; runtime and protocols unchanged",
-      "logoImpact": "none: source geometry and conversion unchanged",
-      "contractImpact": "none: existing UI actions and public API unchanged",
-      "documentImpact": "none: document and saved appearance preserved",
-      "cacheImpact": "Rebuild frontend CSS and release identity; preserve theme cookie",
-      "requiredTests": ["workspace-theme", "build", "17674 icon colour check"]
-    },
-    {
-      "operation": "agent-assistant-panel",
-      "semanticVersion": "panel-1-page-api-1.43",
-      "sourcePaths": ["src/agent/assistant-panel.js", "src/agent/protocol.js", "src/host-control.js", "src/ui.js", "src/ui/config/theme-colors.js", "src/page-api.js"],
-      "localImpact": "One configured assistant pane binds the existing page; one-click exit revokes writes and restores human editing; fixed left brand and one accent",
-      "servicesImpact": "none: geometry Services/Native protocol and runtime unchanged; Agent broker attach/release endpoints reused",
-      "logoImpact": "none: conversion and source geometry unchanged",
-      "contractImpact": "getAgentPanel/configureAgentPanel/setAgentPanel; origin+iframe+channel authenticated message transport; canonical adapter still owns commands",
-      "documentImpact": "No reload or document replacement; same revision, dirty, camera and history",
-      "cacheImpact": "Page API 1.43 docs/catalog; workbench asset query versions changed; existing appearance cookies retained",
-      "requiredTests": ["workspace-theme", "assistant-panel", "remote-agent-adapter", "page-api", "17674 enter/exit current-document verification"]
-    },
-    {
-      "operation": "agent-runtime-recovery",
-      "semanticVersion": "agent-adapter-2",
-      "sourcePaths": [
-        "src/agent",
-        "src/main.js",
-        "src/project-save.js",
-        "src/project-codec-worker.js",
-        "src/command-service.js",
-        "src/page-api.js",
-        "scripts/generate-remote-agent.mjs"
-      ],
-      "localImpact": "independent committed save, guarded kernel recovery, local wait reminder, topology invalidation",
-      "servicesImpact": "none: Native/Logo protocol, geometry, storage and server hard limits unchanged",
-      "logoImpact": "none: source conversion and geometry unchanged",
-      "contractImpact": "page API 1.41 and canonical adapter v2 downloaded/verified by Agent; host mirrors removed",
-      "documentImpact": "existing source recipes, assets and history retained; recovery issues fresh revision; no new project format",
-      "cacheImpact": "Agent caches separate buildId/catalogHash/docsHash/contractHash and reverify software assets",
+      "operation": "meshReliefEdit",
+      "semanticVersion": "mesh-relief-edit-1",
+      "localImpact": "Worker Float64 fixed-topology height edit",
+      "servicesImpact": "Explicit boundedMeshOperations shared policy: own strict local mesh capacity gate, including when Services is configured; no native conversion or fallback",
+      "logoImpact": "none; existing intent routing unchanged",
+      "contractImpact": "strict source-bound edit: height, field/profile replace, bounded source-region pullback; public formal mesh height readback; ordered add/remove/replace/freeze layers and final mandatory targets",
+      "documentImpact": "v4 immutable source and feature recipe; unchanged format",
+      "cacheImpact": "full feature params, regenerated tool docs",
       "requiredTests": [
-        "tests/agent-recovery-save.test.mjs",
-        "tests/remote-agent-adapter.test.mjs",
+        "tests/relief-edit.test.mjs",
+        "tests/relief-edit-kernel.test.mjs",
+        "tests/operation-registry.test.mjs",
+        "tests/pattern-machining.test.mjs",
+        "tests/agent-interface-coverage.test.mjs",
+        "tests/relief-profile.test.mjs",
         "tests/page-api.test.mjs",
-        "CodexAgent tests/unit/test_webcad_software.py",
-        "original rev98 project cold open/save"
-      ]
+        "tests/relief-layers.test.mjs",
+        "tests/services-routing.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "meshReliefPlate",
+      "semanticVersion": "mesh-relief-plate-1",
+      "localImpact": "Worker generic Float64 plate and radial profiles",
+      "servicesImpact": "Explicit boundedMeshOperations shared policy: own strict local mesh capacity gate, including when Services is configured; no native conversion or fallback",
+      "logoImpact": "none; existing intent routing unchanged",
+      "contractImpact": "strict plate dimensions, sampling spacing, explicit radial profiles, Agent/UI operation",
+      "documentImpact": "v4 immutable source and feature recipe; unchanged format",
+      "cacheImpact": "full feature params, regenerated tool docs",
+      "requiredTests": [
+        "tests/relief-edit.test.mjs",
+        "tests/relief-edit-kernel.test.mjs",
+        "tests/operation-registry.test.mjs",
+        "tests/pattern-machining.test.mjs",
+        "tests/agent-interface-coverage.test.mjs",
+        "tests/services-routing.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "meshHeightfieldRelief",
+      "semanticVersion": "mesh-heightfield-relief-1",
+      "localImpact": "Worker Float64 closed heightfield mesh from author-made grayscale samples (up to 1.9 M samples)",
+      "servicesImpact": "Explicit boundedMeshOperations shared policy: strict local mesh capacity gate; no native conversion or fallback",
+      "logoImpact": "none; existing intent routing unchanged",
+      "contractImpact": "strict dimensions, sample grid, base64 u8/u16le samples, gamma/smoothing/edge fade, Agent/UI operation",
+      "documentImpact": "feature recipe stores resampled samples; unchanged format",
+      "cacheImpact": "full feature params, regenerated tool docs",
+      "requiredTests": [
+        "tests/heightfield-relief.test.mjs",
+        "tests/operation-registry.test.mjs",
+        "tests/agent-interface-coverage.test.mjs",
+        "tests/services-routing.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "meshBoolean",
+      "semanticVersion": "mesh-boolean-1",
+      "localImpact": "Worker manifold-3d wasm union/subtract/intersect of closed meshes; exact BReps tessellated at toleranceMm",
+      "servicesImpact": "Explicit boundedMeshOperations shared policy: local only; no native conversion or fallback",
+      "logoImpact": "none; existing intent routing unchanged",
+      "contractImpact": "2-16 ordered refs, operation enum, tessellation tolerance; Agent/UI operation",
+      "documentImpact": "feature recipe only; inputs consumed",
+      "cacheImpact": "full feature params, regenerated tool docs",
+      "requiredTests": [
+        "tests/mesh-boolean.test.mjs",
+        "tests/operation-registry.test.mjs",
+        "tests/agent-interface-coverage.test.mjs",
+        "tests/services-routing.test.mjs"
+      ],
+      "manualChecks": []
     },
     {
       "operation": "reliefShoulder",
@@ -147,10 +116,12 @@
       "documentImpact": "Original source and recipe retained with v3 exact compiled artifact and reliefReport.",
       "cacheImpact": "Semantic, kernel build, source SHA and recipe fingerprint remain mandatory.",
       "requiredTests": [
-        "services-shoulder-native",
-        "operation-registry",
-        "services-routing",
-        "project-container",
+        "tests/services-shoulder-native.test.mjs",
+        "tests/operation-registry.test.mjs",
+        "tests/services-routing.test.mjs",
+        "tests/project-container.test.mjs"
+      ],
+      "manualChecks": [
         "actual page commit/preview-cancel/save/offline"
       ]
     },
@@ -188,7 +159,538 @@
         "getServicesRouting",
         "files.save",
         "files.open"
+      ],
+      "requiredTests": [
+        "tests/services-round-plan.test.mjs",
+        "tests/services-round-native.test.mjs",
+        "tests/round-tool-dialog.test.mjs",
+        "tests/round-tool-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "roundEnd",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "端头圆润 / Round free end",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "rounding",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "自动打磨 / Smooth selected sharp edges",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "autoRound",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "整件圆边 / Round every sharp edge of one solid",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "smoothTransition",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "平滑过渡 / Smooth shared seams of adjacent faces together",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "logo",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Unified reviewed LOGO on one exact face; legacy entries remain planar",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "Source-bound logo operation",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "slot",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Cut an exact capsule slot (two semicircles and two straight sides)",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "multiPocket",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Cut multiple exact rectangular or rounded rectangular pockets",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "multiBoss",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Fuse multiple exact solid cylindrical bosses onto one body",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "box",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Box from [0,0,0] to [width,depth,height]",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "cylinder",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Cylinder on +Z from origin",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "sphere",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Sphere centered at origin",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "cone",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Cone/frustum along +Z",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "torus",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Torus around Z axis",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "extrude",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Extrude a closed profile normal to the chosen plane",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "revolve",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Revolve a closed profile",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "sweep",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Sweep profile along a 3D polyline",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "loft",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Ruled loft between parallel XY profiles",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "transform",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Scale, rotate X/Y/Z about origin, then translate",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "copy",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Copy with scale, rotation and translation",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "mirror",
+      "semanticVersion": "1.2.0",
+      "localImpact": "New UI/API mirrors default keepOriginal=false; explicit true retains a copy",
+      "servicesImpact": "none: mirror executes in browser, no remote mirror operation",
+      "logoImpact": "none: logo mirrorX is unchanged",
+      "contractImpact": "mirror card version/defaults updated",
+      "documentImpact": "New features persist explicit false; old recipes keep their saved behavior",
+      "cacheImpact": "Geometry inputs include the explicit keepOriginal field; no Services cache change",
+      "requiredTests": [
+        "tests/operation-registry.test.mjs"
+      ],
+      "schemaFiles": [],
+      "targetedTests": [],
+      "publicToolIds": [],
+      "manualChecks": [
+        "existing kernel mirror consumed-body test",
+        "live mirror checkbox"
       ]
+    },
+    {
+      "operation": "hole",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Cylindrical cut starting at global coordinates",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "holeWizard",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Exact plain, counterbore, or countersink hole with flat or angled blind drill point",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "multiHole",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Cut cylindrical holes sequentially at multiple global start points",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "faceHole",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Drill inward from a planar face",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "faceExtrude",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Push/pull a planar face along its normal",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "linearPattern",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Linear copies as a compound or explicitly fused solid",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "circularPattern",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Rotated copies as a compound or explicitly fused solid",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "group",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Group bodies as a compound without fusing",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "union",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Fuse bodies",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
     },
     {
       "operation": "cut",
@@ -222,6 +724,1147 @@
         "getServicesRouting",
         "files.save",
         "files.open"
+      ],
+      "requiredTests": [
+        "tests/services-boolean-contract.test.mjs",
+        "tests/services-boolean-native.test.mjs",
+        "tests/services-routing.test.mjs",
+        "tests/project-container.test.mjs",
+        "tests/boolean-roles.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "intersect",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Common volume of bodies",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "fillet",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Round sharp edges, shared face edges, face boundaries or the whole solid",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "chamfer",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Equal-distance, two-distance or distance-angle chamfer of sharp edges",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "shell",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Hollow body removing selected faces",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "split",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Split body by an offset global plane",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "extractSolid",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Extract one solid from a compound",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "quickModel",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Parameterized product model; prefer webcad_get_templates then webcad_apply_template",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "remove",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Use dedicated webcad_remove tool with ids, not add_feature",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "import",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Open STEP/BREP through browser file picker; MCP has no arbitrary filesystem access",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "vectorProfile",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Create independent planar faces or solids from closed vector regions",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "arcProfile",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Extrude exact closed XY LINE/ARC boundaries with optional holes",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "sketchProfile",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Create an editable exact 2D wire or planar face from stable analytic entities",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "profileOffset",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Create an exact planar equidistant offset or band from one closed face",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "profileRepair",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Derive a repaired analytic profile by moving one explicitly identified endpoint within the stated maximum displacement",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "profileExtrude",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Extrude a placed exact profile into a new solid, join, cut or intersection",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "draftFaces",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Exact restricted four-side planar prism draft around one fixed bottom plane",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "curveSweep",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "advancedLoft",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Solid or open shell through hand-defined XY sections",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "fittedSurface",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Fit a single B-spline face to a structured point grid",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "thickenFace",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Normal offset of one face into a new solid",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "curvedLogo",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "Source-bound logo operation",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "planeSection",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "faceBoundary",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "先选中一张面。all 提取包括内孔在内的全部边界；outer 明确只提取外环，不带孔。保留源模型，生成精确线框。单闭环可接参考轮廓拉伸/放样；带孔拉伸应使用完整平面面，不能把忽略内孔的外环当成原件。",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "extractFaces",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "extractShell",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "sewFaces",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "surfaceTrim",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "referenceExtrude",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "选择一个闭合平面线框或单张平面面。直接复用精确圆弧/样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "referenceLoft",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "profileRevolve",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Rotate a saved exact planar section around an explicit world axis, with new-body, additive, subtractive or intersection result",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "profileSweep",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "profileLoft",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Loft 2–12 saved exact sections in explicit order, with new-body or material-operation result",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "offsetSolid",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Exact signed offset of all boundary faces of one solid",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "offsetSurface",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Create one exact normal-offset face while preserving its source body",
+      "servicesImpact": "Shared Services routing and capability checks apply",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "draftByPlane",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Draft explicitly selected analytic faces about an explicit neutral plane",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "helix",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Create an exact helical wire in the creation frame",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "coil",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Sweep a circular wire section along an exact helix to create a single spring solid",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "thread",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Cut an explicit symmetric helical V groove on a selected cylindrical material face",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "profileConstraints",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Solve common saved line/circle profile constraints and derive a new profile while preserving the source, entity IDs and ordered paths",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "faceGroove",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Mill a rectangular recess from a selected planar face",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "innerTurn",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Bore inside a selected planar section",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "outerTurn",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Turn the outside of a selected planar section to diameter",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "refineShape",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/operation-catalog.js",
+        "src/operation-registry.js"
+      ],
+      "localImpact": "Refine same-domain faces and remove redundant splitter edges",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
+      "operation": "relief",
+      "semanticVersion": "relief.compiled-contours-strokes-1.2",
+      "sourcePaths": [
+        "src/modeling/manufacturing/relief",
+        "src/modeling/manufacturing/cylindrical-relief.js",
+        "src/relief-",
+        "services/WebCADServices/native",
+        "src/cad-kernel.js",
+        "src/services/relief-plan.js",
+        "src/ui/forms/relief-dialog.js",
+        "src/relief-local-patch.js",
+        "services/WebCADServices/src/WebCADServices.Runtime/LayerCheckpointCache.cs"
+      ],
+      "schemaFiles": [
+        "src/modeling/manufacturing/relief-contracts.js",
+        "contracts/geometry/geometry-exchange-v1.json"
+      ],
+      "cacheVersion": "relief-layer-cache-v1 + native-layer-cache-1 + frozen-source-1",
+      "documentVersion": 3,
+      "localSupported": true,
+      "remoteSupported": "isolated prototype proof only; uniform cylindrical exact open-stroke masks and engraving; no 3D weaving substitute",
+      "acceptanceStatus": "small dual-depth native/core and original-click support binding regression passed; GC15432 first native binding failed before Boolean; additional real attempt deferred by user; real project acceptance pending",
+      "targetedTests": [
+        "tests/relief-contract.test.mjs",
+        "tests/relief-kernel.test.mjs",
+        "tests/relief-sculpt.test.mjs",
+        "tests/relief-sculpt-kernel.test.mjs",
+        "tests/services-relief.test.mjs",
+        "tests/geometry-cache.test.mjs",
+        "tests/relief-local-patch.test.mjs",
+        "tests/services-support-intent.test.mjs"
+      ],
+      "publicToolIds": [
+        "relief",
+        "prepareReliefSculpt",
+        "sampleReliefHeight"
+      ],
+      "requiredTests": [
+        "tests/relief-contract.test.mjs",
+        "tests/relief-kernel.test.mjs",
+        "tests/relief-sculpt.test.mjs",
+        "tests/relief-sculpt-kernel.test.mjs",
+        "tests/services-relief.test.mjs",
+        "tests/geometry-cache.test.mjs",
+        "tests/relief-local-patch.test.mjs",
+        "tests/services-support-intent.test.mjs"
+      ],
+      "manualChecks": []
+    }
+  ],
+  "executionRouting": {
+    "policyVersion": "complexity-routing-2.0",
+    "sharedPolicy": "contracts/services/v1/execution-routing.json",
+    "localTimeoutMsDefault": 60000,
+    "serverWaitMsDefault": 180000,
+    "timeoutSettings": [
+      "localTimeoutMs",
+      "serverWaitMs"
+    ],
+    "noService": "local",
+    "simple": "local",
+    "complex": "Native OCCT",
+    "unsupportedComplex": "blocked",
+    "failureFallback": "none",
+    "crossKernelEqualityGate": false
+  },
+  "reliefTopologyUpgrade": {
+    "publicMethod": "prepareReliefTopologyUpgrade",
+    "apply": "feature.edit",
+    "geometryComputedDuringPlanning": false,
+    "oldDocuments": "no automatic migration",
+    "onlyChangedFields": [
+      "curvePolicy",
+      "maskStrategy"
+    ],
+    "invalidates": [
+      "recipe",
+      "native-checkpoints-and-dependents",
+      "compiled-plan",
+      "local-native-prefixes"
+    ],
+    "sourceSplineDeviation": "unknown"
+  },
+  "reviewedRecovery": {
+    "publicMethod": "recoverServicesJob",
+    "onlyState": "interrupted",
+    "maximumRecoveryExecutions": 1,
+    "metadata": [
+      "supersedesJobId",
+      "reason"
+    ],
+    "geometryFailureRetry": false
+  },
+  "workspaceThemeIcons20261013": {
+    "localImpact": "Unified theme tokens and SVG presentation; persisted themeColor remains authoritative. No CAD execution changes.",
+    "servicesImpact": "none: browser presentation only",
+    "logoImpact": "none: no logo geometry or converter changes",
+    "contractImpact": "existing setDisplayPreferences themeColor and tool action IDs preserved",
+    "documentImpact": "no CAD document or model parameter changes",
+    "cacheImpact": "rebuild static assets and generated knowledge build identity; cookie schema unchanged",
+    "requiredTests": [
+      "workspace-theme",
+      "workspace-upgrade in isolated release",
+      "build tool coverage gate",
+      "one browser batch: default/custom/persisted theme and icon rendering"
+    ]
+  },
+  "menuHierarchy20261013": {
+    "localImpact": "Remove top workspace navigation; one model tool and one Agent configuration entrance. No CAD execution changes.",
+    "servicesImpact": "none: browser UI navigation only",
+    "logoImpact": "none: converter and geometry unchanged",
+    "contractImpact": "page docs 1.33; existing workspace agent opens configuration, agentSettingsOpen readback, model-library contracts preserved",
+    "documentImpact": "no saved model changes",
+    "cacheImpact": "regenerate static routes/docs hashes and assets; stored library/preferences unchanged",
+    "requiredTests": [
+      "menu hierarchy and API coverage",
+      "model-library",
+      "workspace upgrade",
+      "one browser batch: menu entry, gallery return, Agent config and API readback"
+    ]
+  },
+  "stageCheckpoint20261013": {
+    "cacheImpact": "Regenerated page catalog/docs/build hashes; display LOD never changes authoritative mesh.",
+    "logoImpact": "Explicit pattern intent guards distinguish LOGO and relief; legacy recipes retain original semantics.",
+    "servicesImpact": "Mesh scaffold compiled only; capability acceptance remains disabled and production Services DLLs unchanged.",
+    "requiredTests": [
+      "mesh-assets",
+      "mesh-kernel",
+      "display-lod",
+      "pattern-machining",
+      "project-container",
+      "document-capacity",
+      "browser-files",
+      "page-api",
+      "command-service",
+      "workspace-upgrade",
+      "model-library",
+      "legacy LOGO and relief kernel",
+      "one real browser ordinary CAD and large mesh save/reopen"
+    ],
+    "localImpact": "Binary STL and Float64 mesh preservation, view-only adaptive LOD, v4 self-contained project and legacy v1-v3 compatibility.",
+    "documentImpact": "v4 bundles immutable full binary assets; old projects retain 20 MiB and existing source/history.",
+    "releaseBoundary": "Paused at 2026-10-12 stage checkpoint; no semantic sculpting, new layered mesh editing or mesh Services activation.",
+    "contractImpact": "Page API 1.34, typed file budgets, explicit mesh units, interactionPhase and source interpretation."
+  },
+  "viewerStyleFloatingModels20261013": {
+    "localImpact": "CADViewer-style icon chrome and non-fullscreen floating model selector; visibility preserved; CAD execution unchanged",
+    "servicesImpact": "none: browser presentation only",
+    "logoImpact": "none: converter/geometry unchanged",
+    "contractImpact": "page docs 1.34: modelLibraryOpen and floating-menu readback; existing setView/model-library contracts maintained",
+    "documentImpact": "no CAD document or model changes",
+    "cacheImpact": "rebuild assets and static knowledge; existing preference/library storage schemas retained",
+    "requiredTests": [
+      "workspace-theme",
+      "workspace-upgrade",
+      "model-library",
+      "one browser batch: desktop and 905/768 embedded widths, floating menu, tooltip/icon semantics, visibility and theme persistence"
+    ]
+  },
+  "cadWorkbenchFileCapacity20261014": {
+    "localImpact": "CAD workbench attachment selection and registration match existing typed page file budgets; no geometry algorithm changes.",
+    "servicesImpact": "Synchronize previously divergent Services Gateway/Runtime to current canonical managed DLLs on both formal backends. Review shared Logo assembly public APIs and dependencies; retain the accepted Native worker, experimental capability gates, operational data and 20 MiB geometry/checkpoint budgets. Agent input/artifact transport and IIS workbench gateway updated together.",
+    "logoImpact": "None: ordinary image/vector/PDF attachments and Logo conversion retain 20 MiB.",
+    "contractImpact": "Page docs 1.47; documented host attachment and output transfer budgets. Agent enforces CAD capacity only for the persisted webcad task purpose.",
+    "documentImpact": "Original source bytes/hash and v4 format preserved; no model replacement or implicit import.",
+    "cacheImpact": "Regenerate static discovery and version workspace scripts; preserve settings, tasks and knowledge caches by release identity.",
+    "requiredTests": [
+      "shared frontend capacity",
+      "compiled IIS gateway policy",
+      "Agent authenticated large STEP upload/readback and normal rejection",
+      "typed artifact write/readback",
+      "one real desktop tiger attachment via 17674",
+      "formal HTTP release identity and scoped source push"
+    ]
+  },
+  "largeExactSources20261013": {
+    "localImpact": "UI/API/import preview use typed STEP/BREP source assets up to 128 MiB; exact OCCT geometry preserved; no sculpting algorithm changes.",
+    "servicesImpact": "Retain v4 when installing compiled results; Services source/checkpoint 20 MiB budgets unchanged; no DLL/native/IIS change.",
+    "logoImpact": "none: Logo/vector parser and converter budgets unchanged.",
+    "contractImpact": "Page API 1.36 typed budgets for step/stp/brep/brp, exact-source docs and typed export. Optional legacy unplaced exact import key behavior preserved.",
+    "documentImpact": "v4 source assets step/brep, hash/entry/capacity validation; legacy v1-v3 readable; no recovered upstream recipe claimed.",
+    "cacheImpact": "Regenerate static contracts. Freshly decoded Worker-owned binary assets transfer to the main thread without retaining a second Worker copy; main-thread history assets are never detached. Bounded rebuild stage progress preserves timeout diagnostics without changing the time limit.",
+    "requiredTests": [
+      "exact-source-assets",
+      "browser-files",
+      "command-service",
+      "project-container",
+      "document-capacity",
+      "named-parameters",
+      "services-boolean-contract",
+      "page-api",
+      "one real stage43 STEP import, render, save and cold reopen"
+    ],
+    "acceptanceBoundary": "Configured capacity is not universal geometry/performance acceptance. Tiger is a reusable-tool regression fixture, never a product-specific implementation."
+  },
+  "adaptiveExactDisplay20261013": {
+    "localImpact": "Complex BRep coarse-first display, bounded edge sampling, conservative display bounds, per-visible-face refinement, pixel tolerance, frustum culling and bounded disposable display buffers. Precise measurements remain on demand.",
+    "servicesImpact": "none: display of committed local BRep only; no computation routing, protocol, DLL, native or IIS change",
+    "logoImpact": "none: source/logo geometry and conversion unchanged",
+    "contractImpact": "Existing files.import, setView, setRenderQuality, capture and getState; adaptive display progress and deferred measurement metadata exposed; no new tool or UI-only path",
+    "documentImpact": "no document format change; original source bytes and BRep retained; display caches not saved",
+    "cacheImpact": "Disposable per-renderVersion mesh cache; stale replies rejected, offscreen refinements evicted; regenerate public knowledge on release",
+    "requiredTests": [
+      "adaptive-exact-display",
+      "display-lod",
+      "build release gate in isolated snapshot",
+      "real 87,930,530-byte STEP import, visible render, camera pan/zoom, refinement and unchanged revision"
+    ],
+    "deployment": "local development/isolated acceptance only; no formal endpoint updated"
+  },
+  "changes": [
+    {
+      "operation": "ribbon-uniform-icons-background-highlight",
+      "sourcePaths": [
+        "src/workspace-upgrade.css"
+      ],
+      "localImpact": "All ribbon buttons use non-shrinking 34px slots and 20px icons; selection highlights use background only, without border space",
+      "servicesImpact": "none: CSS only",
+      "logoImpact": "none: source geometry and conversion unchanged",
+      "contractImpact": "none: actions and public AI routes unchanged; documentation release identity updated",
+      "documentImpact": "none: no project, camera, history or recipe changes",
+      "cacheImpact": "Rebuild frontend and matching discovery identity; user preferences retained",
+      "requiredTests": [
+        "build",
+        "17674 view/edit icon sizes, ribbon height and selected border"
+      ]
+    },
+    {
+      "operation": "agent-focus-uniform-ribbon",
+      "sourcePaths": [
+        "src/ui.js",
+        "src/workspace-layout.css"
+      ],
+      "localImpact": "View ribbon uses the same 44px height; Agent entry and connection activate existing focus mode and hide tools, exit restores prior layout",
+      "servicesImpact": "none: UI layout only; geometry routing and backend unchanged",
+      "logoImpact": "none: no conversion or source geometry change",
+      "contractImpact": "Page API 1.46; setAgentPanel and getUILayout document automatic focus; existing setView remains shared layout API",
+      "documentImpact": "No document, history, camera or geometry replacement; retain active tasks",
+      "cacheImpact": "Frontend build/catalog/docs hashes; existing preferences retained",
+      "requiredTests": [
+        "workspace-theme",
+        "assistant-panel",
+        "build",
+        "17674 view/edit height and Agent entry/connection/exit layout"
+      ]
+    },
+    {
+      "operation": "tool-execution-routing-2",
+      "sourcePaths": [
+        "contracts/services/v1/execution-routing.json",
+        "src/services/execution-router.js",
+        "src/services/execution-context.js",
+        "src/main.js"
+      ],
+      "localImpact": "All 47 quick models and ordinary tools remain local with configured Services; eligible complex geometry requires measured thresholds",
+      "servicesImpact": "Client selector only; no Native algorithm, DLL, protocol, job or codec change",
+      "logoImpact": "none: converter and source geometry unchanged",
+      "contractImpact": "Page API 1.45, complexity-routing-2.0, getServicesRouting.operationPolicy",
+      "documentImpact": "Recipes, checkpoints, undo, project data and unresolved physical-job guards retained",
+      "cacheImpact": "Frontend build/catalog/docs hashes change; preserve credentials and settings",
+      "requiredTests": [
+        "services-routing",
+        "services-boolean-contract",
+        "build",
+        "17674 threadedSleeve with Services configured and no backend requests"
+      ]
+    },
+    {
+      "operation": "quick-model-dialog-script-preview",
+      "sourcePaths": [
+        "src/quick-models",
+        "src/model-library.js",
+        "src/ui/model-library-workspace.js",
+        "src/ui/model-preview.js",
+        "src/ui.js"
+      ],
+      "localImpact": "Three-input key ring with circular R tips; modal creation/management; finite editable geometry recipes; lazy isolated generated solid previews and dimension leaders",
+      "servicesImpact": "none: quick models execute in existing local WASM; Services protocols, jobs and runtime unchanged",
+      "logoImpact": "none: logo converter and source geometry unchanged",
+      "contractImpact": "page API 1.44; entry.script / params.modelScript; existing update/resolve/run/add and preview APIs share full recipe",
+      "documentImpact": "Generated features freeze full script; legacy ring recipes without new flags retain explicit winding; no format change",
+      "cacheImpact": "new frontend/catalog/docs/build hashes; preserve cookies, local model library and project data",
+      "requiredTests": [
+        "key-ring",
+        "model-library",
+        "model-script",
+        "build",
+        "17674 modal/script/preview/create"
+      ]
+    },
+    {
+      "operation": "ui-icon-color",
+      "sourcePaths": [
+        "src/ui/styles/theme.css"
+      ],
+      "localImpact": "All coloured UI icons inherit one saved theme accent; neutral controls remain grayscale",
+      "servicesImpact": "none: CSS only; runtime and protocols unchanged",
+      "logoImpact": "none: source geometry and conversion unchanged",
+      "contractImpact": "none: existing UI actions and public API unchanged",
+      "documentImpact": "none: document and saved appearance preserved",
+      "cacheImpact": "Rebuild frontend CSS and release identity; preserve theme cookie",
+      "requiredTests": [
+        "workspace-theme",
+        "build",
+        "17674 icon colour check"
+      ]
+    },
+    {
+      "operation": "agent-assistant-panel",
+      "semanticVersion": "panel-1-page-api-1.43",
+      "sourcePaths": [
+        "src/agent/assistant-panel.js",
+        "src/agent/protocol.js",
+        "src/host-control.js",
+        "src/ui.js",
+        "src/ui/config/theme-colors.js",
+        "src/page-api.js"
+      ],
+      "localImpact": "One configured assistant pane binds the existing page; one-click exit revokes writes and restores human editing; fixed left brand and one accent",
+      "servicesImpact": "none: geometry Services/Native protocol and runtime unchanged; Agent broker attach/release endpoints reused",
+      "logoImpact": "none: conversion and source geometry unchanged",
+      "contractImpact": "getAgentPanel/configureAgentPanel/setAgentPanel; origin+iframe+channel authenticated message transport; canonical adapter still owns commands",
+      "documentImpact": "No reload or document replacement; same revision, dirty, camera and history",
+      "cacheImpact": "Page API 1.43 docs/catalog; workbench asset query versions changed; existing appearance cookies retained",
+      "requiredTests": [
+        "workspace-theme",
+        "assistant-panel",
+        "remote-agent-adapter",
+        "page-api",
+        "17674 enter/exit current-document verification"
+      ]
+    },
+    {
+      "operation": "agent-runtime-recovery",
+      "semanticVersion": "agent-adapter-2",
+      "sourcePaths": [
+        "src/agent",
+        "src/main.js",
+        "src/project-save.js",
+        "src/project-codec-worker.js",
+        "src/command-service.js",
+        "src/page-api.js",
+        "scripts/generate-remote-agent.mjs"
+      ],
+      "localImpact": "independent committed save, guarded kernel recovery, local wait reminder, topology invalidation",
+      "servicesImpact": "none: Native/Logo protocol, geometry, storage and server hard limits unchanged",
+      "logoImpact": "none: source conversion and geometry unchanged",
+      "contractImpact": "page API 1.41 and canonical adapter v2 downloaded/verified by Agent; host mirrors removed",
+      "documentImpact": "existing source recipes, assets and history retained; recovery issues fresh revision; no new project format",
+      "cacheImpact": "Agent caches separate buildId/catalogHash/docsHash/contractHash and reverify software assets",
+      "requiredTests": [
+        "tests/agent-recovery-save.test.mjs",
+        "tests/remote-agent-adapter.test.mjs",
+        "tests/page-api.test.mjs",
+        "CodexAgent tests/unit/test_webcad_software.py",
+        "original rev98 project cold open/save"
       ]
     },
     {
@@ -306,45 +1949,6 @@
       ]
     },
     {
-      "operation": "relief",
-      "semanticVersion": "relief.compiled-contours-1.0",
-      "sourcePaths": [
-        "src/modeling/manufacturing/relief",
-        "src/modeling/manufacturing/cylindrical-relief.js",
-        "src/relief-",
-        "services/WebCADServices/native",
-        "src/cad-kernel.js",
-        "src/services/relief-plan.js",
-        "src/ui/forms/relief-dialog.js",
-        "src/relief-local-patch.js",
-        "services/WebCADServices/src/WebCADServices.Runtime/LayerCheckpointCache.cs"
-      ],
-      "schemaFiles": [
-        "src/modeling/manufacturing/relief-contracts.js",
-        "contracts/geometry/geometry-exchange-v1.json"
-      ],
-      "cacheVersion": "relief-layer-cache-v1 + native-layer-cache-1 + frozen-source-1",
-      "documentVersion": 3,
-      "localSupported": true,
-      "remoteSupported": "gated uniform cylindrical emboss; strokes/engraving require separate 1.2 prototype proof",
-      "acceptanceStatus": "GC15346 six-hole local passed/full failed; GC14785 nine supports passed; GC15169 source-specific two-layer two-hole glyph passed/material/offline, full product pending",
-      "targetedTests": [
-        "tests/relief-contract.test.mjs",
-        "tests/relief-kernel.test.mjs",
-        "tests/relief-sculpt.test.mjs",
-        "tests/relief-sculpt-kernel.test.mjs",
-        "tests/services-relief.test.mjs",
-        "tests/geometry-cache.test.mjs",
-        "tests/relief-local-patch.test.mjs",
-        "tests/services-support-intent.test.mjs"
-      ],
-      "publicToolIds": [
-        "relief",
-        "prepareReliefSculpt",
-        "sampleReliefHeight"
-      ]
-    },
-    {
       "operation": "feature.compileServices",
       "semanticVersion": "transform.translation-1.0",
       "sourcePaths": [
@@ -383,83 +1987,6 @@
       ]
     },
     {
-      "operation": "relief",
-      "semanticVersion": "relief.compiled-contours-local-patch-1.1",
-      "sourcePaths": [
-        "src/modeling/manufacturing/relief",
-        "src/modeling/manufacturing/cylindrical-relief.js",
-        "src/relief-",
-        "services/WebCADServices/native",
-        "src/cad-kernel.js",
-        "src/services/relief-plan.js",
-        "src/ui/forms/relief-dialog.js",
-        "src/relief-local-patch.js",
-        "services/WebCADServices/src/WebCADServices.Runtime/LayerCheckpointCache.cs"
-      ],
-      "schemaFiles": [
-        "src/modeling/manufacturing/relief-contracts.js",
-        "contracts/geometry/geometry-exchange-v1.json"
-      ],
-      "cacheVersion": "relief-layer-cache-v1 + native-layer-cache-1 + frozen-source-1",
-      "documentVersion": 3,
-      "localSupported": true,
-      "remoteSupported": "uniform outer-cylinder emboss with one protected independent local patch per logical layer",
-      "acceptanceStatus": "real nine-support scene original-feature raise/lower, UI, undo/redo, offline source/native/project passed; full sculpture and continuous shoulders pending",
-      "targetedTests": [
-        "tests/relief-contract.test.mjs",
-        "tests/relief-kernel.test.mjs",
-        "tests/relief-sculpt.test.mjs",
-        "tests/relief-sculpt-kernel.test.mjs",
-        "tests/services-relief.test.mjs",
-        "tests/geometry-cache.test.mjs",
-        "tests/relief-local-patch.test.mjs"
-      ],
-      "publicToolIds": [
-        "relief",
-        "prepareReliefSculpt",
-        "sampleReliefHeight"
-      ]
-    },
-    {
-      "operation": "relief",
-      "semanticVersion": "relief.compiled-contours-strokes-1.2",
-      "sourcePaths": [
-        "src/modeling/manufacturing/relief",
-        "src/modeling/manufacturing/cylindrical-relief.js",
-        "src/relief-",
-        "services/WebCADServices/native",
-        "src/cad-kernel.js",
-        "src/services/relief-plan.js",
-        "src/ui/forms/relief-dialog.js",
-        "src/relief-local-patch.js",
-        "services/WebCADServices/src/WebCADServices.Runtime/LayerCheckpointCache.cs"
-      ],
-      "schemaFiles": [
-        "src/modeling/manufacturing/relief-contracts.js",
-        "contracts/geometry/geometry-exchange-v1.json"
-      ],
-      "cacheVersion": "relief-layer-cache-v1 + native-layer-cache-1 + frozen-source-1",
-      "documentVersion": 3,
-      "localSupported": true,
-      "remoteSupported": "isolated prototype proof only; uniform cylindrical exact open-stroke masks and engraving; no 3D weaving substitute",
-      "acceptanceStatus": "small dual-depth native/core and original-click support binding regression passed; GC15432 first native binding failed before Boolean; additional real attempt deferred by user; real project acceptance pending",
-      "targetedTests": [
-        "tests/relief-contract.test.mjs",
-        "tests/relief-kernel.test.mjs",
-        "tests/relief-sculpt.test.mjs",
-        "tests/relief-sculpt-kernel.test.mjs",
-        "tests/services-relief.test.mjs",
-        "tests/geometry-cache.test.mjs",
-        "tests/relief-local-patch.test.mjs",
-        "tests/services-support-intent.test.mjs"
-      ],
-      "publicToolIds": [
-        "relief",
-        "prepareReliefSculpt",
-        "sampleReliefHeight"
-      ]
-    },
-    {
       "operation": "viewport.interaction",
       "semanticVersion": "1.0",
       "sourcePaths": [
@@ -488,24 +2015,6 @@
         "one live browser view/selection check"
       ],
       "schemaFiles": [],
-      "publicToolIds": []
-    },
-    {
-      "operation": "mirror",
-      "semanticVersion": "1.2.0",
-      "localImpact": "New UI/API mirrors default keepOriginal=false; explicit true retains a copy",
-      "servicesImpact": "none: mirror executes in browser, no remote mirror operation",
-      "logoImpact": "none: logo mirrorX is unchanged",
-      "contractImpact": "mirror card version/defaults updated",
-      "documentImpact": "New features persist explicit false; old recipes keep their saved behavior",
-      "cacheImpact": "Geometry inputs include the explicit keepOriginal field; no Services cache change",
-      "requiredTests": [
-        "operation-registry",
-        "existing kernel mirror consumed-body test",
-        "live mirror checkbox"
-      ],
-      "schemaFiles": [],
-      "targetedTests": [],
       "publicToolIds": []
     },
     {
@@ -646,77 +2155,6 @@
       ]
     },
     {
-      "operation": "meshReliefEdit",
-      "semanticVersion": "mesh-relief-edit-1",
-      "localImpact": "Worker Float64 fixed-topology height edit",
-      "servicesImpact": "Explicit boundedMeshOperations shared policy: own strict local mesh capacity gate, including when Services is configured; no native conversion or fallback",
-      "logoImpact": "none; existing intent routing unchanged",
-      "contractImpact": "strict source-bound edit: height, field/profile replace, bounded source-region pullback; public formal mesh height readback; ordered add/remove/replace/freeze layers and final mandatory targets",
-      "documentImpact": "v4 immutable source and feature recipe; unchanged format",
-      "cacheImpact": "full feature params, regenerated tool docs",
-      "requiredTests": [
-        "tests/relief-edit.test.mjs",
-        "tests/relief-edit-kernel.test.mjs",
-        "tests/operation-registry.test.mjs",
-        "tests/pattern-machining.test.mjs",
-        "tests/agent-interface-coverage.test.mjs",
-        "tests/relief-profile.test.mjs",
-        "tests/page-api.test.mjs",
-        "tests/relief-layers.test.mjs",
-        "tests/services-routing.test.mjs"
-      ]
-    },
-    {
-      "operation": "meshReliefPlate",
-      "semanticVersion": "mesh-relief-plate-1",
-      "localImpact": "Worker generic Float64 plate and radial profiles",
-      "servicesImpact": "Explicit boundedMeshOperations shared policy: own strict local mesh capacity gate, including when Services is configured; no native conversion or fallback",
-      "logoImpact": "none; existing intent routing unchanged",
-      "contractImpact": "strict plate dimensions, sampling spacing, explicit radial profiles, Agent/UI operation",
-      "documentImpact": "v4 immutable source and feature recipe; unchanged format",
-      "cacheImpact": "full feature params, regenerated tool docs",
-      "requiredTests": [
-        "tests/relief-edit.test.mjs",
-        "tests/relief-edit-kernel.test.mjs",
-        "tests/operation-registry.test.mjs",
-        "tests/pattern-machining.test.mjs",
-        "tests/agent-interface-coverage.test.mjs",
-        "tests/services-routing.test.mjs"
-      ]
-    },
-    {
-      "operation": "meshHeightfieldRelief",
-      "semanticVersion": "mesh-heightfield-relief-1",
-      "localImpact": "Worker Float64 closed heightfield mesh from author-made grayscale samples (up to 1.9 M samples)",
-      "servicesImpact": "Explicit boundedMeshOperations shared policy: strict local mesh capacity gate; no native conversion or fallback",
-      "logoImpact": "none; existing intent routing unchanged",
-      "contractImpact": "strict dimensions, sample grid, base64 u8/u16le samples, gamma/smoothing/edge fade, Agent/UI operation",
-      "documentImpact": "feature recipe stores resampled samples; unchanged format",
-      "cacheImpact": "full feature params, regenerated tool docs",
-      "requiredTests": [
-        "tests/heightfield-relief.test.mjs",
-        "tests/operation-registry.test.mjs",
-        "tests/agent-interface-coverage.test.mjs",
-        "tests/services-routing.test.mjs"
-      ]
-    },
-    {
-      "operation": "meshBoolean",
-      "semanticVersion": "mesh-boolean-1",
-      "localImpact": "Worker manifold-3d wasm union/subtract/intersect of closed meshes; exact BReps tessellated at toleranceMm",
-      "servicesImpact": "Explicit boundedMeshOperations shared policy: local only; no native conversion or fallback",
-      "logoImpact": "none; existing intent routing unchanged",
-      "contractImpact": "2-16 ordered refs, operation enum, tessellation tolerance; Agent/UI operation",
-      "documentImpact": "feature recipe only; inputs consumed",
-      "cacheImpact": "full feature params, regenerated tool docs",
-      "requiredTests": [
-        "tests/mesh-boolean.test.mjs",
-        "tests/operation-registry.test.mjs",
-        "tests/agent-interface-coverage.test.mjs",
-        "tests/services-routing.test.mjs"
-      ]
-    },
-    {
       "operation": "sampleMeshRelief",
       "semanticVersion": "mesh-relief-sample-1",
       "localImpact": "Read-only authoritative Float64 mesh normal-line intersections",
@@ -735,158 +2173,5 @@
         "tests/page-api.test.mjs"
       ]
     }
-  ],
-  "executionRouting": {
-    "policyVersion": "complexity-routing-2.0",
-    "sharedPolicy": "contracts/services/v1/execution-routing.json",
-    "localTimeoutMsDefault": 60000,
-    "serverWaitMsDefault": 180000,
-    "timeoutSettings": [
-      "localTimeoutMs",
-      "serverWaitMs"
-    ],
-    "noService": "local",
-    "simple": "local",
-    "complex": "Native OCCT",
-    "unsupportedComplex": "blocked",
-    "failureFallback": "none",
-    "crossKernelEqualityGate": false
-  },
-  "reliefTopologyUpgrade": {
-    "publicMethod": "prepareReliefTopologyUpgrade",
-    "apply": "feature.edit",
-    "geometryComputedDuringPlanning": false,
-    "oldDocuments": "no automatic migration",
-    "onlyChangedFields": [
-      "curvePolicy",
-      "maskStrategy"
-    ],
-    "invalidates": [
-      "recipe",
-      "native-checkpoints-and-dependents",
-      "compiled-plan",
-      "local-native-prefixes"
-    ],
-    "sourceSplineDeviation": "unknown"
-  },
-  "reviewedRecovery": {
-    "publicMethod": "recoverServicesJob",
-    "onlyState": "interrupted",
-    "maximumRecoveryExecutions": 1,
-    "metadata": [
-      "supersedesJobId",
-      "reason"
-    ],
-    "geometryFailureRetry": false
-  },
-  "workspaceThemeIcons20261013": {
-    "localImpact": "Unified theme tokens and SVG presentation; persisted themeColor remains authoritative. No CAD execution changes.",
-    "servicesImpact": "none: browser presentation only",
-    "logoImpact": "none: no logo geometry or converter changes",
-    "contractImpact": "existing setDisplayPreferences themeColor and tool action IDs preserved",
-    "documentImpact": "no CAD document or model parameter changes",
-    "cacheImpact": "rebuild static assets and generated knowledge build identity; cookie schema unchanged",
-    "requiredTests": [
-      "workspace-theme",
-      "workspace-upgrade in isolated release",
-      "build tool coverage gate",
-      "one browser batch: default/custom/persisted theme and icon rendering"
-    ]
-  },
-  "menuHierarchy20261013": {
-    "localImpact": "Remove top workspace navigation; one model tool and one Agent configuration entrance. No CAD execution changes.",
-    "servicesImpact": "none: browser UI navigation only",
-    "logoImpact": "none: converter and geometry unchanged",
-    "contractImpact": "page docs 1.33; existing workspace agent opens configuration, agentSettingsOpen readback, model-library contracts preserved",
-    "documentImpact": "no saved model changes",
-    "cacheImpact": "regenerate static routes/docs hashes and assets; stored library/preferences unchanged",
-    "requiredTests": [
-      "menu hierarchy and API coverage",
-      "model-library",
-      "workspace upgrade",
-      "one browser batch: menu entry, gallery return, Agent config and API readback"
-    ]
-  },
-  "stageCheckpoint20261013": {
-    "cacheImpact": "Regenerated page catalog/docs/build hashes; display LOD never changes authoritative mesh.",
-    "logoImpact": "Explicit pattern intent guards distinguish LOGO and relief; legacy recipes retain original semantics.",
-    "servicesImpact": "Mesh scaffold compiled only; capability acceptance remains disabled and production Services DLLs unchanged.",
-    "requiredTests": [
-      "mesh-assets",
-      "mesh-kernel",
-      "display-lod",
-      "pattern-machining",
-      "project-container",
-      "document-capacity",
-      "browser-files",
-      "page-api",
-      "command-service",
-      "workspace-upgrade",
-      "model-library",
-      "legacy LOGO and relief kernel",
-      "one real browser ordinary CAD and large mesh save/reopen"
-    ],
-    "localImpact": "Binary STL and Float64 mesh preservation, view-only adaptive LOD, v4 self-contained project and legacy v1-v3 compatibility.",
-    "documentImpact": "v4 bundles immutable full binary assets; old projects retain 20 MiB and existing source/history.",
-    "releaseBoundary": "Paused at 2026-10-12 stage checkpoint; no semantic sculpting, new layered mesh editing or mesh Services activation.",
-    "contractImpact": "Page API 1.34, typed file budgets, explicit mesh units, interactionPhase and source interpretation."
-  },
-  "viewerStyleFloatingModels20261013": {
-    "localImpact": "CADViewer-style icon chrome and non-fullscreen floating model selector; visibility preserved; CAD execution unchanged",
-    "servicesImpact": "none: browser presentation only",
-    "logoImpact": "none: converter/geometry unchanged",
-    "contractImpact": "page docs 1.34: modelLibraryOpen and floating-menu readback; existing setView/model-library contracts maintained",
-    "documentImpact": "no CAD document or model changes",
-    "cacheImpact": "rebuild assets and static knowledge; existing preference/library storage schemas retained",
-    "requiredTests": [
-      "workspace-theme",
-      "workspace-upgrade",
-      "model-library",
-      "one browser batch: desktop and 905/768 embedded widths, floating menu, tooltip/icon semantics, visibility and theme persistence"
-    ]
-  },
-  "cadWorkbenchFileCapacity20261014": {
-    "localImpact": "CAD workbench attachment selection and registration match existing typed page file budgets; no geometry algorithm changes.",
-    "servicesImpact": "Synchronize previously divergent Services Gateway/Runtime to current canonical managed DLLs on both formal backends. Review shared Logo assembly public APIs and dependencies; retain the accepted Native worker, experimental capability gates, operational data and 20 MiB geometry/checkpoint budgets. Agent input/artifact transport and IIS workbench gateway updated together.",
-    "logoImpact": "None: ordinary image/vector/PDF attachments and Logo conversion retain 20 MiB.",
-    "contractImpact": "Page docs 1.47; documented host attachment and output transfer budgets. Agent enforces CAD capacity only for the persisted webcad task purpose.",
-    "documentImpact": "Original source bytes/hash and v4 format preserved; no model replacement or implicit import.",
-    "cacheImpact": "Regenerate static discovery and version workspace scripts; preserve settings, tasks and knowledge caches by release identity.",
-    "requiredTests": ["shared frontend capacity", "compiled IIS gateway policy", "Agent authenticated large STEP upload/readback and normal rejection", "typed artifact write/readback", "one real desktop tiger attachment via 17674", "formal HTTP release identity and scoped source push"]
-  },
-  "largeExactSources20261013": {
-    "localImpact": "UI/API/import preview use typed STEP/BREP source assets up to 128 MiB; exact OCCT geometry preserved; no sculpting algorithm changes.",
-    "servicesImpact": "Retain v4 when installing compiled results; Services source/checkpoint 20 MiB budgets unchanged; no DLL/native/IIS change.",
-    "logoImpact": "none: Logo/vector parser and converter budgets unchanged.",
-    "contractImpact": "Page API 1.36 typed budgets for step/stp/brep/brp, exact-source docs and typed export. Optional legacy unplaced exact import key behavior preserved.",
-    "documentImpact": "v4 source assets step/brep, hash/entry/capacity validation; legacy v1-v3 readable; no recovered upstream recipe claimed.",
-    "cacheImpact": "Regenerate static contracts. Freshly decoded Worker-owned binary assets transfer to the main thread without retaining a second Worker copy; main-thread history assets are never detached. Bounded rebuild stage progress preserves timeout diagnostics without changing the time limit.",
-    "requiredTests": [
-      "exact-source-assets",
-      "browser-files",
-      "command-service",
-      "project-container",
-      "document-capacity",
-      "named-parameters",
-      "services-boolean-contract",
-      "page-api",
-      "one real stage43 STEP import, render, save and cold reopen"
-    ],
-    "acceptanceBoundary": "Configured capacity is not universal geometry/performance acceptance. Tiger is a reusable-tool regression fixture, never a product-specific implementation."
-  },
-  "adaptiveExactDisplay20261013": {
-    "localImpact": "Complex BRep coarse-first display, bounded edge sampling, conservative display bounds, per-visible-face refinement, pixel tolerance, frustum culling and bounded disposable display buffers. Precise measurements remain on demand.",
-    "servicesImpact": "none: display of committed local BRep only; no computation routing, protocol, DLL, native or IIS change",
-    "logoImpact": "none: source/logo geometry and conversion unchanged",
-    "contractImpact": "Existing files.import, setView, setRenderQuality, capture and getState; adaptive display progress and deferred measurement metadata exposed; no new tool or UI-only path",
-    "documentImpact": "no document format change; original source bytes and BRep retained; display caches not saved",
-    "cacheImpact": "Disposable per-renderVersion mesh cache; stale replies rejected, offscreen refinements evicted; regenerate public knowledge on release",
-    "requiredTests": [
-      "adaptive-exact-display",
-      "display-lod",
-      "build release gate in isolated snapshot",
-      "real 87,930,530-byte STEP import, visible render, camera pan/zoom, refinement and unchanged revision"
-    ],
-    "deployment": "local development/isolated acceptance only; no formal endpoint updated"
-  }
+  ]
 }
