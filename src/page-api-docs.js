@@ -443,7 +443,7 @@ function templateCards() {
 let cachedCards;
 function pageCards() {
   return cachedCards ??= [
-    ...listOperations().filter(card => !['import', 'remove'].includes(card.id)).map(raw => {
+    ...listOperations().map(raw => {
       const card = mapPageText(raw);
       return { ...card,
       title: pageWording(card.title), label: TOOL_LABELS[card.id] || card.title,
@@ -460,6 +460,7 @@ function pageCards() {
       relatedTools:mechanicalIds.includes(card.id)?['getState','getTools','queryGeometry','run','feature.edit',...(card.id==='profileConstraints'?['inspectConstraints']:[])]:card.id==='transform'?['getState','setView','getTool','execute','run']:card.id==='sketchProfile'?['getState','inspectProfile','prepareProfileEdit','profileExtrude','execute']:['getState', 'getTool', 'queryGeometry', 'execute'],
       ...(['transform','sketchProfile','profileExtrude','profileRepair'].includes(card.id)?{docs:'api.interaction'}:{}),
       runtimeAvailability: 'requires_ready_page',
+      ...(['import','remove'].includes(card.id)?{executableOperation:false,contextPolicy:'revision',usage:card.id==='import'?'用files.register和files.import；不要调用add op:import':'用execute action:feature.remove；不要调用add op:remove'}:{}),
       usage: 'Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. ' + (['C','T'].includes(PLACEMENT_POLICIES[card.id])||['faceHole','logo','transform','copy','mirror','linearPattern','circularPattern','split','planeSection','referenceExtrude'].includes(card.id)?'Explicit placement version 1 is enabled; read api.references. ':'Placement is not enabled for this operation. ') + (card.strictContract ? 'Strict v2 validation applies.' : 'Schema is advisory; kernel prerequisites and result verification still apply.'),
       minimalExample: { ...card.minimalExample,
         referenceInstructions: 'Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().' },

@@ -40,7 +40,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 用有序参考截面放样；引用上限为12，保留原轮廓。",
   "title": "按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。",
   "category": "reference",
   "synonyms": [
@@ -53,7 +53,7 @@
     "参考截面放样"
   ],
   "description": "按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。",
-  "schemaHash": "sha256:cd92adb265af223c33b97b838ca1b2b3a9463758424cc0e84f9a551511fb3a07",
+  "schemaHash": "sha256:c3966533fb30cc690d3583c9c323823b7241493d2afa2e25944db8e0f36a978d",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -114,7 +114,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。",
+    "用有序参考截面放样；引用上限为12，保留原轮廓。",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
@@ -182,7 +182,7 @@
   "contract": {
     "purpose": "按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。",
     "whenToUse": [
-      "按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。"
+      "用有序参考截面放样；引用上限为12，保留原轮廓。"
     ],
     "whenNotToUse": [
       {
@@ -330,7 +330,7 @@
   },
   "purpose": "按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。",
   "whenToUse": [
-    "按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。"
+    "用有序参考截面放样；引用上限为12，保留原轮廓。"
   ],
   "whenNotToUse": [
     {
@@ -422,5 +422,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:8739477603163a5f51833b0ca9d82d5cc833a25ecb8491a367f4b57b2697ed69"
+  "docsHash": "sha256:80e6fcf9c8d4a1e42487ba9b672329cc34c24a7a26547a66c03b59d6f4058df0"
 }

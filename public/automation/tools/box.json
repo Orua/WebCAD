@@ -137,7 +137,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Box from [0,0,0] to [width,depth,height]"
+    "显式X/Y/Z尺寸创建长方体；原点到width/depth/height。"
   ],
   "minimalExample": {
     "op": "box",
@@ -207,7 +207,7 @@
   "contract": {
     "purpose": "Box from [0,0,0] to [width,depth,height]",
     "whenToUse": [
-      "Box from [0,0,0] to [width,depth,height]"
+      "显式X/Y/Z尺寸创建长方体；原点到width/depth/height。"
     ],
     "whenNotToUse": [
       {
@@ -369,7 +369,7 @@
   },
   "purpose": "Box from [0,0,0] to [width,depth,height]",
   "whenToUse": [
-    "Box from [0,0,0] to [width,depth,height]"
+    "显式X/Y/Z尺寸创建长方体；原点到width/depth/height。"
   ],
   "whenNotToUse": [
     {
@@ -460,5 +460,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:c6a670c5e5f736fe19c2264f20733334f63f18de28afd6d1d05c7ab224fd0e9c"
+  "docsHash": "sha256:6f414522cfec0584f7a5a0a77b1e1725f98829e006819a9ffbdf226e56b39bff"
 }

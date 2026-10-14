@@ -1,9 +1,9 @@
 {
   "version": "1.47.0",
-  "buildId": "16b196f55010e172594eb27778a0e3b85ba9511d-src-56b73e39075219e4-working",
+  "buildId": "049f47367d2fd7d4293151f31e01f3e9ba58d4ec-src-79971a95beacd824-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:6b4e16cded1b4010f3b958a2bdb08413fc1a31c7ba1470fec793eba6a6439f77",
-  "docsHash": "sha256:7b4cb7579072d0a9b46791700b6b6d78f40b854174551d35a636d1dc86077b72",
+  "catalogHash": "sha256:45f49a5cae531e647bf8608e04b6d5a3f5873140d90ede435d72f14d0ca4cb43",
+  "docsHash": "sha256:518d15709918ee4760fd8216ad409ea99101891c2816af532f425ee3824fcede",
   "apiMethods": [
     "recoverKernel",
     "sampleMeshRelief",
@@ -114,7 +114,7 @@
       "label": "长方体",
       "category": "creation",
       "version": "1.0.0",
-      "docsHash": "sha256:c6a670c5e5f736fe19c2264f20733334f63f18de28afd6d1d05c7ab224fd0e9c",
+      "docsHash": "sha256:6f414522cfec0584f7a5a0a77b1e1725f98829e006819a9ffbdf226e56b39bff",
       "url": "tools/box.json"
     },
     {
@@ -195,7 +195,7 @@
       "label": "圆柱",
       "category": "creation",
       "version": "1.0.0",
-      "docsHash": "sha256:ed4737b0e1d301dea169620ba28e8d8bf8de4607b7d47a39e34ddb68589d4ccd",
+      "docsHash": "sha256:ec587293c93764ec825fe5e56ced5f77891ea93a3685df13a95f071d2de2a35d",
       "url": "tools/cylinder.json"
     },
     {
@@ -222,7 +222,7 @@
       "label": "提取指定面",
       "category": "reference",
       "version": "1.0.0",
-      "docsHash": "sha256:a72d46c69840a25f6b3cedb96a29840d6439c32fa69b06e657a5fca04e02ff4b",
+      "docsHash": "sha256:bf7be556a7fa3130775e3432456ce6174ab04f74901e8e50f7ac965885a27035",
       "url": "tools/extractFaces.json"
     },
     {
@@ -231,7 +231,7 @@
       "label": "提取壳",
       "category": "reference",
       "version": "1.0.0",
-      "docsHash": "sha256:5cb7bf83d7670d294a9bdd11d313e23864d315f8ef0c865d7332e7e79dc46d96",
+      "docsHash": "sha256:89053e4a777918101cacee711f0f30431eb3432a4a8dd86c4b7513c419f63162",
       "url": "tools/extractShell.json"
     },
     {
@@ -258,7 +258,7 @@
       "label": "提取面边界",
       "category": "reference",
       "version": "legacy-1",
-      "docsHash": "sha256:561295f1359d16613ae582c1833baa4bbca3bb016a700b0b9e693033dfca2b98",
+      "docsHash": "sha256:97438fa5d54ec78cc24c431d86891d204d166cf28ee0a9a7e752ea593f81622c",
       "url": "tools/faceBoundary.json"
     },
     {
@@ -341,6 +341,15 @@
       "version": "1.1.0",
       "docsHash": "sha256:99e60d7764b3300849687c60c5bb525e76c67c6e7f666ef48e18c8713578ef8e",
       "url": "tools/holeWizard.json"
+    },
+    {
+      "id": "import",
+      "title": "Open STEP/BREP through browser file picker; MCP has no arbitrary filesystem access",
+      "label": "导入",
+      "category": "document",
+      "version": "legacy-1",
+      "docsHash": "sha256:746104bcdd21b8a1cd0f23d86eac684ee4fa7289be17421f591b587865168c08",
+      "url": "tools/import.json"
     },
     {
       "id": "innerTurn",
@@ -492,7 +501,7 @@
       "label": "提取真实截面",
       "category": "reference",
       "version": "legacy-1",
-      "docsHash": "sha256:b07d11b916b9e751188c63481fa79b75735d58ce2dea838759715e1a5e80ccc0",
+      "docsHash": "sha256:579f581d5f4fc7bd95fcc14e076eb41c15df82e0b1086b9fa2575328ad54bcaf",
       "url": "tools/planeSection.json"
     },
     {
@@ -573,7 +582,7 @@
       "label": "参考轮廓拉伸",
       "category": "reference",
       "version": "legacy-1",
-      "docsHash": "sha256:a0412d69b89f8f4d3af22e39f08f64853f42094d91bea9e4f895c5ea6acc035d",
+      "docsHash": "sha256:612f84e4d5eb7e03103b3cf3faaa67a25fcdbcfe3782dabbef99ba2c80d281bb",
       "url": "tools/referenceExtrude.json"
     },
     {
@@ -582,7 +591,7 @@
       "label": "参考截面放样",
       "category": "reference",
       "version": "legacy-1",
-      "docsHash": "sha256:8739477603163a5f51833b0ca9d82d5cc833a25ecb8491a367f4b57b2697ed69",
+      "docsHash": "sha256:80e6fcf9c8d4a1e42487ba9b672329cc34c24a7a26547a66c03b59d6f4058df0",
       "url": "tools/referenceLoft.json"
     },
     {
@@ -611,6 +620,15 @@
       "version": "1.0.0",
       "docsHash": "sha256:f1af480709cab695f6fb8f31e77df1ca766449ba50c362a3bf9ee7db256d5c29",
       "url": "tools/reliefShoulder.json"
+    },
+    {
+      "id": "remove",
+      "title": "Use dedicated webcad_remove tool with ids, not add_feature",
+      "label": "删除",
+      "category": "document",
+      "version": "legacy-1",
+      "docsHash": "sha256:00d25ae29fd7042486aa44f418ded8e10c086e33c5c13ab720f0f8b37cce6acb",
+      "url": "tools/remove.json"
     },
     {
       "id": "revolve",
@@ -654,7 +672,7 @@
       "label": "曲面缝合",
       "category": "surface",
       "version": "legacy-1",
-      "docsHash": "sha256:7586060d5eb18d7200c5dca12bf6b0c085f954f7cc676c41a1ed85b4d6ddefda",
+      "docsHash": "sha256:eae0a7bf40ef4dae5702d9951a7bc48569c3a8e056b4a1507f605e7f469e91bd",
       "url": "tools/sewFaces.json"
     },
     {
@@ -699,7 +717,7 @@
       "label": "球体",
       "category": "creation",
       "version": "1.0.0",
-      "docsHash": "sha256:b3d83cf4f25c522ecf3706b0f722c71b92ad228533bebc1cffe8121e6812796b",
+      "docsHash": "sha256:9199f0d97ad2932bfa2ac6d6a8bcbbcb8f9ed3a421c990f93c5bd2527e714fe3",
       "url": "tools/sphere.json"
     },
     {
@@ -717,7 +735,7 @@
       "label": "实体修剪面",
       "category": "surface",
       "version": "legacy-1",
-      "docsHash": "sha256:26747f429b154329b1470511f1afc769803f23ecb226b4040fe5ebcb7f17a314",
+      "docsHash": "sha256:355f2f6914c876e0da65440f09785b01a33ddaaffede7d42a96df32d4bb83461",
       "url": "tools/surfaceTrim.json"
     },
     {

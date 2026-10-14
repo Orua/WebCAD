@@ -55,7 +55,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 按当前faceIds提取精确面并保留来源；不承诺生成闭合实体。",
   "title": "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。",
   "category": "reference",
   "synonyms": [
@@ -64,7 +64,7 @@
     "提取指定面"
   ],
   "description": "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。",
-  "schemaHash": "sha256:732b8165f6ccbb5abe8bbc268bb789ab5cee6280c97a0d52b4c55d79e638afda",
+  "schemaHash": "sha256:ef0f4f0fc3c23ef1214a5f15830e8f5f5f2190413308ecdcb8f82d7f92117f40",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -125,7 +125,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。"
+    "按当前faceIds提取精确面并保留来源；不承诺生成闭合实体。"
   ],
   "minimalExample": {
     "op": "extractFaces",
@@ -198,7 +198,7 @@
   "contract": {
     "purpose": "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。",
     "whenToUse": [
-      "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。"
+      "按当前faceIds提取精确面并保留来源；不承诺生成闭合实体。"
     ],
     "whenNotToUse": [
       {
@@ -349,7 +349,7 @@
   },
   "purpose": "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。",
   "whenToUse": [
-    "先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。"
+    "按当前faceIds提取精确面并保留来源；不承诺生成闭合实体。"
   ],
   "whenNotToUse": [
     {
@@ -441,5 +441,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:a72d46c69840a25f6b3cedb96a29840d6439c32fa69b06e657a5fca04e02ff4b"
+  "docsHash": "sha256:bf7be556a7fa3130775e3432456ce6174ab04f74901e8e50f7ac965885a27035"
 }

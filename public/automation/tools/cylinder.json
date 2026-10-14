@@ -126,7 +126,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Cylinder on +Z from origin"
+    "Z轴圆柱，radius是半径，height为轴向长度。"
   ],
   "minimalExample": {
     "op": "cylinder",
@@ -192,7 +192,7 @@
   "contract": {
     "purpose": "Cylinder on +Z from origin",
     "whenToUse": [
-      "Cylinder on +Z from origin"
+      "Z轴圆柱，radius是半径，height为轴向长度。"
     ],
     "whenNotToUse": [
       {
@@ -344,7 +344,7 @@
   },
   "purpose": "Cylinder on +Z from origin",
   "whenToUse": [
-    "Cylinder on +Z from origin"
+    "Z轴圆柱，radius是半径，height为轴向长度。"
   ],
   "whenNotToUse": [
     {
@@ -435,5 +435,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:ed4737b0e1d301dea169620ba28e8d8bf8de4607b7d47a39e34ddb68589d4ccd"
+  "docsHash": "sha256:ec587293c93764ec825fe5e56ced5f77891ea93a3685df13a95f071d2de2a35d"
 }

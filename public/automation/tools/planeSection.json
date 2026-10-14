@@ -51,7 +51,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 在明确平面上提取当前精确实体截线；不消耗源实体。",
   "title": "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
   "category": "reference",
   "synonyms": [
@@ -60,7 +60,7 @@
     "提取真实截面"
   ],
   "description": "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
-  "schemaHash": "sha256:59f588c3f7b8a3cd6e9ccd3c2520d2b2a9f9ad7b402e358ca131ea164b9d89d9",
+  "schemaHash": "sha256:3b2851a9450dff831485745984f7442f05ef7b24dfc84377bcb1cbf1a1f96752",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -120,7 +120,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
+    "在明确平面上提取当前精确实体截线；不消耗源实体。",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
@@ -188,7 +188,7 @@
   "contract": {
     "purpose": "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
     "whenToUse": [
-      "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。"
+      "在明确平面上提取当前精确实体截线；不消耗源实体。"
     ],
     "whenNotToUse": [
       {
@@ -347,7 +347,7 @@
   },
   "purpose": "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
   "whenToUse": [
-    "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。"
+    "在明确平面上提取当前精确实体截线；不消耗源实体。"
   ],
   "whenNotToUse": [
     {
@@ -438,5 +438,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:b07d11b916b9e751188c63481fa79b75735d58ce2dea838759715e1a5e80ccc0"
+  "docsHash": "sha256:579f581d5f4fc7bd95fcc14e076eb41c15df82e0b1086b9fa2575328ad54bcaf"
 }

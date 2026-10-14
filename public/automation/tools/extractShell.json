@@ -47,7 +47,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 按当前shellIndex提取壳，保留来源；开放壳不等于实体。",
   "title": "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。",
   "category": "reference",
   "synonyms": [
@@ -56,7 +56,7 @@
     "提取壳"
   ],
   "description": "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。",
-  "schemaHash": "sha256:d6644c387471d9072fe3946ec4e828ef163400484407c0a1b0f63d7ff459892c",
+  "schemaHash": "sha256:b8ed912d67a4c18369553844a69e5bdf0ea6bb911bb62e6e8a838b5b657d9410",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -116,7 +116,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。"
+    "按当前shellIndex提取壳，保留来源；开放壳不等于实体。"
   ],
   "minimalExample": {
     "op": "extractShell",
@@ -183,7 +183,7 @@
   "contract": {
     "purpose": "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。",
     "whenToUse": [
-      "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。"
+      "按当前shellIndex提取壳，保留来源；开放壳不等于实体。"
     ],
     "whenNotToUse": [
       {
@@ -328,7 +328,7 @@
   },
   "purpose": "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。",
   "whenToUse": [
-    "先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。"
+    "按当前shellIndex提取壳，保留来源；开放壳不等于实体。"
   ],
   "whenNotToUse": [
     {
@@ -420,5 +420,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:5cb7bf83d7670d294a9bdd11d313e23864d315f8ef0c865d7332e7e79dc46d96"
+  "docsHash": "sha256:89053e4a777918101cacee711f0f30431eb3432a4a8dd86c4b7513c419f63162"
 }
