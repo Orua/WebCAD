@@ -86,8 +86,8 @@ const dynamicOutput=z.object(outputFields).passthrough().superRefine((value,ctx)
  if(['failed','unknown'].includes(value.status)&&(!value.error||!value.commitState))ctx.addIssue({code:'custom',message:'Failures require error and commitState'});
  if(value.status==='committed')for(const key of ['requestId','transactionId','documentId','documentInstanceId','revisionBefore','revisionAfter','createdFeatureIds','createdBodyIds','replacements','validation','persistence','warnings'])if(value[key]===undefined)ctx.addIssue({code:'custom',message:`Missing committed field ${key}`,path:[key]});
 });
-function staticOutput(shape){
- return z.object({...Object.fromEntries(Object.entries(shape).map(([key,schema])=>[key,schema.optional()])),status:z.literal('failed').optional(),...failureFields}).passthrough().superRefine((value,ctx)=>{
+function staticOutput(shape, statuses=['failed']){
+ return z.object({...Object.fromEntries(Object.entries(shape).map(([key,schema])=>[key,schema.optional()])),status:z.enum(statuses).optional(),...failureFields}).passthrough().superRefine((value,ctx)=>{
   if(value.status==='failed')return;
   for(const key of Object.keys(shape))if(value[key]===undefined)ctx.addIssue({code:'custom',message:`Missing result field ${key}`,path:[key]});
  });
@@ -95,7 +95,7 @@ function staticOutput(shape){
 const v2Outputs={
  bootstrap:staticOutput({product:z.string(),buildId:z.string(),apiVersion:z.string(),serverInstanceId:id,catalogHash:z.string(),docsHash:z.string(),units:z.json(),entrypoints:z.json(),limits:z.json(),idempotencyGuarantee:z.json(),capabilities:z.json(),mode:z.string()}),
  search_tools:staticOutput({items:z.array(z.object({id:z.string(),title:z.string(),version:z.string(),schemaHash:z.string(),description:z.string(),implementationStatus:z.string(),runtimeAvailability:z.string()}).passthrough()),nextCursor:z.string().nullable(),catalogHash:z.string()}),
- get_tool:staticOutput({id:z.string(),title:z.string(),version:z.string(),schemaHash:z.string(),inputSchema:z.json(),outputSchema:z.json(),refsSchema:z.json()}),
+ get_tool:staticOutput({id:z.string(),title:z.string(),version:z.string(),schemaHash:z.string(),inputSchema:z.json(),outputSchema:z.json(),refsSchema:z.json()},['failed','stable','experimental','deprecated']),
  read_docs:staticOutput({docId:z.string(),version:z.string(),docsHash:z.string(),text:z.string(),nextCursor:z.string().nullable()}),
  get_state_v2:dynamicOutput,query_geometry:dynamicOutput,execute_v2:dynamicOutput
 };

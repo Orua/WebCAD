@@ -46,7 +46,7 @@ async function fakeTab(ctx,{hang=false,disconnect=false,internalSessionId=null}=
 const snapshot=sessionId=>({sessionId,documentId:'doc',documentInstanceId:'instance',expectedRevision:3});
 const execute=sessionId=>({context:snapshot(sessionId),idempotencyKey:'retry-test',action:'history.undo',args:{}});
 const value=result=>{
- assert.deepEqual(result.structuredContent,JSON.parse(result.content[0].text));
+ assert(result.structuredContent, result.content[0].text); assert.deepEqual(result.structuredContent,JSON.parse(result.content[0].text));
  return result.structuredContent;
 };
 
