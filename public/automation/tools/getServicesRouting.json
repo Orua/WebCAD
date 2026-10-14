@@ -2,7 +2,7 @@
   "id": "getServicesRouting",
   "title": "getServicesRouting",
   "category": "page-method",
-  "version": "1.46.0",
+  "version": "1.47.0",
   "description": "getServicesRouting()；读取同一 ExecutionRouter 的最近决策。",
   "synonyms": [
     "getServicesRouting",
@@ -19,5 +19,5 @@
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:0fe33c101dbc3796a68ed5860db379aa153211c96db57dbe8713d571c7c0bc40"
+  "docsHash": "sha256:4e62d152705cbc090d9b6b8e025fb18290dcdde3f31f04473d868c22dccae84e"
 }

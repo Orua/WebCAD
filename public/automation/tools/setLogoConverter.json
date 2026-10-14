@@ -2,7 +2,7 @@
   "id": "setLogoConverter",
   "title": "setLogoConverter",
   "category": "page-method",
-  "version": "1.46.0",
+  "version": "1.47.0",
   "description": "改用 setServices，旧 setter 拒绝存影子配置。",
   "synonyms": [
     "setLogoConverter",
@@ -22,5 +22,5 @@
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:9e07a8991544eca87c1c3d31426e27b3139fb9790bfc4032f0794926ccf82df8"
+  "docsHash": "sha256:ef4cf45d6c42f5445e076cd857c201bb7833804822dcdb39d5aafb87d9dac547"
 }

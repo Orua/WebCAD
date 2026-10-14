@@ -2,7 +2,7 @@
   "id": "redraw",
   "title": "redraw",
   "category": "page-method",
-  "version": "1.46.0",
+  "version": "1.47.0",
   "description": "redraw({context}); 不接受额外字段。",
   "synonyms": [
     "redraw",
@@ -23,5 +23,5 @@
     "DISPLAY_FAILED"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:b053ccbabaeec5f535e072b8ae792db8184ed80998653da652f725fd58f22ac1"
+  "docsHash": "sha256:c88f42121257db324b6716a8d2a294158e57422506d2e41486cc1165b4040814"
 }

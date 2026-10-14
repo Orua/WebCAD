@@ -2,7 +2,7 @@
   "id": "copySelection",
   "title": "copySelection",
   "category": "page-method",
-  "version": "1.46.0",
+  "version": "1.47.0",
   "description": "copySelection({context,bodyIds}); 1–200个当前实体。",
   "synonyms": [
     "copySelection",
@@ -24,5 +24,5 @@
     "CAPABILITY_UNAVAILABLE",
     "UI_TASK_ACTIVE"
   ],
-  "docsHash": "sha256:a5de4de718d1b1049a18e44bcd97effe67d67e462c53c335ea90aa4a0096c750"
+  "docsHash": "sha256:2fbc3c0543a1e98a144ef5b03f17ca5d367380ca33df375ae5b7550194d25b3e"
 }

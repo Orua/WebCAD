@@ -2,7 +2,7 @@
   "id": "resolveModelLibrary",
   "title": "resolveModelLibrary",
   "category": "page-method",
-  "version": "1.46.0",
+  "version": "1.47.0",
   "description": "resolveModelLibrary({context,id,expectedLibraryRevision,params?:参数覆盖})",
   "synonyms": [
     "resolveModelLibrary",
@@ -34,5 +34,5 @@
     "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
     "create": "Use entries[].execution with run/add; current context and unique key required."
   },
-  "docsHash": "sha256:9fd95f8d98f3600cd246c4df5334967960dd24eac105fca8c0cc08463ef95b2e"
+  "docsHash": "sha256:128f9b98fcd35c45c56c574e2cd4e8025122dae21efdc4acfd3f74471993b4a3"
 }
