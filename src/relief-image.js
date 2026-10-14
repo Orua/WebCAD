@@ -1,3 +1,4 @@
+import {LIMITS} from './limits.js';
 // Local image preparation shared by the UI and public readRelief API.
 // No network requests or model mutation. Only normalized height samples persist.
 import {IMAGE_TO_RELIEF} from './machining-intent.js';
@@ -87,7 +88,7 @@ export function validateReliefSvg(text){return prepareReliefSvg(text).text;}
 export async function readReliefImage(blob,{name='image.jpg',samples=33,whiteHigh=false,style='grayscale',threshold=.5,sourceInterpretation}={}){
  if(sourceInterpretation!==undefined&&!['rasterArtwork','authoredHeightMap','reviewedVectors','shadedReference'].includes(sourceInterpretation))fail('PARAM_SCHEMA_INVALID','无效的图像用途');
  if(sourceInterpretation==='shadedReference'||sourceInterpretation==='rasterArtwork'&&style==='grayscale')fail('MACHINING_SOURCE_CONFLICT','光影参考图不能直接按亮度生成高度；灰度仅用于作者制作的高度图。');
- if(typeof name!=='string'||name.length>255||!Number.isInteger(samples)||samples<4||samples>65||typeof whiteHigh!=='boolean'||!['grayscale','rounded','flat'].includes(style)||!Number.isFinite(threshold)||threshold<=0||threshold>=1)fail('PARAM_SCHEMA_INVALID','图片名称、采样或明暗参数无效（阈值须在0与1之间）');
+ if(typeof name!=='string'||name.length>255||!Number.isInteger(samples)||samples<LIMITS.relief.minSamples||samples>LIMITS.relief.maxSamples||typeof whiteHigh!=='boolean'||!['grayscale','rounded','flat'].includes(style)||!Number.isFinite(threshold)||threshold<=0||threshold>=1)fail('PARAM_SCHEMA_INVALID','图片名称、采样或明暗参数无效（阈值须在0与1之间）');
  if(!(blob instanceof Blob)||!blob.size||blob.size>8*1024*1024)fail('RELIEF_LIMIT','图片须为非空文件且不超过 8 MiB');
  const format=/\.relief\.json$/i.test(name)?'vector':/\.jpe?g$/i.test(name)?'jpg':/\.png$/i.test(name)?'png':/\.svg$/i.test(name)?'svg':null;
  if(!format)fail('FORMAT_UNSUPPORTED','浮雕支持 JPG、PNG、SVG 和分层 .relief.json');

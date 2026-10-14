@@ -1,5 +1,6 @@
 export const MESH_CODEC='webcad-mesh-f64-u32-v1';
-export const MESH_LIMITS=Object.freeze({maxSourceBytes:128*1024*1024,maxAssetBytes:384*1024*1024,maxProjectBytes:512*1024*1024,maxInputTriangles:2000000,maxResultTriangles:4000000,maxVertices:12000000});
+import {LIMITS} from '../limits.js';
+export const MESH_LIMITS=LIMITS.mesh;
 export const MESH_TYPES=Object.freeze(['rawMesh','solidMesh','displayMesh']);
 export const MESH_UNITS=Object.freeze({mm:1,cm:10,m:1000,in:25.4});
 export function meshError(code,message){return Object.assign(new Error(message),{code});}

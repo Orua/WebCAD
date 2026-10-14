@@ -1,3 +1,4 @@
+import {LIMITS} from './limits.js';
 // Relief edits stay separate from the source height controls. Both the UI and
 // the public preparation API use this deterministic, millimetre-based brush.
 import {validateLocalPatch,localPatchBrushParams} from './relief-local-patch.js';
@@ -7,16 +8,16 @@ const zero=values=>values.map(row=>row.map(()=>0));
 export function reliefLayerParams(params,layerIndex,{samples}={}){
  if(!Array.isArray(params.layers)||!Number.isInteger(layerIndex)||layerIndex<0||layerIndex>=params.layers.length)fail('PARAM_SCHEMA_INVALID','分层浮雕需要明确的当前 layerIndex（从 0 开始）');
  const {layers,regions,strokes,sculpt,values,...common}=params,layer=layers[layerIndex];
- if(samples!==undefined&&(!Number.isInteger(samples)||samples<4||samples>65||layer.values||layer.sculpt))fail('PARAM_SCHEMA_INVALID','samples 仅用于尚无 values/sculpt 的等高层，范围 4–65');
+ if(samples!==undefined&&(!Number.isInteger(samples)||samples<4||samples>LIMITS.reliefSculpt.maxGrid||layer.values||layer.sculpt))fail('PARAM_SCHEMA_INVALID','samples 仅用于尚无 values/sculpt 的等高层，范围 4–65');
  return {...common,depthMm:layer.heightMm,mode:layer.mode??'emboss',surfaceMode:'smooth',regions:layer.regions,strokes:layer.strokes,values:layer.values??Array.from({length:samples??4},()=>Array(samples??4).fill(1)),...(layer.sculpt?{sculpt:layer.sculpt}:{})};
 }
 export const sculptSchema={type:'object',additionalProperties:false,required:['deltaMm','mask'],properties:{
- deltaMm:{type:'array',minItems:4,maxItems:65,items:{type:'array',minItems:4,maxItems:65,items:{type:'number',minimum:-20,maximum:20}}},
- mask:{type:'array',minItems:4,maxItems:65,items:{type:'array',minItems:4,maxItems:65,items:{type:'number',minimum:0,maximum:1}}}
+ deltaMm:{type:'array',minItems:4,maxItems:LIMITS.reliefSculpt.maxGrid,items:{type:'array',minItems:4,maxItems:LIMITS.reliefSculpt.maxGrid,items:{type:'number',minimum:-20,maximum:20}}},
+ mask:{type:'array',minItems:4,maxItems:LIMITS.reliefSculpt.maxGrid,items:{type:'array',minItems:4,maxItems:LIMITS.reliefSculpt.maxGrid,items:{type:'number',minimum:0,maximum:1}}}
 }};
 export function sculptState(params){
  const v=params.values;
- if(!Array.isArray(v)||v.length<4||v.length>65||!Array.isArray(v[0])||v[0].length<4||v[0].length>65||v.some(r=>r.length!==v[0].length||r.some(n=>!Number.isFinite(n)||n<0||n>1)))fail('RELIEF_INVALID','高度网格无效');
+ if(!Array.isArray(v)||v.length<4||v.length>LIMITS.reliefSculpt.maxGrid||!Array.isArray(v[0])||v[0].length<4||v[0].length>LIMITS.reliefSculpt.maxGrid||v.some(r=>r.length!==v[0].length||r.some(n=>!Number.isFinite(n)||n<0||n>1)))fail('RELIEF_INVALID','高度网格无效');
  if(!Number.isFinite(params.depthMm)||params.depthMm<.01||params.depthMm>20)fail('RELIEF_INVALID','浮雕高度须为 0.01–20 mm');
  const out=params.sculpt?structuredClone(params.sculpt):{deltaMm:zero(v),mask:zero(v)};
  for(const [key,min,max]of [['deltaMm',-20,20],['mask',0,1]])if(!Array.isArray(out[key])||out[key].length!==v.length||out[key].some(r=>!Array.isArray(r)||r.length!==v[0].length||r.some(n=>!Number.isFinite(n)||n<min||n>max)))fail('RELIEF_INVALID','精修网格必须与来源网格一致');
@@ -30,7 +31,7 @@ export function insideRelief(params,x,y){
  let cache=contourCache.get(params.regions);if(!cache){cache=new Map();contourCache.set(params.regions,cache);}
  const key=x+','+y;if(cache.has(key))return cache.get(key);
  const inside=params.regions.some(r=>inRing(x,y,r.outer)&&!(r.holes||[]).some(h=>inRing(x,y,h)));
- if(cache.size<20000)cache.set(key,inside);return inside;
+ if(cache.size<LIMITS.reliefSculpt.maxCacheEntries)cache.set(key,inside);return inside;
 }
 export function reliefHeights(params){const s=sculptState(params);return params.values.map((r,j)=>r.map((v,i)=>(params.surfaceMode==='flat'?1:v)*params.depthMm+s.deltaMm[j][i]));}
 // Eyedropper for the flatten brush: interpolate editable control heights,
@@ -94,7 +95,7 @@ export function createReliefStroke(params,options){
   }
  }
  return {state,append(points){
-  if(!Array.isArray(points)||!points.length||count+points.length>4096||points.some(p=>!Array.isArray(p)||p.length!==2||p.some(n=>!Number.isFinite(n)||n<-.5||n>.5)))fail('PARAM_SCHEMA_INVALID','笔画点须为 [-0.5,0.5] 的局部坐标，每笔最多 4096 点');
+  if(!Array.isArray(points)||!points.length||count+points.length>LIMITS.reliefSculpt.maxPoints||points.some(p=>!Array.isArray(p)||p.length!==2||p.some(n=>!Number.isFinite(n)||n<-.5||n>.5)))fail('PARAM_SCHEMA_INVALID','笔画点须为 [-0.5,0.5] 的局部坐标，每笔最多 4096 点');
   for(const point of points){const a=previous||point;for(const [mx,my]of mirrors)segment([a[0]*params.widthMm*mx,a[1]*params.heightMm*my],[point[0]*params.widthMm*mx,point[1]*params.heightMm*my]);previous=point;count++;}
   return state;
  },get stats(){return {pointCount:count,visitedControls:visited};}};
@@ -104,7 +105,7 @@ export function prepareReliefSculpt(params,strokes,{layerIndex,samples,patch}={}
  if(patch!==undefined){
   if(samples!==undefined||!patch||Object.keys(patch).some(k=>!['id','domainMm','samples','protectionMm'].includes(k)))fail('PARAM_SCHEMA_INVALID','独立域使用 patch:{id,domainMm,samples,protectionMm}，不能同时改全局 samples');
   const selected=params.layers?reliefLayerParams(params,layerIndex):params,layer=params.layers?params.layers[layerIndex]:params,n=patch.samples??17;
-  if(!Number.isInteger(n)||n<7||n>65||selected.sculpt||selected.strokes||selected.mode==='engrave'||selected.values.some(row=>row.some(v=>v!==1)))fail('RELIEF_PATCH_UNSUPPORTED','独立域需要等高凸雕层和 7–65 局部控制网格');
+  if(!Number.isInteger(n)||n<7||n>LIMITS.reliefSculpt.maxGrid||selected.sculpt||selected.strokes||selected.mode==='engrave'||selected.values.some(row=>row.some(v=>v!==1)))fail('RELIEF_PATCH_UNSUPPORTED','独立域需要等高凸雕层和 7–65 局部控制网格');
   const prior=layer.localPatches?.[0];if(prior&&(prior.id!==patch.id||JSON.stringify(prior.domainMm)!==JSON.stringify(patch.domainMm)||prior.deltaMm.length!==n))fail('RELIEF_PATCH_INVALID','已有 patch 的 ID、域和分辨率保持稳定，不能隐式重采样');
   const draft=prior??{id:patch.id,domainMm:patch.domainMm,protectionMm:patch.protectionMm??Math.max(.02,2*(params.curveToleranceMm??0)),deltaMm:Array.from({length:n},()=>Array(n).fill(0))};validateLocalPatch(draft,selected);
   const [a,b,c,d]=draft.domainMm,local=localPatchBrushParams(selected,draft),mapped=strokes?.map(stroke=>({...stroke,points:stroke.points.map(([x,y])=>[(x*params.widthMm-(a+c)/2)/(c-a),(y*params.heightMm-(b+d)/2)/(d-b)])}));
@@ -117,12 +118,12 @@ export function prepareReliefSculpt(params,strokes,{layerIndex,samples,patch}={}
   return {params:{layers},report:{...result.report,layerIndex,layerName:layers[layerIndex].name??null,transition:'selected-layer-heightfield; adjacent layer steps are not removed',unmodifiedLayerCount:layers.length-1}};
  }
  if(layerIndex!==undefined||samples!==undefined)fail('PARAM_SCHEMA_INVALID','单层浮雕不接受 layerIndex/samples');
- if(!Array.isArray(strokes)||strokes.length>128)fail('RELIEF_LIMIT','每次最多 128 个笔画');
+ if(!Array.isArray(strokes)||strokes.length>LIMITS.reliefSculpt.maxStrokes)fail('RELIEF_LIMIT','每次最多 128 个笔画');
  let state=sculptState(params),total=0;
  for(const stroke of strokes){
   if(!stroke||typeof stroke!=='object')fail('PARAM_SCHEMA_INVALID','笔刷参数无效');
   const {points,...options}=stroke;
-  if(!Array.isArray(points)||(total+=points.length)>4096)fail('RELIEF_LIMIT','每次最多 4096 个笔画点');
+  if(!Array.isArray(points)||(total+=points.length)>LIMITS.reliefSculpt.maxPoints)fail('RELIEF_LIMIT','每次最多 4096 个笔画点');
   const brush=createReliefStroke({...params,sculpt:state},options);state=brush.append(points);
  }
  const prior=sculptState(params),rows=params.values.length,columns=params.values[0].length;

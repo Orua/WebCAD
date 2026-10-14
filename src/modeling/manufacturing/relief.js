@@ -1,3 +1,4 @@
+import {LIMITS} from '../../limits.js';
 import {planarFace} from '../../reference-profile-wires.js';
 import {validateSchema,contractError,contractHash,binaryHash} from '../../contracts/operation-schema.js';
 import {planReliefLayers} from './relief-layer-plan.js';
@@ -92,7 +93,7 @@ export function buildRelief(source,p,oc,cad,{supportFace:anchorFace=null,startHe
   const copy=timed('relief-source-copy',()=>hold(cad.deserializeShape(source.serialize())));
   if(!sourceValidated&&!timed('relief-source-validation',()=>valid(copy,oc)))fail('RELIEF_UNSUPPORTED','浮雕需要一个有效封闭实体');
   const faces=copy.faces;owned.push(...faces);
-  if(faces.length>20000)fail('RELIEF_LIMIT','目标超过 20000 个面，请分开处理');
+  if(faces.length>LIMITS.relief.maxFaces)fail('RELIEF_LIMIT','目标超过 20000 个面，请分开处理');
   const face=anchorFace??faces[p.faceId];if(!face)fail('STALE_REFERENCE','目标面已失效，请重新选择','params.faceId');
   const plane=planarFace(face,cad);if(p.localPatches&&plane)fail('RELIEF_PATCH_UNSUPPORTED','独立毫米域目前仅支持等高外凸柱面凸雕层；平面仍可使用原控制网格笔刷');
   if(!plane){
