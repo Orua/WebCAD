@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.47.0 · sha256:f0f0cd1ae6f0227ae38c49b7792950c7663ac0033977156f00954a472fe1db56
+API 1.47.0 · sha256:641b4b426f7dabe8143732e8348321acfb1baf889beecfcd5b6116b67dbb3777
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -32854,7 +32854,7 @@ files.release: contextPolicy=none
     },
     "uniqueItems": true,
     "minItems": 2,
-    "maxItems": 2
+    "maxItems": 16
   },
   "numericInputPolicy": {
     "explicitValues": "exact",
@@ -32885,7 +32885,7 @@ files.release: contextPolicy=none
     "网格布尔（STL）"
   ],
   "description": "网格布尔合并 / Mesh boolean",
-  "schemaHash": "sha256:e312f38c42afe9e78925afae160a4695898493aead6f9225572b525e63ce8d8e",
+  "schemaHash": "sha256:3ee2f0933bf283738f65ada092be13c32bd99bc6bf3045bdf33d7335d246e88e",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -33078,7 +33078,7 @@ files.release: contextPolicy=none
     },
     "refs": {
       "min": 2,
-      "max": 2,
+      "max": 16,
       "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
     },
     "limits": [
@@ -33356,7 +33356,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:ff00995c0c3ceeea30db79f04c09499170a5ef09607fef288eecdaffb78fe660"
+  "docsHash": "sha256:9bcf994461100d5634e17ef5d32afc1742e4c2c01645a64dc32ad85e8e893f5b"
 }
 ```
 

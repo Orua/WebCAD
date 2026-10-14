@@ -55,6 +55,7 @@ function schemaFor(id, source) {
 }
 
 function refsFor(refs) {
+  if(refs&&typeof refs==='object')return {type:'array',items:{type:'string',minLength:1,maxLength:150},uniqueItems:true,minItems:refs.min,maxItems:refs.max};
   const exact = typeof refs === 'number';
   const min = exact ? refs : Number(String(refs).slice(2));
   return { type: 'array', items: { type: 'string', minLength: 1, maxLength: 150 }, uniqueItems: true,

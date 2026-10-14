@@ -1,9 +1,9 @@
 {
   "version": "1.47.0",
-  "buildId": "a1905f96ea8692c5e9bec90feabbb22281d4e179-src-feaf44d8f932dc44-working",
+  "buildId": "c23726651c12defa69514dda9e154d5d3db6d34b-src-8e20e30ee0214dfd-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:f0f0cd1ae6f0227ae38c49b7792950c7663ac0033977156f00954a472fe1db56",
-  "docsHash": "sha256:8966bfea8562250756bb99245b8eddd73277ba06676287e3ee1db738280b960d",
+  "catalogHash": "sha256:641b4b426f7dabe8143732e8348321acfb1baf889beecfcd5b6116b67dbb3777",
+  "docsHash": "sha256:14be29bbe178770a4cd6308694af49a2446f6a13b2a32f3e109031195b06e703",
   "apiMethods": [
     "recoverKernel",
     "sampleMeshRelief",
@@ -393,7 +393,7 @@
       "label": "网格布尔（STL）",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:ff00995c0c3ceeea30db79f04c09499170a5ef09607fef288eecdaffb78fe660",
+      "docsHash": "sha256:9bcf994461100d5634e17ef5d32afc1742e4c2c01645a64dc32ad85e8e893f5b",
       "url": "tools/meshBoolean.json"
     },
     {
