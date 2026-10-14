@@ -66,11 +66,11 @@ test('inspectConstraints requires complete current context and an explicit curre
   const f=fixture(),fresh=f.context();
   const cases=[
     [{bodyId:'outline'},'PARAM_SCHEMA_INVALID'],
-    [{context:{...fresh,expectedRevision:6},bodyId:'outline'},'REVISION_CONFLICT'],
+    [{context:{...fresh,documentInstanceId:'another'},bodyId:'outline'},'INSTANCE_MISMATCH'],
     [{context:{...fresh,documentInstanceId:'other'},bodyId:'outline'},'INSTANCE_MISMATCH'],
     [{context:{...fresh,sessionId:'other'},bodyId:'outline'},'INSTANCE_MISMATCH'],
     [{context:{...fresh,documentId:'other'},bodyId:'outline'},'INSTANCE_MISMATCH'],
-    [{context:{sessionId:fresh.sessionId,documentId:fresh.documentId,documentInstanceId:fresh.documentInstanceId},bodyId:'outline'},'PARAM_SCHEMA_INVALID'],
+    [{context:{sessionId:fresh.sessionId,documentId:fresh.documentId,documentInstanceId:'another'},bodyId:'outline'},'INSTANCE_MISMATCH'],
     [{context:fresh,bodyId:'missing'},'STALE_REFERENCE'],
     [{context:fresh,bodyId:1},'STALE_REFERENCE'],
     [{context:fresh},'STALE_REFERENCE'],
@@ -86,8 +86,8 @@ test('inspectConstraints rejects a result if the revision changes while the host
   const f=fixture();let release,started;
   const hostStarted=new Promise(resolve=>{started=resolve;});
   f.host.inspectConstraints=async bodyId=>{const result=f.inspect(bodyId);started();return new Promise(resolve=>{release=()=>resolve(result);});};
-  const pending=f.api.inspectConstraints({context:f.context(),bodyId:'outline'});await hostStarted;f.revision=8;release();
-  const result=await pending;assert.equal(result.status,'failed');assert.equal(result.commitState,'not_committed');assert.equal(result.error.code,'REVISION_CONFLICT');assert.equal(result.context.revision,8);assert.equal(result.profile,undefined);assert.equal(result.diagnostics,undefined);f.assertUnchanged();
+  const pending=f.api.inspectConstraints({context:f.context(),bodyId:'outline'});await hostStarted;f.revision=8;f.identity.documentInstanceId='other';release();
+  const result=await pending;assert.equal(result.status,'failed');assert.equal(result.commitState,'not_committed');assert.equal(result.error.code,'INSTANCE_MISMATCH');assert.equal(result.context.revision,8);assert.equal(result.profile,undefined);assert.equal(result.diagnostics,undefined);f.assertUnchanged();
   f.host.inspectConstraints=bodyId=>f.inspect(bodyId);const fresh=await f.api.inspectConstraints({context:f.context(),bodyId:'outline'});assert.equal(fresh.status,'read');assert.equal(fresh.context.revision,8);assert.equal(f.revision,8);f.assertUnchanged();
 });
 

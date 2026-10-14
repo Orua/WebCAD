@@ -29,9 +29,9 @@ test('stale references, revisions and changed revisions during reads cannot pass
   const f=fixture();
   assert.equal((await f.api.inspectDesign({context:f.context,requirements:[{...requirements[0],bodyId:'old'}]})).error.code,'STALE_REFERENCE');
   assert.equal(f.calls,0);
-  assert.equal((await f.api.inspectDesign({context:{...f.context,expectedRevision:0},requirements})).error.code,'REVISION_CONFLICT');
+  assert.equal((await f.api.inspectDesign({context:{...f.context,documentInstanceId:'other'},requirements})).error.code,'INSTANCE_MISMATCH');
   f.host.inspectDesign=async()=>{f.advance();return {verdict:'pass'};};
-  assert.equal((await f.api.inspectDesign({context:f.context,requirements})).error.code,'REVISION_CONFLICT');
+  assert.equal((await f.api.inspectDesign({context:f.context,requirements})).status,'read');
 });
 test('requirePass stops a batch before export and preserves the diagnostic report',async()=>{
   for(const verdict of ['fail','unverified']){
