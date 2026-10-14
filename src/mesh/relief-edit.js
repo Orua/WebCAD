@@ -63,7 +63,7 @@ export function editMeshRelief(mesh,p){
  const projectedSize=Math.sqrt(faces.reduce((sum,f)=>sum+Math.abs(f.normal[2]),0)/faces.length);
  const bins=new Map(),cell=Math.max(.01,Math.min((r+band)/3,projectedSize*4));let entries=0;
  const cells=(minX,minY,maxX,maxY)=>{const out=[];for(let x=Math.floor(minX/cell);x<=Math.floor(maxX/cell);x++)for(let y=Math.floor(minY/cell);y<=Math.floor(maxY/cell);y++){if(out.length>100000)fail('RELIEF_EDIT_CAPACITY','Projected triangle exceeds spatial index budget.');out.push(`${x},${y}`);}return out;};
- faces.forEach((f,i)=>{const q=f.ids.map(j=>vertices[j]);f.box=[Math.min(...q.map(p=>p[0])),Math.min(...q.map(p=>p[1])),Math.max(...q.map(p=>p[0])),Math.max(...q.map(p=>p[1]))];for(const key of cells(...f.box)){if(++entries>2000000)fail('RELIEF_EDIT_CAPACITY','Spatial index budget exceeded.');if(!bins.has(key))bins.set(key,[]);bins.get(key).push(i);}});
+ faces.forEach((f,i)=>{const q=f.ids.map(j=>vertices[j]);f.box=[Math.min(...q.map(p=>p[0])),Math.min(...q.map(p=>p[1])),Math.max(...q.map(p=>p[0])),Math.max(...q.map(p=>p[1]))];for(const key of cells(...f.box)){if(++entries>RELIEF_EDIT_LIMITS.maxSpatialEntries)fail('RELIEF_EDIT_CAPACITY','Spatial index budget exceeded.');if(!bins.has(key))bins.set(key,[]);bins.get(key).push(i);}});
  const at=(u,v)=>bins.get(`${Math.floor(u/cell)},${Math.floor(v/cell)}`)||[];
  const seed=toLocal(p.seedMm),seedGroups=new Set();
  for(const i of at(seed[0],seed[1]))if(up[i]){const z=heightAt(faces[i],seed[0],seed[1]);if(z!==null&&Math.abs(z-seed[2])<1e-6)seedGroups.add(groups[i]);}

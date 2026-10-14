@@ -35,3 +35,7 @@ export const reliefExample={faceId:0,widthMm:10,heightMm:10,depthMm:.8,values:[[
 export const reliefErrors=['OPERATION_TBD','RELIEF_PATCH_INVALID','RELIEF_PATCH_PROTECTION','RELIEF_PATCH_UNSUPPORTED','RELIEF_UNSUPPORTED','RELIEF_LIMIT','RELIEF_PLAN_LIMIT','RELIEF_OUTSIDE_FACE','RELIEF_NO_CHANGE','RELIEF_INVALID','RELIEF_CURVE_DEVIATION','RELIEF_CURVE_TOPOLOGY_INVALID'];
 export const reliefFields=[['widthMm','图案宽 mm',20,'positive'],['heightMm','图案高 mm',20,'positive'],['depthMm','起伏高度 mm',1,'positive'],['baseMm','柱面基底层 mm（平面忽略）',.02,'positive'],['mode','方式','emboss',['emboss','engrave']],['offsetX','水平偏移 mm',0],['offsetY','垂直偏移 mm',0],['angleDeg','旋转 °',0],['contourSnapMm','轮廓清理精度 mm（0 关闭）',0]];
 
+
+import {sourceOperationContract as declaredSourceContract} from '../../operation-contracts.js';
+import {canonicalReliefSchema as declaredSchema,migrateReliefParams as declaredParams} from '../../relief-param-migration.js';
+Object.defineProperty(reliefOperations.relief,'contract',{get(){const source=reliefOperations.relief;return declaredSourceContract('relief',{description:source.description,refs:source.refs,notes:source.notes,paramsSchema:declaredSchema('relief',source.paramsSchema)},{exampleParams:declaredParams('relief',reliefExample)});}});

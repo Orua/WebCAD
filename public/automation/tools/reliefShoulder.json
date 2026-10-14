@@ -275,12 +275,12 @@
   "contract": {
     "purpose": "浮雕中央肩部 / Central relief shoulder",
     "whenToUse": [
-      "Native Services required. Bounded coaxial outward cylindrical layer under rigid pose; select an interior point on its four-edge upper/lower step with circular boundaries, or a vertical side with straight boundaries. Source dimensions are inferred. Side width is at most twice the radial layer height and 10% of the support radius. Removes material only across the central transition; upper/lower steps use axial width and vertical sides use circumferential width. Central support seams are G1; protected planar end caps are G0, not a whole-boundary fillet or fixed radius. Holes and all unselected faces are preserved. Fragmented boundaries and ambiguous support reject without approximation. Save includes the compiled result for offline reopen; recomputation requires Services."
+      "已有精确分层浮雕需要层间肩部过渡，并已配置支持此操作的Services"
     ],
     "whenNotToUse": [
       {
-        "case": "输入是三角网格，需要网格加工",
-        "use": "meshBoolean"
+        "case": "高度图浮雕网格的笔刷平滑",
+        "use": "meshHeightfieldRelief"
       }
     ],
     "params": {
@@ -501,13 +501,7 @@
     },
     "related": [
       "relief",
-      "logo",
-      "meshHeightfieldRelief",
-      "meshReliefPlate",
-      "meshReliefEdit",
-      "meshBoolean",
-      "queryGeometry",
-      "measure",
+      "prepareReliefTopologyUpgrade",
       "files.export"
     ],
     "synonyms": [
@@ -521,12 +515,12 @@
   },
   "purpose": "浮雕中央肩部 / Central relief shoulder",
   "whenToUse": [
-    "Native Services required. Bounded coaxial outward cylindrical layer under rigid pose; select an interior point on its four-edge upper/lower step with circular boundaries, or a vertical side with straight boundaries. Source dimensions are inferred. Side width is at most twice the radial layer height and 10% of the support radius. Removes material only across the central transition; upper/lower steps use axial width and vertical sides use circumferential width. Central support seams are G1; protected planar end caps are G0, not a whole-boundary fillet or fixed radius. Holes and all unselected faces are preserved. Fragmented boundaries and ambiguous support reject without approximation. Save includes the compiled result for offline reopen; recomputation requires Services."
+    "已有精确分层浮雕需要层间肩部过渡，并已配置支持此操作的Services"
   ],
   "whenNotToUse": [
     {
-      "case": "输入是三角网格，需要网格加工",
-      "use": "meshBoolean"
+      "case": "高度图浮雕网格的笔刷平滑",
+      "use": "meshHeightfieldRelief"
     }
   ],
   "outputs": {
@@ -638,5 +632,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:1f7d78cb21c46e2be7eadfe540e505d4e4037e548a993634a1047761fb7a167e"
+  "docsHash": "sha256:d9f0ec8a713fdf4747f1eb39ba26a2d91d3235376533b1367c74452ae8cced4c"
 }

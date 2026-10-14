@@ -10,7 +10,7 @@ export function reliefLayerParams(params,layerIndex,{samples}={}){
  params=legacyReliefParams('relief',params);
  if(!Array.isArray(params.layers)||!Number.isInteger(layerIndex)||layerIndex<0||layerIndex>=params.layers.length)fail('PARAM_SCHEMA_INVALID','分层浮雕需要明确的当前 layerIndex（从 0 开始）');
  const {layers,regions,strokes,sculpt,values,...common}=params,layer=layers[layerIndex];
- if(samples!==undefined&&(!Number.isInteger(samples)||samples<4||samples>LIMITS.reliefSculpt.maxGrid||layer.values||layer.sculpt))fail('PARAM_SCHEMA_INVALID','samples 仅用于尚无 values/sculpt 的等高层，范围 4–65');
+ if(samples!==undefined&&(!Number.isInteger(samples)||samples<LIMITS.reliefSculpt.minGrid||samples>LIMITS.reliefSculpt.maxGrid||layer.values||layer.sculpt))fail('PARAM_SCHEMA_INVALID','samples 仅用于尚无 values/sculpt 的等高层，范围 4–65');
  return {...common,depthMm:layer.heightMm,mode:layer.mode??'emboss',surfaceMode:'smooth',regions:layer.regions,strokes:layer.strokes,values:layer.values??Array.from({length:samples??4},()=>Array(samples??4).fill(1)),...(layer.sculpt?{sculpt:layer.sculpt}:{})};
 }
 export const sculptSchema={type:'object',additionalProperties:false,required:['deltaMm','mask'],properties:{
@@ -114,7 +114,7 @@ export function prepareReliefSculpt(params,strokes,{layerIndex,samples,patch}={}
  if(patch!==undefined){
   if(samples!==undefined||!patch||Object.keys(patch).some(k=>!['id','domainMm','samples','protectionMm'].includes(k)))fail('PARAM_SCHEMA_INVALID','独立域使用 patch:{id,domainMm,samples,protectionMm}，不能同时改全局 samples');
   const selected=params.layers?reliefLayerParams(params,layerIndex):params,layer=params.layers?params.layers[layerIndex]:params,n=patch.samples??17;
-  if(!Number.isInteger(n)||n<7||n>LIMITS.reliefSculpt.maxGrid||selected.sculpt||selected.strokes||selected.mode==='engrave'||selected.values.some(row=>row.some(v=>v!==1)))fail('RELIEF_PATCH_UNSUPPORTED','独立域需要等高凸雕层和 7–65 局部控制网格');
+  if(!Number.isInteger(n)||n<LIMITS.reliefSculpt.minLocalGrid||n>LIMITS.reliefSculpt.maxGrid||selected.sculpt||selected.strokes||selected.mode==='engrave'||selected.values.some(row=>row.some(v=>v!==1)))fail('RELIEF_PATCH_UNSUPPORTED','独立域需要等高凸雕层和 7–65 局部控制网格');
   const prior=layer.localPatches?.[0];if(prior&&(prior.id!==patch.id||JSON.stringify(prior.domainMm)!==JSON.stringify(patch.domainMm)||prior.deltaMm.length!==n))fail('RELIEF_PATCH_INVALID','已有 patch 的 ID、域和分辨率保持稳定，不能隐式重采样');
   const draft=prior??{id:patch.id,domainMm:patch.domainMm,protectionMm:patch.protectionMm??Math.max(.02,2*(params.curveToleranceMm??0)),deltaMm:Array.from({length:n},()=>Array(n).fill(0))};validateLocalPatch(draft,selected);
   const [a,b,c,d]=draft.domainMm,local=localPatchBrushParams(selected,draft),mapped=strokes?.map(stroke=>({...stroke,points:stroke.points.map(([x,y])=>[(x*params.widthMm-(a+c)/2)/(c-a),(y*params.heightMm-(b+d)/2)/(d-b)])}));

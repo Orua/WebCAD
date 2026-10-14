@@ -621,12 +621,12 @@
   "contract": {
     "purpose": "Unified reviewed LOGO on one exact face; legacy entries remain planar",
     "whenToUse": [
-      "New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. Reject boundary, seam, invalid geometry or stale face."
+      "明确矢量LOGO或文字，在单个精确面恒定深度凸起或凹刻"
     ],
     "whenNotToUse": [
       {
-        "case": "输入是三角网格，需要网格加工",
-        "use": "meshBoolean"
+        "case": "目标为连续起伏或分层高度",
+        "use": "relief"
       }
     ],
     "params": {
@@ -1082,14 +1082,8 @@
       "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
     },
     "related": [
+      "readVector",
       "relief",
-      "reliefShoulder",
-      "meshHeightfieldRelief",
-      "meshReliefPlate",
-      "meshReliefEdit",
-      "meshBoolean",
-      "queryGeometry",
-      "measure",
       "files.export"
     ],
     "synonyms": [
@@ -1104,12 +1098,12 @@
   },
   "purpose": "Unified reviewed LOGO on one exact face; legacy entries remain planar",
   "whenToUse": [
-    "New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. Reject boundary, seam, invalid geometry or stale face."
+    "明确矢量LOGO或文字，在单个精确面恒定深度凸起或凹刻"
   ],
   "whenNotToUse": [
     {
-      "case": "输入是三角网格，需要网格加工",
-      "use": "meshBoolean"
+      "case": "目标为连续起伏或分层高度",
+      "use": "relief"
     }
   ],
   "outputs": {
@@ -1195,5 +1189,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:da051aa318fd19ea289c257780fc905e09ba80a4a3ac21643f775cc8ec15ef13"
+  "docsHash": "sha256:0121d9fac3820b9c4f145537f6e15c739e26d0c19f297872b89bff45b047a468"
 }

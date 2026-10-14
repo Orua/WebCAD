@@ -1,9 +1,9 @@
 {
   "version": "1.48.0",
-  "buildId": "c183f03285e413060d8659929c2e2a346507d097-src-e23ecc551e51f62c-working",
+  "buildId": "cf64fee9b2e4530a84d0a12ed9d2d3342b05ac31-src-8f6eb645767e5753-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:fe48c149a2290548cfb38780fe355db6d9933f2bbe7c28082a2f995a0aa411ff",
-  "docsHash": "sha256:088054ab7fceb7ebe258a11255221ba281da8615be95eefe25867a4ce9e5b3fc",
+  "catalogHash": "sha256:7a381fefba853da45d7ea3de8544af350c3e59840f313069b837a49fc36d7851",
+  "docsHash": "sha256:0a8c76bb7a62acc65768461c5aa980df43a8e0fa95d25c004fef3b96577e58ca",
   "apiMethods": [
     "recoverKernel",
     "sampleMeshRelief",
@@ -393,7 +393,7 @@
       "label": "LOGO",
       "category": "modification",
       "version": "2.0.0",
-      "docsHash": "sha256:da051aa318fd19ea289c257780fc905e09ba80a4a3ac21643f775cc8ec15ef13",
+      "docsHash": "sha256:0121d9fac3820b9c4f145537f6e15c739e26d0c19f297872b89bff45b047a468",
       "url": "tools/logo.json"
     },
     {
@@ -402,7 +402,7 @@
       "label": "网格布尔（STL）",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:16b5398b269e3bc1bde7019bd340fc79351160c36ac3902c92a2b774db3a4ee8",
+      "docsHash": "sha256:7560343b176839fdaabe8b316021253abb9466710b75d339b29162a6a0160af7",
       "url": "tools/meshBoolean.json"
     },
     {
@@ -411,7 +411,7 @@
       "label": "高度图浮雕（网格）",
       "category": "creation",
       "version": "2.0.0",
-      "docsHash": "sha256:9e1750dd6907cda309fe6e98b7e6ed01008ddaa616160c2e285e86583131de6a",
+      "docsHash": "sha256:65f199b715b0add2ad9225e80144ca78ff0aec057a1527655a3ad2d0b519fd11",
       "url": "tools/meshHeightfieldRelief.json"
     },
     {
@@ -420,7 +420,7 @@
       "label": "网格局部修高",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:b0282128f070449f1559563c755ec9cfa24f71cdb714fd831bc35a8adce3ed24",
+      "docsHash": "sha256:ba82be2ca496cc81e4497d706fbb733cfc945fab2875fe23f927b2eefdf79fce",
       "url": "tools/meshReliefEdit.json"
     },
     {
@@ -429,7 +429,7 @@
       "label": "网格底板（起伏点）",
       "category": "creation",
       "version": "2.0.0",
-      "docsHash": "sha256:b6112546268b718300603062c60f6a59bf9a379131d2d92f81fb82dc206f0bd2",
+      "docsHash": "sha256:b7e9c81a3a31d36ac414276249dc081f2ce279cc856a2ffbc6d32772f633feaa",
       "url": "tools/meshReliefPlate.json"
     },
     {
@@ -609,7 +609,7 @@
       "label": "精确浮雕（矢量/小图）",
       "category": "modification",
       "version": "2.0.0",
-      "docsHash": "sha256:85b2f992cf51e3e9102e3c140b872aca679775fd67c1b0692ab2e12750156d9d",
+      "docsHash": "sha256:0e9919e52ac9030b3c27b331042e5af89c8ce229ce28a238718b738a1fe0dd29",
       "url": "tools/relief.json"
     },
     {
@@ -618,7 +618,7 @@
       "label": "浮雕层肩部",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:1f7d78cb21c46e2be7eadfe540e505d4e4037e548a993634a1047761fb7a167e",
+      "docsHash": "sha256:d9f0ec8a713fdf4747f1eb39ba26a2d91d3235376533b1367c74452ae8cced4c",
       "url": "tools/reliefShoulder.json"
     },
     {
@@ -2302,7 +2302,7 @@
     },
     {
       "id": "api.pattern-machining",
-      "docsHash": "sha256:c36833b71378d4f25fc5f65ea20d7efe18988e18bc080dce55d69e70a5a05fa7",
+      "docsHash": "sha256:a3076d74dc3bbc6d17aa17b09ffdbe040be164cffcfe3d1ecc5440ba8245c1d6",
       "url": "docs/api.pattern-machining.md"
     },
     {
