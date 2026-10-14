@@ -1,3 +1,4 @@
+import {legacyReliefParams} from '../relief-param-migration.js';
 import {validateRegions} from '../logo-model.js';
 import {validateSchema,contractHash} from '../contracts/operation-schema.js';
 import {reliefOperations} from '../modeling/manufacturing/relief-contracts.js';
@@ -11,7 +12,7 @@ const fail=message=>{throw Object.assign(new Error(message),{code:'RELIEF_PLAN_U
 // PURE preview, never a load/rebuild migration. ROOT applies the returned params
 // to the original feature through an explicit, revision-checked feature edit.
 export function planReliefTopologyUpgrade(params,{maskStrategy}={}){
- validateSchema(reliefOperations.relief.paramsSchema,params);
+ validateSchema(reliefOperations.relief.paramsSchema,legacyReliefParams('relief',params));
  const targetStrategy=maskStrategy??params.maskStrategy;
  if(!['faceWithHolesExtrude','cutHoleSolids'].includes(targetStrategy))throw Object.assign(new Error('显式升级须选择带孔面挤出或孔实体切除策略'),{code:'RELIEF_UPGRADE_STRATEGY_REQUIRED',stage:'contour-upgrade-plan'});
  const next=structuredClone(params),changes=[];
@@ -20,7 +21,7 @@ export function planReliefTopologyUpgrade(params,{maskStrategy}={}){
   const beforePresent=Object.hasOwn(params,key);
   changes.push({path:`/${key}`,beforePresent,...(beforePresent?{before:params[key]}:{}),after:value});next[key]=value;
  }
- validateSchema(reliefOperations.relief.paramsSchema,next);
+ validateSchema(reliefOperations.relief.paramsSchema,legacyReliefParams('relief',next));
  const design=p=>{const {curvePolicy,maskStrategy,...unchanged}=p;return contractHash(unchanged);},changed=changes.length>0;
  return {params:next,receipt:{version:'relief-topology-upgrade-plan-1',status:changed?'planned':'no-change',requiresExplicitApply:changed,changes,beforeParamsFingerprint:contractHash(params),afterParamsFingerprint:contractHash(next),unchangedDesignFingerprint:design(params),designPreserved:design(params)===design(next),toleranceMm:params.curveToleranceMm??0,sourceSplineDeviation:'unknown',before:{curvePolicy:params.curvePolicy??null,maskStrategy:params.maskStrategy??null,localEffectiveMaskStrategy:params.maskStrategy??'cutHoleSolids',remoteEffectiveMaskStrategy:params.maskStrategy??'faceWithHolesExtrude'},after:{curvePolicy:next.curvePolicy,maskStrategy:next.maskStrategy},invalidationRequired:changed?['geometry-recipe-fingerprint','feature-and-dependent-compiled-checkpoints','local-layer-prefixes-from-this-feature','remote-input-and-prefix-fingerprints','compiled-contour-plan']:[],commitState:'notCommitted',geometryComputed:false}};
 }
@@ -29,6 +30,7 @@ export function planReliefTopologyUpgrade(params,{maskStrategy}={}){
 // heights and the established tangent projection remain authoritative. The
 // initial native prototype accepts only uniform cylindrical emboss layers.
 export function prepareCompiledReliefPlan(source,p,oc,cad,{sourceBrep:authoritativeSource}={}){
+ p=legacyReliefParams('relief',p);
  validateSchema(reliefOperations.relief.paramsSchema,p);
  if(!p.layers||p.sculpt||p.strokes||p.contourSnapMm||p.layers.some(l=>(!l.regions&&!l.strokes)||l.sculpt||l.values?.some(r=>r.some(v=>v!==1))))fail('Only uniform cylindrical layers with explicit contours or strokes are supported');
  // Surface adapters can populate p-curves/flags on the TShape. Compile from an

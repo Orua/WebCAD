@@ -1,6 +1,6 @@
 {
   "id": "logo",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -68,9 +68,9 @@
           "emboss"
         ]
       },
-      "depth": {
+      "depthMm": {
         "type": "number",
-        "description": "Explicit engraving depth or emboss height (mm)",
+        "description": "恒深LOGO加工深度 (mm)",
         "exclusiveMinimum": 0,
         "unit": "mm",
         "quantityKind": "length",
@@ -100,13 +100,15 @@
         "quantityKind": "angle",
         "quantizationPolicy": "none"
       },
-      "offsetX": {
+      "offsetXMm": {
         "type": "number",
-        "description": "Offset along local face X (mm)"
+        "description": "图案平面内X方向偏移 (mm)",
+        "unit": "mm"
       },
-      "offsetY": {
+      "offsetYMm": {
         "type": "number",
-        "description": "Offset along local face Y (mm)"
+        "description": "图案平面内Y方向偏移 (mm)",
+        "unit": "mm"
       },
       "mirrorX": {
         "type": "boolean",
@@ -166,6 +168,10 @@
         "items": {
           "type": "number"
         }
+      },
+      "schemaVersion": {
+        "type": "integer",
+        "const": 2
       },
       "machiningIntent": {
         "type": "object",
@@ -334,7 +340,7 @@
     "required": [
       "faceId",
       "mode",
-      "depth",
+      "depthMm",
       "regions"
     ],
     "additionalProperties": false,
@@ -380,7 +386,7 @@
     "LOGO"
   ],
   "description": "Unified reviewed LOGO on one exact face; legacy entries remain planar",
-  "schemaHash": "sha256:811fd579823ae33f95192bc27360bebba62e43833f0b4614f33beac5c21fcd3e",
+  "schemaHash": "sha256:591c1cb4a4c70b34a8d98ef2fe01a53011a5f40c9ea49180eee1a17fe4ca77bf",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -454,7 +460,6 @@
         3
       ],
       "mode": "engrave",
-      "depth": 0.2,
       "draftAngle": 0,
       "regions": [
         {
@@ -483,7 +488,9 @@
         "requestedGeometry": "constantDepthContours",
         "sourceInterpretation": "reviewedVectors",
         "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
-      }
+      },
+      "depthMm": 0.2,
+      "schemaVersion": 2
     },
     "refs": [
       "<current-bodyId-1>"
@@ -502,7 +509,6 @@
         3
       ],
       "mode": "engrave",
-      "depth": 0.2,
       "draftAngle": 0,
       "regions": [
         {
@@ -531,7 +537,9 @@
         "requestedGeometry": "constantDepthContours",
         "sourceInterpretation": "reviewedVectors",
         "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
-      }
+      },
+      "depthMm": 0.2,
+      "schemaVersion": 2
     },
     "refs": [
       "<current-bodyId-1>"
@@ -715,8 +723,8 @@
           null
         ]
       },
-      "depth": {
-        "meaning": "Explicit engraving depth or emboss height (mm)",
+      "depthMm": {
+        "meaning": "恒深LOGO加工深度 (mm)",
         "unit": "mm",
         "range": [
           0,
@@ -756,9 +764,9 @@
           "behavior": "omitted; retain the operation source default"
         }
       },
-      "offsetX": {
-        "meaning": "Offset along local face X (mm)",
-        "unit": "dimensionless",
+      "offsetXMm": {
+        "meaning": "图案平面内X方向偏移 (mm)",
+        "unit": "mm",
         "range": [
           null,
           null
@@ -767,9 +775,9 @@
           "behavior": "omitted; retain the operation source default"
         }
       },
-      "offsetY": {
-        "meaning": "Offset along local face Y (mm)",
-        "unit": "dimensionless",
+      "offsetYMm": {
+        "meaning": "图案平面内Y方向偏移 (mm)",
+        "unit": "mm",
         "range": [
           null,
           null
@@ -822,6 +830,17 @@
       "sizeMm": {
         "meaning": "sizeMm: Unified reviewed LOGO on one exact face; legacy entries remain planar",
         "unit": "mm",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "schemaVersion": {
+        "meaning": "schemaVersion: Unified reviewed LOGO on one exact face; legacy entries remain planar",
+        "unit": "none",
         "range": [
           null,
           null
@@ -929,7 +948,6 @@
             3
           ],
           "mode": "engrave",
-          "depth": 0.2,
           "draftAngle": 0,
           "regions": [
             {
@@ -958,7 +976,9 @@
             "requestedGeometry": "constantDepthContours",
             "sourceInterpretation": "reviewedVectors",
             "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
-          }
+          },
+          "depthMm": 0.2,
+          "schemaVersion": 2
         },
         "refs": [
           "<current-bodyId-1>"
@@ -977,7 +997,6 @@
             3
           ],
           "mode": "engrave",
-          "depth": 0.2,
           "draftAngle": 0,
           "regions": [
             {
@@ -1006,7 +1025,9 @@
             "requestedGeometry": "constantDepthContours",
             "sourceInterpretation": "reviewedVectors",
             "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
-          }
+          },
+          "depthMm": 0.2,
+          "schemaVersion": 2
         },
         "refs": [
           "<current-bodyId-1>"
@@ -1171,5 +1192,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:8741e7fd53ffcac35dcd9eb046fc9fa730e7e67a645661d12ea07f3983f59b77"
+  "docsHash": "sha256:fdf15450f30d7fc278d86fcdcbbbc975f3f7da84fca3795cd74030c582599325"
 }

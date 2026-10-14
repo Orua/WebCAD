@@ -12,7 +12,7 @@ const base = [f('a', 'box', { width: 10, depth: 10, height: 2 }), f('b', 'cylind
 const first = await kernel.rebuild(doc(base));
 const stable = first.bodies.find(b => b.id === 'a');
 const appended = await kernel.rebuild(doc([...base, f('c', 'copy', { x: 2 }, ['a'])]));
-assert.equal(appended.bodies.find(b => b.id === 'a'), stable, 'unchanged prefix mesh is reused');
+assert.equal(appended.bodies.find(b => b.id === 'a').positions, stable.positions, 'unchanged prefix mesh buffers are reused');
 assert.equal(appended.bodies.find(b => b.id === 'a').renderVersion, stable.renderVersion);
 assert.equal(typeof appended.renderVersion, 'string');
 

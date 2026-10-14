@@ -881,7 +881,8 @@
       "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
       "curved Logo operation"
     ],
-    "status": "experimental"
+    "status": "deprecated",
+    "replacement": "logo"
   },
   "purpose": "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
   "whenToUse": [
@@ -953,7 +954,9 @@
     "class": "local-only",
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
-  "status": "experimental",
+  "status": "deprecated",
+  "deprecated": true,
+  "replacement": "logo",
   "label": "曲面 LOGO",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -977,5 +980,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:f5cfaca70dc7d478c07eefa537e1add457db0af7246df0cde213739c8ccf8e08"
+  "docsHash": "sha256:fa2fa1117fe64bb40d182a09f3b08c713196c42a20ebc4d30f3bb82cab2c4d17"
 }

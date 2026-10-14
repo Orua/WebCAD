@@ -1,3 +1,4 @@
+import {legacyReliefParams} from './relief-param-migration.js';
 import {intentForUIParameterEdit} from './machining-intent.js';
 import {encodeCommittedProject} from './project-save.js';
 import {createHostAdapter} from './agent/host-adapter.js';
@@ -157,7 +158,7 @@ const ui=createUI(document.getElementById('app'),{
   initialDocumentName:documentModel.name,
   onAction:(action,params)=>performAction(action,params).catch(error=>{reportError(error);return false;}),
   onRoundGuide:(report,handlers)=>viewport.setRoundGuide(report,handlers),
-  heightfieldPreview:id=>{const feature=documentModel.features.find(f=>f.id===id&&f.op==='meshHeightfieldRelief');if(!feature)return null;const item=documentModel.imports?.[feature.params.heights?.importKey];return {params:clone(feature.params),heights:heightfieldSamples(feature.params,item?documentModel.binaryAssets?.[item.assetHash]:undefined)};},
+  heightfieldPreview:id=>{const feature=documentModel.features.find(f=>f.id===id&&f.op==='meshHeightfieldRelief');if(!feature)return null;const item=documentModel.imports?.[feature.params.heights?.importKey];return {params:legacyReliefParams(feature.op,clone(feature.params)),heights:heightfieldSamples(feature.params,item?documentModel.binaryAssets?.[item.assetHash]:undefined)};},
   onSelection:(id,additive)=>selectBody(id,additive),
   onPickCandidate:hit=>pick(hit,false),
   onEditFeature:(id,params,name)=>{assertHumanEditing();const feature=documentModel.features.find(f=>f.id===id);params=intentForUIParameterEdit(feature?.op,{...feature?.params,...params});return editFeature(id,params,name).then(result=>{ui.clearPropertyDraft();return result;});},

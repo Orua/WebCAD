@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.47.0 · sha256:abc5001de5c13def47655dc7092052c96f2d7f59c9f161b6992391f6e979aacf
+API 1.47.0 · sha256:eed03e2513762b898cefa7474602ace22ad1d0aa7e29a7aab00966220d046ffd
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -20021,7 +20021,8 @@ files.release: contextPolicy=none
       "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
       "curved Logo operation"
     ],
-    "status": "experimental"
+    "status": "deprecated",
+    "replacement": "logo"
   },
   "purpose": "Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work",
   "whenToUse": [
@@ -20093,7 +20094,9 @@ files.release: contextPolicy=none
     "class": "local-only",
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
-  "status": "experimental",
+  "status": "deprecated",
+  "deprecated": true,
+  "replacement": "logo",
   "label": "曲面 LOGO",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -20117,7 +20120,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:f5cfaca70dc7d478c07eefa537e1add457db0af7246df0cde213739c8ccf8e08"
+  "docsHash": "sha256:fa2fa1117fe64bb40d182a09f3b08c713196c42a20ebc4d30f3bb82cab2c4d17"
 }
 ```
 
@@ -32235,7 +32238,7 @@ files.release: contextPolicy=none
 ```json
 {
   "id": "logo",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -32303,9 +32306,9 @@ files.release: contextPolicy=none
           "emboss"
         ]
       },
-      "depth": {
+      "depthMm": {
         "type": "number",
-        "description": "Explicit engraving depth or emboss height (mm)",
+        "description": "恒深LOGO加工深度 (mm)",
         "exclusiveMinimum": 0,
         "unit": "mm",
         "quantityKind": "length",
@@ -32335,13 +32338,15 @@ files.release: contextPolicy=none
         "quantityKind": "angle",
         "quantizationPolicy": "none"
       },
-      "offsetX": {
+      "offsetXMm": {
         "type": "number",
-        "description": "Offset along local face X (mm)"
+        "description": "图案平面内X方向偏移 (mm)",
+        "unit": "mm"
       },
-      "offsetY": {
+      "offsetYMm": {
         "type": "number",
-        "description": "Offset along local face Y (mm)"
+        "description": "图案平面内Y方向偏移 (mm)",
+        "unit": "mm"
       },
       "mirrorX": {
         "type": "boolean",
@@ -32401,6 +32406,10 @@ files.release: contextPolicy=none
         "items": {
           "type": "number"
         }
+      },
+      "schemaVersion": {
+        "type": "integer",
+        "const": 2
       },
       "machiningIntent": {
         "type": "object",
@@ -32569,7 +32578,7 @@ files.release: contextPolicy=none
     "required": [
       "faceId",
       "mode",
-      "depth",
+      "depthMm",
       "regions"
     ],
     "additionalProperties": false,
@@ -32615,7 +32624,7 @@ files.release: contextPolicy=none
     "LOGO"
   ],
   "description": "Unified reviewed LOGO on one exact face; legacy entries remain planar",
-  "schemaHash": "sha256:811fd579823ae33f95192bc27360bebba62e43833f0b4614f33beac5c21fcd3e",
+  "schemaHash": "sha256:591c1cb4a4c70b34a8d98ef2fe01a53011a5f40c9ea49180eee1a17fe4ca77bf",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -32689,7 +32698,6 @@ files.release: contextPolicy=none
         3
       ],
       "mode": "engrave",
-      "depth": 0.2,
       "draftAngle": 0,
       "regions": [
         {
@@ -32718,7 +32726,9 @@ files.release: contextPolicy=none
         "requestedGeometry": "constantDepthContours",
         "sourceInterpretation": "reviewedVectors",
         "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
-      }
+      },
+      "depthMm": 0.2,
+      "schemaVersion": 2
     },
     "refs": [
       "<current-bodyId-1>"
@@ -32737,7 +32747,6 @@ files.release: contextPolicy=none
         3
       ],
       "mode": "engrave",
-      "depth": 0.2,
       "draftAngle": 0,
       "regions": [
         {
@@ -32766,7 +32775,9 @@ files.release: contextPolicy=none
         "requestedGeometry": "constantDepthContours",
         "sourceInterpretation": "reviewedVectors",
         "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
-      }
+      },
+      "depthMm": 0.2,
+      "schemaVersion": 2
     },
     "refs": [
       "<current-bodyId-1>"
@@ -32950,8 +32961,8 @@ files.release: contextPolicy=none
           null
         ]
       },
-      "depth": {
-        "meaning": "Explicit engraving depth or emboss height (mm)",
+      "depthMm": {
+        "meaning": "恒深LOGO加工深度 (mm)",
         "unit": "mm",
         "range": [
           0,
@@ -32991,9 +33002,9 @@ files.release: contextPolicy=none
           "behavior": "omitted; retain the operation source default"
         }
       },
-      "offsetX": {
-        "meaning": "Offset along local face X (mm)",
-        "unit": "dimensionless",
+      "offsetXMm": {
+        "meaning": "图案平面内X方向偏移 (mm)",
+        "unit": "mm",
         "range": [
           null,
           null
@@ -33002,9 +33013,9 @@ files.release: contextPolicy=none
           "behavior": "omitted; retain the operation source default"
         }
       },
-      "offsetY": {
-        "meaning": "Offset along local face Y (mm)",
-        "unit": "dimensionless",
+      "offsetYMm": {
+        "meaning": "图案平面内Y方向偏移 (mm)",
+        "unit": "mm",
         "range": [
           null,
           null
@@ -33057,6 +33068,17 @@ files.release: contextPolicy=none
       "sizeMm": {
         "meaning": "sizeMm: Unified reviewed LOGO on one exact face; legacy entries remain planar",
         "unit": "mm",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "schemaVersion": {
+        "meaning": "schemaVersion: Unified reviewed LOGO on one exact face; legacy entries remain planar",
+        "unit": "none",
         "range": [
           null,
           null
@@ -33164,7 +33186,6 @@ files.release: contextPolicy=none
             3
           ],
           "mode": "engrave",
-          "depth": 0.2,
           "draftAngle": 0,
           "regions": [
             {
@@ -33193,7 +33214,9 @@ files.release: contextPolicy=none
             "requestedGeometry": "constantDepthContours",
             "sourceInterpretation": "reviewedVectors",
             "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
-          }
+          },
+          "depthMm": 0.2,
+          "schemaVersion": 2
         },
         "refs": [
           "<current-bodyId-1>"
@@ -33212,7 +33235,6 @@ files.release: contextPolicy=none
             3
           ],
           "mode": "engrave",
-          "depth": 0.2,
           "draftAngle": 0,
           "regions": [
             {
@@ -33241,7 +33263,9 @@ files.release: contextPolicy=none
             "requestedGeometry": "constantDepthContours",
             "sourceInterpretation": "reviewedVectors",
             "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
-          }
+          },
+          "depthMm": 0.2,
+          "schemaVersion": 2
         },
         "refs": [
           "<current-bodyId-1>"
@@ -33406,7 +33430,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:8741e7fd53ffcac35dcd9eb046fc9fa730e7e67a645661d12ea07f3983f59b77"
+  "docsHash": "sha256:fdf15450f30d7fc278d86fcdcbbbc975f3f7da84fca3795cd74030c582599325"
 }
 ```
 
@@ -58551,13 +58575,15 @@ files.release: contextPolicy=none
         ],
         "default": "emboss"
       },
-      "offsetX": {
+      "offsetXMm": {
         "type": "number",
-        "description": "Offset from face centroid in local X (mm)"
+        "description": "图案平面内X方向偏移 (mm)",
+        "unit": "mm"
       },
-      "offsetY": {
+      "offsetYMm": {
         "type": "number",
-        "description": "Offset from face centroid in local Y (mm)"
+        "description": "图案平面内Y方向偏移 (mm)",
+        "unit": "mm"
       },
       "angleDeg": {
         "type": "number",
@@ -58851,7 +58877,7 @@ files.release: contextPolicy=none
     "小图）"
   ],
   "description": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
-  "schemaHash": "sha256:5c296fec487dc73cd65ce2926e191017a94856fcc00461b847ea1cb4943a2b6f",
+  "schemaHash": "sha256:6c7abf7774ab9f388aae84156279366aa94917fda28f339d839ec8519c0fe298",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -59330,9 +59356,9 @@ files.release: contextPolicy=none
         ],
         "default": "emboss"
       },
-      "offsetX": {
-        "meaning": "Offset from face centroid in local X (mm)",
-        "unit": "dimensionless",
+      "offsetXMm": {
+        "meaning": "图案平面内X方向偏移 (mm)",
+        "unit": "mm",
         "range": [
           null,
           null
@@ -59341,9 +59367,9 @@ files.release: contextPolicy=none
           "behavior": "omitted; retain the operation source default"
         }
       },
-      "offsetY": {
-        "meaning": "Offset from face centroid in local Y (mm)",
-        "unit": "dimensionless",
+      "offsetYMm": {
+        "meaning": "图案平面内Y方向偏移 (mm)",
+        "unit": "mm",
         "range": [
           null,
           null
@@ -59900,7 +59926,7 @@ files.release: contextPolicy=none
   "docs": "api.relief",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:6a19f1b59dd20f5674af3cd7640ff0ca2201c4754f2db4c44fc656fa0a1608f4"
+  "docsHash": "sha256:6bb405956a00e7f342920ef18a6a971b53f15718252ac804c217c3c992ea80a6"
 }
 ```
 

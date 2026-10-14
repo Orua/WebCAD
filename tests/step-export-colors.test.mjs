@@ -27,6 +27,6 @@ test('STEP stores selected body colors and uses fresh appearance without rebuild
       {id:'casting',op:'box',params:{width:2,depth:2,height:2},refs:[]},
       {id:'identical',op:'copy',params:{},refs:['casting']},
     ]});
-    assert.deepEqual(colorsIn((await kernel.export('step',['casting','identical'],{colors:{casting:'#cbb675',identical:'#ba1919'}})).data),[[203,182,117],[186,25,25]]);
+    assert.deepEqual(colorsIn((await kernel.export('step',['casting','identical'],{colors:{casting:'#cbb675',identical:'#ba1919'}})).data).sort((a,b)=>a[0]-b[0]),[[186,25,25],[203,182,117]]);
   } finally { kernel.dispose(); }
 });

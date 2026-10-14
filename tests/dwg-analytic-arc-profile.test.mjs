@@ -27,7 +27,8 @@ const polygon=n=>Array.from({length:n},(_,i)=>{
 });
 const large=await rebuild({outer:polygon(256),height:2});
 assert.equal(large.stats.solids,1);
-assert.ok(Math.abs(large.stats.volume-256*100*Math.sin(2*Math.PI/256))<1e-5);
+assert.equal(large.bodies[0].metricsDeferred,true);
+assert.ok(Math.abs(kernel.measure('analytic').volume-256*100*Math.sin(2*Math.PI/256))<1e-5);
 assert.equal(getOperation('arcProfile').inputSchema.properties.outer.maxItems,256);
 assert.equal(getOperation('arcProfile').inputSchema.properties.holes.items.maxItems,256);
 await assert.rejects(rebuild({outer:polygon(257),height:2}),/2–256/);

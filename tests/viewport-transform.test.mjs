@@ -6,7 +6,7 @@ import { DISPLAY_DEFAULTS } from '../src/display-preferences.js';
 function viewport(){
  const v=Object.create(CADViewport.prototype);
  Object.assign(v,{objects:new Map(),modelRoot:new THREE.Group(),selected:['a'],hidden:[],partFinishes:{},partColors:{},displayPreferences:{...DISPLAY_DEFAULTS},finishKey:'design',clipPlanes:[],mode:'edges',metals:{apply(){}},gizmo:{enabled:true},gizmoProxy:new THREE.Object3D(),gizmoOrigin:new THREE.Vector3(),callbacks:{},syncs:0});
- v.setDisplay=()=>{};v.setMetalFinish=()=>{};v.applyClipping=()=>{};v.updateHud=()=>{};v.syncGizmo=()=>{v.syncs++;};
+ v.exactDisplayDetail={attach(){},release(){}};v.setDisplay=()=>{};v.setMetalFinish=()=>{};v.applyClipping=()=>{};v.updateHud=()=>{};v.syncGizmo=()=>{v.syncs++;};
  return v;
 }
 const body=(id,version)=>({id,name:id,renderVersion:version,positions:[0,0,0,1,0,0,0,1,0],indices:[0,1,2],edges:[],bounds:{min:[0,0,0],max:[1,1,0]}});
