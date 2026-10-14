@@ -904,7 +904,9 @@
     "小图案 精确 STEP",
     "vector relief",
     "浮雕",
-    "relief"
+    "relief",
+    "精确浮雕（矢量",
+    "小图）"
   ],
   "description": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
   "schemaHash": "sha256:5c296fec487dc73cd65ce2926e191017a94856fcc00461b847ea1cb4943a2b6f",
@@ -1929,7 +1931,7 @@
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
-  "label": "浮雕",
+  "label": "精确浮雕（矢量/小图）",
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -1953,5 +1955,5 @@
   "docs": "api.relief",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:e183cacea2bd5cd7a00d8a80fff573c5124106811fbd7c983da64c4bff2658b8"
+  "docsHash": "sha256:707ce7435df90d0203b4954b5fab1972eae6c0d49d68ce912a62a3affd4fca64"
 }

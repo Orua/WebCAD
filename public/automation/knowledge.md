@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.47.0 · sha256:fab3903c5443d08258148a138ab18ff2b5dada37bbe7fd3c468a9b0f90e30724
+API 1.47.0 · sha256:f0f0cd1ae6f0227ae38c49b7792950c7663ac0033977156f00954a472fe1db56
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -32882,7 +32882,7 @@ files.release: contextPolicy=none
     "STL 布尔",
     "mesh boolean",
     "meshBoolean",
-    "网格布尔合并"
+    "网格布尔（STL）"
   ],
   "description": "网格布尔合并 / Mesh boolean",
   "schemaHash": "sha256:e312f38c42afe9e78925afae160a4695898493aead6f9225572b525e63ce8d8e",
@@ -33333,7 +33333,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
-  "label": "网格布尔合并",
+  "label": "网格布尔（STL）",
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -33356,7 +33356,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:b33bd954b5f85056c9fe173c1fb758fa2e8fa449a43edb36352c93b775d3f990"
+  "docsHash": "sha256:ff00995c0c3ceeea30db79f04c09499170a5ef09607fef288eecdaffb78fe660"
 }
 ```
 
@@ -33557,7 +33557,7 @@ files.release: contextPolicy=none
     "depth map",
     "photo relief",
     "meshHeightfieldRelief",
-    "高度图浮雕"
+    "高度图浮雕（网格）"
   ],
   "description": "高度图浮雕 / Heightfield relief",
   "schemaHash": "sha256:c9ee5d7b68a314347f9d419f67858e0babc1d92ec0b6825db327146858495541",
@@ -34152,7 +34152,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
-  "label": "高度图浮雕",
+  "label": "高度图浮雕（网格）",
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -34174,7 +34174,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:36e7294d3399d3ee7531072ee6713d6413564cd7075cfeed02ee0e01de715982"
+  "docsHash": "sha256:3f750151ad7a27ce2b349996df011d1b1aa35b020963f65677b5992740184b27"
 }
 ```
 
@@ -36367,7 +36367,7 @@ files.release: contextPolicy=none
     "起伏点",
     "relief plate",
     "meshReliefPlate",
-    "浮雕网格底板"
+    "网格底板（起伏点）"
   ],
   "description": "浮雕网格底板 / Relief mesh plate",
   "schemaHash": "sha256:0723842e7b12fb6286b91925dd28111159db33e4eff902310e63bee826627cca",
@@ -36853,7 +36853,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
-  "label": "浮雕网格底板",
+  "label": "网格底板（起伏点）",
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -36875,7 +36875,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:1d8edcbb2b2e2e2a487c4e5705d3761650074d32dd08379ca72912109fd400b1"
+  "docsHash": "sha256:bf7631218abcb8c37f8420f5ea7785f1d626bd1197ac157e07a859741c10bff2"
 }
 ```
 
@@ -58065,7 +58065,9 @@ files.release: contextPolicy=none
     "小图案 精确 STEP",
     "vector relief",
     "浮雕",
-    "relief"
+    "relief",
+    "精确浮雕（矢量",
+    "小图）"
   ],
   "description": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
   "schemaHash": "sha256:5c296fec487dc73cd65ce2926e191017a94856fcc00461b847ea1cb4943a2b6f",
@@ -59090,7 +59092,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
-  "label": "浮雕",
+  "label": "精确浮雕（矢量/小图）",
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -59114,7 +59116,7 @@ files.release: contextPolicy=none
   "docs": "api.relief",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:e183cacea2bd5cd7a00d8a80fff573c5124106811fbd7c983da64c4bff2658b8"
+  "docsHash": "sha256:707ce7435df90d0203b4954b5fab1972eae6c0d49d68ce912a62a3affd4fca64"
 }
 ```
 
