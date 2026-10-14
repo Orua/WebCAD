@@ -51,7 +51,7 @@ test('page library mutations reject stale document context before touching stora
   const api=createPageAPI({confirmSaved:()=>({saved:false}),state:()=>({context:current,summary:{busy:false,kernelReady:true},preview:{active:false,computing:false},view:{workspaceLayout:{workspace:'modeling'}}})});
   const context={...current,expectedRevision:6};delete context.revision;
   assert.equal((await api.updateModelLibrary({context,expectedLibraryRevision:0,operation:'restore'})).error.code,'REVISION_CONFLICT');
-  assert.equal((await api.resolveModelLibrary({context,id:'ring',expectedLibraryRevision:0})).error.code,'REVISION_CONFLICT');
+  assert.equal((await api.resolveModelLibrary({context:{...context,documentInstanceId:'other'},id:'ring',expectedLibraryRevision:0})).error.code,'INSTANCE_MISMATCH');
 });
 test('legacy remote layout/view routes read and mutate the same library without view or document writes',async()=>{
   const previous=globalThis.localStorage;globalThis.localStorage=storage();

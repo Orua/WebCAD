@@ -12,13 +12,13 @@ test('every mechanical tool has a strict executable card, exact Chinese label, c
   for (const id of mechanicalIds) {
     const card = getOperation(id), pageCard = getTool({ id });
     assert.equal(card.strictContract, true, id); assert.equal(card.v2Executable, true, id); assert.equal(card.inputSchema.additionalProperties, false, id);
-    assert.match(card.schemaHash, /^sha256:[a-f0-9]{64}$/); assert.equal(pageCard.schemaHash, card.schemaHash); assert.equal(pageCard.label, mechanicalNames[id]);
+    assert.match(card.schemaHash, /^sha256:[a-f0-9]{64}$/); assert.equal(pageCard.schemaHash, card.schemaHash); assert.equal(pageCard.label, id==='relief'?'精确浮雕（矢量/小图）':mechanicalNames[id]);
     const normalized = normalizeOperationParams(id, mechanicalExamples[id]); assert.equal(typeof normalized, 'object');
     assertOperationContract(id, { opVersion: card.version, schemaHash: card.schemaHash });
     assert.throws(() => assertOperationContract(id, { opVersion: card.version, schemaHash: 'sha256:' + '0'.repeat(64) }), { code: 'SCHEMA_MISMATCH' });
     assert.throws(() => normalizeOperationParams(id, { ...mechanicalExamples[id], unknownField: true }), { code: 'PARAM_SCHEMA_INVALID' });
     for (const key of card.inputSchema.required || []) {
-      const incomplete = structuredClone(mechanicalExamples[id]); delete incomplete[key];
+      const incomplete = normalizeOperationParams(id,mechanicalExamples[id]); delete incomplete[key];
       assert.throws(() => normalizeOperationParams(id, incomplete), { code: 'PARAM_SCHEMA_INVALID' }, `${id} requires ${key}`);
     }
     const docId = `webcad://operations/${id}/${card.version}`; let cursor, text = '', pages = 0;

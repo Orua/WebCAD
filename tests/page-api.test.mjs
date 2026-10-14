@@ -9,10 +9,10 @@ const context = () => ({ sessionId: 'page-1', documentId: 'doc-1', documentInsta
 test('formal mesh height query is callable through Agent API and rejects stale input/output',async()=>{
  const f=fixture(),p={context:context(),bodyId:'body-1',inputGeometryHash:'sha256:'+'0'.repeat(64),support:{originMm:[0,0,0],xAxis:[1,0,0],normal:[0,0,1]},pointsMm:[[0,0]]};let called=0;
  f.host.sampleMeshRelief=async()=>{called++;return {source:'authoritative-mesh-f64',samples:[{uvMm:[0,0],heightsMm:[-2,.4],hit:true}]};};
- assert.equal((await f.api.sampleMeshRelief({...p,context:{...p.context,expectedRevision:6}})).error.code,'REVISION_CONFLICT');assert.equal(called,0);
+ assert.equal((await f.api.sampleMeshRelief({...p,context:{...p.context,documentInstanceId:'other'}})).error.code,'INSTANCE_MISMATCH');assert.equal(called,0);
  assert.equal((await f.api.invoke({method:'sampleMeshRelief',args:p})).source,'authoritative-mesh-f64');assert.equal(called,1);
  assert.equal((await f.api.sampleMeshRelief({...p,pointsMm:[[0,0,1]]})).error.code,'PARAM_RANGE_INVALID');
- f.host.sampleMeshRelief=async()=>{f.revision=8;return {samples:[]};};assert.equal((await f.api.sampleMeshRelief(p)).error.code,'REVISION_CONFLICT');
+ f.host.sampleMeshRelief=async()=>{f.documentInstanceId="other";return {samples:[]};};assert.equal((await f.api.sampleMeshRelief(p)).error.code,'INSTANCE_MISMATCH');
  assert.ok(getTool({id:'sampleMeshRelief'}).inputSchema);
 });
 test('explicit topology upgrade previews exact original feature without computing or migrating and checks revision',async()=>{
@@ -22,7 +22,7 @@ test('explicit topology upgrade previews exact original feature without computin
  assert.equal((await api.prepareReliefTopologyUpgrade({context:context(),featureId:'original-relief'})).error.code,'RELIEF_UPGRADE_STRATEGY_REQUIRED');
  const receipt=await api.prepareReliefTopologyUpgrade({context:context(),featureId:'original-relief',maskStrategy:'faceWithHolesExtrude'});
  assert.equal(receipt.status,'prepared');assert.equal(receipt.canCommit,true);assert.equal(receipt.receipt.geometryComputed,false);assert.equal(receipt.receipt.toleranceMm,.01);assert.equal(receipt.receipt.featureId,'original-relief');assert.notEqual(receipt.receipt.beforeRecipeFingerprint,receipt.receipt.afterRecipeFingerprint);assert.deepEqual(params,original);
- assert.equal((await api.prepareReliefTopologyUpgrade({context:{...context(),expectedRevision:6},featureId:'original-relief',maskStrategy:'cutHoleSolids'})).error.code,'REVISION_CONFLICT');
+ assert.equal((await api.prepareReliefTopologyUpgrade({context:{...context(),documentInstanceId:'other'},featureId:'original-relief',maskStrategy:'cutHoleSolids'})).error.code,'INSTANCE_MISMATCH');
  assert.equal(getTool({id:'prepareReliefTopologyUpgrade'}).implementationStatus,'implemented');
 });
 test('round preflight is discoverable and rejects stale context before host planning',async()=>{
@@ -30,7 +30,7 @@ test('round preflight is discoverable and rejects stale context before host plan
  host.inspectRound=async input=>{calls++;assert.equal(input.params.radiusMm,.3);return {attemptCount:0,feasibility:'not-proven'};};
  const request={context:context(),bodyId:'body-1',params:{edgeIds:[0],mode:'edge',radiusMm:.3}};
  assert.equal((await api.inspectRound(request)).attemptCount,0);assert.equal(calls,1);assert.equal(getTool({id:'inspectRound'}).docs,'api.round-preflight');
- assert.equal((await api.inspectRound({...request,context:{...context(),expectedRevision:6}})).error.code,'REVISION_CONFLICT');assert.equal(calls,1);
+ assert.equal((await api.inspectRound({...request,context:{...context(),documentInstanceId:'other'}})).error.code,'INSTANCE_MISMATCH');assert.equal(calls,1);
  assert.equal((await api.inspectRound({...request,params:{edgeIds:[0],surprise:true}})).status,'failed');assert.equal(calls,1);
 });
 
@@ -44,7 +44,7 @@ test('layered sculpt preparation and draft sampling share explicit layer and gri
  const sample=await api.sampleReliefHeight({context:context(),featureId:'layered',layerIndex:0,samples:17,draft:result.params.layers[0].sculpt,point:[0,0]});
  assert.equal(sample.status,'read');assert.equal(sample.targetMm,.6);assert.deepEqual(params,copy);
  assert.equal((await api.prepareReliefSculpt({...request,layerIndex:undefined})).error.code,'PARAM_SCHEMA_INVALID');
- assert.equal((await api.prepareReliefSculpt({...request,context:{...context(),expectedRevision:6}})).error.code,'REVISION_CONFLICT');
+ assert.equal((await api.prepareReliefSculpt({...request,context:{...context(),documentInstanceId:'other'}})).error.code,'INSTANCE_MISMATCH');
 });
 
 test('relief height eyedropper is discoverable, read-only, draft-aware and callable through invoke and run',async()=>{
@@ -59,7 +59,7 @@ test('relief height eyedropper is discoverable, read-only, draft-aware and calla
  assert.equal(batch.status,'completed');assert.equal(batch.results[1].result.report.changedControls,0);
  assert.equal(getTool({id:'sampleReliefHeight'}).implementationStatus,'implemented');
  assert.ok(UI_API_ROUTES.reliefSculpt.tools.includes('sampleReliefHeight'));
- assert.equal((await api.sampleReliefHeight({...input,context:{...context(),expectedRevision:6}})).error.code,'REVISION_CONFLICT');
+ assert.equal((await api.sampleReliefHeight({...input,context:{...context(),documentInstanceId:'other'}})).error.code,'INSTANCE_MISMATCH');
  assert.equal((await api.sampleReliefHeight({...input,featureId:'missing'})).error.code,'STALE_REFERENCE');
  assert.equal((await api.sampleReliefHeight({...input,point:[.45,0]})).error.code,'RELIEF_SAMPLE_OUTSIDE');
  assert.equal((await api.sampleReliefHeight({...input,point:[2,0]})).error.code,'PARAM_RANGE_INVALID');
@@ -97,23 +97,23 @@ test('analytic edit proposals share UI geometry and remain read-only through bat
   const proposed=await api.prepareProfileEdit({...input,candidateId:'intersection-1'});assert.deepEqual(proposed.profile.entities[0].endMm,[20,0]);assert.deepEqual(profile.entities[0].endMm,[10,0]);assert.equal(api.getState().context.revision,7);
   const invoked=await api.invoke({method:'prepareProfileEdit',args:{...input,candidateId:'intersection-1'}});assert.equal(invoked.status,'read');
   const batch=await api.run({context:context(),idempotencyKey:'proposal-read',steps:[{id:'proposal',method:'prepareProfileEdit',args:{bodyId:'body-1',mode:'extend',entityId:'a',targetId:'b',candidateId:'intersection-1'}}]});assert.equal(batch.status,'completed');assert.deepEqual(batch.results[0].result.profile.entities[0].endMm,[20,0]);
-  const stale=await api.prepareProfileEdit({...input,context:{...context(),expectedRevision:6}});assert.equal(stale.error.code,'REVISION_CONFLICT');
+  const stale=await api.prepareProfileEdit({...input,context:{...context(),documentInstanceId:'other'}});assert.equal(stale.error.code,'INSTANCE_MISMATCH');
   const invalid=await api.prepareProfileEdit({...input,endpoint:'middle'});assert.equal(invalid.status,'failed');
 });
 
 function fixture() {
-  let revision = 7;
+  let documentInstanceId='instance-1',revision = 7;
   let displayStatus = 'rendered';
   let renderedRevision = 7;
   let frameError = null;
   const calls = { measure: 0, view: 0, frame: 0, capture: 0, redraw: 0, files: 0, execute: 0 };
   const host = {
     buildId: 'test-build',
-    state: () => ({ status: 'read', context: { ...context(), revision },
+    state: () => ({ status: 'read', context: { ...context(), revision,documentInstanceId },
       summary: { name: 'Plate', kernelReady: true, busy: false, dirty: true },
       preview: { active: false, computing: false }, bodies: [{ id: 'body-1',faceCount:6,edgeCount:12 }], features: [] }),
     display: () => ({ status: displayStatus,
-      rendered: { documentId: 'doc-1', documentInstanceId: 'instance-1', revision: renderedRevision }, frame: 12 }),
+      rendered: { documentId: 'doc-1', documentInstanceId, revision: renderedRevision }, frame: 12 }),
     measure: async () => { calls.measure++; return { volume: 42, bounds: { min: [0, 0, 0], max: [7, 3, 2] } }; },
     view: async () => { calls.view++; },
     frame: async () => { calls.frame++; if (frameError) throw frameError; },
@@ -126,6 +126,7 @@ function fixture() {
   };
   return { api: createPageAPI(host), host, calls,
     set revision(value) { revision = value; },
+    set documentInstanceId(value){documentInstanceId=value;},
     set renderedRevision(value) { renderedRevision = value; },
     set displayStatus(value) { displayStatus = value; },
     set frameError(value) { frameError = value; } };
@@ -237,7 +238,7 @@ test('sampled twin-window page method strips context, returns closed profiles an
   assert.deepEqual(result.size,[24,21]);
   assert.equal(result.simplifyToleranceMm,0.02);
   assert.equal(f.api.getState().context.revision,7);
-  assert.equal((await f.api.traceTwinWindow({...args,context:{...context(),expectedRevision:6}})).error.code,'REVISION_CONFLICT');
+  assert.equal((await f.api.traceTwinWindow({...args,context:{...context(),documentInstanceId:'other'}})).error.code,'INSTANCE_MISMATCH');
 });
 
 test('public API exposes no mutable host internals; read-only methods leave document revision alone', async () => {
@@ -268,8 +269,8 @@ test('measure rejects invalid or stale context before the host runs, then return
   const invalid = await f.api.measure({ context: { ...context(), documentInstanceId: 'other' }, bodyId: 'body-1' });
   assert.equal(invalid.status, 'failed');
   assert.equal(invalid.error.code, 'INSTANCE_MISMATCH');
-  const stale = await f.api.measure({ context: { ...context(), expectedRevision: 6 }, bodyId: 'body-1' });
-  assert.equal(stale.error.code, 'REVISION_CONFLICT');
+  const stale = await f.api.measure({ context: { ...context(), documentInstanceId:'other' }, bodyId: 'body-1' });
+  assert.equal(stale.error.code, 'INSTANCE_MISMATCH');
   assert.equal(f.calls.measure, 0);
   const unknown = await f.api.measure({ context: context(), bodyId: 'missing' });
   assert.equal(unknown.error.code, 'STALE_REFERENCE');
@@ -291,10 +292,10 @@ test('measure detects revision change during host work and does not relabel stal
   f.host.measure = async () => { f.calls.measure++; return new Promise(resolve => { release = resolve; }); };
   const pending = f.api.measure({ context: context(), bodyId: 'body-1' });
   assert.equal(f.calls.measure, 1);
-  f.revision = 8;
+  f.revision = 8;f.documentInstanceId='other';
   release({ volume: 42 });
   const result = await pending;
-  assert.equal(result.error.code, 'REVISION_CONFLICT');
+  assert.equal(result.error.code, 'INSTANCE_MISMATCH');
   assert.equal(result.volume, undefined);
 });
 

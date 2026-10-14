@@ -9,7 +9,8 @@ import {assertPlacementCoverage} from '../src/placement-policy.js';
 test('one primary rounding entrance preserves expert routes and strict shared operation',()=>{
  const group=UI_LAYOUT.tabs.find(t=>t.id==='finish').groups[0];
  assert.deepEqual(group[1].filter(id=>!group[2].overflowActions.includes(id)),['round','chamfer']);
- for(const id of ['fillet','roundEnd','rounding'])assert(group[2].overflowActions.includes(id));
+ for(const id of ['fillet','rounding'])assert(group[2].overflowActions.includes(id));
+ assert(UI_LAYOUT.tabs.find(t=>t.id==='finish').groups.some(([,tools])=>tools.includes('roundEnd')));
  assert(UI_API_ROUTES.round.tools.includes('preview.update'));assertPlacementCoverage();
  const card=getTool({id:'round'});assert(card.strictContract);assert(card.outputSchema.properties.roundReport);
  assert.deepEqual(normalizeOperationParams('round',adaptUISelection('round',{},['a'],{bodyId:'a',type:'edge',ids:[2]})),{mode:'auto',strength:.5,edgeIds:[2]});

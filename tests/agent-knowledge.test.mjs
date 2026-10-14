@@ -53,8 +53,8 @@ test('unfamiliar source routing preserves evidence gaps and part scope instead o
   const route=await routeProductSource(cache,brief);
   assert.equal(route.status,'planning_ready');assert.equal(route.canPlan,true);assert.equal(route.sourceEvidenceVerified,false);
   assert.deepEqual(route.targetPartIds,['B']);assert.deepEqual(route.referencePartIds,['A']);
-  const docs=await readLocalKnowledge(cache,{docIds:route.docIds,toolIds:route.toolIds});assert(docs.items.every(x=>x.status==='read'));
-  const combined=await routeProductSource(cache,brief,{includeKnowledge:true});assert.deepEqual(combined.knowledge,docs,'Combined routing reads exactly the same complete contracts from one verified snapshot');
+  const docs=await readLocalKnowledge(cache,{docIds:route.docIds,toolIds:route.toolIds,maxChars:64000});assert(docs.items.every(x=>x.status==='read'));
+  const combined=await routeProductSource(cache,brief,{includeKnowledge:true,maxChars:64000});assert.deepEqual(combined.knowledge,docs,'Combined routing reads exactly the same complete contracts from one verified snapshot');
   const small=await routeProductSource(cache,brief,{includeKnowledge:true,maxChars:1000});assert(small.knowledge.items.some(x=>x.status==='omitted'),'Budget exhaustion is explicit rather than truncating a tool contract');
   await assert.rejects(routeProductSource(cache,brief,{includeKnowledge:'yes'}),{code:'KNOWLEDGE_QUERY_INVALID'});
   for(const source of [{...brief.source,kind:'photo'},{...brief.source,geometry:'partial'},{...brief.source,version:'unresolved'}])assert.equal((await routeProductSource(cache,{...brief,source})).canPlan,false);

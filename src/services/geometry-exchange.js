@@ -1,3 +1,4 @@
+import {legacyReliefParams} from '../relief-param-migration.js';
 import {contractHash,binaryHash} from '../contracts/operation-schema.js';
 import {serviceError} from './settings.js';
 import {geometryFeatureRecord} from './geometry-signature.js';
@@ -29,7 +30,7 @@ export function assertCompilableFeature(feature){
  }
  if(feature?.op!=='relief')return assertTranslationFeature(feature);
  if(feature.refs?.length!==1||!feature.params?.layers||feature.params.sculpt||feature.params.strokes||feature.params.contourSnapMm||feature.params.layers.some(l=>(!l.regions&&!l.strokes)||l.sculpt||l.values?.some(r=>r.some(v=>v!==1))))throw serviceError('OPERATION_UNAVAILABLE','此原生浮雕桥接支持等高柱面轮廓或显式开放刻线；各层高度和方式保持，不以二维并集冒充三维交织');
- return feature.params;
+ return legacyReliefParams('relief',feature.params);
 }
 export function geometryRecipeFingerprint(document,featureId){
  const byId=new Map(document.features.map(f=>[f.id,f])),needed=new Set();

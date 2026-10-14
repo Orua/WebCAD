@@ -56,7 +56,7 @@ test('shared page planner is read-only and rejects stale context; tool is comple
  const request={context:{...context,expectedRevision:3},intent:base};delete request.context.revision;
  const result=await api.planPatternMachining(request);assert.equal(result.route,'logo');assert.equal(writes,0);
  assert.equal((await api.invoke({method:'planPatternMachining',args:request})).route,'logo');
- assert.equal((await api.planPatternMachining({...request,context:{...request.context,expectedRevision:2}})).error.code,'REVISION_CONFLICT');
+ assert.equal((await api.planPatternMachining({...request,context:{...request.context,documentInstanceId:'other'}})).error.code,'INSTANCE_MISMATCH');
  assert.equal(getTool({id:'planPatternMachining'}).docs,'api.pattern-machining');assert(readDocs({docId:'api.pattern-machining',limitChars:16000}).text.includes('stripes.png'));
 });
 test('new creation requires declaration; legacy edits retain old semantics and no migration',async()=>{
