@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:259f7c718a2e00cfdfcf1ff463119c7d35091bdf3659daeb99c3c3f337694486",
-  "docsHash": "sha256:87a063a2cc22dae430f68c3e5ded57adb0a7532ffa2f42c01e1189d81ffc4131",
+  "catalogHash": "sha256:cdb31b2ab8bdf88d96a17836a72b12ccdbe1a469d3732fc6cef381a9d1d0f8e8",
+  "docsHash": "sha256:e2bf8fc3183c2e423c899860b168775c39d8bb4bb71d5d9896ef6dde478d068c",
   "bootstrapDocIds": [
     "api.knowledge-cache",
     "api.connection",
@@ -11,6 +11,39 @@
   ],
   "selectionPolicy": "Route by task, read a workflow, then only needed complete cards. Exact UI actions use routes.json. Live context/IDs always come from the page.",
   "routes": [
+    {
+      "id": "relief-taxonomy",
+      "title": "浮雕工具分类与选择",
+      "keywords": [
+        "浮雕",
+        "高度图",
+        "灰度图",
+        "照片",
+        "网格",
+        "STL",
+        "STEP",
+        "heightmap",
+        "relief",
+        "mesh boolean"
+      ],
+      "docs": [
+        "api.relief-taxonomy",
+        "api.pattern-machining"
+      ],
+      "tools": [
+        "meshHeightfieldRelief",
+        "heightfieldSculpt",
+        "meshBoolean",
+        "meshReliefPlate",
+        "meshReliefEdit",
+        "sampleMeshRelief",
+        "logo",
+        "relief",
+        "reliefSculpt",
+        "reliefShoulder"
+      ],
+      "note": "作者高度图与精确矢量分流；照片须先制作高度图，亮度不直接代表深度。"
+    },
     {
       "id": "agent-runtime-recovery",
       "title": "Agent版本、保存与内核恢复",
@@ -66,6 +99,9 @@
         "api.editor"
       ],
       "tools": [
+        "meshHeightfieldRelief",
+        "heightfieldSculpt",
+        "meshBoolean",
         "meshReliefPlate",
         "meshReliefEdit",
         "sampleMeshRelief",
@@ -353,10 +389,16 @@
         "relief"
       ],
       "docs": [
+        "api.relief-taxonomy",
         "api.pattern-machining"
       ],
       "tools": [
-        "planPatternMachining"
+        "planPatternMachining",
+        "meshHeightfieldRelief",
+        "heightfieldSculpt",
+        "meshBoolean",
+        "relief",
+        "logo"
       ],
       "note": "Legacy route ID retained. Discovery is not a geometry decision: read the shared workflow, declare user intent/source, then load only matched full tool cards. Never swap routes after failure; shaded reference brightness is not depth."
     },

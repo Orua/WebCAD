@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.47.0 · 操作目录 sha256:259f7c718a2e00cfdfcf1ff463119c7d35091bdf3659daeb99c3c3f337694486
+API 1.47.0 · 操作目录 sha256:cdb31b2ab8bdf88d96a17836a72b12ccdbe1a469d3732fc6cef381a9d1d0f8e8
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -178,6 +178,8 @@ API 1.47.0 · 操作目录 sha256:259f7c718a2e00cfdfcf1ff463119c7d35091bdf3659da
 - `transform` · migrated · Scale, rotate X/Y/Z about origin, then translate
 - `union` · migrated · Fuse bodies
 - `vectorProfile` · advisory · Create independent planar faces or solids from closed vector regions
+- `heightfieldSculpt` · undefined · 发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。
+- `reliefSculpt` · undefined · 发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。
 - `template.ring` · advisory · 同心圆恒截面单圈；开缝为底部正中平行平切。
 - `template.washer` · advisory · 平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。
 - `template.tube` · advisory · 同轴圆筒，外径 13.4、内径 12.4、高度 3 为用户 C 件默认值。
