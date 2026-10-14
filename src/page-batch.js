@@ -34,7 +34,9 @@ function safe(value,depth=0){
     safe(v,depth+1);
   }
 }
-export function createPageBatch(api){
+// Steps that read or change the rendered view see the committed model first.
+const DISPLAY_STEPS=new Set(['setView','setRenderQuality','setDisplayPreferences','redraw','files.save','files.export']);
+export function createPageBatch(api,{display}={}){
   const receipts=new Map(),failedAttempts=new Map();let tail=Promise.resolve(),instance;
   const canonical=value=>JSON.stringify(value,(_,v)=>plain(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);
   const digest=value=>contractHash(JSON.parse(value)).slice(7);
@@ -103,12 +105,16 @@ export function createPageBatch(api){
         return Object.fromEntries(Object.entries(value).map(([k,v])=>[k,resolve(v)]));
       };
       started=true;
+      // One display upload/UI refresh for the whole batch instead of per step.
+      display?.begin?.();
+      try{
       for(const step of input.steps){
         activeStepId=step.id;
         if(control.cancelled?.())bad('BATCH_CANCELLED','Stopped between stages; earlier committed steps remain');
         const stepStartedAt=performance.now();
         activeStepId=step.id;let args=resolve(step.args||{}),result;
         const allowPreview=step.method==='execute'&&['preview.update','preview.commit','preview.cancel'].includes(args.action);
+        if(DISPLAY_STEPS.has(step.method)||(step.method==='execute'&&String(args.action||'').startsWith('preview.')))display?.flush?.();
         check(allowPreview);
         const attempt=canonical({context:expected,method:step.method,args});
         const inputFingerprint=await digest(attempt);
@@ -153,6 +159,7 @@ export function createPageBatch(api){
         // Advance only using this step's receipt, never silently adopt another writer's revision.
         if(result?.status==='committed')expected=result.context?context(result.context):{...expected,expectedRevision:result.revisionAfter};
       }
+      }finally{display?.end?.();}
       activeStepId=null;check(true);const result=finish('completed');receipts.set(key,{fingerprint,result:structuredClone(result)});return result;
     }catch(e){
       const result=finish(results.length?'partial':'failed',e);

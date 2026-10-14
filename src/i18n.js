@@ -34,33 +34,53 @@ export function t(message, params = {}) {
  for (const [key,value] of Object.entries(params)) text=text.replaceAll(`{${key}}`,String(value));
  return text;
 }
-/** Translate chrome without replacing form values, imported names, or viewport labels. */
+/** Translate chrome without replacing form values, imported names, or viewport labels.
+ * Full passes run on start and on explicit translate() (language switch). Mutation
+ * batches only visit the changed nodes, and are a no-op in the source language (zh):
+ * walking the whole DOM on every UI refresh cost ~20% of the main thread in agent batches. */
 export function watchTranslations(root) {
  const original=new WeakMap(), attributes=new WeakMap();
- let observer;
- const translate=()=>{
+ const SKIP='#viewport,.tree-name,.property-title,#document-name,textarea,script,style,[data-no-translate]';
+ let observer, appliedLanguage=null;
+ const textNode=node=>{
+  if(node.parentElement?.closest(SKIP))return;
+  const prior=original.get(node), current=node.nodeValue;
+  const source=prior && current===prior.output ? prior.source:current;
+  const leading=source.match(/^\s*/)?.[0]||'', trailing=source.match(/\s*$/)?.[0]||'';
+  const output=source.trim()?leading+t(source.trim())+trailing:source;
+  original.set(node,{source,output});if(current!==output)node.nodeValue=output;
+ };
+ const element=el=>{
+  const record=attributes.get(el)||{};
+  for(const attr of ['title','aria-label','placeholder'])if(el.hasAttribute(attr)){
+   const current=el.getAttribute(attr), previous=record[attr],source=previous&&current===previous.output?previous.source:current,output=t(source);
+   record[attr]={source,output};if(current!==output)el.setAttribute(attr,output);
+  }
+  attributes.set(el,record);
+ };
+ const subtree=node=>{
+  if(node.nodeType===3){textNode(node);return;}
+  if(node.nodeType!==1&&node.nodeType!==11)return;
+  const walker=document.createTreeWalker(node,NodeFilter.SHOW_TEXT);let text;
+  while((text=walker.nextNode()))textNode(text);
+  if(node.nodeType===1&&node.matches('[title],[aria-label],[placeholder]'))element(node);
+  for(const el of node.querySelectorAll('[title],[aria-label],[placeholder]'))element(el);
+ };
+ const translate=records=>{
+  const incremental=Array.isArray(records)&&appliedLanguage===language;
+  // Source text is Chinese: once a full zh pass has run, new or changed nodes need no work.
+  if(incremental&&language==='zh')return;
   observer?.disconnect();
-  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
-  let node;
-  while((node=walker.nextNode())){
-   if(node.parentElement?.closest('#viewport,.tree-name,.property-title,#document-name,textarea,script,style,[data-no-translate]'))continue;
-   const prior=original.get(node), current=node.nodeValue;
-   const source=prior && current===prior.output ? prior.source:current;
-   const leading=source.match(/^\s*/)?.[0]||'', trailing=source.match(/\s*$/)?.[0]||'';
-   const output=source.trim()?leading+t(source.trim())+trailing:source;
-   original.set(node,{source,output});if(current!==output)node.nodeValue=output;
-  }
-  for(const el of root.querySelectorAll('[title],[aria-label],[placeholder]')){
-   const record=attributes.get(el)||{};
-   for(const attr of ['title','aria-label','placeholder'])if(el.hasAttribute(attr)){
-    const current=el.getAttribute(attr), previous=record[attr],source=previous&&current===previous.output?previous.source:current,output=t(source);
-    record[attr]={source,output};if(current!==output)el.setAttribute(attr,output);
+  if(incremental){
+   for(const record of records){
+    if(record.type==='characterData')textNode(record.target);
+    else if(record.type==='attributes'){if(record.target.isConnected)element(record.target);}
+    else for(const node of record.addedNodes)if(node.isConnected)subtree(node);
    }
-   attributes.set(el,record);
-  }
+  }else{subtree(root);appliedLanguage=language;}
   root.setAttribute('lang',language==='en'?'en':'zh-CN');
   observer?.observe(root,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['title','aria-label','placeholder']});
  };
  observer=new MutationObserver(translate);translate();
- return {translate,destroy:()=>observer.disconnect()};
+ return {translate:()=>translate(),destroy:()=>observer.disconnect()};
 }

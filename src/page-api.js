@@ -418,7 +418,7 @@ export function createPageAPI(host){
       return {status:'read',mime:'image/png',dataUrl,context:current().context,display:host.display()};
     }),files:Object.freeze(files),
   };
-  const run=createPageBatch(api);
+  const run=createPageBatch(api,{display:host.displayBatch});
   api.run=guarded(input=>run(input));
   const callable=new Set([...Object.keys(api),...Object.keys(files).map(k=>`files.${k}`)]);
   api.invoke=async(input={})=>{
