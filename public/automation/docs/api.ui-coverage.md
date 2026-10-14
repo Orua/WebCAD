@@ -241,6 +241,18 @@
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "meshHeightfieldRelief": {
+    "tools": [
+      "meshHeightfieldRelief",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel",
+      "feature.edit",
+      "getState"
+    ],
+    "method": "execute",
+    "usage": "由作者制作的灰度高度图（行优先 u8/u16le base64）生成封闭网格浮雕：宽、长、底厚、浮雕高度、平滑、gamma、边缘渐隐；最多约190万采样点，输出可导出STL，不是BRep/STEP。"
+  },
   "meshReliefEdit": {
     "tools": [
       "meshReliefEdit",

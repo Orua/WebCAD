@@ -145,6 +145,7 @@
   },
   "boundedMeshOperations": [
     "meshReliefPlate",
+    "meshHeightfieldRelief",
     "meshReliefEdit"
   ],
   "servicesEligibleOperations": [
@@ -210,6 +211,7 @@
     "logo",
     "meshReliefEdit",
     "meshReliefPlate",
+    "meshHeightfieldRelief",
     "mirror",
     "multiBoss",
     "multiHole",

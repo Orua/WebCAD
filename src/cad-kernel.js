@@ -2,6 +2,7 @@ import {sampleMeshRelief} from './mesh/relief-sample.js';
 import {exactSourceBytes} from './exact-source.js';
 import {MeshShape} from './mesh/mesh-shape.js';
 import {makeReliefPlate} from './mesh/relief-plate.js';
+import {makeHeightfieldRelief} from './mesh/heightfield-relief.js';
 import {editMeshRelief} from './mesh/relief-edit.js';
 import {assertPatternExecution} from './machining-intent.js';
 import {meshError} from './mesh/mesh-contract.js';
@@ -224,6 +225,7 @@ export class CadKernel {
     const source = () => { if (sources.length !== 1) throw new Error('此操作需要选择一个实体'); return sources[0]; };
     switch (feature.op) {
       case 'meshReliefPlate': return new MeshShape(makeReliefPlate(p),{units:'mm',sourceFormat:'generated-mesh',report:{authoritativeEditableKind:'mesh-f64',recipeVersion:1}});
+      case 'meshHeightfieldRelief': return new MeshShape(makeHeightfieldRelief(p),{units:'mm',sourceFormat:'generated-mesh',report:{authoritativeEditableKind:'heightfield',recipeVersion:1,closed:true}});
       case 'meshReliefEdit': {
         const original=source();if(original.geometryType!=='mesh')throw meshError('RELIEF_SOURCE_UNSUPPORTED','This operation edits a mesh; exact BRep requires its own surface operation.');
         const result=editMeshRelief(original.transformed(),p);
