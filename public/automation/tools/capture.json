@@ -4,7 +4,7 @@
   "category": "page-method",
   "version": "1.48.0",
   "contextPolicy": "identity",
-  "description": "capture({context}); 不接受额外字段。",
+  "description": "capture({context,maxWidth?,format?,quality?}); 建议 maxWidth:800,format:\"webp\"。后台标签页也同步渲染一帧；超过 limits.transport.captureTimeoutMs（10 s）返回 CAPTURE_TIMEOUT，几何回执不受影响，不要循环等待 webcad_job。",
   "synonyms": [
     "capture",
     "截图",
@@ -12,7 +12,7 @@
     "PNG",
     "当前画面"
   ],
-  "inputContract": "capture({context}); 不接受额外字段。",
+  "inputContract": "capture({context,maxWidth?,format?,quality?}); 建议 maxWidth:800,format:\"webp\"。后台标签页也同步渲染一帧；超过 limits.transport.captureTimeoutMs（10 s）返回 CAPTURE_TIMEOUT，几何回执不受影响，不要循环等待 webcad_job。",
   "outputContract": "status=read、mime=image/png、真实 dataUrl、当前 context 和匹配渲染帧的 display。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -21,8 +21,9 @@
   "errorCodes": [
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE",
-    "DISPLAY_FAILED"
+    "DISPLAY_FAILED",
+    "CAPTURE_TIMEOUT"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:3d1a288c037a161197fb625c643b0619a975002a54507ce685e7819dce3ea9e9"
+  "docsHash": "sha256:0e1b7db31aaf6a615147d5d95f2356c86e0d516adeea8b50d611322b6741236e"
 }

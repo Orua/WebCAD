@@ -37,6 +37,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
