@@ -26,7 +26,7 @@ const groups = {
     'history-edit-safety','project-name','quick-model-usage','quick-hardware-api',
     'mechanical-tools-contracts','mechanical-page-api','profile-constraints','profile-constraint-history',
     'modeling-precision', 'workspace-upgrade', 'anchor-clearance', 'anchor-lineage', 'align-mode', 'frame-orientation', 'webcad-shortcuts', 'dimension-adapter',
-    'tool-discovery', 'agent-onboarding', 'agent-kit', 'browser-logo-input', 'page-batch', 'page-api', 'browser-files', 'artifact-store', 'command-service', 'document-identity', 'logo-import-request', 'operation-registry', 'position-table', 'profile-projection',
+    'tool-discovery', 'native-watch-revision', 'agent-onboarding', 'agent-kit', 'browser-logo-input', 'page-batch', 'page-api', 'browser-files', 'artifact-store', 'command-service', 'document-identity', 'logo-import-request', 'operation-registry', 'position-table', 'profile-projection',
     'parameter-calculator', 'named-parameters', 'recovery-isolation', 'selection-contract', 'selection-assists',
     'tool-state', 'viewport-transform', 'dfam-inspection', 'profile-fitting', 'text-commands',
   ],
