@@ -19,14 +19,14 @@ export function prepareReferenceHdr(texture){
 // Finish values and reference atlas are carried over from the original CadViewer.
 export const METAL_FINISHES = Object.freeze({
   design: { label: '设计原色', metalness: 0.15, roughness: 0.42, reflectionStrength: 0 },
-  'light-gold': { label: '浅金', color: [0.82, 0.58, 0.24], roughness: 0.105, reflectionStrength: 1.28 },
-  nickel: { label: '亮镍', color: [0.72, 0.74, 0.76], roughness: 0.12, reflectionStrength: 1.22 },
-  '24k-gold': { label: '24K 金', color: [0.88, 0.49, 0.10], roughness: 0.14, reflectionStrength: 1.08, metalBodyTint: 0.13 },
-  gunmetal: { label: '枪色', color: [0.18, 0.21, 0.24], roughness: 0.15, reflectionStrength: 1.18 },
-  'matt-nickel': { label: '哑镍', color: [0.62, 0.64, 0.66], roughness: 0.60, reflectionStrength: 0.48 },
-  'matt-light-gold': { label: '哑浅金', color: [0.70, 0.48, 0.21], roughness: 0.59, reflectionStrength: 0.50 },
-  'matt-24k-gold': { label: '哑 24K 金', color: [0.90, 0.55, 0.12], roughness: 0.58, reflectionStrength: 0.52 },
-  'matt-gunmetal': { label: '哑枪色', color: [0.15, 0.17, 0.19], roughness: 0.62, reflectionStrength: 0.46 },
+  'light-gold': { label: '浅金', color: [0.82, 0.58, 0.24], roughness: 0.105, reflectionStrength: 1.28, coat: 0.45 },
+  nickel: { label: '亮镍', color: [0.72, 0.74, 0.76], roughness: 0.12, reflectionStrength: 1.22, coat: 0.15 },
+  '24k-gold': { label: '24K 金', color: [0.88, 0.49, 0.10], roughness: 0.14, reflectionStrength: 1.08, metalBodyTint: 0.13, coat: 0.45 },
+  gunmetal: { label: '枪色', color: [0.18, 0.21, 0.24], roughness: 0.15, reflectionStrength: 1.18, coat: 0.35 },
+  'matt-nickel': { label: '哑镍', color: [0.62, 0.64, 0.66], roughness: 0.60, reflectionStrength: 0.48, anisotropy: 0.35 },
+  'matt-light-gold': { label: '哑浅金', color: [0.70, 0.48, 0.21], roughness: 0.59, reflectionStrength: 0.50, anisotropy: 0.35 },
+  'matt-24k-gold': { label: '哑 24K 金', color: [0.90, 0.55, 0.12], roughness: 0.58, reflectionStrength: 0.52, anisotropy: 0.35 },
+  'matt-gunmetal': { label: '哑枪色', color: [0.15, 0.17, 0.19], roughness: 0.62, reflectionStrength: 0.46, anisotropy: 0.35 },
   'antique-brass': { label: '仿古黄铜', color: [0.46, 0.29, 0.075], roughness: 0.60, reflectionStrength: 0.36, antiqueStrength: 0.97, patinaColor: [0.055, 0.035, 0.015], antiqueAtlasOffset: 0, antiqueTextureScale: 1.35, antiquePitStrength: 0.82 },
   'antique-silver': { label: '仿古银', color: [0.88, 0.86, 0.83], roughness: 0.46, reflectionStrength: 0.72, antiqueStrength: 0.55, patinaColor: [0.014, 0.012, 0.011], antiqueAtlasOffset: 0.5, antiqueTextureScale: 2.1, antiquePitStrength: 0.72 },
 });
@@ -51,6 +51,8 @@ uniform float webcadSuppressDirect;
 uniform float webcadSelection;
 uniform float webcadProductStudio;
 uniform float webcadReflectionStrength;
+uniform float webcadCoat;
+uniform float webcadAnisotropy;
 uniform vec3 webcadStudioKey;
 uniform vec3 webcadStudioLevels;
 ${PRODUCT_STUDIO_SHADER}
@@ -152,7 +154,7 @@ export class MetalMaterials {
         webcadAntiqueAtlas:{value:this.atlas||this.fallback},webcadAntiqueStrength:{value:0},
         webcadAtlasOffset:{value:0},webcadTextureScale:{value:1.35},webcadPitStrength:{value:0.82},
         webcadRadius:{value:1},webcadCenter:{value:new THREE.Vector3()},webcadPatina:{value:new THREE.Color()},webcadSatin:{value:0},
-        webcadFinishMetal:{value:0},webcadMetalBodyTint:{value:0},webcadExposure:{value:1},webcadSuppressDirect:{value:0},webcadSelection:{value:0},webcadProductStudio:{value:0},webcadReflectionStrength:{value:1},webcadStudioKey:{value:new THREE.Vector3()},webcadStudioLevels:{value:new THREE.Vector3()},
+        webcadFinishMetal:{value:0},webcadMetalBodyTint:{value:0},webcadExposure:{value:1},webcadSuppressDirect:{value:0},webcadSelection:{value:0},webcadProductStudio:{value:0},webcadReflectionStrength:{value:1},webcadCoat:{value:0},webcadAnisotropy:{value:0},webcadStudioKey:{value:new THREE.Vector3()},webcadStudioLevels:{value:new THREE.Vector3()},
       };
       state={uniforms,key,options:{bounds,baseColor}};this.materials.set(material,state);
       state.onDispose=()=>this.materials.delete(material);material.addEventListener('dispose',state.onDispose);
@@ -160,17 +162,17 @@ export class MetalMaterials {
         Object.assign(shader.uniforms,uniforms);
         shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 webcadObjectPosition;\nvarying vec3 webcadObjectNormal;\nvarying vec3 webcadStudioPoint;\nuniform vec3 webcadCenter;\nuniform float webcadRadius;').replace('#include <begin_vertex>','#include <begin_vertex>\nwebcadObjectPosition=position; webcadObjectNormal=normal; webcadStudioPoint=mat3(modelViewMatrix)*(position-webcadCenter)/max(webcadRadius,0.001);');
         shader.fragmentShader=shader.fragmentShader.replace('#include <common>',`#include <common>\n${declarations}`).replace('#include <color_fragment>',`#include <color_fragment>\n${surface}`).replace('#include <roughnessmap_fragment>',`#include <roughnessmap_fragment>\nroughnessFactor=clamp(roughnessFactor+webcadAntiqueStrength*(webcadPits*0.20+webcadCloud*0.12)+webcadSatin*(webcadGrain-0.5)*0.06,0.06,1.0);`).replace('#include <metalnessmap_fragment>','#include <metalnessmap_fragment>\nmetalnessFactor*=1.0-webcadAntiqueStrength*webcadPits*0.25;');
-        // The reference uses the scalar ACES approximation and gamma 2.2.
+        // Metal keeps the scalar ACES approximation; output uses the exact sRGB transfer.
         // Three's ACESFilmic has AP1 matrices and a /0.6 scale; using it here
         // changes the same gold RGB. Design colours retain the host pipeline.
         shader.fragmentShader=shader.fragmentShader
-          .replace('#include <opaque_fragment>','if(webcadProductStudio>0.5){outgoingLight-=reflectedLight.indirectSpecular+reflectedLight.directSpecular;outgoingLight+=productStudioSpecular(normalize(normal),normalize(vViewPosition),diffuseColor.rgb,roughnessFactor,webcadStudioKey,webcadStudioLevels,webcadStudioPoint)*webcadReflectionStrength;}else{outgoingLight-=reflectedLight.directSpecular*webcadSuppressDirect;}\noutgoingLight+=diffuseColor.rgb*webcadMetalBodyTint;\nfloat webcadCavityFactor=1.0;\nif(webcadFinishMetal>0.5&&diffuseColor.a>=0.999)webcadCavityFactor=webcadCavityLight(-vViewPosition,normalize(normal));\noutgoingLight*=webcadCavityFactor;\n#include <opaque_fragment>')
+          .replace('#include <opaque_fragment>','if(webcadProductStudio>0.5){outgoingLight-=reflectedLight.indirectSpecular+reflectedLight.directSpecular;outgoingLight+=productStudioSpecular(normalize(normal),normalize(vViewPosition),diffuseColor.rgb,roughnessFactor,webcadAnisotropy,webcadStudioKey,webcadStudioLevels,webcadStudioPoint)*webcadReflectionStrength;if(webcadCoat>0.0){float webcadCoatFresnel;vec3 webcadCoatLight=productStudioCoat(normalize(normal),normalize(vViewPosition),webcadStudioKey,webcadStudioLevels,webcadStudioPoint,webcadCoatFresnel);outgoingLight=outgoingLight*(1.0-webcadCoatFresnel*webcadCoat)+webcadCoatLight*webcadCoat;}}else{outgoingLight-=reflectedLight.directSpecular*webcadSuppressDirect;}\noutgoingLight+=diffuseColor.rgb*webcadMetalBodyTint;\nfloat webcadCavityFactor=1.0;\nif(webcadFinishMetal>0.5&&diffuseColor.a>=0.999)webcadCavityFactor=webcadCavityLight(-vViewPosition,normalize(normal));\noutgoingLight*=webcadCavityFactor;\n#include <opaque_fragment>')
           // Preserve local cavity contrast when a bright HDR reflection clips
           // to white in the reference tone curve. Unoccluded colours stay exact.
           .replace('#include <tonemapping_fragment>','if(webcadFinishMetal>0.5){gl_FragColor.rgb=webcadReferenceToneMap(gl_FragColor.rgb*webcadExposure);gl_FragColor.rgb*=mix(1.0,webcadCavityFactor,0.65);}else{\n#include <tonemapping_fragment>\n}')
-          .replace('#include <colorspace_fragment>','if(webcadFinishMetal>0.5){gl_FragColor.rgb=pow(gl_FragColor.rgb,vec3(1.0/2.2));}else{\n#include <colorspace_fragment>\n}\ngl_FragColor.rgb=mix(gl_FragColor.rgb,vec3(0.12,0.48,0.95),webcadSelection*0.7);');
+          .replace('#include <colorspace_fragment>','if(webcadFinishMetal>0.5){gl_FragColor=sRGBTransferOETF(gl_FragColor);}else{\n#include <colorspace_fragment>\n}\ngl_FragColor.rgb=mix(gl_FragColor.rgb,vec3(0.12,0.48,0.95),webcadSelection*0.7);');
       };
-      material.customProgramCacheKey=()=> 'webcad-metal-product-studio-v7-parallax-selection';
+      material.customProgramCacheKey=()=> 'webcad-metal-product-studio-v8-softbox-coat-aniso';
       material.needsUpdate=true;
     }
     state.key=key;state.options={bounds,baseColor,displayPreferences};
@@ -180,6 +182,9 @@ export class MetalMaterials {
     const productStudio=key!=='design'&&preferences.environmentMode==='studio';
     u.webcadProductStudio.value=productStudio?1:0;
     u.webcadReflectionStrength.value=finish.reflectionStrength*preferences.environmentIntensity;
+    // Lacquer and brushing only shape the product-studio reflection; HDR mode keeps the reference look.
+    u.webcadCoat.value=productStudio?(finish.coat??0):0;
+    u.webcadAnisotropy.value=productStudio?Math.min(1,Math.max(0,finish.anisotropy??0)):0;
     const az=(preferences.lightAzimuth+(preferences.environmentRotation??0))*Math.PI/180,el=preferences.lightElevation*Math.PI/180;
     u.webcadStudioKey.value.set(Math.cos(el)*Math.sin(az),Math.sin(el),Math.cos(el)*Math.cos(az));
     u.webcadStudioLevels.value.set(preferences.keyIntensity/1.3,preferences.fillIntensity/0.45,preferences.ambientIntensity/0.4);

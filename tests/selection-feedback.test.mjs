@@ -35,5 +35,5 @@ test('body, face and edge selection share feedback and clear fully',()=>{
   viewport.setSelection(['a']);assert.equal(metals.materials.get(material).uniforms.webcadSelection.value,1);
   viewport.setSelection(['a'],{bodyId:'a',type:'face',ids:[2]});assert.deepEqual(viewport.faceOverlay.position.toArray(),[10,20,30]);
   viewport.setSelection(['a'],{bodyId:'a',type:'edge',ids:[4]});assert.equal(viewport.faceOverlay,null);assert.equal(line.material.opacity,1);assert.equal(line.material.depthTest,false);
-  viewport.setSelection([]);assert.equal(line.material.depthTest,true);assert.equal(line.material.opacity,.18);assert.equal(metals.materials.get(material).uniforms.webcadSelection.value,0);
+  viewport.setSelection([]);assert.equal(line.material.depthTest,true);assert.equal(line.material.opacity,.08);assert.equal(metals.materials.get(material).uniforms.webcadSelection.value,0);
 });
