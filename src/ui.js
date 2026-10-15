@@ -168,15 +168,15 @@ export function createUI(root,callbacks={}) {
  const agentToggle=button('进入 Agent 模式',async()=>{const page=window.webcad.api;const result=await page.setAgentPanel({context:page.getState().context,visible:!window.webcad.assistantPanel.get().visible});if(result.status==='failed')api.showError(result.error.message);},'agent-mode-button');
  agentToggle.replaceChildren(vectorIcon([...cadMark,'M20 1v4M18 3h4']));agentToggle.dataset.commandId='agentPanel';agentToggle.title='进入 Agent 模式';agentToggle.setAttribute('aria-label','进入 Agent 模式');q('.header-actions').prepend(agentToggle);
  const hostStatus=element('span',{class:'host-control-status',role:'status','aria-label':'Agent 未连接 · 可编辑'});
- hostStatus.innerHTML='<span class="host-connection" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/></svg></span><span class="host-lock" aria-hidden="true"></span>';
+ hostStatus.innerHTML='<span class="host-connection" aria-hidden="true"></span><span class="host-state-label"></span>';
  q('.app-header').append(hostStatus);
  let hostControlState={locked:false,connected:false};const hostDisabled=new Map();let agentPanelVisible=false,agentFocusArmed=false,agentFocusOwned=false;
  function syncHostControl(){
   app.classList.toggle('is-host-locked',hostControlState.locked);
   hostStatus.dataset.connected=String(hostControlState.connected);hostStatus.dataset.locked=String(hostControlState.locked);
   hostStatus.hidden=!hostControlState.connected&&!hostControlState.locked;
-  const label=`Agent ${hostControlState.connected?'已连接':'未连接'} · ${hostControlState.locked?'控制中，仅可旋转、缩放、平移':'可编辑'}`;
-  hostStatus.title=label;hostStatus.setAttribute('aria-label',label);hostStatus.querySelector('.host-lock').innerHTML=hostControlState.locked?'<svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>':'<svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0"/></svg>';
+  const label=hostControlState.locked?'Agent 控制中，仅可旋转、缩放、平移':hostControlState.connected?'Agent 已连接，可编辑':'Agent 未连接，可编辑';
+  hostStatus.title=label;hostStatus.setAttribute('aria-label',label);hostStatus.querySelector('.host-state-label').textContent=hostControlState.locked?'控制中':'已连接';
   if(hostControlState.locked){for(const control of hostDisabled.keys())if(!control.isConnected)hostDisabled.delete(control);for(const control of root.querySelectorAll('button,input,select,textarea')){if(control.matches('[data-action="save"],[data-command-id="save"],[data-command-id="agentPanel"]')||control.closest('.file-menu'))continue;if(!hostDisabled.has(control))hostDisabled.set(control,control.disabled);control.disabled=true;}}
   else{for(const [control,disabled]of hostDisabled)if(control.isConnected)control.disabled=disabled;hostDisabled.clear();}
  }
@@ -676,7 +676,13 @@ export function createUI(root,callbacks={}) {
  const selectTool=button('',activateSelectTool);selectTool.append(selectionIcon(),element('span',{},'选择'));selectTool.dataset.action='selectTool';selectTool.title='选择：左键拖框；左→右全包，右→左相交；Shift 加选；Alt＋左键旋转';q('.selection-modes').append(selectTool);const moveTool=button('移动',()=>run('transform'));moveTool.dataset.action='transform';q('.view-actions').append(moveTool);const transformHelp=element('div',{class:'transform-help',hidden:''}),transformHint=element('span',{class:'transform-hint',role:'status'}),exactTransform=button('精确输入',()=>{const mode=state.viewState?.gizmo;emit('gizmo',{mode:'off'});spatialTransformDialog(mode==='rotate'?'rotateTool':'moveTool');}),finishTransform=button('完成',()=>activateSelectTool());exactTransform.dataset.action='transform';finishTransform.dataset.action='selectTool';transformHelp.append(transformHint,exactTransform,finishTransform);q('.canvas-panel').append(transformHelp);
  for(const item of UI_LAYOUT.viewportActions){const b=button('',()=>run(item.action),'gizmo-button');b.append(actionIcon(item.action));b.dataset.action=item.action;b.dataset.commandId=item.action;b.setAttribute('aria-label',item.label);b.title=item.label;q('.view-actions').prepend(b);}
  const undo=button('↶ 撤销',()=>emit('undo')),redo=button('↷ 重做',()=>emit('redo'));undo.title='撤销 · Ctrl + Z';redo.title='重做 · Ctrl + Shift + Z';q('.quick-history').append(undo,redo);
- for(const [label,mode]of [['查看','view'],['选体','body'],['选面','face'],['选边','edge']]){const b=button(label,()=>{q('.selection-modes').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));emit('selectMode',{mode});});b.dataset.mode=mode;if(mode==='view')b.classList.add('active');q('.selection-modes').append(b);}
+ const modeIconPaths={
+  view:['M2.5 12c2.1-3.7 5.2-5.5 9.5-5.5s7.4 1.8 9.5 5.5c-2.1 3.7-5.2 5.5-9.5 5.5s-7.4-1.8-9.5-5.5Z','M12 9.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 0 0 0-5.6Z'],
+  body:['M12 3.5 20 7.8v8.4L12 20.5 4 16.2V7.8L12 3.5Z','M4 7.8 12 12.1 20 7.8','M12 12.1v8.4'],
+  face:['M12 3.5 20 7.8v8.4L12 20.5 4 16.2V7.8L12 3.5Z','M4 7.8 12 12.1 20 7.8','M12 12.1v8.4','M4 7.8 12 3.5 20 7.8 12 12.1Z'],
+  edge:['M12 3.5 20 7.8v8.4L12 20.5 4 16.2V7.8L12 3.5Z','M4 7.8 12 12.1 20 7.8','M12 12.1v8.4','M4 7.8 12 12.1']
+ };
+ for(const [label,mode]of [['查看','view'],['选体','body'],['选面','face'],['选线','edge']]){const b=button('',()=>{q('.selection-modes').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));emit('selectMode',{mode});});b.dataset.mode=mode;b.title=mode==='edge'?'选线（边）':label;b.setAttribute('aria-label',mode==='edge'?'选线（边）':label);const icon=vectorIcon(modeIconPaths[mode],'selection-mode-icon');if(mode==='face'){const face=icon.lastElementChild;face.setAttribute('fill','currentColor');face.setAttribute('fill-opacity','.18');}if(mode==='edge')icon.lastElementChild.setAttribute('stroke-width','2.8');b.append(icon);if(mode==='view')b.classList.add('active');q('.selection-modes').append(b);}
  for(const [label,action]of [['⌂ 适合窗口','fit'],['测量','measure']]){const b=button(label,()=>emit(action));b.dataset.action=action;q('.view-actions').append(b);};
  
  function updateDisabled(){
