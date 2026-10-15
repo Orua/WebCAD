@@ -54,7 +54,9 @@ export function isOcclusionSurface(object){
 export function metalEdgeOpacity({selected=false,selectedEdge=false,translucent=false,mode='edges',finish='design'}={}){
   if(selectedEdge)return 1;
   if(translucent)return 0.25;
-  return selected||mode==='wire'||mode==='transparentEdges'||finish==='design'?0.72:0.18;
+  // Metal: B-rep patch seams on smooth bends read as facets in reflections, so keep them faint;
+  // selection, wire and transparent modes keep full edge feedback.
+  return selected||mode==='wire'||mode==='transparentEdges'||finish==='design'?0.72:0.08;
 }
 
 export function fitOcclusionCamera(camera,surfaces){

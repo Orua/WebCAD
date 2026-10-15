@@ -53,7 +53,7 @@ test('tight depth projection preserves projected XY and view positions for persp
   }
 });
 test('metal soft edges retain strong selection and technical views',()=>{
-  assert.equal(metalEdgeOpacity({finish:'nickel'}),.18);assert.equal(metalEdgeOpacity({finish:'design'}),.72);
+  assert.equal(metalEdgeOpacity({finish:'nickel'}),.08);assert.equal(metalEdgeOpacity({finish:'design'}),.72);
   assert.equal(metalEdgeOpacity({finish:'nickel',selected:true}),.72);assert.equal(metalEdgeOpacity({finish:'nickel',selectedEdge:true}),1);
   for(const mode of ['wire','transparentEdges'])assert.equal(metalEdgeOpacity({finish:'nickel',mode}),.72);
   const mesh=surface('display-only');assert.equal(isOcclusionSurface(mesh),true);mesh.material.wireframe=true;assert.equal(isOcclusionSurface(mesh),false);
@@ -65,7 +65,7 @@ test('shared cavity factor shades metal before tone mapping, retains bright-cavi
   assert.equal(shader.uniforms.webcadOcclusionEnabled,metals.getOcclusionUniforms().webcadOcclusionEnabled);
   assert.equal(shader.uniforms.webcadSelection.value,1);
   assert.equal(shader.fragmentShader.match(/webcadCavityLight\(-vViewPosition/g)?.length,1);
-  const tone=shader.fragmentShader.indexOf('gl_FragColor.rgb=webcadReferenceToneMap'),contrast=shader.fragmentShader.indexOf('gl_FragColor.rgb*=mix(1.0,webcadCavityFactor,0.65)'),gamma=shader.fragmentShader.indexOf('gl_FragColor.rgb=pow');
+  const tone=shader.fragmentShader.indexOf('gl_FragColor.rgb=webcadReferenceToneMap'),contrast=shader.fragmentShader.indexOf('gl_FragColor.rgb*=mix(1.0,webcadCavityFactor,0.65)'),gamma=shader.fragmentShader.indexOf('gl_FragColor=sRGBTransferOETF(gl_FragColor)');
   assert.ok(shader.fragmentShader.indexOf('outgoingLight*=webcadCavityFactor')<tone);
   assert.ok(contrast>tone&&contrast<gamma);
   assert.ok(shader.fragmentShader.indexOf('gl_FragColor.rgb=mix')>shader.fragmentShader.indexOf('gl_FragColor.rgb=webcadReferenceToneMap'));

@@ -39,7 +39,7 @@ test('real Three shader receives reference tone/gamma and design colours retain 
   assert.match(shader.fragmentShader,/outgoingLight\+=diffuseColor\.rgb\*webcadMetalBodyTint/);
   assert.match(shader.fragmentShader,/outgoingLight-=reflectedLight\.directSpecular\*webcadSuppressDirect/);
   assert.match(shader.fragmentShader,/webcadReferenceToneMap\(gl_FragColor\.rgb\*webcadExposure\)/);
-  assert.match(shader.fragmentShader,/pow\(gl_FragColor\.rgb,vec3\(1\.0\/2\.2\)\)/);
+  assert.match(shader.fragmentShader,/gl_FragColor=sRGBTransferOETF\(gl_FragColor\)/);
   assert.match(shader.fragmentShader,/else\{\n#include <tonemapping_fragment>/);
   assert.match(shader.fragmentShader,/else\{\n#include <colorspace_fragment>/);
   metals.apply(material,'design',{baseColor:'#aac4d9'});
@@ -94,4 +94,19 @@ test('product studio puts its key light to the side and migrates only untouched 
     assert.equal(loadDisplayPreferences().environmentMode,'hdr');
     assert.equal(loadDisplayPreferences().exposure,0.8);
   }finally{if(original===undefined)delete globalThis.document;else globalThis.document=original;}
+});
+
+test('studio v2: lacquer coat on polished plating, brushed anisotropy on matt finishes, HDR keeps reference',()=>{
+  const {metals,material}=fixture();
+  metals.apply(material,'24k-gold');let u=metals.materials.get(material).uniforms;
+  assert.equal(u.webcadProductStudio.value,1);assert.equal(u.webcadCoat.value,0.45);assert.equal(u.webcadAnisotropy.value,0);
+  metals.apply(material,'matt-nickel');assert.equal(u.webcadAnisotropy.value,0.35);assert.equal(u.webcadCoat.value,0);
+  metals.apply(material,'nickel',{displayPreferences:{environmentMode:'hdr'}});assert.equal(u.webcadCoat.value,0);assert.equal(u.webcadAnisotropy.value,0);
+  metals.apply(material,'antique-brass');assert.equal(u.webcadCoat.value,0);assert.equal(u.webcadAnisotropy.value,0);
+  const shader={vertexShader:THREE.ShaderLib.standard.vertexShader,fragmentShader:THREE.ShaderLib.standard.fragmentShader,uniforms:{}};
+  material.onBeforeCompile(shader);
+  assert.match(shader.fragmentShader,/productStudioCoat\(/);
+  assert.match(shader.fragmentShader,/roughnessFactor,webcadAnisotropy,webcadStudioKey/);
+  assert.match(shader.fragmentShader,/float productSoftbox\(vec3 ray,vec3 center,vec2 size,vec2 blur\)/);
+  assert.equal(material.customProgramCacheKey(),'webcad-metal-product-studio-v8-softbox-coat-aniso');
 });
