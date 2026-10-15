@@ -610,7 +610,7 @@ async function insertModels(files,{signal,expectedRevision,mcp=false,placement,u
     const done=await withLoading(async()=>{
       const next=clone(documentModel),added=await appendModel(next,file,{mcp,placement,units});if(!added)return false;
       if(!next.features.slice(0,-1).length)next.name=file.name.replace(/\.[^.]+$/,'');
-      const options={fit:true,select:added.id,signal,expectedRevision};
+      const options={fit:true,signal,expectedRevision};
       await (added.large?rebuildLargeImport(next,options):rebuild(next,options));return true;
     });if(!done)return;
   }
@@ -674,7 +674,7 @@ async function performAction(action,params={}){
   if(action.startsWith('reference.'))return runEditorAction(action,params);
   if(action==='language'){viewport.updateLanguage();refresh();return;}
   if(action==='cancelPreview'){await cancelPreview();return;}
-  if(action==='commitPreview'){if(!previewNext)throw new Error('No preview to apply');await rebuild(clone(previewNext),{select:previewNext.features.at(-1)?.id});return true;}
+  if(action==='commitPreview'){if(!previewNext)throw new Error('No preview to apply');await rebuild(clone(previewNext));return true;}
   if(action==='heightfieldSculpt'){
     const feature=documentModel.features.find(f=>f.id===params.featureId);if(feature?.op!=='meshHeightfieldRelief')throw new Error('请选择一个高度图浮雕实体。');
     const sculpt=params.undo?(feature.params.sculpt||[]).slice(0,-1):[...(feature.params.sculpt||[]),...params.strokes];
@@ -868,7 +868,7 @@ async function executeAI(command,args={},options={}){
     viewport.setWorkFrame?.(next.referenceSystem.workFrame);flushDisplayBatch();viewport.markModel({documentId:next.documentId,documentInstanceId,revision});refresh();void autosave();return aiState();
   }
   if(command==='preview.cancel'){if(!previewNext)throw new Error('No preview to cancel');if(previewIdentity&&(previewIdentity.previewId!==args.previewId||previewIdentity.generation!==args.expectedGeneration))throw Object.assign(new Error('Preview identity changed'),{code:'STALE_REFERENCE'});await cancelPreview();return aiState();}
-  if(command==='preview.commit'){if(!previewNext)throw new Error('No preview to apply');if(previewIdentity&&(previewIdentity.previewId!==args.previewId||previewIdentity.generation!==args.expectedGeneration))throw Object.assign(new Error('Preview identity changed'),{code:'STALE_REFERENCE'});await rebuild(clone(previewNext),{...options,select:previewNext.features.at(-1)?.id});return aiState();}
+  if(command==='preview.commit'){if(!previewNext)throw new Error('No preview to apply');if(previewIdentity&&(previewIdentity.previewId!==args.previewId||previewIdentity.generation!==args.expectedGeneration))throw Object.assign(new Error('Preview identity changed'),{code:'STALE_REFERENCE'});await rebuild(clone(previewNext),options);return aiState();}
   if(command==='editor_action'){
     if(args.action==='feature.compileServices'){
       const expected=options.expectedRevision,snapshot=clone(documentModel),feature=snapshot.features.find(f=>f.id===args.values.featureId);assertCompilableFeature(feature);
@@ -967,7 +967,7 @@ async function executeAI(command,args={},options={}){
       if(next.appearance?.[feature.refs[0]])next.appearance[feature.id]=next.appearance[feature.refs[0]];
       if(next.colors?.[feature.refs[0]])next.colors[feature.id]=next.colors[feature.refs[0]];
     }
-    await rebuild(next,{...options,select:args.features.at(-1).id,fit:true,historyLabel:'批量创建特征'});
+    await rebuild(next,{...options,fit:true,historyLabel:'批量创建特征'});
   }else if(command==='apply_template'){
     const template=QUICK_MODELS[args.templateId];if(!template)throw new Error('Unknown template');
     await addFeature('quickModel',{...template.defaults,...args.params,kind:args.templateId},{...options,refs:[]});
