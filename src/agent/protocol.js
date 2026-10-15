@@ -35,7 +35,7 @@ export function editsDocument(payload) {
   return ['add','addMany','execute','files.import','pasteSelection'].includes(payload?.method);
 }
 // Host-managed resources and service credentials never enter model-controlled arguments.
-export const HOST_ONLY_METHODS = Object.freeze({invoke:'dispatch wrapper',submit:'adapter owns job IDs',getJob:'original receipt via webcad_job',cancelJob:'host stop control',
+export const HOST_ONLY_METHODS = Object.freeze({invoke:'dispatch wrapper',submit:'adapter owns job IDs',getJob:'original receipt via webcad_job',cancelJob:'host stop control',awaitJob:'adapter awaits page job completion',
   configureAgentPanel:'user-owned assistant destination',setAgentPanel:'user-owned connection lifetime',
   getServices:'host service configuration',setServices:'host service credentials and upload consent',clearServicesCredential:'host authorization lifetime',
   getServicesCapabilities:'host service connection',getServicesRouting:'host execution router',getServicesJob:'host server job ownership',getServicesRequest:'host server request reconciliation',

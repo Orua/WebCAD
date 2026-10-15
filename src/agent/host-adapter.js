@@ -53,7 +53,10 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
       if (now()>=entry.command.deadline*1000) return finish(entry,{status:'unknown',commitState:'unknown',error:{code:'JOB_TIMEOUT',message:'Inspect the original page job; do not replay'},pageJobId:entry.jobId,context:api.getState().context});
       if (!accepting && job.status==='queued') api.cancelJob({jobId:entry.jobId});
       // One bounded in-page long wait (50 ms local tick) instead of 250 ms polling.
-      if(typeof api.waitFor==='function')await api.waitFor({jobId:entry.jobId,timeoutMs:Math.floor(Math.max(0,Math.min(25000,entry.command.deadline*1000-now())))});else await wait(250);
+      const budget=Math.floor(Math.max(0,Math.min(25000,entry.command.deadline*1000-now())));
+      // Pushed completion (page-jobs awaitJob) first; older pages fall back to the bounded waitFor tick.
+      if(typeof api.awaitJob==='function')await api.awaitJob({jobId:entry.jobId,timeoutMs:budget});
+      else if(typeof api.waitFor==='function')await api.waitFor({jobId:entry.jobId,timeoutMs:Math.floor(Math.max(0,Math.min(25000,entry.command.deadline*1000-now())))});else await wait(250);
       job=api.getJob({jobId:entry.jobId});
     }
     return finish(entry,job.result || {status:job.status==='cancelled'?'failed':'unknown',error:{code:job.status==='cancelled'?'JOB_CANCELLED':'JOB_RESULT_UNAVAILABLE'},context:api.getState().context});

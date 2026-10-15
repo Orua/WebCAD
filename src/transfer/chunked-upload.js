@@ -64,10 +64,25 @@ export async function uploadChunked({bytes,name,client,limits=T,onProgress=()=>{
   return {uploadId,sha256,size:bytes.byteLength,chunkCount:chunks.length,descriptor:await client.complete(uploadId)};
 }
 
+// Preferred host entry: artifacts up to limits.chunkBytes (4 MiB) go in ONE POST when the client supports it
+// (server route POST /sessions/{id}/artifacts already streams, hashes and verifies); larger ones use the
+// resumable chunked path. Size caps (100 MiB default, per-format typed budgets) are identical on both paths.
+export async function uploadArtifact({bytes,name,client,limits=T,onProgress=()=>{},signal}={}){
+  if(!(bytes instanceof Uint8Array))throw transferError('ASSET_INVALID','Upload requires Uint8Array bytes');
+  assertArtifactSize(bytes.byteLength,artifactByteBudget(name,limits.maxArtifactBytes));
+  if(typeof client?.post==='function'&&bytes.byteLength<=limits.chunkBytes){
+    if(signal?.aborted)throw transferError('CANCELLED','上传已取消。');
+    const sha256=await sha256Hex(bytes),descriptor=await client.post({name,size:bytes.byteLength,sha256},bytes);
+    onProgress({uploadId:null,done:1,total:1});
+    return {uploadId:null,sha256,size:bytes.byteLength,chunkCount:1,mode:'single',descriptor};
+  }
+  return {...await uploadChunked({bytes,name,client,limits,onProgress,signal}),mode:'chunked'};
+}
+
 // Client for the Goldenluck broker routes (codexagent app/webcad/api.py). The host
 // supplies fetch with its own credentials; WebCAD never stores tokens.
 export function createBrokerUploadClient({apiBase,sessionId,commandId,fetchImpl=fetch,headers={}}){
-  const root=`${String(apiBase).replace(/\/$/,'')}/api/webcad/sessions/${encodeURIComponent(sessionId)}/artifacts/uploads`,q=`commandId=${encodeURIComponent(commandId)}`;
+  const artifacts=`${String(apiBase).replace(/\/$/,'')}/api/webcad/sessions/${encodeURIComponent(sessionId)}/artifacts`,root=`${artifacts}/uploads`,q=`commandId=${encodeURIComponent(commandId)}`;
   const call=async(url,init)=>{const response=await fetchImpl(url,{...init,headers:{...headers,...(init.headers||{})}});const body=await response.json().catch(()=>({}));
     if(!response.ok)throw transferError(body?.error?.code||'UPLOAD_FAILED',body?.error?.message||`上传失败（HTTP ${response.status}）`,{status:response.status});return body;};
   return {
@@ -75,5 +90,6 @@ export function createBrokerUploadClient({apiBase,sessionId,commandId,fetchImpl=
     status:uploadId=>call(`${root}/${uploadId}?${q}`,{method:'GET'}),
     putChunk:(uploadId,index,view,sha256)=>call(`${root}/${uploadId}/chunks/${index}?${q}`,{method:'PUT',headers:{'Content-Type':'application/octet-stream','X-Chunk-Sha256':sha256},body:view}),
     complete:uploadId=>call(`${root}/${uploadId}/complete?${q}`,{method:'POST'}),
+    post:(meta,bytes)=>call(`${artifacts}?${q}&name=${encodeURIComponent(meta.name)}&sha256=${meta.sha256}`,{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:bytes}),
   };
 }
