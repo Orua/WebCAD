@@ -29,3 +29,24 @@ test('one-click exit unlocks immediately, preserves document, and ignores late o
     await listeners[0](event({kind:'request',id:'late-adapter',method:'adapter.create',args:{}}));assert.equal(sent.at(-1).error.code,'lease_revoked');
   }finally{for(const [key,value]of Object.entries(original)){if(value===undefined)delete globalThis[key];else globalThis[key]=value;}}
 });
+
+test('assistant panel forwards bounded native revision subscriptions and removes them on unsubscribe',async()=>{
+  const listeners=[],sent=[],classes=new Set();let frame,callback=null,stopped=false,receivedOptions=null;
+  const original={location:globalThis.location,window:globalThis.window,document:globalThis.document,localStorage:globalThis.localStorage};
+  Object.assign(globalThis,{location:new URL('https://goldenfu.cn/webcad/'),window:{addEventListener:(name,fn)=>listeners.push(fn)},localStorage:{getItem:()=>null,setItem:()=>{}},document:{createElement:()=>frame={hidden:false,contentWindow:{postMessage:value=>sent.push(value)}}}});
+  try{
+    const hostControl=createHostControl(),surface={classList:{add:value=>classes.add(value),remove:value=>classes.delete(value)},append:()=>{}};
+    const panel=createAssistantPanel({getApi:()=>({getState:()=>({displayPreferences:{themeColor:'#0c827d'}}),watchRevision:(fn,options)=>{callback=fn;receivedOptions=options;return ()=>{stopped=true;};}}),hostControl,surface});
+    await panel.enter();const channel=new URLSearchParams(new URL(frame.src).hash.slice(1)).get('channel');
+    const event=(data)=>({origin:'https://goldenfu.cn',source:frame.contentWindow,data:{protocol:'webcad.assistant-panel/1',channel,...data}});
+    await listeners[0](event({kind:'request',id:'subscribe',method:'page.watchRevision.subscribe',args:{subscriptionId:'revision-1',options:{debounceMs:150}}}));
+    assert.deepEqual(receivedOptions,{debounceMs:150});
+    assert.equal(sent.findLast(item=>item.id==='subscribe').result.status,'subscribed');
+    callback({key:'revision-5',context:{revision:5}});
+    assert.deepEqual(sent.findLast(item=>item.kind==='revision'),{protocol:'webcad.assistant-panel/1',channel,kind:'revision',subscriptionId:'revision-1',change:{key:'revision-5',context:{revision:5}}});
+    await listeners[0](event({kind:'request',id:'unsubscribe',method:'page.watchRevision.unsubscribe',args:{subscriptionId:'revision-1'}}));
+    assert.equal(stopped,true);assert.equal(sent.findLast(item=>item.id==='unsubscribe').result.status,'unsubscribed');
+    const exiting=panel.exit(),exitRequest=sent.findLast(item=>item.method==='panel.exit');
+    await listeners[0](event({kind:'response',id:exitRequest.id,result:{status:'released'}}));await exiting;
+  }finally{for(const [key,value]of Object.entries(original)){if(value===undefined)delete globalThis[key];else globalThis[key]=value;}}
+});

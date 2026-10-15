@@ -12,11 +12,12 @@ export function validateAssistantUrl(value,base=location.href){
 export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface=document.body}){
   const defaultUrl=new URL('/AI/WebCAD/WebCADWorkspace.aspx',location.hostname==='127.0.0.1'&&location.port==='17674'?'http://127.0.0.1/':location.href).href;
   let url=defaultUrl,frame=null,channel=null,origin=null,adapter=null,visible=false,phase='closed',error=null,external=null,exitOperation=null;
-  let requestSeq=0,handshakeTimer=null;const pending=new Map(),adapters=new Map();
+  let requestSeq=0,handshakeTimer=null;const pending=new Map(),adapters=new Map(),revisionSubscriptions=new Map();
   try{const saved=localStorage.getItem('webcad.assistant-url.v1');if(saved)url=validateAssistantUrl(saved);}catch{}
   const state=()=>({version:1,url,configured:Boolean(url),visible,phase:external&&visible&&hostControl.get().connected?'connected':phase,error,connected:hostControl.get().connected,locked:hostControl.get().locked,externalHost:Boolean(external)});
   const notify=()=>onChange(state());
   function post(data){frame?.contentWindow?.postMessage({protocol:PROTOCOL,channel,...data},origin);}
+  function stopRevisionSubscriptions(){for(const stop of revisionSubscriptions.values())try{stop();}catch{}revisionSubscriptions.clear();}
   function request(method,args){
     const id='page-'+(++requestSeq);
     return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{pending.delete(id);reject(Object.assign(new Error('助手未响应；请确认已登录并配置正确的助手地址。'),{code:'AGENT_PANEL_TIMEOUT'}));},35000);pending.set(id,{resolve,reject,timer});post({kind:'request',id,method,args});});
@@ -27,6 +28,20 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
     if(method==='page.invoke'){
       if(['getAgentPanel','setAgentPanel','configureAgentPanel'].includes(args?.method))fail('AGENT_METHOD_DENIED','助手不能修改自己的接入配置。');
       return getApi().invoke(args);
+    }
+    if(method==='page.watchRevision.subscribe'){
+      if(!visible)fail('lease_revoked','Agent 模式已退出。');
+      const subscriptionId=args?.subscriptionId;
+      if(typeof subscriptionId!=='string'||!/^revision-[a-zA-Z0-9_-]{1,80}$/.test(subscriptionId))fail('PARAM_SCHEMA_INVALID','无效的修订订阅 ID。');
+      if(revisionSubscriptions.has(subscriptionId))return {status:'subscribed'};
+      if(revisionSubscriptions.size>=16)fail('RESOURCE_LIMIT','修订订阅数量已达上限。');
+      const stop=getApi().watchRevision(change=>{if(revisionSubscriptions.has(subscriptionId))post({kind:'revision',subscriptionId,change});},args?.options||{});
+      revisionSubscriptions.set(subscriptionId,stop);return {status:'subscribed'};
+    }
+    if(method==='page.watchRevision.unsubscribe'){
+      const subscriptionId=args?.subscriptionId,stop=revisionSubscriptions.get(subscriptionId);
+      if(stop){revisionSubscriptions.delete(subscriptionId);stop();}
+      return {status:'unsubscribed'};
     }
     if(method==='adapter.create'){
       if(!visible)fail('lease_revoked','Agent 模式已退出。');
@@ -50,13 +65,13 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
     if(data.kind==='request'){try{post({kind:'response',id:data.id,result:await handle(data.method,data.args)});}catch(e){post({kind:'response',id:data.id,error:{code:e.code||'AGENT_PANEL_FAILED',message:e.message}});}}
   });
   function closeLocal(){
-    clearTimeout(handshakeTimer);adapter?.release();visible=false;phase='closed';error=null;hostControl.set({locked:false,connected:false});surface.classList.remove('has-agent-panel');if(frame)frame.hidden=true;notify();
+    clearTimeout(handshakeTimer);stopRevisionSubscriptions();adapter?.release();visible=false;phase='closed';error=null;hostControl.set({locked:false,connected:false});surface.classList.remove('has-agent-panel');if(frame)frame.hidden=true;notify();
   }
   async function exit(){
     if(exitOperation)return exitOperation;
     // Revoke local writes and unlock immediately, retain the iframe until the
     // existing broker has reconciled cancel/release and outstanding receipts.
-    clearTimeout(handshakeTimer);adapter?.release();hostControl.set({locked:false,connected:false});visible=false;surface.classList.remove('has-agent-panel');if(frame)frame.hidden=true;phase='releasing';notify();
+    clearTimeout(handshakeTimer);stopRevisionSubscriptions();adapter?.release();hostControl.set({locked:false,connected:false});visible=false;surface.classList.remove('has-agent-panel');if(frame)frame.hidden=true;phase='releasing';notify();
     exitOperation=(async()=>{try{const receipt=external?await external.exit():frame?await request('panel.exit'):null;phase=receipt?.pendingRelease?'release_pending':'closed';return {status:'applied',release:receipt,releasePending:Boolean(receipt?.pendingRelease),...state()};}catch(e){phase='release_pending';error=e.message;return {status:'applied',releasePending:true,...state()};}finally{exitOperation=null;notify();}})();return exitOperation;
   }
   async function enter(){
