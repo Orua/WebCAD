@@ -2172,6 +2172,42 @@
         "tests/relief-profile.test.mjs",
         "tests/page-api.test.mjs"
       ]
+    },
+    {
+      "operation": "viewportSelectionFeedback",
+      "semanticVersion": "selection-feedback-1",
+      "localImpact": "Focus mode retains explicit view/body/face/edge controls; shared material shader highlights all selected bodies; selected edges retain full opacity.",
+      "servicesImpact": "none; display state only, no compute routing",
+      "logoImpact": "none; geometry and placement unchanged",
+      "contractImpact": "Existing setView.selectionMode and selection APIs; documentation updated",
+      "documentImpact": "none; selection shader does not mutate stored appearance",
+      "cacheImpact": "Rebuild frontend and generated knowledge snapshot",
+      "requiredTests": [
+        "tests/selection-feedback.test.mjs",
+        "tests/metal-materials.test.mjs",
+        "tests/selection-assists.test.mjs"
+      ],
+      "manualChecks": [
+        "17674 focus mode controls; body/face/edge feedback and deselection"
+      ]
+    },
+    {
+      "operation": "metalRecessShading",
+      "semanticVersion": "metal-occlusion-1",
+      "localImpact": "Visible-body depth prepass and bounded screen-space metal occlusion; softer unselected CAD edges; original tone mapping and selection tint retained; calibrated side-softbox studio and split-sum metallic reflectance shared with CadViewer",
+      "servicesImpact": "none; browser display only, no compute/protocol changes",
+      "logoImpact": "none; original contours, exact geometry and engraving depths unchanged",
+      "contractImpact": "Existing body.appearance and setView display modes; additive display.metalRendering readback; studio mode now camera-space side lighting, exact former default Cookie lighting migrates without altering custom settings",
+      "documentImpact": "none; rendering does not modify geometry, project appearance or save format",
+      "cacheImpact": "Rebuild frontend and generated knowledge snapshot; GPU depth refreshed with changed scene/camera",
+      "requiredTests": [
+        "tests/metal-materials.test.mjs",
+        "tests/metal-occlusion.test.mjs",
+        "tests/selection-feedback.test.mjs"
+      ],
+      "manualChecks": [
+        "17674 shallow engraved LOGO: solid and soft edges, metal colour, selection, perspective and orthographic"
+      ]
     }
   ]
 }

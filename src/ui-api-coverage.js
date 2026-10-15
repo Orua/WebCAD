@@ -88,7 +88,7 @@ export const UI_API_ROUTES = Object.freeze({
   textCommand:{tools:['executeText'],method:'executeText',usage:'仅解析白名单文本命令，编译为当前页面 run 事务；dryRun 可先读回实际步骤。'},
   fitProfile:{tools:['fitProfile'],method:'fitProfile',usage:'输入有序的二维截面点，返回圆或直线的数值拟合参数及残差；不修改工程。'},
   screenshot:{tools:['capture','files.export'],method:'capture'},
-  ...Object.fromEntries(['fit','view','display','projection','grid','snap','section','selectMode','selection','gizmo','gizmoTranslate','gizmoRotate','gizmoOff','camera','language'].map(id=>[id,{tools:['setView'],method:'setView',usage:'通过相应显式字段控制。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。'}])),
+  ...Object.fromEntries(['fit','view','display','projection','grid','snap','section','selectMode','selection','gizmo','gizmoTranslate','gizmoRotate','gizmoOff','camera','language'].map(id=>[id,{tools:['setView'],method:'setView',usage:'通过相应显式字段控制。selectMode 使用 selectionMode:view/body/face/edge，getState().view.selectionMode 读回；专注模式保留选择模式栏。实体蓝色高亮、面边橙色强调，清除选择恢复外观，不修改工程颜色。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。'}])),
   help:{tools:['readDocs'],method:'readDocs'},mcp:{tools:['run'],method:'run',usage:'JSON 面板只是同一 api.run 的界面入口。'},
 });
 export function requireUIRoute(action){
