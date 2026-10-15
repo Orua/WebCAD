@@ -10,7 +10,7 @@ function fixture(){
   return {metals,material:new THREE.MeshStandardMaterial()};
 }
 test('reference light gold uses linear RGB, HDR, true roughness, reflectance and body tint',()=>{
-  const {metals,material}=fixture();metals.apply(material,'light-gold');
+  const {metals,material}=fixture();metals.apply(material,'light-gold',{displayPreferences:{environmentMode:'hdr'}});
   assert.deepEqual(material.color.toArray(),METAL_FINISHES['light-gold'].color);
   assert.equal(material.roughness,0.105);assert.equal(material.metalness,1);
   assert.equal(material.envMap,metals.environment);assert.equal(material.envMapIntensity,1.28);
@@ -32,7 +32,7 @@ test('HDR upload preserves linear radiance and source scanline orientation',()=>
   assert.deepEqual(Array.from(data),Array.from(new Float32Array([0.1,0.2,4.0,1.0])));
 });
 test('real Three shader receives reference tone/gamma and design colours retain host conversion',()=>{
-  const {metals,material}=fixture();metals.apply(material,'24k-gold');
+  const {metals,material}=fixture();metals.apply(material,'24k-gold',{displayPreferences:{environmentMode:'hdr'}});
   const shader={vertexShader:THREE.ShaderLib.standard.vertexShader,fragmentShader:THREE.ShaderLib.standard.fragmentShader,uniforms:{}};
   material.onBeforeCompile(shader);
   assert.equal(shader.uniforms.webcadMetalBodyTint.value,0.13);
@@ -67,12 +67,31 @@ test('custom lighting and missing HDR keep direct highlights; repeated apply kee
   assert.equal(material.envMap,metals.studioTarget.texture);
   assert.equal(metals.materials.get(material).uniforms.webcadSuppressDirect.value,0);
 });
-test('new HDR defaults leave previously saved display cookies unchanged',()=>{
+test('new product studio defaults leave previously saved display cookies unchanged',()=>{
   for(const key of ['environmentMode','exposure','environmentIntensity','roughnessOffset'])assert.equal(DISPLAY_DEFAULTS[key],CADVIEWER_METAL_REFERENCE[key]);
   const original=globalThis.document;
   try{
     globalThis.document={cookie:'webcad.display.v1='+encodeURIComponent(JSON.stringify({environmentMode:'studio',roughnessOffset:0.12,environmentIntensity:0.65,exposure:1.4}))};
     const preferences=loadDisplayPreferences();assert.equal(preferences.environmentMode,'studio');assert.equal(preferences.roughnessOffset,0.12);
     assert.equal(preferences.environmentIntensity,0.65);assert.equal(preferences.exposure,1.4);
+  }finally{if(original===undefined)delete globalThis.document;else globalThis.document=original;}
+});
+
+test('product studio puts its key light to the side and migrates only untouched old defaults',()=>{
+  const {metals,material}=fixture();metals.apply(material,'nickel');
+  const u=metals.materials.get(material).uniforms;
+  assert.equal(u.webcadProductStudio.value,1);
+  assert.ok(u.webcadStudioKey.value.x < -0.75);
+  assert.ok(u.webcadStudioKey.value.z < 0.5);
+  assert.equal(u.webcadMetalBodyTint.value,0.012);
+  const original=globalThis.document;
+  try{
+    const old={environmentMode:'hdr',exposure:1,environmentIntensity:1,environmentRotation:0,roughnessOffset:0,lightAzimuth:-60,lightElevation:55,keyIntensity:1.3,fillIntensity:0.6,ambientIntensity:0.7,defaultColor:'#123456'};
+    globalThis.document={cookie:'webcad.display.v1='+encodeURIComponent(JSON.stringify(old))};
+    assert.equal(loadDisplayPreferences().environmentMode,'studio');
+    assert.equal(loadDisplayPreferences().defaultColor,'#123456');
+    old.exposure=0.8;globalThis.document.cookie='webcad.display.v1='+encodeURIComponent(JSON.stringify(old));
+    assert.equal(loadDisplayPreferences().environmentMode,'hdr');
+    assert.equal(loadDisplayPreferences().exposure,0.8);
   }finally{if(original===undefined)delete globalThis.document;else globalThis.document=original;}
 });

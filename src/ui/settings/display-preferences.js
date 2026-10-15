@@ -1,7 +1,7 @@
 import {DEFAULT_THEME_COLOR} from '../config/theme-colors.js';
 import { FINISH_KEYS } from '../../editor-actions.js';
 
-export const DISPLAY_DEFAULTS=Object.freeze({dimensionPrecisionMm:0.01,anglePrecisionDeg:0.1,themeColor:DEFAULT_THEME_COLOR,snapThresholdMm:0.2,defaultColor:'#aac4d9',defaultFinish:'design',background:'#eef1f5',environmentMode:'hdr',exposure:1,environmentIntensity:1,environmentRotation:0,roughnessOffset:0,lightAzimuth:-60,lightElevation:55,keyIntensity:1.3,fillIntensity:0.6,ambientIntensity:0.7});
+export const DISPLAY_DEFAULTS=Object.freeze({dimensionPrecisionMm:0.01,anglePrecisionDeg:0.1,themeColor:DEFAULT_THEME_COLOR,snapThresholdMm:0.2,defaultColor:'#aac4d9',defaultFinish:'design',background:'#eef1f5',environmentMode:'studio',exposure:1,environmentIntensity:1,environmentRotation:0,roughnessOffset:0,lightAzimuth:-65,lightElevation:25,keyIntensity:1.3,fillIntensity:0.45,ambientIntensity:0.4});
 export const DISPLAY_PRESETS=Object.freeze({studio:{...DISPLAY_DEFAULTS},soft:{...DISPLAY_DEFAULTS,roughnessOffset:0.2,environmentIntensity:0.65,keyIntensity:0.8,fillIntensity:0.8},contrast:{...DISPLAY_DEFAULTS,roughnessOffset:0.04,environmentIntensity:1,keyIntensity:1.8,fillIntensity:0.3,ambientIntensity:0.4}});
 export const DISPLAY_RANGES=Object.freeze({dimensionPrecisionMm:[0.000001,10],anglePrecisionDeg:[0.000001,90],snapThresholdMm:[0,10],exposure:[0.1,3],environmentIntensity:[0,3],environmentRotation:[-180,180],roughnessOffset:[0,0.6],lightAzimuth:[-180,180],lightElevation:[-89,89],keyIntensity:[0,6],fillIntensity:[0,6],ambientIntensity:[0,6]});
 const cookieName='webcad.display.v1';
@@ -17,7 +17,11 @@ export function validateDisplayPreferences(patch){
   return {...patch};
 }
 export function loadDisplayPreferences(){
-  try{const raw=document.cookie.split('; ').find(v=>v.startsWith(cookieName+'='));if(raw){const parsed=JSON.parse(decodeURIComponent(raw.slice(cookieName.length+1)));return {...DISPLAY_DEFAULTS,...validateDisplayPreferences(parsed)};}}catch{}
+  try{const raw=document.cookie.split('; ').find(v=>v.startsWith(cookieName+'='));if(raw){const parsed=JSON.parse(decodeURIComponent(raw.slice(cookieName.length+1)));const patch=validateDisplayPreferences(parsed);
+    // Migrate only the exact former lighting preset; keep custom lighting and colours.
+    const legacy={environmentMode:'hdr',exposure:1,environmentIntensity:1,environmentRotation:0,roughnessOffset:0,lightAzimuth:-60,lightElevation:55,keyIntensity:1.3,fillIntensity:0.6,ambientIntensity:0.7};
+    if(Object.entries(legacy).every(([key,value])=>patch[key]===value))for(const key of Object.keys(legacy))patch[key]=DISPLAY_DEFAULTS[key];
+    return {...DISPLAY_DEFAULTS,...patch};}}catch{}
   return {...DISPLAY_DEFAULTS};
 }
 export function saveDisplayPreferences(value){

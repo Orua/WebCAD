@@ -6,7 +6,11 @@
 .webcad-app .ribbon-tabs{background:var(--ui-surface);padding:0 12px;overflow-x:auto;flex-shrink:0}
 .webcad-app .ribbon-tab.active{background:var(--accent-soft);border-bottom-color:var(--accent);color:var(--accent-ink)}
 .webcad-app.tools-hidden>.ribbon-tabs,.webcad-app.tools-hidden>.ribbon{display:none}
-.webcad-app.canvas-focus .viewport-topbar,.webcad-app.canvas-focus .viewport-bottom,.webcad-app.canvas-focus .viewport-nav{display:none}
+.webcad-app.canvas-focus .viewport-bottom,.webcad-app.canvas-focus .viewport-nav{display:none}
+.webcad-app.canvas-focus .viewport-topbar{right:auto;width:max-content;max-width:calc(100% - 16px)}
+.webcad-app.canvas-focus .viewport-topbar>:not(.selection-modes){display:none}
+.webcad-app.canvas-focus .selection-modes [data-action="selectTool"]{display:none}
+.webcad-app .selection-modes button.active{background:var(--accent);color:var(--accent-contrast);border-color:transparent;box-shadow:none}
 .webcad-app .workspace{position:relative}
 .webcad-app .central-workspace{position:absolute;inset:auto;left:50%;top:50%;transform:translate(-50%,-50%);z-index:12;width:min(1000px,calc(100% - 80px));height:min(620px,calc(100% - 80px));max-height:calc(100% - 80px);overflow:auto;background:var(--ui-surface);padding:16px;border-radius:10px;box-shadow:0 16px 44px color-mix(in srgb,var(--ui-text) 22%,transparent);scrollbar-color:var(--ui-border) var(--ui-surface);container:model-picker / inline-size}
 .central-workspace[hidden]{display:none}
