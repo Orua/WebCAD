@@ -1,10 +1,11 @@
 // Keep this portable lighting source identical in CadViewer and WebCAD.
 // Camera-space product lighting: side softbox, opposite rim, overhead strip,
 // dark lower flag and a studio sweep with a dark horizon band.
+// v3 (2026-10-15, second pass): white light tent with dark seams/horizon, see productStudioRadiance.
 // v2 (2026-10-15): soft-edged diffusers with a brighter core (no flat clipped
 // cards, no stair-stepped highlight edges on tessellated bends), lower key peak,
 // overhead strip, sweep/horizon room gradient, optional screen-space anisotropy.
-export const PRODUCT_STUDIO = Object.freeze({azimuth:-65,elevation:25,key:1.3,fill:0.45,ambient:0.4,version:2,minBlur:0.18,keyPeak:2.7,topPeak:1.25});
+export const PRODUCT_STUDIO = Object.freeze({azimuth:-65,elevation:25,key:1.3,fill:0.45,ambient:0.4,version:3,minBlur:0.18,keyPeak:2.4,topPeak:1.2,model:'light-tent'});
 export const PRODUCT_STUDIO_SHADER = /* glsl */`
 float productSoftbox(vec3 ray,vec3 center,vec2 size,vec2 blur){
   center=normalize(center);
@@ -24,22 +25,27 @@ vec3 productStudioRadiance(vec3 ray,float roughness,float anisotropy,vec3 keyDir
   float blur=0.18+roughness*roughness*1.8;
   // Brushed finishes stretch reflections across the brushing direction.
   vec2 blur2=vec2(blur*(1.0+anisotropy*2.2),blur*(1.0-anisotropy*0.35));
-  float key=productSoftbox(ray,keyDirection,vec2(0.55,0.80),blur2);
-  float rim=productSoftbox(ray,vec3(0.88,0.14,-0.30),vec2(0.10,0.95),blur2);
+  // v3 light tent: catalogue photos of plated hardware reflect a mostly white
+  // tent; what reads as "metal" are the crisp dark seams and the dark horizon
+  // line that run along every curved surface, plus clipped white softboxes.
+  float tent=mix(0.22,0.62,smoothstep(-0.35,0.85,ray.y))*mix(0.75,1.0,smoothstep(-0.6,0.6,ray.x));
+  float lineSoft=0.035+blur*0.55;
+  float horizon=exp(-((ray.y+0.04)*(ray.y+0.04))/(lineSoft*lineSoft));
+  float seamTop=exp(-((ray.y-0.48)*(ray.y-0.48))/(lineSoft*lineSoft*0.6));
+  float seamSide=exp(-((abs(ray.x)-0.58)*(abs(ray.x)-0.58))/(lineSoft*lineSoft*0.8))*smoothstep(-0.3,0.2,ray.y);
+  float cameraOpening=smoothstep(0.55,0.95,ray.z);
+  float dark=clamp(0.96*horizon+0.7*seamTop+0.65*seamSide,0.0,0.97);
+  float room=tent*(1.0-dark)*(1.0-0.55*cameraOpening);
+  float key=productSoftbox(ray,keyDirection,vec2(0.50,0.80),blur2);
+  float rim=productSoftbox(ray,vec3(0.88,0.14,-0.30),vec2(0.12,0.95),blur2);
   float top=productSoftbox(ray,vec3(0.0,0.97,0.24),vec2(0.85,0.20),blur2);
-  float flag=productSoftbox(ray,vec3(0.15,-0.62,0.77),vec2(0.38,0.20),blur2+0.12);
-  // Studio sweep: floor bounce below, soft ceiling above, darker horizon band.
-  float floorBounce=mix(0.30,0.17,smoothstep(-0.9,-0.05,ray.y));
-  float ceiling=mix(0.15,0.27,smoothstep(0.05,0.9,ray.y));
-  float room=mix(floorBounce,ceiling,smoothstep(-0.06,0.06,ray.y));
-  float horizonWidth=0.10+blur*0.6;
-  room*=1.0-0.55*exp(-(ray.y*ray.y)/(horizonWidth*horizonWidth));
-  vec3 light=vec3(room)*levels.z*(1.0-0.72*flag);
+  float flag=productSoftbox(ray,vec3(0.15,-0.62,0.77),vec2(0.38,0.10),blur2+0.06);
+  vec3 light=vec3(room)*levels.z*(1.0-0.85*flag);
   // Broader rough reflections carry the same finite source energy.
   float spread=1.0/(1.0+blur*2.0);
-  light+=vec3(1.0,0.98,0.94)*key*2.7*levels.x*spread;
-  light+=vec3(0.92,0.96,1.0)*rim*2.4*levels.y*spread;
-  light+=vec3(0.97,0.98,1.0)*top*1.25*levels.y*spread;
+  light+=vec3(1.0,0.98,0.95)*key*2.4*levels.x*spread;
+  light+=vec3(0.95,0.97,1.0)*rim*2.0*levels.y*spread;
+  light+=vec3(0.98,0.99,1.0)*top*1.2*levels.y*spread;
   return light;
 }
 vec3 productStudioSpecular(vec3 normal,vec3 viewDirection,vec3 f0,float roughness,float anisotropy,vec3 keyDirection,vec3 levels,vec3 surfacePoint){
