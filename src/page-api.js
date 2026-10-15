@@ -487,5 +487,21 @@ export function createPageAPI(host){
     const original=api[name];api[name]=async(input={})=>{try{const c=identityContext(input.context),s=current();for(const key of ['sessionId','documentId','documentInstanceId'])if(c[key]!==s.context[key])fail('INSTANCE_MISMATCH',`Stale ${key}`);const request={...input,context:{...c,expectedRevision:s.context.revision}};requestPolicies.set(request,'identity');return await original(request);}catch(e){return failure(e);}};
   }
   api.contextPolicies=Object.freeze(Object.fromEntries([...Object.keys(api).filter(k=>typeof api[k]==='function'),...Object.keys(files).map(k=>'files.'+k)].map(name=>[name,contextPolicy(name)])));
+  // Native host mode (in-page only; not callable through invoke/agents and not part of the agent contract):
+  // the embedding host is told when document identity, revision or readiness changes so it can push a fresh
+  // compact snapshot. Cheap key comparison on a short timer; the callback fires once the key is stable.
+  api.watchRevision=(callback,options={})=>{
+    if(typeof callback!=='function')fail('PARAM_SCHEMA_INVALID','watchRevision needs a callback');
+    const debounceMs=options.debounceMs??150,intervalMs=options.intervalMs??50;
+    if(!Number.isInteger(debounceMs)||debounceMs<0||debounceMs>5000||!Number.isInteger(intervalMs)||intervalMs<10||intervalMs>1000)fail('PARAM_RANGE_INVALID','debounceMs 0..5000, intervalMs 10..1000');
+    const key=()=>host.revisionKey?host.revisionKey():JSON.stringify(current().context);
+    let last=key(),changedAt=0,pending=false,stopped=false;
+    const timer=setInterval(()=>{
+      if(stopped)return;const next=key();
+      if(next!==last){last=next;changedAt=Date.now();pending=true;return;}
+      if(pending&&Date.now()-changedAt>=debounceMs){pending=false;try{const r=callback({key:next,context:current().context});if(r&&typeof r.catch==='function')r.catch(()=>{});}catch{}}
+    },intervalMs);
+    return ()=>{stopped=true;clearInterval(timer);};
+  };
   return Object.freeze(api);
 }
