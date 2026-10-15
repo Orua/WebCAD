@@ -36,6 +36,25 @@ import {normalizeOperationParams} from './operation-registry.js';
 import {modelLibrary} from './model-library.js';
 
 // Only structured, bounded commands cross this boundary. No mutable app objects escape.
+
+// getState({sinceRevision}): small per-revision body fingerprints (last 32 revisions, this page instance only).
+const bodyHistory=new Map();
+// Bounds + name are present in both full and compact (bodiesLite) states, so mixed reads compare consistently.
+const bodyPrint=body=>JSON.stringify([body.bounds??null,body.name??null]);
+function rememberBodies(state){
+  const rev=state?.context?.revision;if(!Number.isInteger(rev)||!Array.isArray(state.bodies))return;
+  const key=state.context.documentInstanceId+':'+rev;if(bodyHistory.has(key))return;
+  bodyHistory.set(key,new Map(state.bodies.map(body=>[body.id,bodyPrint(body)])));
+  while(bodyHistory.size>32)bodyHistory.delete(bodyHistory.keys().next().value);
+}
+function bodyChanges(sinceRevision,state){
+  const old=bodyHistory.get(state.context.documentInstanceId+':'+sinceRevision);
+  if(!old||!Array.isArray(state.bodies))return {available:false,reason:'REVISION_NOT_RETAINED'};
+  const now=new Map(state.bodies.map(body=>[body.id,bodyPrint(body)]));
+  return {available:true,addedBodyIds:[...now.keys()].filter(id=>!old.has(id)),removedBodyIds:[...old.keys()].filter(id=>!now.has(id)),
+    changedBodyIds:[...now.keys()].filter(id=>old.has(id)&&old.get(id)!==now.get(id))};
+}
+
 export function createPageAPI(host){
   const requestPolicies=new WeakMap();
   const current=()=>host.state();
@@ -138,14 +157,24 @@ export function createPageAPI(host){
     getState:(input={})=>{
       if(input&&typeof input==='object'&&!Array.isArray(input)){
         const keys=Object.keys(input);
-        if(keys.some(k=>!['include','compact'].includes(k)))fail('PARAM_SCHEMA_INVALID','getState accepts include and compact only');
+        if(keys.some(k=>!['include','compact','fields','sinceRevision'].includes(k)))fail('PARAM_SCHEMA_INVALID','getState accepts include, compact, fields and sinceRevision only');
+        if(input.fields!==undefined&&(!Array.isArray(input.fields)||!input.fields.length||input.fields.length>32||input.fields.some(x=>typeof x!=='string'||!x.length||x.length>40)))fail('PARAM_SCHEMA_INVALID','fields must list 1..32 top-level state field names');
+        if(input.sinceRevision!==undefined&&(!Number.isInteger(input.sinceRevision)||input.sinceRevision<0))fail('PARAM_SCHEMA_INVALID','sinceRevision must be a non-negative integer');
         if(input.compact!==undefined&&typeof input.compact!=='boolean')fail('PARAM_SCHEMA_INVALID','compact must be boolean');
         if(input.include!==undefined&&(!Array.isArray(input.include)||input.include.some(x=>!['summary','features','bodies','bodiesLite','selection','capabilities','references'].includes(x))))fail('PARAM_SCHEMA_INVALID','Unknown include field');
       }else if(input&&(typeof input!=='object'||Array.isArray(input)))fail('PARAM_SCHEMA_INVALID','getState takes an object');
-      const state=host.state(input||{});
+      const {fields,sinceRevision,...stateInput}=input||{};
+      const state=host.state(stateInput);
       const req=state.requestContext||requestContext(state.context);
+      rememberBodies(state);
       // compact omits the heavy display descriptor (agents only need it for capture/redraw).
-      return input?.compact?{...state,requestContext:req}:{...state,requestContext:req,display:host.display()};
+      let out=stateInput.compact?{...state,requestContext:req}:{...state,requestContext:req,display:host.display()};
+      if(sinceRevision!==undefined){
+        if(sinceRevision===out.context?.revision)return {status:'read',unchanged:true,context:out.context,requestContext:req,sinceRevision};
+        out={...out,sinceRevision,changes:bodyChanges(sinceRevision,state)};
+      }
+      if(fields)out=Object.fromEntries(Object.entries(out).filter(([k])=>['status','context','requestContext','changes','sinceRevision'].includes(k)||fields.includes(k)));
+      return out;
     },
     getQuickModelUsage:guarded(input=>{if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).length)fail('PARAM_SCHEMA_INVALID','getQuickModelUsage takes no fields');return {status:'read',...structuredClone(host.quickModelUsage()),context:current().context};}),
     getUILayout:(input={})=>{if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(key=>key!=='includeModelLibrary')||input.includeModelLibrary!==undefined&&typeof input.includeModelLibrary!=='boolean')fail('PARAM_SCHEMA_INVALID','getUILayout takes includeModelLibrary:boolean only');return {...structuredClone(UI_LAYOUT),current:structuredClone(current().view.workspaceLayout),...(input.includeModelLibrary?{modelLibrary:{status:'read',...modelLibrary.contracts(),context:current().context}}:{})};},
@@ -427,7 +456,11 @@ export function createPageAPI(host){
       if(!['png','webp'].includes(format))fail('PARAM_SCHEMA_INVALID','format must be png or webp');
       if(input.maxWidth!==undefined&&(!Number.isInteger(input.maxWidth)||input.maxWidth<64||input.maxWidth>4096))fail('PARAM_RANGE_INVALID','maxWidth must be 64..4096');
       if(input.quality!==undefined&&!(typeof input.quality==='number'&&input.quality>0&&input.quality<=1))fail('PARAM_RANGE_INVALID','quality must be 0..1');
-      await host.frame();check(input,['context','maxWidth','format','quality']);
+      // Dedicated capture budget: a frame that never arrives fails fast with CAPTURE_TIMEOUT
+      // (geometry receipts are unaffected) instead of holding the command slot for the full 90 s.
+      let captureTimer;
+      await Promise.race([host.frame(),new Promise((_,reject)=>{captureTimer=setTimeout(()=>reject(Object.assign(new Error(`No rendered frame within ${LIMITS.transport.captureTimeoutMs} ms; geometry is unaffected. Do not poll webcad_job for this capture; retry once later or report the view as unconfirmed.`),{code:'CAPTURE_TIMEOUT'})),LIMITS.transport.captureTimeoutMs);})]).finally(()=>clearTimeout(captureTimer));
+      check(input,['context','maxWidth','format','quality']);
       const display=host.display(),state=current();
       if(display.status!=='rendered'||['documentId','documentInstanceId','revision'].some(k=>display.rendered?.[k]!==state.context[k]))fail('DISPLAY_FAILED','Rendered frame does not match the committed model; call redraw');
       const shot=host.capture({maxWidth:input.maxWidth,format,quality:input.quality??(format==='webp'?0.8:undefined)});
@@ -449,7 +482,7 @@ export function createPageAPI(host){
   };
   Object.assign(api,createPageJobs(api,{runBatch:(args,control)=>run(args,control)}));
   api.waitFor=createPageWait({getState:()=>api.getState(),getJob:input=>api.getJob(input)});
-  for(const name of ['submit','getJob','cancelJob','waitFor'])callable.add(name);
+  for(const name of ['submit','getJob','cancelJob','waitFor','awaitJob'])callable.add(name);
   for(const name of Object.keys(api))if(typeof api[name]==='function'&&contextPolicy(name)==='identity'){
     const original=api[name];api[name]=async(input={})=>{try{const c=identityContext(input.context),s=current();for(const key of ['sessionId','documentId','documentInstanceId'])if(c[key]!==s.context[key])fail('INSTANCE_MISMATCH',`Stale ${key}`);const request={...input,context:{...c,expectedRevision:s.context.revision}};requestPolicies.set(request,'identity');return await original(request);}catch(e){return failure(e);}};
   }

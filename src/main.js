@@ -2,7 +2,7 @@ import {legacyReliefParams} from './relief-param-migration.js';
 import {intentForUIParameterEdit} from './machining-intent.js';
 import {encodeCommittedProject} from './project-save.js';
 import {createHostAdapter} from './agent/host-adapter.js';
-import {uploadChunked,createBrokerUploadClient} from './transfer/chunked-upload.js';
+import {uploadChunked,uploadArtifact,createBrokerUploadClient} from './transfer/chunked-upload.js';
 import {AGENT_CONTRACT} from './agent/protocol.js';
 import '../public/automation/runtime-uuid.js';
 import tbdCapabilities from '../contracts/services/v1/tbd-capabilities.json' with {type:'json'};
@@ -222,6 +222,8 @@ function flushDisplayBatch(){
   if(deferredRefresh){deferredRefresh=false;refresh();}
 }
 function endDisplayBatch(){if(displayBatchDepth>0&&--displayBatchDepth===0)flushDisplayBatch();}
+// Same as endDisplayBatch, but the upload/refresh runs on the next task so the batch receipt is reported first.
+function endDisplayBatchDeferred(){if(displayBatchDepth>0&&--displayBatchDepth===0)setTimeout(()=>{if(displayBatchDepth===0)flushDisplayBatch();},0);}
 function refresh(){if(displayBatchDepth){deferredRefresh=true;return;}document.title=(dirty?'● ':'')+documentModel.name+' — WebCAD';const url=new URL(location.href);if(url.searchParams.get('document')!==documentModel.documentId){url.searchParams.set('document',documentModel.documentId);history.replaceState(null,'',url);}ui.update({renderQuality:qualityState(),document:documentModel,bodies,selectedIds,selectedTopology,undoAvailable:undoStack.length>0,redoAvailable:redoStack.length>0,busy,status,kernelReady,dirty,displayPreferences:viewport.displayPreferences,metalFinish:viewport.finishKey,aiStatus,revision,viewState:{quality:qualityKey,display:viewport.mode,projection:viewport.camera.isOrthographicCamera?'orthographic':'perspective',grid:viewport.grid.visible,snap:viewport.snapEnabled,gizmo:viewport.gizmoMode,transform:viewport.getTransformState(),selection:viewport.selectionMode,anchorDrag:viewport.anchorDragEnabled,anchorVisible:viewport.anchorVisible,temporaryDisplay:viewport.temporaryDisplay}});}
 function setStatus(message){status=message;ui.setStatus(t(message));}
 function reportError(error){console.error(error);ui.showError(error.message||String(error));setStatus(error.message||String(error));}
@@ -1021,13 +1023,13 @@ const pageAPI=createPageAPI({
   inspectDraft:input=>request('inspectDraft',{input}),
   inspectRound:input=>request('inspectRound',{input}),
   measureRelation:input=>request('measureRelation',{input}),
-  displayBatch:Object.freeze({begin:beginDisplayBatch,end:endDisplayBatch,flush:flushDisplayBatch}),
+  displayBatch:Object.freeze({begin:beginDisplayBatch,end:endDisplayBatch,endDeferred:endDisplayBatchDeferred,flush:flushDisplayBatch}),
   display:()=>viewport.displayState(),frame:()=>{flushDisplayBatch();if(lastWarnings.some(w=>w.code==='DISPLAY_FAILED'))throw Object.assign(new Error('Display failed; call redraw'),{code:'DISPLAY_FAILED'});viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});return viewport.frame();},capture:(opts)=>viewport.screenshot(opts),
   view:async input=>{flushDisplayBatch();ui.setWorkspaceLayout(input);viewport.setViewInteraction(input.interactionPhase??'end');if(input.anchorVisible!==undefined)viewport.setAnchorVisible(input.anchorVisible);if(input.panels)ui.setPanels(input.panels);if(input.temporaryDisplay)viewport.setTemporaryDisplay(input.temporaryDisplay);if(input.display)viewport.setDisplay(input.display);if(input.grid!==undefined)viewport.grid.visible=input.grid;if(input.snap!==undefined)viewport.snapEnabled=input.snap;if(input.gizmo){if(input.gizmo!=='off'){viewport.setAnchorDrag(false);viewport.setSelectionMode('body');selectedTopology=null;}viewport.setGizmo(input.gizmo);}if(input.selectionMode){if(input.selectionMode!=='body')viewport.setGizmo('off');viewport.setSelectionMode(input.selectionMode);selectedTopology=null;}if(input.language){setLanguage(input.language);viewport.updateLanguage();ui.update({language:input.language});}if(input.camera){viewport.camera.position.fromArray(input.camera.position);viewport.controls.target.fromArray(input.camera.target);viewport.controls.update();}if(input.section)viewport.setSection(input.section);if(input.projection)viewport.setProjection(input.projection);if(input.direction)viewport.view(input.direction==='side'?'right':input.direction);if(input.fit)viewport.fit();if(input.selectedIds){if(JSON.stringify(input.selectedIds)!==JSON.stringify(selectedIds))ui.discardForSelection();selectedIds=[...input.selectedIds];selectedTopology=null;viewport.setSelection(selectedIds);}viewport.setSelection(selectedIds,selectedTopology);refresh();await viewport.frame();},
   redraw:async()=>{flushDisplayBatch();viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});await viewport.frame();lastWarnings=lastWarnings.filter(w=>w.code!=='DISPLAY_FAILED');},
 });
 const assistantPanel=createAssistantPanel({getApi:()=>pageAPI,hostControl,onChange:state=>ui.setAgentPanel(state)});
-Object.defineProperty(window,'webcad',{value:Object.freeze({api:pageAPI,hostControl,assistantPanel,agent:Object.freeze({contract:AGENT_CONTRACT,createHostAdapter,uploadChunked,createBrokerUploadClient})}),writable:false,configurable:false});
+Object.defineProperty(window,'webcad',{value:Object.freeze({api:pageAPI,hostControl,assistantPanel,agent:Object.freeze({contract:AGENT_CONTRACT,createHostAdapter,uploadChunked,uploadArtifact,createBrokerUploadClient})}),writable:false,configurable:false});
 ui.setAgentPanel(assistantPanel.get());
 if(new URLSearchParams(location.search).get('agent')==='1'){
   aiStatus='connecting';refresh();

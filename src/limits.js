@@ -11,7 +11,9 @@ export const LIMITS=freeze({
  document:{maxFeatures:2000,maxBytes:20*1024*1024},
  // Agent transport: single source of truth for every host (page, broker, MCP, bridge).
  transport:{maxInputBytes:100*1024*1024,maxArtifactBytes:100*1024*1024,maxResultBytes:6*1024*1024,commandTimeoutMs:90000,
-  chunkBytes:4*1024*1024,chunkConcurrency:2,chunkRetries:3,uploadSessionTtlSeconds:1800,waitMaxMs:25000},
+  chunkBytes:4*1024*1024,chunkConcurrency:2,chunkRetries:3,uploadSessionTtlSeconds:1800,waitMaxMs:25000,
+  // Dedicated render/capture budget; capture fails with CAPTURE_TIMEOUT instead of holding the 90 s command slot.
+  captureTimeoutMs:10000},
  // Published in AGENT_CONTRACT.limits; hosts/MCP must not invent a different step cap.
  batch:{maxSteps:40}
 });

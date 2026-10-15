@@ -44,6 +44,11 @@ export function createPageBatch(api,{display}={}){
   async function run(input,control){
     let results=[],key,fingerprint,started=false,activeStepId=null;
     const attempted=new Set();
+    // Bounding boxes of bodies created/replaced by this batch (max 40), so callers can verify alignment without another read.
+    const touchedBounds=s=>{const ids=[...new Set(results.flatMap(item=>[...(item.result?.createdBodyIds||[]),...(item.result?.replacements||[]).map(r=>r.after)]))].slice(0,40);
+      const round=v=>Math.round(v*1000)/1000;
+      return ids.map(id=>{const b=(s.bodies||[]).find(body=>body.id===id);if(!b?.bounds?.min||!b?.bounds?.max)return null;
+        return {id,center:[0,1,2].map(i=>round((b.bounds.min[i]+b.bounds.max[i])/2)),size:[0,1,2].map(i=>round(b.bounds.max[i]-b.bounds.min[i]))};}).filter(Boolean);};
     const startedAt=performance.now();
     const finish=(status,error)=>{const s=api.getState();return {status,idempotencyKey:key,atomic:false,results,
       requestContext:context(s.context),
@@ -54,7 +59,7 @@ export function createPageBatch(api,{display}={}){
       recovery:status==='completed'?null:{action:status==='unknown'?'INSPECT_STATE_BEFORE_RETRY':'READ_STATE_AND_REPLAN_REMAINING',
         message:'Earlier committed steps remain. Read current state; do not recreate them. Use a new key for a revised remainder. An identical request/key only retrieves the original receipt.'},
       ...(error?{error:{code:error.code||'BATCH_FAILED',message:error.message,...(error.featureId?{featureId:error.featureId}:{}),...(error.affectedFeatureIds?{affectedFeatureIds:error.affectedFeatureIds,changedFeatureIds:error.changedFeatureIds}:{}),...(error.recoveryAction?{recoveryAction:error.recoveryAction}: {})}}:{}),
-      elapsedMs:Math.round(performance.now()-startedAt),context:s.context,
+      elapsedMs:Math.round(performance.now()-startedAt),context:s.context,bodyBounds:touchedBounds(s),
       summary:s.summary,display:s.display,
       displayMatchesContext:s.display?.status==='rendered'&&['documentId','documentInstanceId','revision'].every(k=>s.display.rendered?.[k]===s.context[k])};};
     try{
@@ -160,7 +165,9 @@ export function createPageBatch(api,{display}={}){
         // Advance only using this step's receipt, never silently adopt another writer's revision.
         if(result?.status==='committed')expected=result.context?context(result.context):{...expected,expectedRevision:result.revisionAfter};
       }
-      }finally{display?.end?.();}
+      // Deferred end: the receipt is returned (and reported by the host) before the batched display upload;
+      // capture/setView/export/redraw still flush first, so a frame never shows an older model.
+      }finally{if(display?.endDeferred)display.endDeferred();else display?.end?.();}
       activeStepId=null;check(true);const result=finish('completed');receipts.set(key,{fingerprint,result:structuredClone(result)});return result;
     }catch(e){
       const result=finish(results.length?'partial':'failed',e);
