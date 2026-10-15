@@ -420,7 +420,9 @@ async function addFeature(op,params={},options={}){
   if(migratedOperationIds.includes(op))params=normalizeOperationParams(op,params);
   params=await resolveLogoParams(op,params,refs,options);
   const {next,id}=featureDocument(op,params,refs,options.name,options.placement);
-  const result=await rebuild(next,{...options,select:id,fit:!bodies.length||['vectorProfile','box','sphere','cylinder','cone','torus','extrude','revolve','copy','mirror','linearPattern','circularPattern','quickModel','sweep','loft'].includes(op)});
+  const insertOps=['vectorProfile','box','sphere','cylinder','cone','torus','extrude','revolve','copy','mirror','linearPattern','circularPattern','quickModel','sweep','loft'];
+  const select=Object.hasOwn(options,'select')?options.select:insertOps.includes(op)?undefined:id;
+  const result=await rebuild(next,{...options,select,fit:!bodies.length||insertOps.includes(op)});
   const diagnostic=bodies.find(body=>body.id===id)?.surfaceDiagnostics;
   if(diagnostic)ui.showInfo('缝合检查',`${diagnostic.faces} 面，${diagnostic.solids} 实体。以 ${diagnostic.tolerance} mm 再检查：${diagnostic.freeEdges} 条自由边，${diagnostic.multipleEdges} 条非流形边。未自动补洞。`);
   return result;
@@ -796,9 +798,9 @@ async function pasteModelClipboard(){
     if(next.colors?.[sourceId])next.colors[id]=next.colors[sourceId];
     created.push(id);
   }
-  await rebuild(next,{select:created[0]});
+  await rebuild(next);
   modelClipboard.pasteCount++;
-  selectedIds=created;selectedTopology=null;viewport.setSelection(created);refresh();
+  selectedTopology=null;viewport.setSelection(selectedIds);refresh();
   setStatus(`已粘贴 ${created.length} 个实体 · 可撤销`);return created;
 }
 async function performShortcut(action){
