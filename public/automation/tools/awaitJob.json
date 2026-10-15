@@ -1,0 +1,26 @@
+{
+  "id": "awaitJob",
+  "title": "awaitJob",
+  "category": "page-method",
+  "version": "1.48.0",
+  "contextPolicy": "revision",
+  "description": "awaitJob({jobId,timeoutMs?})。timeoutMs 0..25000，默认25000；作业结束即返回（页面内推送，不轮询 getState）。超时只返回当前快照，不取消、不重放。",
+  "synonyms": [
+    "awaitJob",
+    "等待任务完成",
+    "推送",
+    "job",
+    "promise"
+  ],
+  "inputContract": "awaitJob({jobId,timeoutMs?})。timeoutMs 0..25000，默认25000；作业结束即返回（页面内推送，不轮询 getState）。超时只返回当前快照，不取消、不重放。",
+  "outputContract": "同 getJob：status/result/phase/elapsedMs。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
+  "errorCodes": [
+    "PARAM_RANGE_INVALID",
+    "JOB_NOT_FOUND"
+  ],
+  "docsHash": "sha256:ef8cf2dd0e5a599f9105011e72b72ebbe56b0a23273113ab0d63f552c7d64ed6"
+}

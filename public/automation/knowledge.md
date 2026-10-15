@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.48.0 · sha256:4eaf1533276524460daa7e8ee4981d32405cc6b53e312c77e114cc4d5f786e51
+API 1.48.0 · sha256:c3092a5a5ed454a587edbf97b682cda8b904af41196bde3c5986a7a5f08a4cd7
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -37,6 +37,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -148,6 +149,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -265,6 +267,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -362,6 +365,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -455,6 +459,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -548,6 +553,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -641,6 +647,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -734,6 +741,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -828,6 +836,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -924,6 +933,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1017,6 +1027,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1110,6 +1121,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1204,6 +1216,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1302,6 +1315,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1401,6 +1415,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1500,6 +1515,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1594,6 +1610,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1687,6 +1704,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1780,6 +1798,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1874,6 +1893,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -1986,6 +2006,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2079,6 +2100,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2179,6 +2201,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2272,6 +2295,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2365,6 +2389,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2458,6 +2483,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2551,6 +2577,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2651,6 +2678,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2744,6 +2772,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2837,6 +2866,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -2930,6 +2960,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -3029,6 +3060,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -3135,6 +3167,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -3228,6 +3261,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -3326,6 +3360,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -3419,6 +3454,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -3512,6 +3548,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -3605,6 +3642,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5040,6 +5078,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5133,6 +5172,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5226,6 +5266,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5339,6 +5380,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5432,6 +5474,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5550,6 +5593,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5647,6 +5691,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5744,6 +5789,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5841,6 +5887,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -5938,6 +5985,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -6035,6 +6083,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -6132,6 +6181,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -6229,6 +6279,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -6326,6 +6377,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -6423,6 +6475,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -6520,6 +6573,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -6617,6 +6671,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -6714,6 +6769,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -6811,6 +6867,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -6908,6 +6965,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7005,6 +7063,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7102,6 +7161,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7199,6 +7259,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7296,6 +7357,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7393,6 +7455,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7490,6 +7553,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7587,6 +7651,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7684,6 +7749,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7781,6 +7847,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7878,6 +7945,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -7975,6 +8043,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8072,6 +8141,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8169,6 +8239,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8266,6 +8337,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8363,6 +8435,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8456,6 +8529,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8550,6 +8624,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8643,6 +8718,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8736,6 +8812,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8829,6 +8906,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -8922,6 +9000,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9015,6 +9094,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9108,6 +9188,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9201,6 +9282,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9294,6 +9376,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9387,6 +9470,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9480,6 +9564,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9573,6 +9658,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9666,6 +9752,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9759,6 +9846,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9852,6 +9940,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -9945,6 +10034,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10038,6 +10128,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10131,6 +10222,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10224,6 +10316,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10317,6 +10410,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10410,6 +10504,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10503,6 +10598,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10596,6 +10692,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10689,6 +10786,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10782,6 +10880,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10876,6 +10975,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -10969,6 +11069,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11062,6 +11163,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11155,6 +11257,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11248,6 +11351,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11341,6 +11445,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11434,6 +11539,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11527,6 +11633,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11620,6 +11727,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11715,6 +11823,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11808,6 +11917,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11901,6 +12011,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -11994,6 +12105,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -12087,6 +12199,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -12180,6 +12293,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -12273,6 +12387,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -12366,6 +12481,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -12459,6 +12575,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -12552,6 +12669,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -12645,6 +12763,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -12738,6 +12857,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -12831,6 +12951,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -12926,6 +13047,7 @@ submit: contextPolicy=none
 getJob: contextPolicy=none
 cancelJob: contextPolicy=none
 waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
 connect: contextPolicy=none
 info: contextPolicy=none
 getState: contextPolicy=none
@@ -100834,7 +100956,7 @@ files.release: contextPolicy=none
   "category": "page-method",
   "version": "1.48.0",
   "contextPolicy": "identity",
-  "description": "planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true。",
+  "description": "planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true：true=整体按联合包围盒移动并保持相对位置，false=每个实体各自对齐。",
   "synonyms": [
     "planAlignment",
     "对齐",
@@ -100842,7 +100964,7 @@ files.release: contextPolicy=none
     "基准件",
     "轴"
   ],
-  "inputContract": "planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true。",
+  "inputContract": "planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true：true=整体按联合包围盒移动并保持相对位置，false=每个实体各自对齐。",
   "outputContract": "status=read、moves[{bodyId,delta}]、targetPoint；仅平移，不猜测任意曲面姿态；body.align 提交同参数。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -100853,7 +100975,7 @@ files.release: contextPolicy=none
     "STALE_REFERENCE",
     "REVISION_CONFLICT"
   ],
-  "docsHash": "sha256:63b9f754cb051c160554311db93fb8f317386c35f8226a87b6f1e3227507fe64"
+  "docsHash": "sha256:3c49a50cd179f51ca944a45122811bcf2764e91a4b24473823a72ae7bb7baa43"
 }
 ```
 
@@ -101331,6 +101453,37 @@ files.release: contextPolicy=none
 }
 ```
 
+## 工具 awaitJob · awaitJob
+
+```json
+{
+  "id": "awaitJob",
+  "title": "awaitJob",
+  "category": "page-method",
+  "version": "1.48.0",
+  "contextPolicy": "revision",
+  "description": "awaitJob({jobId,timeoutMs?})。timeoutMs 0..25000，默认25000；作业结束即返回（页面内推送，不轮询 getState）。超时只返回当前快照，不取消、不重放。",
+  "synonyms": [
+    "awaitJob",
+    "等待任务完成",
+    "推送",
+    "job",
+    "promise"
+  ],
+  "inputContract": "awaitJob({jobId,timeoutMs?})。timeoutMs 0..25000，默认25000；作业结束即返回（页面内推送，不轮询 getState）。超时只返回当前快照，不取消、不重放。",
+  "outputContract": "同 getJob：status/result/phase/elapsedMs。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
+  "errorCodes": [
+    "PARAM_RANGE_INVALID",
+    "JOB_NOT_FOUND"
+  ],
+  "docsHash": "sha256:ef8cf2dd0e5a599f9105011e72b72ebbe56b0a23273113ab0d63f552c7d64ed6"
+}
+```
+
 ## 工具 connect · connect
 
 ```json
@@ -101399,7 +101552,7 @@ files.release: contextPolicy=none
   "category": "page-method",
   "version": "1.48.0",
   "contextPolicy": "none",
-  "description": "getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities/references。",
+  "description": "getState({sessionId?,include?,compact?,fields?,sinceRevision?}={}); include 可选 summary/features/bodies/selection/capabilities/references。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。",
   "synonyms": [
     "getState",
     "工程状态",
@@ -101409,7 +101562,7 @@ files.release: contextPolicy=none
     "基准",
     "鼠标手柄"
   ],
-  "inputContract": "getState({sessionId?,include?}={}); include 可选 summary/features/bodies/selection/capabilities/references。",
+  "inputContract": "getState({sessionId?,include?,compact?,fields?,sinceRevision?}={}); include 可选 summary/features/bodies/selection/capabilities/references。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。",
   "outputContract": "当前 context、referenceSystem、parameters、parameterValues、view 和 display；view.transform 为 {mode,bodyIds,attached,canDrag,blocker}，读回移动/旋转手柄与当前不可拖原因。不会默认返回导入源字节。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -101419,7 +101572,7 @@ files.release: contextPolicy=none
     "PARAM_SCHEMA_INVALID",
     "INSTANCE_MISMATCH"
   ],
-  "docsHash": "sha256:94997112fe9531a773a2051f8762ef138d34f36d20130b6a7b1311d5e649cdf9"
+  "docsHash": "sha256:8a4ff1e9bd847cf72aa0c219f8f9ae22d358d7c153c83b6a53f9d291161aa43b"
 }
 ```
 
@@ -103155,7 +103308,7 @@ files.release: contextPolicy=none
   "category": "page-method",
   "version": "1.48.0",
   "contextPolicy": "identity",
-  "description": "capture({context}); 不接受额外字段。",
+  "description": "capture({context,maxWidth?,format?,quality?}); 建议 maxWidth:800,format:\"webp\"。后台标签页也同步渲染一帧；超过 limits.transport.captureTimeoutMs（10 s）返回 CAPTURE_TIMEOUT，几何回执不受影响，不要循环等待 webcad_job。",
   "synonyms": [
     "capture",
     "截图",
@@ -103163,7 +103316,7 @@ files.release: contextPolicy=none
     "PNG",
     "当前画面"
   ],
-  "inputContract": "capture({context}); 不接受额外字段。",
+  "inputContract": "capture({context,maxWidth?,format?,quality?}); 建议 maxWidth:800,format:\"webp\"。后台标签页也同步渲染一帧；超过 limits.transport.captureTimeoutMs（10 s）返回 CAPTURE_TIMEOUT，几何回执不受影响，不要循环等待 webcad_job。",
   "outputContract": "status=read、mime=image/png、真实 dataUrl、当前 context 和匹配渲染帧的 display。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -103172,10 +103325,11 @@ files.release: contextPolicy=none
   "errorCodes": [
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE",
-    "DISPLAY_FAILED"
+    "DISPLAY_FAILED",
+    "CAPTURE_TIMEOUT"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:3d1a288c037a161197fb625c643b0619a975002a54507ce685e7819dce3ea9e9"
+  "docsHash": "sha256:0e1b7db31aaf6a615147d5d95f2356c86e0d516adeea8b50d611322b6741236e"
 }
 ```
 
@@ -103280,13 +103434,13 @@ files.release: contextPolicy=none
 {
   "id": "body.align",
   "title": "快速对齐",
-  "description": "按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:\"body\",bodyId:基准实体ID},axes:[\"Y\"],sourceSide:\"center\",targetSide:\"center\",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。",
+  "description": "按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:\"body\",bodyId:基准实体ID},axes:[\"Y\"],sourceSide:\"center\",targetSide:\"center\",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。group 语义必须先按用户意图确认：group=true 把全部 bodyIds 当作一个整体，按它们的联合包围盒对齐并保持彼此相对位置（整体平移）；group=false 每个实体分别按自身包围盒对齐到目标（例如多个件各自居中到同一中心线）。“分别/各自/每个都对齐”必须用 group:false，不要先 group:true 再补偏移。run 回执的 bodyBounds 给出移动后实体的 center/size，可直接核对，无需再读 getState。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。",
   "category": "command",
   "version": "1.48.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"body.align\",args}); 按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:\"body\",bodyId:基准实体ID},axes:[\"Y\"],sourceSide:\"center\",targetSide:\"center\",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。",
+  "inputContract": "execute({context,idempotencyKey,action:\"body.align\",args}); 按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:\"body\",bodyId:基准实体ID},axes:[\"Y\"],sourceSide:\"center\",targetSide:\"center\",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。group 语义必须先按用户意图确认：group=true 把全部 bodyIds 当作一个整体，按它们的联合包围盒对齐并保持彼此相对位置（整体平移）；group=false 每个实体分别按自身包围盒对齐到目标（例如多个件各自居中到同一中心线）。“分别/各自/每个都对齐”必须用 group:false，不要先 group:true 再补偏移。run 回执的 bodyBounds 给出移动后实体的 center/size，可直接核对，无需再读 getState。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。",
   "fields": [
     "bodyIds",
     "target",
@@ -103340,7 +103494,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:c40ebf8541753b09b3f42a2a8a626f965d838fec3ec5585df19fa821f9896379"
+  "docsHash": "sha256:e87ac0b4f158ef8fd9507a6b6ac101454909bfdeae903fff9c7ae0268b1e9d55"
 }
 ```
 
