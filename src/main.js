@@ -67,6 +67,7 @@ import {mechanicalIds,mechanicalNames,mechanicalRefRange} from './mechanical-too
 import {resolveProfileRecipe,constrainProfileRecipe} from './modeling/profiles/profile-constraint-history.js';
 import {classifyFile,extensionOf,assertOpenAllowed,assertOpenable,assertInsertable,dropDecision} from './open-import-policy.js';
 import {chooseAction,UNSAVED_CHOICES,DROP_CHOICE_LABELS} from './ui/choice-dialog.js';
+import {createLoadingTracker,LOADING_TEXT} from './loading-progress.js';
 
 
 const emptyDocument = () => ({version:2,documentId:crypto.randomUUID(),name:nextProjectName(),features:[],imports:{},hidden:[],referenceSystem:createReferenceSystem()});
@@ -92,6 +93,7 @@ Object.assign(labels,referenceNames);
 Object.assign(labels,mechanicalNames);
 Object.assign(labels,{sketchProfile:'绘制轮廓',profileOffset:'等距偏移 / 边框',profileRepair:'修复轮廓',profileExtrude:'轮廓拉伸 / 加工',holeWizard:'孔向导',draftFaces:'受限拔模'});
 const pending=new Map();
+let loadingDepth=0;const loadingTracker=createLoadingTracker();
 let worker,recoveryPromise=null,kernelProgress=null,pendingServicesWait=null,displayCoarsen=1;
 function rejectPending(error){for(const job of pending.values()){clearTimeout(job.timer);job.reject(error);}pending.clear();}
 function createWorker(){
@@ -99,9 +101,8 @@ function createWorker(){
   instance.onmessage=event=>{if(instance!==worker)return;const result=event.data,job=pending.get(result.requestId);if(!job)return;if(result.kind==='progress'){
     kernelProgress={...result.progress,requestId:result.requestId,updatedAt:Date.now()};job.pulse();
     job.progress=kernelProgress;
-    if(result.progress.kind==='rebuild'){const p=result.progress;if(p.partial){try{viewport.addProgressiveMesh(p.partial);}catch{}delete p.partial;}const text=`${p.label}${p.total?` ${p.completed}/${p.total}`:''}${p.triangles?` · ${p.triangles.toLocaleString()} 三角面`:''}`;if(busy)ui.setBusy(true,text);setStatus(text);return;}
-    const p=result.progress,label=p.phase==='relief-contour'?`轮廓 ${p.completed}/${p.total}`:p.phase==='relief-boolean'?'合成实体':`层 ${p.completed}/${p.total}`;
-    setStatus(`浮雕 ${p.layer??1}/${p.layerCount??1} · ${p.name??''} · ${label}`);return;
+    if(result.progress.kind==='rebuild'){const p=result.progress;if(p.partial){try{viewport.addProgressiveMesh(p.partial);}catch{}delete p.partial;}const fraction=loadingTracker.update(p);if(busy)ui.setBusyProgress?.(fraction);return;}
+    return;
   }clearTimeout(job.timer);pending.delete(result.requestId);kernelProgress=null;if(result.ok)job.resolve(result);else job.reject(Object.assign(new Error(result.error||'建模操作失败'),{code:result.code,path:result.path,recoveryAction:result.recoveryAction,featureId:result.featureId,report:result.report}));};
   instance.onerror=event=>{if(instance!==worker)return;const error=Object.assign(new Error(event.message||'CAD 内核异常，请保存工程后刷新页面。'),{code:'KERNEL_CRASHED'});rejectPending(error);kernelReady=false;ui?.showError(error.message);};
   return instance;
@@ -228,7 +229,9 @@ function refresh(){if(displayBatchDepth){deferredRefresh=true;return;}document.t
 function setStatus(message){status=message;ui.setStatus(t(message));}
 function reportError(error){console.error(error);ui.showError(error.message||String(error));setStatus(error.message||String(error));}
 function pushUndo(next,label){if(next){recordTimeline(documentModel,next,{label});assertDocumentCapacity(next);}const {imports,timeline,...rest}=documentModel;undoStack.push({...clone(rest),imports,timeline});if(undoStack.length>40)undoStack.shift();redoStack=[];}
-function setBusy(value,message){busy=value;viewport.setBusy?.(value);ui.setBusy(value,message);if(message)setStatus(message);refresh();}
+function setBusy(value,message){if(value&&loadingDepth)message=LOADING_TEXT;if(value&&!busy){loadingTracker.reset();ui.setBusyProgress?.(null);}busy=value;viewport.setBusy?.(value);ui.setBusy(value,message);if(message)setStatus(message);refresh();}
+// Opening/inserting/startup show only 载入中 (+ a bar when real progress is known).
+async function withLoading(task){loadingDepth++;loadingTracker.reset();ui.setBusyProgress?.(null);if(!busy){ui.setBusy(true,LOADING_TEXT);setStatus(LOADING_TEXT);}try{return await task();}finally{loadingDepth--;if(!busy&&!loadingDepth)ui.setBusy(false);}}
 function selectRectangle(input){if(busy)return;const ids=viewport.rectangleCandidates(input);ui.discardForSelection();selectedIds=input.additive?[...new Set([...selectedIds,...ids])]:ids;selectedTopology=null;viewport.setSelection(selectedIds);refresh();return {status:'read',selectedIds:[...selectedIds],context:pageAPI.getState().context};}
 function selectBody(id,additive=false){
   if(busy)return;
@@ -584,6 +587,9 @@ async function openDocument(file,{signal,expectedRevision,mcp=false,unsaved,unit
   if(!assertOpenReady(mcp))return {status:'cancelled'};
   checkInputFile(file,signal,expectedRevision);assertOpenable(file.name);
   if(mcp)assertOpenAllowed({unsaved,dirty});else if(!await confirmReplaceUnsaved())return {status:'cancelled'};
+  return withLoading(()=>openDocumentLoaded(file,{signal,expectedRevision,mcp,units}));
+}
+async function openDocumentLoaded(file,{signal,expectedRevision,mcp=false,units}={}){
   let next,select,large=false;
   if(classifyFile(file.name)==='project')next=validateDocument((await request('decodeProject',{bytes:new Uint8Array(await file.arrayBuffer())})).document);
   else{
@@ -599,10 +605,12 @@ async function insertModels(files,{signal,expectedRevision,mcp=false,placement,u
   if(!assertOpenReady(mcp))return;
   for(const file of files){
     checkInputFile(file,signal,expectedRevision);assertInsertable(file.name);
-    const next=clone(documentModel),added=await appendModel(next,file,{mcp,placement,units});if(!added)return;
-    if(!next.features.slice(0,-1).length)next.name=file.name.replace(/\.[^.]+$/,'');
-    const options={fit:true,select:added.id,signal,expectedRevision};
-    await (added.large?rebuildLargeImport(next,options):rebuild(next,options));
+    const done=await withLoading(async()=>{
+      const next=clone(documentModel),added=await appendModel(next,file,{mcp,placement,units});if(!added)return false;
+      if(!next.features.slice(0,-1).length)next.name=file.name.replace(/\.[^.]+$/,'');
+      const options={fit:true,select:added.id,signal,expectedRevision};
+      await (added.large?rebuildLargeImport(next,options):rebuild(next,options));return true;
+    });if(!done)return;
   }
 }
 async function handleDroppedFiles(files){
@@ -820,7 +828,7 @@ const host=document.getElementById('viewport');host.addEventListener('dragover',
 
 refresh();
 const ready=(async()=>{
-  try{await request('ready');kernelReady=true;await rebuild(clone(documentModel),{record:false,save:false});dirty=false;refresh();setStatus('就绪 · 在工具栏创建实体，或打开 STEP / WebCAD 工程。');return true;}
+  try{await withLoading(async()=>{await request('ready');kernelReady=true;await rebuild(clone(documentModel),{record:false,save:false});});dirty=false;refresh();setStatus('就绪 · 在工具栏创建实体，或打开 STEP / WebCAD 工程。');return true;}
   catch(error){reportError(error);return false;}
 })();
 // Public automation surface also used by reproducible acceptance checks; never runs arbitrary code.
