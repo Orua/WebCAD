@@ -518,7 +518,7 @@ export function createUI(root,callbacks={}) {
   const form=element('form',{class:'parameter-form'}),specs=quickSpecs(initialKind);
   const guide=element('details',{class:'quick-model-dimension-guide'});guide.append(element('summary',{},'尺寸指示图（默认参数）'),modelPreview({kind:initialKind,label:libraryLabel||model.label},{annotated:true}));
   d.append(guide,element('p',{class:'dialog-description'},model.description));
-  for(const spec of specs){const input=addField(form,spec,values[spec[0]]),field=model.fields.find(f=>f.key===spec[0]);for(const key of ['min','max','step'])if(field[key]!==undefined)input.setAttribute(key,field[key]);}
+  for(const spec of specs){const input=addField(form,spec,values[spec[0]]),field=model.fields.find(f=>f.key===spec[0]);for(const key of ['min','max'])if(field[key]!==undefined)input.setAttribute(key,field[key]);if(field.type==='number')input.step='any';}
   bindParameterForm(form,'quickModel',()=>({...values,...readParams(form,specs),kind:initialKind,useWorkFrame:true}));
   d.append(form,button('取消并返回模型库',async()=>{if(previewActive){await emit('cancelPreview',{});previewActive=false;}closeDialog(false);switchWorkspace('library');},'secondary'));
  }
