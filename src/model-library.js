@@ -1,93 +1,40 @@
-import {QUICK_MODELS, QUICK_MODEL_VISIBLE_KINDS} from './quick-models.js';
+import {QUICK_MODELS,QUICK_MODEL_VISIBLE_KINDS} from './quick-models.js';
 import {getOperation} from './operation-registry.js';
 import {assertJsonValue,validateSchema} from './contracts/operation-schema.js';
-import {validateModelScript} from './quick-models/model-script.js';
 
-export const MODEL_LIBRARY_KEY = 'webcad.model-library.v1';
-const fail = (code, message) => { throw Object.assign(new Error(message), {code}); };
-const plain = value => value && typeof value === 'object' && !Array.isArray(value);
-const keys = (value, allowed) => { if (!plain(value) || Object.keys(value).some(key => !allowed.includes(key))) fail('PARAM_SCHEMA_INVALID', '模型库包含未知字段'); };
-const quickContract=getOperation('quickModel');
-const schemas=new Map(quickContract.inputSchema.oneOf.map(schema=>[schema.properties.kind.const,schema]));
-function validateParams(kind,params){
-  assertJsonValue(params);validateSchema(schemas.get(kind),params);
-  for(const field of QUICK_MODELS[kind].fields){const value=params[field.key];
-    if(field.type==='number'&&(typeof value!=='number'||!Number.isFinite(value)||field.min!==undefined&&value<field.min||field.max!==undefined&&value>field.max))fail('PARAM_RANGE_INVALID',field.label+' 超出允许范围');
-    if(field.type==='select'&&!field.options.some(option=>option.value===value))fail('PARAM_SCHEMA_INVALID',field.label+' 选项无效');
-    if(field.type==='boolean'&&typeof value!=='boolean')fail('PARAM_SCHEMA_INVALID',field.label+' 必须是布尔值');
-  }
+export const MODEL_LIBRARY_KEY='webcad.model-library-order.v2';
+export const LEGACY_MODEL_LIBRARY_KEY='webcad.model-library.v1';
+const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
+const plain=value=>value&&typeof value==='object'&&!Array.isArray(value);
+const keys=(value,allowed)=>{if(!plain(value)||Object.keys(value).some(key=>!allowed.includes(key)))fail('PARAM_SCHEMA_INVALID','模型库包含未知字段');};
+const quickContract=getOperation('quickModel'),schemas=new Map(quickContract.inputSchema.oneOf.map(schema=>[schema.properties.kind.const,schema]));
+function validateParams(kind,params){assertJsonValue(params);validateSchema(schemas.get(kind),params);for(const field of QUICK_MODELS[kind].fields){const value=params[field.key];if(field.type==='number'&&(typeof value!=='number'||!Number.isFinite(value)||field.min!==undefined&&value<field.min||field.max!==undefined&&value>field.max))fail('PARAM_RANGE_INVALID',field.label+' 超出允许范围');}}
+export const defaultModelLibrary=()=>QUICK_MODEL_VISIBLE_KINDS.map(kind=>({id:kind,kind,label:QUICK_MODELS[kind].label,description:QUICK_MODELS[kind].description||'',defaults:structuredClone(QUICK_MODELS[kind].defaults)}));
+// Kept as a trusted development/export helper. Runtime users cannot install it.
+export function validateLibraryEntry(entry){keys(entry,['id','kind','label','description','defaults']);if(entry.id!==entry.kind||!QUICK_MODEL_VISIBLE_KINDS.includes(entry.kind))fail('PARAM_SCHEMA_INVALID','快捷工具由软件内置，不接受自定义定义');const installed=defaultModelLibrary().find(x=>x.id===entry.id);if(JSON.stringify(entry)!==JSON.stringify(installed))fail('PARAM_SCHEMA_INVALID','快捷工具定义只读');return installed;}
+const ordered=(order)=>{const entries=defaultModelLibrary(),byId=new Map(entries.map(x=>[x.id,x]));return [...new Set([...order,...byId.keys()])].flatMap(id=>byId.has(id)?[byId.get(id)]:[]);};
+export function createModelLibrary(storageProvider=()=>globalThis.localStorage){
+ function read(){
+  let storage,raw,legacy;try{storage=storageProvider();raw=storage?.getItem(MODEL_LIBRARY_KEY);if(!raw)legacy=storage?.getItem(LEGACY_MODEL_LIBRARY_KEY);}catch{fail('LIBRARY_STORAGE_UNAVAILABLE','模型库存储不可用，请允许当前站点本地存储');}
+  let revision=0,order=[];
+  if(raw){try{const data=JSON.parse(raw);if(data.format!=='webcad-model-library-order'||data.version!==2||!Number.isSafeInteger(data.revision)||data.revision<0||!Array.isArray(data.order)||data.order.some(x=>typeof x!=='string')||data.order.length>200||new Set(data.order).size!==data.order.length)throw Error();revision=data.revision;order=data.order;}catch{fail('LIBRARY_INVALID','工具排序无效；请显式恢复默认顺序');}}
+  else if(legacy){try{const data=JSON.parse(legacy);if(Array.isArray(data.entries))order=data.entries.filter(x=>x?.id===x?.kind).map(x=>x.kind);}catch{/* Old definitions stay untouched; only a valid order is reused. */}}
+  return {format:'webcad-model-library',version:2,revision,entries:ordered(order),persistence:storage?'localStorage':'unavailable',readOnlyDefinitions:true,allowedOperations:['move','restore']};
+ }
+ function update(input){
+  keys(input,['expectedLibraryRevision','operation','id','index']);
+  if(!['move','restore'].includes(input.operation))fail('PARAM_SCHEMA_INVALID','快捷工具结构固定，只允许调整或恢复显示顺序');
+  if(input.operation==='restore'&&(input.id!==undefined||input.index!==undefined))fail('PARAM_SCHEMA_INVALID','恢复顺序不接受工具或位置');
+  let current;try{current=read();}catch(error){if(error.code!=='LIBRARY_INVALID'||input.operation!=='restore'||input.expectedLibraryRevision!==-1)throw error;current={revision:-1,entries:defaultModelLibrary()};}
+  if(input.expectedLibraryRevision!==current.revision)fail('LIBRARY_REVISION_CONFLICT','模型库已改变，请重新读取后再修改');
+  let entries=structuredClone(current.entries);
+  if(input.operation==='move'){const index=entries.findIndex(x=>x.id===input.id);if(index<0)fail('LIBRARY_ENTRY_NOT_FOUND','模型条目不存在');if(!Number.isInteger(input.index)||input.index<0||input.index>=entries.length)fail('PARAM_SCHEMA_INVALID','排序位置必须是有效的零起始索引');const [entry]=entries.splice(index,1);entries.splice(input.index,0,entry);}else entries=defaultModelLibrary();
+  const data={format:'webcad-model-library-order',version:2,revision:current.revision+1,order:entries.map(x=>x.id)};
+  try{const storage=storageProvider();if(!storage)throw Error();storage.setItem(MODEL_LIBRARY_KEY,JSON.stringify(data));}catch{fail('LIBRARY_STORAGE_UNAVAILABLE','显示顺序未保存：本地存储不可用或空间不足');}
+  return read();
+ }
+ function resolve(input){keys(input,['id','expectedLibraryRevision','params']);const library=read();if(input.expectedLibraryRevision!==library.revision)fail('LIBRARY_REVISION_CONFLICT','请读取当前模型库版本');const entry=library.entries.find(x=>x.id===input.id);if(!entry)fail('LIBRARY_ENTRY_NOT_FOUND','模型条目不存在');keys(input.params??{},Object.keys(QUICK_MODELS[entry.kind].defaults));const params={...entry.defaults,...input.params,kind:entry.kind};validateParams(entry.kind,params);return {libraryRevision:library.revision,entryId:entry.id,op:'quickModel',params,refs:[],name:entry.label};}
+ function contracts(){const data=read();return {...data,entries:data.entries.map(entry=>({...entry,fields:structuredClone(QUICK_MODELS[entry.kind].fields),inputSchema:structuredClone(schemas.get(entry.kind)),toolId:'template.'+entry.kind,execution:{method:'add',args:{op:'quickModel',params:{...entry.defaults,kind:entry.kind},refs:[],name:entry.label}},knownUnsupportedCases:quickContract.templates?.find(t=>t.kind===entry.kind)?.knownUnsupportedCases||[]}))};}
+ return {read,update,resolve,contracts};
 }
-export const defaultModelLibrary = () => QUICK_MODEL_VISIBLE_KINDS.map(kind => ({id:kind, kind, label:QUICK_MODELS[kind].label, description:QUICK_MODELS[kind].description || '', defaults:structuredClone(QUICK_MODELS[kind].defaults)}));
-
-export function validateLibraryEntry(entry) {
-  keys(entry, ['id','kind','label','description','defaults','script']);
-  if (!/^[a-zA-Z][a-zA-Z0-9_-]{0,79}$/.test(entry.id) || !Object.hasOwn(QUICK_MODELS, entry.kind)) fail('PARAM_SCHEMA_INVALID', '模型 ID 或几何类型无效');
-  if (typeof entry.label !== 'string' || !entry.label.trim() || entry.label.length > 100 || typeof (entry.description ?? '') !== 'string' || (entry.description || '').length > 1000) fail('PARAM_SCHEMA_INVALID', '模型名称必填且不超过 100 字');
-  keys(entry.defaults ?? {}, Object.keys(QUICK_MODELS[entry.kind].defaults));
-  const defaults = {...structuredClone(QUICK_MODELS[entry.kind].defaults), ...entry.defaults};
-  validateParams(entry.kind,{kind:entry.kind,...defaults});
-  return {id:entry.id, kind:entry.kind, label:entry.label.trim(), description:entry.description || '', defaults,...(entry.script?{script:validateModelScript(entry.script,defaults,QUICK_MODELS)}:{})};
-}
-
-export function createModelLibrary(storageProvider = () => globalThis.localStorage) {
-  function read() {
-    let storage, raw;
-    try { storage = storageProvider(); raw = storage?.getItem(MODEL_LIBRARY_KEY); } catch { fail('LIBRARY_STORAGE_UNAVAILABLE', '模型库存储不可用，请允许当前站点本地存储'); }
-    if (!raw) return {format:'webcad-model-library', version:1, revision:0, entries:defaultModelLibrary(), persistence:storage ? 'localStorage' : 'unavailable'};
-    try {
-      const data = JSON.parse(raw);
-      if (data.format !== 'webcad-model-library' || data.version !== 1 || !Number.isSafeInteger(data.revision) || data.revision < 0 || !Array.isArray(data.entries) || data.entries.length > 200) throw Error();
-      const entries = data.entries.map(validateLibraryEntry);
-      if (new Set(entries.map(entry => entry.id)).size !== entries.length) throw Error();
-      return {...data, entries, persistence:'localStorage'};
-    } catch { fail('LIBRARY_INVALID', '已保存模型库无效，请导出备份后显式恢复默认库'); }
-  }
-  function update(input) {
-    keys(input, ['expectedLibraryRevision','operation','entry','id','index','library']);
-    // Restore can recover invalid storage, but requires the explicitly advertised revision -1.
-    let current;
-    try { current = read(); } catch (error) { if (error.code !== 'LIBRARY_INVALID' || input.operation !== 'restore' || input.expectedLibraryRevision !== -1) throw error; current = {revision:-1, entries:[]}; }
-    if (input.expectedLibraryRevision !== current.revision) fail('LIBRARY_REVISION_CONFLICT', '模型库已改变，请重新读取后再修改');
-    let entries = structuredClone(current.entries);
-    switch (input.operation) {
-      case 'upsert': { const entry = validateLibraryEntry(input.entry); const index = entries.findIndex(item => item.id === entry.id); if (index < 0) entries.push(entry); else entries[index] = entry; break; }
-      case 'remove': case 'move': {
-        const index = entries.findIndex(item => item.id === input.id);
-        if (index < 0) fail('LIBRARY_ENTRY_NOT_FOUND', '模型条目不存在');
-        const [entry] = entries.splice(index, 1);
-        if (input.operation === 'move') { if (!Number.isInteger(input.index) || input.index < 0 || input.index > entries.length) fail('PARAM_SCHEMA_INVALID', '排序位置必须是有效的零起始索引'); entries.splice(input.index, 0, entry); }
-        break;
-      }
-      case 'restore': entries = defaultModelLibrary(); break;
-      case 'import': {
-        keys(input.library, ['format','version','revision','entries','persistence']);
-        if (input.library.format !== 'webcad-model-library' || input.library.version !== 1 || !Array.isArray(input.library.entries)) fail('LIBRARY_INVALID', '请输入 webcad-model-library v1');
-        entries = input.library.entries.map(validateLibraryEntry); break;
-      }
-      default: fail('PARAM_SCHEMA_INVALID', '未知模型库操作');
-    }
-    if (entries.length > 200 || new Set(entries.map(entry => entry.id)).size !== entries.length) fail('LIBRARY_INVALID', '模型库最多 200 个唯一 ID');
-    const data = {format:'webcad-model-library', version:1, revision:current.revision + 1, entries};
-    const json = JSON.stringify(data);
-    if (json.length > 1024 * 1024) fail('RESOURCE_LIMIT', '模型库超过 1 MiB');
-    try { const storage = storageProvider(); if (!storage) throw Error(); storage.setItem(MODEL_LIBRARY_KEY, json); } catch { fail('LIBRARY_STORAGE_UNAVAILABLE', '模型库未保存：本地存储不可用或空间不足'); }
-    return {...data, persistence:'localStorage'};
-  }
-  function resolve(input) {
-    keys(input, ['id','expectedLibraryRevision','params']);
-    const library = read();
-    if (input.expectedLibraryRevision !== library.revision) fail('LIBRARY_REVISION_CONFLICT', '请读取当前模型库版本');
-    const entry = library.entries.find(item => item.id === input.id);
-    if (!entry) fail('LIBRARY_ENTRY_NOT_FOUND', '模型条目不存在');
-    keys(input.params ?? {}, Object.keys(QUICK_MODELS[entry.kind].defaults));
-    const params = {...entry.defaults, ...input.params, kind:entry.kind,...(entry.script?{modelScript:entry.script}:{})};
-    validateParams(entry.kind,params);
-    return {libraryRevision:library.revision, entryId:entry.id, op:'quickModel', params, refs:[], name:entry.label};
-  }
-  function contracts() {
-    const data = read(), parent = quickContract;
-    return {...data, entries:data.entries.map(entry => ({...entry, fields:structuredClone(QUICK_MODELS[entry.kind].fields), inputSchema:structuredClone(parent.inputSchema.oneOf.find(schema => schema.properties.kind.const === entry.kind)), toolId:'template.' + entry.kind, execution:{method:'add', args:{op:'quickModel', params:{...entry.defaults, kind:entry.kind,...(entry.script?{modelScript:entry.script}:{})}, refs:[], name:entry.label}}, knownUnsupportedCases:parent.templates?.find(template => template.kind === entry.kind)?.knownUnsupportedCases || []}))};
-  }
-  return {read, update, resolve, contracts};
-}
-export const modelLibrary = createModelLibrary();
+export const modelLibrary=createModelLibrary();

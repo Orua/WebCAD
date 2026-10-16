@@ -1,119 +1,38 @@
 import {iconButtonContent} from './vector-icon.js';
 import {modelLibrary} from '../model-library.js';
 import {QUICK_MODELS} from '../quick-models.js';
-import {quickModelIcon} from '../quick-model-icons.js';
 import {modelPreview} from './model-preview.js';
-import {defaultModelScript} from '../quick-models/model-script.js';
 
-export function mountModelLibrary(root, {element, button, onClose, onChoose, getMode, setMode}) {
-  let selectedId = null, query = '', library;
-  const header = element('header', {class:'library-heading'});
-  const title = element('div'); title.append(element('h1', {}, '快捷模型'), element('p', {}, '选择模型，设置参数后插入当前工程。'));
-  const controls = element('div', {class:'library-controls'});
-  const search = element('input', {type:'search', placeholder:'搜索模型名称、类型或说明', 'aria-label':'搜索模型库'});
-  const cards = button('卡片', () => setMode('cards'), 'secondary');
-  const list = button('详细列表', () => setMode('list'), 'secondary');
-  const manage = button('管理模型库', () => openEditor(), 'secondary');
-  manage.dataset.commandId='modelLibraryEdit';
-  for(const [control,kind,label]of [[cards,'libraryCards','卡片'],[list,'libraryList','详细列表'],[manage,'libraryManage','管理模型库']]){iconButtonContent(control,kind);control.title=label;control.setAttribute('aria-label',label);control.classList.add('library-control-icon');}
-  const back=button('返回画布',onClose,'secondary library-close');iconButtonContent(back,'close');back.title='关闭快捷模型 · 返回画布';back.setAttribute('aria-label','返回画布');back.dataset.commandId='workspace';back.dataset.workspace='modeling';
-  controls.append(search, cards, list, manage, back); header.append(title, controls);
-  const error = element('p', {class:'form-error', role:'alert'});
-  const content = element('div', {class:'library-content'}), grid = element('div', {class:'library-grid', 'aria-label':'可用快捷模型'}), detail = element('aside', {class:'library-detail', 'aria-label':'模型详情'});
-  const editor = element('dialog', {class:'cad-dialog library-editor', 'aria-label':'模型库管理'});
-  const closeEditor=()=>editor.close();
-  const editorHeader=element('div',{class:'dialog-header'});editorHeader.append(element('h2',{},'编辑快捷工具'),button('×',closeEditor,'close-button'));
-  const openEditor=entry=>{loadEditor(entry);if(!editor.open)editor.showModal();};
-  const source = element('select', {'aria-label':'新模型的几何类型'});
-  for (const [kind, model] of Object.entries(QUICK_MODELS)) source.append(element('option', {value:kind}, model.label));
-  const draft = element('textarea', {rows:12, spellcheck:false, 'aria-label':'模型定义 JSON'});
-  const script=element('textarea',{rows:12,spellcheck:false,'aria-label':'建模步骤脚本',class:'model-script-editor'});
-  const scriptError=element('p',{class:'form-error',role:'alert'});
-  let preservedDefaults={};
-  const metadata = element('div', {class:'library-config-fields'}), parameters = element('div', {class:'library-config-fields'});
-  const idInput=element('input', {type:'text', maxlength:80, 'aria-label':'模型 ID'}),labelInput=element('input', {type:'text', maxlength:100, 'aria-label':'模型名称'}),descriptionInput=element('input', {type:'text', maxlength:1000, 'aria-label':'模型说明'});
-  for(const [label,input]of [['模型 ID',idInput],['名称',labelInput],['说明',descriptionInput],['几何类型',source]]){const wrap=element('label',{class:'library-config-field'});wrap.append(element('span',{},label),input);metadata.append(wrap);}
-  let parameterInputs=[];
-  const syncDraft=()=>{const defaults={...preservedDefaults};for(const {field,input}of parameterInputs)defaults[field.key]=field.type==='number'?Number(input.value):field.type==='boolean'?input.checked:field.type==='select'?field.options.find(option=>String(option.value)===input.value)?.value:input.value;try{draft.value=JSON.stringify({id:idInput.value,kind:source.value,label:labelInput.value,description:descriptionInput.value,defaults,script:JSON.parse(script.value)},null,2);scriptError.textContent='';}catch{scriptError.textContent='建模步骤脚本 JSON 尚未完整，请修正后保存。';}};
-  script.addEventListener('input',syncDraft);
-  for(const input of [idInput,labelInput,descriptionInput])input.addEventListener('input',syncDraft);
-  source.addEventListener('change',()=>loadEditor({id:idInput.value||'my_'+source.value,kind:source.value,label:labelInput.value||'我的'+QUICK_MODELS[source.value].label,description:descriptionInput.value,defaults:QUICK_MODELS[source.value].defaults}));
-  const actions = element('div', {class:'library-editor-actions'});
-  const message = element('p', {class:'property-footnote'}, '参数与建模步骤一起保存为快捷工具。已有工程保留自己的脚本；删除条目不会删除工程里的模型。');
-  function loadEditor(entry = library?.entries.find(item => item.id === selectedId)) {
-    const value = entry || {id:'my_' + source.value, kind:source.value, label:'我的' + QUICK_MODELS[source.value].label, description:'', defaults:QUICK_MODELS[source.value].defaults};
-    idInput.value=value.id;labelInput.value=value.label;descriptionInput.value=value.description||'';source.value=value.kind;parameters.replaceChildren();parameterInputs=[];preservedDefaults={...value.defaults};script.value=JSON.stringify(value.script||defaultModelScript(value.kind,QUICK_MODELS[value.kind]),null,2);scriptError.textContent='';
-    for(const field of QUICK_MODELS[value.kind].fields){
-      const wrap=element('label',{class:'library-config-field'});wrap.append(element('span',{},field.label));let input;
-      if(field.type==='select'){input=element('select',{'aria-label':'默认 '+field.label});for(const option of field.options)input.append(element('option',{value:option.value},option.label));input.value=String(value.defaults[field.key]);}
-      else if(field.type==='boolean'){input=element('input',{type:'checkbox','aria-label':'默认 '+field.label});input.checked=value.defaults[field.key];}
-      else{input=element('input',{type:field.type==='number'?'number':'text','aria-label':'默认 '+field.label});input.value=value.defaults[field.key];for(const key of ['min','max','step'])if(field[key]!==undefined)input.setAttribute(key,field[key]);}
-      parameterInputs.push({field,input});input.addEventListener('input',syncDraft);wrap.append(input);parameters.append(wrap);
-    }
-    syncDraft();
-  }
-  async function mutate(data) {
-    try {
-      const api = window.webcad.api;
-      const result = await api.updateModelLibrary({context:api.createRequestContext(), expectedLibraryRevision:library?.revision ?? -1, ...data});
-      if (result.status === 'failed') throw Error(result.error.message);
-      if(data.operation==='upsert')selectedId=data.entry.id;
-      error.textContent = '';scriptError.textContent='';render();return true;
-    } catch (exception) { scriptError.textContent = exception.message;return false; }
-  }
-  actions.append(button('新建工具', () => {selectedId = null;loadEditor(null);}, 'secondary'), button('保存工具', async () => {
-    try { JSON.parse(script.value);if(await mutate({operation:'upsert', entry:JSON.parse(draft.value)}))closeEditor(); } catch { scriptError.textContent = 'JSON 格式错误，请修正后保存。'; }
-  }, 'primary'));
-  const remove = button('删除条目', () => {
-    const entry = library?.entries.find(item => item.id === selectedId); if (!entry) return;
-    const confirmation = element('div', {class:'library-confirm', role:'alert'});
-    confirmation.append(element('span', {}, '删除「' + entry.label + '」？可通过恢复默认或导入备份恢复。'), button('确认删除', async () => {await mutate({operation:'remove', id:entry.id}); confirmation.remove();}, 'danger'), button('取消', () => confirmation.remove(), 'secondary'));
-    editor.append(confirmation);
-  }, 'secondary');
-  actions.append(remove);
-  for (const [label, delta] of [['上移', -1], ['下移', 1]]) actions.append(button(label, () => {
-    const index = library.entries.findIndex(item => item.id === selectedId); if (index < 0) return;
-    mutate({operation:'move', id:selectedId, index:Math.max(0, Math.min(library.entries.length - 1, index + delta))});
-  }, 'secondary'));
-  const transfer = element('details', {class:'library-transfer'}); transfer.append(element('summary', {}, '导入 / 导出配置'));
-  const json = element('textarea', {rows:7, 'aria-label':'模型库导入导出 JSON', spellcheck:false});
-  transfer.append(json, button('导出到文本', () => {json.value = JSON.stringify(modelLibrary.read(), null, 2); json.focus(); json.select();}, 'secondary'), button('导入并替换模型库', () => {
-    try { mutate({operation:'import', library:JSON.parse(json.value)}); } catch { error.textContent = '模型库 JSON 无效。'; }
-  }, 'secondary'));
-  const restore = button('全量恢复默认库', () => {
-    const confirmation = element('div', {class:'library-confirm', role:'alert'});
-    confirmation.append(element('span', {}, '恢复全部默认条目、参数和顺序，将替换自定义库。请先导出需要保留的配置。'), button('确认恢复默认', async () => {await mutate({operation:'restore'}); confirmation.remove();}, 'primary'), button('取消', () => confirmation.remove(), 'secondary'));
-    editor.append(confirmation);
-  }, 'secondary');
-  const advanced=element('details',{class:'library-transfer'});advanced.append(element('summary',{},'高级 · 脚本生成的模型 JSON'),draft);
-  editor.append(editorHeader, message, metadata, element('h3',{},'默认参数'), parameters,element('h3',{},'建模步骤脚本'),element('p',{class:'property-footnote'},'修改现有工具：编辑以下步骤再保存。新增：点击“新建工具”，填写唯一 ID。支持 box / cylinder / sphere / quickModel / transform / union / cut / intersect；refs 引用前面步骤的 ID，最后一步为结果。$params.字段读取上方参数。'),script,scriptError,advanced, actions, transfer, restore, button('取消',closeEditor,'secondary'));
-  content.append(grid, detail); root.append(header, error, editor, content);
-  search.addEventListener('input', () => {query = search.value.trim().toLowerCase(); render();});
-  function renderDetail(entry) {
-    detail.replaceChildren(); if (!entry) {detail.append(element('p', {}, '选择一个模型查看参数与说明。')); return;}
-    detail.append(modelPreview(entry,{annotated:true}), element('h2', {}, entry.label), button('设置参数并创建', () => onChoose(entry), 'primary'), element('p', {}, entry.description), element('p', {class:'library-kind'}, '几何类型 · ' + entry.kind));
-    const fields = element('dl', {class:'library-defaults'});
-    for (const field of QUICK_MODELS[entry.kind].fields) fields.append(element('dt', {}, field.label), element('dd', {}, String(entry.defaults[field.key])));
-    const defaults=element('details',{class:'library-default-parameters'});defaults.append(element('summary',{},'默认参数'),fields);detail.append(defaults, button('编辑工具与脚本', () => openEditor(entry), 'secondary'));
-    const contract = element('details', {class:'library-contract'}); contract.append(element('summary', {}, 'Agent 调用契约'));
-    contract.append(element('pre', {}, JSON.stringify({method:'resolveModelLibrary', args:{id:entry.id, expectedLibraryRevision:library.revision, params:{}}}, null, 2)), element('p', {}, '读取 getModelLibrary 获得字段、范围和工具卡；resolveModelLibrary 返回可送入 run/add 的实际参数。'));
-    detail.append(contract);
-  }
-  function render() {
-    try { library = modelLibrary.read(); } catch (exception) {library = null; error.textContent = exception.message; grid.replaceChildren(); detail.replaceChildren(); return;}
-    const mode = getMode(); cards.setAttribute('aria-pressed', String(mode === 'cards')); list.setAttribute('aria-pressed', String(mode === 'list'));
-    root.dataset.libraryMode = mode; grid.replaceChildren();
-    const entries = library.entries.filter(entry => !query || `${entry.label} ${entry.kind} ${entry.description} ${QUICK_MODELS[entry.kind].labelEn || ''}`.toLowerCase().includes(query));
-    if (!entries.some(entry => entry.id === selectedId)) selectedId = entries[0]?.id ?? null;
-    for (const entry of entries) {
-      const tile = button('', () => {selectedId = entry.id; renderDetail(entry);for(const item of grid.children)item.setAttribute('aria-pressed',String(item.dataset.libraryId===selectedId));}, 'library-model');
-      tile.dataset.libraryId = entry.id; tile.setAttribute('aria-pressed', String(entry.id === selectedId));
-      const copy = element('div', {class:'library-model-copy'}); copy.append(element('strong', {}, entry.label), element('span', {}, entry.description || QUICK_MODELS[entry.kind].label));
-      const dimensions = QUICK_MODELS[entry.kind].fields.filter(field => field.type === 'number').slice(0, 3).map(field => field.label + ' ' + entry.defaults[field.key]).join(' · ');
-      tile.append(modelPreview(entry), copy, element('small', {class:'library-model-values'}, dimensions)); grid.append(tile);
-    }
-    if (!entries.length) grid.append(element('p', {class:'library-empty'}, query ? '没有匹配的模型。请修改搜索词。' : '模型库为空。添加配置或恢复默认库。'));
-    renderDetail(entries.find(entry => entry.id === selectedId));
-  }
-  render(); return {render};
+export function mountModelLibrary(root,{element,button,onClose,onChoose,getMode,setMode}){
+ let selectedId=null,query='',library;
+ const header=element('header',{class:'library-heading'}),title=element('div'),controls=element('div',{class:'library-controls'});
+ title.append(element('h1',{},'快捷模型'),element('p',{},'选择模型，设置参数后插入当前工程。'));
+ const search=element('input',{type:'search',placeholder:'搜索模型名称、类型或说明','aria-label':'搜索模型库'});
+ const cards=button('卡片',()=>setMode('cards'),'secondary'),list=button('详细列表',()=>setMode('list'),'secondary');
+ for(const [control,kind,label]of [[cards,'libraryCards','卡片'],[list,'libraryList','详细列表']]){iconButtonContent(control,kind);control.title=label;control.setAttribute('aria-label',label);control.classList.add('library-control-icon');}
+ const back=button('返回画布',onClose,'secondary library-close');iconButtonContent(back,'close');back.title='关闭快捷模型 · 返回画布';back.setAttribute('aria-label','返回画布');back.dataset.commandId='workspace';back.dataset.workspace='modeling';
+ controls.append(search,cards,list,back);header.append(title,controls);
+ const error=element('p',{class:'form-error',role:'alert'}),content=element('div',{class:'library-content'}),grid=element('div',{class:'library-grid','aria-label':'可用快捷模型'}),detail=element('aside',{class:'library-detail','aria-label':'模型详情'});
+ content.append(grid,detail);root.append(header,error,content);
+ search.addEventListener('input',()=>{query=search.value.trim().toLowerCase();render();});
+ async function move(delta){try{const api=window.webcad.api,index=library.entries.findIndex(item=>item.id===selectedId);const result=await api.updateModelLibrary({context:api.createRequestContext(),expectedLibraryRevision:library.revision,operation:'move',id:selectedId,index:index+delta});if(result.status==='failed')throw Error(result.error.message);error.textContent='';render();}catch(exception){error.textContent=exception.message;}}
+ function renderDetail(entry){
+  detail.replaceChildren();if(!entry){detail.append(element('p',{},'选择一个模型查看参数与说明。'));return;}
+  detail.append(modelPreview(entry,{annotated:true}),element('h2',{},entry.label),button('设置参数并创建',()=>onChoose(entry),'primary'),element('p',{},entry.description));
+  const fields=element('dl',{class:'library-defaults'});for(const field of QUICK_MODELS[entry.kind].fields)fields.append(element('dt',{},field.label),element('dd',{},String(entry.defaults[field.key])));
+  const defaults=element('details',{class:'library-default-parameters'});defaults.append(element('summary',{},'默认参数'),fields);
+  const order=element('div',{class:'library-editor-actions','aria-label':'快捷工具显示顺序'}),index=library.entries.findIndex(item=>item.id===entry.id);
+  for(const [label,delta]of [['上移',-1],['下移',1]]){const control=button(label,()=>move(delta),'secondary');control.dataset.commandId='modelLibraryEdit';control.disabled=index+delta<0||index+delta>=library.entries.length;order.append(control);}
+  detail.append(defaults,element('p',{class:'property-footnote'},'工具结构固定；创建时可调整参数。这里只调整显示顺序。'),order);
+  const contract=element('details',{class:'library-contract'});contract.append(element('summary',{},'Agent 调用契约'),element('pre',{},JSON.stringify({method:'resolveModelLibrary',args:{id:entry.id,expectedLibraryRevision:library.revision,params:{}}},null,2)),element('p',{},'getModelLibrary 读取参数和范围；resolveModelLibrary 返回可交给 run/add 的参数。'));detail.append(contract);
+ }
+ function render(){
+  try{library=modelLibrary.read();}catch(exception){error.textContent=exception.message;grid.replaceChildren();detail.replaceChildren();return;}
+  const mode=getMode();cards.setAttribute('aria-pressed',String(mode==='cards'));list.setAttribute('aria-pressed',String(mode==='list'));root.dataset.libraryMode=mode;grid.replaceChildren();
+  const entries=library.entries.filter(entry=>!query||`${entry.label} ${entry.kind} ${entry.description} ${QUICK_MODELS[entry.kind].labelEn||''}`.toLowerCase().includes(query));
+  if(!entries.some(entry=>entry.id===selectedId))selectedId=entries[0]?.id??null;
+  for(const entry of entries){const tile=button('',()=>{selectedId=entry.id;renderDetail(entry);for(const item of grid.children)item.setAttribute('aria-pressed',String(item.dataset.libraryId===selectedId));},'library-model');tile.dataset.libraryId=entry.id;tile.setAttribute('aria-pressed',String(entry.id===selectedId));const copy=element('div',{class:'library-model-copy'});copy.append(element('strong',{},entry.label),element('span',{},entry.description||QUICK_MODELS[entry.kind].label));const dimensions=QUICK_MODELS[entry.kind].fields.filter(field=>field.type==='number').slice(0,3).map(field=>field.label+' '+entry.defaults[field.key]).join(' · ');tile.append(modelPreview(entry),copy,element('small',{class:'library-model-values'},dimensions));grid.append(tile);}
+  if(!entries.length)grid.append(element('p',{class:'library-empty'},'没有匹配的模型。请修改搜索词。'));renderDetail(entries.find(entry=>entry.id===selectedId));
+ }
+ render();return {render};
 }

@@ -47,8 +47,13 @@ import twoPieceEyelet from './twoPieceEyelet/index.js';
 import frameEyelet from './frameEyelet/index.js';
 import uStrapClip from './uStrapClip/index.js';
 
+import {chainDefinitions,buildChain} from './chain-models.js';
+import {ironFootDefinition,buildIronFoot} from './iron-foot.js';
 import {buildModelScript} from './model-script.js';
+const chainEntries=Object.entries(chainDefinitions).map(([kind,definition])=>({kind,definition,build:buildChain,iconUrl:new URL('./ring/icon.svg',import.meta.url).href}));
 const entries = [
+  ...chainEntries,
+  {kind:'ironFoot',definition:ironFootDefinition,build:buildIronFoot,iconUrl:new URL('./uStrapClip/icon.svg',import.meta.url).href},
   ring, washer, tube, domedPin, spring, screw, threadedSleeve,
   roundBadge, mountingPlate, fourHolePlate, flatFrame, roundedFlatFrame,
   dBuckle, rectBuckle, ovalBuckle, sliderBuckle, dBarBuckle,

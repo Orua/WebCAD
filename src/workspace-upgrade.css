@@ -126,3 +126,6 @@
 .webcad-app .file-menu-items .tool-icon{display:flex;color:var(--accent-ink)}
 .webcad-app .file-menu-items .ui-vector-icon{width:18px;height:18px}
 .webcad-app .file-menu-items button[data-action=save]{margin-top:4px;border-top:1px solid var(--ui-border);border-radius:0;padding-top:9px;height:38px}
+
+/* Pre-generated dimension guides keep their natural proportions and legible labels. */
+.model-solid-preview.annotated img{aspect-ratio:auto}

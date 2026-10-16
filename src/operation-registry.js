@@ -29,11 +29,12 @@ function schemaFor(id, source) {
       const fields = new Map(definition.fields.map(field => [field.key, field]));
       return { type: 'object', required: ['kind'], additionalProperties: false,
         description: definition.descriptionEn || definition.description,
-        properties: { modelScript:{type:'array',minItems:1,maxItems:20,items:{type:'object',required:['id','op'],additionalProperties:false,properties:{id:{type:'string'},op:{type:'string',enum:['box','cylinder','sphere','quickModel','union','cut','intersect','transform']},params:{type:'object',additionalProperties:true},refs:{type:'array',items:{type:'string'}}}}},kind: { type: 'string', const: kind }, ...Object.fromEntries(Object.entries(definition.defaults).map(([key, value]) => {
+        properties: { kind: { type: 'string', const: kind }, ...Object.fromEntries(Object.entries(definition.defaults).map(([key, value]) => {
           const field = fields.get(key);
           return [key, { type: typeof value, default: value,
             description: field?.labelEn || field?.label || key,
-            ...(field?.options ? { enum: field.options.map(option => option.value) } : {}) }];
+            ...(field?.options ? { enum: field.options.map(option => option.value) } : {}),
+            ...(field?.min!==undefined?{minimum:field.min}:{}),...(field?.max!==undefined?{maximum:field.max}:{}),...(field?.type==='number'?{unit:field.unit||(/angle|°/i.test(key+' '+field.label)?'deg':/count|segments|turns/i.test(key)?'1':'mm')}:{}) }];
         })) } };
     }) };
   }

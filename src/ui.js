@@ -264,7 +264,7 @@ export function createUI(root,callbacks={}) {
  const toolbarToggle=button('收起工具',()=>applyWorkspaceLayout({toolbar:!workspaceLayout.toolbar}),'secondary workspace-toolbar-toggle');toolbarToggle.dataset.commandId='workspace';
  const focusToggle=button('专注画布',()=>{if(api.hasActiveTask()){api.setStatus('请先应用或取消当前任务。');return;}applyWorkspaceLayout({focus:!workspaceLayout.focus});},'secondary workspace-focus-toggle');focusToggle.dataset.commandId='workspace';
  q('.header-actions').prepend(toolbarToggle,focusToggle);
- const gallery=mountModelLibrary(libraryRoot,{element,button,onClose:()=>switchWorkspace('modeling'),onChoose:entry=>{applyWorkspaceLayout({workspace:'modeling',focus:false});quickModelDialog(entry.kind,{...entry.defaults,...(entry.script?{modelScript:entry.script}:{})},entry.label);},getMode:()=>workspaceLayout.libraryMode,setMode:libraryMode=>applyWorkspaceLayout({libraryMode})});
+ const gallery=mountModelLibrary(libraryRoot,{element,button,onClose:()=>switchWorkspace('modeling'),onChoose:entry=>{applyWorkspaceLayout({workspace:'modeling',focus:false});quickModelDialog(entry.kind,{...entry.defaults},entry.label);},getMode:()=>workspaceLayout.libraryMode,setMode:libraryMode=>applyWorkspaceLayout({libraryMode})});
  function openAgentSettings(){showWorkspaceSettings('agentGuide',{openDialog,element,button,state,emit,closeDialog,getLanguage,setLanguage,translator,api});}
  function applyWorkspaceLayout(input={}){
   const openingLibrary=input.workspace==='library'&&workspaceLayout.workspace!=='library';
