@@ -1,3 +1,4 @@
+import {buildTap} from './modeling/manufacturing/tap-tool.js';
 import {sampleMeshRelief} from './mesh/relief-sample.js';
 import {exactSourceBytes} from './exact-source.js';
 import {MeshShape} from './mesh/mesh-shape.js';
@@ -39,6 +40,7 @@ import { logoFaceSignature } from './logo-face-signature.js';
 import { buildReferenceExtrude } from './reference-profile-extrude.js';
 import { buildReferenceLoft } from './reference-profile-loft.js';
 import { buildSmoothTransition } from './smooth-transition.js';
+import {buildBadge} from './modeling/manufacturing/badge-tool.js';
 import { buildEdgeBlend } from './edge-blend.js';
 import {patternOutput} from './modeling/organization/pattern-output.js';
 import {buildRoundTool,inspectRoundTool} from './modeling/rounding/round-tool.js';
@@ -74,6 +76,7 @@ function placeCreation(shape,placement){
   const [x,y,z,w]=frame.quaternion,axisLength=Math.hypot(x,y,z);
   if(axisLength>1e-12){const rotated=out.rotate(2*Math.atan2(axisLength,w)*180/Math.PI,[0,0,0],[x/axisLength,y/axisLength,z/axisLength]);dispose(out);out=rotated;}
   const translated=out.translate(...frame.origin);dispose(out);
+  if(shape.chainReport)translated.chainReport=shape.chainReport;
   if(shape.threadReport){const r=shape.threadReport;translated.threadReport={...r,axisOrigin:worldPoint(frame,r.axisOrigin.map((v,i)=>v-sourcePoint[i])),axisDirection:rotateVector(frame.quaternion,r.axisDirection),coordinateSystem:'world'};}
   return translated;
 }
@@ -282,6 +285,7 @@ export class CadKernel {
       case 'fittedSurface': return buildFittedSurface(p,cad);
       case 'reliefShoulder': throw Object.assign(new Error('中央肩部需要已配置的 Services；离线仅能打开已保存结果'),{code:'SERVICES_CONFIG_REQUIRED'});
       case 'relief': return buildRelief(source(),p,this.oc,cad,{onProgress:this.onProgress,layerCache:this.reliefLayerCache,sourceFingerprint:execution.sourceFingerprint});
+      case 'badge': return buildBadge(source(),p,cad);
       case 'thickenFace': return buildFaceThickness(source(),p,cad);
       case 'planeSection': return extractPlaneSection(source(),{plane:p.plane||'XY',offset:p.offset??0,frame},cad);
       case 'faceBoundary': return extractFaceBoundary(source(),p.faceId,cad,{boundary:p.boundary??'all'});
@@ -358,6 +362,10 @@ export class CadKernel {
         finally {solids.forEach(dispose);}
       }
       case 'vectorProfile': return buildVectorProfile(p,cad);
+      case 'tap': {
+        const shape=source(),info=this.planarFace(shape,p.faceId);
+        try{return buildTap(shape,p,info,this.oc,cad);}finally{dispose(info.face);}
+      }
       case 'faceHole': {
         const shape=source(),info=this.planarFace(shape,p.faceId),normal=info.normal;
         let tool,result,vertex,bbox;
@@ -741,7 +749,7 @@ export class CadKernel {
       const mappedEdges = adaptive?displayEdges(edges,settings.tolerance,this.oc):wire.edgeGroups.map(g => ({ edgeId: edgeMap.get(g.edgeId), positions: Array.from(wire.lines.slice(g.start * 3, (g.start + g.count) * 3)) }));
       if(adaptive)measured.snapPoints=mappedEdges.filter(e=>e.positions.length).flatMap(e=>[{point:e.positions.slice(0,3),type:'endpoint',edgeId:e.edgeId},{point:e.positions.slice(-3),type:'endpoint',edgeId:e.edgeId}]);
       if (mappedFaces.some(g => g.faceId === undefined) || mappedEdges.some(g => g.edgeId === undefined)) throw new Error('拓扑索引映射失败');
-      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges,...measured,adaptiveDisplay:adaptive?{initialTolerance:settings.tolerance,requestedQuality:quality,source:'exact-brep',sourceChanged:false,...(complexity.heavy?{heavy:true,heavyFaceIds:[...complexity.heavyFaces],splinePoles:complexity.totalPoles,coarsen:this.displayCoarsen||1}:{})}:undefined,reliefReport:shape.reliefReport, refineReport:shape.refineReport, roundReport:shape.roundReport,endRoundingReport:shape.endRoundingReport,roundingReport:shape.roundingReport, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
+      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges,...measured,adaptiveDisplay:adaptive?{initialTolerance:settings.tolerance,requestedQuality:quality,source:'exact-brep',sourceChanged:false,...(complexity.heavy?{heavy:true,heavyFaceIds:[...complexity.heavyFaces],splinePoles:complexity.totalPoles,coarsen:this.displayCoarsen||1}:{})}:undefined,badgeReport:shape.badgeReport,reliefReport:shape.reliefReport, refineReport:shape.refineReport, roundReport:shape.roundReport,endRoundingReport:shape.endRoundingReport,roundingReport:shape.roundingReport, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport,chainReport:shape.chainReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
     } finally { [...faces, ...edges].forEach(dispose); }
   }
   async rebuild(document,{displayCoarsen=1}={}) {
@@ -812,7 +820,7 @@ export class CadKernel {
           }
           active.set(current, feature);
         }
-       const keepOriginal = ['copy','planeSection','faceBoundary','extractFaces','extractShell','surfaceTrim','referenceExtrude','referenceLoft','profileOffset','profileRepair',...mechanicalPreservedIds].includes(feature.op) || (['mirror','extractSolid'].includes(feature.op) && feature.params?.keepOriginal !== false);
+       const keepOriginal = ['badge','copy','planeSection','faceBoundary','extractFaces','extractShell','surfaceTrim','referenceExtrude','referenceLoft','profileOffset','profileRepair',...mechanicalPreservedIds].includes(feature.op) || (['mirror','extractSolid'].includes(feature.op) && feature.params?.keepOriginal !== false);
         if (feature.op==='profileExtrude') { if(feature.refs?.[1])active.delete(feature.refs[1]); }
         else if(profileSolidIds.includes(feature.op)){if((feature.params?.operation??'newBody')!=='newBody')active.delete(feature.refs.at(-1));}
         else if(['union','cut','intersect'].includes(feature.op)&&feature.params?.keepTools===true){active.delete(feature.refs?.[0]);}

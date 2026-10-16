@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.49.0",
-  "buildId": "24b13cee5171b61486d5f711e2c1cb192b6ce6ee-src-25fa2ccd0d386976",
-  "catalogHash": "sha256:8d55dc62d8a7f51ea39fd6ca0744c0f45aa9e573c7be93a9efda2175783ced10",
-  "docsHash": "sha256:7fdc7dc9a0a9a57f1b5dd17e6eb28f8c2fd2f831e455d273da8342e9fc166fbb",
+  "pageApiVersion": "1.52.1",
+  "buildId": "71ed0f16be27857d8a574a88c63cd437f0a2bfc7-src-df0a29d37209c00c-working",
+  "catalogHash": "sha256:f04e82cfbe5b14841c7cdc8e18ab61f2e22d6d6e56141decfc2712ae741dc52d",
+  "docsHash": "sha256:7ab2072edc03e60fe7d104846ff10bf21e000d99688913581180612c2c12072e",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -79,6 +79,13 @@
     "autoRound": {
       "tools": [
         "autoRound"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "badge": {
+      "tools": [
+        "badge"
       ],
       "method": "execute",
       "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
@@ -204,7 +211,7 @@
         "setDisplayPreferences"
       ],
       "method": "setDisplayPreferences",
-      "usage": "渲染设置使用 setDisplayPreferences；LOGO 转化为独立入口。"
+      "usage": "渲染设置使用 setDisplayPreferences，应用后取消选择以查看效果；LOGO 转化为独立入口。"
     },
     "downloadResource": {
       "tools": [
@@ -873,7 +880,7 @@
         "preview.start"
       ],
       "method": "setView",
-      "usage": "实体→快捷模型：setView({context,workspace:\"library\"})。选择固定工具后只设置参数；getModelLibrary/resolveModelLibrary与UI共用参数定义。缩略图和尺寸图直接读取预制图片，实际模型通过preview.start或quickModel生成。"
+      "usage": "实体→快捷模型：setView({context,workspace:\"library\"})。默认按类别和复杂度排序；钮链/磨链同向嵌接、O字链0/90度交替；链条使用sizeMode二选一输入linkCount或maxLengthMm，读bodies[].chainReport。选择固定工具后只设置参数；getModelLibrary/resolveModelLibrary与UI共用参数定义。缩略图和尺寸图直接读取预制图片，实际模型通过preview.start或quickModel生成。"
     },
     "quickModelFavorites": {
       "tools": [
@@ -1246,6 +1253,20 @@
       "method": "execute",
       "usage": "已画轮廓使用 profileSweep，refs=[截面,开放精确路径,可选加工目标]；截面须在路径起点平面。旧折线尺寸模式使用 sweep。"
     },
+    "tap": {
+      "tools": [
+        "tap",
+        "preview.start",
+        "preview.commit",
+        "preview.cancel",
+        "feature.edit",
+        "history.undo",
+        "history.redo",
+        "getState"
+      ],
+      "method": "execute",
+      "usage": "实体加工→攻牙。查询当前平面 faceId 与孔中心世界 point，refs 指定实体，params:{faceId,point,threadSize:M2/M2.5/M3,depthMm}；沿内法向加工真实盲牙孔。预览再提交，threadReport 读回规格、螺距、方向和深度；失败不改变工程。"
+    },
     "temporaryDisplay": {
       "tools": [
         "setView"
@@ -1347,6 +1368,7 @@
     }
   },
   "labels": {
+    "badge": "牌仔工具",
     "advancedLoft": "高级放样",
     "arcProfile": "解析线弧轮廓 / 线弧拉伸",
     "autoRound": "整件圆边",
@@ -1417,6 +1439,7 @@
     "split": "分割",
     "surfaceTrim": "实体修剪面 / 曲面修剪",
     "sweep": "扫掠 / 轮廓扫掠",
+    "tap": "攻牙 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数 / 撤销 / 重做 / getState",
     "thickenFace": "选面增厚",
     "thread": "螺纹 V 槽",
     "torus": "圆环",

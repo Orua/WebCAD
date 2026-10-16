@@ -1,10 +1,10 @@
 # WebCAD 页面 API 索引
 
-API 1.49.0 · 操作目录 sha256:8d55dc62d8a7f51ea39fd6ca0744c0f45aa9e573c7be93a9efda2175783ced10
+API 1.52.1 · 操作目录 sha256:f04e82cfbe5b14841c7cdc8e18ab61f2e22d6d6e56141decfc2712ae741dc52d
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
-长度 mm、角度 degrees、体积 mm³。严格契约：meshHeightfieldRelief、meshBoolean、logo、union、cut、intersect、transform、copy、reliefShoulder、meshReliefPlate、meshReliefEdit、box、cylinder、sphere、cone、torus、mirror、linearPattern、circularPattern、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、faceHole、round、roundEnd、rounding、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude、profileRevolve、profileSweep、profileLoft、offsetSolid、offsetSurface、draftByPlane、helix、coil、thread、profileConstraints、faceGroove、innerTurn、outerTurn、refineShape、relief；其余操作为 advisory。
+长度 mm、角度 degrees、体积 mm³。严格契约：badge、meshHeightfieldRelief、meshBoolean、logo、union、cut、intersect、transform、copy、reliefShoulder、meshReliefPlate、meshReliefEdit、box、cylinder、sphere、cone、torus、mirror、linearPattern、circularPattern、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、tap、faceHole、round、roundEnd、rounding、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude、profileRevolve、profileSweep、profileLoft、offsetSolid、offsetSurface、draftByPlane、helix、coil、thread、profileConstraints、faceGroove、innerTurn、outerTurn、refineShape、relief；其余操作为 advisory。
 
 ## 页面方法
 
@@ -105,6 +105,7 @@ API 1.49.0 · 操作目录 sha256:8d55dc62d8a7f51ea39fd6ca0744c0f45aa9e573c7be93
 - `advancedLoft` · advisory · Solid or open shell through hand-defined XY sections
 - `arcProfile` · advisory · Extrude exact closed XY LINE/ARC boundaries with optional holes
 - `autoRound` · migrated · 整件圆边 / Round every sharp edge of one solid
+- `badge` · migrated · 牌仔工具 / Thicken a planar face into an edge-rounded badge
 - `box` · migrated · Box from [0,0,0] to [width,depth,height]
 - `chamfer` · migrated · Equal-distance, two-distance or distance-angle chamfer of sharp edges
 - `circularPattern` · migrated · Rotated copies as a compound or explicitly fused solid
@@ -176,6 +177,7 @@ API 1.49.0 · 操作目录 sha256:8d55dc62d8a7f51ea39fd6ca0744c0f45aa9e573c7be93
 - `split` · advisory · Split body by an offset global plane
 - `surfaceTrim` · advisory · 按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。
 - `sweep` · advisory · Sweep profile along a 3D polyline
+- `tap` · migrated · Tap a blind threaded hole perpendicular to a planar face
 - `thickenFace` · advisory · Normal offset of one face into a new solid
 - `thread` · migrated · Cut an explicit symmetric helical V groove on a selected cylindrical material face
 - `torus` · migrated · Torus around Z axis
@@ -184,57 +186,59 @@ API 1.49.0 · 操作目录 sha256:8d55dc62d8a7f51ea39fd6ca0744c0f45aa9e573c7be93
 - `vectorProfile` · advisory · Create independent planar faces or solids from closed vector regions
 - `heightfieldSculpt` · undefined · 发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。
 - `reliefSculpt` · undefined · 发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。
-- `template.oChain` · advisory · 来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。
-- `template.twistedChain` · advisory · 来源 NL.stp：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。
-- `template.groundChain` · advisory · 来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。
-- `template.ironFoot` · advisory · 来源 V01/V02/V03：顶片双安装孔，两端下折脚、圆弧脚端，可选单脚或双脚轴孔。顶面 Z=0，脚朝 -Z，桥长沿 Y、片宽沿 X；总高含顶片。V02 的收脚由侧边收角和脚端R控制。折角保持来源的直角，不自动加弯R。
-- `template.ring` · advisory · 同心圆恒截面单圈；开缝为底部正中平行平切。
 - `template.washer` · advisory · 平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。
 - `template.tube` · advisory · 同轴圆筒，外径 13.4、内径 12.4、高度 3 为用户 C 件默认值。
 - `template.domedPin` · advisory · 平底、光滑凸面；直径和高度独立设置，可以调整拱高，不限于半球。
-- `template.spring` · advisory · 圆线沿精确螺旋路径扫掠。螺距大于线径；半径是中心线半径。
-- `template.screw` · advisory · 头在参考位置下端，牙杆朝本地 +Z。沉头外缘固定直升位 0.20 mm。M 使用常用粗牙螺距，真实 V 型牙槽；不含配合公差。
-- `template.threadedSleeve` · advisory · 底面在参考位置，面端朝本地 -Z；从下方面端向上攻牙。牙径采用支持的名义 M 粗牙直径，不含配合公差。
-- `template.roundBadge` · advisory · 圆形牌面、正面环形凸边和背面两根安装柱组成一个实体。可选空心柱；不包含品牌图案、齿纹、拱面或生产尺寸。
-- `template.mountingPlate` · advisory · 孔沿 X 对称，中心距单独定义；孔为贯穿光孔，不含螺纹、沉头或沉孔。
-- `template.fourHolePlate` · advisory · 矩形板四角各一个贯穿光孔，孔中心到左右及前后边的距离分别可调；可选外角 R。不含螺纹或沉孔。
+- `template.flangedBushing` · advisory · 同轴法兰与圆筒轴套，直孔贯穿全长。通用参数化实体，不含螺纹或原产品特征复刻。
+- `template.ring` · advisory · 同心圆恒截面单圈；开缝为底部正中平行平切。
+- `template.ellipseOpenWire` · advisory · 以内孔真椭圆外偏半线径扫掠圆线；底部正中用平行平面切出真实缝宽。外轮廓真椭圆的图纸不可使用本工具。
+- `template.openArcRing` · advisory · 恒截面圆弧环，开口角度可调，适合开口环、钩环和未闭合圆框的基础毛坯；不包含端头球、铰链或变截面。
+- `template.ellipseSectionRing` · advisory · 正面环带宽和侧面深度独立输入，沿圆形中心线扫掠椭圆截面；截面形状是可编辑候选，须按源图验证。
+- `template.keyRing` · advisory · 只需内径、外径与总厚度。双层扁线、跨层过渡、层间隙和截面 R 角自动拟合，两端采用圆弧收口并带边缘 R 角。旧工程的显式绕卷参数仍可重建；不包含附件或花纹。
 - `template.flatFrame` · advisory · 内外轮廓分别定义，框宽与厚度独立；圆角可等于短边一半形成跑道环。参数模板，不是原 IGS 完整复刻。
 - `template.roundedFlatFrame` · advisory · 独立内外圆角的闭合平面框，再以指定 R 一次倒圆所有尖边。圆边 R 必须显式给出；若内核无法完成则整步失败，不自动缩小。R 接近半厚可作外观候选，不保证精确半圆截面。
-- `template.dBuckle` · advisory · 半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。
 - `template.rectBuckle` · advisory · 恒截面圆角矩形框；闭合圆线可用内短边≥2.5 倍线径的紧凑框，其余至少 4 倍截面尺寸。
-- `template.ovalBuckle` · advisory · 四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。
-- `template.sliderBuckle` · advisory · 外框整体内高；固定圆杆偏移上正下负，不支持开缝。闭合圆线框可用内短边≥2.5倍线径的紧凑双窗，且每侧孔高至少为线径。
-- `template.dBarBuckle` · advisory · 圆角方线 U 主体与固定圆杆融合；杆底与脚底齐平。
-- `template.flangedBushing` · advisory · 同轴法兰与圆筒轴套，直孔贯穿全长。通用参数化实体，不含螺纹或原产品特征复刻。
-- `template.bossPlate` · advisory · 圆角板上两根对称空心圆柱凸台，孔贯穿凸台与板。参数化通用实体，不代表螺纹、沉孔或原产品复刻。
-- `template.thinWallTray` · advisory · 单一熔接实体，XY 居中、底面 Z=0、顶部敞口。内腔净宽=外宽−2×壁厚，净深=外深−2×壁厚，净高=总高−底厚。两柱沿 X 对称，柱高从内底面起算，孔贯穿柱和底板。仅直壁、直角、无拔模/圆角/螺纹；不是装配体。
-- `template.roundedBossTray` · advisory · 圆角矩形薄壁壳，顶部敞口，内底带两根空心柱。外圆角、壁厚、底厚和柱尺寸均可调；直壁无拔模，不包含卡扣、文字或表面花纹。
-- `template.openArcRing` · advisory · 恒截面圆弧环，开口角度可调，适合开口环、钩环和未闭合圆框的基础毛坯；不包含端头球、铰链或变截面。
-- `template.counterboreTool` · advisory · 这是刀具实体：入口在 Z=0，沿 +Z；移动定位到工件表面，必要时旋转 180°，先选主体再选刀具相减。
-- `template.twinWindowPlate` · advisory · 独立外 R 和孔 R 的平板双窗，中间是板体一部分；整件前后尖边按指定 R 倒圆。两个孔等宽等高且上下对称，不含圆杆、偏置孔或侧向拱弯。
-- `template.uEndHolePlate` · advisory · 半圆冠与两条等宽直腿连成一块平板，直腿末端各有一个贯穿孔；内外冠同心，孔沿厚度方向贯穿。适合源图确认的单片 U 件，不含另一装配件、螺纹或截面圆杆。
-- `template.ellipseSectionRing` · advisory · 正面环带宽和侧面深度独立输入，沿圆形中心线扫掠椭圆截面；截面形状是可编辑候选，须按源图验证。
-- `template.arcBandPlate` · advisory · 同心圆弧带板，角度、厚度、两端孔距与沉孔独立输入；用于分体环段，螺纹和装配件须另建。
-- `template.gableOpenFrame` · advisory · 两只直腿与屋顶形斜肩组成开口框，端部按指定 R 做两段圆角与短平底。内外宽、内外肩高、内外峰高、板厚分别输入。
 - `template.ellipseSectionRectFrame` · advisory · 以独立正面料宽和侧面深度构造椭圆截面，沿圆角矩形中心线扫掠；内 R 为平面内孔圆角，不自动等于侧面 R。
 - `template.dFlatFrame` · advisory · 半圆冠、直腿与独立内外底角 R 的平板 D 框；可按实际宽度切开底部中央。厚度为平板厚度，不代替圆线截面。
-- `template.archedTwinWindowPlate` · advisory · 圆角双窗平面轮廓沿 Y 方向投影裁切同轴圆筒薄壁，形成侧视圆弧拱弯。适用于薄条一体双窗；径向板厚、外弧半径独立输入。圆线框及独立圆杆须用其它工具。
-- `template.bowedTwinWindowPlate` · advisory · 上下直边、两侧大圆弧鼓边与四角小 R 相切；两个跑道形窗孔及中横条一体成板，可选前后边缘倒圆。左右、上下镜像参数模型，源图有微小非对称时只能近似。
+- `template.dBuckle` · advisory · 半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。
+- `template.dBarBuckle` · advisory · 圆角方线 U 主体与固定圆杆融合；杆底与脚底齐平。
+- `template.ovalBuckle` · advisory · 四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。
+- `template.capsuleWire` · advisory · 闭合圆线长圈：两端精确半圆、上下直段，内宽高与圆线直径独立输入。未标缝宽时不猜接缝。
+- `template.profileLoop` · advisory · 两端半圆、上下直段的闭合长圈；正面料宽、侧面厚度和截面 R 独立。R 可等于截面短边一半，形成两圆端加直段的截面。
+- `template.twinWindowPlate` · advisory · 独立外 R 和孔 R 的平板双窗，中间是板体一部分；整件前后尖边按指定 R 倒圆。两个孔等宽等高且上下对称，不含圆杆、偏置孔或侧向拱弯。
+- `template.sliderBuckle` · advisory · 外框整体内高；固定圆杆偏移上正下负，不支持开缝。闭合圆线框可用内短边≥2.5倍线径的紧凑双窗，且每侧孔高至少为线径。
 - `template.ringBar` · advisory · 同心圆恒截面框与一根沿 X 的圆杆融合为单一实体。横杆可沿 Y 及厚度 Z 微调；不包含活动杆、铰链或精确接头过渡。
 - `template.ellipseBar` · advisory · 从内真椭圆外偏线扫掠圆线，再融合居中固定圆杆。圆线外包围须精确回读；接头过渡与源样条仍须对照。
-- `template.ellipseOpenWire` · advisory · 以内孔真椭圆外偏半线径扫掠圆线；底部正中用平行平面切出真实缝宽。外轮廓真椭圆的图纸不可使用本工具。
-- `template.profileLoop` · advisory · 两端半圆、上下直段的闭合长圈；正面料宽、侧面厚度和截面 R 独立。R 可等于截面短边一半，形成两圆端加直段的截面。
-- `template.capsuleWire` · advisory · 闭合圆线长圈：两端精确半圆、上下直段，内宽高与圆线直径独立输入。未标缝宽时不猜接缝。
+- `template.archedTwinWindowPlate` · advisory · 圆角双窗平面轮廓沿 Y 方向投影裁切同轴圆筒薄壁，形成侧视圆弧拱弯。适用于薄条一体双窗；径向板厚、外弧半径独立输入。圆线框及独立圆杆须用其它工具。
+- `template.bowedTwinWindowPlate` · advisory · 上下直边、两侧大圆弧鼓边与四角小 R 相切；两个跑道形窗孔及中横条一体成板，可选前后边缘倒圆。左右、上下镜像参数模型，源图有微小非对称时只能近似。
+- `template.mountingPlate` · advisory · 孔沿 X 对称，中心距单独定义；孔为贯穿光孔，不含螺纹、沉头或沉孔。
+- `template.fourHolePlate` · advisory · 矩形板四角各一个贯穿光孔，孔中心到左右及前后边的距离分别可调；可选外角 R。不含螺纹或沉孔。
+- `template.bossPlate` · advisory · 圆角板上两根对称空心圆柱凸台，孔贯穿凸台与板。参数化通用实体，不代表螺纹、沉孔或原产品复刻。
+- `template.ironFoot` · advisory · 来源 V01/V02/V03：顶片双安装孔，两端下折脚、圆弧脚端，可选单脚或双脚轴孔。顶面 Z=0，脚朝 -Z，桥长沿 Y、片宽沿 X；总高含顶片。V02 的收脚由侧边收角和脚端R控制。折角保持来源的直角，不自动加弯R。
+- `template.uStrapClip` · advisory · 沿X等宽的恒壁厚开口U夹，前后片可不同高，内外弯角为精确相切圆弧；内弯R=内净距/2时为半圆底。底面Z=0，开口朝+Z，后片在+Y。可加后片普通通孔0/1/2个，2孔沿X布置。不是四边封闭的帽套；不含牙槽、前面饰面、片端三维圆角和弹性变形。孔中心须处于后片直段。
+- `template.frameEyelet` · advisory · 圆形或圆角方形面框、恒壁厚短颈口、对称安装柱及普通直孔，一次生成单件。颈口和柱沿本地+Z；面框底面Z=0。孔深0为通孔，正值为从柱顶向下的盲孔。安装柱数量0/2/4，2柱沿Y布置。可将颈口/柱高度设0作背片。不含牙槽、锥孔、压铆、饰面及三维边圆角；按原图再加工。圆形模式内外宽高必须分别相等，角R仅用于方形。
 - `template.buckleTongue` · advisory · 独立扣针：沿X的轴孔环头、沿+Y的圆头扁针。长度从轴心至针尖；不与扣身融合。用于已确认环头扁针的近似形状，不包含冲压弯曲、滚花、LOGO或装配活动验证。
 - `template.pullCoreBar` · advisory · 独立活动芯：沿X横跨、两端为Y轴开放卷眼，中间扁带由独立内外相切圆弧接入卷眼。适合常规拉心扣芯；不与外框融合。
-- `template.keyRing` · advisory · 只需内径、外径与总厚度。双层扁线、跨层过渡、层间隙和截面 R 角自动拟合，两端采用圆弧收口并带边缘 R 角。旧工程的显式绕卷参数仍可重建；不包含附件或花纹。
 - `template.hangingRod` · advisory · 常规吊杆：水平圆杆两端做圆角，上方居中融合一个Z深度由根部向顶部收窄的椭圆截面U形吊环。杆长、杆径、端部圆角、吊环内宽、根部深度、根部圆角和净高均可调；不包含文字、花纹或多个吊环。
 - `template.archedBridge` · advisory · 常规 U 形拱桥：圆截面直腿与精确半圆连续成型，两端可开同轴底孔。外宽、外高、线径和底孔尺寸可调；不包含螺纹牙型、底片、装饰或异形截面。
-- `template.mushroomRivet` · advisory · 参数化的两件式单面蘑菇撞钉：球面盖带空心套筒，配浅腰圆角钉脚和底盘。支持同轴装配或分开展示；孔深与开孔方向可调，不包含 LOGO、文字和装饰纹。
+- `template.squareArchedBridge` · advisory · 平顶方线 U 形桥身，内外宽高、前后厚度、内外转角及棱边 R 独立可调；可选两端底孔。结构参考 PG15272、PG15227，默认采用 PG15272 主体包络。底孔为光孔，不生成螺纹、螺丝或底片；不复刻源件微拱顶面。XY 为正面，开口朝 -Y，底端 Y=0，厚度沿 Z 居中。
+- `template.screw` · advisory · 头在参考位置下端，牙杆朝本地 +Z。沉头外缘固定直升位 0.20 mm。M 使用常用粗牙螺距，真实 V 型牙槽；不含配合公差。
+- `template.threadedSleeve` · advisory · 底面在参考位置，面端朝本地 -Z；从下方面端向上攻牙。牙径采用支持的名义 M 粗牙直径，不含配合公差。
+- `template.spring` · advisory · 圆线沿精确螺旋路径扫掠。螺距大于线径；半径是中心线半径。
+- `template.twoPieceEyelet` · advisory · 参数化铜皮鸡眼，A长脚件在上、B底片在下，默认同轴相向，两侧外观面朝外，内侧套管相向。平面或弧面共用一个工具；弧面为精确圆弧旋转，板厚按轴向保持。轴向分开距离0为静态套接，正值拉开；横向距离0保持同轴。翻边内外弯按薄壁截面生成，不模拟压铆变形、LOGO或压字。装配朝向参考PG15211，具体尺寸自行输入。
+- `template.alloyEyelet` · advisory · 参考PG14922两件套结构，去掉内侧爪针。A长脚件在上、B底片在下，同轴相向，外观面朝外，颈口相向套接；两件为独立实体，同属一个模型。平面或圆弧拱面可选，面框边缘为真实倒角。内侧净距可调，不模拟压装、锁扣、铆接或变形。默认尺寸参考原图，倒角、间距和弧高为可调设计值；不是原产品逐面复刻。
 - `template.nippleStud` · advisory · 两件式奶嘴钉：A件含圆弧头、平顶、圆颈、带R角底座及M2名义光盲孔；Z件含圆拱螺钉头、杆和参数化六瓣槽。螺纹牙及标准槽规格不建模。旧 undersideCollar 参数仅为兼容，必须为0。
-- `template.twoPieceEyelet` · advisory · 参数化两件式薄壁鸡眼，法兰外翻边和内侧圆弯按薄壁截面精确旋转生成。A件为长脚，B件为配套短脚；支持同轴静态套合或分开展示，不模拟压铆变形、LOGO和压字。
-- `template.frameEyelet` · advisory · 圆形或圆角方形面框、恒壁厚短颈口、对称安装柱及普通直孔，一次生成单件。颈口和柱沿本地+Z；面框底面Z=0。孔深0为通孔，正值为从柱顶向下的盲孔。安装柱数量0/2/4，2柱沿Y布置。可将颈口/柱高度设0作背片。不含牙槽、锥孔、压铆、饰面及三维边圆角；按原图再加工。圆形模式内外宽高必须分别相等，角R仅用于方形。
-- `template.uStrapClip` · advisory · 沿X等宽的恒壁厚开口U夹，前后片可不同高，内外弯角为精确相切圆弧；内弯R=内净距/2时为半圆底。底面Z=0，开口朝+Z，后片在+Y。可加后片普通通孔0/1/2个，2孔沿X布置。不是四边封闭的帽套；不含牙槽、前面饰面、片端三维圆角和弹性变形。孔中心须处于后片直段。
+- `template.mushroomRivet` · advisory · 参数化的两件式单面蘑菇撞钉：球面盖带空心套筒，配浅腰圆角钉脚和底盘。支持同轴装配或分开展示；孔深与开孔方向可调，不包含 LOGO、文字和装饰纹。
+- `template.oChain` · advisory · 来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。
+- `template.twistedChain` · advisory · 多节同向嵌接；成链时按线径加深中心线起伏，保持外宽、外长和径向线径。原单节来源 NL.stp：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。
+- `template.groundChain` · advisory · 多节同向嵌接，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。
+- `template.counterboreTool` · advisory · 这是刀具实体：入口在 Z=0，沿 +Z；移动定位到工件表面，必要时旋转 180°，先选主体再选刀具相减。
+- `template.roundBadge` · advisory · 圆形牌面、正面环形凸边和背面两根安装柱组成一个实体。可选空心柱；不包含品牌图案、齿纹、拱面或生产尺寸。
+- `template.thinWallTray` · advisory · 单一熔接实体，XY 居中、底面 Z=0、顶部敞口。内腔净宽=外宽−2×壁厚，净深=外深−2×壁厚，净高=总高−底厚。两柱沿 X 对称，柱高从内底面起算，孔贯穿柱和底板。仅直壁、直角、无拔模/圆角/螺纹；不是装配体。
+- `template.roundedBossTray` · advisory · 圆角矩形薄壁壳，顶部敞口，内底带两根空心柱。外圆角、壁厚、底厚和柱尺寸均可调；直壁无拔模，不包含卡扣、文字或表面花纹。
+- `template.uEndHolePlate` · advisory · 半圆冠与两条等宽直腿连成一块平板，直腿末端各有一个贯穿孔；内外冠同心，孔沿厚度方向贯穿。适合源图确认的单片 U 件，不含另一装配件、螺纹或截面圆杆。
+- `template.arcBandPlate` · advisory · 同心圆弧带板，角度、厚度、两端孔距与沉孔独立输入；用于分体环段，螺纹和装配件须另建。
+- `template.gableOpenFrame` · advisory · 两只直腿与屋顶形斜肩组成开口框，端部按指定 R 做两段圆角与短平底。内外宽、内外肩高、内外峰高、板厚分别输入。
 - `recoverKernel` · page-method · recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。
 - `sampleMeshRelief` · page-method · sampleMeshRelief({context,bodyId,inputGeometryHash,support:{originMm,xAxis,normal},pointsMm:[[U,V],…]})；明确毫米支撑，1–256个点，点数乘三角面数不得超过1200万。
 - `getModelLibrary` · page-method · getModelLibrary()

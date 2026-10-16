@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "圆环内接横杆",
+  "title": "圆圈日字扣",
   "category": "template",
   "synonyms": [
     "ringBar",
-    "圆环内接横杆",
+    "圆圈日字扣",
     "Ring with fixed crossbar"
   ],
   "description": "同心圆恒截面框与一根沿 X 的圆杆融合为单一实体。横杆可沿 Y 及厚度 Z 微调；不包含活动杆、铰链或精确接头过渡。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "圆环内接横杆",
+  "label": "圆圈日字扣",
+  "visibleInLibrary": true,
+  "libraryCategory": "sliders",
+  "libraryCategoryLabel": "日字扣",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -559,5 +562,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:cf37cc689ba7b8a553dea53ad6efa93e108f24fd7a8db0ba9d36c9e2e01bf672"
+  "docsHash": "sha256:4c827c7c9ecd73730d5bed8e53b761b738a0003b9708218aafe02c69eb93cc0a"
 }

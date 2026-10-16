@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "内真椭圆开缝圆线圈",
+  "title": "椭圆开口圈",
   "category": "template",
   "synonyms": [
     "ellipseOpenWire",
-    "内真椭圆开缝圆线圈",
+    "椭圆开口圈",
     "Open round-wire ellipse from inner outline"
   ],
   "description": "以内孔真椭圆外偏半线径扫掠圆线；底部正中用平行平面切出真实缝宽。外轮廓真椭圆的图纸不可使用本工具。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "内真椭圆开缝圆线圈",
+  "label": "椭圆开口圈",
+  "visibleInLibrary": true,
+  "libraryCategory": "rings",
+  "libraryCategoryLabel": "圈环",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -473,5 +476,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:673d6adef499062922e6e843e2d1dd3e94e52cd21e79bf43f06fd472d738499a"
+  "docsHash": "sha256:7d05d7abe6d2865b1b4f54d9c608d760abb40288b10b00ebbe510491f821cbba"
 }

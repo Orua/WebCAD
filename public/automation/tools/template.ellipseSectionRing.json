@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "椭圆截面圆环",
+  "title": "椭圆截面圆圈",
   "category": "template",
   "synonyms": [
     "ellipseSectionRing",
-    "椭圆截面圆环",
+    "椭圆截面圆圈",
     "Circular ring with elliptical section"
   ],
   "description": "正面环带宽和侧面深度独立输入，沿圆形中心线扫掠椭圆截面；截面形状是可编辑候选，须按源图验证。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "椭圆截面圆环",
+  "label": "椭圆截面圆圈",
+  "visibleInLibrary": true,
+  "libraryCategory": "rings",
+  "libraryCategoryLabel": "圈环",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -456,5 +459,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:c4aeace15112448f75211048952d3e7a2b9bfb91cabca31c4f7757aad9e142d0"
+  "docsHash": "sha256:d0c8d80b05632942989fec8460da36062a88d85124fdd21c7433cf8eba58b878"
 }

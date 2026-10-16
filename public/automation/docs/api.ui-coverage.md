@@ -2,6 +2,13 @@
 
 界面动作与 AI 等价接口（手势以坐标和显式参数代替）：
 {
+  "badge": {
+    "tools": [
+      "badge"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
   "advancedLoft": {
     "tools": [
       "advancedLoft"
@@ -408,7 +415,7 @@
       "preview.start"
     ],
     "method": "setView",
-    "usage": "实体→快捷模型：setView({context,workspace:\"library\"})。选择固定工具后只设置参数；getModelLibrary/resolveModelLibrary与UI共用参数定义。缩略图和尺寸图直接读取预制图片，实际模型通过preview.start或quickModel生成。"
+    "usage": "实体→快捷模型：setView({context,workspace:\"library\"})。默认按类别和复杂度排序；钮链/磨链同向嵌接、O字链0/90度交替；链条使用sizeMode二选一输入linkCount或maxLengthMm，读bodies[].chainReport。选择固定工具后只设置参数；getModelLibrary/resolveModelLibrary与UI共用参数定义。缩略图和尺寸图直接读取预制图片，实际模型通过preview.start或quickModel生成。"
   },
   "referenceExtrude": {
     "tools": [
@@ -538,6 +545,20 @@
     ],
     "method": "execute",
     "usage": "已画轮廓使用 profileSweep，refs=[截面,开放精确路径,可选加工目标]；截面须在路径起点平面。旧折线尺寸模式使用 sweep。"
+  },
+  "tap": {
+    "tools": [
+      "tap",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel",
+      "feature.edit",
+      "history.undo",
+      "history.redo",
+      "getState"
+    ],
+    "method": "execute",
+    "usage": "实体加工→攻牙。查询当前平面 faceId 与孔中心世界 point，refs 指定实体，params:{faceId,point,threadSize:M2/M2.5/M3,depthMm}；沿内法向加工真实盲牙孔。预览再提交，threadReport 读回规格、螺距、方向和深度；失败不改变工程。"
   },
   "thickenFace": {
     "tools": [
@@ -968,7 +989,7 @@
       "setDisplayPreferences"
     ],
     "method": "setDisplayPreferences",
-    "usage": "渲染设置使用 setDisplayPreferences；LOGO 转化为独立入口。"
+    "usage": "渲染设置使用 setDisplayPreferences，应用后取消选择以查看效果；LOGO 转化为独立入口。"
   },
   "panels": {
     "tools": [

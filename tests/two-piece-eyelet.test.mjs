@@ -12,7 +12,8 @@ const run=params=>kernel.rebuild({version:1,features:[{id:'eyelet',op:'quickMode
 const dispose=value=>{try{value?.delete?.();}catch{}};
 const near=(actual,expected,label,tol=1e-5)=>assert.ok(Math.abs(actual-expected)<tol,`${label}: ${actual} != ${expected}`);
 const bounds=shape=>{const box=shape.boundingBox;try{return box.bounds.map(values=>[...values]);}finally{dispose(box);}};
-const defaults=QUICK_MODELS.twoPieceEyelet.defaults;
+const {faceStyle,faceRiseMm,assemblyGapMm,...legacyDefaults}=QUICK_MODELS.twoPieceEyelet.defaults;
+const defaults={...legacyDefaults,explodedOffsetMm:24};
 assert.ok(quickModelIconKinds.includes('twoPieceEyelet'));
 
 const exploded=await run({kind:'twoPieceEyelet',...defaults});

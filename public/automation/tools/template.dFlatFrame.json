@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "独立底角 R 平板 D 框",
+  "title": "方线D扣",
   "category": "template",
   "synonyms": [
     "dFlatFrame",
-    "独立底角 R 平板 D 框",
+    "方线D扣",
     "Flat D frame with independent bottom radii"
   ],
   "description": "半圆冠、直腿与独立内外底角 R 的平板 D 框；可按实际宽度切开底部中央。厚度为平板厚度，不代替圆线截面。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "独立底角 R 平板 D 框",
+  "label": "方线D扣",
+  "visibleInLibrary": true,
+  "libraryCategory": "d-buckles",
+  "libraryCategoryLabel": "D扣",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -543,5 +546,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:9cc1cd74326052d6ac5cddc72e477570ebd2588cfe22ab08bc58c0fdeb4c3cb1"
+  "docsHash": "sha256:74750676ffe6a1ba430db12152da6f27f2e8c97c9b16758674156927245d5776"
 }

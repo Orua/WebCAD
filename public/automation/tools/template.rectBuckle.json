@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "方扣",
+  "title": "圆线方扣",
   "category": "template",
   "synonyms": [
     "rectBuckle",
-    "方扣",
+    "圆线方扣",
     "Rectangular buckle"
   ],
   "description": "恒截面圆角矩形框；闭合圆线可用内短边≥2.5 倍线径的紧凑框，其余至少 4 倍截面尺寸。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "方扣",
+  "label": "圆线方扣",
+  "visibleInLibrary": true,
+  "libraryCategory": "rect-buckles",
+  "libraryCategoryLabel": "方扣",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -559,5 +562,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:0070e3a0e671dc91e4f97d4786d682b3ac0dac76d1c306a54203dad773964740"
+  "docsHash": "sha256:ad5cea5fca1be112689768b1149614da5491db4dc3b8d57e7ac00af1874eafb3"
 }

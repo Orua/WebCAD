@@ -5,6 +5,8 @@ import {reliefEditExample} from './mesh/relief-edit-contract.js';
 import {MACHINING_INTENT_SCHEMA,assertPatternExecution,PATTERN_OPERATIONS} from './machining-intent.js';
 import { operationCatalog, legacyRoundingOperation, legacyUnifiedRoundingOperation } from './operation-catalog.js';
 import { QUICK_MODELS } from './quick-models.js';
+import {isChain} from './quick-models/chain-size.js';
+import {QUICK_MODEL_VISIBLE_KINDS} from './quick-models.js';
 import {mechanicalIds,mechanicalDefaults,mechanicalExamples,mechanicalNames,mechanicalRefCounts,mechanicalResultTypes,mechanicalPreservedIds,profileSolidIds,mechanicalErrorCodes} from './mechanical-tool-contracts.js';
 import { assertJsonValue, contractError, contractHash, validateSchema } from './contracts/operation-schema.js';
 import { annotateParameterSchema, numericInputPolicy } from './parameter-metadata.js';
@@ -13,10 +15,10 @@ import operationSourceErrors from '../contracts/operation-source-errors.json' wi
 import {migrateReliefParams,legacyReliefParams,reliefParamOperations} from './relief-param-migration.js';
 
 export const apiVersion = '2.0';
-export const migratedOperationIds = Object.freeze(['meshHeightfieldRelief','meshBoolean','logo','union','cut','intersect','transform','copy','reliefShoulder','meshReliefPlate','meshReliefEdit','box', 'cylinder', 'sphere', 'cone', 'torus', 'mirror', 'linearPattern', 'circularPattern', 'hole', 'holeWizard', 'draftFaces', 'multiHole', 'multiPocket', 'multiBoss', 'faceHole', 'round', 'roundEnd', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell','sketchProfile','profileOffset','profileRepair','profileExtrude',...mechanicalIds]);
+export const migratedOperationIds = Object.freeze(['badge','meshHeightfieldRelief','meshBoolean','logo','union','cut','intersect','transform','copy','reliefShoulder','meshReliefPlate','meshReliefEdit','box', 'cylinder', 'sphere', 'cone', 'torus', 'mirror', 'linearPattern', 'circularPattern', 'hole', 'holeWizard', 'draftFaces', 'multiHole', 'multiPocket', 'multiBoss', 'tap', 'faceHole', 'round', 'roundEnd', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell','sketchProfile','profileOffset','profileRepair','profileExtrude',...mechanicalIds]);
 const migrated = new Set(migratedOperationIds);
 const clone = value => JSON.parse(JSON.stringify(value));
-const topology = new Set(['faceHole', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition']);
+const topology = new Set(['badge','tap','faceHole', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition']);
 const topologyConvention = operationCatalog.topology;
 import {operationDefaults as defaults,operationExamples as examples} from './operation-examples.js';
 
@@ -28,10 +30,11 @@ function schemaFor(id, source) {
     return { $schema: schema.$schema, type: 'object', oneOf: Object.entries(QUICK_MODELS).map(([kind, definition]) => {
       const fields = new Map(definition.fields.map(field => [field.key, field]));
       return { type: 'object', required: ['kind'], additionalProperties: false,
+        ...(isChain(kind)?{oneOf:[{properties:{sizeMode:{const:'count'},linkCount:{type:'integer',minimum:1},maxLengthMm:{const:0}}},{required:['maxLengthMm'],properties:{sizeMode:{const:'length'},maxLengthMm:{exclusiveMinimum:0},linkCount:{const:0}}}]}:{}),
         description: definition.descriptionEn || definition.description,
         properties: { kind: { type: 'string', const: kind }, ...Object.fromEntries(Object.entries(definition.defaults).map(([key, value]) => {
           const field = fields.get(key);
-          return [key, { type: typeof value, default: value,
+          return [key, { type: key==='linkCount'?'integer':typeof value, default: value,
             description: field?.labelEn || field?.label || key,
             ...(field?.options ? { enum: field.options.map(option => option.value) } : {}),
             ...(field?.min!==undefined?{minimum:field.min}:{}),...(field?.max!==undefined?{maximum:field.max}:{}),...(field?.type==='number'?{unit:field.unit||(/angle|°/i.test(key+' '+field.label)?'deg':/count|segments|turns/i.test(key)?'1':'mm')}:{}) }];
@@ -72,8 +75,8 @@ function categoryFor(id) {
   return operationCatalog.operations[id].refs === 0 ? 'creation' : 'modification';
 }
 
-const names = {reliefShoulder:['浮雕肩部','中央肩部','cylindrical shoulder'], round:['圆润','自动圆润','磨边','圆头','round','smooth selected edge'], roundEnd:['端头圆润','针尖','圆头','自由端','round end','revolve cap'], box: ['长方体', '安装板', 'plate'], hole: ['孔', '钻孔', 'radius'], multiHole: ['多孔', '孔位', 'mounting plate'], multiPocket:['多凹槽','批量凹刻','rectangular pocket','recess'], multiBoss:['多凸台','批量圆柱凸台','cylindrical boss'], rounding:['自动打磨','打磨','圆润','去利角','smooth sharp edges'],
-  smoothTransition:['平滑过渡','接缝','利角','blend'], faceHole: ['面钻孔', '贯穿'], fillet: ['圆角','标准圆角','倒圆','半径','fillet'], chamfer: ['倒角'], shell: ['抽壳', '壁厚'],
+const names = {badge:['牌仔工具','牌仔','牌件','平面增厚','badge','plate'],reliefShoulder:['浮雕肩部','中央肩部','cylindrical shoulder'], round:['圆润','自动圆润','磨边','圆头','round','smooth selected edge'], roundEnd:['端头圆润','针尖','圆头','自由端','round end','revolve cap'], box: ['长方体', '安装板', 'plate'], hole: ['孔', '钻孔', 'radius'], multiHole: ['多孔', '孔位', 'mounting plate'], multiPocket:['多凹槽','批量凹刻','rectangular pocket','recess'], multiBoss:['多凸台','批量圆柱凸台','cylindrical boss'], rounding:['自动打磨','打磨','圆润','去利角','smooth sharp edges'],
+  smoothTransition:['平滑过渡','接缝','利角','blend'], tap:['攻牙','内螺纹','牙孔','tapping','M2','M2.5','M3'], faceHole: ['面钻孔', '贯穿'], fillet: ['圆角','标准圆角','倒圆','半径','fillet'], chamfer: ['倒角'], shell: ['抽壳', '壁厚'],
   referenceExtrude: ['参考轮廓', '精确曲线', '拉伸'], referenceLoft: ['参考截面', '精确曲线', '放样'] };
 
 function buildCard(id, source) {
@@ -87,7 +90,7 @@ function buildCard(id, source) {
     location: 'args.selectionToken', featureAddOnly: true,
     conflictsWith: ['faceId', 'faceIds', 'edgeIds', 'allEdges'],
     phases: 'Validate user params with phase=input and selectionToken, resolve against current snapshot, then validate complete params with phase=resolved.' } : { supported: false };
-  const preserves = profileSolidIds.includes(id) ? 'Preserves section/path sources; replaces only the last target for join/cut/intersect.' : ['copy', 'planeSection', 'faceBoundary', 'extractFaces', 'extractShell', 'surfaceTrim', 'referenceExtrude', 'referenceLoft','profileOffset','profileRepair',...mechanicalPreservedIds].includes(id) ? true
+  const preserves = profileSolidIds.includes(id) ? 'Preserves section/path sources; replaces only the last target for join/cut/intersect.' : ['badge','copy', 'planeSection', 'faceBoundary', 'extractFaces', 'extractShell', 'surfaceTrim', 'referenceExtrude', 'referenceLoft','profileOffset','profileRepair',...mechanicalPreservedIds].includes(id) ? true
     : ['mirror', 'extractSolid'].includes(id) ? 'unless keepOriginal=false' : false;
   const minRefs = refsSchema.minItems;
   const example = { op: id, params: clone(examples[id]), refs: Array.from({ length: minRefs }, (_, i) => `<current-bodyId-${i + 1}>`),
@@ -168,7 +171,8 @@ function buildCard(id, source) {
     recipes: ['box', 'hole', 'multiHole'].includes(id) ? ['recipes.mounting-plate'] : [],
     testIds: id==='reliefShoulder'?['tests/operation-registry.test.mjs','tests/services-shoulder-native.test.mjs']:strict ? ['tests/operation-registry.test.mjs'] : [],
     ...(id === 'quickModel' ? { templates: Object.entries(QUICK_MODELS).map(([kind, definition]) => ({ kind,
-      title: definition.labelEn || definition.label, description: definition.descriptionEn || definition.description,
+      title: definition.label, description: definition.descriptionEn || definition.description,
+      visibleInLibrary:QUICK_MODEL_VISIBLE_KINDS.includes(kind),category:definition.category,categoryLabel:definition.categoryLabel,
       defaults: clone(definition.defaults), fields: clone(definition.fields),
       knownUnsupportedCases: ['Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid.'],
       minimalExample: { kind }, normalExample: { kind, ...clone(definition.defaults) } })) } : {}),

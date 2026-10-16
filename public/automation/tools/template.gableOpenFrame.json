@@ -356,6 +356,9 @@
   },
   "operationId": "quickModel",
   "label": "斜肩开口框",
+  "visibleInLibrary": false,
+  "libraryCategory": "legacy",
+  "libraryCategoryLabel": "旧工程兼容",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -545,5 +548,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3f88904d6f60941553ece96f82e02810147d10c53f83e7e0aec6354f344eda05"
+  "docsHash": "sha256:8704fd2e53f5fa1ab1c0efd0b69f25b5279978e52e2da4e30deff9e394eacb23"
 }

@@ -1,0 +1,675 @@
+{
+  "id": "template.alloyEyelet",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "合金鸡眼",
+  "category": "template",
+  "synonyms": [
+    "alloyEyelet",
+    "合金鸡眼",
+    "Two-piece alloy eyelet"
+  ],
+  "description": "参考PG14922两件套结构，去掉内侧爪针。A长脚件在上、B底片在下，同轴相向，外观面朝外，颈口相向套接；两件为独立实体，同属一个模型。平面或圆弧拱面可选，面框边缘为真实倒角。内侧净距可调，不模拟压装、锁扣、铆接或变形。默认尺寸参考原图，倒角、间距和弧高为可调设计值；不是原产品逐面复刻。",
+  "apiCompatibility": [
+    "page-advisory"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": true,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "alloyEyelet",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-contract.test.mjs"
+  ],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+    "whenToUse": [
+      "Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {},
+    "refs": {
+      "min": 0,
+      "max": 0,
+      "meaning": "独立创建，不引用已有实体"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": false,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "quickModel",
+        "params": {
+          "kind": "tube"
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "normal": {
+        "op": "quickModel",
+        "params": {
+          "kind": "tube"
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "invalid": [
+        {
+          "params": {
+            "__invalid": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID"
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "quickModel",
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+  "whenToUse": [
+    "Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "operationId": "quickModel",
+  "label": "合金鸡眼",
+  "visibleInLibrary": true,
+  "libraryCategory": "fasteners",
+  "libraryCategoryLabel": "连接件",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "Two coaxial opposed alloy eyelet parts inspired by PG14922, without pins. Flat or curved outward faces, chamfered edges and mating collars. Static geometry, no pressing or deformation.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "alloyEyelet"
+      },
+      "faceStyle": {
+        "type": "string",
+        "default": "flat",
+        "description": "Face style",
+        "enum": [
+          "flat",
+          "curved"
+        ]
+      },
+      "outerDiameterMm": {
+        "type": "number",
+        "default": 19.8,
+        "description": "外径",
+        "minimum": 0.01,
+        "unit": "mm"
+      },
+      "boreDiameterMm": {
+        "type": "number",
+        "default": 10,
+        "description": "通孔直径",
+        "minimum": 0.01,
+        "unit": "mm"
+      },
+      "aFaceThicknessMm": {
+        "type": "number",
+        "default": 1.25,
+        "description": "A长脚件面厚",
+        "minimum": 0.01,
+        "unit": "mm"
+      },
+      "bFaceThicknessMm": {
+        "type": "number",
+        "default": 1.3,
+        "description": "B底片面厚",
+        "minimum": 0.01,
+        "unit": "mm"
+      },
+      "edgeChamferMm": {
+        "type": "number",
+        "default": 0.2,
+        "description": "面框边缘倒角",
+        "minimum": 0,
+        "unit": "mm"
+      },
+      "aNeckOuterDiameterMm": {
+        "type": "number",
+        "default": 14.2,
+        "description": "A长脚件套管外径",
+        "minimum": 0.01,
+        "unit": "mm"
+      },
+      "aNeckInnerDiameterMm": {
+        "type": "number",
+        "default": 12,
+        "description": "A长脚件套管内径",
+        "minimum": 0.01,
+        "unit": "mm"
+      },
+      "aNeckLengthMm": {
+        "type": "number",
+        "default": 4.3,
+        "description": "A长脚件套管长",
+        "minimum": 0,
+        "unit": "mm"
+      },
+      "bNeckOuterDiameterMm": {
+        "type": "number",
+        "default": 11.6,
+        "description": "B底片套管外径",
+        "minimum": 0.01,
+        "unit": "mm"
+      },
+      "bNeckInnerDiameterMm": {
+        "type": "number",
+        "default": 10,
+        "description": "B底片套管内径",
+        "minimum": 0.01,
+        "unit": "mm"
+      },
+      "bNeckLengthMm": {
+        "type": "number",
+        "default": 4.15,
+        "description": "B底片套管长",
+        "minimum": 0,
+        "unit": "mm"
+      },
+      "materialGapMm": {
+        "type": "number",
+        "default": 4.4,
+        "description": "两面内侧净距",
+        "minimum": 0,
+        "unit": "mm"
+      },
+      "faceRiseMm": {
+        "type": "number",
+        "default": 0.5,
+        "description": "弧面拱高（平面时忽略）",
+        "minimum": 0,
+        "unit": "mm"
+      }
+    }
+  },
+  "schemaHash": "sha256:9810ae91e4adf9671bf1a32183cc3d7e26c4e91f0696b5fb4ec2288a22dd0ead",
+  "defaults": {
+    "faceStyle": "flat",
+    "outerDiameterMm": 19.8,
+    "boreDiameterMm": 10,
+    "aFaceThicknessMm": 1.25,
+    "bFaceThicknessMm": 1.3,
+    "edgeChamferMm": 0.2,
+    "aNeckOuterDiameterMm": 14.2,
+    "aNeckInnerDiameterMm": 12,
+    "aNeckLengthMm": 4.3,
+    "bNeckOuterDiameterMm": 11.6,
+    "bNeckInnerDiameterMm": 10,
+    "bNeckLengthMm": 4.15,
+    "materialGapMm": 4.4,
+    "faceRiseMm": 0.5
+  },
+  "fields": [
+    {
+      "key": "faceStyle",
+      "label": "鸡眼面",
+      "labelEn": "Face style",
+      "type": "select",
+      "options": [
+        {
+          "value": "flat",
+          "label": "平面",
+          "labelEn": "Flat"
+        },
+        {
+          "value": "curved",
+          "label": "弧面",
+          "labelEn": "Curved"
+        }
+      ]
+    },
+    {
+      "key": "outerDiameterMm",
+      "label": "外径",
+      "labelEn": "外径",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "boreDiameterMm",
+      "label": "通孔直径",
+      "labelEn": "通孔直径",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "aFaceThicknessMm",
+      "label": "A长脚件面厚",
+      "labelEn": "A长脚件面厚",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "bFaceThicknessMm",
+      "label": "B底片面厚",
+      "labelEn": "B底片面厚",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "edgeChamferMm",
+      "label": "面框边缘倒角",
+      "labelEn": "面框边缘倒角",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "aNeckOuterDiameterMm",
+      "label": "A长脚件套管外径",
+      "labelEn": "A长脚件套管外径",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "aNeckInnerDiameterMm",
+      "label": "A长脚件套管内径",
+      "labelEn": "A长脚件套管内径",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "aNeckLengthMm",
+      "label": "A长脚件套管长",
+      "labelEn": "A长脚件套管长",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "bNeckOuterDiameterMm",
+      "label": "B底片套管外径",
+      "labelEn": "B底片套管外径",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "bNeckInnerDiameterMm",
+      "label": "B底片套管内径",
+      "labelEn": "B底片套管内径",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "bNeckLengthMm",
+      "label": "B底片套管长",
+      "labelEn": "B底片套管长",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "materialGapMm",
+      "label": "两面内侧净距",
+      "labelEn": "两面内侧净距",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "faceRiseMm",
+      "label": "弧面拱高（平面时忽略）",
+      "labelEn": "弧面拱高（平面时忽略）",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    }
+  ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "alloyEyelet"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "alloyEyelet",
+      "faceStyle": "flat",
+      "outerDiameterMm": 19.8,
+      "boreDiameterMm": 10,
+      "aFaceThicknessMm": 1.25,
+      "bFaceThicknessMm": 1.3,
+      "edgeChamferMm": 0.2,
+      "aNeckOuterDiameterMm": 14.2,
+      "aNeckInnerDiameterMm": 12,
+      "aNeckLengthMm": 4.3,
+      "bNeckOuterDiameterMm": 11.6,
+      "bNeckInnerDiameterMm": 10,
+      "bNeckLengthMm": 4.15,
+      "materialGapMm": 4.4,
+      "faceRiseMm": 0.5
+    },
+    "refs": []
+  },
+  "docs": "api.quick-eyelets",
+  "docsHash": "sha256:1636905085ee9182afacfdbddbb002edf81659b1bbb062f2355af20591a822c1"
+}

@@ -22,3 +22,11 @@ test('domed pin independently controls diameter and height and round-trips STEP'
 test('invalid hardware dimensions and unknown fields are rejected',()=>{
  for(const [kind,p]of [['spring',{pitchMm:1}],['screw',{headType:'countersunk',headThicknessMm:.2}],['screw',{threadSize:'M9'}],['screw',{headWidthMm:2}],['threadedSleeve',{threadDepthMm:9}],['threadedSleeve',{faceDiameterMm:2}],['domedPin',{heightMm:0}],['screw',{unaskedField:2}]])assert.throws(()=>buildHardwareModel(kind,p,cad,oc));
 });
+
+test('M2 sleeve shares the repaired internal thread at fractional turn count',()=>{
+ const s=buildHardwareModel('threadedSleeve',{threadDiameterMm:2,threadDepthMm:3},cad,oc);
+ try{valid(s);assert.equal(s.threadReport.pitchMm,.4);assert.equal(s.threadReport.lengthMm,3);
+  const blankVolume=Math.PI*8*(3*3+3*4+4*4)/3,pilotVolume=Math.PI*.784**2*3;
+  assert.ok(blankVolume-cad.measureVolume(s)>pilotVolume+.5,'real helical groove removes more than pilot bore');
+ }finally{dispose(s);}
+});

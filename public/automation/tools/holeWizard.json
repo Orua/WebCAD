@@ -638,6 +638,7 @@
     },
     "related": [
       "hole",
+      "tap",
       "faceHole",
       "multiHole",
       "multiPocket",
@@ -749,5 +750,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:3d4828f4878ab76fed28fb1e86ba3b53cb63a84a096df5a4afe1f2d15770729b"
+  "docsHash": "sha256:88352175f973d093c6886347c6a8318fcc049fe339a914f415c8b10965956f88"
 }

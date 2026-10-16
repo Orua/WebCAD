@@ -3,12 +3,12 @@ import {heightfieldReliefExample} from './mesh/heightfield-relief.js';
 import {meshBooleanExample} from './mesh/mesh-boolean.js';
 import {reliefEditExample} from './mesh/relief-edit-contract.js';
 import {mechanicalDefaults,mechanicalExamples} from './mechanical-tool-contracts.js';
-export const operationDefaults = {reliefShoulder:{}, meshReliefEdit:{},meshReliefPlate:{}, cylinder:{},sphere:{},cone:{radius1:10,radius2:0},torus:{},round:{mode:'auto',strength:.5}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z'}, rounding:{strength:1}, autoRound:{}, smoothTransition: {}, box: {}, hole: { x: 0, y: 0, z: 0, axis: 'Z', direction: 1 },holeWizard:{kind:'plain',axis:'Z',direction:1,through:false},
+export const operationDefaults = {badge:{side:'single',direction:1,radiusMm:0},reliefShoulder:{}, meshReliefEdit:{},meshReliefPlate:{}, cylinder:{},sphere:{},cone:{radius1:10,radius2:0},torus:{},round:{mode:'auto',strength:.5}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z'}, rounding:{strength:1}, autoRound:{}, smoothTransition: {}, box: {}, hole: { x: 0, y: 0, z: 0, axis: 'Z', direction: 1 },holeWizard:{kind:'plain',axis:'Z',direction:1,through:false},
   mirror:{plane:'XY',offsetMm:0,keepOriginal:false},linearPattern:{count:3,dx:0,dy:0,dz:0,outputMode:'compound'},circularPattern:{count:3,angle:360,axis:'Z',cx:0,cy:0,cz:0,outputMode:'compound'},
   multiHole: { axis: 'Z', direction: 1 }, multiPocket:{axis:'Z',direction:-1}, multiBoss:{axis:'Z',direction:1}, faceHole: { through: false }, fillet: {}, chamfer: {}, shell: {}, draftFaces:{}, extractFaces:{}, extractShell:{}, sketchProfile:{}, profileOffset:{}, profileRepair:{}, profileExtrude:{},...mechanicalDefaults };
 const triangle = [[-1, -1], [1, -1], [0, 1]];
 const regions = [{ outer: triangle }];
-export const operationExamples = { reliefShoulder:{faceId:0,point:[0,50.25,7],widthMm:.3,endProtectionMm:.3,endPolicy:'retained-step-with-planar-caps'}, meshReliefEdit:reliefEditExample,meshReliefPlate:reliefPlateExample,meshHeightfieldRelief:heightfieldReliefExample,meshBoolean:meshBooleanExample, round:{edgeIds:[0]}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z',depthMm:2,edgeIds:[0]}, rounding:{specVersion:3,scope:{kind:'edges',edgeIds:[0]}}, autoRound:{radius:0.1}, smoothTransition:{radius:0.1,faceIds:[0,1]},
+export const operationExamples = {badge:{faceId:0,thicknessMm:2,side:'double',direction:1,radiusMm:0}, reliefShoulder:{faceId:0,point:[0,50.25,7],widthMm:.3,endProtectionMm:.3,endPolicy:'retained-step-with-planar-caps'}, meshReliefEdit:reliefEditExample,meshReliefPlate:reliefPlateExample,meshHeightfieldRelief:heightfieldReliefExample,meshBoolean:meshBooleanExample, round:{edgeIds:[0]}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z',depthMm:2,edgeIds:[0]}, rounding:{specVersion:3,scope:{kind:'edges',edgeIds:[0]}}, autoRound:{radius:0.1}, smoothTransition:{radius:0.1,faceIds:[0,1]},
   box: { width: 50, depth: 30, height: 3 }, cylinder: { radius: 10, height: 20 }, sphere: { radius: 10 },
   cone: { radius1: 10, radius2: 0, height: 20 }, torus: { majorRadius: 10, minorRadius: 2 },
   extrude: { profile: 'rectangle', width: 20, depth: 10, height: 5 },
@@ -20,6 +20,7 @@ export const operationExamples = { reliefShoulder:{faceId:0,point:[0,50.25,7],wi
   multiHole: { radius: 2, depth: 5, axis: 'Z', direction: -1, points: [[5, 5, 4], [45, 5, 4], [5, 25, 4], [45, 25, 4]] },
   multiPocket:{depth:0.5,axis:'Z',direction:-1,pockets:[{x:10,y:10,z:3,width:6,height:4},{x:25,y:10,z:3,width:6,height:4,cornerRadius:0.5}]},
   multiBoss:{radius:2,height:3,axis:'Z',direction:1,points:[[10,10,3],[30,10,3]]},
+  tap: { faceId:0,point:[5,5,10],threadSize:'M3',depthMm:4 },
   faceHole: { faceId: 0, point: [5, 5, 3], radius: 2, through: true },
   faceExtrude: { faceId: 0, height: 2 }, fillet: { radius: 0.5, edgeIds: [0] },
   chamfer: { distance: 0.5, edgeIds: [0] }, shell: { thickness: 1, faceIds: [0] },

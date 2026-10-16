@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "拉心扣活动芯（双卷眼横芯）",
+  "title": "拉芯扣的芯",
   "category": "template",
   "synonyms": [
     "pullCoreBar",
-    "拉心扣活动芯（双卷眼横芯）",
+    "拉芯扣的芯",
     "Open-eye buckle crossbar"
   ],
   "description": "独立活动芯：沿X横跨、两端为Y轴开放卷眼，中间扁带由独立内外相切圆弧接入卷眼。适合常规拉心扣芯；不与外框融合。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "拉心扣活动芯（双卷眼横芯）",
+  "label": "拉芯扣的芯",
+  "visibleInLibrary": true,
+  "libraryCategory": "installation",
+  "libraryCategoryLabel": "安装及配件",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -589,5 +592,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:a660f7284e298de412c15189f2862f4267c910796c9a5bcdccb2233547635352"
+  "docsHash": "sha256:54ceb8539e7507787c727efd51c8892600ecbf4ebe13164c85fd3eea582a9d87"
 }

@@ -2,6 +2,22 @@
   "version": 1,
   "operations": [
     {
+      "operation": "badge",
+      "semanticVersion": "badge-1",
+      "localImpact": "Exact planar prism plus one all-sharp-edge fillet in WASM; source preserved",
+      "servicesImpact": "Fixed local bounded operation; no backend change",
+      "logoImpact": "none; no vector conversion change",
+      "contractImpact": "Strict badge tool, planar face, total thickness, single/double side and resolved R receipt",
+      "documentImpact": "Source-bound editable recipe; undo/save use existing document format",
+      "cacheImpact": "Params fingerprint and generated catalog/docs hashes",
+      "requiredTests": [
+        "tests/badge-tool.test.mjs"
+      ],
+      "manualChecks": [
+        "17674 badge dialog and double-sided creation"
+      ]
+    },
+    {
       "operation": "meshReliefEdit",
       "semanticVersion": "mesh-relief-edit-1",
       "localImpact": "Worker Float64 fixed-topology height edit",
@@ -845,26 +861,31 @@
     {
       "operation": "quickModel",
       "sourcePaths": [
+        "src/quick-models/squareArchedBridge/index.js",
+        "src/quick-models/squareArchedBridge/definition.js",
+        "src/quick-models/squareArchedBridge/build.js",
         "src/cad-kernel.js",
         "src/operation-catalog.js",
         "src/operation-registry.js"
       ],
-      "localImpact": "51 fixed local-WASM tools, source-measured chain and iron-foot parameters; pre-generated static preview/guide assets; immutable library and order-only migration",
+      "localImpact": "Fixed tools in groups; three interconnected chain assemblies with exclusive count/maximum-length sizing and authored four-link previews; squareArchedBridge adds a flat-top rectangular-section U bridge with independent inner/outer dimensions, corner/edge radii and optional paired blind end bores, structurally referenced to PG15272/PG15227",
       "servicesImpact": "none; all quickModel templates remain local-only",
       "logoImpact": "none; unchanged",
-      "contractImpact": "page API 1.49; complete ranges/units; new add rejects modelScript; fixed definitions, move/restore order",
-      "documentImpact": "saved kind/params, undo and legacy frozen script rebuild retained; unchanged format",
-      "cacheImpact": "catalog/docs/knowledge hashes and versioned preview manifest",
+      "contractImpact": "page API 1.52; exclusive chain sizing schemas, categories and chainReport readback; source kind IDs preserved; squareArchedBridge shares the quickModel schema, units/ranges, template card, generic UI mapping and normal body measurements",
+      "documentImpact": "new chain recipes store explicit sizing; old recipes without sizing remain one link; hidden six kinds retain rebuild support; squareArchedBridge uses existing feature recipes/history/save without format migration",
+      "cacheImpact": "catalog/docs/knowledge hashes, catalogOrderVersion migration and static preview hashes",
       "requiredTests": [
+        "tests/square-arched-bridge.test.mjs",
         "tests/quick-chain-foot.test.mjs",
         "tests/model-library.test.mjs",
         "tests/model-script.test.mjs",
-        "tests/quick-hardware-api.test.mjs"
+        "tests/quick-hardware-api.test.mjs",
+        "tests/quick-chain-assembly.test.mjs"
       ],
       "manualChecks": [
         "17674 targeted browser pass: static thumbnail/guide, transparent sleeve, sorting, new-tool create/edit/save"
       ],
-      "semanticVersion": "fixed-quick-tools-2"
+      "semanticVersion": "fixed-quick-tools-3"
     },
     {
       "operation": "remove",
@@ -1413,14 +1434,17 @@
         "src/operation-catalog.js",
         "src/operation-registry.js"
       ],
-      "localImpact": "Cut an explicit symmetric helical V groove on a selected cylindrical material face",
+      "localImpact": "Cut an explicit symmetric helical V groove on a selected cylindrical material face; shared internal V-thread uses overlapping one-turn cutters clipped to the global interval to prevent M2 no-cut classification",
       "servicesImpact": "Local execution; no Services algorithm change",
       "logoImpact": "none: unrelated to logo conversion",
       "contractImpact": "Source operation schema, shared command execution and generated tool card",
       "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
-      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "cacheImpact": "Feature signature/render cache and static contract hashes; changed kernel build identity invalidates computed artifacts; public argument schema unchanged",
       "requiredTests": [
-        "tests/operation-contract.test.mjs"
+        "tests/operation-contract.test.mjs",
+        "tests/tap-tool.test.mjs",
+        "tests/quick-hardware.test.mjs",
+        "tests/helical-tools.test.mjs"
       ],
       "manualChecks": []
     },
@@ -1563,6 +1587,25 @@
         "tests/services-support-intent.test.mjs"
       ],
       "manualChecks": []
+    },
+    {
+      "operation": "tap",
+      "semanticVersion": "tap-1",
+      "localImpact": "Planar-face blind tapping, bore plus exact helical V groove in local WASM; shared internal V-thread uses overlapping one-turn cutters clipped to the global interval to prevent M2 no-cut classification",
+      "servicesImpact": "Explicit local-only routing; no Services binaries changed",
+      "logoImpact": "none; independent machining tool",
+      "contractImpact": "Strict faceId/point/threadSize/depthMm, UI and public API, threadReport readback",
+      "documentImpact": "Saved feature recipe and ordinary BRep rebuild; no format change",
+      "cacheImpact": "New operation and regenerated catalog/docs hashes; changed kernel build identity invalidates computed artifacts; public argument schema unchanged",
+      "requiredTests": [
+        "tests/tap-tool.test.mjs",
+        "tests/tap-contract.test.mjs",
+        "tests/quick-hardware.test.mjs",
+        "tests/helical-tools.test.mjs"
+      ],
+      "manualChecks": [
+        "17674 machining form, preview and commit"
+      ]
     }
   ],
   "executionRouting": {
@@ -2215,5 +2258,45 @@
         "17674 shallow engraved LOGO: solid and soft edges, metal colour, selection, perspective and orthographic"
       ]
     }
-  ]
+  ],
+  "selectionBehavior": {
+    "localImpact": "New independent object commits and successful appearance/render changes clear body/topology selection; existing feature edits preserve selection",
+    "servicesImpact": "none; browser selection only",
+    "logoImpact": "none; geometry unchanged",
+    "contractImpact": "api.interaction 1.50.1; shared UI and API host path; getState selection readback",
+    "documentImpact": "no format or geometry change",
+    "cacheImpact": "catalog/docs/build identity update",
+    "requiredTests": [
+      "17674 insert while selected",
+      "17674 material/preferences/display/quality clearing",
+      "17674 rejected rendering settings preserve selection"
+    ]
+  },
+  "curbNesting": {
+    "localImpact": "Same-orientation nested curb assembly; source centreline Z amplitude 1.6 for multiple links, radial wire unchanged; ground planes remain coplanar; O links alternate 0/90",
+    "servicesImpact": "none; quick templates remain local WASM",
+    "logoImpact": "none",
+    "contractImpact": "page API 1.51; pitch=0.56L, chainReport layoutVersion/rollPatternDeg/twistFactor; exclusive count/max length unchanged",
+    "documentImpact": "single-link source geometry retained; multiple-link recipes rebuild as requested nested assembly",
+    "cacheImpact": "static three-chain previews and guide regeneration; docs/catalog/knowledge identity refresh",
+    "requiredTests": [
+      "quick-chain-assembly",
+      "default source mesh collision and rendered four-link alignment",
+      "17674 nested chain create and length sizing"
+    ]
+  },
+  "eyeletFaces": {
+    "localImpact": "Exact revolved flat/curved pairs: A long-shank upper +Z face, B lower backplate; outward faces preserved",
+    "documentImpact": "ordinary quickModel recipes; new copper creations freeze orientation; legacy omitted fields preserved",
+    "contractImpact": "API1.52.1: A long-shank above / B backplate below; parameter labels and docs synchronized",
+    "requiredTests": [
+      "tests/eyelet-faces.test.mjs",
+      "tests/two-piece-eyelet.test.mjs",
+      "build gate",
+      "17674 targeted browser"
+    ],
+    "servicesImpact": "none: all quick models remain local WASM",
+    "cacheImpact": "regenerate static previews and public tool/docs hashes",
+    "logoImpact": "none"
+  }
 }

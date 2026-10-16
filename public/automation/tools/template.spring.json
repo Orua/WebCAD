@@ -356,6 +356,9 @@
   },
   "operationId": "quickModel",
   "label": "弹簧",
+  "visibleInLibrary": true,
+  "libraryCategory": "fasteners",
+  "libraryCategoryLabel": "连接件",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -489,5 +492,5 @@
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:c3cc2b80ea78c69572de86e16e7fad2eef9f5413bf4e196c8721c6f0e4d5a4ce"
+  "docsHash": "sha256:dfded567e27a4158e7385aa018b5d34a0040d4de1f92c9dbaca394a81c5ccb4c"
 }

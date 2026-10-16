@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
+import {placementPolicy} from '../src/placement-policy.js';
 import {DOCUMENT_LIMITS,assertFeatureCapacity,serializeBoundedDocument,assertDocumentCapacity} from '../src/document-limits.js';
 import {recordTimeline,validateTimeline} from '../src/document-timeline.js';
 import {createCommandService} from '../src/command-service.js';
@@ -15,7 +16,7 @@ function mainHarness(){
  const source=fs.readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
  const slice=(start,end)=>{const a=source.indexOf(start),b=source.indexOf(end,a);assert.ok(a>=0&&b>a);return source.slice(a,b);};
  const calls=[];
- const c={performance,lastServicesDecision:null,selectedTopology:null,TextEncoder,structuredClone,clone:structuredClone,crypto,DOCUMENT_LIMITS,serializeBoundedDocument,assertDocumentCapacity,recordTimeline,validateTimeline,documentModel:empty(),revision:7,documentInstanceId:'instance',kernelReady:true,busy:false,bodies:[],selectedIds:[],lastWarnings:[],undoStack:[{sentinel:'undo'}],redoStack:[{sentinel:'redo'}],previewNext:null,previewIdentity:null,previewScopeReport:null,dirty:false,
+ const c={placementPolicy,performance,lastServicesDecision:null,selectedTopology:null,TextEncoder,structuredClone,clone:structuredClone,crypto,DOCUMENT_LIMITS,serializeBoundedDocument,assertDocumentCapacity,recordTimeline,validateTimeline,documentModel:empty(),revision:7,documentInstanceId:'instance',kernelReady:true,busy:false,bodies:[],selectedIds:[],lastWarnings:[],undoStack:[{sentinel:'undo'}],redoStack:[{sentinel:'redo'}],previewNext:null,previewIdentity:null,previewScopeReport:null,dirty:false,
   routeChangedFeature:async next=>({next}),setBusy:v=>c.busy=v,checkTransaction:()=>{},assertHistoryEditSafe:()=>{},request:async(command,{document})=>{calls.push(structuredClone(document));return {bodies:[]};},synchronizeBodyAnchors:async()=>{},viewport:{cancelTask(){},setBodies(){},setWorkFrame(){},setSelection(){},markModel(){}},ui:{clearErrors(){}},applyAppearance(){},setStatus(){},recordQuickModelUse(){},validateReferenceSystem:x=>x};
  vm.createContext(c);vm.runInContext(slice('// Agent batch display deferral','function refresh(')+slice('function pushUndo(','function setBusy(')+slice('async function rebuild(','function featureDocument(')+slice('function validateDocument(','function checkInputFile(')+'\nthis.rebuild=rebuild;this.validateDocument=validateDocument;this.pushUndo=pushUndo;',c);
  return {c,calls};

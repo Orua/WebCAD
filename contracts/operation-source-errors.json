@@ -1,4 +1,15 @@
 {
+  "tap": {
+    "sourcePaths": [
+      "src/modeling/manufacturing/tap-tool.js"
+    ],
+    "codes": [
+      "TAP_BORE_AMBIGUOUS",
+      "TAP_DEPTH_INVALID",
+      "TAP_MATERIAL_INSUFFICIENT",
+      "TAP_POINT_INVALID"
+    ]
+  },
   "meshHeightfieldRelief": {
     "sourcePaths": [
       "src/mesh/heightfield-relief.js"

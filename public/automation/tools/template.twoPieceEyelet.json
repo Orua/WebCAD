@@ -30,14 +30,14 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "双件鸡眼",
+  "title": "铜皮鸡眼",
   "category": "template",
   "synonyms": [
     "twoPieceEyelet",
-    "双件鸡眼",
+    "铜皮鸡眼",
     "Two-piece eyelet"
   ],
-  "description": "参数化两件式薄壁鸡眼，法兰外翻边和内侧圆弯按薄壁截面精确旋转生成。A件为长脚，B件为配套短脚；支持同轴静态套合或分开展示，不模拟压铆变形、LOGO和压字。",
+  "description": "参数化铜皮鸡眼，A长脚件在上、B底片在下，默认同轴相向，两侧外观面朝外，内侧套管相向。平面或弧面共用一个工具；弧面为精确圆弧旋转，板厚按轴向保持。轴向分开距离0为静态套接，正值拉开；横向距离0保持同轴。翻边内外弯按薄壁截面生成，不模拟压铆变形、LOGO或压字。装配朝向参考PG15211，具体尺寸自行输入。",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "双件鸡眼",
+  "label": "铜皮鸡眼",
+  "visibleInLibrary": true,
+  "libraryCategory": "fasteners",
+  "libraryCategoryLabel": "连接件",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -454,14 +457,37 @@
       },
       "explodedOffsetMm": {
         "type": "number",
-        "default": 24,
-        "description": "Exploded center offset (0=coaxial)",
+        "default": 0,
+        "description": "Lateral offset (0=coaxial)",
+        "minimum": 0,
+        "unit": "mm"
+      },
+      "assemblyGapMm": {
+        "type": "number",
+        "default": 0,
+        "description": "Additional axial separation",
+        "minimum": 0,
+        "unit": "mm"
+      },
+      "faceStyle": {
+        "type": "string",
+        "default": "flat",
+        "description": "Face style",
+        "enum": [
+          "flat",
+          "curved"
+        ]
+      },
+      "faceRiseMm": {
+        "type": "number",
+        "default": 0.5,
+        "description": "Face rise (ignored for flat)",
         "minimum": 0,
         "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:291188a6d747894e9dbaa67b5d4d3b5eeece2ca663e012eeeabd897f4a6e7bfc",
+  "schemaHash": "sha256:35e37edb9c3f8dac3925cffa9b7e1a9d6ee167c523028e6a5fa31b208dd816c6",
   "defaults": {
     "aFlangeDiameterMm": 18,
     "aBoreDiameterMm": 11,
@@ -475,12 +501,15 @@
     "bOverallDepthMm": 2,
     "bFlangeDepthMm": 1.2,
     "bBendRadiusMm": 0.8,
-    "explodedOffsetMm": 24
+    "explodedOffsetMm": 0,
+    "assemblyGapMm": 0,
+    "faceStyle": "flat",
+    "faceRiseMm": 0.5
   },
   "fields": [
     {
       "key": "aFlangeDiameterMm",
-      "label": "A件法兰外径",
+      "label": "A长脚件法兰外径",
       "labelEn": "Part A flange diameter",
       "type": "number",
       "min": 0.01,
@@ -489,7 +518,7 @@
     },
     {
       "key": "aBoreDiameterMm",
-      "label": "A件孔径",
+      "label": "A长脚件孔径",
       "labelEn": "Part A bore diameter",
       "type": "number",
       "min": 0.01,
@@ -498,7 +527,7 @@
     },
     {
       "key": "aTubeOuterDiameterMm",
-      "label": "A件筒外径",
+      "label": "A长脚件筒外径",
       "labelEn": "Part A tube outer diameter",
       "type": "number",
       "min": 0.01,
@@ -507,7 +536,7 @@
     },
     {
       "key": "aTubeLengthMm",
-      "label": "A件伸脚长",
+      "label": "A长脚件伸脚长",
       "labelEn": "Part A tube length",
       "type": "number",
       "min": 0.01,
@@ -516,7 +545,7 @@
     },
     {
       "key": "aFlangeDepthMm",
-      "label": "A件法兰轴向深度",
+      "label": "A长脚件法兰轴向深度",
       "labelEn": "Part A flange axial depth",
       "type": "number",
       "min": 0.01,
@@ -525,7 +554,7 @@
     },
     {
       "key": "aBendRadiusMm",
-      "label": "A件翻边外弯半径",
+      "label": "A长脚件翻边外弯半径",
       "labelEn": "Part A flange bend outer radius",
       "type": "number",
       "min": 0.01,
@@ -534,7 +563,7 @@
     },
     {
       "key": "bFlangeDiameterMm",
-      "label": "B件法兰外径",
+      "label": "B底片法兰外径",
       "labelEn": "Part B flange diameter",
       "type": "number",
       "min": 0.01,
@@ -543,7 +572,7 @@
     },
     {
       "key": "bBoreDiameterMm",
-      "label": "B件孔径",
+      "label": "B底片孔径",
       "labelEn": "Part B bore diameter",
       "type": "number",
       "min": 0.01,
@@ -552,7 +581,7 @@
     },
     {
       "key": "bTubeOuterDiameterMm",
-      "label": "B件短脚外径",
+      "label": "B底片短脚外径",
       "labelEn": "Part B short tube outer diameter",
       "type": "number",
       "min": 0.01,
@@ -561,7 +590,7 @@
     },
     {
       "key": "bOverallDepthMm",
-      "label": "B件总深",
+      "label": "B底片总深",
       "labelEn": "Part B overall depth",
       "type": "number",
       "min": 0.01,
@@ -570,7 +599,7 @@
     },
     {
       "key": "bFlangeDepthMm",
-      "label": "B件法兰轴向深度",
+      "label": "B底片法兰轴向深度",
       "labelEn": "Part B flange axial depth",
       "type": "number",
       "min": 0.01,
@@ -579,7 +608,7 @@
     },
     {
       "key": "bBendRadiusMm",
-      "label": "B件翻边外弯半径",
+      "label": "B底片翻边外弯半径",
       "labelEn": "Part B flange bend outer radius",
       "type": "number",
       "min": 0.01,
@@ -587,9 +616,45 @@
       "unit": "mm"
     },
     {
+      "key": "faceStyle",
+      "label": "鸡眼面",
+      "labelEn": "Face style",
+      "type": "select",
+      "options": [
+        {
+          "value": "flat",
+          "label": "平面",
+          "labelEn": "Flat"
+        },
+        {
+          "value": "curved",
+          "label": "弧面",
+          "labelEn": "Curved"
+        }
+      ]
+    },
+    {
+      "key": "faceRiseMm",
+      "label": "弧面拱高（平面时忽略）",
+      "labelEn": "Face rise (ignored for flat)",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "assemblyGapMm",
+      "label": "轴向分开距离",
+      "labelEn": "Additional axial separation",
+      "type": "number",
+      "min": 0,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
       "key": "explodedOffsetMm",
-      "label": "分开展示中心距（0=同轴）",
-      "labelEn": "Exploded center offset (0=coaxial)",
+      "label": "横向分开距离（0=同轴）",
+      "labelEn": "Lateral offset (0=coaxial)",
       "type": "number",
       "min": 0,
       "step": 0.1,
@@ -634,10 +699,13 @@
       "bOverallDepthMm": 2,
       "bFlangeDepthMm": 1.2,
       "bBendRadiusMm": 0.8,
-      "explodedOffsetMm": 24
+      "explodedOffsetMm": 0,
+      "assemblyGapMm": 0,
+      "faceStyle": "flat",
+      "faceRiseMm": 0.5
     },
     "refs": []
   },
-  "docs": "api.workflow",
-  "docsHash": "sha256:3e3df69c7caca4265b171159684c5709e6ca2c67a47a8e237028b3de6b8824a2"
+  "docs": "api.quick-eyelets",
+  "docsHash": "sha256:5f1a26244f8c2cf0646ea405da5a254c94178522c8992c761ef31c370a5c3b70"
 }

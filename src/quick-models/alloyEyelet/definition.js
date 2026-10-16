@@ -1,0 +1,7 @@
+const n=(key,label,value,min=0)=>({key,label,labelEn:label,type:'number',min,step:.1,unit:'mm',value});
+const dimensions=[n('outerDiameterMm','外径',19.8,.01),n('boreDiameterMm','通孔直径',10,.01),n('aFaceThicknessMm','A长脚件面厚',1.25,.01),n('bFaceThicknessMm','B底片面厚',1.3,.01),n('edgeChamferMm','面框边缘倒角',.2),n('aNeckOuterDiameterMm','A长脚件套管外径',14.2,.01),n('aNeckInnerDiameterMm','A长脚件套管内径',12,.01),n('aNeckLengthMm','A长脚件套管长',4.3),n('bNeckOuterDiameterMm','B底片套管外径',11.6,.01),n('bNeckInnerDiameterMm','B底片套管内径',10,.01),n('bNeckLengthMm','B底片套管长',4.15),n('materialGapMm','两面内侧净距',4.4),n('faceRiseMm','弧面拱高（平面时忽略）',.5)];
+export default Object.freeze({label:'合金鸡眼',labelEn:'Two-piece alloy eyelet',defaultInsertionAnchor:'model-origin',
+ description:'参考PG14922两件套结构，去掉内侧爪针。A长脚件在上、B底片在下，同轴相向，外观面朝外，颈口相向套接；两件为独立实体，同属一个模型。平面或圆弧拱面可选，面框边缘为真实倒角。内侧净距可调，不模拟压装、锁扣、铆接或变形。默认尺寸参考原图，倒角、间距和弧高为可调设计值；不是原产品逐面复刻。',
+ descriptionEn:'Two coaxial opposed alloy eyelet parts inspired by PG14922, without pins. Flat or curved outward faces, chamfered edges and mating collars. Static geometry, no pressing or deformation.',
+ defaults:Object.fromEntries([['faceStyle','flat'],...dimensions.map(f=>[f.key,f.value])]),
+ fields:[{key:'faceStyle',label:'鸡眼面',labelEn:'Face style',type:'select',options:[{value:'flat',label:'平面',labelEn:'Flat'},{value:'curved',label:'弧面',labelEn:'Curved'}]},...dimensions.map(({value,...field})=>field)]});

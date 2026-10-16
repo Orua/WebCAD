@@ -49,7 +49,7 @@ export function buildThread(source,p,oc,cad) {
   if(p.leftHanded!==undefined&&typeof p.leftHanded!=='boolean')fail('leftHanded 须为布尔值');
   const halfWidth=depth*Math.tan(angle*Math.PI/360);
   if(pitch<=2*halfWidth)fail('螺距须大于 V 槽的轴向牙宽');
-  let copy,adaptor,cylinder,axis,location,direction,point,framePoint,normal,spine,plane,sketch,cutter,clip,trimmed,result,localSource,localResult;let faces=[],edges=[];
+  let copy,adaptor,cylinder,axis,location,direction,point,framePoint,normal,cutter,clip,trimmed,result,localSource,localResult;let faces=[];
   try {
     copy=cad.deserializeShape(source.serialize());assertSolid(copy,oc,cad);faces=copy.faces;
     const face=faces[p.faceId];if(!face||face.geomType!=='CYLINDRE')fail('选定面必须是解析圆柱面');
@@ -82,16 +82,35 @@ export function buildThread(source,p,oc,cad) {
     if(rotateAngle>1e-10)localSource=localSource.rotate(rotateAngle,[0,0,0],rotateAxis);
     if(Math.abs(yaw)>1e-10)localSource=localSource.rotate(yaw,[0,0,0],[0,0,1]);
     const localBase=[0,0,start],localDir=[0,0,1];
-    spine=cad.makeHelix(pitch,length,radius,localBase,localDir,p.leftHanded??false);edges=spine.edges;
-    const first=edges[0].startPoint.toTuple(),xDir=unit(first.map((x,i)=>x-localBase[i]));
-    plane=new cad.Plane(localBase,xDir,cross(xDir,localDir));
     const margin=Math.max(1e-4,depth*.05),tip=p.kind==='external'?radius-depth:radius+depth,outer=p.kind==='external'?radius+margin:radius-margin;
-    // Slightly wider base keeps the specified angle of the material-side V.
     const width=(depth+margin)*Math.tan(angle*Math.PI/360);
-    sketch=cad.draw([outer,-width]).lineTo([tip,0]).lineTo([outer,width]).close().sketchOnPlane(plane);
-    cutter=cad.genericSweep(sketch.wire,spine,{frenet:true,forceProfileSpineOthogonality:false});assertSolid(cutter,oc,cad);
-    clip=cad.makeCylinder(radius+depth+margin+1,length,localBase,localDir);trimmed=cutter.intersect(clip);
-    const before=cad.measureVolume(copy);localResult=localSource.cut(trimmed);assertSolid(localResult,oc,cad);
+    // OCCT can classify a long internal helical cutter wholly inside the pilot
+    // bore (M2, 0.4 pitch, 3 mm depth). Limit each internal sweep to one turn.
+    // Clip to the GLOBAL interval, preserving profile-cap overlap between turns.
+    const makeCutter=span=>{
+      let path,sectionPlane,section,tool;let pathEdges=[];
+      try{
+        path=cad.makeHelix(pitch,span,radius,localBase,localDir,p.leftHanded??false);pathEdges=path.edges;
+        const first=pathEdges[0].startPoint.toTuple(),xDir=unit(first.map((x,i)=>x-localBase[i]));
+        sectionPlane=new cad.Plane(localBase,xDir,cross(xDir,localDir));
+        section=cad.draw([outer,-width]).lineTo([tip,0]).lineTo([outer,width]).close().sketchOnPlane(sectionPlane);
+        tool=cad.genericSweep(section.wire,path,{frenet:true,forceProfileSpineOthogonality:false});assertSolid(tool,oc,cad);
+        const out=tool;tool=null;return out;
+      }finally{[tool,section,sectionPlane,...pathEdges,path].forEach(dispose);}
+    };
+    const before=cad.measureVolume(copy),segmentLength=p.kind==='internal'?Math.min(pitch,length):length;
+    cutter=makeCutter(segmentLength);clip=cad.makeCylinder(radius+depth+margin+1,length,localBase,localDir);
+    localResult=localSource.clone();
+    const count=p.kind==='internal'?Math.ceil(length/pitch-1e-12):1;
+    for(let i=0;i<count;i++){
+      const offset=i*pitch,span=Math.min(segmentLength,length-offset);let shifted,partial,next;
+      try{
+        partial=span<segmentLength-1e-9?makeCutter(span):null;
+        shifted=(partial??cutter).clone().translate([0,0,offset]);trimmed=shifted.intersect(clip);
+        next=localResult.cut(trimmed);assertSolid(next,oc,cad);
+        dispose(localResult);localResult=next;next=null;
+      }finally{[next,trimmed,shifted,partial].forEach(dispose);trimmed=null;}
+    }
     if(Math.abs(yaw)>1e-10)localResult=localResult.rotate(-yaw,[0,0,0],[0,0,1]);
     if(rotateAngle>1e-10)localResult=localResult.rotate(-rotateAngle,[0,0,0],rotateAxis);
     result=localResult.translate(lower);localResult=null;assertSolid(result,oc,cad);
@@ -99,5 +118,5 @@ export function buildThread(source,p,oc,cad) {
     result.threadReport={profile:'explicit-symmetric-V-groove',standard:'none',faceId:p.faceId,kind:p.kind,radiusMm:radius,axisOrigin:base,axisDirection:dir,pitchMm:pitch,depthMm:depth,lengthMm:length,turns:length/pitch,includedAngleDeg:angle,leftHanded:p.leftHanded??false};
     const out=result;result=null;return out;
   } catch(e) { if(String(e.message).startsWith('螺旋特征'))throw e; fail('螺纹切除失败，请检查面、牙深、螺距与长度'); }
-  finally { [result,localResult,localSource,trimmed,clip,cutter,sketch,plane,...edges,spine,normal,framePoint,point,direction,location,axis,cylinder,adaptor,...faces,copy].forEach(dispose); }
+  finally { [result,localResult,localSource,trimmed,clip,cutter,normal,framePoint,point,direction,location,axis,cylinder,adaptor,...faces,copy].forEach(dispose); }
 }

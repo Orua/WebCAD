@@ -1,3 +1,4 @@
+import {QUICK_LABELS,QUICK_GROUPS,QUICK_HIDDEN_KINDS} from './presentation.js';
 // Edit this one ordered list to publish, hide, or reorder installed models.
 import uEndHolePlate from './uEndHolePlate/index.js';
 import ellipseSectionRing from './ellipseSectionRing/index.js';
@@ -41,9 +42,11 @@ import pullCoreBar from './pullCoreBar/index.js';
 import keyRing from './keyRing/index.js';
 import hangingRod from './hangingRod/index.js';
 import archedBridge from './archedBridge/index.js';
+import squareArchedBridge from './squareArchedBridge/index.js';
 import mushroomRivet from './mushroomRivet/index.js';
 import nippleStud from './nippleStud/index.js';
 import twoPieceEyelet from './twoPieceEyelet/index.js';
+import alloyEyelet from './alloyEyelet/index.js';
 import frameEyelet from './frameEyelet/index.js';
 import uStrapClip from './uStrapClip/index.js';
 
@@ -51,10 +54,10 @@ import {chainDefinitions,buildChain} from './chain-models.js';
 import {ironFootDefinition,buildIronFoot} from './iron-foot.js';
 import {buildModelScript} from './model-script.js';
 const chainEntries=Object.entries(chainDefinitions).map(([kind,definition])=>({kind,definition,build:buildChain,iconUrl:new URL('./ring/icon.svg',import.meta.url).href}));
-const entries = [
+const installed = [
   ...chainEntries,
   {kind:'ironFoot',definition:ironFootDefinition,build:buildIronFoot,iconUrl:new URL('./uStrapClip/icon.svg',import.meta.url).href},
-  ring, washer, tube, domedPin, spring, screw, threadedSleeve,
+  ring, washer, tube, domedPin, spring, screw, threadedSleeve, alloyEyelet,
   roundBadge, mountingPlate, fourHolePlate, flatFrame, roundedFlatFrame,
   dBuckle, rectBuckle, ovalBuckle, sliderBuckle, dBarBuckle,
   flangedBushing, bossPlate, thinWallTray, roundedBossTray,
@@ -77,14 +80,19 @@ const entries = [
   keyRing,
   hangingRod,
   archedBridge,
+  squareArchedBridge,
   mushroomRivet,
   nippleStud,
   twoPieceEyelet,
   frameEyelet,
   uStrapClip,
 ];
-// Hide a model from the picker without breaking projects saved with its kind.
-const hiddenFromPicker = new Set([]);
+const groupOf=new Map(QUICK_GROUPS.flatMap(group=>group.kinds.map(kind=>[kind,group])));
+const byInstalled=new Map(installed.map(entry=>[entry.kind,entry]));
+const kinds=[...QUICK_GROUPS.flatMap(group=>group.kinds),...QUICK_HIDDEN_KINDS];
+if(new Set(kinds).size!==installed.length||kinds.some(kind=>!byInstalled.has(kind)))throw Error('Published quick groups must cover every installed kind once');
+const entries=kinds.map(kind=>{const entry=byInstalled.get(kind),group=groupOf.get(kind);return {...entry,definition:{...entry.definition,label:QUICK_LABELS[kind]||entry.definition.label,category:group?.id||'legacy',categoryLabel:group?.label||'旧工程兼容'}};});
+const hiddenFromPicker=new Set(QUICK_HIDDEN_KINDS);
 const byKind = Object.fromEntries(entries.map(entry => [entry.kind, entry]));
 if (Object.keys(byKind).length !== entries.length) throw new Error('Duplicate quick model kind');
 for (const kind of hiddenFromPicker) if (!Object.hasOwn(byKind, kind)) throw new Error('Unknown hidden quick model: ' + kind);

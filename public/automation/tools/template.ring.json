@@ -356,6 +356,9 @@
   },
   "operationId": "quickModel",
   "label": "圆圈",
+  "visibleInLibrary": true,
+  "libraryCategory": "rings",
+  "libraryCategoryLabel": "圈环",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -525,5 +528,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:6aabc997086caeeef789f50d6b68168373299c34d4db6edd56683d1a9ab51046"
+  "docsHash": "sha256:2c8af99edfc6f94635bf0c1ebb2abd30ebefc4429e7e4cc5b429a502406c6c0a"
 }

@@ -10,10 +10,10 @@ test('assistant URL rejects credentials, scripts and mixed content',()=>{
 test('one-click exit unlocks immediately, preserves document, and ignores late or forged host control',async()=>{
   const listeners=[],sent=[],classes=new Set();let frame;
   const original={location:globalThis.location,window:globalThis.window,document:globalThis.document,localStorage:globalThis.localStorage};
-  Object.assign(globalThis,{location:new URL('https://goldenfu.cn/webcad/'),window:{addEventListener:(name,fn)=>listeners.push(fn)},localStorage:{getItem:()=>null,setItem:()=>{}},document:{createElement:()=>frame={hidden:false,contentWindow:{postMessage:value=>sent.push(value)}}}});
+  Object.assign(globalThis,{location:new URL('https://goldenfu.cn/webcad/'),window:{addEventListener:(name,fn)=>listeners.push(fn)},localStorage:{getItem:()=>null,setItem:()=>{}},document:{createElement:tag=>tag==='iframe'?frame={hidden:false,contentWindow:{postMessage:value=>sent.push(value)}}:{setAttribute(){},addEventListener(){},remove(){}}}});
   try{
     const current={context:{documentId:'same',revision:4},displayPreferences:{themeColor:'#0c827d'},dirty:true,view:{camera:{position:[1,2,3]}}},before=structuredClone(current);
-    const hostControl=createHostControl(),surface={classList:{add:value=>classes.add(value),remove:value=>classes.delete(value)},append:()=>{}};
+    const hostControl=createHostControl(),surface={classList:{add:value=>classes.add(value),remove:value=>classes.delete(value),toggle:(value,on)=>on?classes.add(value):classes.delete(value)},append:()=>{}};
     const panel=createAssistantPanel({getApi:()=>({getState:()=>current}),hostControl,surface});
     await panel.enter();const channel=new URLSearchParams(new URL(frame.src).hash.slice(1)).get('channel');
     const event=(data,origin='https://goldenfu.cn',source=frame.contentWindow)=>({origin,source,data:{protocol:'webcad.assistant-panel/1',channel,...data}});
@@ -33,9 +33,9 @@ test('one-click exit unlocks immediately, preserves document, and ignores late o
 test('assistant panel forwards bounded native revision subscriptions and removes them on unsubscribe',async()=>{
   const listeners=[],sent=[],classes=new Set();let frame,callback=null,stopped=false,receivedOptions=null;
   const original={location:globalThis.location,window:globalThis.window,document:globalThis.document,localStorage:globalThis.localStorage};
-  Object.assign(globalThis,{location:new URL('https://goldenfu.cn/webcad/'),window:{addEventListener:(name,fn)=>listeners.push(fn)},localStorage:{getItem:()=>null,setItem:()=>{}},document:{createElement:()=>frame={hidden:false,contentWindow:{postMessage:value=>sent.push(value)}}}});
+  Object.assign(globalThis,{location:new URL('https://goldenfu.cn/webcad/'),window:{addEventListener:(name,fn)=>listeners.push(fn)},localStorage:{getItem:()=>null,setItem:()=>{}},document:{createElement:tag=>tag==='iframe'?frame={hidden:false,contentWindow:{postMessage:value=>sent.push(value)}}:{setAttribute(){},addEventListener(){},remove(){}}}});
   try{
-    const hostControl=createHostControl(),surface={classList:{add:value=>classes.add(value),remove:value=>classes.delete(value)},append:()=>{}};
+    const hostControl=createHostControl(),surface={classList:{add:value=>classes.add(value),remove:value=>classes.delete(value),toggle:(value,on)=>on?classes.add(value):classes.delete(value)},append:()=>{}};
     const panel=createAssistantPanel({getApi:()=>({getState:()=>({displayPreferences:{themeColor:'#0c827d'}}),watchRevision:(fn,options)=>{callback=fn;receivedOptions=options;return ()=>{stopped=true;};}}),hostControl,surface});
     await panel.enter();const channel=new URLSearchParams(new URL(frame.src).hash.slice(1)).get('channel');
     const event=(data)=>({origin:'https://goldenfu.cn',source:frame.contentWindow,data:{protocol:'webcad.assistant-panel/1',channel,...data}});

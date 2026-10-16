@@ -479,6 +479,7 @@
     },
     "related": [
       "holeWizard",
+      "tap",
       "faceHole",
       "multiHole",
       "multiPocket",
@@ -595,5 +596,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:3933624baca6624363eaaaf03397f7105c45bea6ad161a681bb1daaef6931a19"
+  "docsHash": "sha256:d0cc70619ebb2c2daa416ed5299f692fc812c0129b5c9f7d925e61bad840675a"
 }

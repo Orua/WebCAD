@@ -2,7 +2,7 @@
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.49.0",
+  "version": "1.52.1",
   "contextPolicy": "none",
   "label": "confirmWritten",
   "synonyms": [
@@ -60,5 +60,5 @@
     "REVISION_CONFLICT",
     "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:571fa33c16bfa3b8c057d8f7ff0c29d9e1058ab38fe2980fae17e280f890cc86"
+  "docsHash": "sha256:654a80d310d0ad928b9dabc2556e5686e74548b56a0d71b92851d51339123d84"
 }

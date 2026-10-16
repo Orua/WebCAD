@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "双孔圆角安装板",
+  "title": "双孔底片",
   "category": "template",
   "synonyms": [
     "mountingPlate",
-    "双孔圆角安装板",
+    "双孔底片",
     "Two-hole rounded mounting plate"
   ],
   "description": "孔沿 X 对称，中心距单独定义；孔为贯穿光孔，不含螺纹、沉头或沉孔。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "双孔圆角安装板",
+  "label": "双孔底片",
+  "visibleInLibrary": true,
+  "libraryCategory": "plates",
+  "libraryCategoryLabel": "底片",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -517,5 +520,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:1c239a6742e2560b63fe6d49798ac535dd87df14199ce0f7416bdf360892a605"
+  "docsHash": "sha256:93c73433b1d05c0a1f41291284d6d5c9c400d8e6e6d2263f6bc0ec9eaa20c5b4"
 }

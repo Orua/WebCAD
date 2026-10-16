@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "圆角扁方截面直段长圈",
+  "title": "方线直边旦扣",
   "category": "template",
   "synonyms": [
     "profileLoop",
-    "圆角扁方截面直段长圈",
+    "方线直边旦扣",
     "Capsule loop with rounded rectangular section"
   ],
   "description": "两端半圆、上下直段的闭合长圈；正面料宽、侧面厚度和截面 R 独立。R 可等于截面短边一半，形成两圆端加直段的截面。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "圆角扁方截面直段长圈",
+  "label": "方线直边旦扣",
+  "visibleInLibrary": true,
+  "libraryCategory": "oval-buckles",
+  "libraryCategoryLabel": "旦扣",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -490,5 +493,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:8b6a71eaa5a1d337a497197984459eaa967d012e1c86fa93759268e740c4965a"
+  "docsHash": "sha256:2e5af7d3c875b351fb1d8550cc4e2fa9c23b554f1af3eb13f2bca7cba2e91ec5"
 }

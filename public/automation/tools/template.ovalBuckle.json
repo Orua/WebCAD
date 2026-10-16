@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "四圆弧旦扣",
+  "title": "椭圆旦扣",
   "category": "template",
   "synonyms": [
     "ovalBuckle",
-    "四圆弧旦扣",
+    "椭圆旦扣",
     "Four-arc oval buckle"
   ],
   "description": "四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "四圆弧旦扣",
+  "label": "椭圆旦扣",
+  "visibleInLibrary": true,
+  "libraryCategory": "oval-buckles",
+  "libraryCategoryLabel": "旦扣",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -559,5 +562,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:2b90c8eac094050929dc65acf70e00fe2c07d05e3515f88cd933e47819f42f1d"
+  "docsHash": "sha256:94423db09dd0fb32fbfe997295136cd57d676158d2e4f35ecfe54bf46a050ffb"
 }

@@ -356,6 +356,9 @@
   },
   "operationId": "quickModel",
   "label": "大开口 C 环",
+  "visibleInLibrary": true,
+  "libraryCategory": "rings",
+  "libraryCategoryLabel": "圈环",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -525,5 +528,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:30cb413bf88ed6b74a942f55378dbd64e07042cccad4cc60142c07144593a069"
+  "docsHash": "sha256:bf1b0c31db5518aaeb3afaeb598e3a1cac935fb47ac0917a8a79357b4637e1ad"
 }

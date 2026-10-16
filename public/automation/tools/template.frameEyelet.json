@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "安装鸡眼",
+  "title": "合金螺丝鸡眼面",
   "category": "template",
   "synonyms": [
     "frameEyelet",
-    "安装鸡眼",
+    "合金螺丝鸡眼面",
     "Mounting frame eyelet"
   ],
   "description": "圆形或圆角方形面框、恒壁厚短颈口、对称安装柱及普通直孔，一次生成单件。颈口和柱沿本地+Z；面框底面Z=0。孔深0为通孔，正值为从柱顶向下的盲孔。安装柱数量0/2/4，2柱沿Y布置。可将颈口/柱高度设0作背片。不含牙槽、锥孔、压铆、饰面及三维边圆角；按原图再加工。圆形模式内外宽高必须分别相等，角R仅用于方形。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "安装鸡眼",
+  "label": "合金螺丝鸡眼面",
+  "visibleInLibrary": true,
+  "libraryCategory": "installation",
+  "libraryCategoryLabel": "安装及配件",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -724,5 +727,5 @@
     "refs": []
   },
   "docs": "api.quick-installation",
-  "docsHash": "sha256:461978fd1c598d68e9f57f1b4e0eeb50f0d4f2686c46c7a68670c4ff54594455"
+  "docsHash": "sha256:ef43e35876bb0a6ac8c21cbce88147f0c69389b0ad38110d73b8e1a28b0d2f13"
 }

@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "扣针（环头扁针）",
+  "title": "针扣的针",
   "category": "template",
   "synonyms": [
     "buckleTongue",
-    "扣针（环头扁针）",
+    "针扣的针",
     "Loop-head buckle tongue"
   ],
   "description": "独立扣针：沿X的轴孔环头、沿+Y的圆头扁针。长度从轴心至针尖；不与扣身融合。用于已确认环头扁针的近似形状，不包含冲压弯曲、滚花、LOGO或装配活动验证。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "扣针（环头扁针）",
+  "label": "针扣的针",
+  "visibleInLibrary": true,
+  "libraryCategory": "installation",
+  "libraryCategoryLabel": "安装及配件",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -501,5 +504,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:1acf1c2f770364edc4d749ab76d8c7d10397111ccf3307b36d81401def526949"
+  "docsHash": "sha256:f66bfa46be53f1c2b9aa40fb232fb2ec58106ea386dfacb07b4af8565cd08cae"
 }

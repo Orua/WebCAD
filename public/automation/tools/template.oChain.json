@@ -356,12 +356,47 @@
   },
   "operationId": "quickModel",
   "label": "O字链",
+  "visibleInLibrary": true,
+  "libraryCategory": "chains",
+  "libraryCategoryLabel": "链条",
   "inputSchema": {
     "type": "object",
     "required": [
       "kind"
     ],
     "additionalProperties": false,
+    "oneOf": [
+      {
+        "properties": {
+          "sizeMode": {
+            "const": "count"
+          },
+          "linkCount": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "maxLengthMm": {
+            "const": 0
+          }
+        }
+      },
+      {
+        "required": [
+          "maxLengthMm"
+        ],
+        "properties": {
+          "sizeMode": {
+            "const": "length"
+          },
+          "maxLengthMm": {
+            "exclusiveMinimum": 0
+          },
+          "linkCount": {
+            "const": 0
+          }
+        }
+      }
+    ],
     "description": "来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
     "properties": {
       "kind": {
@@ -403,15 +438,43 @@
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
+      },
+      "sizeMode": {
+        "type": "string",
+        "default": "count",
+        "description": "长度方式",
+        "enum": [
+          "count",
+          "length"
+        ]
+      },
+      "linkCount": {
+        "type": "integer",
+        "default": 4,
+        "description": "链节数",
+        "minimum": 0,
+        "maximum": 100,
+        "unit": "1"
+      },
+      "maxLengthMm": {
+        "type": "number",
+        "default": 0,
+        "description": "总长上限",
+        "minimum": 0,
+        "maximum": 10000,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:3933e254a33b6821a15221bb8b00623501e1f7e72e8c741ff91981c9fcd2604e",
+  "schemaHash": "sha256:1ff4a851bf87f1f99c2e1aa2985fe098df46cceec9310103de2b4739d4f838d2",
   "defaults": {
     "outerWidthMm": 7.2,
     "outerLengthMm": 9.2,
     "wireDiameterMm": 1.6,
-    "gapMm": 0.2
+    "gapMm": 0.2,
+    "sizeMode": "count",
+    "linkCount": 4,
+    "maxLengthMm": 0
   },
   "fields": [
     {
@@ -449,6 +512,39 @@
       "max": 500,
       "step": 0.1,
       "unit": "mm"
+    },
+    {
+      "key": "sizeMode",
+      "label": "长度方式",
+      "type": "select",
+      "options": [
+        {
+          "value": "count",
+          "label": "按节数"
+        },
+        {
+          "value": "length",
+          "label": "按总长"
+        }
+      ]
+    },
+    {
+      "key": "linkCount",
+      "label": "链节数",
+      "type": "number",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "1"
+    },
+    {
+      "key": "maxLengthMm",
+      "label": "总长上限",
+      "type": "number",
+      "min": 0,
+      "max": 10000,
+      "step": 0.1,
+      "unit": "mm"
     }
   ],
   "placementPolicy": {
@@ -480,10 +576,13 @@
       "outerWidthMm": 7.2,
       "outerLengthMm": 9.2,
       "wireDiameterMm": 1.6,
-      "gapMm": 0.2
+      "gapMm": 0.2,
+      "sizeMode": "count",
+      "linkCount": 4,
+      "maxLengthMm": 0
     },
     "refs": []
   },
   "docs": "api.quick-chains",
-  "docsHash": "sha256:6105be4dae7a90e594d95c70808bbf5cf5353dba2f8d08485ccb6ce67129be45"
+  "docsHash": "sha256:9b8feda1e7d54236f80ed8f201aaeea3ec81c516c61acb3bf8c5b6ce5a23a561"
 }

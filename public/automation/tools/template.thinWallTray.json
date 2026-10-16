@@ -356,6 +356,9 @@
   },
   "operationId": "quickModel",
   "label": "双空心柱薄壁壳",
+  "visibleInLibrary": false,
+  "libraryCategory": "legacy",
+  "libraryCategoryLabel": "旧工程兼容",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -562,5 +565,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:de7d2fb92a62e0d1cdfd6fb9da468ea76fbb91b39e8268bc80dce53226fdf680"
+  "docsHash": "sha256:ca4f64f162fa3a6ce39f4867ef219d45f922301a09c62f538adbf6bdfa3459b5"
 }
