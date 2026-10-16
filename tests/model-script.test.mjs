@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import init from 'replicad-opencascadejs';
 import {CadKernel} from '../src/cad-kernel.js';
-import {createModelLibrary} from '../src/model-library.js';
 import {validateModelScript} from '../src/quick-models/model-script.js';
 import {QUICK_MODELS} from '../src/quick-models.js';
 const script=[
@@ -11,12 +10,9 @@ const script=[
   {id:'centeredHole',op:'transform',params:{x:12,y:12},refs:['hole']},
   {id:'result',op:'cut',refs:['plate','centeredHole']},
 ];
-const memory=new Map(),library=createModelLibrary(()=>({getItem:k=>memory.get(k),setItem:(k,v)=>memory.set(k,v)}));
-const entry={id:'scriptPlate',kind:'ring',label:'脚本开孔板',defaults:QUICK_MODELS.ring.defaults,script};
-library.update({expectedLibraryRevision:0,operation:'upsert',entry});
-const recipe=library.resolve({id:entry.id,expectedLibraryRevision:1}),frozen=structuredClone(recipe);
-assert.deepEqual(library.contracts().entries.at(-1).execution.args.params.modelScript,script);
-library.update({expectedLibraryRevision:1,operation:'remove',id:entry.id});assert.deepEqual(recipe,frozen);
+// Compatibility only: old projects retain their frozen finite recipe.
+const entry={defaults:QUICK_MODELS.ring.defaults};
+const recipe={op:'quickModel',refs:[],params:{kind:'ring',...entry.defaults,modelScript:script}};
 for(const invalid of [[{id:'x',op:'eval',params:{}}],[{id:'x',op:'box',params:{width:0,depth:1,height:1}}],[{id:'x',op:'cut',refs:['future','future']}],[{id:'x',op:'sphere',params:{radius:'$params.missing'}}]])assert.throws(()=>validateModelScript(invalid,entry.defaults,QUICK_MODELS),/建模脚本/);
 const kernel=new CadKernel(await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))}));
 try{

@@ -849,16 +849,22 @@
         "src/operation-catalog.js",
         "src/operation-registry.js"
       ],
-      "localImpact": "Parameterized product model; prefer webcad_get_templates then webcad_apply_template",
-      "servicesImpact": "Local execution; no Services algorithm change",
-      "logoImpact": "none: unrelated to logo conversion",
-      "contractImpact": "Source operation schema, shared command execution and generated tool card",
-      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
-      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "localImpact": "51 fixed local-WASM tools, source-measured chain and iron-foot parameters; pre-generated static preview/guide assets; immutable library and order-only migration",
+      "servicesImpact": "none; all quickModel templates remain local-only",
+      "logoImpact": "none; unchanged",
+      "contractImpact": "page API 1.49; complete ranges/units; new add rejects modelScript; fixed definitions, move/restore order",
+      "documentImpact": "saved kind/params, undo and legacy frozen script rebuild retained; unchanged format",
+      "cacheImpact": "catalog/docs/knowledge hashes and versioned preview manifest",
       "requiredTests": [
-        "tests/operation-contract.test.mjs"
+        "tests/quick-chain-foot.test.mjs",
+        "tests/model-library.test.mjs",
+        "tests/model-script.test.mjs",
+        "tests/quick-hardware-api.test.mjs"
       ],
-      "manualChecks": []
+      "manualChecks": [
+        "17674 targeted browser pass: static thumbnail/guide, transparent sleeve, sorting, new-tool create/edit/save"
+      ],
+      "semanticVersion": "fixed-quick-tools-2"
     },
     {
       "operation": "remove",

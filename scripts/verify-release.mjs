@@ -1,3 +1,4 @@
+import {verifyQuickModelPreviews} from './quick-model-preview-contracts.mjs';
 import { readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import {readBuildIdentity} from './build-identity.mjs';
@@ -22,6 +23,7 @@ const [index, manifest, report] = await Promise.all([
   json('agent/output/API_REFERENCE_COVERAGE.json'),
 ]);
 assertPlacementCoverage();
+await verifyQuickModelPreviews(outputDirectory);
 for (const [label, actual] of [['index', index.metadata], ['manifest', manifest], ['coverage', report]]) {
   for (const key of ['catalogHash', 'docsHash']) {
     if (actual[key] !== metadata[key]) throw new Error(`${label} ${key} differs from runtime`);
