@@ -112,6 +112,7 @@
 :is(.cad-dialog,.message-dialog) .close-button .ui-vector-icon{color:#737373}
 .webcad-app .brand-mark .ui-vector-icon,.webcad-app .primary .ui-vector-icon,
 :is(.cad-dialog,.message-dialog) .primary .ui-vector-icon{color:var(--accent-contrast)}
+.webcad-app .selection-modes button.active .selection-mode-icon{color:var(--accent-contrast)}
 .webcad-app .host-control-status{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;color:var(--ui-muted);font-size:11px}
 .webcad-app .host-control-status .host-connection{width:7px;height:7px;flex:none;border-radius:50%;background:#94a3b8}
 .webcad-app .host-control-status[data-connected="true"] .host-connection{background:#15803d}
