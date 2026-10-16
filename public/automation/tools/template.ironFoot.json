@@ -356,6 +356,9 @@
   },
   "operationId": "quickModel",
   "label": "铁脚仔",
+  "visibleInLibrary": true,
+  "libraryCategory": "installation",
+  "libraryCategoryLabel": "安装及配件",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -639,5 +642,5 @@
     "refs": []
   },
   "docs": "api.quick-chains",
-  "docsHash": "sha256:4f2bbd9a7f9c5b7cdce2b292eed452e5d8381ca6d73d412125ce1bca423293b1"
+  "docsHash": "sha256:375418bf80b20a4881f4b2ad537f68c9d48391e7ba4320a00da0b0df412935f6"
 }

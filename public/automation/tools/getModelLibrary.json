@@ -2,7 +2,7 @@
   "id": "getModelLibrary",
   "title": "getModelLibrary",
   "category": "page-method",
-  "version": "1.49.0",
+  "version": "1.52.1",
   "contextPolicy": "none",
   "description": "getModelLibrary()",
   "synonyms": [
@@ -31,5 +31,5 @@
     "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation:move|restore,id?,index?}})",
     "create": "Use entries[].execution with run/add; current context and unique key required."
   },
-  "docsHash": "sha256:9adaf3e565ff1793a75864b825a7e1de3f1ab90de4148015543fffc530943dd7"
+  "docsHash": "sha256:a64fa3a33ef42389abcfd553bbca91d3eaec39941eaf09582b8e848376d8a2aa"
 }

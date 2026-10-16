@@ -37,7 +37,7 @@
     "磨链",
     "Ground curb chain link"
   ],
-  "description": "来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
+  "description": "多节同向嵌接，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -356,13 +356,48 @@
   },
   "operationId": "quickModel",
   "label": "磨链",
+  "visibleInLibrary": true,
+  "libraryCategory": "chains",
+  "libraryCategoryLabel": "链条",
   "inputSchema": {
     "type": "object",
     "required": [
       "kind"
     ],
     "additionalProperties": false,
-    "description": "来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
+    "oneOf": [
+      {
+        "properties": {
+          "sizeMode": {
+            "const": "count"
+          },
+          "linkCount": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "maxLengthMm": {
+            "const": 0
+          }
+        }
+      },
+      {
+        "required": [
+          "maxLengthMm"
+        ],
+        "properties": {
+          "sizeMode": {
+            "const": "length"
+          },
+          "maxLengthMm": {
+            "exclusiveMinimum": 0
+          },
+          "linkCount": {
+            "const": 0
+          }
+        }
+      }
+    ],
+    "description": "多节同向嵌接，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
     "properties": {
       "kind": {
         "type": "string",
@@ -419,17 +454,45 @@
         "minimum": 0,
         "maximum": 500,
         "unit": "mm"
+      },
+      "sizeMode": {
+        "type": "string",
+        "default": "count",
+        "description": "长度方式",
+        "enum": [
+          "count",
+          "length"
+        ]
+      },
+      "linkCount": {
+        "type": "integer",
+        "default": 4,
+        "description": "链节数",
+        "minimum": 0,
+        "maximum": 100,
+        "unit": "1"
+      },
+      "maxLengthMm": {
+        "type": "number",
+        "default": 0,
+        "description": "总长上限",
+        "minimum": 0,
+        "maximum": 10000,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:1078404f2549199edf573fbde29dff020dbc1b94bb935ec0b52eee5833570684",
+  "schemaHash": "sha256:abc9fcc7314bf66afdfc9d70fb9269fab298887260dcbdd9dafbd914d59cb18d",
   "defaults": {
     "outerWidthMm": 11,
     "outerLengthMm": 15,
     "wireDiameterMm": 3,
     "gapMm": 0.1,
     "groundThicknessMm": 4.4,
-    "grindRadiusMm": 0.1
+    "grindRadiusMm": 0.1,
+    "sizeMode": "count",
+    "linkCount": 4,
+    "maxLengthMm": 0
   },
   "fields": [
     {
@@ -485,6 +548,39 @@
       "max": 500,
       "step": 0.1,
       "unit": "mm"
+    },
+    {
+      "key": "sizeMode",
+      "label": "长度方式",
+      "type": "select",
+      "options": [
+        {
+          "value": "count",
+          "label": "按节数"
+        },
+        {
+          "value": "length",
+          "label": "按总长"
+        }
+      ]
+    },
+    {
+      "key": "linkCount",
+      "label": "链节数",
+      "type": "number",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "1"
+    },
+    {
+      "key": "maxLengthMm",
+      "label": "总长上限",
+      "type": "number",
+      "min": 0,
+      "max": 10000,
+      "step": 0.1,
+      "unit": "mm"
     }
   ],
   "placementPolicy": {
@@ -518,10 +614,13 @@
       "wireDiameterMm": 3,
       "gapMm": 0.1,
       "groundThicknessMm": 4.4,
-      "grindRadiusMm": 0.1
+      "grindRadiusMm": 0.1,
+      "sizeMode": "count",
+      "linkCount": 4,
+      "maxLengthMm": 0
     },
     "refs": []
   },
   "docs": "api.quick-chains",
-  "docsHash": "sha256:afdb98910c56dfe4e61ec90d11b43b000d96a8c5d8785bf41106329594df9adf"
+  "docsHash": "sha256:97a8ee7de4e950682881abf6b8b3ce36a7c409939e363a2c64439ff065dd5ff6"
 }

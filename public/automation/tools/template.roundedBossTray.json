@@ -356,6 +356,9 @@
   },
   "operationId": "quickModel",
   "label": "圆角双柱薄壁壳",
+  "visibleInLibrary": false,
+  "libraryCategory": "legacy",
+  "libraryCategoryLabel": "旧工程兼容",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -581,5 +584,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:f0b77252c92eabc375a9a97da644caf144e4b1bbffdcd8e28048f945a48ece51"
+  "docsHash": "sha256:440fb96c2d5e67fa6ec8a4ee1dd4cb9c4206779f69fb4af69fe3834d7f028c80"
 }

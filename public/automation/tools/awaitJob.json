@@ -2,7 +2,7 @@
   "id": "awaitJob",
   "title": "awaitJob",
   "category": "page-method",
-  "version": "1.49.0",
+  "version": "1.52.1",
   "contextPolicy": "revision",
   "description": "awaitJob({jobId,timeoutMs?})。timeoutMs 0..25000，默认25000；作业结束即返回（页面内推送，不轮询 getState）。超时只返回当前快照，不取消、不重放。",
   "synonyms": [
@@ -22,5 +22,5 @@
     "PARAM_RANGE_INVALID",
     "JOB_NOT_FOUND"
   ],
-  "docsHash": "sha256:2e3e2c0d58210e3db0e91f50834dff2aca0465f47cb85080cd89131397c1520e"
+  "docsHash": "sha256:1cb09374fdf28db5c93c9c3e0bd4a31d7844afd1fc954b9f7423955f35adda7e"
 }

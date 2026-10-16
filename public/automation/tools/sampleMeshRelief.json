@@ -2,7 +2,7 @@
   "id": "sampleMeshRelief",
   "title": "sampleMeshRelief",
   "category": "page-method",
-  "version": "1.49.0",
+  "version": "1.52.1",
   "contextPolicy": "identity",
   "description": "sampleMeshRelief({context,bodyId,inputGeometryHash,support:{originMm,xAxis,normal},pointsMm:[[U,V],…]})；明确毫米支撑，1–256个点，点数乘三角面数不得超过1200万。",
   "synonyms": [
@@ -113,5 +113,5 @@
     "readOnly": true,
     "geometrySource": "authoritative-mesh-f64"
   },
-  "docsHash": "sha256:9ea621106108c405e2af4945551edfc65eaa60871b370cb0fbb2cdd54155bbc2"
+  "docsHash": "sha256:f46c75b76e9930f7ce7b82b15df1586edb9247201e67b18082ebb5b7c7c13ec2"
 }

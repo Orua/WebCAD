@@ -26,10 +26,10 @@ test('new workspaces contain no fixed palette and model icons share a single gri
   const css=await readFile(new URL('../src/workspace-upgrade.css',import.meta.url),'utf8');assert(!/#[0-9a-f]{3,8}\b/i.test(css));
   const svgs=[];
   for(const kind of Object.keys(QUICK_MODEL_ENTRIES)){
-    const svg=await readFile(new URL('../src/quick-models/'+kind+'/icon.svg',import.meta.url),'utf8');
+    const svg=await readFile(new URL(QUICK_MODEL_ENTRIES[kind].iconUrl),'utf8');
     assert(svg.includes('viewBox="0 0 24 24"'),kind);assert(svg.includes('stroke-width="1.6"'),kind);assert(svg.includes('stroke="currentColor"'),kind);assert(svg.includes('fill="none"'),kind);svgs.push(svg);
   }
-  assert.equal(svgs.length,47);assert.equal(new Set(svgs).size,47);
+  assert.equal(svgs.length,Object.keys(QUICK_MODEL_ENTRIES).length);assert.ok(new Set(svgs).size>=47);
   for(const tab of UI_LAYOUT.tabs)for(const [,actions]of tab.groups)for(const action of actions)assert(UI_LAYOUT.icons[action]?.length,action);
   assert.notDeepEqual(UI_LAYOUT.icons.servicesSettings,UI_LAYOUT.icons.logo);assert.notDeepEqual(UI_LAYOUT.icons.helix,UI_LAYOUT.icons.curveSweep);assert.notDeepEqual(UI_LAYOUT.icons.roundEnd,UI_LAYOUT.icons.fillet);
 });

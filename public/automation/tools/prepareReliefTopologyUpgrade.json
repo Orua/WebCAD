@@ -2,7 +2,7 @@
   "id": "prepareReliefTopologyUpgrade",
   "title": "prepareReliefTopologyUpgrade",
   "category": "page-method",
-  "version": "1.49.0",
+  "version": "1.52.1",
   "contextPolicy": "identity",
   "description": "prepareReliefTopologyUpgrade({context,featureId,maskStrategy?:\"faceWithHolesExtrude\"|\"cutHoleSolids\"})。只读规划，不计算几何；原参数没有策略时必须明确选定。",
   "synonyms": [
@@ -29,5 +29,5 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:6aff110ecee0e43b600ef03d95341c18099f15305ae86f8ac2ad2d41457ab26e"
+  "docsHash": "sha256:383e466d739ee0229a206a66af3a0d81c4c82182f654bff2f90a449d20f36104"
 }

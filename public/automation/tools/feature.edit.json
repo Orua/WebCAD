@@ -3,7 +3,7 @@
   "title": "修改参数",
   "description": "args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。",
   "category": "command",
-  "version": "1.49.0",
+  "version": "1.52.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:a2348c8e52715b15cbf64de76584f102ea076ee69d3baf164b06558d6eaaa051"
+  "docsHash": "sha256:1a2f932bd0cdb1ed7f14e7f95ec457b1ba1e723e7c4b591139496d944f8da42c"
 }

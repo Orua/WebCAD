@@ -47,14 +47,14 @@ for item in json.loads((mesh_dir/'manifest.json').read_text(encoding='utf-8')):
  temp=mesh_dir/(kind+'.png');save_render(temp);im=Image.open(temp).convert('RGB');raw=temp.read_bytes();digest=hashlib.sha256(raw).hexdigest()[:12];image_name=kind+'-'+digest+'.png';(assets/image_name).write_bytes(raw)
  # A static guide keeps true X/Y/Z overall envelope arrows separate from local
  # parameter callouts; it never pretends a fillet/pitch equals an overall span.
- row_h=36;guide_h=660+row_h*math.ceil(len(data['fields'])/2);guide=Image.new('RGB',(640,guide_h),(242,245,247));guide.paste(im,(0,65));draw=ImageDraw.Draw(guide);draw.text((24,15),data['label']+' · 默认参数尺寸指示',font=title_font,fill=(25,42,54));draw.text((24,524),'参数图例（默认值）',font=font,fill=(25,42,54));
+ cols=1 if kind in ['twoPieceEyelet','alloyEyelet'] else 2;row_h=36;guide_h=660+row_h*math.ceil(len(data['fields'])/cols);guide=Image.new('RGB',(640,guide_h),(242,245,247));guide.paste(im,(0,65));draw=ImageDraw.Draw(guide);draw.text((24,15),data['label']+' · 默认参数尺寸指示',font=title_font,fill=(25,42,54));draw.text((24,524),'参数图例（默认值）',font=font,fill=(25,42,54));
  for i,field in enumerate(data['fields']):
   value=data['defaults'][field['key']]
   if field['type']=='select':value=next((x['label'] for x in field['options'] if x['value']==value),str(value))
   if isinstance(value,bool):value='是' if value else '否'
   if isinstance(value,float):value=f'{value:g}'
   unit=field.get('unit','mm' if field['type']=='number' and 'angle' not in field['key'].lower() and '°' not in field['label'] and 'turn' not in field['key'].lower() and 'count' not in field['key'].lower() else '')
-  draw.text((24+(i%2)*310,560+(i//2)*row_h),f"{field['label']} {value} {unit}",font=small,fill=(30,48,60))
+  draw.text((24+(i%cols)*310,560+(i//cols)*row_h),f"{field['label']} {value} {unit}",font=small,fill=(30,48,60))
  def dim(a,b,text,shift):
   pa,pb=screen(a),screen(b);pa=(pa[0]+shift[0],pa[1]+65+shift[1]);pb=(pb[0]+shift[0],pb[1]+65+shift[1]);draw.line([pa,pb],fill=(35,92,125),width=2)
   dx,dy=pb[0]-pa[0],pb[1]-pa[1];length=max(1,math.hypot(dx,dy));ux,uy=dx/length,dy/length

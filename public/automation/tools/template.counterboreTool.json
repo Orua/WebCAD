@@ -356,6 +356,9 @@
   },
   "operationId": "quickModel",
   "label": "沉孔／沉头孔刀具",
+  "visibleInLibrary": true,
+  "libraryCategory": "cutters",
+  "libraryCategoryLabel": "辅助刀具",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -506,5 +509,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:31a166e4790460962a91f9d1240421b8f2785ca6415eba5cba4f193238a3cb63"
+  "docsHash": "sha256:766349a2ca7906fc20ad5f64e96d0ed3820a5d9bd722b6baea489e9704fdf7ae"
 }

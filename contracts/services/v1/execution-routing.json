@@ -24,6 +24,7 @@
   },
   "conservativeOperations": [],
   "boundedOperations": [
+    "badge",
     "box",
     "cylinder",
     "sphere",
@@ -60,6 +61,7 @@
     "holeWizard",
     "slot",
     "pocket",
+    "tap",
     "faceHole",
     "faceExtrude",
     "turning",
@@ -177,6 +179,7 @@
     "surfaceTrim"
   ],
   "localOnlyOperations": [
+    "badge",
     "arcProfile",
     "box",
     "capsule",
@@ -198,6 +201,7 @@
     "faceBoundary",
     "faceExtrude",
     "faceGroove",
+    "tap",
     "faceHole",
     "fillSurface",
     "fuse",

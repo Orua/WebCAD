@@ -356,6 +356,9 @@
   },
   "operationId": "quickModel",
   "label": "半圆钉",
+  "visibleInLibrary": true,
+  "libraryCategory": "basic",
+  "libraryCategoryLabel": "基础件",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -441,5 +444,5 @@
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:7ef44899b75ac8a70d0c12c5c5722ff0c09cc76a11fb3a28ee7e8be508807c79"
+  "docsHash": "sha256:24796979ec154618b38dd130625977e7eeb83d9c722c33ecdddb264257519c29"
 }

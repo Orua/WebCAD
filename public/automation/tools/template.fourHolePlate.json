@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "四孔安装板",
+  "title": "四孔底片",
   "category": "template",
   "synonyms": [
     "fourHolePlate",
-    "四孔安装板",
+    "四孔底片",
     "Four-hole mounting plate"
   ],
   "description": "矩形板四角各一个贯穿光孔，孔中心到左右及前后边的距离分别可调；可选外角 R。不含螺纹或沉孔。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "四孔安装板",
+  "label": "四孔底片",
+  "visibleInLibrary": true,
+  "libraryCategory": "plates",
+  "libraryCategoryLabel": "底片",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -534,5 +537,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:8f0c627e913a4e3efafc66f3256b63044d3a135cebcee7788798cfb211c161cc"
+  "docsHash": "sha256:3963204ad5d359089789924dc6d07534eccce8c0c3c0044663ead23c74cdd6c8"
 }

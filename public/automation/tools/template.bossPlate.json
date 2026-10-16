@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "双空心柱安装板",
+  "title": "双圆柱底片",
   "category": "template",
   "synonyms": [
     "bossPlate",
-    "双空心柱安装板",
+    "双圆柱底片",
     "Two hollow-boss mounting plate"
   ],
   "description": "圆角板上两根对称空心圆柱凸台，孔贯穿凸台与板。参数化通用实体，不代表螺纹、沉孔或原产品复刻。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "双空心柱安装板",
+  "label": "双圆柱底片",
+  "visibleInLibrary": true,
+  "libraryCategory": "plates",
+  "libraryCategoryLabel": "底片",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -549,5 +552,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:4998c8aaec66485c2c643102cc5a9f59527975177fc7ab01d7ecb624e3b32559"
+  "docsHash": "sha256:af8b7db9b6344e40f099fd17c7dd1b43c007eb393813461b4ff4fb0ea5de8e6a"
 }

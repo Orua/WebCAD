@@ -356,6 +356,9 @@
   },
   "operationId": "quickModel",
   "label": "圆线拱桥（可选双底孔）",
+  "visibleInLibrary": true,
+  "libraryCategory": "installation",
+  "libraryCategoryLabel": "安装及配件",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -495,5 +498,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:4101b9d74fabb8f12eea38f36d901c4248b8b393666bf4619b7185132e542b37"
+  "docsHash": "sha256:8360589a7ac42c3adcc4cd7e355a8b38e12cbb5facc4aa85031778ec9b509396"
 }

@@ -16,7 +16,7 @@ test('face and solid machining preserve all tools once and keep batch tools in o
  for(const tab of UI_LAYOUT.tabs)for(const [,tools]of tab.groups)assert.ok(tools.length<=6,tab.id);
  assert.ok(!face.groups.some(([,tools])=>tools.includes('meshBoolean')));
  assert.deepEqual(face.groups.find(([name])=>name==='网格浮雕（STL）')[1],['meshHeightfieldRelief','heightfieldSculpt','meshReliefPlate','meshReliefEdit']);
- assert.deepEqual([...actions].sort(),['union','cut','intersect','split','hole','holeWizard','multiHole','thread','slot','faceGroove','faceHole','faceExtrude','multiPocket','multiBoss','outerTurn','innerTurn','logo','relief','reliefSculpt','meshReliefPlate','meshHeightfieldRelief','heightfieldSculpt','meshBoolean','meshReliefEdit','reliefShoulder'].sort());
+ assert.deepEqual([...actions].sort(),['union','cut','intersect','split','hole','holeWizard','tap','multiHole','thread','slot','faceGroove','faceHole','faceExtrude','multiPocket','multiBoss','outerTurn','innerTurn','logo','relief','reliefSculpt','meshReliefPlate','meshHeightfieldRelief','heightfieldSculpt','meshBoolean','meshReliefEdit','reliefShoulder'].sort());
 });
 
 test('single overflow tools stay visible and ribbon folding follows layout configuration',()=>{

@@ -5,14 +5,14 @@ import { referenceNames } from './reference-tool-fields.js';
 import { referenceProfileNames } from './reference-profile-tools.js';
 import { mechanicalNames } from './mechanical-tool-contracts.js';
 
-export const TOOL_LABELS = Object.freeze({quickDrawing:'快速出图',alignTool:'快速对齐',round:'圆润',
+export const TOOL_LABELS = Object.freeze({badge:"牌仔工具",quickDrawing:'快速出图',alignTool:'快速对齐',round:'圆润',
   reliefShoulder:'浮雕层肩部',meshHeightfieldRelief:'高度图浮雕（网格）',heightfieldSculpt:'高度图浮雕精修',meshBoolean:'网格布尔（STL）',quickModelFavorites:'快捷模型',reliefSculpt:'精确浮雕精修',meshReliefEdit:'网格局部修高',meshReliefPlate:'网格底板（起伏点）',
   box:'长方体',cylinder:'圆柱',sphere:'球体',cone:'圆锥',torus:'圆环',extrude:'拉伸',revolve:'旋转成型',
   transform:'移动 / 旋转',copy:'复制',mirror:'镜像',union:'合并',cut:'相减',intersect:'相交',
   roundEnd:'端头圆润',rounding:'自动打磨',fillet:'圆角',chamfer:'倒角',shell:'抽壳',hole:'打孔',holeWizard:'孔向导',draftFaces:'受限拔模',linearPattern:'直线阵列',circularPattern:'环形阵列',remove:'删除',import:'导入',
   ...advancedNames,...referenceNames,...referenceProfileNames,...mechanicalNames,relief:'精确浮雕（矢量/小图）',
   vectorProfile:'导入路径',arcProfile:'解析线弧轮廓',sketchProfile:'绘制轮廓',profileOffset:'等距偏移 / 边框',profileRepair:'修复轮廓',profileExtrude:'轮廓拉伸 / 加工',quickModel:'快捷模型',multiHole:'多位置打孔',
-  multiPocket:'批量矩形凹槽',multiBoss:'批量圆柱凸台',slot:'长圆槽',logo:'LOGO',faceHole:'面上打孔',
+  multiPocket:'批量矩形凹槽',multiBoss:'批量圆柱凸台',slot:'长圆槽',logo:'LOGO',tap:'攻牙',faceHole:'面上打孔',
   faceExtrude:'面上拉伸',sweep:'扫掠',loft:'放样',split:'分割',extractSolid:'提取实体',section:'剖切',
   selectTool:'选择',group:'组合',explode:'拆散',gizmoTranslate:'移动手柄',gizmoRotate:'旋转手柄',gizmoOff:'关闭手柄',
   new:'新建工程',open:'打开工程',save:'保存工程',export:'导出文件',download:'下载文件',write:'写入文件',

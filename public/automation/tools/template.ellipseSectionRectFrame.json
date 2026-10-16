@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "椭圆截面圆角方框",
+  "title": "椭圆截面方扣",
   "category": "template",
   "synonyms": [
     "ellipseSectionRectFrame",
-    "椭圆截面圆角方框",
+    "椭圆截面方扣",
     "Rounded rectangle with elliptical section"
   ],
   "description": "以独立正面料宽和侧面深度构造椭圆截面，沿圆角矩形中心线扫掠；内 R 为平面内孔圆角，不自动等于侧面 R。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "椭圆截面圆角方框",
+  "label": "椭圆截面方扣",
+  "visibleInLibrary": true,
+  "libraryCategory": "rect-buckles",
+  "libraryCategoryLabel": "方扣",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -490,5 +493,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:facab58c6fcf311977cb248a2ae24771cd66111709f6245048f3f593f262a351"
+  "docsHash": "sha256:9ebe0f0837830b266425f5ec5fb0dd4672a959afdf67f8508844f901ed97309c"
 }

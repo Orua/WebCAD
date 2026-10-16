@@ -2,7 +2,9 @@ import { listOperations } from './operation-registry.js';
 
 // This is the UI-to-public-API inventory, also used by the UI and build gate.
 export const UI_API_ROUTES = Object.freeze({
+ badge:{tools:['badge','preview.start','preview.commit','preview.cancel','feature.edit','getState'],method:'execute',usage:'创建→牌仔工具：refs 指定来源，faceId 指定当前平面；thicknessMm 为总厚度，side=single/double，direction=1/-1，radiusMm=0 自动或正数明确 R。保留来源及孔，所有外露锐边倒圆；回读 badgeReport。'},
   ...Object.fromEntries(listOperations().filter(c=>!['round','roundEnd','rounding','fillet'].includes(c.id)).map(c=>[c.id,{tools:[c.id],method:'execute',usage:'feature.add；按工具卡传显式 params/refs，或 run 的 add。'}])),
+ tap:{tools:['tap','preview.start','preview.commit','preview.cancel','feature.edit','history.undo','history.redo','getState'],method:'execute',usage:'实体加工→攻牙。查询当前平面 faceId 与孔中心世界 point，refs 指定实体，params:{faceId,point,threadSize:M2/M2.5/M3,depthMm}；沿内法向加工真实盲牙孔。预览再提交，threadReport 读回规格、螺距、方向和深度；失败不改变工程。'},
  heightfieldSculpt:{tools:['feature.edit','meshHeightfieldRelief','history.undo','history.redo','getState'],method:'execute',usage:'在高度图浮雕的采样网格上用笔刷精修（抬高/压低/平滑/压平，半径、强度、目标高度）；笔画按顺序存入 params.sculpt，重建确定，撤销用 history.undo 或删除最后一笔。'},
  meshBoolean:{tools:['meshBoolean','preview.start','preview.commit','preview.cancel','getState','files.export'],method:'execute',usage:'选择2–16个实体按顺序做网格并集/差集/交集（manifold-3d）；精确实体先按 toleranceMm 细分，结果为封闭网格，可导出STL，不是BRep/STEP。'},
  meshHeightfieldRelief:{tools:['meshHeightfieldRelief','preview.start','preview.commit','preview.cancel','feature.edit','getState'],method:'execute',usage:'由作者制作的灰度高度图（行优先 u8/u16le base64）生成封闭网格浮雕：宽、长、底厚、浮雕高度、平滑、gamma、边缘渐隐；最多约190万采样点，输出可导出STL，不是BRep/STEP。'},
@@ -29,7 +31,7 @@ export const UI_API_ROUTES = Object.freeze({
   pathFillet:{tools:['prepareProfileEdit','feature.edit'],method:'prepareProfileEdit',usage:'主视图选同一轮廓两条相邻直边；prepareProfileEdit mode=fillet、bodyId、edgeIds、radiusMm、arcId；feature.edit 编辑返回的 sourceFeatureId，提交 profile。选边先后不限。'},
   pathTrimCircle:{tools:['prepareProfileEdit','feature.edit'],method:'prepareProfileEdit',usage:'选择 sketchProfile 来源；prepareProfileEdit mode=trimCircle，明确两个交点与 keepSide，再 feature.edit 提交。'},
   vectorImport:{tools:['readVector','connectVector','sketchProfile'],method:'readVector',usage:'选择文件或粘贴矢量文本，框选完整轮廓；connectVector 诊断和组环，sketchProfile 经同一命令服务成面。'},
-  quickModel:{tools:['setView','getModelLibrary','resolveModelLibrary','quickModel','run','preview.start'],method:'setView',usage:'实体→快捷模型：setView({context,workspace:"library"})。选择固定工具后只设置参数；getModelLibrary/resolveModelLibrary与UI共用参数定义。缩略图和尺寸图直接读取预制图片，实际模型通过preview.start或quickModel生成。'},
+  quickModel:{tools:['setView','getModelLibrary','resolveModelLibrary','quickModel','run','preview.start'],method:'setView',usage:'实体→快捷模型：setView({context,workspace:"library"})。默认按类别和复杂度排序；钮链/磨链同向嵌接、O字链0/90度交替；链条使用sizeMode二选一输入linkCount或maxLengthMm，读bodies[].chainReport。选择固定工具后只设置参数；getModelLibrary/resolveModelLibrary与UI共用参数定义。缩略图和尺寸图直接读取预制图片，实际模型通过preview.start或quickModel生成。'},
   modelLibraryEdit:{tools:['getModelLibrary','updateModelLibrary'],method:'updateModelLibrary',usage:'快捷工具定义由软件内置。getModelLibrary读取revision；updateModelLibrary只允许move（id,index）或restore恢复默认顺序；不修改工具定义或工程。'},
   quickModelFavorites:{tools:['setView','getQuickModelUsage'],method:'setView',usage:'兼容旧快捷入口；setView({context,workspace:"library"})打开同一快捷模型工具，频率仍可getQuickModelUsage只读。'},
   'reference.setWorkFrame':{tools:['reference.setWorkFrame'],method:'execute',usage:'完整 context、idempotencyKey；args 指定 origin 和单位 quaternion。'},
@@ -58,7 +60,7 @@ export const UI_API_ROUTES = Object.freeze({
   agentPanel:{tools:['getAgentPanel','configureAgentPanel','setAgentPanel','getUILayout','setView'],method:'setAgentPanel',usage:'configureAgentPanel({context,url})保存助手页面地址；setAgentPanel({context,visible:true/false})接入当前工程或退出并解锁。Agent入口及连接成功自动focus:true、toolbar:false；退出恢复原布局，活动任务保留并在完成后进入专注。getAgentPanel和getUILayout读回连接及布局。工程、历史、相机和dirty保留。'},
   servicesSettings:{tools:['getServices','setServices','getServicesCapabilities','getServicesRouting','clearServicesCredential'],method:'setServices',usage:'context、url、credential、enabled、localTimeoutMs、serverWaitMs；配置 Services 后复杂运算使用服务。超时配置从下一次运算生效；getServicesRouting 读取选择原因和等待状态，不回显授权。'},
   servicesFeatureCompile:{tools:['feature.compileServices','getServicesCapabilities','getServicesRouting','getState','getServicesRequest'],method:'execute',usage:'原特征属性→Services 精确计算为每次显式远程；普通新建/编辑在 setServices 设 allowGeometryUploads:true 后按同一 ExecutionRouter 选择。getServicesRouting 读取原因。失败保留工程，未知任务先核对，不自动重算。'},
-  displayPreferences:{tools:['setDisplayPreferences'],method:'setDisplayPreferences',usage:'渲染设置使用 setDisplayPreferences；LOGO 转化为独立入口。'},
+  displayPreferences:{tools:['setDisplayPreferences'],method:'setDisplayPreferences',usage:'渲染设置使用 setDisplayPreferences，应用后取消选择以查看效果；LOGO 转化为独立入口。'},
   panels:{tools:['setView'],method:'setView',usage:'panels:{left:boolean,right:boolean}；getState().view.panels 读状态。'},
   workspace:{tools:['setView','getUILayout'],method:'setView',usage:'workspace:modeling返回画布、library打开非全屏浮动快捷模型菜单，显隐设置保持不变；兼容agent打开设置弹窗，非独立工作区；toolbar:boolean、focus:boolean、libraryMode:cards/list；getState().view.workspaceLayout 的 modelLibraryOpen/modelLibraryPresentation 与显隐读回；关闭或Esc等价workspace:modeling。活动草稿先结束，预览先取消。'},
   modelLibrary:{tools:['getModelLibrary','updateModelLibrary','resolveModelLibrary','getUILayout','setView','quickModel','run'],method:'updateModelLibrary',usage:'固定快捷工具目录。getModelLibrary读取字段、范围与执行参数；resolveModelLibrary解析用户参数后run/add。updateModelLibrary仅move/restore显示顺序。缩略图与尺寸指示图为预制静态资源。'},

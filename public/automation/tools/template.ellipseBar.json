@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "椭圆圈固定横杆",
+  "title": "椭圆日字扣",
   "category": "template",
   "synonyms": [
     "ellipseBar",
-    "椭圆圈固定横杆",
+    "椭圆日字扣",
     "Elliptical ring with fixed bar"
   ],
   "description": "从内真椭圆外偏线扫掠圆线，再融合居中固定圆杆。圆线外包围须精确回读；接头过渡与源样条仍须对照。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "椭圆圈固定横杆",
+  "label": "椭圆日字扣",
+  "visibleInLibrary": true,
+  "libraryCategory": "sliders",
+  "libraryCategoryLabel": "日字扣",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -490,5 +493,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:f5d1509a39065023e965ddc5892a66468e483f1074352e4965f951f700d53f8e"
+  "docsHash": "sha256:3e4760877a1ab7911c5ce48bce9603a5b9a85447d4ee2e1de4b094759811e632"
 }

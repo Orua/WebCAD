@@ -1,3 +1,4 @@
+import {normalizeChainSize} from './quick-models/chain-size.js';
 import { assertOperationContract, normalizeOperationParams, normalizeOperationPatch, validateOperationRefs, migratedOperationIds, getOperation, validateOperationExample } from './operation-registry.js';
 import { EDITOR_ACTIONS, validateEditorAction } from './editor-actions.js';
 import {REFERENCE_ACTIONS,applyReferenceAction} from './reference-contracts.js';
@@ -41,7 +42,7 @@ export function createCommandService(adapter) {
     if(args.schemaHash!==card.schemaHash)fail('SCHEMA_MISMATCH','args.schemaHash','Read current tool card');
     return card;
   }
-  function parameters(op,params){if(migratedOperationIds.includes(op))return normalizeOperationParams(op,params);finiteTree(params);validateOperationExample(op,params);return clone(params);}
+  function parameters(op,params,{creation=true}={}){if(op==='quickModel'){params=normalizeChainSize(params,{creation});if(creation&&params?.kind==='twoPieceEyelet')params={faceStyle:'flat',assemblyGapMm:0,explodedOffsetMm:0,...params};}if(migratedOperationIds.includes(op))return normalizeOperationParams(op,params);finiteTree(params);validateOperationExample(op,params);return clone(params);}
   function snapshot(){const s=adapter.snapshot();if(instance!==s.documentInstanceId){instance=s.documentInstanceId;receipts.clear();tokens.clear();cursors.clear();referenceTokens.clear();referenceTokenRevision=-1;}return s;}
   function context(input,s,{revision=true}={}){
     object(input,['sessionId','documentId','documentInstanceId','expectedRevision'],'context');
@@ -130,7 +131,7 @@ export function createCommandService(adapter) {
         }
         case 'preview.start':{
           if(a?.featureEdit!==undefined){
-            object(a,['featureEdit'],'args');object(a.featureEdit,['featureId','params','name'],'args.featureEdit');const edit=a.featureEdit;string(edit.featureId,'args.featureEdit.featureId');const feature=s.features.find(f=>f.id===edit.featureId);if(!feature)fail('STALE_REFERENCE','args.featureEdit.featureId','Unknown feature');op=feature.op;const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,feature.params,edit.params):parameters(op,{...feature.params,...edit.params});if(edit.name!==undefined)string(edit.name,'args.featureEdit.name',120);
+            object(a,['featureEdit'],'args');object(a.featureEdit,['featureId','params','name'],'args.featureEdit');const edit=a.featureEdit;string(edit.featureId,'args.featureEdit.featureId');const feature=s.features.find(f=>f.id===edit.featureId);if(!feature)fail('STALE_REFERENCE','args.featureEdit.featureId','Unknown feature');op=feature.op;const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,feature.params,edit.params):parameters(op,{...feature.params,...edit.params},{creation:false});if(edit.name!==undefined)string(edit.name,'args.featureEdit.name',120);
             command='preview_feature_edit';args={featureId:feature.id,params,name:edit.name,previewIdentity:{previewId:uid(),generation:1,baseRevision:s.revision,owner:options.fromUI?'ui':'api',featureId:feature.id}};break;
           }
           if(a?.fileImport!==undefined){object(a,['fileImport'],'args');object(a.fileImport,['resourceId','name','mime','data','placement'],'args.fileImport');for(const key of ['resourceId','name'])string(a.fileImport[key],'args.fileImport.'+key,255);if(a.fileImport.data instanceof Uint8Array){if(!a.fileImport.data.length||a.fileImport.data.length>fileByteBudget(a.fileImport.name))fail('SIZE_LIMIT','args.fileImport.data','Exact source exceeds its byte budget');}else string(a.fileImport.data,'args.fileImport.data',28*1024*1024);if(!/\.(step|stp|brep|brp)$/i.test(a.fileImport.name))fail('FORMAT_UNSUPPORTED','args.fileImport.name','File preview requires STEP or BREP');if(a.fileImport.placement===undefined)fail('FRAME_INVALID','args.fileImport.placement','Explicit file placement required');command='preview_file';args={fileImport:{...a.fileImport,placement:resolvePlacement(a.fileImport.placement,s.referenceSystem,'import',{})},previewIdentity:{previewId:uid(),generation:1,baseRevision:s.revision,owner:options.fromUI?'ui':'api'}};break;}
@@ -141,12 +142,12 @@ export function createCommandService(adapter) {
           contract(op,a);ids(a.refs,'args.refs');validateOperationRefs(op,a.refs);refs=a.refs;
           if(refs.some(id=>!s.bodies.some(b=>b.id===id)))fail('STALE_REFERENCE','args.refs','Reference is not a current body');
           if(a.selectionToken!==undefined){
-            if(!['fillet','chamfer','shell','faceHole','smoothTransition'].includes(op))fail('SELECTION_CONFLICT','args.selectionToken','Operation does not accept a token');
+            if(!['fillet','chamfer','shell','tap','faceHole','smoothTransition'].includes(op))fail('SELECTION_CONFLICT','args.selectionToken','Operation does not accept a token');
             if(!a.params||['edgeIds','faceIds','faceId','allEdges'].some(k=>Object.hasOwn(a.params,k)))fail('SELECTION_CONFLICT','args.params','Token conflicts with explicit topology');
             // Validate user input before injecting trusted topology indices.
             normalizeOperationParams(op,a.params,{phase:'input',selectionToken:a.selectionToken});
             const t=token(a.selectionToken,s,refs[0],['fillet','chamfer'].includes(op)?'edge':'face');await verifyToken(t);
-            if(op==='faceHole'&&t.ids.length!==1)fail('AMBIGUOUS_SELECTION','selectionToken','One face is required');
+            if(['tap','faceHole'].includes(op)&&t.ids.length!==1)fail('AMBIGUOUS_SELECTION','selectionToken','One face is required');
             if(['fillet','chamfer'].includes(op))a.params.edgeIds=t.ids;else if(['shell','smoothTransition'].includes(op))a.params.faceIds=t.ids;else a.params.faceId=t.ids[0];
           }
           if(PATTERN_OPERATIONS.includes(op)&&options.fromUI&&!a.params?.machiningIntent){
@@ -163,7 +164,7 @@ export function createCommandService(adapter) {
           const draft=s.previewDraft;op=draft.op;
           if(op==='import'){if(a.patch.params!==undefined||a.patch.placement===undefined)fail('PARAM_SCHEMA_INVALID','args.patch','File preview update only accepts placement');const placement=resolvePlacement(a.patch.placement,s.referenceSystem,'import',{});command='preview_file_update';args={placement,previewIdentity:{...s.previewInfo,generation:s.previewInfo.generation+1}};break;}
           const merged={...draft.params,...(a.patch.params??{})};
-          const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,draft.params,a.patch.params??{}):parameters(op,merged);
+          const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,draft.params,a.patch.params??{}):parameters(op,merged,{creation:false});
           const rawPlacement=a.patch.placement??(draft.placement?{version:1,frame:{kind:'snapshot',origin:draft.placement.frameSnapshot.origin,quaternion:draft.placement.frameSnapshot.quaternion},sourceAnchor:draft.placement.sourceAnchor}:undefined);
           await verifyNamedPlacement(rawPlacement,s,draft.refs||[]);
           const placement=resolvePlacement(rawPlacement,s.referenceSystem,op,params);
@@ -174,7 +175,7 @@ export function createCommandService(adapter) {
           const index=s.features.findIndex(f=>f.id===a.featureId);if(index<0)fail('STALE_REFERENCE','args.featureId','Unknown feature');
           const feature=s.features[index];op=feature.op;contract(op,a);
           const merged=['transform','copy'].includes(op)&&a.params?.mode&&!feature.params.mode?a.params:{...feature.params,...a.params};
-          const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,feature.params,a.params):parameters(op,merged);if(['transform','copy'].includes(op)&&params.mode&&a.placement===undefined&&!feature.placement)fail('FRAME_INVALID','args.placement','Spatial transform mode requires explicit placement');if(a.name!==undefined)string(a.name,'args.name',120);await verifyNamedPlacement(a.placement,s,feature.refs||[]);
+          const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,feature.params,a.params):parameters(op,merged,{creation:false});if(['transform','copy'].includes(op)&&params.mode&&a.placement===undefined&&!feature.placement)fail('FRAME_INVALID','args.placement','Spatial transform mode requires explicit placement');if(a.name!==undefined)string(a.name,'args.name',120);await verifyNamedPlacement(a.placement,s,feature.refs||[]);
           command='edit_feature';args={featureId:a.featureId,params,name:a.name,...(Object.hasOwn(a,'placement')?{placement:resolvePlacement(a.placement,s.referenceSystem,op,params)}:{})};break;
         }
         case 'document.parameters':
@@ -202,7 +203,7 @@ export function createCommandService(adapter) {
         const createdBodyIds=after.bodies.filter(b=>!s.bodies.some(x=>x.id===b.id)).map(b=>b.id);
         const removedIds=new Set(s.bodies.filter(b=>!after.bodies.some(x=>x.id===b.id)).map(b=>b.id));
         const replacements=after.features.filter(f=>createdFeatureIds.includes(f.id)&&createdBodyIds.includes(f.id)).flatMap(f=>(f.refs||[]).filter(id=>removedIds.has(id)).map(id=>({before:id,after:f.id})));
-        const afterCtx=contextOf(after);result={status:'committed',requestId,transactionId:uid(),documentId:after.documentId,documentInstanceId:after.documentInstanceId,revisionBefore,revisionAfter:after.revision,context:afterCtx,requestContext:{sessionId:afterCtx.sessionId,documentId:afterCtx.documentId,documentInstanceId:afterCtx.documentInstanceId,expectedRevision:after.revision},createdFeatureIds,createdBodyIds,replacements,validation:{geometry:'passed',...(args?.placement?{placement:'passed'}:{}),...(['hole','multiHole','multiPocket','faceHole'].includes(op)?{materialRemoved:true}:{}),...(op==='multiBoss'?{materialAdded:true}:{})},persistence:after.persistence,warnings:after.warnings??[]};
+        const afterCtx=contextOf(after);result={status:'committed',requestId,transactionId:uid(),documentId:after.documentId,documentInstanceId:after.documentInstanceId,revisionBefore,revisionAfter:after.revision,context:afterCtx,requestContext:{sessionId:afterCtx.sessionId,documentId:afterCtx.documentId,documentInstanceId:afterCtx.documentInstanceId,expectedRevision:after.revision},createdFeatureIds,createdBodyIds,replacements,validation:{geometry:'passed',...(args?.placement?{placement:'passed'}:{}),...(['hole','multiHole','multiPocket','tap','faceHole'].includes(op)?{materialRemoved:true}:{}),...(op==='multiBoss'?{materialAdded:true}:{})},persistence:after.persistence,warnings:after.warnings??[]};
       }
       if(command==='editor_action')result.validation={geometry:result.status==='committed'&&['body.explode','body.align','history.restore','feature.compileServices'].includes(input.action)?'passed':'unchanged',editor:'passed'};
       if(command==='add_features')result.featurePlan={atomic:true,featureCount:args.features.length,featureIds:clone(args.featureIds)};

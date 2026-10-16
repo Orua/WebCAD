@@ -356,6 +356,9 @@
   },
   "operationId": "quickModel",
   "label": "双柱圆牌底座",
+  "visibleInLibrary": false,
+  "libraryCategory": "legacy",
+  "libraryCategoryLabel": "旧工程兼容",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -545,5 +548,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:fda3b23b01dd2e33b3699de9235b17aef842b64346a66983af72de68024f7418"
+  "docsHash": "sha256:6040848b90264b2b29bd376f62317ce9ff7f3360b3702dcaf81d26faddf9f837"
 }

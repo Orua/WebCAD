@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "圆线直段长圈",
+  "title": "圆线直边旦扣",
   "category": "template",
   "synonyms": [
     "capsuleWire",
-    "圆线直段长圈",
+    "圆线直边旦扣",
     "Round-wire capsule loop"
   ],
   "description": "闭合圆线长圈：两端精确半圆、上下直段，内宽高与圆线直径独立输入。未标缝宽时不猜接缝。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "圆线直段长圈",
+  "label": "圆线直边旦扣",
+  "visibleInLibrary": true,
+  "libraryCategory": "oval-buckles",
+  "libraryCategoryLabel": "旦扣",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -456,5 +459,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:1a6b1ba8a7152c277952a30f7cbcc88d8bde2f620487aebf8e1b92b9a4231a5c"
+  "docsHash": "sha256:9eb6a193eb834103ae49d764bbc7d285cb4c3f68b9096a906491542b953a5749"
 }

@@ -356,6 +356,9 @@
   },
   "operationId": "quickModel",
   "label": "奶嘴钉",
+  "visibleInLibrary": true,
+  "libraryCategory": "fasteners",
+  "libraryCategoryLabel": "连接件",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -801,5 +804,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:ca1b7e0113fed24efebc3a34a4d5fef90cdfaa4cc715f17558d82c012447f4bf"
+  "docsHash": "sha256:cbb6aca3798b06b10edfb22b8f7e7244208a9d150f3ca92763196492d734ba92"
 }

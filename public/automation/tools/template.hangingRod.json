@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "圆杆吊环（吊杆）",
+  "title": "吊杆",
   "category": "template",
   "synonyms": [
     "hangingRod",
-    "圆杆吊环（吊杆）",
+    "吊杆",
     "Rod with hanging eye"
   ],
   "description": "常规吊杆：水平圆杆两端做圆角，上方居中融合一个Z深度由根部向顶部收窄的椭圆截面U形吊环。杆长、杆径、端部圆角、吊环内宽、根部深度、根部圆角和净高均可调；不包含文字、花纹或多个吊环。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "圆杆吊环（吊杆）",
+  "label": "吊杆",
+  "visibleInLibrary": true,
+  "libraryCategory": "installation",
+  "libraryCategoryLabel": "安装及配件",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -549,5 +552,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:ebcc738dd464a85b412f60a8650fbc54494c493af3eead67f2f7098849a9e668"
+  "docsHash": "sha256:64749e5b285407a6e0b4b5594573a443a74aa6ccb8a48affbcebe51ae71cfb8a"
 }

@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "日字扣",
+  "title": "圆线日字扣",
   "category": "template",
   "synonyms": [
     "sliderBuckle",
-    "日字扣",
+    "圆线日字扣",
     "Slider buckle"
   ],
   "description": "外框整体内高；固定圆杆偏移上正下负，不支持开缝。闭合圆线框可用内短边≥2.5倍线径的紧凑双窗，且每侧孔高至少为线径。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "日字扣",
+  "label": "圆线日字扣",
+  "visibleInLibrary": true,
+  "libraryCategory": "sliders",
+  "libraryCategoryLabel": "日字扣",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -583,5 +586,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:50491adecef646c40108a42581f23215a628836b8a505c14c7d38ff25611abb0"
+  "docsHash": "sha256:25221426d7f528c88f82829e7a3aea39b266bc38712b43da0931c7a665cb2c36"
 }

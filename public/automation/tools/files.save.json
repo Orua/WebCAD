@@ -2,7 +2,7 @@
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.49.0",
+  "version": "1.52.1",
   "contextPolicy": "revision",
   "label": "保存工程",
   "synonyms": [
@@ -63,5 +63,5 @@
     "NAME_INVALID",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:5b73069b6728d11781847c4a74cc31d4dd5de60b054281ed841aae12a08338a3"
+  "docsHash": "sha256:9fe2d1426cd109275c885ed882d63cc22ec60d49c38eae5e21a9e59fd4fe6bf3"
 }

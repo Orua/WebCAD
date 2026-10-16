@@ -110,12 +110,12 @@ test('connect joins live context, search and optional complete contracts without
 
 test('search handshake bounds automatic contracts while named and cached reads stay complete',()=>{
   const {api,writes}=fixture();
-  const c=api.connect({queries:['螺丝'],includeContracts:true,limit:3});
+  const c=api.connect({queries:['quickModel','螺丝'],includeContracts:true,limit:3});
   assert(c.contracts.items.some(item=>item.id==='template.screw'&&item.status==='read'));
   assert(c.contractIdsOmitted.includes('quickModel'));assert(c.contractReadPolicy.omissions.some(item=>item.id==='quickModel'&&item.reason==='CHAR_BUDGET'));
   assert(JSON.stringify(c).length<80000);
   const full=api.connect({toolIds:['quickModel']});assert(full.contracts.items[0].card.templates.length>10);assert.deepEqual(full.contractIdsOmitted,[]);
-  const cached=api.connect({queries:['螺丝'],includeContracts:true,limit:3,knownHashes:{quickModel:full.contracts.items[0].docsHash}});
+  const cached=api.connect({queries:['quickModel','螺丝'],includeContracts:true,limit:3,knownHashes:{quickModel:full.contracts.items[0].docsHash}});
   assert.equal(cached.contracts.items.find(item=>item.id==='quickModel').status,'not_modified');assert.deepEqual(cached.contractIdsOmitted,[]);
   assert.equal(writes(),0);
 });

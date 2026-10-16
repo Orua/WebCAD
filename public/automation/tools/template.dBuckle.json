@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "D 扣",
+  "title": "圆线D扣",
   "category": "template",
   "synonyms": [
     "dBuckle",
-    "D 扣",
+    "圆线D扣",
     "D buckle"
   ],
   "description": "半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "D 扣",
+  "label": "圆线D扣",
+  "visibleInLibrary": true,
+  "libraryCategory": "d-buckles",
+  "libraryCategoryLabel": "D扣",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -559,5 +562,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:f1f7aacd89ce662ac878f0bcf95614c93b3542dd1b2e595eec742401aa173009"
+  "docsHash": "sha256:2a961689d59ea205b35a970fede43eca6a903eade5e1ac4d6b98ae3b731c1cd5"
 }

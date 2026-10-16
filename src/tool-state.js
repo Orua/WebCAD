@@ -1,4 +1,4 @@
-const single=new Set(['moveTool','rotateTool','round','roundEnd','rounding','autoRound','transform','copy','mirror','fillet','chamfer','shell','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','faceHole','faceExtrude','logo','curvedLogo','thickenFace','split','extractSolid','explode','gizmoTranslate','gizmoRotate']);
+const single=new Set(['badge','moveTool','rotateTool','round','roundEnd','rounding','autoRound','transform','copy','mirror','fillet','chamfer','shell','hole','holeWizard','draftFaces','multiHole','multiPocket','multiBoss','slot','linearPattern','circularPattern','tap','faceHole','faceExtrude','logo','curvedLogo','thickenFace','split','extractSolid','explode','gizmoTranslate','gizmoRotate']);
 const boolean=new Set(['union','cut','intersect']);
 export function toolDisabledReason(action,state){
  if(['selectTool','save'].includes(action))return '';
@@ -27,7 +27,7 @@ export function toolDisabledReason(action,state){
  if(['offsetSurface','thread','faceGroove','innerTurn','outerTurn'].includes(action)&&faces!==1)return '切换到选面，选择一张当前面';
  if(action==='draftByPlane'&&!faces)return '切换到选面，选择要拔模的面';
  if(action==='smoothTransition'&&(count!==1||faces<2))return '切换到选面，按 Ctrl 选择至少两个相邻面';
- if(['faceHole','faceExtrude','curvedLogo','thickenFace','faceBoundary'].includes(action)&&faces!==1)return '切换到选面，然后选择一个面';
+ if(['badge','tap','faceHole','faceExtrude','curvedLogo','thickenFace','faceBoundary'].includes(action)&&faces!==1)return '切换到选面，然后选择一个面';
  if(action==='extractFaces'&&!faces)return '切换到选面，然后选择一个或多个面';
  if(action==='shell'&&!faces)return '切换到选面，选择需要移除的开口面';
  if(action==='extractSolid'&&state.bodies.find(b=>b.id===state.selectedIds[0])?.solidCount<2)return '请选择包含多个实体的复合体';

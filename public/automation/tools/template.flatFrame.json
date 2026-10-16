@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "独立内外圆角平面框",
+  "title": "扁线方扣",
   "category": "template",
   "synonyms": [
     "flatFrame",
-    "独立内外圆角平面框",
+    "扁线方扣",
     "Flat frame with independent corner radii"
   ],
   "description": "内外轮廓分别定义，框宽与厚度独立；圆角可等于短边一半形成跑道环。参数模板，不是原 IGS 完整复刻。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "独立内外圆角平面框",
+  "label": "扁线方扣",
+  "visibleInLibrary": true,
+  "libraryCategory": "rect-buckles",
+  "libraryCategoryLabel": "方扣",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -526,5 +529,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:6721a4165c54fe7bd885d9ebec27b2396abae1201d88f3d157e63581fd2b765e"
+  "docsHash": "sha256:efffe64df7e9e60e1c40116458a2d0dd5a8b6f1b9f7a03293dfba7d88fabdca4"
 }

@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "鼓侧边平板双窗扣",
+  "title": "椭圆孔扁线日字扣",
   "category": "template",
   "synonyms": [
     "bowedTwinWindowPlate",
-    "鼓侧边平板双窗扣",
+    "椭圆孔扁线日字扣",
     "Bowed-side twin-window plate"
   ],
   "description": "上下直边、两侧大圆弧鼓边与四角小 R 相切；两个跑道形窗孔及中横条一体成板，可选前后边缘倒圆。左右、上下镜像参数模型，源图有微小非对称时只能近似。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "鼓侧边平板双窗扣",
+  "label": "椭圆孔扁线日字扣",
+  "visibleInLibrary": true,
+  "libraryCategory": "sliders",
+  "libraryCategoryLabel": "日字扣",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -562,5 +565,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:0d8182a5eb04167d65bdcf4b1220c5dea179423bd95bc533ca54bc882251d2e2"
+  "docsHash": "sha256:888191180fe500517d6700f994d6442a8b28be555ec15c358a12e87652d5f2c3"
 }

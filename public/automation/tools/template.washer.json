@@ -356,6 +356,9 @@
   },
   "operationId": "quickModel",
   "label": "平垫圈",
+  "visibleInLibrary": true,
+  "libraryCategory": "basic",
+  "libraryCategoryLabel": "基础件",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -456,5 +459,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:289e801c58b55cefa2cecc0bd8035e0f1180b3d6617714bd0f02c7088c6a4126"
+  "docsHash": "sha256:522774f72dc04fa6d13d97ad3fc2c13d060df11290018a7e23d219ba27c7a55d"
 }

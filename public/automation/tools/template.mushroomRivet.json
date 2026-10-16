@@ -356,6 +356,9 @@
   },
   "operationId": "quickModel",
   "label": "单面蘑菇撞钉",
+  "visibleInLibrary": true,
+  "libraryCategory": "fasteners",
+  "libraryCategoryLabel": "连接件",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -760,5 +763,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:a78b23466f0e0308f9c82a5ee7345fb0b3acee525bf03d2192dc8cf1078247d3"
+  "docsHash": "sha256:fe3adc30dd989539328e745f0191c338e05803a044813ea846f2df30284c9707"
 }

@@ -356,6 +356,9 @@
   },
   "operationId": "quickModel",
   "label": "双孔弧形带板",
+  "visibleInLibrary": false,
+  "libraryCategory": "legacy",
+  "libraryCategoryLabel": "旧工程兼容",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -562,5 +565,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:f0994dff36d3802048e78eb42d2912b1a8e38ab33e7e2c8bc190293ec0be350f"
+  "docsHash": "sha256:c6ec67d76c1625fac847f4d645c1f414bd4d8d47ef12453684f93248b1883f47"
 }

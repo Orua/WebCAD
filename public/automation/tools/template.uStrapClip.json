@@ -30,11 +30,11 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
-  "title": "U形带夹",
+  "title": "U型尾夹",
   "category": "template",
   "synonyms": [
     "uStrapClip",
-    "U形带夹",
+    "U型尾夹",
     "U-shaped strap clip"
   ],
   "description": "沿X等宽的恒壁厚开口U夹，前后片可不同高，内外弯角为精确相切圆弧；内弯R=内净距/2时为半圆底。底面Z=0，开口朝+Z，后片在+Y。可加后片普通通孔0/1/2个，2孔沿X布置。不是四边封闭的帽套；不含牙槽、前面饰面、片端三维圆角和弹性变形。孔中心须处于后片直段。",
@@ -355,7 +355,10 @@
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
-  "label": "U形带夹",
+  "label": "U型尾夹",
+  "visibleInLibrary": true,
+  "libraryCategory": "installation",
+  "libraryCategoryLabel": "安装及配件",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -589,5 +592,5 @@
     "refs": []
   },
   "docs": "api.quick-installation",
-  "docsHash": "sha256:e63b0d62fbbd5dfd531698aec3816dcf44fa6516514e6de0c839843e576db293"
+  "docsHash": "sha256:9ce178727fe4f2c81758758c8b011207a3a9043cfef12ed4c0ca6f068f1afc71"
 }

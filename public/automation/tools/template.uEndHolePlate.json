@@ -356,6 +356,9 @@
   },
   "operationId": "quickModel",
   "label": "半圆冠双端孔 U 板",
+  "visibleInLibrary": false,
+  "libraryCategory": "legacy",
+  "libraryCategoryLabel": "旧工程兼容",
   "inputSchema": {
     "type": "object",
     "required": [
@@ -511,5 +514,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:74d0934242c393d33aecfe7d4640cda50ca93ccd88500193ca33203c0e21856c"
+  "docsHash": "sha256:47d4b51354ce5971c5edbe5ac00d31080661610a181e73713bcd476d55359518"
 }
