@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "Intersect a rounded twin-window footprint with a coaxial cylindrical wall to create an arched plate. Set outer bend radius and radial thickness independently. Projected strip construction without source-specific edge treatment; round-wire frames need another tool.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "archedTwinWindowPlate"
@@ -412,51 +371,69 @@
       "outerWidth": {
         "type": "number",
         "default": 32.9,
-        "description": "Outer width"
+        "description": "Outer width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerHeight": {
         "type": "number",
         "default": 25.5,
-        "description": "Outer height"
+        "description": "Outer height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerRadius": {
         "type": "number",
         "default": 3,
-        "description": "Outer planar radius"
+        "description": "Outer planar radius",
+        "minimum": 0,
+        "unit": "mm"
       },
       "windowWidth": {
         "type": "number",
         "default": 25.4,
-        "description": "Window width"
+        "description": "Window width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "totalInnerHeight": {
         "type": "number",
         "default": 18.5,
-        "description": "Total inner height"
+        "description": "Total inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "windowRadius": {
         "type": "number",
         "default": 0.5,
-        "description": "Window planar radius"
+        "description": "Window planar radius",
+        "minimum": 0,
+        "unit": "mm"
       },
       "barWidth": {
         "type": "number",
         "default": 3.5,
-        "description": "Center bar width"
+        "description": "Center bar width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "bendRadius": {
         "type": "number",
         "default": 43.90964782342324,
-        "description": "Outer bend radius"
+        "description": "Outer bend radius",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "radialThickness": {
         "type": "number",
         "default": 2.3,
-        "description": "Radial thickness"
+        "description": "Radial thickness",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:05c33422382186273e88ba732de2ff39044bf5f7014c4d28a3895d2ef8bca9c0",
+  "schemaHash": "sha256:11c8994f86878f7f31d571073c188e0f29c59fc5ff5189aa416082da827b37f1",
   "defaults": {
     "outerWidth": 32.9,
     "outerHeight": 25.5,
@@ -581,5 +558,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:65307f6fc07283746d508ebe16215172b757f36ca952cff79f22cd209a3bbaf6"
+  "docsHash": "sha256:d672e9ea9018d9d960c86795989dc0c35cb8a1c7e231f427c9d92fbaed18c5ec"
 }

@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "Separate tongue: X-axis pivot loop and a rounded flat strip along +Y. Length is pivot-center to tip. Approximate loop-head flat tongue only; no stamping bends, knurling, artwork or assembly motion validation.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "buckleTongue"
@@ -413,6 +372,7 @@
         "type": "number",
         "default": 22,
         "description": "Pivot to tip",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -421,6 +381,7 @@
         "type": "number",
         "default": 3,
         "description": "Tongue width X",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -429,6 +390,7 @@
         "type": "number",
         "default": 1.2,
         "description": "Tongue thickness Z",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -436,16 +398,20 @@
       "pivotDiameterMm": {
         "type": "number",
         "default": 2,
-        "description": "Mating pivot diameter"
+        "description": "Mating pivot diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "clearanceMm": {
         "type": "number",
         "default": 0.15,
-        "description": "Diametral clearance"
+        "description": "Diametral clearance",
+        "minimum": 0,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:9748148c098999dc212a1a32c2adaa392ddee75a23b22a0f7e9aa734263052ad",
+  "schemaHash": "sha256:c92991652d6490079d3fdf8c21eec21b96f2395917e0937944d66907406db3e5",
   "defaults": {
     "lengthMm": 22,
     "widthMm": 3,
@@ -535,5 +501,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:fad13a343675a94a546a593779bbd90e7c09f6be8dc61407be407f734c5a4f46"
+  "docsHash": "sha256:1acf1c2f770364edc4d749ab76d8c7d10397111ccf3307b36d81401def526949"
 }

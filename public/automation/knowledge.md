@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.48.0 · sha256:c3092a5a5ed454a587edbf97b682cda8b904af41196bde3c5986a7a5f08a4cd7
+API 1.49.0 · sha256:8d55dc62d8a7f51ea39fd6ca0744c0f45aa9e573c7be93a9efda2175783ced10
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -1767,7 +1767,7 @@ files.release: contextPolicy=none
 
 ## api.model-library
 
-模型库与当前文档独立。getModelLibrary读取各条目完整字段与schema；updateModelLibrary以当前context和expectedLibraryRevision进行upsert/remove/move/import/restore；resolveModelLibrary返回解析后的quickModel参数，再run/add。旧远程助手固定白名单的等价入口：webcad_read method=getUILayout args={includeModelLibrary:true}读取modelLibrary；webcad_view method=setView args={context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}}进行管理，返回同一updateModelLibrary回执。生成读取entry.execution送入已有run/add；不需新服务或转换库ID。modelLibraryChange必须单独请求，不可同时改视图。库配置仅在当前浏览器源持久化，可全量JSON迁移；已有工程不依赖可删库ID。条目可选 script 为有限建模步骤：box/cylinder/sphere/quickModel/transform/union/cut/intersect，params 可引用 $params.字段，refs 引用前面步骤 ID，最后步骤为结果。resolveModelLibrary 和 entries.execution 自动携带 modelScript，特征冻结完整脚本，库修改不改变已有工程。UI 管理和创建使用浮动对话框；模型缩略图由隔离预览内核生成，参数引线仅示意、不修改当前工程。脚本不支持 JavaScript/eval 或外部 URL。
+快捷工具定义由软件内置，只允许调整创建参数和显示顺序。getModelLibrary读取readOnlyDefinitions:true、allowedOperations:[move,restore]、revision及各工具fields/schema/execution；resolveModelLibrary({context,id,expectedLibraryRevision,params})返回run/add实际参数，params只接受该工具字段。updateModelLibrary({context,expectedLibraryRevision,operation:move,id,index})调整显示位置；restore恢复默认顺序。定义、脚本、导入、删除、upsert均拒绝。旧库原数据保留，只沿用有效内置ID排序；新工具自动追加。旧工程冻结脚本仍可重建，新建API不接受modelScript。缩略图与默认尺寸图在开发时预生成，运行时只加载静态资源，不启动预览几何内核；丝筒内部结构用半透明实体加边线。图片表示默认参数，创建值以输入框/参数为准。旧远程助手可用getUILayout({includeModelLibrary:true}).modelLibrary读库，并通过setView.modelLibraryChange执行同一排序接口。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
 recoverKernel: contextPolicy=revision
@@ -2359,6 +2359,100 @@ files.release: contextPolicy=none
 ## api.query-geometry
 
 queryGeometry({context,bodyId,kind:"face"|"edge",filter:{},requireUnique:false,limit:20}) 返回精确 BRep 候选、总数、分页及快照绑定令牌。face.surfaceType 筛选支持 plane/cylinder/cone/sphere/torus/bspline/bezier/revolution/extrusion/offset/other；edge.curveType 支持 line/circle/ellipse/hyperbola/parabola/bspline/bezier/offset/other，也兼容内核原始小写类型（cylindre、bspline_surface、bspline_curve 等）。返回 geomType/surfaceType/curveType 保留实际内核编码。plane 另包含已证实共面的 BSpline（planar=true）。normal 和 atExtreme 仍仅适用于可识别平面；非平面不能伪造统一法向。BSpline 返回 spline 次数、控制点数量与节点数量，尚不返回完整控制网或 G0/G1/G2 认证。圆边返回 radiusMm/center/axis；radiusRangeMm 不适用于椭圆。拓扑编号和 selectionToken 只属于返回的工程实例与 revision。改模型后重新查询。 新筛选 bounds:{min:[x,y,z],max:[x,y,z],mode:"contained"|"intersects",toleranceMm?:0.000001} 使用世界坐标 BRep 包围盒；默认完整包含，不是实体体积相交证明。边支持 adjacentSurfaceTypes:["plane","cylinder"]，按实际相邻曲面类型匹配（两项要求两个邻面）。onFaceToken 限定当前面后可用 loopIndex，边返回 boundaryLoopIndices；环索引仅当前修订有效，不猜内外环。解析柱面返回 cylinder:{radiusMm,origin,axis}。expectedCount 为正整数，与匹配数量不符返回 SELECTION_COUNT_CHANGED（0 匹配为 NO_MATCH），报告 matchCount/expectedCount，且不创建选择令牌、不进入加工。
+
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+recoverKernel: contextPolicy=revision
+sampleMeshRelief: contextPolicy=identity
+getModelLibrary: contextPolicy=none
+updateModelLibrary: contextPolicy=revision
+resolveModelLibrary: contextPolicy=identity
+planPatternMachining: contextPolicy=identity
+decideServicesWait: contextPolicy=none
+recoverServicesJob: contextPolicy=none
+prepareReliefTopologyUpgrade: contextPolicy=identity
+sampleReliefHeight: contextPolicy=identity
+prepareReliefSculpt: contextPolicy=identity
+readRelief: contextPolicy=identity
+getHistory: contextPolicy=none
+planAlignment: contextPolicy=identity
+selectRectangle: contextPolicy=identity
+createDrawing: contextPolicy=revision
+exportDrawing: contextPolicy=revision
+getQuickModelUsage: contextPolicy=none
+copySelection: contextPolicy=revision
+pasteSelection: contextPolicy=revision
+createRequestContext: contextPolicy=none
+getUILayout: contextPolicy=none
+setRenderQuality: contextPolicy=identity
+invoke: contextPolicy=none
+submit: contextPolicy=none
+getJob: contextPolicy=none
+cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
+connect: contextPolicy=none
+info: contextPolicy=none
+getState: contextPolicy=none
+searchTools: contextPolicy=none
+getTools: contextPolicy=none
+getTool: contextPolicy=none
+readDocs: contextPolicy=none
+queryGeometry: contextPolicy=identity
+queryReferences: contextPolicy=identity
+resolvePlacement: contextPolicy=identity
+execute: contextPolicy=revision
+measure: contextPolicy=identity
+measureRelation: contextPolicy=identity
+inspectDesign: contextPolicy=identity
+inspectPrintability: contextPolicy=identity
+inspectProfile: contextPolicy=identity
+prepareProfileEdit: contextPolicy=identity
+inspectConstraints: contextPolicy=identity
+projectProfile: contextPolicy=identity
+inspectFit: contextPolicy=identity
+inspectThickness: contextPolicy=identity
+inspectDraft: contextPolicy=identity
+inspectRound: contextPolicy=identity
+readVector: contextPolicy=identity
+connectVector: contextPolicy=none
+fitProfile: contextPolicy=identity
+traceTwinWindow: contextPolicy=identity
+executeText: contextPolicy=revision
+setDisplayPreferences: contextPolicy=identity
+getAgentPanel: contextPolicy=none
+configureAgentPanel: contextPolicy=revision
+setAgentPanel: contextPolicy=revision
+getServices: contextPolicy=none
+setServices: contextPolicy=revision
+getServicesCapabilities: contextPolicy=none
+getServicesRouting: contextPolicy=none
+clearServicesCredential: contextPolicy=revision
+getServicesJob: contextPolicy=none
+getServicesRequest: contextPolicy=none
+cancelServicesJob: contextPolicy=revision
+getLogoConverter: contextPolicy=none
+setLogoConverter: contextPolicy=revision
+convertLogoPdf: contextPolicy=revision
+setView: contextPolicy=identity
+redraw: contextPolicy=identity
+capture: contextPolicy=identity
+run: contextPolicy=revision
+files.capabilities: contextPolicy=none
+files.register: contextPolicy=none
+files.new: contextPolicy=none
+files.open: contextPolicy=revision
+files.import: contextPolicy=revision
+files.save: contextPolicy=revision
+files.export: contextPolicy=revision
+files.read: contextPolicy=none
+files.download: contextPolicy=none
+files.write: contextPolicy=none
+files.confirmWritten: contextPolicy=none
+files.release: contextPolicy=none
+
+## api.quick-chains
+
+来源驱动快捷工具：template.oChain、template.twistedChain、template.groundChain、template.ironFoot。均用add op:quickModel params.kind创建，固定本地WASM。链环outerWidthMm/outerLengthMm为X/Y外宽外长，wireDiameterMm为来源圆线尺度，gapMm为-Y端接缝，0闭合。O字链内孔为真椭圆，非跑道圆角矩形；扭链保持NL来源对角起伏，独立调中心线宽长和线径，不提供任意扭转角；磨链groundThicknessMm为上下磨面间距、grindRadiusMm为磨边固定R。底面Z=0。铁脚仔桥长Y、片宽X、顶面Z=0、脚朝-Z；taperAngleDeg控制脚侧收角，endRadiusMm控制脚端圆弧，footHoles为none/front(-Y)/back(+Y)/both；孔径0无孔。heightMm含顶片厚。V01默认单后脚孔，V02收脚4.2度/桥长10.5/片宽4.8/总高8.5/R1.9/片厚0.5/顶孔2.3/孔距5.5/脚孔2/脚孔心距底1.9/front；V03长26.4/宽6.1/高15.3/R3.05/厚0.5/顶孔2.6/孔距19/脚孔2.5/脚孔心3.05/both。省略字段沿当前卡默认，来源参数应完整传入。所有几何关系由内核校验，失败不改已提交工程；编辑用feature.edit，量测用measure/queryGeometry，保存/重开保持同一配方。O和磨链是通用重建，默认源件体积偏差分别约0.022%/0.010%；不是原STEP逐面字节复制。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
 recoverKernel: contextPolicy=revision
@@ -4113,7 +4207,7 @@ files.release: contextPolicy=none
       "preview.start"
     ],
     "method": "setView",
-    "usage": "实体→快捷模型打开画布中央浮动选择菜单：setView({context,workspace:\"library\"})；选择后在浮动对话框设置参数。getModelLibrary读取字段和完整script；resolveModelLibrary解析后run/add生成，params.modelScript冻结脚本。实体缩略图和参数引线示意不提交工程，实际模型可preview.start或quickModel生成并measure核对。"
+    "usage": "实体→快捷模型：setView({context,workspace:\"library\"})。选择固定工具后只设置参数；getModelLibrary/resolveModelLibrary与UI共用参数定义。缩略图和尺寸图直接读取预制图片，实际模型通过preview.start或quickModel生成。"
   },
   "referenceExtrude": {
     "tools": [
@@ -4485,11 +4579,10 @@ files.release: contextPolicy=none
   "modelLibraryEdit": {
     "tools": [
       "getModelLibrary",
-      "updateModelLibrary",
-      "resolveModelLibrary"
+      "updateModelLibrary"
     ],
     "method": "updateModelLibrary",
-    "usage": "浮动编辑层维护工具名称、默认参数和script。getModelLibrary读取后upsert，唯一id新增、已有id修改；script步骤及引用按api.model-library验证；expectedLibraryRevision拒绝陈旧库写入。"
+    "usage": "快捷工具定义由软件内置。getModelLibrary读取revision；updateModelLibrary只允许move（id,index）或restore恢复默认顺序；不修改工具定义或工程。"
   },
   "quickModelFavorites": {
     "tools": [
@@ -4702,7 +4795,7 @@ files.release: contextPolicy=none
       "run"
     ],
     "method": "updateModelLibrary",
-    "usage": "getModelLibrary读取当前revision、每条字段及完整生成契约。updateModelLibrary传当前context和expectedLibraryRevision，operation=upsert/remove/move/restore/import。resolveModelLibrary返回冻结的quickModel参数，run/add生成，删除库条目不影响历史。"
+    "usage": "固定快捷工具目录。getModelLibrary读取字段、范围与执行参数；resolveModelLibrary解析用户参数后run/add。updateModelLibrary仅move/restore显示顺序。缩略图与尺寸指示图为预制静态资源。"
   },
   "moveTool": {
     "tools": [
@@ -5443,7 +5536,7 @@ files.release: contextPolicy=none
 
 ## api.workspace
 
-UI配置源src/ui-layout.js。顶层只有CAD工具菜单。实体→快捷模型打开画布中央非全屏浮动模型选择工具，设置→Agent 配置打开软件配置弹窗；建模工具按编辑/路径/创建/实体/面加工/实体加工/曲面/修饰/检查/视图/设置分类。setView的workspace、toolbar、libraryMode、focus显式控制布局；getUILayout().current与getState().view.workspaceLayout读回。快捷模型工具保留工具与两侧栏的原显隐；关闭按钮或Esc返回画布；modelLibraryOpen/modelLibraryPresentation=floating-menu读回；Agent 配置不切换画布或显隐；专注画布保留顶栏恢复入口及查看/选体/选面/选边模式栏；setView.selectionMode 与 getState().view.selectionMode 同步，选中实体显示蓝色高亮、面和边橙色强调，清除选择恢复原外观，不修改工程颜色。Agent 模式进入（包括外部 Agent 入口 bindExternal）或 hostControl.connected 首次变为 true 时自动 focus:true、toolbar:false；退出 Agent 后恢复之前的工具及面板显隐，已有专注状态保持；活动任务先保留，完成后进入专注。视图工具栏与其他菜单同为44px；所有工具图标统一20px，按钮34px且不压缩，选中态只用背景色、不用外框占空间。左右属性栏仍独立可隐藏。模型库可卡片/详细列表、搜索、普通表单配置及高级JSON导入导出；getModelLibrary/updateModelLibrary/resolveModelLibrary与UI共用服务。setView切换遇活动任务或草稿时拒绝UI_TASK_ACTIVE；先应用或取消预览。浏览器标题显示未保存标记；URL document参数不是可恢复分享链接。setRenderQuality({context,quality}) 提供 draft/standard/fine/ultra 四档，getState().renderQuality 提供毫米公差、角度公差（弧度）及三角面数。只重算显示网格，不改工程 revision、精确 BRep 或 STEP 导出；不是屏幕自适应网格。OpenCascade 可保留已有更细网格，降档不承诺减少三角面数。当前不提供斑马纹、曲率梳和精确 G0/G1/G2 连续性认证；导入 STEP 也不能反推原始特征历史。
+UI配置源src/ui-layout.js。顶层只有CAD工具菜单。实体→快捷模型打开画布中央非全屏浮动模型选择工具，设置→Agent 配置打开软件配置弹窗；建模工具按编辑/路径/创建/实体/面加工/实体加工/曲面/修饰/检查/视图/设置分类。setView的workspace、toolbar、libraryMode、focus显式控制布局；getUILayout().current与getState().view.workspaceLayout读回。快捷模型工具保留工具与两侧栏的原显隐；关闭按钮或Esc返回画布；modelLibraryOpen/modelLibraryPresentation=floating-menu读回；Agent 配置不切换画布或显隐；专注画布保留顶栏恢复入口及查看/选体/选面/选边模式栏；setView.selectionMode 与 getState().view.selectionMode 同步，选中实体显示蓝色高亮、面和边橙色强调，清除选择恢复原外观，不修改工程颜色。Agent 模式进入（包括外部 Agent 入口 bindExternal）或 hostControl.connected 首次变为 true 时自动 focus:true、toolbar:false；退出 Agent 后恢复之前的工具及面板显隐，已有专注状态保持；活动任务先保留，完成后进入专注。视图工具栏与其他菜单同为44px；所有工具图标统一20px，按钮34px且不压缩，选中态只用背景色、不用外框占空间。左右属性栏仍独立可隐藏。模型库可卡片/详细列表、搜索及显示排序；工具定义固定，仅创建参数可调；getModelLibrary/updateModelLibrary/resolveModelLibrary与UI共用服务。setView切换遇活动任务或草稿时拒绝UI_TASK_ACTIVE；先应用或取消预览。浏览器标题显示未保存标记；URL document参数不是可恢复分享链接。setRenderQuality({context,quality}) 提供 draft/standard/fine/ultra 四档，getState().renderQuality 提供毫米公差、角度公差（弧度）及三角面数。只重算显示网格，不改工程 revision、精确 BRep 或 STEP 导出；不是屏幕自适应网格。OpenCascade 可保留已有更细网格，降档不承诺减少三角面数。当前不提供斑马纹、曲率梳和精确 G0/G1/G2 连续性认证；导入 STEP 也不能反推原始特征历史。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
 recoverKernel: contextPolicy=revision
@@ -46773,49 +46866,287 @@ files.release: contextPolicy=none
           "kind"
         ],
         "additionalProperties": false,
+        "description": "来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "oChain"
+          },
+          "outerWidthMm": {
+            "type": "number",
+            "default": 7.2,
+            "description": "外宽 W",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "outerLengthMm": {
+            "type": "number",
+            "default": 9.2,
+            "description": "外长 L",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "wireDiameterMm": {
+            "type": "number",
+            "default": 1.6,
+            "description": "线径 d",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "gapMm": {
+            "type": "number",
+            "default": 0.2,
+            "description": "接缝宽 g",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "来源 NL.stp：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "twistedChain"
+          },
+          "outerWidthMm": {
+            "type": "number",
+            "default": 11,
+            "description": "外宽 W",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "outerLengthMm": {
+            "type": "number",
+            "default": 15,
+            "description": "外长 L",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "wireDiameterMm": {
+            "type": "number",
+            "default": 3,
+            "description": "线径 d",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "gapMm": {
+            "type": "number",
+            "default": 0,
+            "description": "接缝宽 g",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "groundChain"
+          },
+          "outerWidthMm": {
+            "type": "number",
+            "default": 11,
+            "description": "外宽 W",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "outerLengthMm": {
+            "type": "number",
+            "default": 15,
+            "description": "外长 L",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "wireDiameterMm": {
+            "type": "number",
+            "default": 3,
+            "description": "线径 d",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "gapMm": {
+            "type": "number",
+            "default": 0.1,
+            "description": "接缝宽 g",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "groundThicknessMm": {
+            "type": "number",
+            "default": 4.4,
+            "description": "磨后总厚 T",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "grindRadiusMm": {
+            "type": "number",
+            "default": 0.1,
+            "description": "磨边 R",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "mm"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "来源 V01/V02/V03：顶片双安装孔，两端下折脚、圆弧脚端，可选单脚或双脚轴孔。顶面 Z=0，脚朝 -Z，桥长沿 Y、片宽沿 X；总高含顶片。V02 的收脚由侧边收角和脚端R控制。折角保持来源的直角，不自动加弯R。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "ironFoot"
+          },
+          "lengthMm": {
+            "type": "number",
+            "default": 23.5,
+            "description": "桥长 L",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "widthMm": {
+            "type": "number",
+            "default": 5.5,
+            "description": "片宽 W",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "heightMm": {
+            "type": "number",
+            "default": 12,
+            "description": "总高 H",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "thicknessMm": {
+            "type": "number",
+            "default": 0.5,
+            "description": "片厚 t",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "topHoleDiameterMm": {
+            "type": "number",
+            "default": 2.3,
+            "description": "顶孔直径",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "topHolePitchMm": {
+            "type": "number",
+            "default": 18,
+            "description": "顶孔中心距",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "endRadiusMm": {
+            "type": "number",
+            "default": 2.75,
+            "description": "脚端 R",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "taperAngleDeg": {
+            "type": "number",
+            "default": 0,
+            "description": "脚侧边收角",
+            "minimum": 0,
+            "maximum": 15,
+            "unit": "deg"
+          },
+          "footHoleDiameterMm": {
+            "type": "number",
+            "default": 2.5,
+            "description": "脚孔直径",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "footHoleHeightMm": {
+            "type": "number",
+            "default": 2.75,
+            "description": "脚孔心距脚底",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "footHoles": {
+            "type": "string",
+            "default": "back",
+            "description": "脚孔位置",
+            "enum": [
+              "none",
+              "front",
+              "back",
+              "both"
+            ]
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
         "description": "同心圆恒截面单圈；开缝为底部正中平行平切。",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "ring"
@@ -46833,27 +47164,37 @@ files.release: contextPolicy=none
           "sectionSize": {
             "type": "number",
             "default": 3,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionRadius": {
             "type": "number",
             "default": 0.3,
-            "description": "Square section corner R"
+            "description": "Square section corner R",
+            "minimum": 0,
+            "unit": "mm"
           },
           "sectionChamfer": {
             "type": "number",
             "default": 0.6,
-            "description": "Square section chamfer C"
+            "description": "Square section chamfer C",
+            "minimum": 0,
+            "unit": "mm"
           },
           "gapWidth": {
             "type": "number",
             "default": 0,
-            "description": "Bottom gap (0 = closed)"
+            "description": "Bottom gap (0 = closed)",
+            "minimum": 0,
+            "unit": "mm"
           },
           "innerDiameter": {
             "type": "number",
             "default": 24,
-            "description": "Inner diameter"
+            "description": "Inner diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -46865,47 +47206,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "washer"
@@ -46913,17 +47213,23 @@ files.release: contextPolicy=none
           "innerDiameter": {
             "type": "number",
             "default": 10,
-            "description": "Inner diameter"
+            "description": "Inner diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionSize": {
             "type": "number",
             "default": 3,
-            "description": "Radial width"
+            "description": "Radial width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 1.5,
-            "description": "Thickness"
+            "description": "Thickness",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -46935,47 +47241,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Coaxial tube; defaults 13.4 outer diameter, 12.4 inner diameter and 3 height for the user C-part.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "tube"
@@ -46983,17 +47248,22 @@ files.release: contextPolicy=none
           "outerDiameter": {
             "type": "number",
             "default": 13.4,
-            "description": "Outer diameter"
+            "description": "Outer diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerDiameter": {
             "type": "number",
             "default": 12.4,
-            "description": "Inner diameter"
+            "description": "Inner diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "height": {
             "type": "number",
             "default": 3,
             "description": "Height",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -47008,47 +47278,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "平底、光滑凸面；直径和高度独立设置，可以调整拱高，不限于半球。",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "domedPin"
@@ -47057,6 +47286,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 6,
             "description": "直径",
+            "minimum": 0.01,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -47065,6 +47295,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 2,
             "description": "高度",
+            "minimum": 0.01,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -47079,47 +47310,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "圆线沿精确螺旋路径扫掠。螺距大于线径；半径是中心线半径。",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "spring"
@@ -47128,6 +47318,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 6,
             "description": "中心线半径",
+            "minimum": 0.01,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -47136,6 +47327,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 1.2,
             "description": "线径",
+            "minimum": 0.01,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -47144,6 +47336,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 3,
             "description": "螺距",
+            "minimum": 0.01,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -47152,6 +47345,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 4,
             "description": "圈数",
+            "minimum": 0.01,
             "unit": "1",
             "quantityKind": "scalar",
             "quantizationPolicy": "none"
@@ -47171,47 +47365,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "头在参考位置下端，牙杆朝本地 +Z。沉头外缘固定直升位 0.20 mm。M 使用常用粗牙螺距，真实 V 型牙槽；不含配合公差。",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "screw"
@@ -47228,12 +47381,16 @@ files.release: contextPolicy=none
           "headWidthMm": {
             "type": "number",
             "default": 6,
-            "description": "头宽（直径）"
+            "description": "头宽（直径）",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "headThicknessMm": {
             "type": "number",
             "default": 2,
-            "description": "头厚"
+            "description": "头厚",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "threadSize": {
             "type": "string",
@@ -47257,7 +47414,9 @@ files.release: contextPolicy=none
           "threadLengthMm": {
             "type": "number",
             "default": 8,
-            "description": "螺牙长度"
+            "description": "螺牙长度",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "drive": {
             "type": "string",
@@ -47280,47 +47439,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "底面在参考位置，面端朝本地 -Z；从下方面端向上攻牙。牙径采用支持的名义 M 粗牙直径，不含配合公差。",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "threadedSleeve"
@@ -47328,27 +47446,37 @@ files.release: contextPolicy=none
           "bottomDiameterMm": {
             "type": "number",
             "default": 8,
-            "description": "底直径（上端）"
+            "description": "底直径（上端）",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "faceDiameterMm": {
             "type": "number",
             "default": 6,
-            "description": "面直径（下端）"
+            "description": "面直径（下端）",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "threadDiameterMm": {
             "type": "number",
             "default": 3,
-            "description": "螺牙直径"
+            "description": "螺牙直径",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "totalHeightMm": {
             "type": "number",
             "default": 8,
-            "description": "总高"
+            "description": "总高",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "threadDepthMm": {
             "type": "number",
             "default": 6,
-            "description": "螺牙深度"
+            "description": "螺牙深度",
+            "minimum": 0.01,
+            "unit": "mm"
           }
         }
       },
@@ -47360,47 +47488,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "One solid combining a round badge plate, raised front rim and two rear mounting posts. Posts may be hollow. Brand artwork, knurling, doming and production dimensions are excluded.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "roundBadge"
@@ -47409,6 +47496,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 40,
             "description": "Badge diameter",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -47417,6 +47505,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 2,
             "description": "Plate thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -47424,32 +47513,44 @@ files.release: contextPolicy=none
           "rimWidth": {
             "type": "number",
             "default": 2,
-            "description": "Front rim width"
+            "description": "Front rim width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "rimHeight": {
             "type": "number",
             "default": 0.8,
-            "description": "Front rim height"
+            "description": "Front rim height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "postSpacing": {
             "type": "number",
             "default": 18,
-            "description": "Rear post spacing X"
+            "description": "Rear post spacing X",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "postDiameter": {
             "type": "number",
             "default": 4,
-            "description": "Rear post diameter"
+            "description": "Rear post diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "postHeight": {
             "type": "number",
             "default": 4,
-            "description": "Rear post height"
+            "description": "Rear post height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "postBoreDiameter": {
             "type": "number",
             "default": 0,
-            "description": "Post bore diameter (0 = solid)"
+            "description": "Post bore diameter (0 = solid)",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -47461,47 +47562,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Two symmetric X-axis holes with independent center spacing. Plain through holes only; no threads, countersinks or counterbores.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "mountingPlate"
@@ -47510,6 +47570,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 40,
             "description": "Plate width X",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -47518,6 +47579,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 16,
             "description": "Plate depth Y",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -47526,6 +47588,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 3,
             "description": "Thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -47534,6 +47597,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 3,
             "description": "Outer corner radius",
+            "minimum": 0,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -47542,6 +47606,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 4,
             "description": "Hole diameter",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -47549,7 +47614,9 @@ files.release: contextPolicy=none
           "holeSpacing": {
             "type": "number",
             "default": 24,
-            "description": "Hole center spacing"
+            "description": "Hole center spacing",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -47561,47 +47628,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Rectangular plate with four through holes. Set X/Y edge insets and optional outer corner radius; no threads or counterbores.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "fourHolePlate"
@@ -47610,6 +47636,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 50,
             "description": "Plate width X",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -47618,6 +47645,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 30,
             "description": "Plate depth Y",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -47626,6 +47654,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 3,
             "description": "Thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -47634,6 +47663,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 0,
             "description": "Outer corner radius",
+            "minimum": 0,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -47642,6 +47672,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 4,
             "description": "Hole diameter",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -47649,12 +47680,16 @@ files.release: contextPolicy=none
           "insetX": {
             "type": "number",
             "default": 5,
-            "description": "Hole inset X"
+            "description": "Hole inset X",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "insetY": {
             "type": "number",
             "default": 5,
-            "description": "Hole inset Y"
+            "description": "Hole inset Y",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -47666,47 +47701,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Independent inner/outer outlines and thickness. Half-short-side radii allow capsule frames. A parametric tool, not a complete reconstruction of an IGS part.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "flatFrame"
@@ -47714,37 +47708,50 @@ files.release: contextPolicy=none
           "outerWidth": {
             "type": "number",
             "default": 40,
-            "description": "Outer width"
+            "description": "Outer width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerHeight": {
             "type": "number",
             "default": 28,
-            "description": "Outer height"
+            "description": "Outer height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerWidth": {
             "type": "number",
             "default": 28,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 16,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerRadius": {
             "type": "number",
             "default": 5,
-            "description": "Outer corner radius"
+            "description": "Outer corner radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "innerRadius": {
             "type": "number",
             "default": 3,
-            "description": "Inner corner radius"
+            "description": "Inner corner radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "thickness": {
             "type": "number",
             "default": 3,
             "description": "Thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -47759,47 +47766,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "A flat frame with independent inner and outer corner radii, then one exact fillet of every sharp edge. The specified edge radius fails atomically if unsolvable. Near half-thickness can approximate a round section but is not certified as a semicircle.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "roundedFlatFrame"
@@ -47807,37 +47773,50 @@ files.release: contextPolicy=none
           "outerWidth": {
             "type": "number",
             "default": 40,
-            "description": "Outer width"
+            "description": "Outer width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerHeight": {
             "type": "number",
             "default": 28,
-            "description": "Outer height"
+            "description": "Outer height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerWidth": {
             "type": "number",
             "default": 30,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 18,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerRadius": {
             "type": "number",
             "default": 5,
-            "description": "Outer corner radius"
+            "description": "Outer corner radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "innerRadius": {
             "type": "number",
             "default": 2,
-            "description": "Inner corner radius"
+            "description": "Inner corner radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "thickness": {
             "type": "number",
             "default": 4,
             "description": "Thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -47845,7 +47824,9 @@ files.release: contextPolicy=none
           "edgeRadius": {
             "type": "number",
             "default": 1.5,
-            "description": "All-edge fillet radius"
+            "description": "All-edge fillet radius",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -47857,47 +47838,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "dBuckle"
@@ -47915,37 +47855,51 @@ files.release: contextPolicy=none
           "sectionSize": {
             "type": "number",
             "default": 3,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionRadius": {
             "type": "number",
             "default": 0.3,
-            "description": "Square section corner R"
+            "description": "Square section corner R",
+            "minimum": 0,
+            "unit": "mm"
           },
           "sectionChamfer": {
             "type": "number",
             "default": 0.6,
-            "description": "Square section chamfer C"
+            "description": "Square section chamfer C",
+            "minimum": 0,
+            "unit": "mm"
           },
           "gapWidth": {
             "type": "number",
             "default": 0,
-            "description": "Bottom gap (0 = closed)"
+            "description": "Bottom gap (0 = closed)",
+            "minimum": 0,
+            "unit": "mm"
           },
           "innerWidth": {
             "type": "number",
             "default": 24,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 19,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerRadius": {
             "type": "number",
             "default": 2,
-            "description": "Bottom inner radius"
+            "description": "Bottom inner radius",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -47957,47 +47911,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Constant-section rounded rectangular frame. A closed round-wire frame supports an inner short side at least 2.5 times the wire diameter; other variants require four times the section size.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "rectBuckle"
@@ -48015,37 +47928,51 @@ files.release: contextPolicy=none
           "sectionSize": {
             "type": "number",
             "default": 3,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionRadius": {
             "type": "number",
             "default": 0.3,
-            "description": "Square section corner R"
+            "description": "Square section corner R",
+            "minimum": 0,
+            "unit": "mm"
           },
           "sectionChamfer": {
             "type": "number",
             "default": 0.6,
-            "description": "Square section chamfer C"
+            "description": "Square section chamfer C",
+            "minimum": 0,
+            "unit": "mm"
           },
           "gapWidth": {
             "type": "number",
             "default": 0,
-            "description": "Bottom gap (0 = closed)"
+            "description": "Bottom gap (0 = closed)",
+            "minimum": 0,
+            "unit": "mm"
           },
           "innerWidth": {
             "type": "number",
             "default": 28,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 20,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerRadius": {
             "type": "number",
             "default": 3,
-            "description": "Frame inner radius"
+            "description": "Frame inner radius",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -48057,47 +47984,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "ovalBuckle"
@@ -48115,37 +48001,51 @@ files.release: contextPolicy=none
           "sectionSize": {
             "type": "number",
             "default": 3,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionRadius": {
             "type": "number",
             "default": 0.3,
-            "description": "Square section corner R"
+            "description": "Square section corner R",
+            "minimum": 0,
+            "unit": "mm"
           },
           "sectionChamfer": {
             "type": "number",
             "default": 0.6,
-            "description": "Square section chamfer C"
+            "description": "Square section chamfer C",
+            "minimum": 0,
+            "unit": "mm"
           },
           "gapWidth": {
             "type": "number",
             "default": 0,
-            "description": "Right gap (0 = closed)"
+            "description": "Right gap (0 = closed)",
+            "minimum": 0,
+            "unit": "mm"
           },
           "innerWidth": {
             "type": "number",
             "default": 28,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 16,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerRadius": {
             "type": "number",
             "default": 5.6,
-            "description": "End inner radius"
+            "description": "End inner radius",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -48157,47 +48057,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "The inner height spans the full frame; the fused round bar has an editable vertical offset and no opening. Compact round-wire frames require an inner short side at least 2.5 wire diameters and each window at least one wire diameter high.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "sliderBuckle"
@@ -48215,17 +48074,23 @@ files.release: contextPolicy=none
           "sectionSize": {
             "type": "number",
             "default": 3,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionRadius": {
             "type": "number",
             "default": 0.3,
-            "description": "Square section corner R"
+            "description": "Square section corner R",
+            "minimum": 0,
+            "unit": "mm"
           },
           "sectionChamfer": {
             "type": "number",
             "default": 0.6,
-            "description": "Square section chamfer C"
+            "description": "Square section chamfer C",
+            "minimum": 0,
+            "unit": "mm"
           },
           "gapWidth": {
             "type": "number",
@@ -48235,27 +48100,37 @@ files.release: contextPolicy=none
           "innerWidth": {
             "type": "number",
             "default": 30,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 24,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerRadius": {
             "type": "number",
             "default": 3,
-            "description": "Frame inner radius"
+            "description": "Frame inner radius",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "barDiameter": {
             "type": "number",
             "default": 2.5,
-            "description": "Bar diameter"
+            "description": "Bar diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "barOffset": {
             "type": "number",
             "default": 0,
-            "description": "Bar offset (+up)"
+            "description": "Bar offset (+up)",
+            "minimum": -100,
+            "unit": "mm"
           }
         }
       },
@@ -48267,47 +48142,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "圆角方线 U 主体与固定圆杆融合；杆底与脚底齐平。",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "dBarBuckle"
@@ -48320,12 +48154,16 @@ files.release: contextPolicy=none
           "sectionSize": {
             "type": "number",
             "default": 6,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionRadius": {
             "type": "number",
             "default": 0.6,
-            "description": "Square section corner R"
+            "description": "Square section corner R",
+            "minimum": 0,
+            "unit": "mm"
           },
           "sectionChamfer": {
             "type": "number",
@@ -48340,17 +48178,23 @@ files.release: contextPolicy=none
           "innerWidth": {
             "type": "number",
             "default": 32,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 24,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "barDiameter": {
             "type": "number",
             "default": 4.5,
-            "description": "Bar diameter"
+            "description": "Bar diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -48362,47 +48206,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "A coaxial flange and cylindrical bushing with a straight bore through the full length. Generic parametric geometry, with no threads or source-product feature reconstruction.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "flangedBushing"
@@ -48410,27 +48213,37 @@ files.release: contextPolicy=none
           "bodyDiameter": {
             "type": "number",
             "default": 12,
-            "description": "Bushing body diameter"
+            "description": "Bushing body diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "flangeDiameter": {
             "type": "number",
             "default": 20,
-            "description": "Flange diameter"
+            "description": "Flange diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "boreDiameter": {
             "type": "number",
             "default": 6,
-            "description": "Through-bore diameter"
+            "description": "Through-bore diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "bodyHeight": {
             "type": "number",
             "default": 10,
-            "description": "Body height"
+            "description": "Body height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "flangeThickness": {
             "type": "number",
             "default": 3,
-            "description": "Flange thickness"
+            "description": "Flange thickness",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -48442,47 +48255,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "A rounded plate with two symmetric hollow cylindrical bosses; each bore passes through both boss and plate. Generic parametric geometry, not a threaded, counterbored, or source-product reconstruction.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "bossPlate"
@@ -48491,6 +48263,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 40,
             "description": "Plate width X",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -48499,6 +48272,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 16,
             "description": "Plate depth Y",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -48507,6 +48281,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 3,
             "description": "Plate thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -48515,6 +48290,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 3,
             "description": "Plate corner radius",
+            "minimum": 0,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -48522,22 +48298,30 @@ files.release: contextPolicy=none
           "bossSpacing": {
             "type": "number",
             "default": 24,
-            "description": "Boss center spacing"
+            "description": "Boss center spacing",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "bossOuterDiameter": {
             "type": "number",
             "default": 8,
-            "description": "Boss outer diameter"
+            "description": "Boss outer diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "boreDiameter": {
             "type": "number",
             "default": 4,
-            "description": "Through-bore diameter"
+            "description": "Through-bore diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "bossHeight": {
             "type": "number",
             "default": 6,
-            "description": "Boss height (below plate)"
+            "description": "Boss height (below plate)",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -48549,47 +48333,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "One fused solid, centered in XY, bottom at Z=0, open top. Clear cavity width/depth = outer width/depth minus twice wall thickness; clear height = height minus floor thickness. Two X-symmetric bosses rise from the inner floor; bores pass through bosses and floor. Straight walls/corners only; no draft, fillets, threads or assembly relationships.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "thinWallTray"
@@ -48597,17 +48340,22 @@ files.release: contextPolicy=none
           "outerWidth": {
             "type": "number",
             "default": 60,
-            "description": "Outer width X"
+            "description": "Outer width X",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerDepth": {
             "type": "number",
             "default": 36,
-            "description": "Outer depth Y"
+            "description": "Outer depth Y",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "height": {
             "type": "number",
             "default": 14,
             "description": "Total height",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -48616,6 +48364,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 2,
             "description": "Wall thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -48623,27 +48372,37 @@ files.release: contextPolicy=none
           "floorThickness": {
             "type": "number",
             "default": 2,
-            "description": "Floor thickness"
+            "description": "Floor thickness",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "bossSpacing": {
             "type": "number",
             "default": 30,
-            "description": "Boss center spacing X"
+            "description": "Boss center spacing X",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "bossOuterDiameter": {
             "type": "number",
             "default": 8,
-            "description": "Boss outer diameter"
+            "description": "Boss outer diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "boreDiameter": {
             "type": "number",
             "default": 3,
-            "description": "Through-bore diameter"
+            "description": "Through-bore diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "bossHeight": {
             "type": "number",
             "default": 8,
-            "description": "Boss height above inner floor"
+            "description": "Boss height above inner floor",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -48655,47 +48414,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Open rounded-rectangle tray with two hollow bosses on the inner floor. Outer corner radius, wall/floor thickness and boss dimensions are editable. Straight walls only; no draft, clips, lettering or texture.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "roundedBossTray"
@@ -48703,17 +48421,22 @@ files.release: contextPolicy=none
           "outerWidth": {
             "type": "number",
             "default": 60,
-            "description": "Outer width X"
+            "description": "Outer width X",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerDepth": {
             "type": "number",
             "default": 38,
-            "description": "Outer depth Y"
+            "description": "Outer depth Y",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "height": {
             "type": "number",
             "default": 12,
             "description": "Total height",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -48722,6 +48445,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 6,
             "description": "Outer corner radius",
+            "minimum": 0,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -48730,6 +48454,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 2,
             "description": "Wall thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -48737,27 +48462,37 @@ files.release: contextPolicy=none
           "floorThickness": {
             "type": "number",
             "default": 2,
-            "description": "Floor thickness"
+            "description": "Floor thickness",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "bossSpacing": {
             "type": "number",
             "default": 30,
-            "description": "Boss center spacing X"
+            "description": "Boss center spacing X",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "bossOuterDiameter": {
             "type": "number",
             "default": 7,
-            "description": "Boss outer diameter"
+            "description": "Boss outer diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "boreDiameter": {
             "type": "number",
             "default": 3,
-            "description": "Through-bore diameter"
+            "description": "Through-bore diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "bossHeight": {
             "type": "number",
             "default": 7,
-            "description": "Boss height above inner floor"
+            "description": "Boss height above inner floor",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -48769,47 +48504,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Constant-section circular arc with an adjustable opening angle for C rings, hook rings and open circular frames. End balls, hinges and variable sections are excluded.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "openArcRing"
@@ -48827,27 +48521,37 @@ files.release: contextPolicy=none
           "innerDiameter": {
             "type": "number",
             "default": 30,
-            "description": "Inner diameter"
+            "description": "Inner diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionSize": {
             "type": "number",
             "default": 4,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionRadius": {
             "type": "number",
             "default": 0.4,
-            "description": "Square section corner R"
+            "description": "Square section corner R",
+            "minimum": 0,
+            "unit": "mm"
           },
           "sectionChamfer": {
             "type": "number",
             "default": 0.6,
-            "description": "Square section chamfer C"
+            "description": "Square section chamfer C",
+            "minimum": 0,
+            "unit": "mm"
           },
           "openingAngle": {
             "type": "number",
             "default": 70,
-            "description": "Opening angle (degrees)"
+            "description": "Opening angle (degrees)",
+            "minimum": 5,
+            "unit": "deg"
           }
         }
       },
@@ -48859,47 +48563,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Tool solid: entry at Z=0, extending along +Z. Position at the workpiece surface, rotate 180 degrees if needed, then select the body first and subtract the tool.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "counterboreTool"
@@ -48908,6 +48571,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 4,
             "description": "Hole diameter",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -48916,6 +48580,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 8,
             "description": "Total depth",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -48923,12 +48588,16 @@ files.release: contextPolicy=none
           "headDiameter": {
             "type": "number",
             "default": 8,
-            "description": "Head diameter"
+            "description": "Head diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "headDepth": {
             "type": "number",
             "default": 2,
-            "description": "Head depth"
+            "description": "Head depth",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "style": {
             "type": "string",
@@ -48949,47 +48618,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "A flat plate with two equal symmetric rounded windows and an integral center bridge. Independent outline, window and front/back edge radii. No round bar, offset windows or side arch.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "twinWindowPlate"
@@ -48997,42 +48625,57 @@ files.release: contextPolicy=none
           "outerWidth": {
             "type": "number",
             "default": 44.8,
-            "description": "Outer width"
+            "description": "Outer width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerHeight": {
             "type": "number",
             "default": 26.6,
-            "description": "Outer height"
+            "description": "Outer height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerRadius": {
             "type": "number",
             "default": 3.5,
-            "description": "Outer planar radius"
+            "description": "Outer planar radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "windowWidth": {
             "type": "number",
             "default": 37.8,
-            "description": "Window clear width"
+            "description": "Window clear width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "totalInnerHeight": {
             "type": "number",
             "default": 19.6,
-            "description": "Total inner height"
+            "description": "Total inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "windowRadius": {
             "type": "number",
             "default": 2,
-            "description": "Window planar radius"
+            "description": "Window planar radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "barWidth": {
             "type": "number",
             "default": 3.5,
-            "description": "Center bridge width"
+            "description": "Center bridge width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "thickness": {
             "type": "number",
             "default": 3.5,
             "description": "Plate thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -49040,7 +48683,9 @@ files.release: contextPolicy=none
           "edgeRadius": {
             "type": "number",
             "default": 0.5,
-            "description": "Front/back edge radius"
+            "description": "Front/back edge radius",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -49052,47 +48697,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "One flat U plate with concentric semicircular crowns, equal-width straight legs and one through-hole at each end. No second assembly component, thread or round-wire section.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "uEndHolePlate"
@@ -49100,22 +48704,29 @@ files.release: contextPolicy=none
           "outerWidth": {
             "type": "number",
             "default": 22,
-            "description": "Outer width"
+            "description": "Outer width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerWidth": {
             "type": "number",
             "default": 10,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "totalHeight": {
             "type": "number",
             "default": 31.7,
-            "description": "Total height"
+            "description": "Total height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "thickness": {
             "type": "number",
             "default": 3,
             "description": "Plate thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -49124,6 +48735,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 3.3,
             "description": "End-hole diameter",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -49131,7 +48743,9 @@ files.release: contextPolicy=none
           "holeInset": {
             "type": "number",
             "default": 2.7,
-            "description": "Hole center inset from leg end"
+            "description": "Hole center inset from leg end",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -49143,47 +48757,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Circular ring swept from an elliptical section with independent front band width and side depth. Section shape is an editable candidate to verify against the source.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "ellipseSectionRing"
@@ -49191,17 +48764,23 @@ files.release: contextPolicy=none
           "innerDiameter": {
             "type": "number",
             "default": 37.4,
-            "description": "Inner front diameter"
+            "description": "Inner front diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionWidth": {
             "type": "number",
             "default": 4.1,
-            "description": "Front band width"
+            "description": "Front band width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionDepth": {
             "type": "number",
             "default": 5,
-            "description": "Side depth"
+            "description": "Side depth",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -49213,47 +48792,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Annular band segment with editable sweep, plate thickness, symmetric end-hole inset and optional counterbores. Threads and mating parts are separate.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "arcBandPlate"
@@ -49261,27 +48799,36 @@ files.release: contextPolicy=none
           "outerRadius": {
             "type": "number",
             "default": 20,
-            "description": "Outer radius"
+            "description": "Outer radius",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerRadius": {
             "type": "number",
             "default": 15,
-            "description": "Inner radius"
+            "description": "Inner radius",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "centerAngle": {
             "type": "number",
             "default": 270,
-            "description": "Arc center angle"
+            "description": "Arc center angle",
+            "minimum": -360,
+            "unit": "deg"
           },
           "spanAngle": {
             "type": "number",
             "default": 111.2807337553,
-            "description": "Arc sweep angle"
+            "description": "Arc sweep angle",
+            "minimum": 1,
+            "unit": "deg"
           },
           "thickness": {
             "type": "number",
             "default": 5,
             "description": "Plate thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -49289,12 +48836,15 @@ files.release: contextPolicy=none
           "holeInsetAngle": {
             "type": "number",
             "default": 8.4521160504,
-            "description": "Hole inset from each end"
+            "description": "Hole inset from each end",
+            "minimum": 0.1,
+            "unit": "deg"
           },
           "holeDiameter": {
             "type": "number",
             "default": 2.3,
             "description": "Through-hole diameter",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -49302,12 +48852,16 @@ files.release: contextPolicy=none
           "recessDiameter": {
             "type": "number",
             "default": 3.3,
-            "description": "Top recess diameter"
+            "description": "Top recess diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "recessDepth": {
             "type": "number",
             "default": 0,
-            "description": "Top recess depth"
+            "description": "Top recess depth",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -49319,47 +48873,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Open gable frame with straight legs, sloped shoulders and rounded open ends. Independent inner/outer widths, shoulder and peak heights, depth and end radius.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "gableOpenFrame"
@@ -49367,37 +48880,50 @@ files.release: contextPolicy=none
           "outerWidth": {
             "type": "number",
             "default": 25,
-            "description": "Outer width"
+            "description": "Outer width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerWidth": {
             "type": "number",
             "default": 20,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerPeakHeight": {
             "type": "number",
             "default": 16,
-            "description": "Outer peak height"
+            "description": "Outer peak height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerShoulderHeight": {
             "type": "number",
             "default": 12.4,
-            "description": "Outer shoulder height"
+            "description": "Outer shoulder height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerPeakHeight": {
             "type": "number",
             "default": 13.5,
-            "description": "Inner peak height"
+            "description": "Inner peak height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerShoulderHeight": {
             "type": "number",
             "default": 10.5,
-            "description": "Inner shoulder height"
+            "description": "Inner shoulder height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "thickness": {
             "type": "number",
             "default": 4,
             "description": "Plate depth",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -49406,6 +48932,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 1,
             "description": "Leg end radius",
+            "minimum": 0,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -49420,47 +48947,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Sweep an elliptical cross-section around a rounded rectangular centerline. Front band width and side depth are independent; the inner planar radius is separate from section shape.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "ellipseSectionRectFrame"
@@ -49468,27 +48954,37 @@ files.release: contextPolicy=none
           "innerWidth": {
             "type": "number",
             "default": 25,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 19,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerRadius": {
             "type": "number",
             "default": 2.5,
-            "description": "Inner planar radius"
+            "description": "Inner planar radius",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionWidth": {
             "type": "number",
             "default": 5.5,
-            "description": "Front band width"
+            "description": "Front band width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionDepth": {
             "type": "number",
             "default": 6,
-            "description": "Side depth"
+            "description": "Side depth",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -49500,47 +48996,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Flat D frame with semicircular crown, straight legs, independent inner/outer bottom radii and optional measured bottom gap. Thickness is a flat plate depth, not a round-wire section.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "dFlatFrame"
@@ -49548,37 +49003,50 @@ files.release: contextPolicy=none
           "outerWidth": {
             "type": "number",
             "default": 28,
-            "description": "Outer width"
+            "description": "Outer width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerHeight": {
             "type": "number",
             "default": 25,
-            "description": "Outer height"
+            "description": "Outer height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerWidth": {
             "type": "number",
             "default": 20,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 17,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerBottomRadius": {
             "type": "number",
             "default": 3.5,
-            "description": "Outer bottom radius"
+            "description": "Outer bottom radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "innerBottomRadius": {
             "type": "number",
             "default": 2,
-            "description": "Inner bottom radius"
+            "description": "Inner bottom radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "thickness": {
             "type": "number",
             "default": 4,
             "description": "Flat plate thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -49586,7 +49054,9 @@ files.release: contextPolicy=none
           "gapWidth": {
             "type": "number",
             "default": 0,
-            "description": "Bottom gap (0 = closed)"
+            "description": "Bottom gap (0 = closed)",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -49598,47 +49068,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Intersect a rounded twin-window footprint with a coaxial cylindrical wall to create an arched plate. Set outer bend radius and radial thickness independently. Projected strip construction without source-specific edge treatment; round-wire frames need another tool.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "archedTwinWindowPlate"
@@ -49646,47 +49075,65 @@ files.release: contextPolicy=none
           "outerWidth": {
             "type": "number",
             "default": 32.9,
-            "description": "Outer width"
+            "description": "Outer width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerHeight": {
             "type": "number",
             "default": 25.5,
-            "description": "Outer height"
+            "description": "Outer height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerRadius": {
             "type": "number",
             "default": 3,
-            "description": "Outer planar radius"
+            "description": "Outer planar radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "windowWidth": {
             "type": "number",
             "default": 25.4,
-            "description": "Window width"
+            "description": "Window width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "totalInnerHeight": {
             "type": "number",
             "default": 18.5,
-            "description": "Total inner height"
+            "description": "Total inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "windowRadius": {
             "type": "number",
             "default": 0.5,
-            "description": "Window planar radius"
+            "description": "Window planar radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "barWidth": {
             "type": "number",
             "default": 3.5,
-            "description": "Center bar width"
+            "description": "Center bar width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "bendRadius": {
             "type": "number",
             "default": 43.90964782342324,
-            "description": "Outer bend radius"
+            "description": "Outer bend radius",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "radialThickness": {
             "type": "number",
             "default": 2.3,
-            "description": "Radial thickness"
+            "description": "Radial thickness",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -49698,47 +49145,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "A flat plate with straight top/bottom, tangent bowed sides and four small corner arcs, plus two symmetric capsule windows. Optional edge fillet. Symmetric parameter model only.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "bowedTwinWindowPlate"
@@ -49746,22 +49152,29 @@ files.release: contextPolicy=none
           "outerHeight": {
             "type": "number",
             "default": 24.5,
-            "description": "Outer height"
+            "description": "Outer height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "topStraightWidth": {
             "type": "number",
             "default": 30.2527,
-            "description": "Top/bottom straight length"
+            "description": "Top/bottom straight length",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sideRadius": {
             "type": "number",
             "default": 35.688467,
-            "description": "Bowed side radius"
+            "description": "Bowed side radius",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "cornerRadius": {
             "type": "number",
             "default": 6,
             "description": "Corner radius",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -49769,22 +49182,29 @@ files.release: contextPolicy=none
           "windowWidth": {
             "type": "number",
             "default": 32,
-            "description": "Window width"
+            "description": "Window width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "windowHeight": {
             "type": "number",
             "default": 6.55,
-            "description": "Window height"
+            "description": "Window height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "windowSpacing": {
             "type": "number",
             "default": 10.35,
-            "description": "Window center spacing"
+            "description": "Window center spacing",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "thickness": {
             "type": "number",
             "default": 3.7,
             "description": "Thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -49792,7 +49212,9 @@ files.release: contextPolicy=none
           "edgeRadius": {
             "type": "number",
             "default": 0.8,
-            "description": "Front/back edge radius"
+            "description": "Front/back edge radius",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -49804,47 +49226,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "A constant-section circular frame fused to one round X-axis crossbar. The bar has editable Y and depth Z offsets. Moving bars, hinges and exact joint transitions are excluded.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "ringBar"
@@ -49862,37 +49243,51 @@ files.release: contextPolicy=none
           "innerDiameter": {
             "type": "number",
             "default": 20,
-            "description": "Ring inner diameter"
+            "description": "Ring inner diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionSize": {
             "type": "number",
             "default": 3,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionRadius": {
             "type": "number",
             "default": 0.3,
-            "description": "Square section corner R"
+            "description": "Square section corner R",
+            "minimum": 0,
+            "unit": "mm"
           },
           "sectionChamfer": {
             "type": "number",
             "default": 0.6,
-            "description": "Square section chamfer C"
+            "description": "Square section chamfer C",
+            "minimum": 0,
+            "unit": "mm"
           },
           "barDiameter": {
             "type": "number",
             "default": 2,
-            "description": "Bar diameter"
+            "description": "Bar diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "barOffset": {
             "type": "number",
             "default": 0,
-            "description": "Bar Y offset"
+            "description": "Bar Y offset",
+            "minimum": -100,
+            "unit": "mm"
           },
           "barDepthOffset": {
             "type": "number",
             "default": 0,
-            "description": "Bar Z depth offset"
+            "description": "Bar Z depth offset",
+            "minimum": -100,
+            "unit": "mm"
           }
         }
       },
@@ -49904,47 +49299,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Offset a true inner ellipse for a round-wire sweep and fuse one centered fixed round bar. Read back exact bounds; source spline and joint continuity still require comparison.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "ellipseBar"
@@ -49952,27 +49306,37 @@ files.release: contextPolicy=none
           "innerWidth": {
             "type": "number",
             "default": 35,
-            "description": "Inner ellipse major diameter"
+            "description": "Inner ellipse major diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 25,
-            "description": "Inner ellipse minor diameter"
+            "description": "Inner ellipse minor diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionSize": {
             "type": "number",
             "default": 5,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "barDiameter": {
             "type": "number",
             "default": 5,
-            "description": "Bar diameter"
+            "description": "Bar diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "barDepthOffset": {
             "type": "number",
             "default": 0,
-            "description": "Bar Z depth offset"
+            "description": "Bar Z depth offset",
+            "minimum": -100,
+            "unit": "mm"
           }
         }
       },
@@ -49984,47 +49348,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Sweep round wire along a half-wire outward offset of a true inner ellipse, then cut a bottom-center parallel flat gap. Source drawings with a true outer ellipse need another tool.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "ellipseOpenWire"
@@ -50032,22 +49355,30 @@ files.release: contextPolicy=none
           "innerWidth": {
             "type": "number",
             "default": 15,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 20,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionSize": {
             "type": "number",
             "default": 3.5,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "gapWidth": {
             "type": "number",
             "default": 0.2,
-            "description": "Bottom-center parallel gap width"
+            "description": "Bottom-center parallel gap width",
+            "minimum": 0.01,
+            "unit": "mm"
           }
         }
       },
@@ -50059,47 +49390,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Closed capsule loop with semicircular ends and straight runs. Front width, side depth and section radius are independent; a half-short-side radius forms an exact stadium section.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "profileLoop"
@@ -50107,27 +49397,37 @@ files.release: contextPolicy=none
           "innerWidth": {
             "type": "number",
             "default": 35.2,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 14.6,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionWidth": {
             "type": "number",
             "default": 5.5,
-            "description": "Front section width"
+            "description": "Front section width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionDepth": {
             "type": "number",
             "default": 6,
-            "description": "Side section depth"
+            "description": "Side section depth",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionRadius": {
             "type": "number",
             "default": 2.5,
-            "description": "Square section corner R"
+            "description": "Square section corner R",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -50139,47 +49439,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Closed round-wire capsule loop with exact semicircular ends and straight runs. Set inner width, inner height and wire diameter; an unmarked seam is not guessed.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "capsuleWire"
@@ -50187,17 +49446,23 @@ files.release: contextPolicy=none
           "innerWidth": {
             "type": "number",
             "default": 34.9,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 13.9,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionSize": {
             "type": "number",
             "default": 6.1,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -50209,47 +49474,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Separate tongue: X-axis pivot loop and a rounded flat strip along +Y. Length is pivot-center to tip. Approximate loop-head flat tongue only; no stamping bends, knurling, artwork or assembly motion validation.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "buckleTongue"
@@ -50258,6 +49482,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 22,
             "description": "Pivot to tip",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -50266,6 +49491,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 3,
             "description": "Tongue width X",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -50274,6 +49500,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 1.2,
             "description": "Tongue thickness Z",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -50281,12 +49508,16 @@ files.release: contextPolicy=none
           "pivotDiameterMm": {
             "type": "number",
             "default": 2,
-            "description": "Mating pivot diameter"
+            "description": "Mating pivot diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "clearanceMm": {
             "type": "number",
             "default": 0.15,
-            "description": "Diametral clearance"
+            "description": "Diametral clearance",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -50298,47 +49529,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Separate crossbar with two open Y-axis rolled eyes and independently tangent inner/outer transitions into the center strip. For regular pull buckles; it remains separate from the frame.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "pullCoreBar"
@@ -50346,17 +49536,22 @@ files.release: contextPolicy=none
           "eyePitchMm": {
             "type": "number",
             "default": 45.5,
-            "description": "Eye center pitch X"
+            "description": "Eye center pitch X",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "eyeInnerDiameterMm": {
             "type": "number",
             "default": 5.5,
-            "description": "Eye inner diameter"
+            "description": "Eye inner diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "widthMm": {
             "type": "number",
             "default": 3.2,
             "description": "Crossbar width Y",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -50364,37 +49559,52 @@ files.release: contextPolicy=none
           "eyeWallMm": {
             "type": "number",
             "default": 1.7,
-            "description": "Eye and tail wall"
+            "description": "Eye and tail wall",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "barThicknessMm": {
             "type": "number",
             "default": 1.5,
-            "description": "Center strip thickness Z"
+            "description": "Center strip thickness Z",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "barCenterHeightMm": {
             "type": "number",
             "default": 2,
-            "description": "Strip center height Z"
+            "description": "Strip center height Z",
+            "minimum": -50,
+            "unit": "mm"
           },
           "outerTransitionRadiusMm": {
             "type": "number",
             "default": 28.3,
-            "description": "Outer transition radius"
+            "description": "Outer transition radius",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerTransitionRadiusMm": {
             "type": "number",
             "default": 30,
-            "description": "Inner transition radius"
+            "description": "Inner transition radius",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "tailLengthMm": {
             "type": "number",
             "default": 5,
-            "description": "Rolled-eye tail length"
+            "description": "Rolled-eye tail length",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "tailAngleDeg": {
             "type": "number",
             "default": 0,
-            "description": "Tail angle"
+            "description": "Tail angle",
+            "minimum": 0,
+            "maximum": 60,
+            "unit": "deg"
           }
         }
       },
@@ -50406,47 +49616,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Three dimensions: inner diameter, outer diameter and total thickness. Winding, layer gap, transition and section R are fitted automatically; both tips have circular outlines with rounded edges. Legacy explicit winding recipes remain supported.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "keyRing"
@@ -50454,17 +49623,23 @@ files.release: contextPolicy=none
           "innerDiameterMm": {
             "type": "number",
             "default": 25,
-            "description": "Inner diameter"
+            "description": "Inner diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerDiameterMm": {
             "type": "number",
             "default": 33,
-            "description": "Outer diameter"
+            "description": "Outer diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "totalDepthMm": {
             "type": "number",
             "default": 3,
-            "description": "Total thickness"
+            "description": "Total thickness",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "autoFit": {
             "type": "boolean",
@@ -50514,47 +49689,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "A horizontal rounded rod joined to an elliptical-section U eye that narrows in Z depth from root to top.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "hangingRod"
@@ -50562,42 +49696,58 @@ files.release: contextPolicy=none
           "barLengthMm": {
             "type": "number",
             "default": 35,
-            "description": "Rod length"
+            "description": "Rod length",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "barDiameterMm": {
             "type": "number",
             "default": 5,
-            "description": "Rod diameter"
+            "description": "Rod diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "endFilletMm": {
             "type": "number",
             "default": 0.8,
-            "description": "End fillet radius"
+            "description": "End fillet radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "loopInnerWidthMm": {
             "type": "number",
             "default": 7,
-            "description": "Eye inner width"
+            "description": "Eye inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "loopWireDiameterMm": {
             "type": "number",
             "default": 2,
-            "description": "Eye wire diameter"
+            "description": "Eye wire diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "loopClearHeightMm": {
             "type": "number",
             "default": 6,
-            "description": "Clear height above rod"
+            "description": "Clear height above rod",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "loopRootDepthMm": {
             "type": "number",
             "default": 2.5,
-            "description": "Eye root Z depth"
+            "description": "Eye root Z depth",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "rootBlendRadiusMm": {
             "type": "number",
             "default": 1,
-            "description": "Root junction blend radius"
+            "description": "Root junction blend radius",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -50609,47 +49759,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "A regular round-section U bridge with straight legs, an exact semicircular crown, and optional coaxial holes in both end faces.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "archedBridge"
@@ -50657,27 +49766,37 @@ files.release: contextPolicy=none
           "outerWidthMm": {
             "type": "number",
             "default": 11.3,
-            "description": "Outer width"
+            "description": "Outer width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerHeightMm": {
             "type": "number",
             "default": 7.5,
-            "description": "Outer height"
+            "description": "Outer height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionDiameterMm": {
             "type": "number",
             "default": 3.3,
-            "description": "Section diameter"
+            "description": "Section diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "holeDiameterMm": {
             "type": "number",
             "default": 2,
-            "description": "End-hole diameter"
+            "description": "End-hole diameter",
+            "minimum": 0,
+            "unit": "mm"
           },
           "holeDepthMm": {
             "type": "number",
             "default": 3,
-            "description": "End-hole depth"
+            "description": "End-hole depth",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -50689,47 +49808,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "A parameterized two-piece mushroom rivet with a spherical cap, hollow socket, rounded waisted post and base flange. Supports assembled or exploded display, with a blind post bore depth and direction.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "mushroomRivet"
@@ -50737,92 +49815,128 @@ files.release: contextPolicy=none
           "capDiameterMm": {
             "type": "number",
             "default": 10,
-            "description": "Cap overall diameter"
+            "description": "Cap overall diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "capRiseMm": {
             "type": "number",
             "default": 5,
-            "description": "Cap rise"
+            "description": "Cap rise",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "capEdgeRadiusMm": {
             "type": "number",
             "default": 0.5,
-            "description": "Cap rear edge radius"
+            "description": "Cap rear edge radius",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "collarOuterDiameterMm": {
             "type": "number",
             "default": 3.5,
-            "description": "Socket outer diameter"
+            "description": "Socket outer diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "collarInnerDiameterMm": {
             "type": "number",
             "default": 2.9,
-            "description": "Socket inner diameter"
+            "description": "Socket inner diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "collarLengthMm": {
             "type": "number",
             "default": 2.3,
-            "description": "Socket length"
+            "description": "Socket length",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "postOuterDiameterMm": {
             "type": "number",
             "default": 2.8,
-            "description": "Post shaft diameter"
+            "description": "Post shaft diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "postInnerDiameterMm": {
             "type": "number",
             "default": 2.5,
-            "description": "Post bore diameter"
+            "description": "Post bore diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "postLengthMm": {
             "type": "number",
             "default": 9,
-            "description": "Post total length"
+            "description": "Post total length",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "tipRoundRadiusMm": {
             "type": "number",
             "default": 0.5,
-            "description": "Post tip round radius"
+            "description": "Post tip round radius",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "waistRadiusMm": {
             "type": "number",
             "default": 3.130814708,
-            "description": "Waist main radius"
+            "description": "Waist main radius",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "waistDepthMm": {
             "type": "number",
             "default": 0.26154265,
-            "description": "Waist depth"
+            "description": "Waist depth",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "waistCenterFromTipMm": {
             "type": "number",
             "default": 2.03741855,
-            "description": "Waist center from tip"
+            "description": "Waist center from tip",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "waistBlendRadiusMm": {
             "type": "number",
             "default": 0.5,
-            "description": "Waist blend radius"
+            "description": "Waist blend radius",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "flangeDiameterMm": {
             "type": "number",
             "default": 8,
-            "description": "Base flange diameter"
+            "description": "Base flange diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "flangeThicknessMm": {
             "type": "number",
             "default": 0.3,
-            "description": "Base flange thickness"
+            "description": "Base flange thickness",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "shoulderHeightMm": {
             "type": "number",
             "default": 1,
-            "description": "Shoulder height and radius"
+            "description": "Shoulder height and radius",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "postBoreDepthMm": {
             "type": "number",
             "default": 5,
-            "description": "Post blind bore depth (0=none)"
+            "description": "Post blind bore depth (0=none)",
+            "minimum": 0,
+            "unit": "mm"
           },
           "boreFromFlange": {
             "type": "boolean",
@@ -50832,7 +49946,9 @@ files.release: contextPolicy=none
           "explodedOffsetMm": {
             "type": "number",
             "default": 12,
-            "description": "Exploded center offset (0=assembled)"
+            "description": "Exploded center offset (0=assembled)",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -50844,47 +49960,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Two-piece nipple stud with an arc-profiled flat-top body, radiused base, blind M2 nominal clearance bore, crowned screw head, stem, and parameterized six-lobe drive. Threads and standardized drive dimensions are not modeled.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "nippleStud"
@@ -50892,112 +49967,156 @@ files.release: contextPolicy=none
           "headDiameterMm": {
             "type": "number",
             "default": 5,
-            "description": "Head nominal diameter"
+            "description": "Head nominal diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "overallHeightMm": {
             "type": "number",
             "default": 9.1,
-            "description": "Part A overall height"
+            "description": "Part A overall height",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "neckDiameterMm": {
             "type": "number",
             "default": 3,
-            "description": "Neck diameter"
+            "description": "Neck diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "neckHeightMm": {
             "type": "number",
             "default": 4,
-            "description": "Neck height"
+            "description": "Neck height",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "flangeDiameterMm": {
             "type": "number",
             "default": 7,
-            "description": "Part A flange diameter"
+            "description": "Part A flange diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "flangeThicknessMm": {
             "type": "number",
             "default": 1.3,
-            "description": "Part A flange thickness"
+            "description": "Part A flange thickness",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "undersideCollarDiameterMm": {
             "type": "number",
             "default": 3,
-            "description": "Deprecated underside collar diameter"
+            "description": "Deprecated underside collar diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "undersideCollarHeightMm": {
             "type": "number",
             "default": 0,
-            "description": "Deprecated collar height (must be 0)"
+            "description": "Deprecated collar height (must be 0)",
+            "minimum": 0,
+            "unit": "mm"
           },
           "boreDiameterMm": {
             "type": "number",
             "default": 2,
-            "description": "Part A nominal clearance bore diameter"
+            "description": "Part A nominal clearance bore diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "boreDepthMm": {
             "type": "number",
             "default": 6,
-            "description": "Part A blind bore depth"
+            "description": "Part A blind bore depth",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "entryChamferMm": {
             "type": "number",
             "default": 0.3,
-            "description": "Bore entry chamfer depth and radial width"
+            "description": "Bore entry chamfer depth and radial width",
+            "minimum": 0,
+            "unit": "mm"
           },
           "baseEdgeRadiusMm": {
             "type": "number",
             "default": 0.3,
-            "description": "Base outer edge radius"
+            "description": "Base outer edge radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "screwHeadDiameterMm": {
             "type": "number",
             "default": 7,
-            "description": "Part Z screw head diameter"
+            "description": "Part Z screw head diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "screwHeadThicknessMm": {
             "type": "number",
             "default": 2,
-            "description": "Part Z head thickness (excluding crown)"
+            "description": "Part Z head thickness (excluding crown)",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "screwCrownRiseMm": {
             "type": "number",
             "default": 1.375,
-            "description": "Part Z crown rise"
+            "description": "Part Z crown rise",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "screwEdgeRadiusMm": {
             "type": "number",
             "default": 0.5,
-            "description": "Part Z head edge radius"
+            "description": "Part Z head edge radius",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "screwDiameterMm": {
             "type": "number",
             "default": 2,
-            "description": "Part Z stem diameter"
+            "description": "Part Z stem diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "screwLengthMm": {
             "type": "number",
             "default": 5,
-            "description": "Part Z stem net length"
+            "description": "Part Z stem net length",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "driveDiameterMm": {
             "type": "number",
             "default": 2.6,
-            "description": "Illustrative six-lobe drive diameter"
+            "description": "Illustrative six-lobe drive diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "driveDepthMm": {
             "type": "number",
             "default": 0.5,
-            "description": "Illustrative drive depth"
+            "description": "Illustrative drive depth",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "assemblyGapMm": {
             "type": "number",
             "default": 2,
-            "description": "Assembly gap"
+            "description": "Assembly gap",
+            "minimum": 0,
+            "unit": "mm"
           },
           "explodedOffsetMm": {
             "type": "number",
             "default": 12,
-            "description": "Exploded center offset (0=assembled)"
+            "description": "Exploded center offset (0=assembled)",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -51009,47 +50128,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "A parameterized two-piece thin-wall eyelet with exact revolved flange bends. Part A has a long shank and Part B is its mating ring. Supports static coaxial fit or exploded display; riveting deformation, logos and lettering are not modeled.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "twoPieceEyelet"
@@ -51057,67 +50135,93 @@ files.release: contextPolicy=none
           "aFlangeDiameterMm": {
             "type": "number",
             "default": 18,
-            "description": "Part A flange diameter"
+            "description": "Part A flange diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "aBoreDiameterMm": {
             "type": "number",
             "default": 11,
-            "description": "Part A bore diameter"
+            "description": "Part A bore diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "aTubeOuterDiameterMm": {
             "type": "number",
             "default": 11.5,
-            "description": "Part A tube outer diameter"
+            "description": "Part A tube outer diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "aTubeLengthMm": {
             "type": "number",
             "default": 5.8,
-            "description": "Part A tube length"
+            "description": "Part A tube length",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "aFlangeDepthMm": {
             "type": "number",
             "default": 1.2,
-            "description": "Part A flange axial depth"
+            "description": "Part A flange axial depth",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "aBendRadiusMm": {
             "type": "number",
             "default": 0.8,
-            "description": "Part A flange bend outer radius"
+            "description": "Part A flange bend outer radius",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "bFlangeDiameterMm": {
             "type": "number",
             "default": 18,
-            "description": "Part B flange diameter"
+            "description": "Part B flange diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "bBoreDiameterMm": {
             "type": "number",
             "default": 11.8,
-            "description": "Part B bore diameter"
+            "description": "Part B bore diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "bTubeOuterDiameterMm": {
             "type": "number",
             "default": 12.3,
-            "description": "Part B short tube outer diameter"
+            "description": "Part B short tube outer diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "bOverallDepthMm": {
             "type": "number",
             "default": 2,
-            "description": "Part B overall depth"
+            "description": "Part B overall depth",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "bFlangeDepthMm": {
             "type": "number",
             "default": 1.2,
-            "description": "Part B flange axial depth"
+            "description": "Part B flange axial depth",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "bBendRadiusMm": {
             "type": "number",
             "default": 0.8,
-            "description": "Part B flange bend outer radius"
+            "description": "Part B flange bend outer radius",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "explodedOffsetMm": {
             "type": "number",
             "default": 24,
-            "description": "Exploded center offset (0=coaxial)"
+            "description": "Exploded center offset (0=coaxial)",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -51129,47 +50233,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "One exact circular or rounded rectangular frame with an optional constant-wall collar, symmetric mounting posts and plain straight holes. Collar and posts extend along local +Z from a flange at Z=0. Hole depth 0 means through; positive depth is blind from the post top. 0/2/4 posts; two posts lie on Y. Zero collar/post heights make a backplate. No threads, taper, riveting, decoration or 3D edge blends. Circular mode requires matching width/height pairs; corner radii apply only to rectangular mode.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "frameEyelet"
@@ -51186,82 +50249,115 @@ files.release: contextPolicy=none
           "outerWidthMm": {
             "type": "number",
             "default": 25.6,
-            "description": "Outer width/diameter"
+            "description": "Outer width/diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "outerHeightMm": {
             "type": "number",
             "default": 30,
-            "description": "Outer height (circular=width)"
+            "description": "Outer height (circular=width)",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "outerRadiusMm": {
             "type": "number",
             "default": 3.5,
-            "description": "Outer rectangular corner R"
+            "description": "Outer rectangular corner R",
+            "minimum": 0,
+            "unit": "mm"
           },
           "boreWidthMm": {
             "type": "number",
             "default": 12,
-            "description": "Bore width/diameter"
+            "description": "Bore width/diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "boreHeightMm": {
             "type": "number",
             "default": 16.5,
-            "description": "Bore height (circular=width)"
+            "description": "Bore height (circular=width)",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "boreRadiusMm": {
             "type": "number",
             "default": 1.2,
-            "description": "Bore rectangular corner R"
+            "description": "Bore rectangular corner R",
+            "minimum": 0,
+            "unit": "mm"
           },
           "flangeThicknessMm": {
             "type": "number",
             "default": 1.5,
-            "description": "Flange thickness"
+            "description": "Flange thickness",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "collarProjectionMm": {
             "type": "number",
             "default": 3,
-            "description": "Collar projection (0=none)"
+            "description": "Collar projection (0=none)",
+            "minimum": 0,
+            "unit": "mm"
           },
           "collarWallMm": {
             "type": "number",
             "default": 0.3,
-            "description": "Collar wall thickness"
+            "description": "Collar wall thickness",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "mountingCount": {
             "type": "number",
             "default": 4,
-            "description": "Post count (0/2/4)"
+            "description": "Post count (0/2/4)",
+            "minimum": 0,
+            "maximum": 4,
+            "unit": "1"
           },
           "pitchXMm": {
             "type": "number",
             "default": 6,
-            "description": "Four-post X pitch"
+            "description": "Four-post X pitch",
+            "minimum": 0,
+            "unit": "mm"
           },
           "pitchYMm": {
             "type": "number",
             "default": 22.6,
-            "description": "Y pitch"
+            "description": "Y pitch",
+            "minimum": 0,
+            "unit": "mm"
           },
           "bossDiameterMm": {
             "type": "number",
             "default": 4,
-            "description": "Post diameter"
+            "description": "Post diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "bossHeightMm": {
             "type": "number",
             "default": 3.5,
-            "description": "Post height (0=none)"
+            "description": "Post height (0=none)",
+            "minimum": 0,
+            "unit": "mm"
           },
           "holeDiameterMm": {
             "type": "number",
             "default": 2.6,
-            "description": "Plain hole diameter (0=solid)"
+            "description": "Plain hole diameter (0=solid)",
+            "minimum": 0,
+            "unit": "mm"
           },
           "holeDepthMm": {
             "type": "number",
             "default": 2,
-            "description": "Hole depth (0=through)"
+            "description": "Hole depth (0=through)",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -51273,47 +50369,6 @@ files.release: contextPolicy=none
         "additionalProperties": false,
         "description": "Constant-wall open U clip of uniform X width, independent front/back heights and exact tangent bend arcs. An inner radius equal to half the gap makes a semicircular bottom. Bottom Z=0, opening +Z, back wall +Y. Optional 0/1/2 plain back-wall through holes; two holes lie on X. Not a closed cap. No threads, decorations, end blends or elastic deformation. Holes must fit entirely within the straight back wall.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "uStrapClip"
@@ -51322,6 +50377,7 @@ files.release: contextPolicy=none
             "type": "number",
             "default": 20,
             "description": "Clip width",
+            "minimum": 0.01,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -51329,47 +50385,66 @@ files.release: contextPolicy=none
           "innerGapMm": {
             "type": "number",
             "default": 3,
-            "description": "Inner gap"
+            "description": "Inner gap",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "wallThicknessMm": {
             "type": "number",
             "default": 1.3,
-            "description": "Wall thickness"
+            "description": "Wall thickness",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "frontHeightMm": {
             "type": "number",
             "default": 7,
-            "description": "Front overall height"
+            "description": "Front overall height",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "backHeightMm": {
             "type": "number",
             "default": 5,
-            "description": "Back overall height"
+            "description": "Back overall height",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "innerBendRadiusMm": {
             "type": "number",
             "default": 0.2,
-            "description": "Inner bend radius"
+            "description": "Inner bend radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "holeCount": {
             "type": "number",
             "default": 2,
-            "description": "Back hole count (0/1/2)"
+            "description": "Back hole count (0/1/2)",
+            "minimum": 0,
+            "maximum": 2,
+            "unit": "1"
           },
           "holeDiameterMm": {
             "type": "number",
             "default": 2,
-            "description": "Plain back through-hole diameter"
+            "description": "Plain back through-hole diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "holePitchMm": {
             "type": "number",
             "default": 14,
-            "description": "Two-hole pitch"
+            "description": "Two-hole pitch",
+            "minimum": 0,
+            "unit": "mm"
           },
           "holeHeightMm": {
             "type": "number",
             "default": 3,
-            "description": "Hole center height from bottom"
+            "description": "Hole center height from bottom",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       }
@@ -51394,6 +50469,39 @@ files.release: contextPolicy=none
     "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {
+    "oChain": {
+      "outerWidthMm": 7.2,
+      "outerLengthMm": 9.2,
+      "wireDiameterMm": 1.6,
+      "gapMm": 0.2
+    },
+    "twistedChain": {
+      "outerWidthMm": 11,
+      "outerLengthMm": 15,
+      "wireDiameterMm": 3,
+      "gapMm": 0
+    },
+    "groundChain": {
+      "outerWidthMm": 11,
+      "outerLengthMm": 15,
+      "wireDiameterMm": 3,
+      "gapMm": 0.1,
+      "groundThicknessMm": 4.4,
+      "grindRadiusMm": 0.1
+    },
+    "ironFoot": {
+      "lengthMm": 23.5,
+      "widthMm": 5.5,
+      "heightMm": 12,
+      "thicknessMm": 0.5,
+      "topHoleDiameterMm": 2.3,
+      "topHolePitchMm": 18,
+      "endRadiusMm": 2.75,
+      "taperAngleDeg": 0,
+      "footHoleDiameterMm": 2.5,
+      "footHoleHeightMm": 2.75,
+      "footHoles": "back"
+    },
     "ring": {
       "section": "round",
       "sectionSize": 3,
@@ -51871,7 +50979,7 @@ files.release: contextPolicy=none
     "快捷模型"
   ],
   "description": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-  "schemaHash": "sha256:295358f6bc129acb6c6be0764bacd3123654eddf39a03e210814d458bd18918c",
+  "schemaHash": "sha256:d4e5d20171c03be8cd1aae4a2dd9f2e8b9737f1540fd85e1bd2fde746422861a",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -51988,6 +51096,367 @@ files.release: contextPolicy=none
     "tests/operation-contract.test.mjs"
   ],
   "templates": [
+    {
+      "kind": "oChain",
+      "title": "O chain link",
+      "description": "来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
+      "defaults": {
+        "outerWidthMm": 7.2,
+        "outerLengthMm": 9.2,
+        "wireDiameterMm": 1.6,
+        "gapMm": 0.2
+      },
+      "fields": [
+        {
+          "key": "outerWidthMm",
+          "label": "外宽 W",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "outerLengthMm",
+          "label": "外长 L",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "wireDiameterMm",
+          "label": "线径 d",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "gapMm",
+          "label": "接缝宽 g",
+          "type": "number",
+          "min": 0,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "oChain"
+      },
+      "normalExample": {
+        "kind": "oChain",
+        "outerWidthMm": 7.2,
+        "outerLengthMm": 9.2,
+        "wireDiameterMm": 1.6,
+        "gapMm": 0.2
+      }
+    },
+    {
+      "kind": "twistedChain",
+      "title": "Twisted chain link",
+      "description": "来源 NL.stp：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。",
+      "defaults": {
+        "outerWidthMm": 11,
+        "outerLengthMm": 15,
+        "wireDiameterMm": 3,
+        "gapMm": 0
+      },
+      "fields": [
+        {
+          "key": "outerWidthMm",
+          "label": "外宽 W",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "outerLengthMm",
+          "label": "外长 L",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "wireDiameterMm",
+          "label": "线径 d",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "gapMm",
+          "label": "接缝宽 g",
+          "type": "number",
+          "min": 0,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "twistedChain"
+      },
+      "normalExample": {
+        "kind": "twistedChain",
+        "outerWidthMm": 11,
+        "outerLengthMm": 15,
+        "wireDiameterMm": 3,
+        "gapMm": 0
+      }
+    },
+    {
+      "kind": "groundChain",
+      "title": "Ground curb chain link",
+      "description": "来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
+      "defaults": {
+        "outerWidthMm": 11,
+        "outerLengthMm": 15,
+        "wireDiameterMm": 3,
+        "gapMm": 0.1,
+        "groundThicknessMm": 4.4,
+        "grindRadiusMm": 0.1
+      },
+      "fields": [
+        {
+          "key": "outerWidthMm",
+          "label": "外宽 W",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "outerLengthMm",
+          "label": "外长 L",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "wireDiameterMm",
+          "label": "线径 d",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "gapMm",
+          "label": "接缝宽 g",
+          "type": "number",
+          "min": 0,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "groundThicknessMm",
+          "label": "磨后总厚 T",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "grindRadiusMm",
+          "label": "磨边 R",
+          "type": "number",
+          "min": 0,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "groundChain"
+      },
+      "normalExample": {
+        "kind": "groundChain",
+        "outerWidthMm": 11,
+        "outerLengthMm": 15,
+        "wireDiameterMm": 3,
+        "gapMm": 0.1,
+        "groundThicknessMm": 4.4,
+        "grindRadiusMm": 0.1
+      }
+    },
+    {
+      "kind": "ironFoot",
+      "title": "Bridge iron foot",
+      "description": "来源 V01/V02/V03：顶片双安装孔，两端下折脚、圆弧脚端，可选单脚或双脚轴孔。顶面 Z=0，脚朝 -Z，桥长沿 Y、片宽沿 X；总高含顶片。V02 的收脚由侧边收角和脚端R控制。折角保持来源的直角，不自动加弯R。",
+      "defaults": {
+        "lengthMm": 23.5,
+        "widthMm": 5.5,
+        "heightMm": 12,
+        "thicknessMm": 0.5,
+        "topHoleDiameterMm": 2.3,
+        "topHolePitchMm": 18,
+        "endRadiusMm": 2.75,
+        "taperAngleDeg": 0,
+        "footHoleDiameterMm": 2.5,
+        "footHoleHeightMm": 2.75,
+        "footHoles": "back"
+      },
+      "fields": [
+        {
+          "key": "lengthMm",
+          "label": "桥长 L",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "widthMm",
+          "label": "片宽 W",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "heightMm",
+          "label": "总高 H",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "thicknessMm",
+          "label": "片厚 t",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "topHoleDiameterMm",
+          "label": "顶孔直径",
+          "type": "number",
+          "min": 0,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "topHolePitchMm",
+          "label": "顶孔中心距",
+          "type": "number",
+          "min": 0,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "endRadiusMm",
+          "label": "脚端 R",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "taperAngleDeg",
+          "label": "脚侧边收角",
+          "type": "number",
+          "min": 0,
+          "max": 15,
+          "step": 0.1,
+          "unit": "deg"
+        },
+        {
+          "key": "footHoleDiameterMm",
+          "label": "脚孔直径",
+          "type": "number",
+          "min": 0,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "footHoleHeightMm",
+          "label": "脚孔心距脚底",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "footHoles",
+          "label": "脚孔位置",
+          "type": "select",
+          "options": [
+            {
+              "value": "none",
+              "label": "无"
+            },
+            {
+              "value": "front",
+              "label": "前脚（-Y）"
+            },
+            {
+              "value": "back",
+              "label": "后脚（+Y）"
+            },
+            {
+              "value": "both",
+              "label": "两脚"
+            }
+          ]
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "ironFoot"
+      },
+      "normalExample": {
+        "kind": "ironFoot",
+        "lengthMm": 23.5,
+        "widthMm": 5.5,
+        "heightMm": 12,
+        "thicknessMm": 0.5,
+        "topHoleDiameterMm": 2.3,
+        "topHolePitchMm": 18,
+        "endRadiusMm": 2.75,
+        "taperAngleDeg": 0,
+        "footHoleDiameterMm": 2.5,
+        "footHoleHeightMm": 2.75,
+        "footHoles": "back"
+      }
+    },
     {
       "kind": "ring",
       "title": "Ring",
@@ -56891,7 +56360,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:0891f42e35556ba1d3b595b8fd6f1ca774ac6951c62f39f9a27a14aa7dc40093"
+  "docsHash": "sha256:546ef595e6d0ad3c9584e1c329fd3d70bcc3490e4f954b49d13f7a85452bceb1"
 }
 ```
 
@@ -72913,7 +72382,7 @@ files.release: contextPolicy=none
   "title": "高度图浮雕精修",
   "label": "高度图浮雕精修",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -72930,7 +72399,7 @@ files.release: contextPolicy=none
     "浮雕精修",
     "sculpt"
   ],
-  "docsHash": "sha256:07cd7eb026d7bf232c114f07b2b2a18b6f56ce92d5beb3216da44ac2cdfbb062"
+  "docsHash": "sha256:e27db8af6afa0fb0c0636f4b4324ad55c2ef4b058dc44360474d8163e406b98c"
 }
 ```
 
@@ -72942,7 +72411,7 @@ files.release: contextPolicy=none
   "title": "精确浮雕精修",
   "label": "精确浮雕精修",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -72959,7 +72428,2175 @@ files.release: contextPolicy=none
     "浮雕精修",
     "sculpt"
   ],
-  "docsHash": "sha256:b3c4ea47cae489ca2f1ea931a3e42467d7c13b2b53bda56ae7a83c1c0fae3d77"
+  "docsHash": "sha256:98ebe85d19918e983fd0eb312cc9c03dd8e12492b9dadc6329db7885c536df3a"
+}
+```
+
+## 工具 template.oChain · O字链
+
+```json
+{
+  "id": "template.oChain",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "O字链",
+  "category": "template",
+  "synonyms": [
+    "oChain",
+    "O字链",
+    "O chain link"
+  ],
+  "description": "来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
+  "apiCompatibility": [
+    "page-advisory"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": true,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "oChain",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-contract.test.mjs"
+  ],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+    "whenToUse": [
+      "Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {},
+    "refs": {
+      "min": 0,
+      "max": 0,
+      "meaning": "独立创建，不引用已有实体"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": false,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "quickModel",
+        "params": {
+          "kind": "tube"
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "normal": {
+        "op": "quickModel",
+        "params": {
+          "kind": "tube"
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "invalid": [
+        {
+          "params": {
+            "__invalid": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID"
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "quickModel",
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+  "whenToUse": [
+    "Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "operationId": "quickModel",
+  "label": "O字链",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "oChain"
+      },
+      "outerWidthMm": {
+        "type": "number",
+        "default": 7.2,
+        "description": "外宽 W",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm"
+      },
+      "outerLengthMm": {
+        "type": "number",
+        "default": 9.2,
+        "description": "外长 L",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm"
+      },
+      "wireDiameterMm": {
+        "type": "number",
+        "default": 1.6,
+        "description": "线径 d",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "gapMm": {
+        "type": "number",
+        "default": 0.2,
+        "description": "接缝宽 g",
+        "minimum": 0,
+        "maximum": 500,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      }
+    }
+  },
+  "schemaHash": "sha256:3933e254a33b6821a15221bb8b00623501e1f7e72e8c741ff91981c9fcd2604e",
+  "defaults": {
+    "outerWidthMm": 7.2,
+    "outerLengthMm": 9.2,
+    "wireDiameterMm": 1.6,
+    "gapMm": 0.2
+  },
+  "fields": [
+    {
+      "key": "outerWidthMm",
+      "label": "外宽 W",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "outerLengthMm",
+      "label": "外长 L",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "wireDiameterMm",
+      "label": "线径 d",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "gapMm",
+      "label": "接缝宽 g",
+      "type": "number",
+      "min": 0,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    }
+  ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "oChain"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "oChain",
+      "outerWidthMm": 7.2,
+      "outerLengthMm": 9.2,
+      "wireDiameterMm": 1.6,
+      "gapMm": 0.2
+    },
+    "refs": []
+  },
+  "docs": "api.quick-chains",
+  "docsHash": "sha256:6105be4dae7a90e594d95c70808bbf5cf5353dba2f8d08485ccb6ce67129be45"
+}
+```
+
+## 工具 template.twistedChain · 扭链
+
+```json
+{
+  "id": "template.twistedChain",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "扭链",
+  "category": "template",
+  "synonyms": [
+    "twistedChain",
+    "扭链",
+    "Twisted chain link"
+  ],
+  "description": "来源 NL.stp：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。",
+  "apiCompatibility": [
+    "page-advisory"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": true,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "twistedChain",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-contract.test.mjs"
+  ],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+    "whenToUse": [
+      "Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {},
+    "refs": {
+      "min": 0,
+      "max": 0,
+      "meaning": "独立创建，不引用已有实体"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": false,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "quickModel",
+        "params": {
+          "kind": "tube"
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "normal": {
+        "op": "quickModel",
+        "params": {
+          "kind": "tube"
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "invalid": [
+        {
+          "params": {
+            "__invalid": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID"
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "quickModel",
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+  "whenToUse": [
+    "Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "operationId": "quickModel",
+  "label": "扭链",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "来源 NL.stp：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "twistedChain"
+      },
+      "outerWidthMm": {
+        "type": "number",
+        "default": 11,
+        "description": "外宽 W",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm"
+      },
+      "outerLengthMm": {
+        "type": "number",
+        "default": 15,
+        "description": "外长 L",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm"
+      },
+      "wireDiameterMm": {
+        "type": "number",
+        "default": 3,
+        "description": "线径 d",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "gapMm": {
+        "type": "number",
+        "default": 0,
+        "description": "接缝宽 g",
+        "minimum": 0,
+        "maximum": 500,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      }
+    }
+  },
+  "schemaHash": "sha256:1feceb77e25bacc80f177b5431d864505706caa71ff08bc28e4cbf253e1d3ade",
+  "defaults": {
+    "outerWidthMm": 11,
+    "outerLengthMm": 15,
+    "wireDiameterMm": 3,
+    "gapMm": 0
+  },
+  "fields": [
+    {
+      "key": "outerWidthMm",
+      "label": "外宽 W",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "outerLengthMm",
+      "label": "外长 L",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "wireDiameterMm",
+      "label": "线径 d",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "gapMm",
+      "label": "接缝宽 g",
+      "type": "number",
+      "min": 0,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    }
+  ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "twistedChain"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "twistedChain",
+      "outerWidthMm": 11,
+      "outerLengthMm": 15,
+      "wireDiameterMm": 3,
+      "gapMm": 0
+    },
+    "refs": []
+  },
+  "docs": "api.quick-chains",
+  "docsHash": "sha256:9534ba09e7f74bb961f84e807cb9ee48e57e1a46f1ab3a2d5d45944bab9774e9"
+}
+```
+
+## 工具 template.groundChain · 磨链
+
+```json
+{
+  "id": "template.groundChain",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "磨链",
+  "category": "template",
+  "synonyms": [
+    "groundChain",
+    "磨链",
+    "Ground curb chain link"
+  ],
+  "description": "来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
+  "apiCompatibility": [
+    "page-advisory"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": true,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "groundChain",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-contract.test.mjs"
+  ],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+    "whenToUse": [
+      "Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {},
+    "refs": {
+      "min": 0,
+      "max": 0,
+      "meaning": "独立创建，不引用已有实体"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": false,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "quickModel",
+        "params": {
+          "kind": "tube"
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "normal": {
+        "op": "quickModel",
+        "params": {
+          "kind": "tube"
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "invalid": [
+        {
+          "params": {
+            "__invalid": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID"
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "quickModel",
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+  "whenToUse": [
+    "Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "operationId": "quickModel",
+  "label": "磨链",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "groundChain"
+      },
+      "outerWidthMm": {
+        "type": "number",
+        "default": 11,
+        "description": "外宽 W",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm"
+      },
+      "outerLengthMm": {
+        "type": "number",
+        "default": 15,
+        "description": "外长 L",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm"
+      },
+      "wireDiameterMm": {
+        "type": "number",
+        "default": 3,
+        "description": "线径 d",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "gapMm": {
+        "type": "number",
+        "default": 0.1,
+        "description": "接缝宽 g",
+        "minimum": 0,
+        "maximum": 500,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "groundThicknessMm": {
+        "type": "number",
+        "default": 4.4,
+        "description": "磨后总厚 T",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm"
+      },
+      "grindRadiusMm": {
+        "type": "number",
+        "default": 0.1,
+        "description": "磨边 R",
+        "minimum": 0,
+        "maximum": 500,
+        "unit": "mm"
+      }
+    }
+  },
+  "schemaHash": "sha256:1078404f2549199edf573fbde29dff020dbc1b94bb935ec0b52eee5833570684",
+  "defaults": {
+    "outerWidthMm": 11,
+    "outerLengthMm": 15,
+    "wireDiameterMm": 3,
+    "gapMm": 0.1,
+    "groundThicknessMm": 4.4,
+    "grindRadiusMm": 0.1
+  },
+  "fields": [
+    {
+      "key": "outerWidthMm",
+      "label": "外宽 W",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "outerLengthMm",
+      "label": "外长 L",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "wireDiameterMm",
+      "label": "线径 d",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "gapMm",
+      "label": "接缝宽 g",
+      "type": "number",
+      "min": 0,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "groundThicknessMm",
+      "label": "磨后总厚 T",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "grindRadiusMm",
+      "label": "磨边 R",
+      "type": "number",
+      "min": 0,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    }
+  ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "groundChain"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "groundChain",
+      "outerWidthMm": 11,
+      "outerLengthMm": 15,
+      "wireDiameterMm": 3,
+      "gapMm": 0.1,
+      "groundThicknessMm": 4.4,
+      "grindRadiusMm": 0.1
+    },
+    "refs": []
+  },
+  "docs": "api.quick-chains",
+  "docsHash": "sha256:afdb98910c56dfe4e61ec90d11b43b000d96a8c5d8785bf41106329594df9adf"
+}
+```
+
+## 工具 template.ironFoot · 铁脚仔
+
+```json
+{
+  "id": "template.ironFoot",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "铁脚仔",
+  "category": "template",
+  "synonyms": [
+    "ironFoot",
+    "铁脚仔",
+    "Bridge iron foot"
+  ],
+  "description": "来源 V01/V02/V03：顶片双安装孔，两端下折脚、圆弧脚端，可选单脚或双脚轴孔。顶面 Z=0，脚朝 -Z，桥长沿 Y、片宽沿 X；总高含顶片。V02 的收脚由侧边收角和脚端R控制。折角保持来源的直角，不自动加弯R。",
+  "apiCompatibility": [
+    "page-advisory"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": true,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "ironFoot",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-contract.test.mjs"
+  ],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+    "whenToUse": [
+      "Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {},
+    "refs": {
+      "min": 0,
+      "max": 0,
+      "meaning": "独立创建，不引用已有实体"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": false,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "quickModel",
+        "params": {
+          "kind": "tube"
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "normal": {
+        "op": "quickModel",
+        "params": {
+          "kind": "tube"
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "invalid": [
+        {
+          "params": {
+            "__invalid": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID"
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "quickModel",
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+  "whenToUse": [
+    "Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "operationId": "quickModel",
+  "label": "铁脚仔",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "来源 V01/V02/V03：顶片双安装孔，两端下折脚、圆弧脚端，可选单脚或双脚轴孔。顶面 Z=0，脚朝 -Z，桥长沿 Y、片宽沿 X；总高含顶片。V02 的收脚由侧边收角和脚端R控制。折角保持来源的直角，不自动加弯R。",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "ironFoot"
+      },
+      "lengthMm": {
+        "type": "number",
+        "default": 23.5,
+        "description": "桥长 L",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "widthMm": {
+        "type": "number",
+        "default": 5.5,
+        "description": "片宽 W",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "heightMm": {
+        "type": "number",
+        "default": 12,
+        "description": "总高 H",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "thicknessMm": {
+        "type": "number",
+        "default": 0.5,
+        "description": "片厚 t",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "topHoleDiameterMm": {
+        "type": "number",
+        "default": 2.3,
+        "description": "顶孔直径",
+        "minimum": 0,
+        "maximum": 500,
+        "unit": "mm"
+      },
+      "topHolePitchMm": {
+        "type": "number",
+        "default": 18,
+        "description": "顶孔中心距",
+        "minimum": 0,
+        "maximum": 500,
+        "unit": "mm"
+      },
+      "endRadiusMm": {
+        "type": "number",
+        "default": 2.75,
+        "description": "脚端 R",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm"
+      },
+      "taperAngleDeg": {
+        "type": "number",
+        "default": 0,
+        "description": "脚侧边收角",
+        "minimum": 0,
+        "maximum": 15,
+        "unit": "deg"
+      },
+      "footHoleDiameterMm": {
+        "type": "number",
+        "default": 2.5,
+        "description": "脚孔直径",
+        "minimum": 0,
+        "maximum": 500,
+        "unit": "mm"
+      },
+      "footHoleHeightMm": {
+        "type": "number",
+        "default": 2.75,
+        "description": "脚孔心距脚底",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm"
+      },
+      "footHoles": {
+        "type": "string",
+        "default": "back",
+        "description": "脚孔位置",
+        "enum": [
+          "none",
+          "front",
+          "back",
+          "both"
+        ]
+      }
+    }
+  },
+  "schemaHash": "sha256:9f07c25c9d2cc2331f3ca9b93a21bccc8c7a757122f9ded56e83456faa1a2d7b",
+  "defaults": {
+    "lengthMm": 23.5,
+    "widthMm": 5.5,
+    "heightMm": 12,
+    "thicknessMm": 0.5,
+    "topHoleDiameterMm": 2.3,
+    "topHolePitchMm": 18,
+    "endRadiusMm": 2.75,
+    "taperAngleDeg": 0,
+    "footHoleDiameterMm": 2.5,
+    "footHoleHeightMm": 2.75,
+    "footHoles": "back"
+  },
+  "fields": [
+    {
+      "key": "lengthMm",
+      "label": "桥长 L",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "widthMm",
+      "label": "片宽 W",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "heightMm",
+      "label": "总高 H",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "thicknessMm",
+      "label": "片厚 t",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "topHoleDiameterMm",
+      "label": "顶孔直径",
+      "type": "number",
+      "min": 0,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "topHolePitchMm",
+      "label": "顶孔中心距",
+      "type": "number",
+      "min": 0,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "endRadiusMm",
+      "label": "脚端 R",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "taperAngleDeg",
+      "label": "脚侧边收角",
+      "type": "number",
+      "min": 0,
+      "max": 15,
+      "step": 0.1,
+      "unit": "deg"
+    },
+    {
+      "key": "footHoleDiameterMm",
+      "label": "脚孔直径",
+      "type": "number",
+      "min": 0,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "footHoleHeightMm",
+      "label": "脚孔心距脚底",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "footHoles",
+      "label": "脚孔位置",
+      "type": "select",
+      "options": [
+        {
+          "value": "none",
+          "label": "无"
+        },
+        {
+          "value": "front",
+          "label": "前脚（-Y）"
+        },
+        {
+          "value": "back",
+          "label": "后脚（+Y）"
+        },
+        {
+          "value": "both",
+          "label": "两脚"
+        }
+      ]
+    }
+  ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "ironFoot"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "ironFoot",
+      "lengthMm": 23.5,
+      "widthMm": 5.5,
+      "heightMm": 12,
+      "thicknessMm": 0.5,
+      "topHoleDiameterMm": 2.3,
+      "topHolePitchMm": 18,
+      "endRadiusMm": 2.75,
+      "taperAngleDeg": 0,
+      "footHoleDiameterMm": 2.5,
+      "footHoleHeightMm": 2.75,
+      "footHoles": "back"
+    },
+    "refs": []
+  },
+  "docs": "api.quick-chains",
+  "docsHash": "sha256:4f2bbd9a7f9c5b7cdce2b292eed452e5d8381ca6d73d412125ce1bca423293b1"
 }
 ```
 
@@ -73332,47 +74969,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "同心圆恒截面单圈；开缝为底部正中平行平切。",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "ring"
@@ -73390,31 +74986,41 @@ files.release: contextPolicy=none
       "sectionSize": {
         "type": "number",
         "default": 3,
-        "description": "Wire diameter / square size"
+        "description": "Wire diameter / square size",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionRadius": {
         "type": "number",
         "default": 0.3,
-        "description": "Square section corner R"
+        "description": "Square section corner R",
+        "minimum": 0,
+        "unit": "mm"
       },
       "sectionChamfer": {
         "type": "number",
         "default": 0.6,
-        "description": "Square section chamfer C"
+        "description": "Square section chamfer C",
+        "minimum": 0,
+        "unit": "mm"
       },
       "gapWidth": {
         "type": "number",
         "default": 0,
-        "description": "Bottom gap (0 = closed)"
+        "description": "Bottom gap (0 = closed)",
+        "minimum": 0,
+        "unit": "mm"
       },
       "innerDiameter": {
         "type": "number",
         "default": 24,
-        "description": "Inner diameter"
+        "description": "Inner diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:0b9620680bb53ba2259d0b139c5b887f015a50968370f712b78be63da499f2a2",
+  "schemaHash": "sha256:962f168ea60c23f190afc2d0edf5aae1641c40cb1a003b104a2d99d29eb03bc4",
   "defaults": {
     "section": "round",
     "sectionSize": 3,
@@ -73524,7 +75130,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:192e66e2091e9cec6aa60d4ba3a5faa7c45c05bc95eff739e03b97f528d41f4f"
+  "docsHash": "sha256:6aabc997086caeeef789f50d6b68168373299c34d4db6edd56683d1a9ab51046"
 }
 ```
 
@@ -73897,47 +75503,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "washer"
@@ -73945,21 +75510,27 @@ files.release: contextPolicy=none
       "innerDiameter": {
         "type": "number",
         "default": 10,
-        "description": "Inner diameter"
+        "description": "Inner diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionSize": {
         "type": "number",
         "default": 3,
-        "description": "Radial width"
+        "description": "Radial width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerHeight": {
         "type": "number",
         "default": 1.5,
-        "description": "Thickness"
+        "description": "Thickness",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:90dde765475f5e763d6cba713b12ba2de7b32e3f3395de7f6abe907018d6a223",
+  "schemaHash": "sha256:da553d1796619362b0b91aad9deec8491778b8f02a04ae76bff91d287ccbb9c0",
   "defaults": {
     "innerDiameter": 10,
     "sectionSize": 3,
@@ -74024,7 +75595,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:d50b351e66678c7270145dff8d7ca45ed2d5050fd94bc463c749a3f69c66bff6"
+  "docsHash": "sha256:289e801c58b55cefa2cecc0bd8035e0f1180b3d6617714bd0f02c7088c6a4126"
 }
 ```
 
@@ -74397,47 +75968,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Coaxial tube; defaults 13.4 outer diameter, 12.4 inner diameter and 3 height for the user C-part.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "tube"
@@ -74445,24 +75975,29 @@ files.release: contextPolicy=none
       "outerDiameter": {
         "type": "number",
         "default": 13.4,
-        "description": "Outer diameter"
+        "description": "Outer diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerDiameter": {
         "type": "number",
         "default": 12.4,
-        "description": "Inner diameter"
+        "description": "Inner diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "height": {
         "type": "number",
         "default": 3,
         "description": "Height",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
       }
     }
   },
-  "schemaHash": "sha256:debdba438db593c2cd46e9977203bce6fda6821627b9628f936dbc64d0f906ec",
+  "schemaHash": "sha256:f21e96af8a538c8d628e50d0dae69d13864c32a1a48d714d614cc1dc1b911983",
   "defaults": {
     "outerDiameter": 13.4,
     "innerDiameter": 12.4,
@@ -74527,7 +76062,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:4fbe3808f8962ddc8a425ef61b9932e83ab9166dc8d1496d3f34dace714b1613"
+  "docsHash": "sha256:3b7ea9f6befda36d8e2489c67edd3b831c372daedb31ba1e196f6e94a0c9d828"
 }
 ```
 
@@ -74900,47 +76435,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "平底、光滑凸面；直径和高度独立设置，可以调整拱高，不限于半球。",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "domedPin"
@@ -74949,6 +76443,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 6,
         "description": "直径",
+        "minimum": 0.01,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -74957,13 +76452,14 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 2,
         "description": "高度",
+        "minimum": 0.01,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
       }
     }
   },
-  "schemaHash": "sha256:4f47ccd7f70ff0e0c418a81630d6d5cfee644771421ca307f07816328ddbad9d",
+  "schemaHash": "sha256:1e25813d7b8d6cf576584fcbde09e4d994070e5f1be7cb26d003e2ceea95d153",
   "defaults": {
     "diameterMm": 6,
     "heightMm": 2
@@ -75016,7 +76512,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:c7af3eb3ce89cd6dbafefb617a525ba18b0bd85e949f27522f674d7905c3f24b"
+  "docsHash": "sha256:7ef44899b75ac8a70d0c12c5c5722ff0c09cc76a11fb3a28ee7e8be508807c79"
 }
 ```
 
@@ -75389,47 +76885,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "圆线沿精确螺旋路径扫掠。螺距大于线径；半径是中心线半径。",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "spring"
@@ -75438,6 +76893,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 6,
         "description": "中心线半径",
+        "minimum": 0.01,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -75446,6 +76902,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 1.2,
         "description": "线径",
+        "minimum": 0.01,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -75454,6 +76911,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 3,
         "description": "螺距",
+        "minimum": 0.01,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -75462,6 +76920,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 4,
         "description": "圈数",
+        "minimum": 0.01,
         "unit": "1",
         "quantityKind": "scalar",
         "quantizationPolicy": "none"
@@ -75473,7 +76932,7 @@ files.release: contextPolicy=none
       }
     }
   },
-  "schemaHash": "sha256:3b79c61fb41f346d18e20214f09adf34068decf1650e7e6ab73582f800bd9555",
+  "schemaHash": "sha256:5b3e860aa82db5cc5daea656f44d838d42045446af10cf901366813001ee4845",
   "defaults": {
     "radiusMm": 6,
     "wireDiameterMm": 1.2,
@@ -75551,7 +77010,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:1a1bd662fa90d99e3a93ea44a360fc01dd6ce91a6bab8fa915c3f83a59529d7e"
+  "docsHash": "sha256:c3cc2b80ea78c69572de86e16e7fad2eef9f5413bf4e196c8721c6f0e4d5a4ce"
 }
 ```
 
@@ -75924,47 +77383,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "头在参考位置下端，牙杆朝本地 +Z。沉头外缘固定直升位 0.20 mm。M 使用常用粗牙螺距，真实 V 型牙槽；不含配合公差。",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "screw"
@@ -75981,12 +77399,16 @@ files.release: contextPolicy=none
       "headWidthMm": {
         "type": "number",
         "default": 6,
-        "description": "头宽（直径）"
+        "description": "头宽（直径）",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "headThicknessMm": {
         "type": "number",
         "default": 2,
-        "description": "头厚"
+        "description": "头厚",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "threadSize": {
         "type": "string",
@@ -76010,7 +77432,9 @@ files.release: contextPolicy=none
       "threadLengthMm": {
         "type": "number",
         "default": 8,
-        "description": "螺牙长度"
+        "description": "螺牙长度",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "drive": {
         "type": "string",
@@ -76025,7 +77449,7 @@ files.release: contextPolicy=none
       }
     }
   },
-  "schemaHash": "sha256:45cf26e115d5faafd4518a6d7ccea615bc53fe1c4a24fcdddfa2da5089eb10c4",
+  "schemaHash": "sha256:7c0a94f86946c79e272afc4a51575cfbdad3ddc4dcec0de895549c6051da74e9",
   "defaults": {
     "headType": "flat",
     "headWidthMm": 6,
@@ -76186,7 +77610,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:62a6cfaac43fad46ff74ab99453ecfc901acebb65e774737339d414463c7fcac"
+  "docsHash": "sha256:845f49517ad5f85916df12441e42943e9c142117f51f6ae1ea8b18f72376f1f1"
 }
 ```
 
@@ -76559,47 +77983,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "底面在参考位置，面端朝本地 -Z；从下方面端向上攻牙。牙径采用支持的名义 M 粗牙直径，不含配合公差。",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "threadedSleeve"
@@ -76607,31 +77990,41 @@ files.release: contextPolicy=none
       "bottomDiameterMm": {
         "type": "number",
         "default": 8,
-        "description": "底直径（上端）"
+        "description": "底直径（上端）",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "faceDiameterMm": {
         "type": "number",
         "default": 6,
-        "description": "面直径（下端）"
+        "description": "面直径（下端）",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "threadDiameterMm": {
         "type": "number",
         "default": 3,
-        "description": "螺牙直径"
+        "description": "螺牙直径",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "totalHeightMm": {
         "type": "number",
         "default": 8,
-        "description": "总高"
+        "description": "总高",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "threadDepthMm": {
         "type": "number",
         "default": 6,
-        "description": "螺牙深度"
+        "description": "螺牙深度",
+        "minimum": 0.01,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:a70a5fd8c52b2f1c3323c40145bffb4e3ce0976b30010f892173c8bf4b39fe05",
+  "schemaHash": "sha256:8f018ee042cc25694d47af0b208014e2da402ede2aa99ddffcb11ee35d80bb9d",
   "defaults": {
     "bottomDiameterMm": 8,
     "faceDiameterMm": 6,
@@ -76711,7 +78104,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:a15d441f827e4493059ea7b3e3bfda277535bf005708e870ea26728fb48ba2d8"
+  "docsHash": "sha256:ce8de96f8adf64bd6f7417681413753de677d5961b5988a3d8b816395adfb166"
 }
 ```
 
@@ -77084,47 +78477,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "One solid combining a round badge plate, raised front rim and two rear mounting posts. Posts may be hollow. Brand artwork, knurling, doming and production dimensions are excluded.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "roundBadge"
@@ -77133,6 +78485,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 40,
         "description": "Badge diameter",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -77141,6 +78494,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 2,
         "description": "Plate thickness",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -77148,36 +78502,48 @@ files.release: contextPolicy=none
       "rimWidth": {
         "type": "number",
         "default": 2,
-        "description": "Front rim width"
+        "description": "Front rim width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "rimHeight": {
         "type": "number",
         "default": 0.8,
-        "description": "Front rim height"
+        "description": "Front rim height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "postSpacing": {
         "type": "number",
         "default": 18,
-        "description": "Rear post spacing X"
+        "description": "Rear post spacing X",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "postDiameter": {
         "type": "number",
         "default": 4,
-        "description": "Rear post diameter"
+        "description": "Rear post diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "postHeight": {
         "type": "number",
         "default": 4,
-        "description": "Rear post height"
+        "description": "Rear post height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "postBoreDiameter": {
         "type": "number",
         "default": 0,
-        "description": "Post bore diameter (0 = solid)"
+        "description": "Post bore diameter (0 = solid)",
+        "minimum": 0,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:a5c68bad0754433e7f01e8bca2a80a6e2a09d556d786296c2c2b8919568d6405",
+  "schemaHash": "sha256:d88f1820ad9b47c24812c04414aa479b1f9af6ea006de7f74b3cbf97f39eac13",
   "defaults": {
     "diameter": 40,
     "thickness": 2,
@@ -77292,7 +78658,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:92b27d2b0e82c0e2fb33bb0601440cda4132c05277dde6efc0d2f7e1d35c0b19"
+  "docsHash": "sha256:fda3b23b01dd2e33b3699de9235b17aef842b64346a66983af72de68024f7418"
 }
 ```
 
@@ -77665,47 +79031,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Two symmetric X-axis holes with independent center spacing. Plain through holes only; no threads, countersinks or counterbores.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "mountingPlate"
@@ -77714,6 +79039,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 40,
         "description": "Plate width X",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -77722,6 +79048,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 16,
         "description": "Plate depth Y",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -77730,6 +79057,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 3,
         "description": "Thickness",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -77738,6 +79066,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 3,
         "description": "Outer corner radius",
+        "minimum": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -77746,6 +79075,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 4,
         "description": "Hole diameter",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -77753,11 +79083,13 @@ files.release: contextPolicy=none
       "holeSpacing": {
         "type": "number",
         "default": 24,
-        "description": "Hole center spacing"
+        "description": "Hole center spacing",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:bf1e6fe56979303ada78083346f835885559ab868a3c5d969fb80d1a9465d38b",
+  "schemaHash": "sha256:d612efc94f0fa9d899791e2cbd1600525c7bacf287e637a91499ca0ef2a6ac34",
   "defaults": {
     "width": 40,
     "depth": 16,
@@ -77852,7 +79184,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:b6388bb47e658fc6f55fd908fbbd4aebefd5cd89c02801ab136d637cdf616d2a"
+  "docsHash": "sha256:1c239a6742e2560b63fe6d49798ac535dd87df14199ce0f7416bdf360892a605"
 }
 ```
 
@@ -78225,47 +79557,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Rectangular plate with four through holes. Set X/Y edge insets and optional outer corner radius; no threads or counterbores.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "fourHolePlate"
@@ -78274,6 +79565,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 50,
         "description": "Plate width X",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -78282,6 +79574,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 30,
         "description": "Plate depth Y",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -78290,6 +79583,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 3,
         "description": "Thickness",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -78298,6 +79592,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 0,
         "description": "Outer corner radius",
+        "minimum": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -78306,6 +79601,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 4,
         "description": "Hole diameter",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -78313,16 +79609,20 @@ files.release: contextPolicy=none
       "insetX": {
         "type": "number",
         "default": 5,
-        "description": "Hole inset X"
+        "description": "Hole inset X",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "insetY": {
         "type": "number",
         "default": 5,
-        "description": "Hole inset Y"
+        "description": "Hole inset Y",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:673bd4b794d559cabb7e08f6d3856271233ebb32a6f2ca172001bb8fc323dc8a",
+  "schemaHash": "sha256:6ee5b3e1d285035a52b5adb95cc4970b006b4f504f4b470488a092a36032d939",
   "defaults": {
     "width": 50,
     "depth": 30,
@@ -78427,7 +79727,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:9b2be934f120b007214c29bc9b026c057a2e147bf8f09ba78bbe06014b7c630f"
+  "docsHash": "sha256:8f0c627e913a4e3efafc66f3256b63044d3a135cebcee7788798cfb211c161cc"
 }
 ```
 
@@ -78800,47 +80100,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Independent inner/outer outlines and thickness. Half-short-side radii allow capsule frames. A parametric tool, not a complete reconstruction of an IGS part.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "flatFrame"
@@ -78848,44 +80107,57 @@ files.release: contextPolicy=none
       "outerWidth": {
         "type": "number",
         "default": 40,
-        "description": "Outer width"
+        "description": "Outer width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerHeight": {
         "type": "number",
         "default": 28,
-        "description": "Outer height"
+        "description": "Outer height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerWidth": {
         "type": "number",
         "default": 28,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerHeight": {
         "type": "number",
         "default": 16,
-        "description": "Inner height"
+        "description": "Inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerRadius": {
         "type": "number",
         "default": 5,
-        "description": "Outer corner radius"
+        "description": "Outer corner radius",
+        "minimum": 0,
+        "unit": "mm"
       },
       "innerRadius": {
         "type": "number",
         "default": 3,
-        "description": "Inner corner radius"
+        "description": "Inner corner radius",
+        "minimum": 0,
+        "unit": "mm"
       },
       "thickness": {
         "type": "number",
         "default": 3,
         "description": "Thickness",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
       }
     }
   },
-  "schemaHash": "sha256:f2cbf230bdfa4d89d87bec5d409ad934c393b54d8f3300ed1a0eff1e07e0358e",
+  "schemaHash": "sha256:da6e101383d189ab52bb94f059f69978c23656392b02a0968648c9702e15856a",
   "defaults": {
     "outerWidth": 40,
     "outerHeight": 28,
@@ -78990,7 +80262,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:6b32cd1a3dfcdbecaad84dd4c104994dc9581f27c0f0e6e52f9bdbed850bc876"
+  "docsHash": "sha256:6721a4165c54fe7bd885d9ebec27b2396abae1201d88f3d157e63581fd2b765e"
 }
 ```
 
@@ -79363,47 +80635,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "A flat frame with independent inner and outer corner radii, then one exact fillet of every sharp edge. The specified edge radius fails atomically if unsolvable. Near half-thickness can approximate a round section but is not certified as a semicircle.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "roundedFlatFrame"
@@ -79411,37 +80642,50 @@ files.release: contextPolicy=none
       "outerWidth": {
         "type": "number",
         "default": 40,
-        "description": "Outer width"
+        "description": "Outer width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerHeight": {
         "type": "number",
         "default": 28,
-        "description": "Outer height"
+        "description": "Outer height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerWidth": {
         "type": "number",
         "default": 30,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerHeight": {
         "type": "number",
         "default": 18,
-        "description": "Inner height"
+        "description": "Inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerRadius": {
         "type": "number",
         "default": 5,
-        "description": "Outer corner radius"
+        "description": "Outer corner radius",
+        "minimum": 0,
+        "unit": "mm"
       },
       "innerRadius": {
         "type": "number",
         "default": 2,
-        "description": "Inner corner radius"
+        "description": "Inner corner radius",
+        "minimum": 0,
+        "unit": "mm"
       },
       "thickness": {
         "type": "number",
         "default": 4,
         "description": "Thickness",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -79449,11 +80693,13 @@ files.release: contextPolicy=none
       "edgeRadius": {
         "type": "number",
         "default": 1.5,
-        "description": "All-edge fillet radius"
+        "description": "All-edge fillet radius",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:a4e750f81860d0fd4fb8212af40a4836e563eaefaf984d347f7e0725dec99390",
+  "schemaHash": "sha256:6a38087af0cf21c2e40fe5c13e88df827e5f067b4fbaa9519a53b96dec432c7e",
   "defaults": {
     "outerWidth": 40,
     "outerHeight": 28,
@@ -79568,7 +80814,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3a7270275b5cb94c5df74be9897eb130e2267524e41cd7744f9774cbaec5ed69"
+  "docsHash": "sha256:f64f8fa5823ce8f12584080e347909161ef3d29caa644f194b7557dc6c79b1f9"
 }
 ```
 
@@ -79941,47 +81187,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "dBuckle"
@@ -79999,41 +81204,55 @@ files.release: contextPolicy=none
       "sectionSize": {
         "type": "number",
         "default": 3,
-        "description": "Wire diameter / square size"
+        "description": "Wire diameter / square size",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionRadius": {
         "type": "number",
         "default": 0.3,
-        "description": "Square section corner R"
+        "description": "Square section corner R",
+        "minimum": 0,
+        "unit": "mm"
       },
       "sectionChamfer": {
         "type": "number",
         "default": 0.6,
-        "description": "Square section chamfer C"
+        "description": "Square section chamfer C",
+        "minimum": 0,
+        "unit": "mm"
       },
       "gapWidth": {
         "type": "number",
         "default": 0,
-        "description": "Bottom gap (0 = closed)"
+        "description": "Bottom gap (0 = closed)",
+        "minimum": 0,
+        "unit": "mm"
       },
       "innerWidth": {
         "type": "number",
         "default": 24,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerHeight": {
         "type": "number",
         "default": 19,
-        "description": "Inner height"
+        "description": "Inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerRadius": {
         "type": "number",
         "default": 2,
-        "description": "Bottom inner radius"
+        "description": "Bottom inner radius",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:89c260e719b0b56c18f659621edd67c5835fbac7f6c62a66a5eef868347bd812",
+  "schemaHash": "sha256:7624cb7dffd7d1534613accbfeb308a9d373b2feb897f966b3b60b0488ee6c7b",
   "defaults": {
     "section": "round",
     "sectionSize": 3,
@@ -80163,7 +81382,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:b62e89251c7ef75ab4971065ec7db2a9ce71a165466f2c0f4a29efce407b7792"
+  "docsHash": "sha256:f1f7aacd89ce662ac878f0bcf95614c93b3542dd1b2e595eec742401aa173009"
 }
 ```
 
@@ -80536,47 +81755,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Constant-section rounded rectangular frame. A closed round-wire frame supports an inner short side at least 2.5 times the wire diameter; other variants require four times the section size.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "rectBuckle"
@@ -80594,41 +81772,55 @@ files.release: contextPolicy=none
       "sectionSize": {
         "type": "number",
         "default": 3,
-        "description": "Wire diameter / square size"
+        "description": "Wire diameter / square size",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionRadius": {
         "type": "number",
         "default": 0.3,
-        "description": "Square section corner R"
+        "description": "Square section corner R",
+        "minimum": 0,
+        "unit": "mm"
       },
       "sectionChamfer": {
         "type": "number",
         "default": 0.6,
-        "description": "Square section chamfer C"
+        "description": "Square section chamfer C",
+        "minimum": 0,
+        "unit": "mm"
       },
       "gapWidth": {
         "type": "number",
         "default": 0,
-        "description": "Bottom gap (0 = closed)"
+        "description": "Bottom gap (0 = closed)",
+        "minimum": 0,
+        "unit": "mm"
       },
       "innerWidth": {
         "type": "number",
         "default": 28,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerHeight": {
         "type": "number",
         "default": 20,
-        "description": "Inner height"
+        "description": "Inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerRadius": {
         "type": "number",
         "default": 3,
-        "description": "Frame inner radius"
+        "description": "Frame inner radius",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:d3775cf3a19d5cc1055406dc63a77448129fde1b44238c0e6d24d2cdd0442fc3",
+  "schemaHash": "sha256:eaade3022c64ba37c0e2807f90381cba350eaeb1feaa790f8b66d85bcb608b6e",
   "defaults": {
     "section": "round",
     "sectionSize": 3,
@@ -80758,7 +81950,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:b4d4b3014a6787549f345d98bc265b1d6f013d6f61bed6eac6a0c97430def840"
+  "docsHash": "sha256:0070e3a0e671dc91e4f97d4786d682b3ac0dac76d1c306a54203dad773964740"
 }
 ```
 
@@ -81131,47 +82323,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "ovalBuckle"
@@ -81189,41 +82340,55 @@ files.release: contextPolicy=none
       "sectionSize": {
         "type": "number",
         "default": 3,
-        "description": "Wire diameter / square size"
+        "description": "Wire diameter / square size",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionRadius": {
         "type": "number",
         "default": 0.3,
-        "description": "Square section corner R"
+        "description": "Square section corner R",
+        "minimum": 0,
+        "unit": "mm"
       },
       "sectionChamfer": {
         "type": "number",
         "default": 0.6,
-        "description": "Square section chamfer C"
+        "description": "Square section chamfer C",
+        "minimum": 0,
+        "unit": "mm"
       },
       "gapWidth": {
         "type": "number",
         "default": 0,
-        "description": "Right gap (0 = closed)"
+        "description": "Right gap (0 = closed)",
+        "minimum": 0,
+        "unit": "mm"
       },
       "innerWidth": {
         "type": "number",
         "default": 28,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerHeight": {
         "type": "number",
         "default": 16,
-        "description": "Inner height"
+        "description": "Inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerRadius": {
         "type": "number",
         "default": 5.6,
-        "description": "End inner radius"
+        "description": "End inner radius",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:e5d3cd5d6f9cadab89f8ebebf30481ff42477e992e22667f128b66297375fea1",
+  "schemaHash": "sha256:c7aef4fb2625d91836ef19c8149068defcb066734f2a0f1662ea7711e2ed1cbe",
   "defaults": {
     "section": "round",
     "sectionSize": 3,
@@ -81353,7 +82518,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:b89e7e3d40112bf1e58b8174c10da04974254939bf830437df1ffd7efc39ddd8"
+  "docsHash": "sha256:2b90c8eac094050929dc65acf70e00fe2c07d05e3515f88cd933e47819f42f1d"
 }
 ```
 
@@ -81726,47 +82891,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "The inner height spans the full frame; the fused round bar has an editable vertical offset and no opening. Compact round-wire frames require an inner short side at least 2.5 wire diameters and each window at least one wire diameter high.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "sliderBuckle"
@@ -81784,17 +82908,23 @@ files.release: contextPolicy=none
       "sectionSize": {
         "type": "number",
         "default": 3,
-        "description": "Wire diameter / square size"
+        "description": "Wire diameter / square size",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionRadius": {
         "type": "number",
         "default": 0.3,
-        "description": "Square section corner R"
+        "description": "Square section corner R",
+        "minimum": 0,
+        "unit": "mm"
       },
       "sectionChamfer": {
         "type": "number",
         "default": 0.6,
-        "description": "Square section chamfer C"
+        "description": "Square section chamfer C",
+        "minimum": 0,
+        "unit": "mm"
       },
       "gapWidth": {
         "type": "number",
@@ -81804,31 +82934,41 @@ files.release: contextPolicy=none
       "innerWidth": {
         "type": "number",
         "default": 30,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerHeight": {
         "type": "number",
         "default": 24,
-        "description": "Inner height"
+        "description": "Inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerRadius": {
         "type": "number",
         "default": 3,
-        "description": "Frame inner radius"
+        "description": "Frame inner radius",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "barDiameter": {
         "type": "number",
         "default": 2.5,
-        "description": "Bar diameter"
+        "description": "Bar diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "barOffset": {
         "type": "number",
         "default": 0,
-        "description": "Bar offset (+up)"
+        "description": "Bar offset (+up)",
+        "minimum": -100,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:098dcf9d9bcac0bbb198cf406ee2acfabbd6f584ab770944bd11c3792add7761",
+  "schemaHash": "sha256:4e3f13b91bc376a089d2834051cc6a4e7ac1948565c0ecbec9a8ff9570dab52f",
   "defaults": {
     "section": "round",
     "sectionSize": 3,
@@ -81970,7 +83110,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:67ea505b427f6bc98a7a0030f6ba721b20a385e34f12eef7b0fbe8f8d1718682"
+  "docsHash": "sha256:50491adecef646c40108a42581f23215a628836b8a505c14c7d38ff25611abb0"
 }
 ```
 
@@ -82343,47 +83483,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "圆角方线 U 主体与固定圆杆融合；杆底与脚底齐平。",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "dBarBuckle"
@@ -82396,12 +83495,16 @@ files.release: contextPolicy=none
       "sectionSize": {
         "type": "number",
         "default": 6,
-        "description": "Wire diameter / square size"
+        "description": "Wire diameter / square size",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionRadius": {
         "type": "number",
         "default": 0.6,
-        "description": "Square section corner R"
+        "description": "Square section corner R",
+        "minimum": 0,
+        "unit": "mm"
       },
       "sectionChamfer": {
         "type": "number",
@@ -82416,21 +83519,27 @@ files.release: contextPolicy=none
       "innerWidth": {
         "type": "number",
         "default": 32,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerHeight": {
         "type": "number",
         "default": 24,
-        "description": "Inner height"
+        "description": "Inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "barDiameter": {
         "type": "number",
         "default": 4.5,
-        "description": "Bar diameter"
+        "description": "Bar diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:c911046414de7020de2b9f1f4f562436bcf300f3d5d9a173808af999299f89b9",
+  "schemaHash": "sha256:6866e0e2f36fd089807ce133c933de9df70918a9965dac9c5efeac040fa4b949",
   "defaults": {
     "section": "square",
     "sectionSize": 6,
@@ -82521,7 +83630,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:1c1fe683d7f5a7c770dd8cddc68f6df9e1a58c64a1e875e6a1b5bc13d9f204f9"
+  "docsHash": "sha256:61a3159526a59c9ff7f9e5efcf3276ebfe86c767dad500b719f2de6685915615"
 }
 ```
 
@@ -82894,47 +84003,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "A coaxial flange and cylindrical bushing with a straight bore through the full length. Generic parametric geometry, with no threads or source-product feature reconstruction.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "flangedBushing"
@@ -82942,31 +84010,41 @@ files.release: contextPolicy=none
       "bodyDiameter": {
         "type": "number",
         "default": 12,
-        "description": "Bushing body diameter"
+        "description": "Bushing body diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "flangeDiameter": {
         "type": "number",
         "default": 20,
-        "description": "Flange diameter"
+        "description": "Flange diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "boreDiameter": {
         "type": "number",
         "default": 6,
-        "description": "Through-bore diameter"
+        "description": "Through-bore diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "bodyHeight": {
         "type": "number",
         "default": 10,
-        "description": "Body height"
+        "description": "Body height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "flangeThickness": {
         "type": "number",
         "default": 3,
-        "description": "Flange thickness"
+        "description": "Flange thickness",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:26c17fc845273db53c5faf9911bf9b303c956e63b4a678966a26fb4321db48e9",
+  "schemaHash": "sha256:397d7a42f01daf35b6276d42f74e8611c7b1a1b7779e44a56a1a3f26dc135d30",
   "defaults": {
     "bodyDiameter": 12,
     "flangeDiameter": 20,
@@ -83051,7 +84129,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:79e5e83fe3ff8d075479ad34f12474521f6f99d17c3174a316dcc4ad21393094"
+  "docsHash": "sha256:0b7606c6b352e8b6da581c24b4c68b7239ae8cd6662a4e0c7b8c028755f288f5"
 }
 ```
 
@@ -83424,47 +84502,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "A rounded plate with two symmetric hollow cylindrical bosses; each bore passes through both boss and plate. Generic parametric geometry, not a threaded, counterbored, or source-product reconstruction.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "bossPlate"
@@ -83473,6 +84510,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 40,
         "description": "Plate width X",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -83481,6 +84519,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 16,
         "description": "Plate depth Y",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -83489,6 +84528,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 3,
         "description": "Plate thickness",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -83497,6 +84537,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 3,
         "description": "Plate corner radius",
+        "minimum": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -83504,26 +84545,34 @@ files.release: contextPolicy=none
       "bossSpacing": {
         "type": "number",
         "default": 24,
-        "description": "Boss center spacing"
+        "description": "Boss center spacing",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "bossOuterDiameter": {
         "type": "number",
         "default": 8,
-        "description": "Boss outer diameter"
+        "description": "Boss outer diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "boreDiameter": {
         "type": "number",
         "default": 4,
-        "description": "Through-bore diameter"
+        "description": "Through-bore diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "bossHeight": {
         "type": "number",
         "default": 6,
-        "description": "Boss height (below plate)"
+        "description": "Boss height (below plate)",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:f08a3d3b2e777026ef048110302c0a34223a217542b7100484d3142985052462",
+  "schemaHash": "sha256:d2dda7cd16c81f3ef64476b5948b6b29d27c8fbdbcaab147f481e00226d34ad4",
   "defaults": {
     "width": 40,
     "depth": 16,
@@ -83638,7 +84687,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:bde276209bcb64a959e2b3dfd96e0c35b1487a1bd2a94183351ff49fd1f355c4"
+  "docsHash": "sha256:4998c8aaec66485c2c643102cc5a9f59527975177fc7ab01d7ecb624e3b32559"
 }
 ```
 
@@ -84011,47 +85060,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "One fused solid, centered in XY, bottom at Z=0, open top. Clear cavity width/depth = outer width/depth minus twice wall thickness; clear height = height minus floor thickness. Two X-symmetric bosses rise from the inner floor; bores pass through bosses and floor. Straight walls/corners only; no draft, fillets, threads or assembly relationships.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "thinWallTray"
@@ -84059,17 +85067,22 @@ files.release: contextPolicy=none
       "outerWidth": {
         "type": "number",
         "default": 60,
-        "description": "Outer width X"
+        "description": "Outer width X",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerDepth": {
         "type": "number",
         "default": 36,
-        "description": "Outer depth Y"
+        "description": "Outer depth Y",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "height": {
         "type": "number",
         "default": 14,
         "description": "Total height",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -84078,6 +85091,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 2,
         "description": "Wall thickness",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -84085,31 +85099,41 @@ files.release: contextPolicy=none
       "floorThickness": {
         "type": "number",
         "default": 2,
-        "description": "Floor thickness"
+        "description": "Floor thickness",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "bossSpacing": {
         "type": "number",
         "default": 30,
-        "description": "Boss center spacing X"
+        "description": "Boss center spacing X",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "bossOuterDiameter": {
         "type": "number",
         "default": 8,
-        "description": "Boss outer diameter"
+        "description": "Boss outer diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "boreDiameter": {
         "type": "number",
         "default": 3,
-        "description": "Through-bore diameter"
+        "description": "Through-bore diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "bossHeight": {
         "type": "number",
         "default": 8,
-        "description": "Boss height above inner floor"
+        "description": "Boss height above inner floor",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:0186f3e04916ac0f671eb8862f64672fa7259f06d7f9cd4f67b17ee9f40c4511",
+  "schemaHash": "sha256:d9e8b2ebe3d38d2060ca698de00e20ce3576b761f497a3c3f03d4083ca3d732c",
   "defaults": {
     "outerWidth": 60,
     "outerDepth": 36,
@@ -84234,7 +85258,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:d58f470d550276a562d12eecb62a3a8fa25c142e949444e14ead94cb8debae5d"
+  "docsHash": "sha256:de7d2fb92a62e0d1cdfd6fb9da468ea76fbb91b39e8268bc80dce53226fdf680"
 }
 ```
 
@@ -84607,47 +85631,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Open rounded-rectangle tray with two hollow bosses on the inner floor. Outer corner radius, wall/floor thickness and boss dimensions are editable. Straight walls only; no draft, clips, lettering or texture.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "roundedBossTray"
@@ -84655,17 +85638,22 @@ files.release: contextPolicy=none
       "outerWidth": {
         "type": "number",
         "default": 60,
-        "description": "Outer width X"
+        "description": "Outer width X",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerDepth": {
         "type": "number",
         "default": 38,
-        "description": "Outer depth Y"
+        "description": "Outer depth Y",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "height": {
         "type": "number",
         "default": 12,
         "description": "Total height",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -84674,6 +85662,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 6,
         "description": "Outer corner radius",
+        "minimum": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -84682,6 +85671,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 2,
         "description": "Wall thickness",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -84689,31 +85679,41 @@ files.release: contextPolicy=none
       "floorThickness": {
         "type": "number",
         "default": 2,
-        "description": "Floor thickness"
+        "description": "Floor thickness",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "bossSpacing": {
         "type": "number",
         "default": 30,
-        "description": "Boss center spacing X"
+        "description": "Boss center spacing X",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "bossOuterDiameter": {
         "type": "number",
         "default": 7,
-        "description": "Boss outer diameter"
+        "description": "Boss outer diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "boreDiameter": {
         "type": "number",
         "default": 3,
-        "description": "Through-bore diameter"
+        "description": "Through-bore diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "bossHeight": {
         "type": "number",
         "default": 7,
-        "description": "Boss height above inner floor"
+        "description": "Boss height above inner floor",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:3a8e6d6f1c5281a3bfd2222103c8c307fa858147d9d2d94b7873ff86a50c3cd2",
+  "schemaHash": "sha256:51de370b48f30a5b187c5d903c69c87b7702a4e34abd15583e0672e2b96fa921",
   "defaults": {
     "outerWidth": 60,
     "outerDepth": 38,
@@ -84848,7 +85848,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:8f46d366c60f6fbed912729e2de299fe520b9aafde3891bdd5dc2fefb1bc73e9"
+  "docsHash": "sha256:f0b77252c92eabc375a9a97da644caf144e4b1bbffdcd8e28048f945a48ece51"
 }
 ```
 
@@ -85221,47 +86221,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Constant-section circular arc with an adjustable opening angle for C rings, hook rings and open circular frames. End balls, hinges and variable sections are excluded.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "openArcRing"
@@ -85279,31 +86238,41 @@ files.release: contextPolicy=none
       "innerDiameter": {
         "type": "number",
         "default": 30,
-        "description": "Inner diameter"
+        "description": "Inner diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionSize": {
         "type": "number",
         "default": 4,
-        "description": "Wire diameter / square size"
+        "description": "Wire diameter / square size",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionRadius": {
         "type": "number",
         "default": 0.4,
-        "description": "Square section corner R"
+        "description": "Square section corner R",
+        "minimum": 0,
+        "unit": "mm"
       },
       "sectionChamfer": {
         "type": "number",
         "default": 0.6,
-        "description": "Square section chamfer C"
+        "description": "Square section chamfer C",
+        "minimum": 0,
+        "unit": "mm"
       },
       "openingAngle": {
         "type": "number",
         "default": 70,
-        "description": "Opening angle (degrees)"
+        "description": "Opening angle (degrees)",
+        "minimum": 5,
+        "unit": "deg"
       }
     }
   },
-  "schemaHash": "sha256:708c061eecf81095d124cbaef0ce8f9a8e50f3078f0656d8ab0b66b51a458629",
+  "schemaHash": "sha256:bfad123d90fe3dac88ff9322b703e902fc4e083d254d25ebb099fa6e54843e16",
   "defaults": {
     "section": "round",
     "innerDiameter": 30,
@@ -85413,7 +86382,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:6522111f32de308113cd5cd148187a7dd07048e4e32a4e7025e008451839efd6"
+  "docsHash": "sha256:30cb413bf88ed6b74a942f55378dbd64e07042cccad4cc60142c07144593a069"
 }
 ```
 
@@ -85786,47 +86755,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Tool solid: entry at Z=0, extending along +Z. Position at the workpiece surface, rotate 180 degrees if needed, then select the body first and subtract the tool.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "counterboreTool"
@@ -85835,6 +86763,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 4,
         "description": "Hole diameter",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -85843,6 +86772,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 8,
         "description": "Total depth",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -85850,12 +86780,16 @@ files.release: contextPolicy=none
       "headDiameter": {
         "type": "number",
         "default": 8,
-        "description": "Head diameter"
+        "description": "Head diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "headDepth": {
         "type": "number",
         "default": 2,
-        "description": "Head depth"
+        "description": "Head depth",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "style": {
         "type": "string",
@@ -85868,7 +86802,7 @@ files.release: contextPolicy=none
       }
     }
   },
-  "schemaHash": "sha256:2f82e615618a28dd075e1128a3522c98de8c02e96e424074a9b89b1647876eae",
+  "schemaHash": "sha256:639956853daaeda0e406d7f43f743c96762bd0c76c18e1d2f13d0216959c079b",
   "defaults": {
     "holeDiameter": 4,
     "depth": 8,
@@ -85963,7 +86897,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:fa39a4844499e7361ab6db23c636fe7d1f83a0c793bff2c055fbe5ec5f25986d"
+  "docsHash": "sha256:31a166e4790460962a91f9d1240421b8f2785ca6415eba5cba4f193238a3cb63"
 }
 ```
 
@@ -86336,47 +87270,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "A flat plate with two equal symmetric rounded windows and an integral center bridge. Independent outline, window and front/back edge radii. No round bar, offset windows or side arch.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "twinWindowPlate"
@@ -86384,42 +87277,57 @@ files.release: contextPolicy=none
       "outerWidth": {
         "type": "number",
         "default": 44.8,
-        "description": "Outer width"
+        "description": "Outer width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerHeight": {
         "type": "number",
         "default": 26.6,
-        "description": "Outer height"
+        "description": "Outer height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerRadius": {
         "type": "number",
         "default": 3.5,
-        "description": "Outer planar radius"
+        "description": "Outer planar radius",
+        "minimum": 0,
+        "unit": "mm"
       },
       "windowWidth": {
         "type": "number",
         "default": 37.8,
-        "description": "Window clear width"
+        "description": "Window clear width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "totalInnerHeight": {
         "type": "number",
         "default": 19.6,
-        "description": "Total inner height"
+        "description": "Total inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "windowRadius": {
         "type": "number",
         "default": 2,
-        "description": "Window planar radius"
+        "description": "Window planar radius",
+        "minimum": 0,
+        "unit": "mm"
       },
       "barWidth": {
         "type": "number",
         "default": 3.5,
-        "description": "Center bridge width"
+        "description": "Center bridge width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "thickness": {
         "type": "number",
         "default": 3.5,
         "description": "Plate thickness",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -86427,11 +87335,13 @@ files.release: contextPolicy=none
       "edgeRadius": {
         "type": "number",
         "default": 0.5,
-        "description": "Front/back edge radius"
+        "description": "Front/back edge radius",
+        "minimum": 0,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:e7bda45f7ace5e8240bcf191cf6f8331051086e5ed7ec614b58e7a9c6210a43a",
+  "schemaHash": "sha256:66067849d66365cbb9261bd0449457c48edaee04e49f3d74eeea8708f63f2b4c",
   "defaults": {
     "outerWidth": 44.8,
     "outerHeight": 26.6,
@@ -86556,7 +87466,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:bee5d27bb5acdd07a8663839a3d53aec32426da29c44dfd8c4d5e9e27ca471d8"
+  "docsHash": "sha256:e40bd39322794d5638abc0c61573091035e58bcbba4e8e3e44cf5499cbd89eb2"
 }
 ```
 
@@ -86929,47 +87839,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "One flat U plate with concentric semicircular crowns, equal-width straight legs and one through-hole at each end. No second assembly component, thread or round-wire section.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "uEndHolePlate"
@@ -86977,22 +87846,29 @@ files.release: contextPolicy=none
       "outerWidth": {
         "type": "number",
         "default": 22,
-        "description": "Outer width"
+        "description": "Outer width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerWidth": {
         "type": "number",
         "default": 10,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "totalHeight": {
         "type": "number",
         "default": 31.7,
-        "description": "Total height"
+        "description": "Total height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "thickness": {
         "type": "number",
         "default": 3,
         "description": "Plate thickness",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -87001,6 +87877,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 3.3,
         "description": "End-hole diameter",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -87008,11 +87885,13 @@ files.release: contextPolicy=none
       "holeInset": {
         "type": "number",
         "default": 2.7,
-        "description": "Hole center inset from leg end"
+        "description": "Hole center inset from leg end",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:7650e18934e9441b7d92e82fab7a8e1a23cc243afd19e5d605abc080d43df67c",
+  "schemaHash": "sha256:9522f32716e49cf0480f3c5d95345ce60166fd163f1f07d3f3acb8736237af29",
   "defaults": {
     "outerWidth": 22,
     "innerWidth": 10,
@@ -87107,7 +87986,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:5fccba674ab42c55c5c7c937ec181f27e70e2dd1b007cfcd51eb8394db8bb7ab"
+  "docsHash": "sha256:74d0934242c393d33aecfe7d4640cda50ca93ccd88500193ca33203c0e21856c"
 }
 ```
 
@@ -87480,47 +88359,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Circular ring swept from an elliptical section with independent front band width and side depth. Section shape is an editable candidate to verify against the source.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "ellipseSectionRing"
@@ -87528,21 +88366,27 @@ files.release: contextPolicy=none
       "innerDiameter": {
         "type": "number",
         "default": 37.4,
-        "description": "Inner front diameter"
+        "description": "Inner front diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionWidth": {
         "type": "number",
         "default": 4.1,
-        "description": "Front band width"
+        "description": "Front band width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionDepth": {
         "type": "number",
         "default": 5,
-        "description": "Side depth"
+        "description": "Side depth",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:b518c13415f23e764118d26ae82bd55ddfef1b9c15f5231de5a21fa550ca8493",
+  "schemaHash": "sha256:a7d6ed64e8b9b9c8e9a511b31b11b1e2eb8a17b0099c5c00f272e746fe9dcd91",
   "defaults": {
     "innerDiameter": 37.4,
     "sectionWidth": 4.1,
@@ -87607,7 +88451,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:5131cbd739b4318c05446129e7f44cf381a6262babe0e96b0fb7265547e3a683"
+  "docsHash": "sha256:c4aeace15112448f75211048952d3e7a2b9bfb91cabca31c4f7757aad9e142d0"
 }
 ```
 
@@ -87980,47 +88824,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Annular band segment with editable sweep, plate thickness, symmetric end-hole inset and optional counterbores. Threads and mating parts are separate.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "arcBandPlate"
@@ -88028,27 +88831,36 @@ files.release: contextPolicy=none
       "outerRadius": {
         "type": "number",
         "default": 20,
-        "description": "Outer radius"
+        "description": "Outer radius",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerRadius": {
         "type": "number",
         "default": 15,
-        "description": "Inner radius"
+        "description": "Inner radius",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "centerAngle": {
         "type": "number",
         "default": 270,
-        "description": "Arc center angle"
+        "description": "Arc center angle",
+        "minimum": -360,
+        "unit": "deg"
       },
       "spanAngle": {
         "type": "number",
         "default": 111.2807337553,
-        "description": "Arc sweep angle"
+        "description": "Arc sweep angle",
+        "minimum": 1,
+        "unit": "deg"
       },
       "thickness": {
         "type": "number",
         "default": 5,
         "description": "Plate thickness",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -88056,12 +88868,15 @@ files.release: contextPolicy=none
       "holeInsetAngle": {
         "type": "number",
         "default": 8.4521160504,
-        "description": "Hole inset from each end"
+        "description": "Hole inset from each end",
+        "minimum": 0.1,
+        "unit": "deg"
       },
       "holeDiameter": {
         "type": "number",
         "default": 2.3,
         "description": "Through-hole diameter",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -88069,16 +88884,20 @@ files.release: contextPolicy=none
       "recessDiameter": {
         "type": "number",
         "default": 3.3,
-        "description": "Top recess diameter"
+        "description": "Top recess diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "recessDepth": {
         "type": "number",
         "default": 0,
-        "description": "Top recess depth"
+        "description": "Top recess depth",
+        "minimum": 0,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:a5f7290bd06a549b50d50fb9624df655e07c91729b6f683cc7de21c4287bb871",
+  "schemaHash": "sha256:886177e8fb80eb7ca5869b54bf03398b7f176f173ae7dda4d43ad9ca656daea5",
   "defaults": {
     "outerRadius": 20,
     "innerRadius": 15,
@@ -88203,7 +89022,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:b302c9bff6b61bdbf012d25f2f9603ae84bef0677817e0701436898c91f625ae"
+  "docsHash": "sha256:f0994dff36d3802048e78eb42d2912b1a8e38ab33e7e2c8bc190293ec0be350f"
 }
 ```
 
@@ -88576,47 +89395,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Open gable frame with straight legs, sloped shoulders and rounded open ends. Independent inner/outer widths, shoulder and peak heights, depth and end radius.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "gableOpenFrame"
@@ -88624,37 +89402,50 @@ files.release: contextPolicy=none
       "outerWidth": {
         "type": "number",
         "default": 25,
-        "description": "Outer width"
+        "description": "Outer width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerWidth": {
         "type": "number",
         "default": 20,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerPeakHeight": {
         "type": "number",
         "default": 16,
-        "description": "Outer peak height"
+        "description": "Outer peak height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerShoulderHeight": {
         "type": "number",
         "default": 12.4,
-        "description": "Outer shoulder height"
+        "description": "Outer shoulder height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerPeakHeight": {
         "type": "number",
         "default": 13.5,
-        "description": "Inner peak height"
+        "description": "Inner peak height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerShoulderHeight": {
         "type": "number",
         "default": 10.5,
-        "description": "Inner shoulder height"
+        "description": "Inner shoulder height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "thickness": {
         "type": "number",
         "default": 4,
         "description": "Plate depth",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -88663,13 +89454,14 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 1,
         "description": "Leg end radius",
+        "minimum": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
       }
     }
   },
-  "schemaHash": "sha256:4c427589642b4fe9803f7b07fdd751ade82c684c598fded5dea57201ed48e3d3",
+  "schemaHash": "sha256:564ea3369539fc801cd14595fcda1292bbae85749d1993d78997cbe75d206a71",
   "defaults": {
     "outerWidth": 25,
     "innerWidth": 20,
@@ -88784,7 +89576,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:acf8c56f471a12baf9462621468dbea6b3575445124fc6ed3c5cdcf9d9c88383"
+  "docsHash": "sha256:3f88904d6f60941553ece96f82e02810147d10c53f83e7e0aec6354f344eda05"
 }
 ```
 
@@ -89157,47 +89949,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Sweep an elliptical cross-section around a rounded rectangular centerline. Front band width and side depth are independent; the inner planar radius is separate from section shape.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "ellipseSectionRectFrame"
@@ -89205,31 +89956,41 @@ files.release: contextPolicy=none
       "innerWidth": {
         "type": "number",
         "default": 25,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerHeight": {
         "type": "number",
         "default": 19,
-        "description": "Inner height"
+        "description": "Inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerRadius": {
         "type": "number",
         "default": 2.5,
-        "description": "Inner planar radius"
+        "description": "Inner planar radius",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionWidth": {
         "type": "number",
         "default": 5.5,
-        "description": "Front band width"
+        "description": "Front band width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionDepth": {
         "type": "number",
         "default": 6,
-        "description": "Side depth"
+        "description": "Side depth",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:9d1b040d6e4b1fd46748dd8f1c6e9a3a9a1a2a4ea964549bcaa0dfb8cbc77aa3",
+  "schemaHash": "sha256:0e27a63fd484d9aef176115987e995e5246f8d13dde8464bdf0f82eb14fa3988",
   "defaults": {
     "innerWidth": 25,
     "innerHeight": 19,
@@ -89314,7 +90075,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:dda00a6afe932e4ca92e0f8fff91363c9df0d59203247b30449ac039aefbe710"
+  "docsHash": "sha256:facab58c6fcf311977cb248a2ae24771cd66111709f6245048f3f593f262a351"
 }
 ```
 
@@ -89687,47 +90448,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Flat D frame with semicircular crown, straight legs, independent inner/outer bottom radii and optional measured bottom gap. Thickness is a flat plate depth, not a round-wire section.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "dFlatFrame"
@@ -89735,37 +90455,50 @@ files.release: contextPolicy=none
       "outerWidth": {
         "type": "number",
         "default": 28,
-        "description": "Outer width"
+        "description": "Outer width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerHeight": {
         "type": "number",
         "default": 25,
-        "description": "Outer height"
+        "description": "Outer height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerWidth": {
         "type": "number",
         "default": 20,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerHeight": {
         "type": "number",
         "default": 17,
-        "description": "Inner height"
+        "description": "Inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerBottomRadius": {
         "type": "number",
         "default": 3.5,
-        "description": "Outer bottom radius"
+        "description": "Outer bottom radius",
+        "minimum": 0,
+        "unit": "mm"
       },
       "innerBottomRadius": {
         "type": "number",
         "default": 2,
-        "description": "Inner bottom radius"
+        "description": "Inner bottom radius",
+        "minimum": 0,
+        "unit": "mm"
       },
       "thickness": {
         "type": "number",
         "default": 4,
         "description": "Flat plate thickness",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -89773,11 +90506,13 @@ files.release: contextPolicy=none
       "gapWidth": {
         "type": "number",
         "default": 0,
-        "description": "Bottom gap (0 = closed)"
+        "description": "Bottom gap (0 = closed)",
+        "minimum": 0,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:9cef5cadbdbc1496d17b73fc001fa158cdcc5acf70153df223471c90d1c7a185",
+  "schemaHash": "sha256:fa58ea748b162a80c8812a9304ed87a8e8e94393d45f1be02e7d3f1db770502b",
   "defaults": {
     "outerWidth": 28,
     "outerHeight": 25,
@@ -89892,7 +90627,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:529f85ed84543f4634595a2feb9476df31c81a6641d18beaaa4a50490556daee"
+  "docsHash": "sha256:9cc1cd74326052d6ac5cddc72e477570ebd2588cfe22ab08bc58c0fdeb4c3cb1"
 }
 ```
 
@@ -90265,47 +91000,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Intersect a rounded twin-window footprint with a coaxial cylindrical wall to create an arched plate. Set outer bend radius and radial thickness independently. Projected strip construction without source-specific edge treatment; round-wire frames need another tool.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "archedTwinWindowPlate"
@@ -90313,51 +91007,69 @@ files.release: contextPolicy=none
       "outerWidth": {
         "type": "number",
         "default": 32.9,
-        "description": "Outer width"
+        "description": "Outer width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerHeight": {
         "type": "number",
         "default": 25.5,
-        "description": "Outer height"
+        "description": "Outer height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerRadius": {
         "type": "number",
         "default": 3,
-        "description": "Outer planar radius"
+        "description": "Outer planar radius",
+        "minimum": 0,
+        "unit": "mm"
       },
       "windowWidth": {
         "type": "number",
         "default": 25.4,
-        "description": "Window width"
+        "description": "Window width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "totalInnerHeight": {
         "type": "number",
         "default": 18.5,
-        "description": "Total inner height"
+        "description": "Total inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "windowRadius": {
         "type": "number",
         "default": 0.5,
-        "description": "Window planar radius"
+        "description": "Window planar radius",
+        "minimum": 0,
+        "unit": "mm"
       },
       "barWidth": {
         "type": "number",
         "default": 3.5,
-        "description": "Center bar width"
+        "description": "Center bar width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "bendRadius": {
         "type": "number",
         "default": 43.90964782342324,
-        "description": "Outer bend radius"
+        "description": "Outer bend radius",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "radialThickness": {
         "type": "number",
         "default": 2.3,
-        "description": "Radial thickness"
+        "description": "Radial thickness",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:05c33422382186273e88ba732de2ff39044bf5f7014c4d28a3895d2ef8bca9c0",
+  "schemaHash": "sha256:11c8994f86878f7f31d571073c188e0f29c59fc5ff5189aa416082da827b37f1",
   "defaults": {
     "outerWidth": 32.9,
     "outerHeight": 25.5,
@@ -90482,7 +91194,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:65307f6fc07283746d508ebe16215172b757f36ca952cff79f22cd209a3bbaf6"
+  "docsHash": "sha256:d672e9ea9018d9d960c86795989dc0c35cb8a1c7e231f427c9d92fbaed18c5ec"
 }
 ```
 
@@ -90855,47 +91567,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "A flat plate with straight top/bottom, tangent bowed sides and four small corner arcs, plus two symmetric capsule windows. Optional edge fillet. Symmetric parameter model only.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "bowedTwinWindowPlate"
@@ -90903,22 +91574,29 @@ files.release: contextPolicy=none
       "outerHeight": {
         "type": "number",
         "default": 24.5,
-        "description": "Outer height"
+        "description": "Outer height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "topStraightWidth": {
         "type": "number",
         "default": 30.2527,
-        "description": "Top/bottom straight length"
+        "description": "Top/bottom straight length",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sideRadius": {
         "type": "number",
         "default": 35.688467,
-        "description": "Bowed side radius"
+        "description": "Bowed side radius",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "cornerRadius": {
         "type": "number",
         "default": 6,
         "description": "Corner radius",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -90926,22 +91604,29 @@ files.release: contextPolicy=none
       "windowWidth": {
         "type": "number",
         "default": 32,
-        "description": "Window width"
+        "description": "Window width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "windowHeight": {
         "type": "number",
         "default": 6.55,
-        "description": "Window height"
+        "description": "Window height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "windowSpacing": {
         "type": "number",
         "default": 10.35,
-        "description": "Window center spacing"
+        "description": "Window center spacing",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "thickness": {
         "type": "number",
         "default": 3.7,
         "description": "Thickness",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -90949,11 +91634,13 @@ files.release: contextPolicy=none
       "edgeRadius": {
         "type": "number",
         "default": 0.8,
-        "description": "Front/back edge radius"
+        "description": "Front/back edge radius",
+        "minimum": 0,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:bb6e654bff418ab0637586c067894acd18ac36efc1e95be3f7a116adb5277cbf",
+  "schemaHash": "sha256:773a434a150e2fcdc7266f87c20bac894587f59cc9d1f9bf1cbfcb1a8ade1e1c",
   "defaults": {
     "outerHeight": 24.5,
     "topStraightWidth": 30.2527,
@@ -91078,7 +91765,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:089109edc62029562aaa74d5ec908d6fd564282aed62fa3c32526ff8d0bd4e43"
+  "docsHash": "sha256:0d8182a5eb04167d65bdcf4b1220c5dea179423bd95bc533ca54bc882251d2e2"
 }
 ```
 
@@ -91451,47 +92138,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "A constant-section circular frame fused to one round X-axis crossbar. The bar has editable Y and depth Z offsets. Moving bars, hinges and exact joint transitions are excluded.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "ringBar"
@@ -91509,41 +92155,55 @@ files.release: contextPolicy=none
       "innerDiameter": {
         "type": "number",
         "default": 20,
-        "description": "Ring inner diameter"
+        "description": "Ring inner diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionSize": {
         "type": "number",
         "default": 3,
-        "description": "Wire diameter / square size"
+        "description": "Wire diameter / square size",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionRadius": {
         "type": "number",
         "default": 0.3,
-        "description": "Square section corner R"
+        "description": "Square section corner R",
+        "minimum": 0,
+        "unit": "mm"
       },
       "sectionChamfer": {
         "type": "number",
         "default": 0.6,
-        "description": "Square section chamfer C"
+        "description": "Square section chamfer C",
+        "minimum": 0,
+        "unit": "mm"
       },
       "barDiameter": {
         "type": "number",
         "default": 2,
-        "description": "Bar diameter"
+        "description": "Bar diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "barOffset": {
         "type": "number",
         "default": 0,
-        "description": "Bar Y offset"
+        "description": "Bar Y offset",
+        "minimum": -100,
+        "unit": "mm"
       },
       "barDepthOffset": {
         "type": "number",
         "default": 0,
-        "description": "Bar Z depth offset"
+        "description": "Bar Z depth offset",
+        "minimum": -100,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:857b1db452cdbdc8a1be6c49954f42c1c9abf7572c14775b1bb5439e6becff7d",
+  "schemaHash": "sha256:0fd57b22c5ece92328d1e3f097a10c805be4125e22a7039808b0371f3fbf3c86",
   "defaults": {
     "section": "round",
     "innerDiameter": 20,
@@ -91673,7 +92333,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:b817b10fc897445179a2cebd392a5923490610a351bff8759f88d84c178d3630"
+  "docsHash": "sha256:cf37cc689ba7b8a553dea53ad6efa93e108f24fd7a8db0ba9d36c9e2e01bf672"
 }
 ```
 
@@ -92046,47 +92706,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Offset a true inner ellipse for a round-wire sweep and fuse one centered fixed round bar. Read back exact bounds; source spline and joint continuity still require comparison.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "ellipseBar"
@@ -92094,31 +92713,41 @@ files.release: contextPolicy=none
       "innerWidth": {
         "type": "number",
         "default": 35,
-        "description": "Inner ellipse major diameter"
+        "description": "Inner ellipse major diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerHeight": {
         "type": "number",
         "default": 25,
-        "description": "Inner ellipse minor diameter"
+        "description": "Inner ellipse minor diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionSize": {
         "type": "number",
         "default": 5,
-        "description": "Wire diameter / square size"
+        "description": "Wire diameter / square size",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "barDiameter": {
         "type": "number",
         "default": 5,
-        "description": "Bar diameter"
+        "description": "Bar diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "barDepthOffset": {
         "type": "number",
         "default": 0,
-        "description": "Bar Z depth offset"
+        "description": "Bar Z depth offset",
+        "minimum": -100,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:c66b08fa85d99b66d0fe4e3f1f0e2a658df61c166209ca4fc10a8e6ff55703ec",
+  "schemaHash": "sha256:02d24e9d8003e7134056954aca249159bb6f739fcad03beb75bc8e1d3f3e2b6d",
   "defaults": {
     "innerWidth": 35,
     "innerHeight": 25,
@@ -92203,7 +92832,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:1c57f97ff3c78c871e31f24e10bac6855020b26dd5e5de454cd531a3402698c2"
+  "docsHash": "sha256:f5d1509a39065023e965ddc5892a66468e483f1074352e4965f951f700d53f8e"
 }
 ```
 
@@ -92576,47 +93205,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Sweep round wire along a half-wire outward offset of a true inner ellipse, then cut a bottom-center parallel flat gap. Source drawings with a true outer ellipse need another tool.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "ellipseOpenWire"
@@ -92624,26 +93212,34 @@ files.release: contextPolicy=none
       "innerWidth": {
         "type": "number",
         "default": 15,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerHeight": {
         "type": "number",
         "default": 20,
-        "description": "Inner height"
+        "description": "Inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionSize": {
         "type": "number",
         "default": 3.5,
-        "description": "Wire diameter / square size"
+        "description": "Wire diameter / square size",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "gapWidth": {
         "type": "number",
         "default": 0.2,
-        "description": "Bottom-center parallel gap width"
+        "description": "Bottom-center parallel gap width",
+        "minimum": 0.01,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:3b82d629a7f157707ed16100821e20dd7217d3452d28cdb76e1e0c60f4303df2",
+  "schemaHash": "sha256:f6bead4d89c87ca4343743ca7b87dd3770398df34e3bd0ec18aff76b0b2f52ea",
   "defaults": {
     "innerWidth": 15,
     "innerHeight": 20,
@@ -92718,7 +93314,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:5a8ba79b4baf06734aa9b33a55fae786c3e3b7650c7d7029a8fac4a027b64ff3"
+  "docsHash": "sha256:673d6adef499062922e6e843e2d1dd3e94e52cd21e79bf43f06fd472d738499a"
 }
 ```
 
@@ -93091,47 +93687,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Closed capsule loop with semicircular ends and straight runs. Front width, side depth and section radius are independent; a half-short-side radius forms an exact stadium section.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "profileLoop"
@@ -93139,31 +93694,41 @@ files.release: contextPolicy=none
       "innerWidth": {
         "type": "number",
         "default": 35.2,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerHeight": {
         "type": "number",
         "default": 14.6,
-        "description": "Inner height"
+        "description": "Inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionWidth": {
         "type": "number",
         "default": 5.5,
-        "description": "Front section width"
+        "description": "Front section width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionDepth": {
         "type": "number",
         "default": 6,
-        "description": "Side section depth"
+        "description": "Side section depth",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionRadius": {
         "type": "number",
         "default": 2.5,
-        "description": "Square section corner R"
+        "description": "Square section corner R",
+        "minimum": 0,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:6c7434d761c1e2d78dfe9520a8b4e85a42e21e9d590767bd64970037fdd25722",
+  "schemaHash": "sha256:8036d8623baef5b28976ff2cb35e110178a96289b8952ab392be03fddd296768",
   "defaults": {
     "innerWidth": 35.2,
     "innerHeight": 14.6,
@@ -93248,7 +93813,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:c74dedb55a3811685ce236741d7982df076707ec6c59811d326985f0b168083f"
+  "docsHash": "sha256:8b6a71eaa5a1d337a497197984459eaa967d012e1c86fa93759268e740c4965a"
 }
 ```
 
@@ -93621,47 +94186,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Closed round-wire capsule loop with exact semicircular ends and straight runs. Set inner width, inner height and wire diameter; an unmarked seam is not guessed.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "capsuleWire"
@@ -93669,21 +94193,27 @@ files.release: contextPolicy=none
       "innerWidth": {
         "type": "number",
         "default": 34.9,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerHeight": {
         "type": "number",
         "default": 13.9,
-        "description": "Inner height"
+        "description": "Inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionSize": {
         "type": "number",
         "default": 6.1,
-        "description": "Wire diameter / square size"
+        "description": "Wire diameter / square size",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:fc7dfa602a807b94551304b9c3bb6845cb7ddbc8803d8200b1a04a8822e7c7d8",
+  "schemaHash": "sha256:6ed5d1019783f2b9326a74a2cc64f2ac8a56ae237ae43c05d238d23d98b48b81",
   "defaults": {
     "innerWidth": 34.9,
     "innerHeight": 13.9,
@@ -93748,7 +94278,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:c55f33711b8c94b5bda86cf1c050902081b96413d3c284ba3c528e6d8aac68a5"
+  "docsHash": "sha256:1a6b1ba8a7152c277952a30f7cbcc88d8bde2f620487aebf8e1b92b9a4231a5c"
 }
 ```
 
@@ -94121,47 +94651,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Separate tongue: X-axis pivot loop and a rounded flat strip along +Y. Length is pivot-center to tip. Approximate loop-head flat tongue only; no stamping bends, knurling, artwork or assembly motion validation.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "buckleTongue"
@@ -94170,6 +94659,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 22,
         "description": "Pivot to tip",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -94178,6 +94668,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 3,
         "description": "Tongue width X",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -94186,6 +94677,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 1.2,
         "description": "Tongue thickness Z",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -94193,16 +94685,20 @@ files.release: contextPolicy=none
       "pivotDiameterMm": {
         "type": "number",
         "default": 2,
-        "description": "Mating pivot diameter"
+        "description": "Mating pivot diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "clearanceMm": {
         "type": "number",
         "default": 0.15,
-        "description": "Diametral clearance"
+        "description": "Diametral clearance",
+        "minimum": 0,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:9748148c098999dc212a1a32c2adaa392ddee75a23b22a0f7e9aa734263052ad",
+  "schemaHash": "sha256:c92991652d6490079d3fdf8c21eec21b96f2395917e0937944d66907406db3e5",
   "defaults": {
     "lengthMm": 22,
     "widthMm": 3,
@@ -94292,7 +94788,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:fad13a343675a94a546a593779bbd90e7c09f6be8dc61407be407f734c5a4f46"
+  "docsHash": "sha256:1acf1c2f770364edc4d749ab76d8c7d10397111ccf3307b36d81401def526949"
 }
 ```
 
@@ -94665,47 +95161,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Separate crossbar with two open Y-axis rolled eyes and independently tangent inner/outer transitions into the center strip. For regular pull buckles; it remains separate from the frame.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "pullCoreBar"
@@ -94713,17 +95168,22 @@ files.release: contextPolicy=none
       "eyePitchMm": {
         "type": "number",
         "default": 45.5,
-        "description": "Eye center pitch X"
+        "description": "Eye center pitch X",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "eyeInnerDiameterMm": {
         "type": "number",
         "default": 5.5,
-        "description": "Eye inner diameter"
+        "description": "Eye inner diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "widthMm": {
         "type": "number",
         "default": 3.2,
         "description": "Crossbar width Y",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -94731,41 +95191,56 @@ files.release: contextPolicy=none
       "eyeWallMm": {
         "type": "number",
         "default": 1.7,
-        "description": "Eye and tail wall"
+        "description": "Eye and tail wall",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "barThicknessMm": {
         "type": "number",
         "default": 1.5,
-        "description": "Center strip thickness Z"
+        "description": "Center strip thickness Z",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "barCenterHeightMm": {
         "type": "number",
         "default": 2,
-        "description": "Strip center height Z"
+        "description": "Strip center height Z",
+        "minimum": -50,
+        "unit": "mm"
       },
       "outerTransitionRadiusMm": {
         "type": "number",
         "default": 28.3,
-        "description": "Outer transition radius"
+        "description": "Outer transition radius",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerTransitionRadiusMm": {
         "type": "number",
         "default": 30,
-        "description": "Inner transition radius"
+        "description": "Inner transition radius",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "tailLengthMm": {
         "type": "number",
         "default": 5,
-        "description": "Rolled-eye tail length"
+        "description": "Rolled-eye tail length",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "tailAngleDeg": {
         "type": "number",
         "default": 0,
-        "description": "Tail angle"
+        "description": "Tail angle",
+        "minimum": 0,
+        "maximum": 60,
+        "unit": "deg"
       }
     }
   },
-  "schemaHash": "sha256:62f0bd38fd093cfee877dfb824d08482389cf60fa489c1805e02cc5d02ef9bbb",
+  "schemaHash": "sha256:afa5c3524217f0caf99e91738cd9851d2d6367566c0bf4523dfc517d791ccc22",
   "defaults": {
     "eyePitchMm": 45.5,
     "eyeInnerDiameterMm": 5.5,
@@ -94911,7 +95386,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:28812f31e89169c6e1dce7fd5c09f8a3e708de15956e2553fc08df07eed10253"
+  "docsHash": "sha256:a660f7284e298de412c15189f2862f4267c910796c9a5bcdccb2233547635352"
 }
 ```
 
@@ -95284,47 +95759,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Three dimensions: inner diameter, outer diameter and total thickness. Winding, layer gap, transition and section R are fitted automatically; both tips have circular outlines with rounded edges. Legacy explicit winding recipes remain supported.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "keyRing"
@@ -95332,17 +95766,23 @@ files.release: contextPolicy=none
       "innerDiameterMm": {
         "type": "number",
         "default": 25,
-        "description": "Inner diameter"
+        "description": "Inner diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerDiameterMm": {
         "type": "number",
         "default": 33,
-        "description": "Outer diameter"
+        "description": "Outer diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "totalDepthMm": {
         "type": "number",
         "default": 3,
-        "description": "Total thickness"
+        "description": "Total thickness",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "autoFit": {
         "type": "boolean",
@@ -95384,7 +95824,7 @@ files.release: contextPolicy=none
       }
     }
   },
-  "schemaHash": "sha256:8c5dac3dd5bcfa9b2777aff74fed0f03345adf7bfb260533adb24da7fade38b2",
+  "schemaHash": "sha256:0a2d8eb17cba8485e26a3d19bdc3987a406153ed61bc12004a5c6d02b519acae",
   "defaults": {
     "innerDiameterMm": 25,
     "outerDiameterMm": 33,
@@ -95466,7 +95906,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:e6a6ef1ca6e608304050fec189d703f9e238f86494e8e6dd0a57b5eb3c34fe09"
+  "docsHash": "sha256:1d97d9a464c600e74d11bc4426c7b01ae3a8d57ef082dc792b4b1732394e9cb8"
 }
 ```
 
@@ -95839,47 +96279,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "A horizontal rounded rod joined to an elliptical-section U eye that narrows in Z depth from root to top.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "hangingRod"
@@ -95887,46 +96286,62 @@ files.release: contextPolicy=none
       "barLengthMm": {
         "type": "number",
         "default": 35,
-        "description": "Rod length"
+        "description": "Rod length",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "barDiameterMm": {
         "type": "number",
         "default": 5,
-        "description": "Rod diameter"
+        "description": "Rod diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "endFilletMm": {
         "type": "number",
         "default": 0.8,
-        "description": "End fillet radius"
+        "description": "End fillet radius",
+        "minimum": 0,
+        "unit": "mm"
       },
       "loopInnerWidthMm": {
         "type": "number",
         "default": 7,
-        "description": "Eye inner width"
+        "description": "Eye inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "loopWireDiameterMm": {
         "type": "number",
         "default": 2,
-        "description": "Eye wire diameter"
+        "description": "Eye wire diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "loopClearHeightMm": {
         "type": "number",
         "default": 6,
-        "description": "Clear height above rod"
+        "description": "Clear height above rod",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "loopRootDepthMm": {
         "type": "number",
         "default": 2.5,
-        "description": "Eye root Z depth"
+        "description": "Eye root Z depth",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "rootBlendRadiusMm": {
         "type": "number",
         "default": 1,
-        "description": "Root junction blend radius"
+        "description": "Root junction blend radius",
+        "minimum": 0,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:872aa0c29fc5e1700069ffa48f6e0b9cd4b6ed64d7ff74f7cb76df69bd6987db",
+  "schemaHash": "sha256:08bd7bd0c95ce4d7c4ca1be519529a67ddb2cd1d26c5fb4aa4d372de5a855538",
   "defaults": {
     "barLengthMm": 35,
     "barDiameterMm": 5,
@@ -96049,7 +96464,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:825ab13fb1321ddbdf7d07cc164cad1a23531dcb2c093bf8485a85fe8bdce290"
+  "docsHash": "sha256:ebcc738dd464a85b412f60a8650fbc54494c493af3eead67f2f7098849a9e668"
 }
 ```
 
@@ -96422,47 +96837,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "A regular round-section U bridge with straight legs, an exact semicircular crown, and optional coaxial holes in both end faces.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "archedBridge"
@@ -96470,31 +96844,41 @@ files.release: contextPolicy=none
       "outerWidthMm": {
         "type": "number",
         "default": 11.3,
-        "description": "Outer width"
+        "description": "Outer width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerHeightMm": {
         "type": "number",
         "default": 7.5,
-        "description": "Outer height"
+        "description": "Outer height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionDiameterMm": {
         "type": "number",
         "default": 3.3,
-        "description": "Section diameter"
+        "description": "Section diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "holeDiameterMm": {
         "type": "number",
         "default": 2,
-        "description": "End-hole diameter"
+        "description": "End-hole diameter",
+        "minimum": 0,
+        "unit": "mm"
       },
       "holeDepthMm": {
         "type": "number",
         "default": 3,
-        "description": "End-hole depth"
+        "description": "End-hole depth",
+        "minimum": 0,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:17a1679c5b0acc6c47a80905ecec97dc2411494641210adb334c3afabc66694e",
+  "schemaHash": "sha256:36647ee6836344453091985144e3e900f72bc69a3480f31c8e85225b056071aa",
   "defaults": {
     "outerWidthMm": 11.3,
     "outerHeightMm": 7.5,
@@ -96584,7 +96968,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:0dc0fa7261722f93bdbb5f371838b89aa1225d7e6a6b8fdadc36ae90d08baf12"
+  "docsHash": "sha256:4101b9d74fabb8f12eea38f36d901c4248b8b393666bf4619b7185132e542b37"
 }
 ```
 
@@ -96957,47 +97341,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "A parameterized two-piece mushroom rivet with a spherical cap, hollow socket, rounded waisted post and base flange. Supports assembled or exploded display, with a blind post bore depth and direction.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "mushroomRivet"
@@ -97005,92 +97348,128 @@ files.release: contextPolicy=none
       "capDiameterMm": {
         "type": "number",
         "default": 10,
-        "description": "Cap overall diameter"
+        "description": "Cap overall diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "capRiseMm": {
         "type": "number",
         "default": 5,
-        "description": "Cap rise"
+        "description": "Cap rise",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "capEdgeRadiusMm": {
         "type": "number",
         "default": 0.5,
-        "description": "Cap rear edge radius"
+        "description": "Cap rear edge radius",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "collarOuterDiameterMm": {
         "type": "number",
         "default": 3.5,
-        "description": "Socket outer diameter"
+        "description": "Socket outer diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "collarInnerDiameterMm": {
         "type": "number",
         "default": 2.9,
-        "description": "Socket inner diameter"
+        "description": "Socket inner diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "collarLengthMm": {
         "type": "number",
         "default": 2.3,
-        "description": "Socket length"
+        "description": "Socket length",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "postOuterDiameterMm": {
         "type": "number",
         "default": 2.8,
-        "description": "Post shaft diameter"
+        "description": "Post shaft diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "postInnerDiameterMm": {
         "type": "number",
         "default": 2.5,
-        "description": "Post bore diameter"
+        "description": "Post bore diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "postLengthMm": {
         "type": "number",
         "default": 9,
-        "description": "Post total length"
+        "description": "Post total length",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "tipRoundRadiusMm": {
         "type": "number",
         "default": 0.5,
-        "description": "Post tip round radius"
+        "description": "Post tip round radius",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "waistRadiusMm": {
         "type": "number",
         "default": 3.130814708,
-        "description": "Waist main radius"
+        "description": "Waist main radius",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "waistDepthMm": {
         "type": "number",
         "default": 0.26154265,
-        "description": "Waist depth"
+        "description": "Waist depth",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "waistCenterFromTipMm": {
         "type": "number",
         "default": 2.03741855,
-        "description": "Waist center from tip"
+        "description": "Waist center from tip",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "waistBlendRadiusMm": {
         "type": "number",
         "default": 0.5,
-        "description": "Waist blend radius"
+        "description": "Waist blend radius",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "flangeDiameterMm": {
         "type": "number",
         "default": 8,
-        "description": "Base flange diameter"
+        "description": "Base flange diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "flangeThicknessMm": {
         "type": "number",
         "default": 0.3,
-        "description": "Base flange thickness"
+        "description": "Base flange thickness",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "shoulderHeightMm": {
         "type": "number",
         "default": 1,
-        "description": "Shoulder height and radius"
+        "description": "Shoulder height and radius",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "postBoreDepthMm": {
         "type": "number",
         "default": 5,
-        "description": "Post blind bore depth (0=none)"
+        "description": "Post blind bore depth (0=none)",
+        "minimum": 0,
+        "unit": "mm"
       },
       "boreFromFlange": {
         "type": "boolean",
@@ -97100,11 +97479,13 @@ files.release: contextPolicy=none
       "explodedOffsetMm": {
         "type": "number",
         "default": 12,
-        "description": "Exploded center offset (0=assembled)"
+        "description": "Exploded center offset (0=assembled)",
+        "minimum": 0,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:735a7a017c62466b77b66e562b2f69eeab2ea45ee9b4490bb106dcae6592e878",
+  "schemaHash": "sha256:b11441e357f29b77d2c921e44157e00c347f9e70f5e9ae2470308dccfce55d7d",
   "defaults": {
     "capDiameterMm": 10,
     "capRiseMm": 5,
@@ -97356,7 +97737,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:44c5d433bdc0913356f486f704a3233f654d7547a3052309a4955701aa267090"
+  "docsHash": "sha256:a78b23466f0e0308f9c82a5ee7345fb0b3acee525bf03d2192dc8cf1078247d3"
 }
 ```
 
@@ -97729,47 +98110,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Two-piece nipple stud with an arc-profiled flat-top body, radiused base, blind M2 nominal clearance bore, crowned screw head, stem, and parameterized six-lobe drive. Threads and standardized drive dimensions are not modeled.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "nippleStud"
@@ -97777,116 +98117,160 @@ files.release: contextPolicy=none
       "headDiameterMm": {
         "type": "number",
         "default": 5,
-        "description": "Head nominal diameter"
+        "description": "Head nominal diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "overallHeightMm": {
         "type": "number",
         "default": 9.1,
-        "description": "Part A overall height"
+        "description": "Part A overall height",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "neckDiameterMm": {
         "type": "number",
         "default": 3,
-        "description": "Neck diameter"
+        "description": "Neck diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "neckHeightMm": {
         "type": "number",
         "default": 4,
-        "description": "Neck height"
+        "description": "Neck height",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "flangeDiameterMm": {
         "type": "number",
         "default": 7,
-        "description": "Part A flange diameter"
+        "description": "Part A flange diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "flangeThicknessMm": {
         "type": "number",
         "default": 1.3,
-        "description": "Part A flange thickness"
+        "description": "Part A flange thickness",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "undersideCollarDiameterMm": {
         "type": "number",
         "default": 3,
-        "description": "Deprecated underside collar diameter"
+        "description": "Deprecated underside collar diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "undersideCollarHeightMm": {
         "type": "number",
         "default": 0,
-        "description": "Deprecated collar height (must be 0)"
+        "description": "Deprecated collar height (must be 0)",
+        "minimum": 0,
+        "unit": "mm"
       },
       "boreDiameterMm": {
         "type": "number",
         "default": 2,
-        "description": "Part A nominal clearance bore diameter"
+        "description": "Part A nominal clearance bore diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "boreDepthMm": {
         "type": "number",
         "default": 6,
-        "description": "Part A blind bore depth"
+        "description": "Part A blind bore depth",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "entryChamferMm": {
         "type": "number",
         "default": 0.3,
-        "description": "Bore entry chamfer depth and radial width"
+        "description": "Bore entry chamfer depth and radial width",
+        "minimum": 0,
+        "unit": "mm"
       },
       "baseEdgeRadiusMm": {
         "type": "number",
         "default": 0.3,
-        "description": "Base outer edge radius"
+        "description": "Base outer edge radius",
+        "minimum": 0,
+        "unit": "mm"
       },
       "screwHeadDiameterMm": {
         "type": "number",
         "default": 7,
-        "description": "Part Z screw head diameter"
+        "description": "Part Z screw head diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "screwHeadThicknessMm": {
         "type": "number",
         "default": 2,
-        "description": "Part Z head thickness (excluding crown)"
+        "description": "Part Z head thickness (excluding crown)",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "screwCrownRiseMm": {
         "type": "number",
         "default": 1.375,
-        "description": "Part Z crown rise"
+        "description": "Part Z crown rise",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "screwEdgeRadiusMm": {
         "type": "number",
         "default": 0.5,
-        "description": "Part Z head edge radius"
+        "description": "Part Z head edge radius",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "screwDiameterMm": {
         "type": "number",
         "default": 2,
-        "description": "Part Z stem diameter"
+        "description": "Part Z stem diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "screwLengthMm": {
         "type": "number",
         "default": 5,
-        "description": "Part Z stem net length"
+        "description": "Part Z stem net length",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "driveDiameterMm": {
         "type": "number",
         "default": 2.6,
-        "description": "Illustrative six-lobe drive diameter"
+        "description": "Illustrative six-lobe drive diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "driveDepthMm": {
         "type": "number",
         "default": 0.5,
-        "description": "Illustrative drive depth"
+        "description": "Illustrative drive depth",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "assemblyGapMm": {
         "type": "number",
         "default": 2,
-        "description": "Assembly gap"
+        "description": "Assembly gap",
+        "minimum": 0,
+        "unit": "mm"
       },
       "explodedOffsetMm": {
         "type": "number",
         "default": 12,
-        "description": "Exploded center offset (0=assembled)"
+        "description": "Exploded center offset (0=assembled)",
+        "minimum": 0,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:00415cde2395817d89c8050753e2f280fa213df31c57a98ee25a70e9b26c73f9",
+  "schemaHash": "sha256:2d94ed7597e52bec34c136b120422a828d7eef185cf7d539d7425c815e80d564",
   "defaults": {
     "headDiameterMm": 5,
     "overallHeightMm": 9.1,
@@ -98163,7 +98547,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:d3de4fc18f1a463423b6183e3bd7888723ff9205b1ecc656e50e5a36936aa2de"
+  "docsHash": "sha256:ca1b7e0113fed24efebc3a34a4d5fef90cdfaa4cc715f17558d82c012447f4bf"
 }
 ```
 
@@ -98536,47 +98920,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "A parameterized two-piece thin-wall eyelet with exact revolved flange bends. Part A has a long shank and Part B is its mating ring. Supports static coaxial fit or exploded display; riveting deformation, logos and lettering are not modeled.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "twoPieceEyelet"
@@ -98584,71 +98927,97 @@ files.release: contextPolicy=none
       "aFlangeDiameterMm": {
         "type": "number",
         "default": 18,
-        "description": "Part A flange diameter"
+        "description": "Part A flange diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "aBoreDiameterMm": {
         "type": "number",
         "default": 11,
-        "description": "Part A bore diameter"
+        "description": "Part A bore diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "aTubeOuterDiameterMm": {
         "type": "number",
         "default": 11.5,
-        "description": "Part A tube outer diameter"
+        "description": "Part A tube outer diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "aTubeLengthMm": {
         "type": "number",
         "default": 5.8,
-        "description": "Part A tube length"
+        "description": "Part A tube length",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "aFlangeDepthMm": {
         "type": "number",
         "default": 1.2,
-        "description": "Part A flange axial depth"
+        "description": "Part A flange axial depth",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "aBendRadiusMm": {
         "type": "number",
         "default": 0.8,
-        "description": "Part A flange bend outer radius"
+        "description": "Part A flange bend outer radius",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "bFlangeDiameterMm": {
         "type": "number",
         "default": 18,
-        "description": "Part B flange diameter"
+        "description": "Part B flange diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "bBoreDiameterMm": {
         "type": "number",
         "default": 11.8,
-        "description": "Part B bore diameter"
+        "description": "Part B bore diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "bTubeOuterDiameterMm": {
         "type": "number",
         "default": 12.3,
-        "description": "Part B short tube outer diameter"
+        "description": "Part B short tube outer diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "bOverallDepthMm": {
         "type": "number",
         "default": 2,
-        "description": "Part B overall depth"
+        "description": "Part B overall depth",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "bFlangeDepthMm": {
         "type": "number",
         "default": 1.2,
-        "description": "Part B flange axial depth"
+        "description": "Part B flange axial depth",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "bBendRadiusMm": {
         "type": "number",
         "default": 0.8,
-        "description": "Part B flange bend outer radius"
+        "description": "Part B flange bend outer radius",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "explodedOffsetMm": {
         "type": "number",
         "default": 24,
-        "description": "Exploded center offset (0=coaxial)"
+        "description": "Exploded center offset (0=coaxial)",
+        "minimum": 0,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:f1c48edaad10779806c98813f3defb4d5b309ed1b9521d49cccd18bc9d466984",
+  "schemaHash": "sha256:291188a6d747894e9dbaa67b5d4d3b5eeece2ca663e012eeeabd897f4a6e7bfc",
   "defaults": {
     "aFlangeDiameterMm": 18,
     "aBoreDiameterMm": 11,
@@ -98826,7 +99195,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3dd9067fe130e1d013508d1512c950e29b8a7e1408f4ccfac969522ff89b3822"
+  "docsHash": "sha256:3e3df69c7caca4265b171159684c5709e6ca2c67a47a8e237028b3de6b8824a2"
 }
 ```
 
@@ -99199,47 +99568,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "One exact circular or rounded rectangular frame with an optional constant-wall collar, symmetric mounting posts and plain straight holes. Collar and posts extend along local +Z from a flange at Z=0. Hole depth 0 means through; positive depth is blind from the post top. 0/2/4 posts; two posts lie on Y. Zero collar/post heights make a backplate. No threads, taper, riveting, decoration or 3D edge blends. Circular mode requires matching width/height pairs; corner radii apply only to rectangular mode.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "frameEyelet"
@@ -99256,86 +99584,119 @@ files.release: contextPolicy=none
       "outerWidthMm": {
         "type": "number",
         "default": 25.6,
-        "description": "Outer width/diameter"
+        "description": "Outer width/diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "outerHeightMm": {
         "type": "number",
         "default": 30,
-        "description": "Outer height (circular=width)"
+        "description": "Outer height (circular=width)",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "outerRadiusMm": {
         "type": "number",
         "default": 3.5,
-        "description": "Outer rectangular corner R"
+        "description": "Outer rectangular corner R",
+        "minimum": 0,
+        "unit": "mm"
       },
       "boreWidthMm": {
         "type": "number",
         "default": 12,
-        "description": "Bore width/diameter"
+        "description": "Bore width/diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "boreHeightMm": {
         "type": "number",
         "default": 16.5,
-        "description": "Bore height (circular=width)"
+        "description": "Bore height (circular=width)",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "boreRadiusMm": {
         "type": "number",
         "default": 1.2,
-        "description": "Bore rectangular corner R"
+        "description": "Bore rectangular corner R",
+        "minimum": 0,
+        "unit": "mm"
       },
       "flangeThicknessMm": {
         "type": "number",
         "default": 1.5,
-        "description": "Flange thickness"
+        "description": "Flange thickness",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "collarProjectionMm": {
         "type": "number",
         "default": 3,
-        "description": "Collar projection (0=none)"
+        "description": "Collar projection (0=none)",
+        "minimum": 0,
+        "unit": "mm"
       },
       "collarWallMm": {
         "type": "number",
         "default": 0.3,
-        "description": "Collar wall thickness"
+        "description": "Collar wall thickness",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "mountingCount": {
         "type": "number",
         "default": 4,
-        "description": "Post count (0/2/4)"
+        "description": "Post count (0/2/4)",
+        "minimum": 0,
+        "maximum": 4,
+        "unit": "1"
       },
       "pitchXMm": {
         "type": "number",
         "default": 6,
-        "description": "Four-post X pitch"
+        "description": "Four-post X pitch",
+        "minimum": 0,
+        "unit": "mm"
       },
       "pitchYMm": {
         "type": "number",
         "default": 22.6,
-        "description": "Y pitch"
+        "description": "Y pitch",
+        "minimum": 0,
+        "unit": "mm"
       },
       "bossDiameterMm": {
         "type": "number",
         "default": 4,
-        "description": "Post diameter"
+        "description": "Post diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "bossHeightMm": {
         "type": "number",
         "default": 3.5,
-        "description": "Post height (0=none)"
+        "description": "Post height (0=none)",
+        "minimum": 0,
+        "unit": "mm"
       },
       "holeDiameterMm": {
         "type": "number",
         "default": 2.6,
-        "description": "Plain hole diameter (0=solid)"
+        "description": "Plain hole diameter (0=solid)",
+        "minimum": 0,
+        "unit": "mm"
       },
       "holeDepthMm": {
         "type": "number",
         "default": 2,
-        "description": "Hole depth (0=through)"
+        "description": "Hole depth (0=through)",
+        "minimum": 0,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:a07b4c5b681d0d67bca55f8099e09c7ca84ccd0a5e32ceef5cf73cadd35504f5",
+  "schemaHash": "sha256:ff20b3b5c0eb83dff34db608d8967fa47a3e3e6b3d400b4e95036f82d9f10452",
   "defaults": {
     "shape": "roundedRect",
     "outerWidthMm": 25.6,
@@ -99567,7 +99928,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-installation",
-  "docsHash": "sha256:c360fcc79c7f229cb3468a6c1d493b1671727eb88276cc984cf101f88fe85a48"
+  "docsHash": "sha256:461978fd1c598d68e9f57f1b4e0eeb50f0d4f2686c46c7a68670c4ff54594455"
 }
 ```
 
@@ -99940,47 +100301,6 @@ files.release: contextPolicy=none
     "additionalProperties": false,
     "description": "Constant-wall open U clip of uniform X width, independent front/back heights and exact tangent bend arcs. An inner radius equal to half the gap makes a semicircular bottom. Bottom Z=0, opening +Z, back wall +Y. Optional 0/1/2 plain back-wall through holes; two holes lie on X. Not a closed cap. No threads, decorations, end blends or elastic deformation. Holes must fit entirely within the straight back wall.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "uStrapClip"
@@ -99989,6 +100309,7 @@ files.release: contextPolicy=none
         "type": "number",
         "default": 20,
         "description": "Clip width",
+        "minimum": 0.01,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -99996,51 +100317,70 @@ files.release: contextPolicy=none
       "innerGapMm": {
         "type": "number",
         "default": 3,
-        "description": "Inner gap"
+        "description": "Inner gap",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "wallThicknessMm": {
         "type": "number",
         "default": 1.3,
-        "description": "Wall thickness"
+        "description": "Wall thickness",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "frontHeightMm": {
         "type": "number",
         "default": 7,
-        "description": "Front overall height"
+        "description": "Front overall height",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "backHeightMm": {
         "type": "number",
         "default": 5,
-        "description": "Back overall height"
+        "description": "Back overall height",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "innerBendRadiusMm": {
         "type": "number",
         "default": 0.2,
-        "description": "Inner bend radius"
+        "description": "Inner bend radius",
+        "minimum": 0,
+        "unit": "mm"
       },
       "holeCount": {
         "type": "number",
         "default": 2,
-        "description": "Back hole count (0/1/2)"
+        "description": "Back hole count (0/1/2)",
+        "minimum": 0,
+        "maximum": 2,
+        "unit": "1"
       },
       "holeDiameterMm": {
         "type": "number",
         "default": 2,
-        "description": "Plain back through-hole diameter"
+        "description": "Plain back through-hole diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "holePitchMm": {
         "type": "number",
         "default": 14,
-        "description": "Two-hole pitch"
+        "description": "Two-hole pitch",
+        "minimum": 0,
+        "unit": "mm"
       },
       "holeHeightMm": {
         "type": "number",
         "default": 3,
-        "description": "Hole center height from bottom"
+        "description": "Hole center height from bottom",
+        "minimum": 0,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:eaabcb2e41a049b99bda3861726c055e029a58c6ba65e20e029395fa5947aed0",
+  "schemaHash": "sha256:197f3f21a38b6f909ede2799c56b4750dfebdd787510fe37d2aec0f9731419a4",
   "defaults": {
     "widthMm": 20,
     "innerGapMm": 3,
@@ -100186,7 +100526,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-installation",
-  "docsHash": "sha256:03cc7c2a8ae2b52c08078bde4225a484b9d96a79a9c8441222b5a9c4c6c1d4b9"
+  "docsHash": "sha256:e63b0d62fbbd5dfd531698aec3816dcf44fa6516514e6de0c839843e576db293"
 }
 ```
 
@@ -100197,7 +100537,7 @@ files.release: contextPolicy=none
   "id": "recoverKernel",
   "title": "recoverKernel",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "description": "recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。",
   "synonyms": [
@@ -100214,7 +100554,7 @@ files.release: contextPolicy=none
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:9d97708fd0443572b697a484767c18a8894de17678f8bbdc4664b7b80be8c6bf"
+  "docsHash": "sha256:044946b31890513da7267bc1831dd6c2126105304366fbe740ee6574468878b1"
 }
 ```
 
@@ -100225,7 +100565,7 @@ files.release: contextPolicy=none
   "id": "sampleMeshRelief",
   "title": "sampleMeshRelief",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "sampleMeshRelief({context,bodyId,inputGeometryHash,support:{originMm,xAxis,normal},pointsMm:[[U,V],…]})；明确毫米支撑，1–256个点，点数乘三角面数不得超过1200万。",
   "synonyms": [
@@ -100336,7 +100676,7 @@ files.release: contextPolicy=none
     "readOnly": true,
     "geometrySource": "authoritative-mesh-f64"
   },
-  "docsHash": "sha256:81030925b9273cfd437cd7c02c2087c38cf8c7f735dfa78faddd0bdf2f03ddae"
+  "docsHash": "sha256:9ea621106108c405e2af4945551edfc65eaa60871b370cb0fbb2cdd54155bbc2"
 }
 ```
 
@@ -100347,7 +100687,7 @@ files.release: contextPolicy=none
   "id": "getModelLibrary",
   "title": "getModelLibrary",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "getModelLibrary()",
   "synonyms": [
@@ -100373,10 +100713,10 @@ files.release: contextPolicy=none
   "docs": "api.model-library",
   "remoteCompatibility": {
     "read": "getUILayout({includeModelLibrary:true}).modelLibrary",
-    "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
+    "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation:move|restore,id?,index?}})",
     "create": "Use entries[].execution with run/add; current context and unique key required."
   },
-  "docsHash": "sha256:50ff7bad4a52d694daa077e06f801449096333528a02a7fda3995810f39c7f9a"
+  "docsHash": "sha256:9adaf3e565ff1793a75864b825a7e1de3f1ab90de4148015543fffc530943dd7"
 }
 ```
 
@@ -100387,23 +100727,20 @@ files.release: contextPolicy=none
   "id": "updateModelLibrary",
   "title": "updateModelLibrary",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
-  "description": "updateModelLibrary({context,expectedLibraryRevision,operation:upsert|remove|move|restore|import,entry?,id?,index?,library?})。upsert entry={id,kind,label,description?,defaults?,script?}，id为字母开头80位以内字母数字_-，kind必须已安装，defaults仅含该类型原参数。move的index为移动后零起始位置。import全量替换，library={format:webcad-model-library,version:1,entries:[entry]}；restore全量恢复默认目录、默认参数和顺序。",
+  "description": "updateModelLibrary({context,expectedLibraryRevision,operation:move|restore,id?,index?})。move传内置id和移动后零起始index；restore恢复默认顺序。工具定义只读，不接受entry、library、脚本、upsert、remove或import。",
   "synonyms": [
     "updateModelLibrary",
-    "模型库",
-    "管理",
-    "添加",
-    "删除",
-    "修改",
-    "排序",
-    "恢复",
-    "导入",
-    "热插拔"
+    "快捷工具",
+    "显示顺序",
+    "上移",
+    "下移",
+    "恢复顺序",
+    "固定定义"
   ],
-  "inputContract": "updateModelLibrary({context,expectedLibraryRevision,operation:upsert|remove|move|restore|import,entry?,id?,index?,library?})。upsert entry={id,kind,label,description?,defaults?,script?}，id为字母开头80位以内字母数字_-，kind必须已安装，defaults仅含该类型原参数。move的index为移动后零起始位置。import全量替换，library={format:webcad-model-library,version:1,entries:[entry]}；restore全量恢复默认目录、默认参数和顺序。",
-  "outputContract": "status=applied、revision、entries、persistence、context；不修改工程revision/历史。按expectedLibraryRevision拒绝并发陈旧写入。存储不可用明确失败；损坏库显式restore且expectedLibraryRevision=-1可恢复。删除/编辑只影响库，已有模型冻结kind和params。script 为 1–20 个步骤 [{id,op,params,refs}]，支持 box/cylinder/sphere/quickModel/transform/union/cut/intersect；refs 只能引用前面步骤，最后一步为结果；params 数值可写 $params.字段引用工具参数。已有工具从 getModelLibrary 读取后修改 script 并 upsert；新工具使用唯一 ID。JavaScript/eval/URL 不接受。",
+  "inputContract": "updateModelLibrary({context,expectedLibraryRevision,operation:move|restore,id?,index?})。move传内置id和移动后零起始index；restore恢复默认顺序。工具定义只读，不接受entry、library、脚本、upsert、remove或import。",
+  "outputContract": "status=applied、revision、entries、readOnlyDefinitions:true、allowedOperations、persistence、context；只写当前源localStorage排序，不改工程revision或历史。陈旧排序写入返回LIBRARY_REVISION_CONFLICT；存储失败明确拒绝；损坏排序可显式restore且expectedLibraryRevision=-1恢复。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -100423,10 +100760,10 @@ files.release: contextPolicy=none
   "docs": "api.model-library",
   "remoteCompatibility": {
     "read": "getUILayout({includeModelLibrary:true}).modelLibrary",
-    "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
+    "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation:move|restore,id?,index?}})",
     "create": "Use entries[].execution with run/add; current context and unique key required."
   },
-  "docsHash": "sha256:e54ff7310a2234fab89bcb3741681c07c7f9108bc7890430c4457bb35f10883a"
+  "docsHash": "sha256:99e3c6f92af31ec1772e18b54292918fa652e6db577f695aa43cfdebbafe0262"
 }
 ```
 
@@ -100437,7 +100774,7 @@ files.release: contextPolicy=none
   "id": "resolveModelLibrary",
   "title": "resolveModelLibrary",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "resolveModelLibrary({context,id,expectedLibraryRevision,params?:参数覆盖})",
   "synonyms": [
@@ -100467,10 +100804,10 @@ files.release: contextPolicy=none
   "docs": "api.model-library",
   "remoteCompatibility": {
     "read": "getUILayout({includeModelLibrary:true}).modelLibrary",
-    "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
+    "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation:move|restore,id?,index?}})",
     "create": "Use entries[].execution with run/add; current context and unique key required."
   },
-  "docsHash": "sha256:31754b360edd188200b4a03e3505aa02750581a0b9caf00aa398f4bfe3008a09"
+  "docsHash": "sha256:eb01c646d0712f19d0f6c14f5d02adaaf865df0622cd4f47ecbf0acd86f44279"
 }
 ```
 
@@ -100481,7 +100818,7 @@ files.release: contextPolicy=none
   "id": "planPatternMachining",
   "title": "planPatternMachining",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "planPatternMachining({context,intent})，intent 为 version:1 加工意图；只读规划，不推断图片深度。",
   "synonyms": [
@@ -100670,7 +101007,7 @@ files.release: contextPolicy=none
     "geometryComputed": false,
     "fallbackAllowed": false
   },
-  "docsHash": "sha256:85279051ae9bafff2e20ac1a6cc587408d7abc1f874dbcedef5b8baacd703a7f"
+  "docsHash": "sha256:c8bde0f5e178cb27700e5c3c31425df336fb678a43f3e59037b8a5f5ff6004a5"
 }
 ```
 
@@ -100681,7 +101018,7 @@ files.release: contextPolicy=none
   "id": "decideServicesWait",
   "title": "decideServicesWait",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "decideServicesWait({jobId,decision:\"continue\"|\"stop\"})，可在工程忙碌时调用；jobId必须是getServicesRouting().pendingWait中的当前任务。",
   "synonyms": [
@@ -100701,7 +101038,7 @@ files.release: contextPolicy=none
     "PARAM_SCHEMA_INVALID",
     "SERVICES_WAIT_NOT_PENDING"
   ],
-  "docsHash": "sha256:c411ba94182e8236c37e15841897610144defb07ffa90332a162916be7640be6"
+  "docsHash": "sha256:f7659804ec2cd11f47f5df6488320cf03e1b6d73afd11a36f90b32d22c0a3286"
 }
 ```
 
@@ -100712,7 +101049,7 @@ files.release: contextPolicy=none
   "id": "recoverServicesJob",
   "title": "recoverServicesJob",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "recoverServicesJob({jobId,reason,approved:true,acknowledgedState:\"interrupted\",idempotencyKey})。必须先用 getServicesJob 核对已停止旧任务。",
   "synonyms": [
@@ -100737,7 +101074,7 @@ files.release: contextPolicy=none
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_REQUEST_FAILED"
   ],
-  "docsHash": "sha256:c650e6a343202b0b5a1f7355507b43fac4ce80a18048c65246a9c47a795ee26b"
+  "docsHash": "sha256:b0b81e90659f97dbeb41522df57a73fd10c8533934c96c063d37dccfada776b2"
 }
 ```
 
@@ -100748,7 +101085,7 @@ files.release: contextPolicy=none
   "id": "prepareReliefTopologyUpgrade",
   "title": "prepareReliefTopologyUpgrade",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "prepareReliefTopologyUpgrade({context,featureId,maskStrategy?:\"faceWithHolesExtrude\"|\"cutHoleSolids\"})。只读规划，不计算几何；原参数没有策略时必须明确选定。",
   "synonyms": [
@@ -100775,7 +101112,7 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:4b7d6ec9c8cdf6c882a178b2d45efa93093bbfbc3830acd0c62ba85ae6fab18f"
+  "docsHash": "sha256:6aff110ecee0e43b600ef03d95341c18099f15305ae86f8ac2ad2d41457ab26e"
 }
 ```
 
@@ -100786,7 +101123,7 @@ files.release: contextPolicy=none
   "id": "sampleReliefHeight",
   "title": "sampleReliefHeight",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "sampleReliefHeight({context,featureId,layerIndex?,samples?,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。分层必须明确 layerIndex；samples 仅用于读初始等高层的新草稿，约束同 prepareReliefSculpt。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。",
   "synonyms": [
@@ -100816,7 +101153,7 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:5326cc29b4dfc757c3113ebe704869c2941feddfd4d4704ed9506be84d7e681c"
+  "docsHash": "sha256:df9fd9f4930a1bf950a0af08cbd08ef35011f510f89b87d2855b88aade6c6624"
 }
 ```
 
@@ -100827,7 +101164,7 @@ files.release: contextPolicy=none
   "id": "prepareReliefSculpt",
   "title": "prepareReliefSculpt",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "prepareReliefSculpt({context,featureId,layerIndex?,patch?:{id,domainMm:[uMin,vMin,uMax,vMax],samples:7–65,protectionMm},samples?,draft?:{deltaMm,mask},strokes:[{mode:\"raise\"|\"lower\"|\"smooth\"|\"flatten\"|\"restore\"|\"mask\"|\"unmask\"|\"fill\"|\"scrape\"|\"sharpen\",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:\"none\"|\"x\"|\"y\"|\"xy\",points:[[x,y],...]},...]})。单层与显式选层使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。",
   "synonyms": [
@@ -100866,7 +101203,7 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:df14185709fff96906e3f15627483dd92eb8a07aa69460badffbdef62511f7f4"
+  "docsHash": "sha256:c3799976497bc14f85c0beb9acbf1ffa242f9e17310483af38c76dbd1f645ed4"
 }
 ```
 
@@ -100877,7 +101214,7 @@ files.release: contextPolicy=none
   "id": "readRelief",
   "title": "readRelief",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5,sourceInterpretation:authoredHeightMap|rasterArtwork|reviewedVectors|shadedReference})。先 files.register；只读，本地解码。",
   "synonyms": [
@@ -100915,7 +101252,7 @@ files.release: contextPolicy=none
     "PARAM_SCHEMA_INVALID"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:41d51a41cb5b263c67a21b19a1d0b6e04622d8fcdd3e0c4b22aaebc7838f9300"
+  "docsHash": "sha256:f26e509a9388d2d9787efa94be566ca450fecde4c4468eac82d5427b9065e065"
 }
 ```
 
@@ -100926,7 +101263,7 @@ files.release: contextPolicy=none
   "id": "getHistory",
   "title": "getHistory",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "getHistory()。返回已保留状态，不含导入源字节。",
   "synonyms": [
@@ -100943,7 +101280,7 @@ files.release: contextPolicy=none
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:058325641a9e3f905811ac26bc44e84ab657a66bf2dfa5d9163b90a561ff613c"
+  "docsHash": "sha256:fa9c5f8f18245036a2d5d613ca5da26e9fc65a1f553f8b8fb784d6a31fa5acad"
 }
 ```
 
@@ -100954,7 +101291,7 @@ files.release: contextPolicy=none
   "id": "planAlignment",
   "title": "planAlignment",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true：true=整体按联合包围盒移动并保持相对位置，false=每个实体各自对齐。",
   "synonyms": [
@@ -100975,7 +101312,7 @@ files.release: contextPolicy=none
     "STALE_REFERENCE",
     "REVISION_CONFLICT"
   ],
-  "docsHash": "sha256:3c49a50cd179f51ca944a45122811bcf2764e91a4b24473823a72ae7bb7baa43"
+  "docsHash": "sha256:6862e66a517728cfa613510d40892e215aef5b8d205b1029e57ffe510b70afe6"
 }
 ```
 
@@ -100986,7 +101323,7 @@ files.release: contextPolicy=none
   "id": "selectRectangle",
   "title": "selectRectangle",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。",
   "synonyms": [
@@ -101007,7 +101344,7 @@ files.release: contextPolicy=none
     "UI_TASK_ACTIVE",
     "REVISION_CONFLICT"
   ],
-  "docsHash": "sha256:64e5049410785f2bdc2aa1f361968cb0c03d0e69af11bc1ef964805ef1d66c93"
+  "docsHash": "sha256:933264bd742cda0a21b1521fea328c542d4c10260cc3d609ddb9ab57abfd5fbe"
 }
 ```
 
@@ -101018,7 +101355,7 @@ files.release: contextPolicy=none
   "id": "createDrawing",
   "title": "createDrawing",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "description": "createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。",
   "synonyms": [
@@ -101041,7 +101378,7 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT",
     "GEOMETRY_INVALID"
   ],
-  "docsHash": "sha256:8bbbc86e9034dd6c85a1c3582cd9de18c4f21c99be338266b9bcc6c3a1cb31fe"
+  "docsHash": "sha256:15efc2d985913a033e7ecbae2fe6bd553935a54aab4f73f828728663c46ec781"
 }
 ```
 
@@ -101052,7 +101389,7 @@ files.release: contextPolicy=none
   "id": "exportDrawing",
   "title": "exportDrawing",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "description": "exportDrawing({context,drawingId,format:pdf|jpg|dxf|svg,paper?:A4|A3,title?,name?,disabledDimensions?:[id]})。drawingId必须仍匹配当前revision；DWG明确不可用。",
   "synonyms": [
@@ -101078,7 +101415,7 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:b05d407762fd38aa92d404f4ff96cdc8ded6eab168644fa3608a944b97fa53d9"
+  "docsHash": "sha256:5ffcf865e264840e32f52368f8682a8a5bfebdbeb8b52781be35ea19ad6fb0a8"
 }
 ```
 
@@ -101089,7 +101426,7 @@ files.release: contextPolicy=none
   "id": "getQuickModelUsage",
   "title": "getQuickModelUsage",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "getQuickModelUsage({}={})；只读本浏览器累计成功创建次数，不要求几何上下文，预览期间也可读取。",
   "synonyms": [
@@ -101112,7 +101449,7 @@ files.release: contextPolicy=none
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
-  "docsHash": "sha256:922768c1bc9688676adfd6c0e0a9bf56b2be4f9cb6706312f9d511e55c928aa6"
+  "docsHash": "sha256:28a7d068e3bc588e9dc85e8acbef5c3d21d0d5a5d41cea76058a8167316197c4"
 }
 ```
 
@@ -101123,7 +101460,7 @@ files.release: contextPolicy=none
   "id": "copySelection",
   "title": "copySelection",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "description": "copySelection({context,bodyIds}); 1–200个当前实体。",
   "synonyms": [
@@ -101146,7 +101483,7 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE",
     "UI_TASK_ACTIVE"
   ],
-  "docsHash": "sha256:e7bbc14957426805b3e24a30dd8109b68ba7f96741148dd46198f7920171e644"
+  "docsHash": "sha256:1f45f38d69c0835c868a1afb6e5e046f8e1a8cc258354b4880fbfa2673509bf3"
 }
 ```
 
@@ -101157,7 +101494,7 @@ files.release: contextPolicy=none
   "id": "pasteSelection",
   "title": "pasteSelection",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "description": "pasteSelection({context,idempotencyKey}); 先 copySelection。",
   "synonyms": [
@@ -101188,7 +101525,7 @@ files.release: contextPolicy=none
     "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:caad45c6915f4ea7f81d2d67e543c7ddd81de14d167d402c85d299415832179b"
+  "docsHash": "sha256:2438cb58173f3d6e44d80b42c244ca03241dbb1bfdba8ccb7c8f3c6405f0c8bb"
 }
 ```
 
@@ -101199,7 +101536,7 @@ files.release: contextPolicy=none
   "id": "createRequestContext",
   "title": "createRequestContext",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "createRequestContext(context?); omit to read the current context.",
   "synonyms": [
@@ -101219,7 +101556,7 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:5dbad5d1a18ae7b9bb46376fdef7d91ef44f42f9dcf7ac950bd9ef5455f4475b"
+  "docsHash": "sha256:0b65d0bdd5c84cec5fa51fc2321e49b856d760a4eddea1655361f5f542201557"
 }
 ```
 
@@ -101230,7 +101567,7 @@ files.release: contextPolicy=none
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "getUILayout({includeModelLibrary?:boolean})",
   "synonyms": [
@@ -101253,7 +101590,7 @@ files.release: contextPolicy=none
     "LIBRARY_STORAGE_UNAVAILABLE"
   ],
   "docs": "api.workspace",
-  "docsHash": "sha256:65075f971de52beae58791174de30206d3d490b875b33b21464e30937545b693"
+  "docsHash": "sha256:321f1e7c7c8d347f4a92d2f32d5efd115eee197990f016a95291a80ee639986f"
 }
 ```
 
@@ -101264,7 +101601,7 @@ files.release: contextPolicy=none
   "id": "setRenderQuality",
   "title": "setRenderQuality",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "setRenderQuality({context,quality:\"draft\"|\"standard\"|\"fine\"|\"ultra\"})",
   "synonyms": [
@@ -101289,7 +101626,7 @@ files.release: contextPolicy=none
     "DISPLAY_FAILED"
   ],
   "docs": "api.workspace",
-  "docsHash": "sha256:71797d92c212173340691c02869c524e39e385f782e7f5a5591a8ae205d0e1a3"
+  "docsHash": "sha256:bb1823a0011fc2b49ac4a6c0437731f70d06279ee89ce9a218794c5d614affee"
 }
 ```
 
@@ -101300,7 +101637,7 @@ files.release: contextPolicy=none
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "invoke({method,args}); public method name or files.*.",
   "synonyms": [
@@ -101319,7 +101656,7 @@ files.release: contextPolicy=none
     "PARAM_SCHEMA_INVALID"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:2cc18b2d00322e8b69c6747081b27d4176ace93887a23b2ae40df56b93fbf59f"
+  "docsHash": "sha256:505f78b9ce41869b7cb4026ec67a03224a739e92d81f788d6f8ff9d78a1de408"
 }
 ```
 
@@ -101330,7 +101667,7 @@ files.release: contextPolicy=none
   "id": "submit",
   "title": "submit",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/inspectConstraints/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.",
   "synonyms": [
@@ -101353,7 +101690,7 @@ files.release: contextPolicy=none
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:fc27b0b5de984b80d58b886e3b5e7ce1862219abd60fdafdc2ae2fa8a7dbcef1"
+  "docsHash": "sha256:247721f0e9cacd876a1184ed646f5701f5ad9cedbbe5b7931c947688514d8f69"
 }
 ```
 
@@ -101364,7 +101701,7 @@ files.release: contextPolicy=none
   "id": "getJob",
   "title": "getJob",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "getJob({jobId})",
   "synonyms": [
@@ -101384,7 +101721,7 @@ files.release: contextPolicy=none
     "JOB_NOT_FOUND"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:1bf936e114af74c1fd837d5fea96191718150d7ea5f4ddf287c3ed36c2333573"
+  "docsHash": "sha256:d717b021101314c021cacc4de2bc0c65ffa13d110385f84a876ae13fa0822d87"
 }
 ```
 
@@ -101395,7 +101732,7 @@ files.release: contextPolicy=none
   "id": "cancelJob",
   "title": "cancelJob",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "cancelJob({jobId})",
   "synonyms": [
@@ -101413,7 +101750,7 @@ files.release: contextPolicy=none
     "JOB_NOT_FOUND"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:29903ce7acdf690e2295307c32d98e747027953924d396b95a4b0f7c4a8c88b9"
+  "docsHash": "sha256:669d5b856843efea270b3162cb38de84fe07b864b4b18c25a31ba1ca1144dc33"
 }
 ```
 
@@ -101424,7 +101761,7 @@ files.release: contextPolicy=none
   "id": "waitFor",
   "title": "waitFor",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "waitFor({afterRevision}|{jobId},timeoutMs?,documentInstanceId?)。二选一；timeoutMs≤LIMITS.transport.waitMaxMs(25000)。替代客户端轮询 getState/getJob。",
   "synonyms": [
@@ -101449,7 +101786,7 @@ files.release: contextPolicy=none
     "PARAM_RANGE_INVALID",
     "JOB_NOT_FOUND"
   ],
-  "docsHash": "sha256:dabaf664dccd747bd63c014933dcbc189a1f0f10c21427829890db0748a410e5"
+  "docsHash": "sha256:a5d017cb69e255b939132764dd0f205c920c3d6b2dc5bd4066e4e6e6c44b84b7"
 }
 ```
 
@@ -101460,7 +101797,7 @@ files.release: contextPolicy=none
   "id": "awaitJob",
   "title": "awaitJob",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "description": "awaitJob({jobId,timeoutMs?})。timeoutMs 0..25000，默认25000；作业结束即返回（页面内推送，不轮询 getState）。超时只返回当前快照，不取消、不重放。",
   "synonyms": [
@@ -101480,7 +101817,7 @@ files.release: contextPolicy=none
     "PARAM_RANGE_INVALID",
     "JOB_NOT_FOUND"
   ],
-  "docsHash": "sha256:ef8cf2dd0e5a599f9105011e72b72ebbe56b0a23273113ab0d63f552c7d64ed6"
+  "docsHash": "sha256:2e3e2c0d58210e3db0e91f50834dff2aca0465f47cb85080cd89131397c1520e"
 }
 ```
 
@@ -101491,7 +101828,7 @@ files.release: contextPolicy=none
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.",
   "synonyms": [
@@ -101512,7 +101849,7 @@ files.release: contextPolicy=none
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:2a7f7fbe77c271489db8a0a36dcf67f9562e900ce74be3d41652598b30b3b380"
+  "docsHash": "sha256:58c14f1527ace07e2c3bfc5197d23f3d3b485961c3ea277b9fb73c9704369519"
 }
 ```
 
@@ -101523,7 +101860,7 @@ files.release: contextPolicy=none
   "id": "info",
   "title": "info",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "info() 无参数。",
   "synonyms": [
@@ -101539,7 +101876,7 @@ files.release: contextPolicy=none
   "runtimeAvailability": "requires_page",
   "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
   "errorCodes": [],
-  "docsHash": "sha256:2acd18c3f5041db9e5b94d713083676a923fa61c966c70c44f1527a4c9b07a91"
+  "docsHash": "sha256:8a5c758b8561a45a3980fd4858b685f6bab464e58debd06866a7bde7b293167b"
 }
 ```
 
@@ -101550,7 +101887,7 @@ files.release: contextPolicy=none
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "getState({sessionId?,include?,compact?,fields?,sinceRevision?}={}); include 可选 summary/features/bodies/selection/capabilities/references。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。",
   "synonyms": [
@@ -101572,7 +101909,7 @@ files.release: contextPolicy=none
     "PARAM_SCHEMA_INVALID",
     "INSTANCE_MISMATCH"
   ],
-  "docsHash": "sha256:8a4ff1e9bd847cf72aa0c219f8f9ae22d358d7c153c83b6a53f9d291161aa43b"
+  "docsHash": "sha256:27f7a674368b1bd93bbbdcb06b8cfa5a7ca6186e603b665914af128465348926"
 }
 ```
 
@@ -101583,7 +101920,7 @@ files.release: contextPolicy=none
   "id": "searchTools",
   "title": "searchTools",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。",
   "synonyms": [
@@ -101604,7 +101941,7 @@ files.release: contextPolicy=none
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:9a3650fe48c5fcb8f6ac3a141a4fe0ca757c7ab350ee701acacbec533b8e94ca"
+  "docsHash": "sha256:65928824eee4cc5a505fc9b1523f831525a9dbbdaec09ca366f660517f3d006b"
 }
 ```
 
@@ -101615,7 +101952,7 @@ files.release: contextPolicy=none
   "id": "getTools",
   "title": "getTools",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.",
   "synonyms": [
@@ -101637,7 +101974,7 @@ files.release: contextPolicy=none
     "CATALOG_CHANGED"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:87d3214629d825cff8a838fa06750985432e41ccd687c97451e1d69e71ceb34a"
+  "docsHash": "sha256:dfb55d9e6536f4420e982f3087afce3dd19fd839c46b6e34417543538a981f99"
 }
 ```
 
@@ -101648,7 +101985,7 @@ files.release: contextPolicy=none
   "id": "getTool",
   "title": "getTool",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。",
   "synonyms": [
@@ -101669,7 +102006,7 @@ files.release: contextPolicy=none
     "UNKNOWN_OPERATION",
     "OPERATION_VERSION_UNSUPPORTED"
   ],
-  "docsHash": "sha256:ec6f09ffb4890823754a7233f767ec204a0eaa42d04d9a71b2bc42089757aefe"
+  "docsHash": "sha256:9ac179e3001714b3a4e51e95214bd9893c360ab2d09f96ffd01c2b3e364398eb"
 }
 ```
 
@@ -101680,7 +102017,7 @@ files.release: contextPolicy=none
   "id": "readDocs",
   "title": "readDocs",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。",
   "synonyms": [
@@ -101701,7 +102038,7 @@ files.release: contextPolicy=none
     "PARAM_RANGE_INVALID",
     "OPERATION_VERSION_UNSUPPORTED"
   ],
-  "docsHash": "sha256:c69535f800c0977890e835888b5344854141bce1c001adfc6dbee1bc810e9711"
+  "docsHash": "sha256:e0f3759035d645af256a916b9cff1757e9e371eb8df710dc1ac148f1a5bdc71a"
 }
 ```
 
@@ -101712,7 +102049,7 @@ files.release: contextPolicy=none
   "id": "queryGeometry",
   "title": "queryGeometry",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry；多选仍须 requireUnique:false。",
   "synonyms": [
@@ -101737,7 +102074,7 @@ files.release: contextPolicy=none
     "AMBIGUOUS_SELECTION"
   ],
   "docs": "api.query-geometry",
-  "docsHash": "sha256:0d6c5fa54c9a2f3c7262a73fa4f2d3d5afbe5044e45284aee6abddc09a6e0d41"
+  "docsHash": "sha256:41902eda371bef3f58b96e2cbc7e8be6fae3990b994689628778ed1233817b92"
 }
 ```
 
@@ -101748,7 +102085,7 @@ files.release: contextPolicy=none
   "id": "queryReferences",
   "title": "queryReferences",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "queryReferences({context,bodyIds:[],kind:\"point\"|\"axis\"|\"frame\",filter?:{types?:[\"cad-vertex\",\"edge-midpoint\",\"circle-center\",\"edge-nearest\",\"trimmed-face-point\",...],near?:{point:[x,y,z],radiusMm}},limit?,offset?,requireUnique?})。",
   "synonyms": [
@@ -101768,7 +102105,7 @@ files.release: contextPolicy=none
     "STALE_REFERENCE",
     "AMBIGUOUS_REFERENCE"
   ],
-  "docsHash": "sha256:267670685ba3977cceadf781c1cce1420bd14c75580dfb22e513d9ec06e6f461"
+  "docsHash": "sha256:d1ac2112e5eec06ba50f2b6352f09006b25503467c5acd44eb84fbc4a5dbc128"
 }
 ```
 
@@ -101779,7 +102116,7 @@ files.release: contextPolicy=none
   "id": "resolvePlacement",
   "title": "resolvePlacement",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。",
   "synonyms": [
@@ -101799,7 +102136,7 @@ files.release: contextPolicy=none
     "FRAME_INVALID",
     "PLACEMENT_NOT_APPLICABLE"
   ],
-  "docsHash": "sha256:1f74d994eb410f5362c0324029baf5556b2da38ef47b1c70178fa3ab5edc5263"
+  "docsHash": "sha256:6db6866c084e041366cb0245f3102cc37df2802fe9ee9818c63eef9c3fc4226e"
 }
 ```
 
@@ -101810,7 +102147,7 @@ files.release: contextPolicy=none
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "description": "execute({context,idempotencyKey,action,args}); action 来自当前命令合同。",
   "synonyms": [
@@ -101839,7 +102176,7 @@ files.release: contextPolicy=none
     "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:cef94fb4d57e19464184b9f7dcd1e195e634f1d5dc4ae3c23c722f875ed58a0a"
+  "docsHash": "sha256:13ef8b6619372ea7aff98c586ffb4c0bc68ba20ae07990f7a9692ee9cbf81f8a"
 }
 ```
 
@@ -101850,7 +102187,7 @@ files.release: contextPolicy=none
   "id": "measure",
   "title": "measure",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需当前范围内的非负整数 topologyId；整个实体测量不接受 topologyId，坐标点模式不可混用实体字段。",
   "synonyms": [
@@ -101880,7 +102217,7 @@ files.release: contextPolicy=none
     "area": "mm^2",
     "volume": "mm^3"
   },
-  "docsHash": "sha256:e5decbc87a85d57d1f01b217ea4b6d2ed9120b5b0c5b3fb589ec2a023a86d4df"
+  "docsHash": "sha256:3b4486c7a956485449cb37e5789a5e575d5a10ddb72e1af86ed1eb0aee2d6f9b"
 }
 ```
 
@@ -101891,7 +102228,7 @@ files.release: contextPolicy=none
   "id": "measureRelation",
   "title": "measureRelation",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "measureRelation({context,mode:\"shortest\"|\"centerDistance\"|\"axisAlignment\"|\"pointFace\"|\"parallelFaces\",first?,second?,face?,pointWorld?})；引用形式 {bodyId,kind:\"body\"|\"edge\"|\"face\",topologyId?}。",
   "synonyms": [
@@ -101915,7 +102252,7 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:cfef0129868efad2474d21a50d3c2421a2f7e9258a6f15ab1966a5a38893291b"
+  "docsHash": "sha256:f95ad304eac20f75049a238fa1638a824607555caad5c4ca2ef796f0bd230b23"
 }
 ```
 
@@ -101926,7 +102263,7 @@ files.release: contextPolicy=none
   "id": "inspectDesign",
   "title": "inspectDesign",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "inspectDesign({context,requirements,requirePass?:false})；1–64项{id,bodyId,kind:bounds|solidCount|material,evidence:{kind:drawing|user|assumption,reference}}。bounds加sizeMm:[X,Y,Z]/明确toleranceMm；solidCount加count；material加points/expected:inside|outside，可选toleranceMm。总计<=128个世界XYZ材料点。完整字段与示例见api.design-checks。",
   "synonyms": [
@@ -102215,7 +102552,7 @@ files.release: contextPolicy=none
     "maxMaterialPoints": 128
   },
   "unknownFields": "rejected",
-  "docsHash": "sha256:6d5b4addd00b0a726132cf8c0b4b2b49d4967fa533bd2ca73fceb70376eac917"
+  "docsHash": "sha256:2f14fc6889cd58c359e51d4a44e09d8c7e6c03be96db6221cc89c94aa62d5c8c"
 }
 ```
 
@@ -102226,7 +102563,7 @@ files.release: contextPolicy=none
   "id": "inspectPrintability",
   "title": "inspectPrintability",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "inspectPrintability({context,bodyId,angleLimitDeg?:45}); angleLimitDeg 在 0 与 90 度之间。",
   "synonyms": [
@@ -102250,7 +102587,7 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.printability",
-  "docsHash": "sha256:05acef6902822c21fd79ae8fe769923e4fd0c0c502f3bfbd13a6daffd36ebad4"
+  "docsHash": "sha256:3536a346d0ef75b9f14ad6657d5b66e39401c39981e9c4580cf115aa2766d70c"
 }
 ```
 
@@ -102261,7 +102598,7 @@ files.release: contextPolicy=none
   "id": "inspectProfile",
   "title": "inspectProfile",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。界面检查选项按需展开；API 不依赖界面展开状态。",
   "synonyms": [
@@ -102285,7 +102622,7 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.interaction",
-  "docsHash": "sha256:65f57ad65e5e3cc3243bc3c46cf4e2bdc56baeedfbbde3c2a55146f5453f6edc"
+  "docsHash": "sha256:f07310554341468b8bca435dea3ea3db25f7a2feca5a8f60360f3a862565b989"
 }
 ```
 
@@ -102296,7 +102633,7 @@ files.release: contextPolicy=none
   "id": "prepareProfileEdit",
   "title": "prepareProfileEdit",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "prepareProfileEdit({context,bodyId,mode:\"intersections\"|\"trim\"|\"extend\"|\"trimCircle\"|\"fillet\",entityId?,targetId?,edgeIds?,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})。二维圆角可用 edgeIds:[两条当前边索引] 替代 entityId/targetId，支持解析轮廓及其未缩放的移动/旋转副本，选择先后不限；须显式 radiusMm 与新 arcId。",
   "synonyms": [
@@ -102322,7 +102659,7 @@ files.release: contextPolicy=none
     "GEOMETRY_INVALID"
   ],
   "docs": "api.interaction",
-  "docsHash": "sha256:479aaf808ff51cc135db2157cfc9dc1bd27a35566d86d90b821bdb5eb8c16495"
+  "docsHash": "sha256:f276314e03f954b40ad1fa6b5d200bfc0a9662b46762d8ce7b6c8525450e951a"
 }
 ```
 
@@ -102333,7 +102670,7 @@ files.release: contextPolicy=none
   "id": "inspectConstraints",
   "title": "inspectConstraints",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "inspectConstraints({context,bodyId})；当前保存的 sketchProfile 或 profileConstraints 派生轮廓。只读诊断已有关系；矩形转换为明确四条解析边并保留形状关系。",
   "synonyms": [
@@ -102367,7 +102704,7 @@ files.release: contextPolicy=none
     "length": "mm",
     "angle": "degrees"
   },
-  "docsHash": "sha256:1bdb1d8e5f9e293b102cc52256d840213463874867358e6db80a8f7ec096fc8a"
+  "docsHash": "sha256:26a23840522ef0bd681c0f6f54f7703d5102cf70eabc84c1217a9c5976e008dd"
 }
 ```
 
@@ -102378,7 +102715,7 @@ files.release: contextPolicy=none
   "id": "projectProfile",
   "title": "projectProfile",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "projectProfile({context,bodyId,edgeIds:[当前边索引],frame?:{origin,quaternion}})；或用 pointWorld:[x,y,z] 投影明确坐标点。",
   "synonyms": [
@@ -102401,7 +102738,7 @@ files.release: contextPolicy=none
     "UNSUPPORTED_CURVE_PROJECTION",
     "DEGENERATE_PROJECTION"
   ],
-  "docsHash": "sha256:d161d9c53ec2ef67dbab11757e7da7247d9b7966653f7dfda370ef61f0ee8d7a"
+  "docsHash": "sha256:79fca73e11c1865e8c324e61e0fe8687ce3c13b9db76d02bc735a8a025f46cea"
 }
 ```
 
@@ -102412,7 +102749,7 @@ files.release: contextPolicy=none
   "id": "inspectFit",
   "title": "inspectFit",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。",
   "synonyms": [
@@ -102436,7 +102773,7 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:d967d4710c2e90701bf1bb224f9a46ba70a4deaba6cd470b8d716b4822e09409"
+  "docsHash": "sha256:5ba3c3d63b3ac3c0f7338e075c606c4ae3bcfdb1abcb37c331fc08261fd320e2"
 }
 ```
 
@@ -102447,7 +102784,7 @@ files.release: contextPolicy=none
   "id": "inspectThickness",
   "title": "inspectThickness",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "inspectThickness({context,bodyId,mode:\"ray\",point:[x,y,z],direction:[dx,dy,dz]})；或 mode:\"faces\",faceAId,faceBId,point；两面须平行且射线穿过连续材料。",
   "synonyms": [
@@ -102469,7 +102806,7 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:5a6c51768b658ef8361fbebf5399d7614ce13ad2ad4e3079feea392556d8d974"
+  "docsHash": "sha256:6da91b5e1ab66f4fc58af77662cd002bd68b5f24da23272254f2a763586dd302"
 }
 ```
 
@@ -102480,7 +102817,7 @@ files.release: contextPolicy=none
   "id": "inspectDraft",
   "title": "inspectDraft",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "inspectDraft({context,bodyId,pullDirection:[0,0,1],thresholdDeg:2})；用户决定阈值。",
   "synonyms": [
@@ -102502,7 +102839,7 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:76320c18958087d9b57c2da652e6cedfbf5a86bdcc0f084e5887acecc9330600"
+  "docsHash": "sha256:3cc34270dfaa696cc75f640cf93b2ec35e27b9bc06bdc8fb872c48a923fdc586"
 }
 ```
 
@@ -102513,7 +102850,7 @@ files.release: contextPolicy=none
   "id": "inspectRound",
   "title": "inspectRound",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "inspectRound({context,bodyId,params:{edgeIds:[0],mode:\"edge\",radiusMm:0.3}})；params 同 round 工具卡，亦可 faceIds 解析平面边界。",
   "synonyms": [
@@ -102546,7 +102883,7 @@ files.release: contextPolicy=none
   "units": {
     "length": "mm"
   },
-  "docsHash": "sha256:dafd2846ab8ac86f8e54fdd7f9b3fccd973f89726e5ef1415097359661396b06"
+  "docsHash": "sha256:18171ad133c9502e6c8ec69c28d40e68c422d9ea9886c66f166f991c36bc2a92"
 }
 ```
 
@@ -102557,7 +102894,7 @@ files.release: contextPolicy=none
   "id": "readVector",
   "title": "readVector",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "readVector({context,name,resourceId|text,scaleMm?:1,targetWidthMm?,entityIds?,bounds?:[minX,minY,maxX,maxY],layers?,offset?:0,limit?:500}); limit<=10000。文件先 files.register。",
   "synonyms": [
@@ -102588,7 +102925,7 @@ files.release: contextPolicy=none
     "api.source-curves"
   ],
   "sourceCurvePolicy": "Unsupported splines preserve sourceSpline metadata; no original NURBS construction or automatic fit-point closure.",
-  "docsHash": "sha256:f2796b26dd55bc60fb4a72ffa2ad545e75869f00feeeb9f1cee7710fa9df7587"
+  "docsHash": "sha256:df0078a0533b6237cf471e53f6ddd92a7996f5dec3f67ec066b7b9de3da26738"
 }
 ```
 
@@ -102599,7 +102936,7 @@ files.release: contextPolicy=none
   "id": "connectVector",
   "title": "connectVector",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "connectVector({context,entities,toleranceMm?:0.000001,origin?:[0,0],flipY?:false}); 1..500 条解析线。",
   "synonyms": [
@@ -102624,7 +102961,7 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.vector-import",
-  "docsHash": "sha256:e4b1bd4ddbfdafb39cb6997a5ea85baf6e69e748cb1e785e871fecd61989d2b2"
+  "docsHash": "sha256:12b7f61e61e90e31a4f0e9437a19019fc99fc988904202f48d5e8ceb68c2f5b1"
 }
 ```
 
@@ -102635,7 +102972,7 @@ files.release: contextPolicy=none
   "id": "fitProfile",
   "title": "fitProfile",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "fitProfile({context,kind:\"circle\"|\"line\",plane?:\"XY\"|\"XZ\"|\"YZ\",points:[[u,v],...],maxResidualMm?}); 3–1000 点。",
   "synonyms": [
@@ -102660,7 +102997,7 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.profile-fitting",
-  "docsHash": "sha256:884d166c9fa49591a2ea72089e77df3bfe18be19b2b3b003dc551ffe8211b643"
+  "docsHash": "sha256:d90cfea031a202c536e2999315bdb581de4f462738a42ddf272a9c8e3780e7a3"
 }
 ```
 
@@ -102671,7 +103008,7 @@ files.release: contextPolicy=none
   "id": "traceTwinWindow",
   "title": "traceTwinWindow",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBottomY,simplifyToleranceMm?:0..0.2}); 四条上到下 XY 采样曲线，每条3–2000点。",
   "synonyms": [
@@ -102694,7 +103031,7 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.dwg-spline-twin-window",
-  "docsHash": "sha256:92b1c50d064ebc6e577bca3cf0058426479fa53004311c7d14ff456303da1d38"
+  "docsHash": "sha256:cad1ff1f68aab67c2d27db09bf6b046f4e10691dc86d8cfa73bd12e280ac9db8"
 }
 ```
 
@@ -102705,7 +103042,7 @@ files.release: contextPolicy=none
   "id": "executeText",
   "title": "executeText",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "description": "executeText({context,idempotencyKey,text,dryRun?}); 每行 add <op> key=value 或 measure <bodyId|$last>。",
   "synonyms": [
@@ -102729,7 +103066,7 @@ files.release: contextPolicy=none
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.text-command",
-  "docsHash": "sha256:6345ae15d55b717ed4081033af2264ae8da02b4644a66d8cff6342d53fa9306b"
+  "docsHash": "sha256:7b8f4fac50c000bbabcc3a41ed15dd332f13c210c6d082f43c6b63fba33afa5c"
 }
 ```
 
@@ -102740,7 +103077,7 @@ files.release: contextPolicy=none
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "setDisplayPreferences({context,values}); values 为部分配置，字段及范围见 api.display-preferences。",
   "synonyms": [
@@ -102766,7 +103103,7 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.display-preferences",
-  "docsHash": "sha256:3a7ae5a904542afe58d47fc8285690f9404cdf2ed176230ec4f9cdeaa6d9c549"
+  "docsHash": "sha256:cc7068cff5939b27d458b43e12e111e2228e2fe4a1aafdf30b38c3b11f9d7f09"
 }
 ```
 
@@ -102777,7 +103114,7 @@ files.release: contextPolicy=none
   "id": "getAgentPanel",
   "title": "getAgentPanel",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "getAgentPanel()",
   "synonyms": [
@@ -102793,7 +103130,7 @@ files.release: contextPolicy=none
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:6f9d1506d8e4cc80e6e060975989cea99fcccbbdf24f42a73f91dfb19ca258cf"
+  "docsHash": "sha256:00e41f19b0b067c0ea22b9bde11ee8ca0714740d59ae5016e3be802ea10386b5"
 }
 ```
 
@@ -102804,7 +103141,7 @@ files.release: contextPolicy=none
   "id": "configureAgentPanel",
   "title": "configureAgentPanel",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "description": "configureAgentPanel({context,url})；HTTP/HTTPS助手页面地址，不带query/hash/凭据；HTTPS页面只接受HTTPS。",
   "synonyms": [
@@ -102820,7 +103157,7 @@ files.release: contextPolicy=none
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:2ad3e325e4d812be2d8772d75a0be0c71fcf44c3a6a99274a07d0b9c60bd4f62"
+  "docsHash": "sha256:19462df011cd78abd2bac000b81bf4ddbdb5067ba17b46b9f69fd69b80b0cacf"
 }
 ```
 
@@ -102831,7 +103168,7 @@ files.release: contextPolicy=none
   "id": "setAgentPanel",
   "title": "setAgentPanel",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "description": "setAgentPanel({context,visible:true|false})；true将已配置助手侧栏接到当前页面，false立即撤销适配器写入、解锁并关闭侧栏，再取消同一任务并释放原会话。",
   "synonyms": [
@@ -102849,7 +103186,7 @@ files.release: contextPolicy=none
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:30e71f320c850b57aa5170f64ee9331f022cbc6ecdf2e5343814241ee1efc44c"
+  "docsHash": "sha256:77bde0d8e2a441623228d7ce9cd0a9b1c2498493500ac7d5cff40ef5bfd524a6"
 }
 ```
 
@@ -102860,7 +103197,7 @@ files.release: contextPolicy=none
   "id": "getServices",
   "title": "getServices",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "getServices()；地址与模式存本地，专用授权仅存本标签会话，不进入工程。",
   "synonyms": [
@@ -102879,7 +103216,7 @@ files.release: contextPolicy=none
   "errorCodes": [
     "SERVICES_CONFIG_INVALID"
   ],
-  "docsHash": "sha256:9e027c97c88aea428ccfcba97be4256e03102ea516da2af571b1eb8f4d323530"
+  "docsHash": "sha256:86e489f502c538619b086e405d60c01c124b9c3f3d494b9e5c9d6ccd0ec03349"
 }
 ```
 
@@ -102890,7 +103227,7 @@ files.release: contextPolicy=none
   "id": "setServices",
   "title": "setServices",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "description": "setServices({context,url,credential?,enabled?,computeMode?:\"local\"|\"auto\"|\"serverPreferred\",allowGeometryUploads?,localTimeoutMs?:60000,serverWaitMs?:180000})；本地超时1–600秒、服务器提醒1–900秒，均用整数毫秒，设置保存并在下一操作生效。启用已配置Services即授权复杂运算发送到该端；简单运算本地。旧computeMode/allowGeometryUploads仅兼容读取，不覆盖此政策。支持 HTTPS 或内网 HTTP；HTTPS 页面不能直接调用内网 HTTP。服务由 ASHX 引用 DLL，沿用 LOGO 部署方式，不安装 Host。启用前验证协议。",
   "synonyms": [
@@ -102915,7 +103252,7 @@ files.release: contextPolicy=none
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_PROTOCOL_MISMATCH"
   ],
-  "docsHash": "sha256:b59df64354b81731c7c74844fb8abfb22ecb9817350493083548698e4a36492b"
+  "docsHash": "sha256:ee9c493357aa91022f52c99ea1ebf9f233ae2b97afbb20b97848841ac2e5c9bf"
 }
 ```
 
@@ -102926,7 +103263,7 @@ files.release: contextPolicy=none
   "id": "getServicesCapabilities",
   "title": "getServicesCapabilities",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "getServicesCapabilities()；读取已配置服务。",
   "synonyms": [
@@ -102950,7 +103287,7 @@ files.release: contextPolicy=none
     "SERVICES_REQUEST_FAILED",
     "SERVICES_PROTOCOL_MISMATCH"
   ],
-  "docsHash": "sha256:c100b28f06d94ce37f335c7a6e7b6a172cf225c8703316c89baca10b59565489"
+  "docsHash": "sha256:c5704c92b6052b4188e22ce61f1f3322a1e584b765a56399c08a03dbf0a5288b"
 }
 ```
 
@@ -102961,7 +103298,7 @@ files.release: contextPolicy=none
   "id": "getServicesRouting",
   "title": "getServicesRouting",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "getServicesRouting()；读取同一 ExecutionRouter 的最近决策。",
   "synonyms": [
@@ -102979,7 +103316,7 @@ files.release: contextPolicy=none
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:385bfa90f1398869b4979696e2696fa1c2616639c5b670b96e4ea358ac4aa585"
+  "docsHash": "sha256:ec93873623b48e7b14ab718d672eda8ed679b20d38729cb7d2f98c5cb0a903e0"
 }
 ```
 
@@ -102990,7 +103327,7 @@ files.release: contextPolicy=none
   "id": "clearServicesCredential",
   "title": "clearServicesCredential",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "description": "clearServicesCredential({context})",
   "synonyms": [
@@ -103010,7 +103347,7 @@ files.release: contextPolicy=none
     "INSTANCE_MISMATCH",
     "REVISION_CONFLICT"
   ],
-  "docsHash": "sha256:603150c449374457b365b06fd93f840176bcb8a0d6641e383eac8f664f9b7dd1"
+  "docsHash": "sha256:eb5c6fe2e9ff672ffddcd7c0051020838d26dd90fb219988ccc7540012e73e10"
 }
 ```
 
@@ -103021,7 +103358,7 @@ files.release: contextPolicy=none
   "id": "getServicesJob",
   "title": "getServicesJob",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "getServicesJob({jobId})",
   "synonyms": [
@@ -103044,7 +103381,7 @@ files.release: contextPolicy=none
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_REQUEST_FAILED"
   ],
-  "docsHash": "sha256:349c5abea56beb81ce4c4c8aa889dcec83db56b31b647a6ecfeca6f3e7242a8e"
+  "docsHash": "sha256:54d48be0710aaf30eff2e9ba7a6f28f4995f5ba56985114c8f93f65b163e48ab"
 }
 ```
 
@@ -103055,7 +103392,7 @@ files.release: contextPolicy=none
   "id": "getServicesRequest",
   "title": "getServicesRequest",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "getServicesRequest({idempotencyKey})；连接未知时先查既有接收记录。",
   "synonyms": [
@@ -103079,7 +103416,7 @@ files.release: contextPolicy=none
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_REQUEST_FAILED"
   ],
-  "docsHash": "sha256:3229495a8bdeb14f43a5d08a9eb1c296dc91faf95c53b15572c26bd4ae198698"
+  "docsHash": "sha256:eadff94ce087b5d6447f7ea3c2e1fcec38f60fa6b096c1ae788f068fbd22bbd7"
 }
 ```
 
@@ -103090,7 +103427,7 @@ files.release: contextPolicy=none
   "id": "cancelServicesJob",
   "title": "cancelServicesJob",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "description": "cancelServicesJob({context,jobId})",
   "synonyms": [
@@ -103114,7 +103451,7 @@ files.release: contextPolicy=none
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_REQUEST_FAILED"
   ],
-  "docsHash": "sha256:fb237ec2bb898d8acbaba76dd4df023f9f54bf580a07fce6eda2b298aa20828b"
+  "docsHash": "sha256:3d01b1841178e36230f44e2d620dde19774fa01f44e3e060cf810c4af0120a67"
 }
 ```
 
@@ -103125,7 +103462,7 @@ files.release: contextPolicy=none
   "id": "getLogoConverter",
   "title": "getLogoConverter",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "getLogoConverter() 委托 getServices；旧 URL/Key 不自动授权统一服务。",
   "synonyms": [
@@ -103141,7 +103478,7 @@ files.release: contextPolicy=none
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:c27b35f44bc48e732dfeb3f1fb2b44aa5e2592d9024379a274f1ac0e2839a518"
+  "docsHash": "sha256:7b78b36d8cf694bd3b9f8b012a78998b678b54434946a1196541e927d9bc2ba2"
 }
 ```
 
@@ -103152,7 +103489,7 @@ files.release: contextPolicy=none
   "id": "setLogoConverter",
   "title": "setLogoConverter",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "description": "改用 setServices，旧 setter 拒绝存影子配置。",
   "synonyms": [
@@ -103173,7 +103510,7 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:e6a6e2e2da319e3eed3a206477abc50cc658eaea1de69c74f394749e46eec7b0"
+  "docsHash": "sha256:16dd88c6f686c6c1b78153812882a83b265e94e4078f826168f433005c2f4c78"
 }
 ```
 
@@ -103184,7 +103521,7 @@ files.release: contextPolicy=none
   "id": "convertLogoPdf",
   "title": "convertLogoPdf",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "description": "convertLogoPdf({context,name,data,targetWidthMm?,page?,sizeConfirmed:true,allowUpload:true})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。",
   "synonyms": [
@@ -103207,7 +103544,7 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID"
   ],
-  "docsHash": "sha256:e971b0f3fe6865c2556cd78d84a2f4638a6f35720906695470a5d9375b97219f"
+  "docsHash": "sha256:b6b90572dcbf33279d55a0eac78f4fe62e466c91f849af62ee4445cbf76ece13"
 }
 ```
 
@@ -103218,9 +103555,9 @@ files.release: contextPolicy=none
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
-  "description": "setView({context,interactionPhase?:start|update|end,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 网格运动阶段使用独立显示LOD。复杂 BRep 首屏使用粗曲面及保守显示包围框，停止运动后按当前屏幕像素需求逐面细化可见范围，不自动恢复整件最高精度。display.detail 的 adaptiveExact、phase、visibleFaces、culledFaces、pending、budgetLimited、refinementError 读回显示状态。capture 返回当前已渲染帧及其近似状态，不等待无限细化。原始BRep和导出不变；metricsDeferred 时面积/体积为 null、boundsSource 为 conservative-display-box，measure 仍按精确实体计算。 gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling返回画布、library打开非全屏浮动快捷模型菜单（不改变菜单或侧栏显隐）；兼容workspace=agent打开Agent配置弹窗并保持workspace=modeling，current.agentSettingsOpen读回，workspace=modeling关闭弹窗；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。",
+  "description": "setView({context,interactionPhase?:start|update|end,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 网格运动阶段使用独立显示LOD。复杂 BRep 首屏使用粗曲面及保守显示包围框，停止运动后按当前屏幕像素需求逐面细化可见范围，不自动恢复整件最高精度。display.detail 的 adaptiveExact、phase、visibleFaces、culledFaces、pending、budgetLimited、refinementError 读回显示状态。capture 返回当前已渲染帧及其近似状态，不等待无限细化。原始BRep和导出不变；metricsDeferred 时面积/体积为 null、boundsSource 为 conservative-display-box，measure 仍按精确实体计算。 gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling返回画布、library打开非全屏浮动快捷模型菜单（不改变菜单或侧栏显隐）；兼容workspace=agent打开Agent配置弹窗并保持workspace=modeling，current.agentSettingsOpen读回，workspace=modeling关闭弹窗；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation:move|restore,id?,index?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。",
   "synonyms": [
     "setView",
     "视图",
@@ -103247,7 +103584,7 @@ files.release: contextPolicy=none
     "pan view",
     "orbit view"
   ],
-  "inputContract": "setView({context,interactionPhase?:start|update|end,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 网格运动阶段使用独立显示LOD。复杂 BRep 首屏使用粗曲面及保守显示包围框，停止运动后按当前屏幕像素需求逐面细化可见范围，不自动恢复整件最高精度。display.detail 的 adaptiveExact、phase、visibleFaces、culledFaces、pending、budgetLimited、refinementError 读回显示状态。capture 返回当前已渲染帧及其近似状态，不等待无限细化。原始BRep和导出不变；metricsDeferred 时面积/体积为 null、boundsSource 为 conservative-display-box，measure 仍按精确实体计算。 gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling返回画布、library打开非全屏浮动快捷模型菜单（不改变菜单或侧栏显隐）；兼容workspace=agent打开Agent配置弹窗并保持workspace=modeling，current.agentSettingsOpen读回，workspace=modeling关闭弹窗；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。",
+  "inputContract": "setView({context,interactionPhase?:start|update|end,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 网格运动阶段使用独立显示LOD。复杂 BRep 首屏使用粗曲面及保守显示包围框，停止运动后按当前屏幕像素需求逐面细化可见范围，不自动恢复整件最高精度。display.detail 的 adaptiveExact、phase、visibleFaces、culledFaces、pending、budgetLimited、refinementError 读回显示状态。capture 返回当前已渲染帧及其近似状态，不等待无限细化。原始BRep和导出不变；metricsDeferred 时面积/体积为 null、boundsSource 为 conservative-display-box，measure 仍按精确实体计算。 gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling返回画布、library打开非全屏浮动快捷模型菜单（不改变菜单或侧栏显隐）；兼容workspace=agent打开Agent配置弹窗并保持workspace=modeling，current.agentSettingsOpen读回，workspace=modeling关闭弹窗；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation:move|restore,id?,index?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。",
   "outputContract": "status=read、当前 context、display、view；view.transform 的 attached/canDrag/blocker 可读回单对象手柄状态。不修改工程 revision；拖动或数值变换通过 transform 提交。section 仅为显示裁剪，不是精确切割。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -103262,7 +103599,7 @@ files.release: contextPolicy=none
     "UI_TASK_ACTIVE"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:3d23b6d2a4b22731129791426912fe10ff6731c6ae6dd6fb6677ffce25d79344"
+  "docsHash": "sha256:e8daeb9e20a6b3a942b7fa7615236c1c1745acc6b98d79bf8083767cd0a7ae01"
 }
 ```
 
@@ -103273,7 +103610,7 @@ files.release: contextPolicy=none
   "id": "redraw",
   "title": "redraw",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "redraw({context}); 不接受额外字段。",
   "synonyms": [
@@ -103295,7 +103632,7 @@ files.release: contextPolicy=none
     "DISPLAY_FAILED"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:6b321fd0f0384f43d245aa7a3917fda4279829264c1b00205194bbe7617e77d1"
+  "docsHash": "sha256:b68183031434932540ea54933f596b75016787e905c8a7314e5f63470c03b90b"
 }
 ```
 
@@ -103306,7 +103643,7 @@ files.release: contextPolicy=none
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "capture({context,maxWidth?,format?,quality?}); 建议 maxWidth:800,format:\"webp\"。后台标签页也同步渲染一帧；超过 limits.transport.captureTimeoutMs（10 s）返回 CAPTURE_TIMEOUT，几何回执不受影响，不要循环等待 webcad_job。",
   "synonyms": [
@@ -103329,7 +103666,7 @@ files.release: contextPolicy=none
     "CAPTURE_TIMEOUT"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:0e1b7db31aaf6a615147d5d95f2356c86e0d516adeea8b50d611322b6741236e"
+  "docsHash": "sha256:5d39018a0586922fb15418a9c0af63b77a5990d90b52cf84ab5c5c2879be41fa"
 }
 ```
 
@@ -103340,7 +103677,7 @@ files.release: contextPolicy=none
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "description": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}); addMany for one atomic feature plan: api.feature-plan.",
   "synonyms": [
@@ -103371,7 +103708,7 @@ files.release: contextPolicy=none
     "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:f33a3c853629d115ecd168da75eaad71e8c0e38a709d426f16c0eb17392fbb34"
+  "docsHash": "sha256:f2d8795d98658b90f33f1982e642a8aa2e371caa8e670ba208046b8e7d102f31"
 }
 ```
 
@@ -103383,7 +103720,7 @@ files.release: contextPolicy=none
   "title": "Services 原特征编译",
   "description": "按服务能力执行世界坐标纯平移、均匀柱面凸雕层、多刀具 cut 或带一边旧R的矩形面完整边界 round。round 仅支持一个无孔矩形面、六个正交支撑面和一条完整同R旧圆角；四侧精确R，四角光滑自由曲面，保留4个孤立终止点。cut 的 refs 首项为目标，其余 1–32 项为刀具，各来源必须是已提交单实体，结果须为非空单实体；keepTools 保持原历史语义。全部来源按顺序校验，单项限 20 MiB、合计 64 MiB。浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。若修改来源会使下游复杂运算失效，先移除下游步骤、完成来源修改后重新执行，禁止转到本地偷算。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -103424,7 +103761,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:a4a47cd1c0f5bb3042023de7b8758bb9b3acf38957e137a4cbf289207b9f4079"
+  "docsHash": "sha256:3af906db27fd16bf3504d71546562593149929c25e373b328d36594d126848c2"
 }
 ```
 
@@ -103436,7 +103773,7 @@ files.release: contextPolicy=none
   "title": "快速对齐",
   "description": "按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:\"body\",bodyId:基准实体ID},axes:[\"Y\"],sourceSide:\"center\",targetSide:\"center\",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。group 语义必须先按用户意图确认：group=true 把全部 bodyIds 当作一个整体，按它们的联合包围盒对齐并保持彼此相对位置（整体平移）；group=false 每个实体分别按自身包围盒对齐到目标（例如多个件各自居中到同一中心线）。“分别/各自/每个都对齐”必须用 group:false，不要先 group:true 再补偏移。run 回执的 bodyBounds 给出移动后实体的 center/size，可直接核对，无需再读 getState。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -103494,7 +103831,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:e87ac0b4f158ef8fd9507a6b6ac101454909bfdeae903fff9c7ae0268b1e9d55"
+  "docsHash": "sha256:b2b21377984da24ad94ecbcb067013b2aa18ecb54e3d6bdd9e8b9d9c4ade1044"
 }
 ```
 
@@ -103506,7 +103843,7 @@ files.release: contextPolicy=none
   "title": "退回工程状态",
   "description": "用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -103542,7 +103879,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:f5ad06c1b9f0df02ea9f257685f0c9b6edb6f2fa63a90175754b72674ab6f7a6"
+  "docsHash": "sha256:3b004950149341eb3e55dd4123d2e25ed2c634237f2b99488cf843eeca40f499"
 }
 ```
 
@@ -103554,7 +103891,7 @@ files.release: contextPolicy=none
   "title": "工程改名",
   "description": "修改工程名称，保留几何。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -103593,7 +103930,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:f8fe51e809279d0b0dddd84cf37b1874a77c775f8b2f419a22535f7a32c78dd4"
+  "docsHash": "sha256:57ba6554cc1fcd74225223d4fc54b42d79405b9b86262f2bbde32fce6526a549"
 }
 ```
 
@@ -103605,7 +103942,7 @@ files.release: contextPolicy=none
   "title": "特征改名 实体名称",
   "description": "修改历史步骤及同 ID 实体名称，导入件也可使用。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -103646,7 +103983,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:bca1445068f0163b75dcc7cac3594f96277f56886203c589835235d43998161b"
+  "docsHash": "sha256:1ae5910f830c2c6ebc8f8b61c1828debb7b28ff6e222f6ad7cac220b526b4c73"
 }
 ```
 
@@ -103658,7 +103995,7 @@ files.release: contextPolicy=none
   "title": "显示 隐藏实体",
   "description": "显隐指定当前实体，不删除几何。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -103701,7 +104038,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:8327cc6752447dcb3240d6d1d1b1cd3728db9b9cee82329458b78e103c1b2388"
+  "docsHash": "sha256:51eef8a74f4e9621d81d91c02d897a6a65c49a295c483297ae12abd99ae167f4"
 }
 ```
 
@@ -103713,7 +104050,7 @@ files.release: contextPolicy=none
   "title": "实体原色 颜色 金属 材质",
   "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -103771,7 +104108,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:2350f0bbd8afe117f5668ef1f261f304d32adc84974aaf2533d223f6892f2a10"
+  "docsHash": "sha256:5929758c326e2d5684d78e8dceea4c1461ac962d70ed10bbe2f5682cf11a7e87"
 }
 ```
 
@@ -103783,7 +104120,7 @@ files.release: contextPolicy=none
   "title": "工程渲染 金属色",
   "description": "设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -103835,7 +104172,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:8bfc47f4c79a55384e1d1b47ce5fe64c0855bbcc9261bf1b86eb7b422af26ed3"
+  "docsHash": "sha256:edf2e9d5499575b24d3bc4d88b69b448d11d6a144455a5ae60252f166c2bf996"
 }
 ```
 
@@ -103847,7 +104184,7 @@ files.release: contextPolicy=none
   "title": "组合拆散 多实体分解",
   "description": "将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -103886,7 +104223,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:a6242a6e96da014f5093bb56123aaed25302aaf7d6b6f1d0452e4de3a305bcf9"
+  "docsHash": "sha256:84bb3b898987ba30c5084d14100871039ff528f490f09674ae6bcf1ccfb0903c"
 }
 ```
 
@@ -103898,7 +104235,7 @@ files.release: contextPolicy=none
   "title": "设置参考锚点（工作基准）",
   "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -103936,7 +104273,7 @@ files.release: contextPolicy=none
     "工作基准",
     "基准点"
   ],
-  "docsHash": "sha256:88c33265412a2a28314fc7ae25babb91cab66fa2b6232e572e701ccf88a04917"
+  "docsHash": "sha256:d84d5edee0be797897c18a1801c4ac48aad3208ed449ed45b16673cdd10cbac9"
 }
 ```
 
@@ -103948,7 +104285,7 @@ files.release: contextPolicy=none
   "title": "重置参考锚点（工作基准）",
   "description": "args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -103978,7 +104315,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:f8a2ffa9ed2154602fb55e5d6b13f0980239d376b0a7cd67f2cede8441c2077c"
+  "docsHash": "sha256:0567c0b50153f18facf615ad08fde4218f436e0a329d4d54fe1f2306d4fbf6c2"
 }
 ```
 
@@ -103990,7 +104327,7 @@ files.release: contextPolicy=none
   "title": "锁定参考锚点（工作基准）",
   "description": "args:{locked:boolean}；可撤销的元数据操作。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -104020,7 +104357,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:0b424847df8b3f73de3b37e8d000b7d31cba92c78b75302cb987ae7a5e1ae7fe"
+  "docsHash": "sha256:e6de65a60c89986d1b87fd4fa18b3d8f693176c96f048651ba33a925b8c67bcd"
 }
 ```
 
@@ -104032,7 +104369,7 @@ files.release: contextPolicy=none
   "title": "保存具名基准",
   "description": "args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -104062,7 +104399,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:a00866b48540fe1dcf7237d4e86192d5ac6db109d4b56fcc8284b1719f8463d0"
+  "docsHash": "sha256:9eb439949573219440249be306f981e253488096d4801a9e898f2ca3ef9ca623"
 }
 ```
 
@@ -104074,7 +104411,7 @@ files.release: contextPolicy=none
   "title": "激活具名基准",
   "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -104104,7 +104441,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:c2eff5d1e6f73e6646f14f4f3d1c0f5f2bf114ce15f0b58c735313b69117a6a6"
+  "docsHash": "sha256:478d23b4813f7c5e2dca2643d67ad91f6baa602be624a9de8939cf8b92c52e19"
 }
 ```
 
@@ -104116,7 +104453,7 @@ files.release: contextPolicy=none
   "title": "重命名具名基准",
   "description": "args:{frameId,expectedFrameVersion,name}。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -104146,7 +104483,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:94df12b29ffbc065a6cf6e5c43218488439e1303c8a9772813ecfe6086bfd28c"
+  "docsHash": "sha256:c6bd3e2e627d5455795ef1d8e472a3feebb45bae3b9c7672d4757c7322db2161"
 }
 ```
 
@@ -104158,7 +104495,7 @@ files.release: contextPolicy=none
   "title": "删除具名基准",
   "description": "args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -104188,7 +104525,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:71aa602e89888825ce5b86c2951ab9a72dd2249c0fc0d6c1d52291be2a29d17e"
+  "docsHash": "sha256:108ff631fa6ddbb370a8d7dd44d8e1f95c08d6c70229f96c61d48aba4a61af9c"
 }
 ```
 
@@ -104200,7 +104537,7 @@ files.release: contextPolicy=none
   "title": "对象锚点",
   "description": "args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -104234,7 +104571,7 @@ files.release: contextPolicy=none
     "对象锚点",
     "实体锚点"
   ],
-  "docsHash": "sha256:9ac9dc13c6f53765c346ac90372f7d8ad738cf4d1c6ea3fcec5df5f4a933eee1"
+  "docsHash": "sha256:5b05d144edb69e0f5e203d822473ed57a23aa4b709e1c2c6f86787f4cd6a7e4b"
 }
 ```
 
@@ -104246,7 +104583,7 @@ files.release: contextPolicy=none
   "title": "删除对象锚点",
   "description": "args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -104276,7 +104613,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:8cd65b59881897aeced22e8713bfa81015bdabaf369af9883b90f7e017942154"
+  "docsHash": "sha256:ab7247d03ec34a8f67ff9a8a38c6cf6dff3e90a8316e69db58c29f2d008ee4c2"
 }
 ```
 
@@ -104288,7 +104625,7 @@ files.release: contextPolicy=none
   "title": "新增几何",
   "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -104318,7 +104655,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:cc2064f486607a659410ebdf4e8f8fee88654b1d8bcb82f0c02b74b68a7b4a85"
+  "docsHash": "sha256:e5778bbc9a508bebc80e40a946a7b3a4519a531e8922f3224164e4a1b8049a58"
 }
 ```
 
@@ -104446,7 +104783,7 @@ files.release: contextPolicy=none
   "title": "一次提交多特征",
   "description": "args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -104475,7 +104812,7 @@ files.release: contextPolicy=none
     "getState"
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
-  "docsHash": "sha256:28548af03c962b0ea8322010584e0b9537aad641a0f0bfe7b9d545382f0521eb"
+  "docsHash": "sha256:e6255e7d39a1a17c0db05c8094a02967901e4819b8cd7e39d901ec9e1ce3cdb5"
 }
 ```
 
@@ -104487,7 +104824,7 @@ files.release: contextPolicy=none
   "title": "修改参数",
   "description": "args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -104517,7 +104854,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:11acacec5af4d1812ed839d08dfe040a0ecc0e5ebd00b2e4defda935e67f4fe8"
+  "docsHash": "sha256:a2348c8e52715b15cbf64de76584f102ea076ee69d3baf164b06558d6eaaa051"
 }
 ```
 
@@ -104529,7 +104866,7 @@ files.release: contextPolicy=none
   "title": "删除实体",
   "description": "args:{bodyIds}，不可使用历史已替换 ID。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -104559,7 +104896,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:5f9981858411ce28db9183c56c9354bb76f216baea0622b8d6c871b55e26af57"
+  "docsHash": "sha256:69351a05959a10ecf08ae5762ba2e49532ee063202cd21d41dee33e1e9ecda6d"
 }
 ```
 
@@ -104571,7 +104908,7 @@ files.release: contextPolicy=none
   "title": "撤销",
   "description": "args:{}；撤销一个已提交步骤。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -104601,7 +104938,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:4fe34052d9b2c0442847aeccb7157a1f79d4f4313b3c2b165f68f34040c8a6c6"
+  "docsHash": "sha256:434a17825239cac1a99ef031a6e11a8bf7d8b9ad56427d8098878363cbd962e0"
 }
 ```
 
@@ -104613,7 +104950,7 @@ files.release: contextPolicy=none
   "title": "重做",
   "description": "args:{}；重做一个步骤。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -104643,7 +104980,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:f0ead0554aa28950266f6de978a1d063facedbc9b8d9d3ae73bbad574034176b"
+  "docsHash": "sha256:5961eab0f126329c04716d2daea8690e78cf51af67eb4b18a3e6a1001d96b287"
 }
 ```
 
@@ -104655,7 +104992,7 @@ files.release: contextPolicy=none
   "title": "重建工程",
   "description": "args:{}；重建当前历史。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -104685,7 +105022,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:4b73e51cbacca49d7c1a15ace0e2733e3cba1e7a991893042fe2df57fa745e4f"
+  "docsHash": "sha256:87f2e6958a4c9d2be2d5e331038bce8d0bf8bef66b5130312051d4b59018bef6"
 }
 ```
 
@@ -104697,7 +105034,7 @@ files.release: contextPolicy=none
   "title": "预览模型、原特征编辑或文件插入",
   "description": "普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision，提交前工程 revision 不变。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -104727,7 +105064,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:9f49dbac072459bdc355e691d8db05982dc44dd61f4ec9dc8328c0951c30dd51"
+  "docsHash": "sha256:7588028c8b8f03968c6d321c52192b84d00f2bdb71e15cd88bcb84e589ceae6c"
 }
 ```
 
@@ -104739,7 +105076,7 @@ files.release: contextPolicy=none
   "title": "更新预览",
   "description": "args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -104769,7 +105106,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:901e7ab7954ad8f4ec774ed1fb6988a0db450c1f2c9df9e455904b4ee82e97c0"
+  "docsHash": "sha256:fac24f5af6ff5b1fce963420f8c40d094644b9bef2d7941c0ef7a72c40bc5583"
 }
 ```
 
@@ -104781,7 +105118,7 @@ files.release: contextPolicy=none
   "title": "应用预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -104811,7 +105148,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:340e800f53b7452ae1d6cce40a7f1ef67a984e3185e12bb1a9f7facaa7409468"
+  "docsHash": "sha256:aa3d366b84768ce850a7e268ff0aaae1c42cdeb65ff9d9823b1ad8466333c865"
 }
 ```
 
@@ -104823,7 +105160,7 @@ files.release: contextPolicy=none
   "title": "取消预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -104853,7 +105190,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:5e7911c367ec8c290b027a6916b5d400513a4265705bbeab22ce08015e582a61"
+  "docsHash": "sha256:46e2d05ece06f9e3590831775d0c628ab0cfbad1960e495d2f9f055096d48deb"
 }
 ```
 
@@ -104864,7 +105201,7 @@ files.release: contextPolicy=none
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "description": "通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。",
   "synonyms": [
     "参数",
@@ -104944,7 +105281,7 @@ files.release: contextPolicy=none
     "Indexed face/edge references downstream of a changed feature are rejected when stability cannot be proven."
   ],
   "docs": "api.named-parameters",
-  "docsHash": "sha256:44dc252c6c84f0e2664ad1f7993275c14c7a973411b0e684aba78b2551fc85a9"
+  "docsHash": "sha256:68225287fd67cfb116e9b0df350b56efa191a6c806530e7363373b67f9bd2710"
 }
 ```
 
@@ -104955,7 +105292,7 @@ files.release: contextPolicy=none
   "id": "files.capabilities",
   "title": "files.capabilities",
   "category": "file",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "label": "文件能力",
   "synonyms": [
@@ -105003,7 +105340,7 @@ files.release: contextPolicy=none
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
-  "docsHash": "sha256:9b2d5e43e19b48de42cecb25a3908c0e59f1209140e72091b838910a8724fa7d"
+  "docsHash": "sha256:7f04b810f4f0978af7dcf3cbe02bcefc90d8092a8e059d4ba44279d2d4e5ef1b"
 }
 ```
 
@@ -105014,7 +105351,7 @@ files.release: contextPolicy=none
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "label": "登记文件资源",
   "synonyms": [
@@ -105070,7 +105407,7 @@ files.release: contextPolicy=none
     "SIZE_LIMIT",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:84900b73145fef889701243342f40ce3aae5fa26a3f13ef910717babb7ce0b01"
+  "docsHash": "sha256:72957fefb120f5bcfecb4346cf9e0b3be3106c477fbe2833a8662819be0fb6ec"
 }
 ```
 
@@ -105081,7 +105418,7 @@ files.release: contextPolicy=none
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "label": "新建工程",
   "synonyms": [
@@ -105138,7 +105475,7 @@ files.release: contextPolicy=none
     "FILE_COMMAND_FAILED",
     "SIZE_LIMIT"
   ],
-  "docsHash": "sha256:807d1ae8a5bb84f1850007b6b0445fa3b8267febe51756e0afb5c8ea70d51673"
+  "docsHash": "sha256:182dcffa17d8e77a97ba3d772854a5af007017209128cd761637c0c7217cdd11"
 }
 ```
 
@@ -105149,7 +105486,7 @@ files.release: contextPolicy=none
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "label": "打开工程",
   "synonyms": [
@@ -105213,7 +105550,7 @@ files.release: contextPolicy=none
     "FORMAT_UNSUPPORTED",
     "MESH_UNITS_REQUIRED"
   ],
-  "docsHash": "sha256:d07c0af2d8b01d0e3808a914d71e3bee402c658faee699b155a5cdc06a2d941b"
+  "docsHash": "sha256:6fbd8c9a6b26c66566599ab230dca2598522fb8763ceeebc9ce310dfb4bc894c"
 }
 ```
 
@@ -105224,7 +105561,7 @@ files.release: contextPolicy=none
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "label": "导入",
   "synonyms": [
@@ -105308,7 +105645,7 @@ files.release: contextPolicy=none
     "MESH_ASSET_CORRUPT",
     "MESH_DISPLAY_CAPACITY"
   ],
-  "docsHash": "sha256:14a717bee19a39da44213c9b790b83c55507b3dc3dfc0141628f783a480e47cb"
+  "docsHash": "sha256:fd7c54905a5b027088936c8f6cca252f896b10cff1fd3c4f8cf8aa273d45a80e"
 }
 ```
 
@@ -105319,7 +105656,7 @@ files.release: contextPolicy=none
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "label": "保存工程",
   "synonyms": [
@@ -105380,7 +105717,7 @@ files.release: contextPolicy=none
     "NAME_INVALID",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:fb8f296477db82a8d598c3b4e7ed9788bc0ae6dc5243291337ba2da8eb4966c7"
+  "docsHash": "sha256:5b73069b6728d11781847c4a74cc31d4dd5de60b054281ed841aae12a08338a3"
 }
 ```
 
@@ -105391,7 +105728,7 @@ files.release: contextPolicy=none
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "label": "导出文件",
   "synonyms": [
@@ -105455,7 +105792,7 @@ files.release: contextPolicy=none
     "RESOURCE_LIMIT",
     "FORMAT_UNSUPPORTED"
   ],
-  "docsHash": "sha256:bf8e265714afaf50e56d202908fbfe84b44eaf67477409752f9dfb073e594f41"
+  "docsHash": "sha256:7b3d97a6fc588b98ee83a7ffa8a0df08a65ec81e8d3f80d52fc53f321fc989b5"
 }
 ```
 
@@ -105466,7 +105803,7 @@ files.release: contextPolicy=none
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "label": "读取文件字节",
   "synonyms": [
@@ -105518,7 +105855,7 @@ files.release: contextPolicy=none
     "PARAM_SCHEMA_INVALID",
     "RESOURCE_EXPIRED"
   ],
-  "docsHash": "sha256:d083181e68365bbc927a6e2ac41c7e992bc9fcb289db7fa507fef92544721aab"
+  "docsHash": "sha256:c797a2139b4602e2c00a9c7c79c9fde5c47798ae6951925802954b5e178497a9"
 }
 ```
 
@@ -105529,7 +105866,7 @@ files.release: contextPolicy=none
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "label": "下载文件",
   "synonyms": [
@@ -105582,7 +105919,7 @@ files.release: contextPolicy=none
     "ASSET_INVALID",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:67d0edf638318a33229860bc579e678e36f64b96bdf92eacabad74abe8fd68cf"
+  "docsHash": "sha256:357863d60fbdf275af8cb0c944cefafab09fd6831facd050232660e575e12df4"
 }
 ```
 
@@ -105593,7 +105930,7 @@ files.release: contextPolicy=none
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "label": "写入文件",
   "synonyms": [
@@ -105651,7 +105988,7 @@ files.release: contextPolicy=none
     "HASH_MISMATCH",
     "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:7c67feb6e6fd3ade4e1554c3394bf921259706a35391e56c762c02e18d749058"
+  "docsHash": "sha256:68c8c54393e1506ce243a4d9d9b938bb0878bfadc1f5e85f565c816b9c13956d"
 }
 ```
 
@@ -105662,7 +105999,7 @@ files.release: contextPolicy=none
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "label": "confirmWritten",
   "synonyms": [
@@ -105720,7 +106057,7 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT",
     "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:8ecdb02fa685be027b9ce8523abdd4efe25795779793fd57a9de661387548548"
+  "docsHash": "sha256:571fa33c16bfa3b8c057d8f7ff0c29d9e1058ab38fe2980fae17e280f890cc86"
 }
 ```
 
@@ -105731,7 +106068,7 @@ files.release: contextPolicy=none
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "label": "释放文件资源",
   "synonyms": [
@@ -105783,7 +106120,7 @@ files.release: contextPolicy=none
     "RESOURCE_EXPIRED",
     "RESOURCE_BUSY"
   ],
-  "docsHash": "sha256:9ea092a0de742742b83c185431278438d3c81bdd19d493a56b8231f8020517cc"
+  "docsHash": "sha256:2586f64c6a916c9ecfb06c0dbe90283453b32c45ac593758e05449b626fc5d82"
 }
 ```
 
@@ -105795,14 +106132,14 @@ files.release: contextPolicy=none
   "title": "IGES/IGS 导入",
   "description": "当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。",
   "category": "unavailable",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
   "errorCodes": [
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:de581462b14e0b8e93614cd9c15dbe3d4b8afcfaa8ba642dc0469ba3bbf3fc71"
+  "docsHash": "sha256:e9bc0535146e5e92b50b2f3f277a3bcc54367ad268e7380a1485050703b8ae74"
 }
 ```
 
@@ -105814,13 +106151,13 @@ files.release: contextPolicy=none
   "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
   "description": "当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。",
   "category": "unavailable",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
   "errorCodes": [
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:ab84a67c72168b465097317daae98858b0508465d07611ec5f45b986a913f6a4"
+  "docsHash": "sha256:36571e6b269c908740dc85febaae01cee2f24dd55c34a904ad9d65bd169682c5"
 }
 ```

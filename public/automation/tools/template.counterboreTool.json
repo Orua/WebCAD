@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "Tool solid: entry at Z=0, extending along +Z. Position at the workpiece surface, rotate 180 degrees if needed, then select the body first and subtract the tool.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "counterboreTool"
@@ -413,6 +372,7 @@
         "type": "number",
         "default": 4,
         "description": "Hole diameter",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -421,6 +381,7 @@
         "type": "number",
         "default": 8,
         "description": "Total depth",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -428,12 +389,16 @@
       "headDiameter": {
         "type": "number",
         "default": 8,
-        "description": "Head diameter"
+        "description": "Head diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "headDepth": {
         "type": "number",
         "default": 2,
-        "description": "Head depth"
+        "description": "Head depth",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "style": {
         "type": "string",
@@ -446,7 +411,7 @@
       }
     }
   },
-  "schemaHash": "sha256:2f82e615618a28dd075e1128a3522c98de8c02e96e424074a9b89b1647876eae",
+  "schemaHash": "sha256:639956853daaeda0e406d7f43f743c96762bd0c76c18e1d2f13d0216959c079b",
   "defaults": {
     "holeDiameter": 4,
     "depth": 8,
@@ -541,5 +506,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:fa39a4844499e7361ab6db23c636fe7d1f83a0c793bff2c055fbe5ec5f25986d"
+  "docsHash": "sha256:31a166e4790460962a91f9d1240421b8f2785ca6415eba5cba4f193238a3cb63"
 }

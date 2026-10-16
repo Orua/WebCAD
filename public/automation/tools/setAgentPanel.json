@@ -2,7 +2,7 @@
   "id": "setAgentPanel",
   "title": "setAgentPanel",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "description": "setAgentPanel({context,visible:true|false})；true将已配置助手侧栏接到当前页面，false立即撤销适配器写入、解锁并关闭侧栏，再取消同一任务并释放原会话。",
   "synonyms": [
@@ -20,5 +20,5 @@
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:30e71f320c850b57aa5170f64ee9331f022cbc6ecdf2e5343814241ee1efc44c"
+  "docsHash": "sha256:77bde0d8e2a441623228d7ce9cd0a9b1c2498493500ac7d5cff40ef5bfd524a6"
 }

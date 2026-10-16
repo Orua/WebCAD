@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "Circular ring swept from an elliptical section with independent front band width and side depth. Section shape is an editable candidate to verify against the source.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "ellipseSectionRing"
@@ -412,21 +371,27 @@
       "innerDiameter": {
         "type": "number",
         "default": 37.4,
-        "description": "Inner front diameter"
+        "description": "Inner front diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionWidth": {
         "type": "number",
         "default": 4.1,
-        "description": "Front band width"
+        "description": "Front band width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionDepth": {
         "type": "number",
         "default": 5,
-        "description": "Side depth"
+        "description": "Side depth",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:b518c13415f23e764118d26ae82bd55ddfef1b9c15f5231de5a21fa550ca8493",
+  "schemaHash": "sha256:a7d6ed64e8b9b9c8e9a511b31b11b1e2eb8a17b0099c5c00f272e746fe9dcd91",
   "defaults": {
     "innerDiameter": 37.4,
     "sectionWidth": 4.1,
@@ -491,5 +456,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:5131cbd739b4318c05446129e7f44cf381a6262babe0e96b0fb7265547e3a683"
+  "docsHash": "sha256:c4aeace15112448f75211048952d3e7a2b9bfb91cabca31c4f7757aad9e142d0"
 }

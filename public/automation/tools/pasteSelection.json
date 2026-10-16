@@ -2,7 +2,7 @@
   "id": "pasteSelection",
   "title": "pasteSelection",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "description": "pasteSelection({context,idempotencyKey}); 先 copySelection。",
   "synonyms": [
@@ -33,5 +33,5 @@
     "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:caad45c6915f4ea7f81d2d67e543c7ddd81de14d167d402c85d299415832179b"
+  "docsHash": "sha256:2438cb58173f3d6e44d80b42c244ca03241dbb1bfdba8ccb7c8f3c6405f0c8bb"
 }

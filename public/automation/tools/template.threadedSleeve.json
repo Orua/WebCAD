@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "底面在参考位置，面端朝本地 -Z；从下方面端向上攻牙。牙径采用支持的名义 M 粗牙直径，不含配合公差。",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "threadedSleeve"
@@ -412,31 +371,41 @@
       "bottomDiameterMm": {
         "type": "number",
         "default": 8,
-        "description": "底直径（上端）"
+        "description": "底直径（上端）",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "faceDiameterMm": {
         "type": "number",
         "default": 6,
-        "description": "面直径（下端）"
+        "description": "面直径（下端）",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "threadDiameterMm": {
         "type": "number",
         "default": 3,
-        "description": "螺牙直径"
+        "description": "螺牙直径",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "totalHeightMm": {
         "type": "number",
         "default": 8,
-        "description": "总高"
+        "description": "总高",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "threadDepthMm": {
         "type": "number",
         "default": 6,
-        "description": "螺牙深度"
+        "description": "螺牙深度",
+        "minimum": 0.01,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:a70a5fd8c52b2f1c3323c40145bffb4e3ce0976b30010f892173c8bf4b39fe05",
+  "schemaHash": "sha256:8f018ee042cc25694d47af0b208014e2da402ede2aa99ddffcb11ee35d80bb9d",
   "defaults": {
     "bottomDiameterMm": 8,
     "faceDiameterMm": 6,
@@ -516,5 +485,5 @@
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:a15d441f827e4493059ea7b3e3bfda277535bf005708e870ea26728fb48ba2d8"
+  "docsHash": "sha256:ce8de96f8adf64bd6f7417681413753de677d5961b5988a3d8b816395adfb166"
 }

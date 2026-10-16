@@ -2,7 +2,7 @@
   "id": "fitProfile",
   "title": "fitProfile",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "fitProfile({context,kind:\"circle\"|\"line\",plane?:\"XY\"|\"XZ\"|\"YZ\",points:[[u,v],...],maxResidualMm?}); 3–1000 点。",
   "synonyms": [
@@ -27,5 +27,5 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.profile-fitting",
-  "docsHash": "sha256:884d166c9fa49591a2ea72089e77df3bfe18be19b2b3b003dc551ffe8211b643"
+  "docsHash": "sha256:d90cfea031a202c536e2999315bdb581de4f462738a42ddf272a9c8e3780e7a3"
 }

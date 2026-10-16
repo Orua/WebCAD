@@ -2,7 +2,7 @@
   "id": "convertLogoPdf",
   "title": "convertLogoPdf",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
   "description": "convertLogoPdf({context,name,data,targetWidthMm?,page?,sizeConfirmed:true,allowUpload:true})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。",
   "synonyms": [
@@ -25,5 +25,5 @@
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID"
   ],
-  "docsHash": "sha256:e971b0f3fe6865c2556cd78d84a2f4638a6f35720906695470a5d9375b97219f"
+  "docsHash": "sha256:b6b90572dcbf33279d55a0eac78f4fe62e466c91f849af62ee4445cbf76ece13"
 }

@@ -2,23 +2,20 @@
   "id": "updateModelLibrary",
   "title": "updateModelLibrary",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "revision",
-  "description": "updateModelLibrary({context,expectedLibraryRevision,operation:upsert|remove|move|restore|import,entry?,id?,index?,library?})。upsert entry={id,kind,label,description?,defaults?,script?}，id为字母开头80位以内字母数字_-，kind必须已安装，defaults仅含该类型原参数。move的index为移动后零起始位置。import全量替换，library={format:webcad-model-library,version:1,entries:[entry]}；restore全量恢复默认目录、默认参数和顺序。",
+  "description": "updateModelLibrary({context,expectedLibraryRevision,operation:move|restore,id?,index?})。move传内置id和移动后零起始index；restore恢复默认顺序。工具定义只读，不接受entry、library、脚本、upsert、remove或import。",
   "synonyms": [
     "updateModelLibrary",
-    "模型库",
-    "管理",
-    "添加",
-    "删除",
-    "修改",
-    "排序",
-    "恢复",
-    "导入",
-    "热插拔"
+    "快捷工具",
+    "显示顺序",
+    "上移",
+    "下移",
+    "恢复顺序",
+    "固定定义"
   ],
-  "inputContract": "updateModelLibrary({context,expectedLibraryRevision,operation:upsert|remove|move|restore|import,entry?,id?,index?,library?})。upsert entry={id,kind,label,description?,defaults?,script?}，id为字母开头80位以内字母数字_-，kind必须已安装，defaults仅含该类型原参数。move的index为移动后零起始位置。import全量替换，library={format:webcad-model-library,version:1,entries:[entry]}；restore全量恢复默认目录、默认参数和顺序。",
-  "outputContract": "status=applied、revision、entries、persistence、context；不修改工程revision/历史。按expectedLibraryRevision拒绝并发陈旧写入。存储不可用明确失败；损坏库显式restore且expectedLibraryRevision=-1可恢复。删除/编辑只影响库，已有模型冻结kind和params。script 为 1–20 个步骤 [{id,op,params,refs}]，支持 box/cylinder/sphere/quickModel/transform/union/cut/intersect；refs 只能引用前面步骤，最后一步为结果；params 数值可写 $params.字段引用工具参数。已有工具从 getModelLibrary 读取后修改 script 并 upsert；新工具使用唯一 ID。JavaScript/eval/URL 不接受。",
+  "inputContract": "updateModelLibrary({context,expectedLibraryRevision,operation:move|restore,id?,index?})。move传内置id和移动后零起始index；restore恢复默认顺序。工具定义只读，不接受entry、library、脚本、upsert、remove或import。",
+  "outputContract": "status=applied、revision、entries、readOnlyDefinitions:true、allowedOperations、persistence、context；只写当前源localStorage排序，不改工程revision或历史。陈旧排序写入返回LIBRARY_REVISION_CONFLICT；存储失败明确拒绝；损坏排序可显式restore且expectedLibraryRevision=-1恢复。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -38,8 +35,8 @@
   "docs": "api.model-library",
   "remoteCompatibility": {
     "read": "getUILayout({includeModelLibrary:true}).modelLibrary",
-    "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})",
+    "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation:move|restore,id?,index?}})",
     "create": "Use entries[].execution with run/add; current context and unique key required."
   },
-  "docsHash": "sha256:e54ff7310a2234fab89bcb3741681c07c7f9108bc7890430c4457bb35f10883a"
+  "docsHash": "sha256:99e3c6f92af31ec1772e18b54292918fa652e6db577f695aa43cfdebbafe0262"
 }

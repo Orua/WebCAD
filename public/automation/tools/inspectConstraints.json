@@ -2,7 +2,7 @@
   "id": "inspectConstraints",
   "title": "inspectConstraints",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "identity",
   "description": "inspectConstraints({context,bodyId})；当前保存的 sketchProfile 或 profileConstraints 派生轮廓。只读诊断已有关系；矩形转换为明确四条解析边并保留形状关系。",
   "synonyms": [
@@ -36,5 +36,5 @@
     "length": "mm",
     "angle": "degrees"
   },
-  "docsHash": "sha256:1bdb1d8e5f9e293b102cc52256d840213463874867358e6db80a8f7ec096fc8a"
+  "docsHash": "sha256:26a23840522ef0bd681c0f6f54f7703d5102cf70eabc84c1217a9c5976e008dd"
 }

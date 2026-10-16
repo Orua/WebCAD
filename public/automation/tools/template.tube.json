@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "Coaxial tube; defaults 13.4 outer diameter, 12.4 inner diameter and 3 height for the user C-part.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "tube"
@@ -412,24 +371,29 @@
       "outerDiameter": {
         "type": "number",
         "default": 13.4,
-        "description": "Outer diameter"
+        "description": "Outer diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerDiameter": {
         "type": "number",
         "default": 12.4,
-        "description": "Inner diameter"
+        "description": "Inner diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "height": {
         "type": "number",
         "default": 3,
         "description": "Height",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
       }
     }
   },
-  "schemaHash": "sha256:debdba438db593c2cd46e9977203bce6fda6821627b9628f936dbc64d0f906ec",
+  "schemaHash": "sha256:f21e96af8a538c8d628e50d0dae69d13864c32a1a48d714d614cc1dc1b911983",
   "defaults": {
     "outerDiameter": 13.4,
     "innerDiameter": 12.4,
@@ -494,5 +458,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:4fbe3808f8962ddc8a425ef61b9932e83ab9166dc8d1496d3f34dace714b1613"
+  "docsHash": "sha256:3b7ea9f6befda36d8e2489c67edd3b831c372daedb31ba1e196f6e94a0c9d828"
 }

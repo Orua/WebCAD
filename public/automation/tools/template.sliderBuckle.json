@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "The inner height spans the full frame; the fused round bar has an editable vertical offset and no opening. Compact round-wire frames require an inner short side at least 2.5 wire diameters and each window at least one wire diameter high.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "sliderBuckle"
@@ -422,17 +381,23 @@
       "sectionSize": {
         "type": "number",
         "default": 3,
-        "description": "Wire diameter / square size"
+        "description": "Wire diameter / square size",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionRadius": {
         "type": "number",
         "default": 0.3,
-        "description": "Square section corner R"
+        "description": "Square section corner R",
+        "minimum": 0,
+        "unit": "mm"
       },
       "sectionChamfer": {
         "type": "number",
         "default": 0.6,
-        "description": "Square section chamfer C"
+        "description": "Square section chamfer C",
+        "minimum": 0,
+        "unit": "mm"
       },
       "gapWidth": {
         "type": "number",
@@ -442,31 +407,41 @@
       "innerWidth": {
         "type": "number",
         "default": 30,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerHeight": {
         "type": "number",
         "default": 24,
-        "description": "Inner height"
+        "description": "Inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerRadius": {
         "type": "number",
         "default": 3,
-        "description": "Frame inner radius"
+        "description": "Frame inner radius",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "barDiameter": {
         "type": "number",
         "default": 2.5,
-        "description": "Bar diameter"
+        "description": "Bar diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "barOffset": {
         "type": "number",
         "default": 0,
-        "description": "Bar offset (+up)"
+        "description": "Bar offset (+up)",
+        "minimum": -100,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:098dcf9d9bcac0bbb198cf406ee2acfabbd6f584ab770944bd11c3792add7761",
+  "schemaHash": "sha256:4e3f13b91bc376a089d2834051cc6a4e7ac1948565c0ecbec9a8ff9570dab52f",
   "defaults": {
     "section": "round",
     "sectionSize": 3,
@@ -608,5 +583,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:67ea505b427f6bc98a7a0030f6ba721b20a385e34f12eef7b0fbe8f8d1718682"
+  "docsHash": "sha256:50491adecef646c40108a42581f23215a628836b8a505c14c7d38ff25611abb0"
 }

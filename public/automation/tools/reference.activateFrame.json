@@ -3,7 +3,7 @@
   "title": "激活具名基准",
   "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:c2eff5d1e6f73e6646f14f4f3d1c0f5f2bf114ce15f0b58c735313b69117a6a6"
+  "docsHash": "sha256:478d23b4813f7c5e2dca2643d67ad91f6baa602be624a9de8939cf8b92c52e19"
 }

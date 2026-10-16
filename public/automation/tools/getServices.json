@@ -2,7 +2,7 @@
   "id": "getServices",
   "title": "getServices",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "getServices()；地址与模式存本地，专用授权仅存本标签会话，不进入工程。",
   "synonyms": [
@@ -21,5 +21,5 @@
   "errorCodes": [
     "SERVICES_CONFIG_INVALID"
   ],
-  "docsHash": "sha256:9e027c97c88aea428ccfcba97be4256e03102ea516da2af571b1eb8f4d323530"
+  "docsHash": "sha256:86e489f502c538619b086e405d60c01c124b9c3f3d494b9e5c9d6ccd0ec03349"
 }

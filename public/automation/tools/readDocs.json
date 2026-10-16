@@ -2,7 +2,7 @@
   "id": "readDocs",
   "title": "readDocs",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。",
   "synonyms": [
@@ -23,5 +23,5 @@
     "PARAM_RANGE_INVALID",
     "OPERATION_VERSION_UNSUPPORTED"
   ],
-  "docsHash": "sha256:c69535f800c0977890e835888b5344854141bce1c001adfc6dbee1bc810e9711"
+  "docsHash": "sha256:e0f3759035d645af256a916b9cff1757e9e371eb8df710dc1ac148f1a5bdc71a"
 }

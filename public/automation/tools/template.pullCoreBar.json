@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "Separate crossbar with two open Y-axis rolled eyes and independently tangent inner/outer transitions into the center strip. For regular pull buckles; it remains separate from the frame.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "pullCoreBar"
@@ -412,17 +371,22 @@
       "eyePitchMm": {
         "type": "number",
         "default": 45.5,
-        "description": "Eye center pitch X"
+        "description": "Eye center pitch X",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "eyeInnerDiameterMm": {
         "type": "number",
         "default": 5.5,
-        "description": "Eye inner diameter"
+        "description": "Eye inner diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "widthMm": {
         "type": "number",
         "default": 3.2,
         "description": "Crossbar width Y",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -430,41 +394,56 @@
       "eyeWallMm": {
         "type": "number",
         "default": 1.7,
-        "description": "Eye and tail wall"
+        "description": "Eye and tail wall",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "barThicknessMm": {
         "type": "number",
         "default": 1.5,
-        "description": "Center strip thickness Z"
+        "description": "Center strip thickness Z",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "barCenterHeightMm": {
         "type": "number",
         "default": 2,
-        "description": "Strip center height Z"
+        "description": "Strip center height Z",
+        "minimum": -50,
+        "unit": "mm"
       },
       "outerTransitionRadiusMm": {
         "type": "number",
         "default": 28.3,
-        "description": "Outer transition radius"
+        "description": "Outer transition radius",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerTransitionRadiusMm": {
         "type": "number",
         "default": 30,
-        "description": "Inner transition radius"
+        "description": "Inner transition radius",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "tailLengthMm": {
         "type": "number",
         "default": 5,
-        "description": "Rolled-eye tail length"
+        "description": "Rolled-eye tail length",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "tailAngleDeg": {
         "type": "number",
         "default": 0,
-        "description": "Tail angle"
+        "description": "Tail angle",
+        "minimum": 0,
+        "maximum": 60,
+        "unit": "deg"
       }
     }
   },
-  "schemaHash": "sha256:62f0bd38fd093cfee877dfb824d08482389cf60fa489c1805e02cc5d02ef9bbb",
+  "schemaHash": "sha256:afa5c3524217f0caf99e91738cd9851d2d6367566c0bf4523dfc517d791ccc22",
   "defaults": {
     "eyePitchMm": 45.5,
     "eyeInnerDiameterMm": 5.5,
@@ -610,5 +589,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:28812f31e89169c6e1dce7fd5c09f8a3e708de15956e2553fc08df07eed10253"
+  "docsHash": "sha256:a660f7284e298de412c15189f2862f4267c910796c9a5bcdccb2233547635352"
 }

@@ -3,7 +3,7 @@
   "title": "重命名具名基准",
   "description": "args:{frameId,expectedFrameVersion,name}。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:94df12b29ffbc065a6cf6e5c43218488439e1303c8a9772813ecfe6086bfd28c"
+  "docsHash": "sha256:c6bd3e2e627d5455795ef1d8e472a3feebb45bae3b9c7672d4757c7322db2161"
 }
