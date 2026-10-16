@@ -14,12 +14,14 @@ export function mountModelLibrary(root,{element,button,onClose,onChoose,getMode,
  controls.append(search,cards,list,back);header.append(title,controls);
  const error=element('p',{class:'form-error',role:'alert'}),content=element('div',{class:'library-content'}),grid=element('div',{class:'library-grid','aria-label':'可用快捷模型'}),detail=element('aside',{class:'library-detail','aria-label':'模型详情'});
  content.append(grid,detail);root.append(header,error,content);
- search.addEventListener('input',()=>{query=search.value.trim().toLowerCase();render();});
+ search.addEventListener('input',()=>{query=search.value.trim().toLowerCase();render();root.scrollTop=0;});
  async function move(delta){try{const api=window.webcad.api,index=library.entries.findIndex(item=>item.id===selectedId);const result=await api.updateModelLibrary({context:api.createRequestContext(),expectedLibraryRevision:library.revision,operation:'move',id:selectedId,index:index+delta});if(result.status==='failed')throw Error(result.error.message);error.textContent='';render();}catch(exception){error.textContent=exception.message;}}
  function renderDetail(entry){
   detail.replaceChildren();if(!entry){detail.append(element('p',{},'选择一个模型查看参数与说明。'));return;}
-  detail.append(modelPreview(entry,{annotated:true}),element('h2',{},entry.label),button('设置参数并创建',()=>onChoose(entry),'primary'),element('p',{},entry.description));
+  detail.append(modelPreview(entry),element('h2',{},entry.label),button('设置参数并创建',()=>onChoose(entry),'primary'),element('p',{},entry.description));
   const fields=element('dl',{class:'library-defaults'});for(const field of QUICK_MODELS[entry.kind].fields)fields.append(element('dt',{},field.label),element('dd',{},String(entry.defaults[field.key])));
+  const guide=element('details',{class:'library-dimension-guide'});guide.append(element('summary',{},'尺寸指示图（默认参数）'),modelPreview(entry,{annotated:true}));
+  detail.append(guide);
   const defaults=element('details',{class:'library-default-parameters'});defaults.append(element('summary',{},'默认参数'),fields);
   const order=element('div',{class:'library-editor-actions','aria-label':'快捷工具显示顺序'}),index=library.entries.findIndex(item=>item.id===entry.id);
   for(const [label,delta]of [['上移',-1],['下移',1]]){const control=button(label,()=>move(delta),'secondary');control.dataset.commandId='modelLibraryEdit';control.disabled=index+delta<0||index+delta>=library.entries.length;order.append(control);}
