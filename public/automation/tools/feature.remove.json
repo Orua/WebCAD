@@ -3,7 +3,7 @@
   "title": "删除实体",
   "description": "args:{bodyIds}，不可使用历史已替换 ID。",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:5f9981858411ce28db9183c56c9354bb76f216baea0622b8d6c871b55e26af57"
+  "docsHash": "sha256:69351a05959a10ecf08ae5762ba2e49532ee063202cd21d41dee33e1e9ecda6d"
 }

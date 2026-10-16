@@ -408,7 +408,7 @@
       "preview.start"
     ],
     "method": "setView",
-    "usage": "实体→快捷模型打开画布中央浮动选择菜单：setView({context,workspace:\"library\"})；选择后在浮动对话框设置参数。getModelLibrary读取字段和完整script；resolveModelLibrary解析后run/add生成，params.modelScript冻结脚本。实体缩略图和参数引线示意不提交工程，实际模型可preview.start或quickModel生成并measure核对。"
+    "usage": "实体→快捷模型：setView({context,workspace:\"library\"})。选择固定工具后只设置参数；getModelLibrary/resolveModelLibrary与UI共用参数定义。缩略图和尺寸图直接读取预制图片，实际模型通过preview.start或quickModel生成。"
   },
   "referenceExtrude": {
     "tools": [
@@ -780,11 +780,10 @@
   "modelLibraryEdit": {
     "tools": [
       "getModelLibrary",
-      "updateModelLibrary",
-      "resolveModelLibrary"
+      "updateModelLibrary"
     ],
     "method": "updateModelLibrary",
-    "usage": "浮动编辑层维护工具名称、默认参数和script。getModelLibrary读取后upsert，唯一id新增、已有id修改；script步骤及引用按api.model-library验证；expectedLibraryRevision拒绝陈旧库写入。"
+    "usage": "快捷工具定义由软件内置。getModelLibrary读取revision；updateModelLibrary只允许move（id,index）或restore恢复默认顺序；不修改工具定义或工程。"
   },
   "quickModelFavorites": {
     "tools": [
@@ -997,7 +996,7 @@
       "run"
     ],
     "method": "updateModelLibrary",
-    "usage": "getModelLibrary读取当前revision、每条字段及完整生成契约。updateModelLibrary传当前context和expectedLibraryRevision，operation=upsert/remove/move/restore/import。resolveModelLibrary返回冻结的quickModel参数，run/add生成，删除库条目不影响历史。"
+    "usage": "固定快捷工具目录。getModelLibrary读取字段、范围与执行参数；resolveModelLibrary解析用户参数后run/add。updateModelLibrary仅move/restore显示顺序。缩略图与尺寸指示图为预制静态资源。"
   },
   "moveTool": {
     "tools": [

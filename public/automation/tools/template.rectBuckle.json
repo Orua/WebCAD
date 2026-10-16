@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "Constant-section rounded rectangular frame. A closed round-wire frame supports an inner short side at least 2.5 times the wire diameter; other variants require four times the section size.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "rectBuckle"
@@ -422,41 +381,55 @@
       "sectionSize": {
         "type": "number",
         "default": 3,
-        "description": "Wire diameter / square size"
+        "description": "Wire diameter / square size",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionRadius": {
         "type": "number",
         "default": 0.3,
-        "description": "Square section corner R"
+        "description": "Square section corner R",
+        "minimum": 0,
+        "unit": "mm"
       },
       "sectionChamfer": {
         "type": "number",
         "default": 0.6,
-        "description": "Square section chamfer C"
+        "description": "Square section chamfer C",
+        "minimum": 0,
+        "unit": "mm"
       },
       "gapWidth": {
         "type": "number",
         "default": 0,
-        "description": "Bottom gap (0 = closed)"
+        "description": "Bottom gap (0 = closed)",
+        "minimum": 0,
+        "unit": "mm"
       },
       "innerWidth": {
         "type": "number",
         "default": 28,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerHeight": {
         "type": "number",
         "default": 20,
-        "description": "Inner height"
+        "description": "Inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerRadius": {
         "type": "number",
         "default": 3,
-        "description": "Frame inner radius"
+        "description": "Frame inner radius",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:d3775cf3a19d5cc1055406dc63a77448129fde1b44238c0e6d24d2cdd0442fc3",
+  "schemaHash": "sha256:eaade3022c64ba37c0e2807f90381cba350eaeb1feaa790f8b66d85bcb608b6e",
   "defaults": {
     "section": "round",
     "sectionSize": 3,
@@ -586,5 +559,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:b4d4b3014a6787549f345d98bc265b1d6f013d6f61bed6eac6a0c97430def840"
+  "docsHash": "sha256:0070e3a0e671dc91e4f97d4786d682b3ac0dac76d1c306a54203dad773964740"
 }

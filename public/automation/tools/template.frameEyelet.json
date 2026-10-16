@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "One exact circular or rounded rectangular frame with an optional constant-wall collar, symmetric mounting posts and plain straight holes. Collar and posts extend along local +Z from a flange at Z=0. Hole depth 0 means through; positive depth is blind from the post top. 0/2/4 posts; two posts lie on Y. Zero collar/post heights make a backplate. No threads, taper, riveting, decoration or 3D edge blends. Circular mode requires matching width/height pairs; corner radii apply only to rectangular mode.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "frameEyelet"
@@ -421,86 +380,119 @@
       "outerWidthMm": {
         "type": "number",
         "default": 25.6,
-        "description": "Outer width/diameter"
+        "description": "Outer width/diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "outerHeightMm": {
         "type": "number",
         "default": 30,
-        "description": "Outer height (circular=width)"
+        "description": "Outer height (circular=width)",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "outerRadiusMm": {
         "type": "number",
         "default": 3.5,
-        "description": "Outer rectangular corner R"
+        "description": "Outer rectangular corner R",
+        "minimum": 0,
+        "unit": "mm"
       },
       "boreWidthMm": {
         "type": "number",
         "default": 12,
-        "description": "Bore width/diameter"
+        "description": "Bore width/diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "boreHeightMm": {
         "type": "number",
         "default": 16.5,
-        "description": "Bore height (circular=width)"
+        "description": "Bore height (circular=width)",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "boreRadiusMm": {
         "type": "number",
         "default": 1.2,
-        "description": "Bore rectangular corner R"
+        "description": "Bore rectangular corner R",
+        "minimum": 0,
+        "unit": "mm"
       },
       "flangeThicknessMm": {
         "type": "number",
         "default": 1.5,
-        "description": "Flange thickness"
+        "description": "Flange thickness",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "collarProjectionMm": {
         "type": "number",
         "default": 3,
-        "description": "Collar projection (0=none)"
+        "description": "Collar projection (0=none)",
+        "minimum": 0,
+        "unit": "mm"
       },
       "collarWallMm": {
         "type": "number",
         "default": 0.3,
-        "description": "Collar wall thickness"
+        "description": "Collar wall thickness",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "mountingCount": {
         "type": "number",
         "default": 4,
-        "description": "Post count (0/2/4)"
+        "description": "Post count (0/2/4)",
+        "minimum": 0,
+        "maximum": 4,
+        "unit": "1"
       },
       "pitchXMm": {
         "type": "number",
         "default": 6,
-        "description": "Four-post X pitch"
+        "description": "Four-post X pitch",
+        "minimum": 0,
+        "unit": "mm"
       },
       "pitchYMm": {
         "type": "number",
         "default": 22.6,
-        "description": "Y pitch"
+        "description": "Y pitch",
+        "minimum": 0,
+        "unit": "mm"
       },
       "bossDiameterMm": {
         "type": "number",
         "default": 4,
-        "description": "Post diameter"
+        "description": "Post diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "bossHeightMm": {
         "type": "number",
         "default": 3.5,
-        "description": "Post height (0=none)"
+        "description": "Post height (0=none)",
+        "minimum": 0,
+        "unit": "mm"
       },
       "holeDiameterMm": {
         "type": "number",
         "default": 2.6,
-        "description": "Plain hole diameter (0=solid)"
+        "description": "Plain hole diameter (0=solid)",
+        "minimum": 0,
+        "unit": "mm"
       },
       "holeDepthMm": {
         "type": "number",
         "default": 2,
-        "description": "Hole depth (0=through)"
+        "description": "Hole depth (0=through)",
+        "minimum": 0,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:a07b4c5b681d0d67bca55f8099e09c7ca84ccd0a5e32ceef5cf73cadd35504f5",
+  "schemaHash": "sha256:ff20b3b5c0eb83dff34db608d8967fa47a3e3e6b3d400b4e95036f82d9f10452",
   "defaults": {
     "shape": "roundedRect",
     "outerWidthMm": 25.6,
@@ -732,5 +724,5 @@
     "refs": []
   },
   "docs": "api.quick-installation",
-  "docsHash": "sha256:c360fcc79c7f229cb3468a6c1d493b1671727eb88276cc984cf101f88fe85a48"
+  "docsHash": "sha256:461978fd1c598d68e9f57f1b4e0eeb50f0d4f2686c46c7a68670c4ff54594455"
 }

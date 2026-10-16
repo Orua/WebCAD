@@ -1,0 +1,643 @@
+{
+  "id": "template.ironFoot",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "铁脚仔",
+  "category": "template",
+  "synonyms": [
+    "ironFoot",
+    "铁脚仔",
+    "Bridge iron foot"
+  ],
+  "description": "来源 V01/V02/V03：顶片双安装孔，两端下折脚、圆弧脚端，可选单脚或双脚轴孔。顶面 Z=0，脚朝 -Z，桥长沿 Y、片宽沿 X；总高含顶片。V02 的收脚由侧边收角和脚端R控制。折角保持来源的直角，不自动加弯R。",
+  "apiCompatibility": [
+    "page-advisory"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": true,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "ironFoot",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-contract.test.mjs"
+  ],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+    "whenToUse": [
+      "Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {},
+    "refs": {
+      "min": 0,
+      "max": 0,
+      "meaning": "独立创建，不引用已有实体"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": false,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "quickModel",
+        "params": {
+          "kind": "tube"
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "normal": {
+        "op": "quickModel",
+        "params": {
+          "kind": "tube"
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+      },
+      "invalid": [
+        {
+          "params": {
+            "__invalid": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID"
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "box",
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "quickModel",
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+      "quick Model operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
+  "whenToUse": [
+    "Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "operationId": "quickModel",
+  "label": "铁脚仔",
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "来源 V01/V02/V03：顶片双安装孔，两端下折脚、圆弧脚端，可选单脚或双脚轴孔。顶面 Z=0，脚朝 -Z，桥长沿 Y、片宽沿 X；总高含顶片。V02 的收脚由侧边收角和脚端R控制。折角保持来源的直角，不自动加弯R。",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "ironFoot"
+      },
+      "lengthMm": {
+        "type": "number",
+        "default": 23.5,
+        "description": "桥长 L",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "widthMm": {
+        "type": "number",
+        "default": 5.5,
+        "description": "片宽 W",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "heightMm": {
+        "type": "number",
+        "default": 12,
+        "description": "总高 H",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "thicknessMm": {
+        "type": "number",
+        "default": 0.5,
+        "description": "片厚 t",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "topHoleDiameterMm": {
+        "type": "number",
+        "default": 2.3,
+        "description": "顶孔直径",
+        "minimum": 0,
+        "maximum": 500,
+        "unit": "mm"
+      },
+      "topHolePitchMm": {
+        "type": "number",
+        "default": 18,
+        "description": "顶孔中心距",
+        "minimum": 0,
+        "maximum": 500,
+        "unit": "mm"
+      },
+      "endRadiusMm": {
+        "type": "number",
+        "default": 2.75,
+        "description": "脚端 R",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm"
+      },
+      "taperAngleDeg": {
+        "type": "number",
+        "default": 0,
+        "description": "脚侧边收角",
+        "minimum": 0,
+        "maximum": 15,
+        "unit": "deg"
+      },
+      "footHoleDiameterMm": {
+        "type": "number",
+        "default": 2.5,
+        "description": "脚孔直径",
+        "minimum": 0,
+        "maximum": 500,
+        "unit": "mm"
+      },
+      "footHoleHeightMm": {
+        "type": "number",
+        "default": 2.75,
+        "description": "脚孔心距脚底",
+        "minimum": 0.01,
+        "maximum": 500,
+        "unit": "mm"
+      },
+      "footHoles": {
+        "type": "string",
+        "default": "back",
+        "description": "脚孔位置",
+        "enum": [
+          "none",
+          "front",
+          "back",
+          "both"
+        ]
+      }
+    }
+  },
+  "schemaHash": "sha256:9f07c25c9d2cc2331f3ca9b93a21bccc8c7a757122f9ded56e83456faa1a2d7b",
+  "defaults": {
+    "lengthMm": 23.5,
+    "widthMm": 5.5,
+    "heightMm": 12,
+    "thicknessMm": 0.5,
+    "topHoleDiameterMm": 2.3,
+    "topHolePitchMm": 18,
+    "endRadiusMm": 2.75,
+    "taperAngleDeg": 0,
+    "footHoleDiameterMm": 2.5,
+    "footHoleHeightMm": 2.75,
+    "footHoles": "back"
+  },
+  "fields": [
+    {
+      "key": "lengthMm",
+      "label": "桥长 L",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "widthMm",
+      "label": "片宽 W",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "heightMm",
+      "label": "总高 H",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "thicknessMm",
+      "label": "片厚 t",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "topHoleDiameterMm",
+      "label": "顶孔直径",
+      "type": "number",
+      "min": 0,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "topHolePitchMm",
+      "label": "顶孔中心距",
+      "type": "number",
+      "min": 0,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "endRadiusMm",
+      "label": "脚端 R",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "taperAngleDeg",
+      "label": "脚侧边收角",
+      "type": "number",
+      "min": 0,
+      "max": 15,
+      "step": 0.1,
+      "unit": "deg"
+    },
+    {
+      "key": "footHoleDiameterMm",
+      "label": "脚孔直径",
+      "type": "number",
+      "min": 0,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "footHoleHeightMm",
+      "label": "脚孔心距脚底",
+      "type": "number",
+      "min": 0.01,
+      "max": 500,
+      "step": 0.1,
+      "unit": "mm"
+    },
+    {
+      "key": "footHoles",
+      "label": "脚孔位置",
+      "type": "select",
+      "options": [
+        {
+          "value": "none",
+          "label": "无"
+        },
+        {
+          "value": "front",
+          "label": "前脚（-Y）"
+        },
+        {
+          "value": "back",
+          "label": "后脚（+Y）"
+        },
+        {
+          "value": "both",
+          "label": "两脚"
+        }
+      ]
+    }
+  ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "ironFoot"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "ironFoot",
+      "lengthMm": 23.5,
+      "widthMm": 5.5,
+      "heightMm": 12,
+      "thicknessMm": 0.5,
+      "topHoleDiameterMm": 2.3,
+      "topHolePitchMm": 18,
+      "endRadiusMm": 2.75,
+      "taperAngleDeg": 0,
+      "footHoleDiameterMm": 2.5,
+      "footHoleHeightMm": 2.75,
+      "footHoles": "back"
+    },
+    "refs": []
+  },
+  "docs": "api.quick-chains",
+  "docsHash": "sha256:4f2bbd9a7f9c5b7cdce2b292eed452e5d8381ca6d73d412125ce1bca423293b1"
+}

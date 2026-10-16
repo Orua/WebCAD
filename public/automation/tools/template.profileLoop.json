@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "Closed capsule loop with semicircular ends and straight runs. Front width, side depth and section radius are independent; a half-short-side radius forms an exact stadium section.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "profileLoop"
@@ -412,31 +371,41 @@
       "innerWidth": {
         "type": "number",
         "default": 35.2,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerHeight": {
         "type": "number",
         "default": 14.6,
-        "description": "Inner height"
+        "description": "Inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionWidth": {
         "type": "number",
         "default": 5.5,
-        "description": "Front section width"
+        "description": "Front section width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionDepth": {
         "type": "number",
         "default": 6,
-        "description": "Side section depth"
+        "description": "Side section depth",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionRadius": {
         "type": "number",
         "default": 2.5,
-        "description": "Square section corner R"
+        "description": "Square section corner R",
+        "minimum": 0,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:6c7434d761c1e2d78dfe9520a8b4e85a42e21e9d590767bd64970037fdd25722",
+  "schemaHash": "sha256:8036d8623baef5b28976ff2cb35e110178a96289b8952ab392be03fddd296768",
   "defaults": {
     "innerWidth": 35.2,
     "innerHeight": 14.6,
@@ -521,5 +490,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:c74dedb55a3811685ce236741d7982df076707ec6c59811d326985f0b168083f"
+  "docsHash": "sha256:8b6a71eaa5a1d337a497197984459eaa967d012e1c86fa93759268e740c4965a"
 }

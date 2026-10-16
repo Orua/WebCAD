@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "Open rounded-rectangle tray with two hollow bosses on the inner floor. Outer corner radius, wall/floor thickness and boss dimensions are editable. Straight walls only; no draft, clips, lettering or texture.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "roundedBossTray"
@@ -412,17 +371,22 @@
       "outerWidth": {
         "type": "number",
         "default": 60,
-        "description": "Outer width X"
+        "description": "Outer width X",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerDepth": {
         "type": "number",
         "default": 38,
-        "description": "Outer depth Y"
+        "description": "Outer depth Y",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "height": {
         "type": "number",
         "default": 12,
         "description": "Total height",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -431,6 +395,7 @@
         "type": "number",
         "default": 6,
         "description": "Outer corner radius",
+        "minimum": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -439,6 +404,7 @@
         "type": "number",
         "default": 2,
         "description": "Wall thickness",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -446,31 +412,41 @@
       "floorThickness": {
         "type": "number",
         "default": 2,
-        "description": "Floor thickness"
+        "description": "Floor thickness",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "bossSpacing": {
         "type": "number",
         "default": 30,
-        "description": "Boss center spacing X"
+        "description": "Boss center spacing X",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "bossOuterDiameter": {
         "type": "number",
         "default": 7,
-        "description": "Boss outer diameter"
+        "description": "Boss outer diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "boreDiameter": {
         "type": "number",
         "default": 3,
-        "description": "Through-bore diameter"
+        "description": "Through-bore diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "bossHeight": {
         "type": "number",
         "default": 7,
-        "description": "Boss height above inner floor"
+        "description": "Boss height above inner floor",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:3a8e6d6f1c5281a3bfd2222103c8c307fa858147d9d2d94b7873ff86a50c3cd2",
+  "schemaHash": "sha256:51de370b48f30a5b187c5d903c69c87b7702a4e34abd15583e0672e2b96fa921",
   "defaults": {
     "outerWidth": 60,
     "outerDepth": 38,
@@ -605,5 +581,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:8f46d366c60f6fbed912729e2de299fe520b9aafde3891bdd5dc2fefb1bc73e9"
+  "docsHash": "sha256:f0b77252c92eabc375a9a97da644caf144e4b1bbffdcd8e28048f945a48ece51"
 }

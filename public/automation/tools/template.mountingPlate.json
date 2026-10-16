@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "Two symmetric X-axis holes with independent center spacing. Plain through holes only; no threads, countersinks or counterbores.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "mountingPlate"
@@ -413,6 +372,7 @@
         "type": "number",
         "default": 40,
         "description": "Plate width X",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -421,6 +381,7 @@
         "type": "number",
         "default": 16,
         "description": "Plate depth Y",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -429,6 +390,7 @@
         "type": "number",
         "default": 3,
         "description": "Thickness",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -437,6 +399,7 @@
         "type": "number",
         "default": 3,
         "description": "Outer corner radius",
+        "minimum": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -445,6 +408,7 @@
         "type": "number",
         "default": 4,
         "description": "Hole diameter",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -452,11 +416,13 @@
       "holeSpacing": {
         "type": "number",
         "default": 24,
-        "description": "Hole center spacing"
+        "description": "Hole center spacing",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:bf1e6fe56979303ada78083346f835885559ab868a3c5d969fb80d1a9465d38b",
+  "schemaHash": "sha256:d612efc94f0fa9d899791e2cbd1600525c7bacf287e637a91499ca0ef2a6ac34",
   "defaults": {
     "width": 40,
     "depth": 16,
@@ -551,5 +517,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:b6388bb47e658fc6f55fd908fbbd4aebefd5cd89c02801ab136d637cdf616d2a"
+  "docsHash": "sha256:1c239a6742e2560b63fe6d49798ac535dd87df14199ce0f7416bdf360892a605"
 }

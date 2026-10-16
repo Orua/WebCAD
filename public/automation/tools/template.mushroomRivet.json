@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "A parameterized two-piece mushroom rivet with a spherical cap, hollow socket, rounded waisted post and base flange. Supports assembled or exploded display, with a blind post bore depth and direction.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "mushroomRivet"
@@ -412,92 +371,128 @@
       "capDiameterMm": {
         "type": "number",
         "default": 10,
-        "description": "Cap overall diameter"
+        "description": "Cap overall diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "capRiseMm": {
         "type": "number",
         "default": 5,
-        "description": "Cap rise"
+        "description": "Cap rise",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "capEdgeRadiusMm": {
         "type": "number",
         "default": 0.5,
-        "description": "Cap rear edge radius"
+        "description": "Cap rear edge radius",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "collarOuterDiameterMm": {
         "type": "number",
         "default": 3.5,
-        "description": "Socket outer diameter"
+        "description": "Socket outer diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "collarInnerDiameterMm": {
         "type": "number",
         "default": 2.9,
-        "description": "Socket inner diameter"
+        "description": "Socket inner diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "collarLengthMm": {
         "type": "number",
         "default": 2.3,
-        "description": "Socket length"
+        "description": "Socket length",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "postOuterDiameterMm": {
         "type": "number",
         "default": 2.8,
-        "description": "Post shaft diameter"
+        "description": "Post shaft diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "postInnerDiameterMm": {
         "type": "number",
         "default": 2.5,
-        "description": "Post bore diameter"
+        "description": "Post bore diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "postLengthMm": {
         "type": "number",
         "default": 9,
-        "description": "Post total length"
+        "description": "Post total length",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "tipRoundRadiusMm": {
         "type": "number",
         "default": 0.5,
-        "description": "Post tip round radius"
+        "description": "Post tip round radius",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "waistRadiusMm": {
         "type": "number",
         "default": 3.130814708,
-        "description": "Waist main radius"
+        "description": "Waist main radius",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "waistDepthMm": {
         "type": "number",
         "default": 0.26154265,
-        "description": "Waist depth"
+        "description": "Waist depth",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "waistCenterFromTipMm": {
         "type": "number",
         "default": 2.03741855,
-        "description": "Waist center from tip"
+        "description": "Waist center from tip",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "waistBlendRadiusMm": {
         "type": "number",
         "default": 0.5,
-        "description": "Waist blend radius"
+        "description": "Waist blend radius",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "flangeDiameterMm": {
         "type": "number",
         "default": 8,
-        "description": "Base flange diameter"
+        "description": "Base flange diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "flangeThicknessMm": {
         "type": "number",
         "default": 0.3,
-        "description": "Base flange thickness"
+        "description": "Base flange thickness",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "shoulderHeightMm": {
         "type": "number",
         "default": 1,
-        "description": "Shoulder height and radius"
+        "description": "Shoulder height and radius",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "postBoreDepthMm": {
         "type": "number",
         "default": 5,
-        "description": "Post blind bore depth (0=none)"
+        "description": "Post blind bore depth (0=none)",
+        "minimum": 0,
+        "unit": "mm"
       },
       "boreFromFlange": {
         "type": "boolean",
@@ -507,11 +502,13 @@
       "explodedOffsetMm": {
         "type": "number",
         "default": 12,
-        "description": "Exploded center offset (0=assembled)"
+        "description": "Exploded center offset (0=assembled)",
+        "minimum": 0,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:735a7a017c62466b77b66e562b2f69eeab2ea45ee9b4490bb106dcae6592e878",
+  "schemaHash": "sha256:b11441e357f29b77d2c921e44157e00c347f9e70f5e9ae2470308dccfce55d7d",
   "defaults": {
     "capDiameterMm": 10,
     "capRiseMm": 5,
@@ -763,5 +760,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:44c5d433bdc0913356f486f704a3233f654d7547a3052309a4955701aa267090"
+  "docsHash": "sha256:a78b23466f0e0308f9c82a5ee7345fb0b3acee525bf03d2192dc8cf1078247d3"
 }

@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "Three dimensions: inner diameter, outer diameter and total thickness. Winding, layer gap, transition and section R are fitted automatically; both tips have circular outlines with rounded edges. Legacy explicit winding recipes remain supported.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "keyRing"
@@ -412,17 +371,23 @@
       "innerDiameterMm": {
         "type": "number",
         "default": 25,
-        "description": "Inner diameter"
+        "description": "Inner diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerDiameterMm": {
         "type": "number",
         "default": 33,
-        "description": "Outer diameter"
+        "description": "Outer diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "totalDepthMm": {
         "type": "number",
         "default": 3,
-        "description": "Total thickness"
+        "description": "Total thickness",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "autoFit": {
         "type": "boolean",
@@ -464,7 +429,7 @@
       }
     }
   },
-  "schemaHash": "sha256:8c5dac3dd5bcfa9b2777aff74fed0f03345adf7bfb260533adb24da7fade38b2",
+  "schemaHash": "sha256:0a2d8eb17cba8485e26a3d19bdc3987a406153ed61bc12004a5c6d02b519acae",
   "defaults": {
     "innerDiameterMm": 25,
     "outerDiameterMm": 33,
@@ -546,5 +511,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:e6a6ef1ca6e608304050fec189d703f9e238f86494e8e6dd0a57b5eb3c34fe09"
+  "docsHash": "sha256:1d97d9a464c600e74d11bc4426c7b01ae3a8d57ef082dc792b4b1732394e9cb8"
 }

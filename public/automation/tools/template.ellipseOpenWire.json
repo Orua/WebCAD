@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "Sweep round wire along a half-wire outward offset of a true inner ellipse, then cut a bottom-center parallel flat gap. Source drawings with a true outer ellipse need another tool.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "ellipseOpenWire"
@@ -412,26 +371,34 @@
       "innerWidth": {
         "type": "number",
         "default": 15,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerHeight": {
         "type": "number",
         "default": 20,
-        "description": "Inner height"
+        "description": "Inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionSize": {
         "type": "number",
         "default": 3.5,
-        "description": "Wire diameter / square size"
+        "description": "Wire diameter / square size",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "gapWidth": {
         "type": "number",
         "default": 0.2,
-        "description": "Bottom-center parallel gap width"
+        "description": "Bottom-center parallel gap width",
+        "minimum": 0.01,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:3b82d629a7f157707ed16100821e20dd7217d3452d28cdb76e1e0c60f4303df2",
+  "schemaHash": "sha256:f6bead4d89c87ca4343743ca7b87dd3770398df34e3bd0ec18aff76b0b2f52ea",
   "defaults": {
     "innerWidth": 15,
     "innerHeight": 20,
@@ -506,5 +473,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:5a8ba79b4baf06734aa9b33a55fae786c3e3b7650c7d7029a8fac4a027b64ff3"
+  "docsHash": "sha256:673d6adef499062922e6e843e2d1dd3e94e52cd21e79bf43f06fd472d738499a"
 }

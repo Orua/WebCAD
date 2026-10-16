@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.48.0 · 操作目录 sha256:c3092a5a5ed454a587edbf97b682cda8b904af41196bde3c5986a7a5f08a4cd7
+API 1.49.0 · 操作目录 sha256:8d55dc62d8a7f51ea39fd6ca0744c0f45aa9e573c7be93a9efda2175783ced10
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -184,6 +184,10 @@ API 1.48.0 · 操作目录 sha256:c3092a5a5ed454a587edbf97b682cda8b904af41196bde
 - `vectorProfile` · advisory · Create independent planar faces or solids from closed vector regions
 - `heightfieldSculpt` · undefined · 发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。
 - `reliefSculpt` · undefined · 发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。
+- `template.oChain` · advisory · 来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。
+- `template.twistedChain` · advisory · 来源 NL.stp：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。
+- `template.groundChain` · advisory · 来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。
+- `template.ironFoot` · advisory · 来源 V01/V02/V03：顶片双安装孔，两端下折脚、圆弧脚端，可选单脚或双脚轴孔。顶面 Z=0，脚朝 -Z，桥长沿 Y、片宽沿 X；总高含顶片。V02 的收脚由侧边收角和脚端R控制。折角保持来源的直角，不自动加弯R。
 - `template.ring` · advisory · 同心圆恒截面单圈；开缝为底部正中平行平切。
 - `template.washer` · advisory · 平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。
 - `template.tube` · advisory · 同轴圆筒，外径 13.4、内径 12.4、高度 3 为用户 C 件默认值。
@@ -234,7 +238,7 @@ API 1.48.0 · 操作目录 sha256:c3092a5a5ed454a587edbf97b682cda8b904af41196bde
 - `recoverKernel` · page-method · recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。
 - `sampleMeshRelief` · page-method · sampleMeshRelief({context,bodyId,inputGeometryHash,support:{originMm,xAxis,normal},pointsMm:[[U,V],…]})；明确毫米支撑，1–256个点，点数乘三角面数不得超过1200万。
 - `getModelLibrary` · page-method · getModelLibrary()
-- `updateModelLibrary` · page-method · updateModelLibrary({context,expectedLibraryRevision,operation:upsert|remove|move|restore|import,entry?,id?,index?,library?})。upsert entry={id,kind,label,description?,defaults?,script?}，id为字母开头80位以内字母数字_-，kind必须已安装，defaults仅含该类型原参数。move的index为移动后零起始位置。import全量替换，library={format:webcad-model-library,version:1,entries:[entry]}；restore全量恢复默认目录、默认参数和顺序。
+- `updateModelLibrary` · page-method · updateModelLibrary({context,expectedLibraryRevision,operation:move|restore,id?,index?})。move传内置id和移动后零起始index；restore恢复默认顺序。工具定义只读，不接受entry、library、脚本、upsert、remove或import。
 - `resolveModelLibrary` · page-method · resolveModelLibrary({context,id,expectedLibraryRevision,params?:参数覆盖})
 - `planPatternMachining` · page-method · planPatternMachining({context,intent})，intent 为 version:1 加工意图；只读规划，不推断图片深度。
 - `decideServicesWait` · page-method · decideServicesWait({jobId,decision:"continue"|"stop"})，可在工程忙碌时调用；jobId必须是getServicesRouting().pendingWait中的当前任务。
@@ -303,7 +307,7 @@ API 1.48.0 · 操作目录 sha256:c3092a5a5ed454a587edbf97b682cda8b904af41196bde
 - `getLogoConverter` · page-method · getLogoConverter() 委托 getServices；旧 URL/Key 不自动授权统一服务。
 - `setLogoConverter` · page-method · 改用 setServices，旧 setter 拒绝存影子配置。
 - `convertLogoPdf` · page-method · convertLogoPdf({context,name,data,targetWidthMm?,page?,sizeConfirmed:true,allowUpload:true})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。
-- `setView` · page-method · setView({context,interactionPhase?:start|update|end,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 网格运动阶段使用独立显示LOD。复杂 BRep 首屏使用粗曲面及保守显示包围框，停止运动后按当前屏幕像素需求逐面细化可见范围，不自动恢复整件最高精度。display.detail 的 adaptiveExact、phase、visibleFaces、culledFaces、pending、budgetLimited、refinementError 读回显示状态。capture 返回当前已渲染帧及其近似状态，不等待无限细化。原始BRep和导出不变；metricsDeferred 时面积/体积为 null、boundsSource 为 conservative-display-box，measure 仍按精确实体计算。 gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling返回画布、library打开非全屏浮动快捷模型菜单（不改变菜单或侧栏显隐）；兼容workspace=agent打开Agent配置弹窗并保持workspace=modeling，current.agentSettingsOpen读回，workspace=modeling关闭弹窗；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:"X"|"Y"|"Z",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation,entry?,id?,index?,library?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。
+- `setView` · page-method · setView({context,interactionPhase?:start|update|end,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 网格运动阶段使用独立显示LOD。复杂 BRep 首屏使用粗曲面及保守显示包围框，停止运动后按当前屏幕像素需求逐面细化可见范围，不自动恢复整件最高精度。display.detail 的 adaptiveExact、phase、visibleFaces、culledFaces、pending、budgetLimited、refinementError 读回显示状态。capture 返回当前已渲染帧及其近似状态，不等待无限细化。原始BRep和导出不变；metricsDeferred 时面积/体积为 null、boundsSource 为 conservative-display-box，measure 仍按精确实体计算。 gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling返回画布、library打开非全屏浮动快捷模型菜单（不改变菜单或侧栏显隐）；兼容workspace=agent打开Agent配置弹窗并保持workspace=modeling，current.agentSettingsOpen读回，workspace=modeling关闭弹窗；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:"X"|"Y"|"Z",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation:move|restore,id?,index?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。
 - `redraw` · page-method · redraw({context}); 不接受额外字段。
 - `capture` · page-method · capture({context,maxWidth?,format?,quality?}); 建议 maxWidth:800,format:"webp"。后台标签页也同步渲染一帧；超过 limits.transport.captureTimeoutMs（10 s）返回 CAPTURE_TIMEOUT，几何回执不受影响，不要循环等待 webcad_job。
 - `run` · page-method · run({context,idempotencyKey,steps}); see readDocs({docId:"api.run"}); addMany for one atomic feature plan: api.feature-plan.

@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "A parameterized two-piece thin-wall eyelet with exact revolved flange bends. Part A has a long shank and Part B is its mating ring. Supports static coaxial fit or exploded display; riveting deformation, logos and lettering are not modeled.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "twoPieceEyelet"
@@ -412,71 +371,97 @@
       "aFlangeDiameterMm": {
         "type": "number",
         "default": 18,
-        "description": "Part A flange diameter"
+        "description": "Part A flange diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "aBoreDiameterMm": {
         "type": "number",
         "default": 11,
-        "description": "Part A bore diameter"
+        "description": "Part A bore diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "aTubeOuterDiameterMm": {
         "type": "number",
         "default": 11.5,
-        "description": "Part A tube outer diameter"
+        "description": "Part A tube outer diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "aTubeLengthMm": {
         "type": "number",
         "default": 5.8,
-        "description": "Part A tube length"
+        "description": "Part A tube length",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "aFlangeDepthMm": {
         "type": "number",
         "default": 1.2,
-        "description": "Part A flange axial depth"
+        "description": "Part A flange axial depth",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "aBendRadiusMm": {
         "type": "number",
         "default": 0.8,
-        "description": "Part A flange bend outer radius"
+        "description": "Part A flange bend outer radius",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "bFlangeDiameterMm": {
         "type": "number",
         "default": 18,
-        "description": "Part B flange diameter"
+        "description": "Part B flange diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "bBoreDiameterMm": {
         "type": "number",
         "default": 11.8,
-        "description": "Part B bore diameter"
+        "description": "Part B bore diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "bTubeOuterDiameterMm": {
         "type": "number",
         "default": 12.3,
-        "description": "Part B short tube outer diameter"
+        "description": "Part B short tube outer diameter",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "bOverallDepthMm": {
         "type": "number",
         "default": 2,
-        "description": "Part B overall depth"
+        "description": "Part B overall depth",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "bFlangeDepthMm": {
         "type": "number",
         "default": 1.2,
-        "description": "Part B flange axial depth"
+        "description": "Part B flange axial depth",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "bBendRadiusMm": {
         "type": "number",
         "default": 0.8,
-        "description": "Part B flange bend outer radius"
+        "description": "Part B flange bend outer radius",
+        "minimum": 0.01,
+        "unit": "mm"
       },
       "explodedOffsetMm": {
         "type": "number",
         "default": 24,
-        "description": "Exploded center offset (0=coaxial)"
+        "description": "Exploded center offset (0=coaxial)",
+        "minimum": 0,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:f1c48edaad10779806c98813f3defb4d5b309ed1b9521d49cccd18bc9d466984",
+  "schemaHash": "sha256:291188a6d747894e9dbaa67b5d4d3b5eeece2ca663e012eeeabd897f4a6e7bfc",
   "defaults": {
     "aFlangeDiameterMm": 18,
     "aBoreDiameterMm": 11,
@@ -654,5 +639,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3dd9067fe130e1d013508d1512c950e29b8a7e1408f4ccfac969522ff89b3822"
+  "docsHash": "sha256:3e3df69c7caca4265b171159684c5709e6ca2c67a47a8e237028b3de6b8824a2"
 }

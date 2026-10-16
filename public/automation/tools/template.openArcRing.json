@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "Constant-section circular arc with an adjustable opening angle for C rings, hook rings and open circular frames. End balls, hinges and variable sections are excluded.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "openArcRing"
@@ -422,31 +381,41 @@
       "innerDiameter": {
         "type": "number",
         "default": 30,
-        "description": "Inner diameter"
+        "description": "Inner diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionSize": {
         "type": "number",
         "default": 4,
-        "description": "Wire diameter / square size"
+        "description": "Wire diameter / square size",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionRadius": {
         "type": "number",
         "default": 0.4,
-        "description": "Square section corner R"
+        "description": "Square section corner R",
+        "minimum": 0,
+        "unit": "mm"
       },
       "sectionChamfer": {
         "type": "number",
         "default": 0.6,
-        "description": "Square section chamfer C"
+        "description": "Square section chamfer C",
+        "minimum": 0,
+        "unit": "mm"
       },
       "openingAngle": {
         "type": "number",
         "default": 70,
-        "description": "Opening angle (degrees)"
+        "description": "Opening angle (degrees)",
+        "minimum": 5,
+        "unit": "deg"
       }
     }
   },
-  "schemaHash": "sha256:708c061eecf81095d124cbaef0ce8f9a8e50f3078f0656d8ab0b66b51a458629",
+  "schemaHash": "sha256:bfad123d90fe3dac88ff9322b703e902fc4e083d254d25ebb099fa6e54843e16",
   "defaults": {
     "section": "round",
     "innerDiameter": 30,
@@ -556,5 +525,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:6522111f32de308113cd5cd148187a7dd07048e4e32a4e7025e008451839efd6"
+  "docsHash": "sha256:30cb413bf88ed6b74a942f55378dbd64e07042cccad4cc60142c07144593a069"
 }

@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "同心圆恒截面单圈；开缝为底部正中平行平切。",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "ring"
@@ -422,31 +381,41 @@
       "sectionSize": {
         "type": "number",
         "default": 3,
-        "description": "Wire diameter / square size"
+        "description": "Wire diameter / square size",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionRadius": {
         "type": "number",
         "default": 0.3,
-        "description": "Square section corner R"
+        "description": "Square section corner R",
+        "minimum": 0,
+        "unit": "mm"
       },
       "sectionChamfer": {
         "type": "number",
         "default": 0.6,
-        "description": "Square section chamfer C"
+        "description": "Square section chamfer C",
+        "minimum": 0,
+        "unit": "mm"
       },
       "gapWidth": {
         "type": "number",
         "default": 0,
-        "description": "Bottom gap (0 = closed)"
+        "description": "Bottom gap (0 = closed)",
+        "minimum": 0,
+        "unit": "mm"
       },
       "innerDiameter": {
         "type": "number",
         "default": 24,
-        "description": "Inner diameter"
+        "description": "Inner diameter",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:0b9620680bb53ba2259d0b139c5b887f015a50968370f712b78be63da499f2a2",
+  "schemaHash": "sha256:962f168ea60c23f190afc2d0edf5aae1641c40cb1a003b104a2d99d29eb03bc4",
   "defaults": {
     "section": "round",
     "sectionSize": 3,
@@ -556,5 +525,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:192e66e2091e9cec6aa60d4ba3a5faa7c45c05bc95eff739e03b97f528d41f4f"
+  "docsHash": "sha256:6aabc997086caeeef789f50d6b68168373299c34d4db6edd56683d1a9ab51046"
 }

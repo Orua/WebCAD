@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "Open gable frame with straight legs, sloped shoulders and rounded open ends. Independent inner/outer widths, shoulder and peak heights, depth and end radius.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "gableOpenFrame"
@@ -412,37 +371,50 @@
       "outerWidth": {
         "type": "number",
         "default": 25,
-        "description": "Outer width"
+        "description": "Outer width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerWidth": {
         "type": "number",
         "default": 20,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerPeakHeight": {
         "type": "number",
         "default": 16,
-        "description": "Outer peak height"
+        "description": "Outer peak height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "outerShoulderHeight": {
         "type": "number",
         "default": 12.4,
-        "description": "Outer shoulder height"
+        "description": "Outer shoulder height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerPeakHeight": {
         "type": "number",
         "default": 13.5,
-        "description": "Inner peak height"
+        "description": "Inner peak height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerShoulderHeight": {
         "type": "number",
         "default": 10.5,
-        "description": "Inner shoulder height"
+        "description": "Inner shoulder height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "thickness": {
         "type": "number",
         "default": 4,
         "description": "Plate depth",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -451,13 +423,14 @@
         "type": "number",
         "default": 1,
         "description": "Leg end radius",
+        "minimum": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
       }
     }
   },
-  "schemaHash": "sha256:4c427589642b4fe9803f7b07fdd751ade82c684c598fded5dea57201ed48e3d3",
+  "schemaHash": "sha256:564ea3369539fc801cd14595fcda1292bbae85749d1993d78997cbe75d206a71",
   "defaults": {
     "outerWidth": 25,
     "innerWidth": 20,
@@ -572,5 +545,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:acf8c56f471a12baf9462621468dbea6b3575445124fc6ed3c5cdcf9d9c88383"
+  "docsHash": "sha256:3f88904d6f60941553ece96f82e02810147d10c53f83e7e0aec6354f344eda05"
 }

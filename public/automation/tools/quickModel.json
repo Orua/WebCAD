@@ -11,49 +11,287 @@
           "kind"
         ],
         "additionalProperties": false,
+        "description": "来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "oChain"
+          },
+          "outerWidthMm": {
+            "type": "number",
+            "default": 7.2,
+            "description": "外宽 W",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "outerLengthMm": {
+            "type": "number",
+            "default": 9.2,
+            "description": "外长 L",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "wireDiameterMm": {
+            "type": "number",
+            "default": 1.6,
+            "description": "线径 d",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "gapMm": {
+            "type": "number",
+            "default": 0.2,
+            "description": "接缝宽 g",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "来源 NL.stp：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "twistedChain"
+          },
+          "outerWidthMm": {
+            "type": "number",
+            "default": 11,
+            "description": "外宽 W",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "outerLengthMm": {
+            "type": "number",
+            "default": 15,
+            "description": "外长 L",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "wireDiameterMm": {
+            "type": "number",
+            "default": 3,
+            "description": "线径 d",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "gapMm": {
+            "type": "number",
+            "default": 0,
+            "description": "接缝宽 g",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "groundChain"
+          },
+          "outerWidthMm": {
+            "type": "number",
+            "default": 11,
+            "description": "外宽 W",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "outerLengthMm": {
+            "type": "number",
+            "default": 15,
+            "description": "外长 L",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "wireDiameterMm": {
+            "type": "number",
+            "default": 3,
+            "description": "线径 d",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "gapMm": {
+            "type": "number",
+            "default": 0.1,
+            "description": "接缝宽 g",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "groundThicknessMm": {
+            "type": "number",
+            "default": 4.4,
+            "description": "磨后总厚 T",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "grindRadiusMm": {
+            "type": "number",
+            "default": 0.1,
+            "description": "磨边 R",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "mm"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "来源 V01/V02/V03：顶片双安装孔，两端下折脚、圆弧脚端，可选单脚或双脚轴孔。顶面 Z=0，脚朝 -Z，桥长沿 Y、片宽沿 X；总高含顶片。V02 的收脚由侧边收角和脚端R控制。折角保持来源的直角，不自动加弯R。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "ironFoot"
+          },
+          "lengthMm": {
+            "type": "number",
+            "default": 23.5,
+            "description": "桥长 L",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "widthMm": {
+            "type": "number",
+            "default": 5.5,
+            "description": "片宽 W",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "heightMm": {
+            "type": "number",
+            "default": 12,
+            "description": "总高 H",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "thicknessMm": {
+            "type": "number",
+            "default": 0.5,
+            "description": "片厚 t",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "topHoleDiameterMm": {
+            "type": "number",
+            "default": 2.3,
+            "description": "顶孔直径",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "topHolePitchMm": {
+            "type": "number",
+            "default": 18,
+            "description": "顶孔中心距",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "endRadiusMm": {
+            "type": "number",
+            "default": 2.75,
+            "description": "脚端 R",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "taperAngleDeg": {
+            "type": "number",
+            "default": 0,
+            "description": "脚侧边收角",
+            "minimum": 0,
+            "maximum": 15,
+            "unit": "deg"
+          },
+          "footHoleDiameterMm": {
+            "type": "number",
+            "default": 2.5,
+            "description": "脚孔直径",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "footHoleHeightMm": {
+            "type": "number",
+            "default": 2.75,
+            "description": "脚孔心距脚底",
+            "minimum": 0.01,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "footHoles": {
+            "type": "string",
+            "default": "back",
+            "description": "脚孔位置",
+            "enum": [
+              "none",
+              "front",
+              "back",
+              "both"
+            ]
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
         "description": "同心圆恒截面单圈；开缝为底部正中平行平切。",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "ring"
@@ -71,27 +309,37 @@
           "sectionSize": {
             "type": "number",
             "default": 3,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionRadius": {
             "type": "number",
             "default": 0.3,
-            "description": "Square section corner R"
+            "description": "Square section corner R",
+            "minimum": 0,
+            "unit": "mm"
           },
           "sectionChamfer": {
             "type": "number",
             "default": 0.6,
-            "description": "Square section chamfer C"
+            "description": "Square section chamfer C",
+            "minimum": 0,
+            "unit": "mm"
           },
           "gapWidth": {
             "type": "number",
             "default": 0,
-            "description": "Bottom gap (0 = closed)"
+            "description": "Bottom gap (0 = closed)",
+            "minimum": 0,
+            "unit": "mm"
           },
           "innerDiameter": {
             "type": "number",
             "default": 24,
-            "description": "Inner diameter"
+            "description": "Inner diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -103,47 +351,6 @@
         "additionalProperties": false,
         "description": "平面环片，外径 = 内径 + 2 × 径向宽度；无额外倒角。",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "washer"
@@ -151,17 +358,23 @@
           "innerDiameter": {
             "type": "number",
             "default": 10,
-            "description": "Inner diameter"
+            "description": "Inner diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionSize": {
             "type": "number",
             "default": 3,
-            "description": "Radial width"
+            "description": "Radial width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 1.5,
-            "description": "Thickness"
+            "description": "Thickness",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -173,47 +386,6 @@
         "additionalProperties": false,
         "description": "Coaxial tube; defaults 13.4 outer diameter, 12.4 inner diameter and 3 height for the user C-part.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "tube"
@@ -221,17 +393,22 @@
           "outerDiameter": {
             "type": "number",
             "default": 13.4,
-            "description": "Outer diameter"
+            "description": "Outer diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerDiameter": {
             "type": "number",
             "default": 12.4,
-            "description": "Inner diameter"
+            "description": "Inner diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "height": {
             "type": "number",
             "default": 3,
             "description": "Height",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -246,47 +423,6 @@
         "additionalProperties": false,
         "description": "平底、光滑凸面；直径和高度独立设置，可以调整拱高，不限于半球。",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "domedPin"
@@ -295,6 +431,7 @@
             "type": "number",
             "default": 6,
             "description": "直径",
+            "minimum": 0.01,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -303,6 +440,7 @@
             "type": "number",
             "default": 2,
             "description": "高度",
+            "minimum": 0.01,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -317,47 +455,6 @@
         "additionalProperties": false,
         "description": "圆线沿精确螺旋路径扫掠。螺距大于线径；半径是中心线半径。",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "spring"
@@ -366,6 +463,7 @@
             "type": "number",
             "default": 6,
             "description": "中心线半径",
+            "minimum": 0.01,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -374,6 +472,7 @@
             "type": "number",
             "default": 1.2,
             "description": "线径",
+            "minimum": 0.01,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -382,6 +481,7 @@
             "type": "number",
             "default": 3,
             "description": "螺距",
+            "minimum": 0.01,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -390,6 +490,7 @@
             "type": "number",
             "default": 4,
             "description": "圈数",
+            "minimum": 0.01,
             "unit": "1",
             "quantityKind": "scalar",
             "quantizationPolicy": "none"
@@ -409,47 +510,6 @@
         "additionalProperties": false,
         "description": "头在参考位置下端，牙杆朝本地 +Z。沉头外缘固定直升位 0.20 mm。M 使用常用粗牙螺距，真实 V 型牙槽；不含配合公差。",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "screw"
@@ -466,12 +526,16 @@
           "headWidthMm": {
             "type": "number",
             "default": 6,
-            "description": "头宽（直径）"
+            "description": "头宽（直径）",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "headThicknessMm": {
             "type": "number",
             "default": 2,
-            "description": "头厚"
+            "description": "头厚",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "threadSize": {
             "type": "string",
@@ -495,7 +559,9 @@
           "threadLengthMm": {
             "type": "number",
             "default": 8,
-            "description": "螺牙长度"
+            "description": "螺牙长度",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "drive": {
             "type": "string",
@@ -518,47 +584,6 @@
         "additionalProperties": false,
         "description": "底面在参考位置，面端朝本地 -Z；从下方面端向上攻牙。牙径采用支持的名义 M 粗牙直径，不含配合公差。",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "threadedSleeve"
@@ -566,27 +591,37 @@
           "bottomDiameterMm": {
             "type": "number",
             "default": 8,
-            "description": "底直径（上端）"
+            "description": "底直径（上端）",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "faceDiameterMm": {
             "type": "number",
             "default": 6,
-            "description": "面直径（下端）"
+            "description": "面直径（下端）",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "threadDiameterMm": {
             "type": "number",
             "default": 3,
-            "description": "螺牙直径"
+            "description": "螺牙直径",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "totalHeightMm": {
             "type": "number",
             "default": 8,
-            "description": "总高"
+            "description": "总高",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "threadDepthMm": {
             "type": "number",
             "default": 6,
-            "description": "螺牙深度"
+            "description": "螺牙深度",
+            "minimum": 0.01,
+            "unit": "mm"
           }
         }
       },
@@ -598,47 +633,6 @@
         "additionalProperties": false,
         "description": "One solid combining a round badge plate, raised front rim and two rear mounting posts. Posts may be hollow. Brand artwork, knurling, doming and production dimensions are excluded.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "roundBadge"
@@ -647,6 +641,7 @@
             "type": "number",
             "default": 40,
             "description": "Badge diameter",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -655,6 +650,7 @@
             "type": "number",
             "default": 2,
             "description": "Plate thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -662,32 +658,44 @@
           "rimWidth": {
             "type": "number",
             "default": 2,
-            "description": "Front rim width"
+            "description": "Front rim width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "rimHeight": {
             "type": "number",
             "default": 0.8,
-            "description": "Front rim height"
+            "description": "Front rim height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "postSpacing": {
             "type": "number",
             "default": 18,
-            "description": "Rear post spacing X"
+            "description": "Rear post spacing X",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "postDiameter": {
             "type": "number",
             "default": 4,
-            "description": "Rear post diameter"
+            "description": "Rear post diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "postHeight": {
             "type": "number",
             "default": 4,
-            "description": "Rear post height"
+            "description": "Rear post height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "postBoreDiameter": {
             "type": "number",
             "default": 0,
-            "description": "Post bore diameter (0 = solid)"
+            "description": "Post bore diameter (0 = solid)",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -699,47 +707,6 @@
         "additionalProperties": false,
         "description": "Two symmetric X-axis holes with independent center spacing. Plain through holes only; no threads, countersinks or counterbores.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "mountingPlate"
@@ -748,6 +715,7 @@
             "type": "number",
             "default": 40,
             "description": "Plate width X",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -756,6 +724,7 @@
             "type": "number",
             "default": 16,
             "description": "Plate depth Y",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -764,6 +733,7 @@
             "type": "number",
             "default": 3,
             "description": "Thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -772,6 +742,7 @@
             "type": "number",
             "default": 3,
             "description": "Outer corner radius",
+            "minimum": 0,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -780,6 +751,7 @@
             "type": "number",
             "default": 4,
             "description": "Hole diameter",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -787,7 +759,9 @@
           "holeSpacing": {
             "type": "number",
             "default": 24,
-            "description": "Hole center spacing"
+            "description": "Hole center spacing",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -799,47 +773,6 @@
         "additionalProperties": false,
         "description": "Rectangular plate with four through holes. Set X/Y edge insets and optional outer corner radius; no threads or counterbores.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "fourHolePlate"
@@ -848,6 +781,7 @@
             "type": "number",
             "default": 50,
             "description": "Plate width X",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -856,6 +790,7 @@
             "type": "number",
             "default": 30,
             "description": "Plate depth Y",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -864,6 +799,7 @@
             "type": "number",
             "default": 3,
             "description": "Thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -872,6 +808,7 @@
             "type": "number",
             "default": 0,
             "description": "Outer corner radius",
+            "minimum": 0,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -880,6 +817,7 @@
             "type": "number",
             "default": 4,
             "description": "Hole diameter",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -887,12 +825,16 @@
           "insetX": {
             "type": "number",
             "default": 5,
-            "description": "Hole inset X"
+            "description": "Hole inset X",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "insetY": {
             "type": "number",
             "default": 5,
-            "description": "Hole inset Y"
+            "description": "Hole inset Y",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -904,47 +846,6 @@
         "additionalProperties": false,
         "description": "Independent inner/outer outlines and thickness. Half-short-side radii allow capsule frames. A parametric tool, not a complete reconstruction of an IGS part.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "flatFrame"
@@ -952,37 +853,50 @@
           "outerWidth": {
             "type": "number",
             "default": 40,
-            "description": "Outer width"
+            "description": "Outer width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerHeight": {
             "type": "number",
             "default": 28,
-            "description": "Outer height"
+            "description": "Outer height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerWidth": {
             "type": "number",
             "default": 28,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 16,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerRadius": {
             "type": "number",
             "default": 5,
-            "description": "Outer corner radius"
+            "description": "Outer corner radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "innerRadius": {
             "type": "number",
             "default": 3,
-            "description": "Inner corner radius"
+            "description": "Inner corner radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "thickness": {
             "type": "number",
             "default": 3,
             "description": "Thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -997,47 +911,6 @@
         "additionalProperties": false,
         "description": "A flat frame with independent inner and outer corner radii, then one exact fillet of every sharp edge. The specified edge radius fails atomically if unsolvable. Near half-thickness can approximate a round section but is not certified as a semicircle.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "roundedFlatFrame"
@@ -1045,37 +918,50 @@
           "outerWidth": {
             "type": "number",
             "default": 40,
-            "description": "Outer width"
+            "description": "Outer width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerHeight": {
             "type": "number",
             "default": 28,
-            "description": "Outer height"
+            "description": "Outer height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerWidth": {
             "type": "number",
             "default": 30,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 18,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerRadius": {
             "type": "number",
             "default": 5,
-            "description": "Outer corner radius"
+            "description": "Outer corner radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "innerRadius": {
             "type": "number",
             "default": 2,
-            "description": "Inner corner radius"
+            "description": "Inner corner radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "thickness": {
             "type": "number",
             "default": 4,
             "description": "Thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -1083,7 +969,9 @@
           "edgeRadius": {
             "type": "number",
             "default": 1.5,
-            "description": "All-edge fillet radius"
+            "description": "All-edge fillet radius",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -1095,47 +983,6 @@
         "additionalProperties": false,
         "description": "半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "dBuckle"
@@ -1153,37 +1000,51 @@
           "sectionSize": {
             "type": "number",
             "default": 3,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionRadius": {
             "type": "number",
             "default": 0.3,
-            "description": "Square section corner R"
+            "description": "Square section corner R",
+            "minimum": 0,
+            "unit": "mm"
           },
           "sectionChamfer": {
             "type": "number",
             "default": 0.6,
-            "description": "Square section chamfer C"
+            "description": "Square section chamfer C",
+            "minimum": 0,
+            "unit": "mm"
           },
           "gapWidth": {
             "type": "number",
             "default": 0,
-            "description": "Bottom gap (0 = closed)"
+            "description": "Bottom gap (0 = closed)",
+            "minimum": 0,
+            "unit": "mm"
           },
           "innerWidth": {
             "type": "number",
             "default": 24,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 19,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerRadius": {
             "type": "number",
             "default": 2,
-            "description": "Bottom inner radius"
+            "description": "Bottom inner radius",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -1195,47 +1056,6 @@
         "additionalProperties": false,
         "description": "Constant-section rounded rectangular frame. A closed round-wire frame supports an inner short side at least 2.5 times the wire diameter; other variants require four times the section size.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "rectBuckle"
@@ -1253,37 +1073,51 @@
           "sectionSize": {
             "type": "number",
             "default": 3,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionRadius": {
             "type": "number",
             "default": 0.3,
-            "description": "Square section corner R"
+            "description": "Square section corner R",
+            "minimum": 0,
+            "unit": "mm"
           },
           "sectionChamfer": {
             "type": "number",
             "default": 0.6,
-            "description": "Square section chamfer C"
+            "description": "Square section chamfer C",
+            "minimum": 0,
+            "unit": "mm"
           },
           "gapWidth": {
             "type": "number",
             "default": 0,
-            "description": "Bottom gap (0 = closed)"
+            "description": "Bottom gap (0 = closed)",
+            "minimum": 0,
+            "unit": "mm"
           },
           "innerWidth": {
             "type": "number",
             "default": 28,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 20,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerRadius": {
             "type": "number",
             "default": 3,
-            "description": "Frame inner radius"
+            "description": "Frame inner radius",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -1295,47 +1129,6 @@
         "additionalProperties": false,
         "description": "四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "ovalBuckle"
@@ -1353,37 +1146,51 @@
           "sectionSize": {
             "type": "number",
             "default": 3,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionRadius": {
             "type": "number",
             "default": 0.3,
-            "description": "Square section corner R"
+            "description": "Square section corner R",
+            "minimum": 0,
+            "unit": "mm"
           },
           "sectionChamfer": {
             "type": "number",
             "default": 0.6,
-            "description": "Square section chamfer C"
+            "description": "Square section chamfer C",
+            "minimum": 0,
+            "unit": "mm"
           },
           "gapWidth": {
             "type": "number",
             "default": 0,
-            "description": "Right gap (0 = closed)"
+            "description": "Right gap (0 = closed)",
+            "minimum": 0,
+            "unit": "mm"
           },
           "innerWidth": {
             "type": "number",
             "default": 28,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 16,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerRadius": {
             "type": "number",
             "default": 5.6,
-            "description": "End inner radius"
+            "description": "End inner radius",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -1395,47 +1202,6 @@
         "additionalProperties": false,
         "description": "The inner height spans the full frame; the fused round bar has an editable vertical offset and no opening. Compact round-wire frames require an inner short side at least 2.5 wire diameters and each window at least one wire diameter high.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "sliderBuckle"
@@ -1453,17 +1219,23 @@
           "sectionSize": {
             "type": "number",
             "default": 3,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionRadius": {
             "type": "number",
             "default": 0.3,
-            "description": "Square section corner R"
+            "description": "Square section corner R",
+            "minimum": 0,
+            "unit": "mm"
           },
           "sectionChamfer": {
             "type": "number",
             "default": 0.6,
-            "description": "Square section chamfer C"
+            "description": "Square section chamfer C",
+            "minimum": 0,
+            "unit": "mm"
           },
           "gapWidth": {
             "type": "number",
@@ -1473,27 +1245,37 @@
           "innerWidth": {
             "type": "number",
             "default": 30,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 24,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerRadius": {
             "type": "number",
             "default": 3,
-            "description": "Frame inner radius"
+            "description": "Frame inner radius",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "barDiameter": {
             "type": "number",
             "default": 2.5,
-            "description": "Bar diameter"
+            "description": "Bar diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "barOffset": {
             "type": "number",
             "default": 0,
-            "description": "Bar offset (+up)"
+            "description": "Bar offset (+up)",
+            "minimum": -100,
+            "unit": "mm"
           }
         }
       },
@@ -1505,47 +1287,6 @@
         "additionalProperties": false,
         "description": "圆角方线 U 主体与固定圆杆融合；杆底与脚底齐平。",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "dBarBuckle"
@@ -1558,12 +1299,16 @@
           "sectionSize": {
             "type": "number",
             "default": 6,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionRadius": {
             "type": "number",
             "default": 0.6,
-            "description": "Square section corner R"
+            "description": "Square section corner R",
+            "minimum": 0,
+            "unit": "mm"
           },
           "sectionChamfer": {
             "type": "number",
@@ -1578,17 +1323,23 @@
           "innerWidth": {
             "type": "number",
             "default": 32,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 24,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "barDiameter": {
             "type": "number",
             "default": 4.5,
-            "description": "Bar diameter"
+            "description": "Bar diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -1600,47 +1351,6 @@
         "additionalProperties": false,
         "description": "A coaxial flange and cylindrical bushing with a straight bore through the full length. Generic parametric geometry, with no threads or source-product feature reconstruction.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "flangedBushing"
@@ -1648,27 +1358,37 @@
           "bodyDiameter": {
             "type": "number",
             "default": 12,
-            "description": "Bushing body diameter"
+            "description": "Bushing body diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "flangeDiameter": {
             "type": "number",
             "default": 20,
-            "description": "Flange diameter"
+            "description": "Flange diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "boreDiameter": {
             "type": "number",
             "default": 6,
-            "description": "Through-bore diameter"
+            "description": "Through-bore diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "bodyHeight": {
             "type": "number",
             "default": 10,
-            "description": "Body height"
+            "description": "Body height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "flangeThickness": {
             "type": "number",
             "default": 3,
-            "description": "Flange thickness"
+            "description": "Flange thickness",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -1680,47 +1400,6 @@
         "additionalProperties": false,
         "description": "A rounded plate with two symmetric hollow cylindrical bosses; each bore passes through both boss and plate. Generic parametric geometry, not a threaded, counterbored, or source-product reconstruction.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "bossPlate"
@@ -1729,6 +1408,7 @@
             "type": "number",
             "default": 40,
             "description": "Plate width X",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -1737,6 +1417,7 @@
             "type": "number",
             "default": 16,
             "description": "Plate depth Y",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -1745,6 +1426,7 @@
             "type": "number",
             "default": 3,
             "description": "Plate thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -1753,6 +1435,7 @@
             "type": "number",
             "default": 3,
             "description": "Plate corner radius",
+            "minimum": 0,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -1760,22 +1443,30 @@
           "bossSpacing": {
             "type": "number",
             "default": 24,
-            "description": "Boss center spacing"
+            "description": "Boss center spacing",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "bossOuterDiameter": {
             "type": "number",
             "default": 8,
-            "description": "Boss outer diameter"
+            "description": "Boss outer diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "boreDiameter": {
             "type": "number",
             "default": 4,
-            "description": "Through-bore diameter"
+            "description": "Through-bore diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "bossHeight": {
             "type": "number",
             "default": 6,
-            "description": "Boss height (below plate)"
+            "description": "Boss height (below plate)",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -1787,47 +1478,6 @@
         "additionalProperties": false,
         "description": "One fused solid, centered in XY, bottom at Z=0, open top. Clear cavity width/depth = outer width/depth minus twice wall thickness; clear height = height minus floor thickness. Two X-symmetric bosses rise from the inner floor; bores pass through bosses and floor. Straight walls/corners only; no draft, fillets, threads or assembly relationships.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "thinWallTray"
@@ -1835,17 +1485,22 @@
           "outerWidth": {
             "type": "number",
             "default": 60,
-            "description": "Outer width X"
+            "description": "Outer width X",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerDepth": {
             "type": "number",
             "default": 36,
-            "description": "Outer depth Y"
+            "description": "Outer depth Y",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "height": {
             "type": "number",
             "default": 14,
             "description": "Total height",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -1854,6 +1509,7 @@
             "type": "number",
             "default": 2,
             "description": "Wall thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -1861,27 +1517,37 @@
           "floorThickness": {
             "type": "number",
             "default": 2,
-            "description": "Floor thickness"
+            "description": "Floor thickness",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "bossSpacing": {
             "type": "number",
             "default": 30,
-            "description": "Boss center spacing X"
+            "description": "Boss center spacing X",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "bossOuterDiameter": {
             "type": "number",
             "default": 8,
-            "description": "Boss outer diameter"
+            "description": "Boss outer diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "boreDiameter": {
             "type": "number",
             "default": 3,
-            "description": "Through-bore diameter"
+            "description": "Through-bore diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "bossHeight": {
             "type": "number",
             "default": 8,
-            "description": "Boss height above inner floor"
+            "description": "Boss height above inner floor",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -1893,47 +1559,6 @@
         "additionalProperties": false,
         "description": "Open rounded-rectangle tray with two hollow bosses on the inner floor. Outer corner radius, wall/floor thickness and boss dimensions are editable. Straight walls only; no draft, clips, lettering or texture.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "roundedBossTray"
@@ -1941,17 +1566,22 @@
           "outerWidth": {
             "type": "number",
             "default": 60,
-            "description": "Outer width X"
+            "description": "Outer width X",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerDepth": {
             "type": "number",
             "default": 38,
-            "description": "Outer depth Y"
+            "description": "Outer depth Y",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "height": {
             "type": "number",
             "default": 12,
             "description": "Total height",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -1960,6 +1590,7 @@
             "type": "number",
             "default": 6,
             "description": "Outer corner radius",
+            "minimum": 0,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -1968,6 +1599,7 @@
             "type": "number",
             "default": 2,
             "description": "Wall thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -1975,27 +1607,37 @@
           "floorThickness": {
             "type": "number",
             "default": 2,
-            "description": "Floor thickness"
+            "description": "Floor thickness",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "bossSpacing": {
             "type": "number",
             "default": 30,
-            "description": "Boss center spacing X"
+            "description": "Boss center spacing X",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "bossOuterDiameter": {
             "type": "number",
             "default": 7,
-            "description": "Boss outer diameter"
+            "description": "Boss outer diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "boreDiameter": {
             "type": "number",
             "default": 3,
-            "description": "Through-bore diameter"
+            "description": "Through-bore diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "bossHeight": {
             "type": "number",
             "default": 7,
-            "description": "Boss height above inner floor"
+            "description": "Boss height above inner floor",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -2007,47 +1649,6 @@
         "additionalProperties": false,
         "description": "Constant-section circular arc with an adjustable opening angle for C rings, hook rings and open circular frames. End balls, hinges and variable sections are excluded.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "openArcRing"
@@ -2065,27 +1666,37 @@
           "innerDiameter": {
             "type": "number",
             "default": 30,
-            "description": "Inner diameter"
+            "description": "Inner diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionSize": {
             "type": "number",
             "default": 4,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionRadius": {
             "type": "number",
             "default": 0.4,
-            "description": "Square section corner R"
+            "description": "Square section corner R",
+            "minimum": 0,
+            "unit": "mm"
           },
           "sectionChamfer": {
             "type": "number",
             "default": 0.6,
-            "description": "Square section chamfer C"
+            "description": "Square section chamfer C",
+            "minimum": 0,
+            "unit": "mm"
           },
           "openingAngle": {
             "type": "number",
             "default": 70,
-            "description": "Opening angle (degrees)"
+            "description": "Opening angle (degrees)",
+            "minimum": 5,
+            "unit": "deg"
           }
         }
       },
@@ -2097,47 +1708,6 @@
         "additionalProperties": false,
         "description": "Tool solid: entry at Z=0, extending along +Z. Position at the workpiece surface, rotate 180 degrees if needed, then select the body first and subtract the tool.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "counterboreTool"
@@ -2146,6 +1716,7 @@
             "type": "number",
             "default": 4,
             "description": "Hole diameter",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -2154,6 +1725,7 @@
             "type": "number",
             "default": 8,
             "description": "Total depth",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -2161,12 +1733,16 @@
           "headDiameter": {
             "type": "number",
             "default": 8,
-            "description": "Head diameter"
+            "description": "Head diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "headDepth": {
             "type": "number",
             "default": 2,
-            "description": "Head depth"
+            "description": "Head depth",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "style": {
             "type": "string",
@@ -2187,47 +1763,6 @@
         "additionalProperties": false,
         "description": "A flat plate with two equal symmetric rounded windows and an integral center bridge. Independent outline, window and front/back edge radii. No round bar, offset windows or side arch.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "twinWindowPlate"
@@ -2235,42 +1770,57 @@
           "outerWidth": {
             "type": "number",
             "default": 44.8,
-            "description": "Outer width"
+            "description": "Outer width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerHeight": {
             "type": "number",
             "default": 26.6,
-            "description": "Outer height"
+            "description": "Outer height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerRadius": {
             "type": "number",
             "default": 3.5,
-            "description": "Outer planar radius"
+            "description": "Outer planar radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "windowWidth": {
             "type": "number",
             "default": 37.8,
-            "description": "Window clear width"
+            "description": "Window clear width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "totalInnerHeight": {
             "type": "number",
             "default": 19.6,
-            "description": "Total inner height"
+            "description": "Total inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "windowRadius": {
             "type": "number",
             "default": 2,
-            "description": "Window planar radius"
+            "description": "Window planar radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "barWidth": {
             "type": "number",
             "default": 3.5,
-            "description": "Center bridge width"
+            "description": "Center bridge width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "thickness": {
             "type": "number",
             "default": 3.5,
             "description": "Plate thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -2278,7 +1828,9 @@
           "edgeRadius": {
             "type": "number",
             "default": 0.5,
-            "description": "Front/back edge radius"
+            "description": "Front/back edge radius",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -2290,47 +1842,6 @@
         "additionalProperties": false,
         "description": "One flat U plate with concentric semicircular crowns, equal-width straight legs and one through-hole at each end. No second assembly component, thread or round-wire section.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "uEndHolePlate"
@@ -2338,22 +1849,29 @@
           "outerWidth": {
             "type": "number",
             "default": 22,
-            "description": "Outer width"
+            "description": "Outer width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerWidth": {
             "type": "number",
             "default": 10,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "totalHeight": {
             "type": "number",
             "default": 31.7,
-            "description": "Total height"
+            "description": "Total height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "thickness": {
             "type": "number",
             "default": 3,
             "description": "Plate thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -2362,6 +1880,7 @@
             "type": "number",
             "default": 3.3,
             "description": "End-hole diameter",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -2369,7 +1888,9 @@
           "holeInset": {
             "type": "number",
             "default": 2.7,
-            "description": "Hole center inset from leg end"
+            "description": "Hole center inset from leg end",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -2381,47 +1902,6 @@
         "additionalProperties": false,
         "description": "Circular ring swept from an elliptical section with independent front band width and side depth. Section shape is an editable candidate to verify against the source.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "ellipseSectionRing"
@@ -2429,17 +1909,23 @@
           "innerDiameter": {
             "type": "number",
             "default": 37.4,
-            "description": "Inner front diameter"
+            "description": "Inner front diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionWidth": {
             "type": "number",
             "default": 4.1,
-            "description": "Front band width"
+            "description": "Front band width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionDepth": {
             "type": "number",
             "default": 5,
-            "description": "Side depth"
+            "description": "Side depth",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -2451,47 +1937,6 @@
         "additionalProperties": false,
         "description": "Annular band segment with editable sweep, plate thickness, symmetric end-hole inset and optional counterbores. Threads and mating parts are separate.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "arcBandPlate"
@@ -2499,27 +1944,36 @@
           "outerRadius": {
             "type": "number",
             "default": 20,
-            "description": "Outer radius"
+            "description": "Outer radius",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerRadius": {
             "type": "number",
             "default": 15,
-            "description": "Inner radius"
+            "description": "Inner radius",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "centerAngle": {
             "type": "number",
             "default": 270,
-            "description": "Arc center angle"
+            "description": "Arc center angle",
+            "minimum": -360,
+            "unit": "deg"
           },
           "spanAngle": {
             "type": "number",
             "default": 111.2807337553,
-            "description": "Arc sweep angle"
+            "description": "Arc sweep angle",
+            "minimum": 1,
+            "unit": "deg"
           },
           "thickness": {
             "type": "number",
             "default": 5,
             "description": "Plate thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -2527,12 +1981,15 @@
           "holeInsetAngle": {
             "type": "number",
             "default": 8.4521160504,
-            "description": "Hole inset from each end"
+            "description": "Hole inset from each end",
+            "minimum": 0.1,
+            "unit": "deg"
           },
           "holeDiameter": {
             "type": "number",
             "default": 2.3,
             "description": "Through-hole diameter",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -2540,12 +1997,16 @@
           "recessDiameter": {
             "type": "number",
             "default": 3.3,
-            "description": "Top recess diameter"
+            "description": "Top recess diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "recessDepth": {
             "type": "number",
             "default": 0,
-            "description": "Top recess depth"
+            "description": "Top recess depth",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -2557,47 +2018,6 @@
         "additionalProperties": false,
         "description": "Open gable frame with straight legs, sloped shoulders and rounded open ends. Independent inner/outer widths, shoulder and peak heights, depth and end radius.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "gableOpenFrame"
@@ -2605,37 +2025,50 @@
           "outerWidth": {
             "type": "number",
             "default": 25,
-            "description": "Outer width"
+            "description": "Outer width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerWidth": {
             "type": "number",
             "default": 20,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerPeakHeight": {
             "type": "number",
             "default": 16,
-            "description": "Outer peak height"
+            "description": "Outer peak height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerShoulderHeight": {
             "type": "number",
             "default": 12.4,
-            "description": "Outer shoulder height"
+            "description": "Outer shoulder height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerPeakHeight": {
             "type": "number",
             "default": 13.5,
-            "description": "Inner peak height"
+            "description": "Inner peak height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerShoulderHeight": {
             "type": "number",
             "default": 10.5,
-            "description": "Inner shoulder height"
+            "description": "Inner shoulder height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "thickness": {
             "type": "number",
             "default": 4,
             "description": "Plate depth",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -2644,6 +2077,7 @@
             "type": "number",
             "default": 1,
             "description": "Leg end radius",
+            "minimum": 0,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -2658,47 +2092,6 @@
         "additionalProperties": false,
         "description": "Sweep an elliptical cross-section around a rounded rectangular centerline. Front band width and side depth are independent; the inner planar radius is separate from section shape.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "ellipseSectionRectFrame"
@@ -2706,27 +2099,37 @@
           "innerWidth": {
             "type": "number",
             "default": 25,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 19,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerRadius": {
             "type": "number",
             "default": 2.5,
-            "description": "Inner planar radius"
+            "description": "Inner planar radius",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionWidth": {
             "type": "number",
             "default": 5.5,
-            "description": "Front band width"
+            "description": "Front band width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionDepth": {
             "type": "number",
             "default": 6,
-            "description": "Side depth"
+            "description": "Side depth",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -2738,47 +2141,6 @@
         "additionalProperties": false,
         "description": "Flat D frame with semicircular crown, straight legs, independent inner/outer bottom radii and optional measured bottom gap. Thickness is a flat plate depth, not a round-wire section.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "dFlatFrame"
@@ -2786,37 +2148,50 @@
           "outerWidth": {
             "type": "number",
             "default": 28,
-            "description": "Outer width"
+            "description": "Outer width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerHeight": {
             "type": "number",
             "default": 25,
-            "description": "Outer height"
+            "description": "Outer height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerWidth": {
             "type": "number",
             "default": 20,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 17,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerBottomRadius": {
             "type": "number",
             "default": 3.5,
-            "description": "Outer bottom radius"
+            "description": "Outer bottom radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "innerBottomRadius": {
             "type": "number",
             "default": 2,
-            "description": "Inner bottom radius"
+            "description": "Inner bottom radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "thickness": {
             "type": "number",
             "default": 4,
             "description": "Flat plate thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -2824,7 +2199,9 @@
           "gapWidth": {
             "type": "number",
             "default": 0,
-            "description": "Bottom gap (0 = closed)"
+            "description": "Bottom gap (0 = closed)",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -2836,47 +2213,6 @@
         "additionalProperties": false,
         "description": "Intersect a rounded twin-window footprint with a coaxial cylindrical wall to create an arched plate. Set outer bend radius and radial thickness independently. Projected strip construction without source-specific edge treatment; round-wire frames need another tool.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "archedTwinWindowPlate"
@@ -2884,47 +2220,65 @@
           "outerWidth": {
             "type": "number",
             "default": 32.9,
-            "description": "Outer width"
+            "description": "Outer width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerHeight": {
             "type": "number",
             "default": 25.5,
-            "description": "Outer height"
+            "description": "Outer height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerRadius": {
             "type": "number",
             "default": 3,
-            "description": "Outer planar radius"
+            "description": "Outer planar radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "windowWidth": {
             "type": "number",
             "default": 25.4,
-            "description": "Window width"
+            "description": "Window width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "totalInnerHeight": {
             "type": "number",
             "default": 18.5,
-            "description": "Total inner height"
+            "description": "Total inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "windowRadius": {
             "type": "number",
             "default": 0.5,
-            "description": "Window planar radius"
+            "description": "Window planar radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "barWidth": {
             "type": "number",
             "default": 3.5,
-            "description": "Center bar width"
+            "description": "Center bar width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "bendRadius": {
             "type": "number",
             "default": 43.90964782342324,
-            "description": "Outer bend radius"
+            "description": "Outer bend radius",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "radialThickness": {
             "type": "number",
             "default": 2.3,
-            "description": "Radial thickness"
+            "description": "Radial thickness",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -2936,47 +2290,6 @@
         "additionalProperties": false,
         "description": "A flat plate with straight top/bottom, tangent bowed sides and four small corner arcs, plus two symmetric capsule windows. Optional edge fillet. Symmetric parameter model only.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "bowedTwinWindowPlate"
@@ -2984,22 +2297,29 @@
           "outerHeight": {
             "type": "number",
             "default": 24.5,
-            "description": "Outer height"
+            "description": "Outer height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "topStraightWidth": {
             "type": "number",
             "default": 30.2527,
-            "description": "Top/bottom straight length"
+            "description": "Top/bottom straight length",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sideRadius": {
             "type": "number",
             "default": 35.688467,
-            "description": "Bowed side radius"
+            "description": "Bowed side radius",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "cornerRadius": {
             "type": "number",
             "default": 6,
             "description": "Corner radius",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -3007,22 +2327,29 @@
           "windowWidth": {
             "type": "number",
             "default": 32,
-            "description": "Window width"
+            "description": "Window width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "windowHeight": {
             "type": "number",
             "default": 6.55,
-            "description": "Window height"
+            "description": "Window height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "windowSpacing": {
             "type": "number",
             "default": 10.35,
-            "description": "Window center spacing"
+            "description": "Window center spacing",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "thickness": {
             "type": "number",
             "default": 3.7,
             "description": "Thickness",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -3030,7 +2357,9 @@
           "edgeRadius": {
             "type": "number",
             "default": 0.8,
-            "description": "Front/back edge radius"
+            "description": "Front/back edge radius",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -3042,47 +2371,6 @@
         "additionalProperties": false,
         "description": "A constant-section circular frame fused to one round X-axis crossbar. The bar has editable Y and depth Z offsets. Moving bars, hinges and exact joint transitions are excluded.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "ringBar"
@@ -3100,37 +2388,51 @@
           "innerDiameter": {
             "type": "number",
             "default": 20,
-            "description": "Ring inner diameter"
+            "description": "Ring inner diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionSize": {
             "type": "number",
             "default": 3,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionRadius": {
             "type": "number",
             "default": 0.3,
-            "description": "Square section corner R"
+            "description": "Square section corner R",
+            "minimum": 0,
+            "unit": "mm"
           },
           "sectionChamfer": {
             "type": "number",
             "default": 0.6,
-            "description": "Square section chamfer C"
+            "description": "Square section chamfer C",
+            "minimum": 0,
+            "unit": "mm"
           },
           "barDiameter": {
             "type": "number",
             "default": 2,
-            "description": "Bar diameter"
+            "description": "Bar diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "barOffset": {
             "type": "number",
             "default": 0,
-            "description": "Bar Y offset"
+            "description": "Bar Y offset",
+            "minimum": -100,
+            "unit": "mm"
           },
           "barDepthOffset": {
             "type": "number",
             "default": 0,
-            "description": "Bar Z depth offset"
+            "description": "Bar Z depth offset",
+            "minimum": -100,
+            "unit": "mm"
           }
         }
       },
@@ -3142,47 +2444,6 @@
         "additionalProperties": false,
         "description": "Offset a true inner ellipse for a round-wire sweep and fuse one centered fixed round bar. Read back exact bounds; source spline and joint continuity still require comparison.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "ellipseBar"
@@ -3190,27 +2451,37 @@
           "innerWidth": {
             "type": "number",
             "default": 35,
-            "description": "Inner ellipse major diameter"
+            "description": "Inner ellipse major diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 25,
-            "description": "Inner ellipse minor diameter"
+            "description": "Inner ellipse minor diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionSize": {
             "type": "number",
             "default": 5,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "barDiameter": {
             "type": "number",
             "default": 5,
-            "description": "Bar diameter"
+            "description": "Bar diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "barDepthOffset": {
             "type": "number",
             "default": 0,
-            "description": "Bar Z depth offset"
+            "description": "Bar Z depth offset",
+            "minimum": -100,
+            "unit": "mm"
           }
         }
       },
@@ -3222,47 +2493,6 @@
         "additionalProperties": false,
         "description": "Sweep round wire along a half-wire outward offset of a true inner ellipse, then cut a bottom-center parallel flat gap. Source drawings with a true outer ellipse need another tool.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "ellipseOpenWire"
@@ -3270,22 +2500,30 @@
           "innerWidth": {
             "type": "number",
             "default": 15,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 20,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionSize": {
             "type": "number",
             "default": 3.5,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "gapWidth": {
             "type": "number",
             "default": 0.2,
-            "description": "Bottom-center parallel gap width"
+            "description": "Bottom-center parallel gap width",
+            "minimum": 0.01,
+            "unit": "mm"
           }
         }
       },
@@ -3297,47 +2535,6 @@
         "additionalProperties": false,
         "description": "Closed capsule loop with semicircular ends and straight runs. Front width, side depth and section radius are independent; a half-short-side radius forms an exact stadium section.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "profileLoop"
@@ -3345,27 +2542,37 @@
           "innerWidth": {
             "type": "number",
             "default": 35.2,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 14.6,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionWidth": {
             "type": "number",
             "default": 5.5,
-            "description": "Front section width"
+            "description": "Front section width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionDepth": {
             "type": "number",
             "default": 6,
-            "description": "Side section depth"
+            "description": "Side section depth",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionRadius": {
             "type": "number",
             "default": 2.5,
-            "description": "Square section corner R"
+            "description": "Square section corner R",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -3377,47 +2584,6 @@
         "additionalProperties": false,
         "description": "Closed round-wire capsule loop with exact semicircular ends and straight runs. Set inner width, inner height and wire diameter; an unmarked seam is not guessed.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "capsuleWire"
@@ -3425,17 +2591,23 @@
           "innerWidth": {
             "type": "number",
             "default": 34.9,
-            "description": "Inner width"
+            "description": "Inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerHeight": {
             "type": "number",
             "default": 13.9,
-            "description": "Inner height"
+            "description": "Inner height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionSize": {
             "type": "number",
             "default": 6.1,
-            "description": "Wire diameter / square size"
+            "description": "Wire diameter / square size",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -3447,47 +2619,6 @@
         "additionalProperties": false,
         "description": "Separate tongue: X-axis pivot loop and a rounded flat strip along +Y. Length is pivot-center to tip. Approximate loop-head flat tongue only; no stamping bends, knurling, artwork or assembly motion validation.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "buckleTongue"
@@ -3496,6 +2627,7 @@
             "type": "number",
             "default": 22,
             "description": "Pivot to tip",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -3504,6 +2636,7 @@
             "type": "number",
             "default": 3,
             "description": "Tongue width X",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -3512,6 +2645,7 @@
             "type": "number",
             "default": 1.2,
             "description": "Tongue thickness Z",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -3519,12 +2653,16 @@
           "pivotDiameterMm": {
             "type": "number",
             "default": 2,
-            "description": "Mating pivot diameter"
+            "description": "Mating pivot diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "clearanceMm": {
             "type": "number",
             "default": 0.15,
-            "description": "Diametral clearance"
+            "description": "Diametral clearance",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -3536,47 +2674,6 @@
         "additionalProperties": false,
         "description": "Separate crossbar with two open Y-axis rolled eyes and independently tangent inner/outer transitions into the center strip. For regular pull buckles; it remains separate from the frame.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "pullCoreBar"
@@ -3584,17 +2681,22 @@
           "eyePitchMm": {
             "type": "number",
             "default": 45.5,
-            "description": "Eye center pitch X"
+            "description": "Eye center pitch X",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "eyeInnerDiameterMm": {
             "type": "number",
             "default": 5.5,
-            "description": "Eye inner diameter"
+            "description": "Eye inner diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "widthMm": {
             "type": "number",
             "default": 3.2,
             "description": "Crossbar width Y",
+            "minimum": 0.1,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -3602,37 +2704,52 @@
           "eyeWallMm": {
             "type": "number",
             "default": 1.7,
-            "description": "Eye and tail wall"
+            "description": "Eye and tail wall",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "barThicknessMm": {
             "type": "number",
             "default": 1.5,
-            "description": "Center strip thickness Z"
+            "description": "Center strip thickness Z",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "barCenterHeightMm": {
             "type": "number",
             "default": 2,
-            "description": "Strip center height Z"
+            "description": "Strip center height Z",
+            "minimum": -50,
+            "unit": "mm"
           },
           "outerTransitionRadiusMm": {
             "type": "number",
             "default": 28.3,
-            "description": "Outer transition radius"
+            "description": "Outer transition radius",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "innerTransitionRadiusMm": {
             "type": "number",
             "default": 30,
-            "description": "Inner transition radius"
+            "description": "Inner transition radius",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "tailLengthMm": {
             "type": "number",
             "default": 5,
-            "description": "Rolled-eye tail length"
+            "description": "Rolled-eye tail length",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "tailAngleDeg": {
             "type": "number",
             "default": 0,
-            "description": "Tail angle"
+            "description": "Tail angle",
+            "minimum": 0,
+            "maximum": 60,
+            "unit": "deg"
           }
         }
       },
@@ -3644,47 +2761,6 @@
         "additionalProperties": false,
         "description": "Three dimensions: inner diameter, outer diameter and total thickness. Winding, layer gap, transition and section R are fitted automatically; both tips have circular outlines with rounded edges. Legacy explicit winding recipes remain supported.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "keyRing"
@@ -3692,17 +2768,23 @@
           "innerDiameterMm": {
             "type": "number",
             "default": 25,
-            "description": "Inner diameter"
+            "description": "Inner diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerDiameterMm": {
             "type": "number",
             "default": 33,
-            "description": "Outer diameter"
+            "description": "Outer diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "totalDepthMm": {
             "type": "number",
             "default": 3,
-            "description": "Total thickness"
+            "description": "Total thickness",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "autoFit": {
             "type": "boolean",
@@ -3752,47 +2834,6 @@
         "additionalProperties": false,
         "description": "A horizontal rounded rod joined to an elliptical-section U eye that narrows in Z depth from root to top.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "hangingRod"
@@ -3800,42 +2841,58 @@
           "barLengthMm": {
             "type": "number",
             "default": 35,
-            "description": "Rod length"
+            "description": "Rod length",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "barDiameterMm": {
             "type": "number",
             "default": 5,
-            "description": "Rod diameter"
+            "description": "Rod diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "endFilletMm": {
             "type": "number",
             "default": 0.8,
-            "description": "End fillet radius"
+            "description": "End fillet radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "loopInnerWidthMm": {
             "type": "number",
             "default": 7,
-            "description": "Eye inner width"
+            "description": "Eye inner width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "loopWireDiameterMm": {
             "type": "number",
             "default": 2,
-            "description": "Eye wire diameter"
+            "description": "Eye wire diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "loopClearHeightMm": {
             "type": "number",
             "default": 6,
-            "description": "Clear height above rod"
+            "description": "Clear height above rod",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "loopRootDepthMm": {
             "type": "number",
             "default": 2.5,
-            "description": "Eye root Z depth"
+            "description": "Eye root Z depth",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "rootBlendRadiusMm": {
             "type": "number",
             "default": 1,
-            "description": "Root junction blend radius"
+            "description": "Root junction blend radius",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -3847,47 +2904,6 @@
         "additionalProperties": false,
         "description": "A regular round-section U bridge with straight legs, an exact semicircular crown, and optional coaxial holes in both end faces.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "archedBridge"
@@ -3895,27 +2911,37 @@
           "outerWidthMm": {
             "type": "number",
             "default": 11.3,
-            "description": "Outer width"
+            "description": "Outer width",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "outerHeightMm": {
             "type": "number",
             "default": 7.5,
-            "description": "Outer height"
+            "description": "Outer height",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "sectionDiameterMm": {
             "type": "number",
             "default": 3.3,
-            "description": "Section diameter"
+            "description": "Section diameter",
+            "minimum": 0.1,
+            "unit": "mm"
           },
           "holeDiameterMm": {
             "type": "number",
             "default": 2,
-            "description": "End-hole diameter"
+            "description": "End-hole diameter",
+            "minimum": 0,
+            "unit": "mm"
           },
           "holeDepthMm": {
             "type": "number",
             "default": 3,
-            "description": "End-hole depth"
+            "description": "End-hole depth",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -3927,47 +2953,6 @@
         "additionalProperties": false,
         "description": "A parameterized two-piece mushroom rivet with a spherical cap, hollow socket, rounded waisted post and base flange. Supports assembled or exploded display, with a blind post bore depth and direction.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "mushroomRivet"
@@ -3975,92 +2960,128 @@
           "capDiameterMm": {
             "type": "number",
             "default": 10,
-            "description": "Cap overall diameter"
+            "description": "Cap overall diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "capRiseMm": {
             "type": "number",
             "default": 5,
-            "description": "Cap rise"
+            "description": "Cap rise",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "capEdgeRadiusMm": {
             "type": "number",
             "default": 0.5,
-            "description": "Cap rear edge radius"
+            "description": "Cap rear edge radius",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "collarOuterDiameterMm": {
             "type": "number",
             "default": 3.5,
-            "description": "Socket outer diameter"
+            "description": "Socket outer diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "collarInnerDiameterMm": {
             "type": "number",
             "default": 2.9,
-            "description": "Socket inner diameter"
+            "description": "Socket inner diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "collarLengthMm": {
             "type": "number",
             "default": 2.3,
-            "description": "Socket length"
+            "description": "Socket length",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "postOuterDiameterMm": {
             "type": "number",
             "default": 2.8,
-            "description": "Post shaft diameter"
+            "description": "Post shaft diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "postInnerDiameterMm": {
             "type": "number",
             "default": 2.5,
-            "description": "Post bore diameter"
+            "description": "Post bore diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "postLengthMm": {
             "type": "number",
             "default": 9,
-            "description": "Post total length"
+            "description": "Post total length",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "tipRoundRadiusMm": {
             "type": "number",
             "default": 0.5,
-            "description": "Post tip round radius"
+            "description": "Post tip round radius",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "waistRadiusMm": {
             "type": "number",
             "default": 3.130814708,
-            "description": "Waist main radius"
+            "description": "Waist main radius",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "waistDepthMm": {
             "type": "number",
             "default": 0.26154265,
-            "description": "Waist depth"
+            "description": "Waist depth",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "waistCenterFromTipMm": {
             "type": "number",
             "default": 2.03741855,
-            "description": "Waist center from tip"
+            "description": "Waist center from tip",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "waistBlendRadiusMm": {
             "type": "number",
             "default": 0.5,
-            "description": "Waist blend radius"
+            "description": "Waist blend radius",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "flangeDiameterMm": {
             "type": "number",
             "default": 8,
-            "description": "Base flange diameter"
+            "description": "Base flange diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "flangeThicknessMm": {
             "type": "number",
             "default": 0.3,
-            "description": "Base flange thickness"
+            "description": "Base flange thickness",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "shoulderHeightMm": {
             "type": "number",
             "default": 1,
-            "description": "Shoulder height and radius"
+            "description": "Shoulder height and radius",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "postBoreDepthMm": {
             "type": "number",
             "default": 5,
-            "description": "Post blind bore depth (0=none)"
+            "description": "Post blind bore depth (0=none)",
+            "minimum": 0,
+            "unit": "mm"
           },
           "boreFromFlange": {
             "type": "boolean",
@@ -4070,7 +3091,9 @@
           "explodedOffsetMm": {
             "type": "number",
             "default": 12,
-            "description": "Exploded center offset (0=assembled)"
+            "description": "Exploded center offset (0=assembled)",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -4082,47 +3105,6 @@
         "additionalProperties": false,
         "description": "Two-piece nipple stud with an arc-profiled flat-top body, radiused base, blind M2 nominal clearance bore, crowned screw head, stem, and parameterized six-lobe drive. Threads and standardized drive dimensions are not modeled.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "nippleStud"
@@ -4130,112 +3112,156 @@
           "headDiameterMm": {
             "type": "number",
             "default": 5,
-            "description": "Head nominal diameter"
+            "description": "Head nominal diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "overallHeightMm": {
             "type": "number",
             "default": 9.1,
-            "description": "Part A overall height"
+            "description": "Part A overall height",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "neckDiameterMm": {
             "type": "number",
             "default": 3,
-            "description": "Neck diameter"
+            "description": "Neck diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "neckHeightMm": {
             "type": "number",
             "default": 4,
-            "description": "Neck height"
+            "description": "Neck height",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "flangeDiameterMm": {
             "type": "number",
             "default": 7,
-            "description": "Part A flange diameter"
+            "description": "Part A flange diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "flangeThicknessMm": {
             "type": "number",
             "default": 1.3,
-            "description": "Part A flange thickness"
+            "description": "Part A flange thickness",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "undersideCollarDiameterMm": {
             "type": "number",
             "default": 3,
-            "description": "Deprecated underside collar diameter"
+            "description": "Deprecated underside collar diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "undersideCollarHeightMm": {
             "type": "number",
             "default": 0,
-            "description": "Deprecated collar height (must be 0)"
+            "description": "Deprecated collar height (must be 0)",
+            "minimum": 0,
+            "unit": "mm"
           },
           "boreDiameterMm": {
             "type": "number",
             "default": 2,
-            "description": "Part A nominal clearance bore diameter"
+            "description": "Part A nominal clearance bore diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "boreDepthMm": {
             "type": "number",
             "default": 6,
-            "description": "Part A blind bore depth"
+            "description": "Part A blind bore depth",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "entryChamferMm": {
             "type": "number",
             "default": 0.3,
-            "description": "Bore entry chamfer depth and radial width"
+            "description": "Bore entry chamfer depth and radial width",
+            "minimum": 0,
+            "unit": "mm"
           },
           "baseEdgeRadiusMm": {
             "type": "number",
             "default": 0.3,
-            "description": "Base outer edge radius"
+            "description": "Base outer edge radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "screwHeadDiameterMm": {
             "type": "number",
             "default": 7,
-            "description": "Part Z screw head diameter"
+            "description": "Part Z screw head diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "screwHeadThicknessMm": {
             "type": "number",
             "default": 2,
-            "description": "Part Z head thickness (excluding crown)"
+            "description": "Part Z head thickness (excluding crown)",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "screwCrownRiseMm": {
             "type": "number",
             "default": 1.375,
-            "description": "Part Z crown rise"
+            "description": "Part Z crown rise",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "screwEdgeRadiusMm": {
             "type": "number",
             "default": 0.5,
-            "description": "Part Z head edge radius"
+            "description": "Part Z head edge radius",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "screwDiameterMm": {
             "type": "number",
             "default": 2,
-            "description": "Part Z stem diameter"
+            "description": "Part Z stem diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "screwLengthMm": {
             "type": "number",
             "default": 5,
-            "description": "Part Z stem net length"
+            "description": "Part Z stem net length",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "driveDiameterMm": {
             "type": "number",
             "default": 2.6,
-            "description": "Illustrative six-lobe drive diameter"
+            "description": "Illustrative six-lobe drive diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "driveDepthMm": {
             "type": "number",
             "default": 0.5,
-            "description": "Illustrative drive depth"
+            "description": "Illustrative drive depth",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "assemblyGapMm": {
             "type": "number",
             "default": 2,
-            "description": "Assembly gap"
+            "description": "Assembly gap",
+            "minimum": 0,
+            "unit": "mm"
           },
           "explodedOffsetMm": {
             "type": "number",
             "default": 12,
-            "description": "Exploded center offset (0=assembled)"
+            "description": "Exploded center offset (0=assembled)",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -4247,47 +3273,6 @@
         "additionalProperties": false,
         "description": "A parameterized two-piece thin-wall eyelet with exact revolved flange bends. Part A has a long shank and Part B is its mating ring. Supports static coaxial fit or exploded display; riveting deformation, logos and lettering are not modeled.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "twoPieceEyelet"
@@ -4295,67 +3280,93 @@
           "aFlangeDiameterMm": {
             "type": "number",
             "default": 18,
-            "description": "Part A flange diameter"
+            "description": "Part A flange diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "aBoreDiameterMm": {
             "type": "number",
             "default": 11,
-            "description": "Part A bore diameter"
+            "description": "Part A bore diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "aTubeOuterDiameterMm": {
             "type": "number",
             "default": 11.5,
-            "description": "Part A tube outer diameter"
+            "description": "Part A tube outer diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "aTubeLengthMm": {
             "type": "number",
             "default": 5.8,
-            "description": "Part A tube length"
+            "description": "Part A tube length",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "aFlangeDepthMm": {
             "type": "number",
             "default": 1.2,
-            "description": "Part A flange axial depth"
+            "description": "Part A flange axial depth",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "aBendRadiusMm": {
             "type": "number",
             "default": 0.8,
-            "description": "Part A flange bend outer radius"
+            "description": "Part A flange bend outer radius",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "bFlangeDiameterMm": {
             "type": "number",
             "default": 18,
-            "description": "Part B flange diameter"
+            "description": "Part B flange diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "bBoreDiameterMm": {
             "type": "number",
             "default": 11.8,
-            "description": "Part B bore diameter"
+            "description": "Part B bore diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "bTubeOuterDiameterMm": {
             "type": "number",
             "default": 12.3,
-            "description": "Part B short tube outer diameter"
+            "description": "Part B short tube outer diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "bOverallDepthMm": {
             "type": "number",
             "default": 2,
-            "description": "Part B overall depth"
+            "description": "Part B overall depth",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "bFlangeDepthMm": {
             "type": "number",
             "default": 1.2,
-            "description": "Part B flange axial depth"
+            "description": "Part B flange axial depth",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "bBendRadiusMm": {
             "type": "number",
             "default": 0.8,
-            "description": "Part B flange bend outer radius"
+            "description": "Part B flange bend outer radius",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "explodedOffsetMm": {
             "type": "number",
             "default": 24,
-            "description": "Exploded center offset (0=coaxial)"
+            "description": "Exploded center offset (0=coaxial)",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -4367,47 +3378,6 @@
         "additionalProperties": false,
         "description": "One exact circular or rounded rectangular frame with an optional constant-wall collar, symmetric mounting posts and plain straight holes. Collar and posts extend along local +Z from a flange at Z=0. Hole depth 0 means through; positive depth is blind from the post top. 0/2/4 posts; two posts lie on Y. Zero collar/post heights make a backplate. No threads, taper, riveting, decoration or 3D edge blends. Circular mode requires matching width/height pairs; corner radii apply only to rectangular mode.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "frameEyelet"
@@ -4424,82 +3394,115 @@
           "outerWidthMm": {
             "type": "number",
             "default": 25.6,
-            "description": "Outer width/diameter"
+            "description": "Outer width/diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "outerHeightMm": {
             "type": "number",
             "default": 30,
-            "description": "Outer height (circular=width)"
+            "description": "Outer height (circular=width)",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "outerRadiusMm": {
             "type": "number",
             "default": 3.5,
-            "description": "Outer rectangular corner R"
+            "description": "Outer rectangular corner R",
+            "minimum": 0,
+            "unit": "mm"
           },
           "boreWidthMm": {
             "type": "number",
             "default": 12,
-            "description": "Bore width/diameter"
+            "description": "Bore width/diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "boreHeightMm": {
             "type": "number",
             "default": 16.5,
-            "description": "Bore height (circular=width)"
+            "description": "Bore height (circular=width)",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "boreRadiusMm": {
             "type": "number",
             "default": 1.2,
-            "description": "Bore rectangular corner R"
+            "description": "Bore rectangular corner R",
+            "minimum": 0,
+            "unit": "mm"
           },
           "flangeThicknessMm": {
             "type": "number",
             "default": 1.5,
-            "description": "Flange thickness"
+            "description": "Flange thickness",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "collarProjectionMm": {
             "type": "number",
             "default": 3,
-            "description": "Collar projection (0=none)"
+            "description": "Collar projection (0=none)",
+            "minimum": 0,
+            "unit": "mm"
           },
           "collarWallMm": {
             "type": "number",
             "default": 0.3,
-            "description": "Collar wall thickness"
+            "description": "Collar wall thickness",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "mountingCount": {
             "type": "number",
             "default": 4,
-            "description": "Post count (0/2/4)"
+            "description": "Post count (0/2/4)",
+            "minimum": 0,
+            "maximum": 4,
+            "unit": "1"
           },
           "pitchXMm": {
             "type": "number",
             "default": 6,
-            "description": "Four-post X pitch"
+            "description": "Four-post X pitch",
+            "minimum": 0,
+            "unit": "mm"
           },
           "pitchYMm": {
             "type": "number",
             "default": 22.6,
-            "description": "Y pitch"
+            "description": "Y pitch",
+            "minimum": 0,
+            "unit": "mm"
           },
           "bossDiameterMm": {
             "type": "number",
             "default": 4,
-            "description": "Post diameter"
+            "description": "Post diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "bossHeightMm": {
             "type": "number",
             "default": 3.5,
-            "description": "Post height (0=none)"
+            "description": "Post height (0=none)",
+            "minimum": 0,
+            "unit": "mm"
           },
           "holeDiameterMm": {
             "type": "number",
             "default": 2.6,
-            "description": "Plain hole diameter (0=solid)"
+            "description": "Plain hole diameter (0=solid)",
+            "minimum": 0,
+            "unit": "mm"
           },
           "holeDepthMm": {
             "type": "number",
             "default": 2,
-            "description": "Hole depth (0=through)"
+            "description": "Hole depth (0=through)",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       },
@@ -4511,47 +3514,6 @@
         "additionalProperties": false,
         "description": "Constant-wall open U clip of uniform X width, independent front/back heights and exact tangent bend arcs. An inner radius equal to half the gap makes a semicircular bottom. Bottom Z=0, opening +Z, back wall +Y. Optional 0/1/2 plain back-wall through holes; two holes lie on X. Not a closed cap. No threads, decorations, end blends or elastic deformation. Holes must fit entirely within the straight back wall.",
         "properties": {
-          "modelScript": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 20,
-            "items": {
-              "type": "object",
-              "required": [
-                "id",
-                "op"
-              ],
-              "additionalProperties": false,
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "box",
-                    "cylinder",
-                    "sphere",
-                    "quickModel",
-                    "union",
-                    "cut",
-                    "intersect",
-                    "transform"
-                  ]
-                },
-                "params": {
-                  "type": "object",
-                  "additionalProperties": true
-                },
-                "refs": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
           "kind": {
             "type": "string",
             "const": "uStrapClip"
@@ -4560,6 +3522,7 @@
             "type": "number",
             "default": 20,
             "description": "Clip width",
+            "minimum": 0.01,
             "unit": "mm",
             "quantityKind": "length",
             "quantizationPolicy": "none"
@@ -4567,47 +3530,66 @@
           "innerGapMm": {
             "type": "number",
             "default": 3,
-            "description": "Inner gap"
+            "description": "Inner gap",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "wallThicknessMm": {
             "type": "number",
             "default": 1.3,
-            "description": "Wall thickness"
+            "description": "Wall thickness",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "frontHeightMm": {
             "type": "number",
             "default": 7,
-            "description": "Front overall height"
+            "description": "Front overall height",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "backHeightMm": {
             "type": "number",
             "default": 5,
-            "description": "Back overall height"
+            "description": "Back overall height",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "innerBendRadiusMm": {
             "type": "number",
             "default": 0.2,
-            "description": "Inner bend radius"
+            "description": "Inner bend radius",
+            "minimum": 0,
+            "unit": "mm"
           },
           "holeCount": {
             "type": "number",
             "default": 2,
-            "description": "Back hole count (0/1/2)"
+            "description": "Back hole count (0/1/2)",
+            "minimum": 0,
+            "maximum": 2,
+            "unit": "1"
           },
           "holeDiameterMm": {
             "type": "number",
             "default": 2,
-            "description": "Plain back through-hole diameter"
+            "description": "Plain back through-hole diameter",
+            "minimum": 0.01,
+            "unit": "mm"
           },
           "holePitchMm": {
             "type": "number",
             "default": 14,
-            "description": "Two-hole pitch"
+            "description": "Two-hole pitch",
+            "minimum": 0,
+            "unit": "mm"
           },
           "holeHeightMm": {
             "type": "number",
             "default": 3,
-            "description": "Hole center height from bottom"
+            "description": "Hole center height from bottom",
+            "minimum": 0,
+            "unit": "mm"
           }
         }
       }
@@ -4632,6 +3614,39 @@
     "kernelTolerance": "operation-specific; independent of display and pointer steps"
   },
   "defaults": {
+    "oChain": {
+      "outerWidthMm": 7.2,
+      "outerLengthMm": 9.2,
+      "wireDiameterMm": 1.6,
+      "gapMm": 0.2
+    },
+    "twistedChain": {
+      "outerWidthMm": 11,
+      "outerLengthMm": 15,
+      "wireDiameterMm": 3,
+      "gapMm": 0
+    },
+    "groundChain": {
+      "outerWidthMm": 11,
+      "outerLengthMm": 15,
+      "wireDiameterMm": 3,
+      "gapMm": 0.1,
+      "groundThicknessMm": 4.4,
+      "grindRadiusMm": 0.1
+    },
+    "ironFoot": {
+      "lengthMm": 23.5,
+      "widthMm": 5.5,
+      "heightMm": 12,
+      "thicknessMm": 0.5,
+      "topHoleDiameterMm": 2.3,
+      "topHolePitchMm": 18,
+      "endRadiusMm": 2.75,
+      "taperAngleDeg": 0,
+      "footHoleDiameterMm": 2.5,
+      "footHoleHeightMm": 2.75,
+      "footHoles": "back"
+    },
     "ring": {
       "section": "round",
       "sectionSize": 3,
@@ -5109,7 +4124,7 @@
     "快捷模型"
   ],
   "description": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-  "schemaHash": "sha256:295358f6bc129acb6c6be0764bacd3123654eddf39a03e210814d458bd18918c",
+  "schemaHash": "sha256:d4e5d20171c03be8cd1aae4a2dd9f2e8b9737f1540fd85e1bd2fde746422861a",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -5226,6 +4241,367 @@
     "tests/operation-contract.test.mjs"
   ],
   "templates": [
+    {
+      "kind": "oChain",
+      "title": "O chain link",
+      "description": "来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
+      "defaults": {
+        "outerWidthMm": 7.2,
+        "outerLengthMm": 9.2,
+        "wireDiameterMm": 1.6,
+        "gapMm": 0.2
+      },
+      "fields": [
+        {
+          "key": "outerWidthMm",
+          "label": "外宽 W",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "outerLengthMm",
+          "label": "外长 L",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "wireDiameterMm",
+          "label": "线径 d",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "gapMm",
+          "label": "接缝宽 g",
+          "type": "number",
+          "min": 0,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "oChain"
+      },
+      "normalExample": {
+        "kind": "oChain",
+        "outerWidthMm": 7.2,
+        "outerLengthMm": 9.2,
+        "wireDiameterMm": 1.6,
+        "gapMm": 0.2
+      }
+    },
+    {
+      "kind": "twistedChain",
+      "title": "Twisted chain link",
+      "description": "来源 NL.stp：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。",
+      "defaults": {
+        "outerWidthMm": 11,
+        "outerLengthMm": 15,
+        "wireDiameterMm": 3,
+        "gapMm": 0
+      },
+      "fields": [
+        {
+          "key": "outerWidthMm",
+          "label": "外宽 W",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "outerLengthMm",
+          "label": "外长 L",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "wireDiameterMm",
+          "label": "线径 d",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "gapMm",
+          "label": "接缝宽 g",
+          "type": "number",
+          "min": 0,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "twistedChain"
+      },
+      "normalExample": {
+        "kind": "twistedChain",
+        "outerWidthMm": 11,
+        "outerLengthMm": 15,
+        "wireDiameterMm": 3,
+        "gapMm": 0
+      }
+    },
+    {
+      "kind": "groundChain",
+      "title": "Ground curb chain link",
+      "description": "来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
+      "defaults": {
+        "outerWidthMm": 11,
+        "outerLengthMm": 15,
+        "wireDiameterMm": 3,
+        "gapMm": 0.1,
+        "groundThicknessMm": 4.4,
+        "grindRadiusMm": 0.1
+      },
+      "fields": [
+        {
+          "key": "outerWidthMm",
+          "label": "外宽 W",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "outerLengthMm",
+          "label": "外长 L",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "wireDiameterMm",
+          "label": "线径 d",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "gapMm",
+          "label": "接缝宽 g",
+          "type": "number",
+          "min": 0,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "groundThicknessMm",
+          "label": "磨后总厚 T",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "grindRadiusMm",
+          "label": "磨边 R",
+          "type": "number",
+          "min": 0,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "groundChain"
+      },
+      "normalExample": {
+        "kind": "groundChain",
+        "outerWidthMm": 11,
+        "outerLengthMm": 15,
+        "wireDiameterMm": 3,
+        "gapMm": 0.1,
+        "groundThicknessMm": 4.4,
+        "grindRadiusMm": 0.1
+      }
+    },
+    {
+      "kind": "ironFoot",
+      "title": "Bridge iron foot",
+      "description": "来源 V01/V02/V03：顶片双安装孔，两端下折脚、圆弧脚端，可选单脚或双脚轴孔。顶面 Z=0，脚朝 -Z，桥长沿 Y、片宽沿 X；总高含顶片。V02 的收脚由侧边收角和脚端R控制。折角保持来源的直角，不自动加弯R。",
+      "defaults": {
+        "lengthMm": 23.5,
+        "widthMm": 5.5,
+        "heightMm": 12,
+        "thicknessMm": 0.5,
+        "topHoleDiameterMm": 2.3,
+        "topHolePitchMm": 18,
+        "endRadiusMm": 2.75,
+        "taperAngleDeg": 0,
+        "footHoleDiameterMm": 2.5,
+        "footHoleHeightMm": 2.75,
+        "footHoles": "back"
+      },
+      "fields": [
+        {
+          "key": "lengthMm",
+          "label": "桥长 L",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "widthMm",
+          "label": "片宽 W",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "heightMm",
+          "label": "总高 H",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "thicknessMm",
+          "label": "片厚 t",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "topHoleDiameterMm",
+          "label": "顶孔直径",
+          "type": "number",
+          "min": 0,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "topHolePitchMm",
+          "label": "顶孔中心距",
+          "type": "number",
+          "min": 0,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "endRadiusMm",
+          "label": "脚端 R",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "taperAngleDeg",
+          "label": "脚侧边收角",
+          "type": "number",
+          "min": 0,
+          "max": 15,
+          "step": 0.1,
+          "unit": "deg"
+        },
+        {
+          "key": "footHoleDiameterMm",
+          "label": "脚孔直径",
+          "type": "number",
+          "min": 0,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "footHoleHeightMm",
+          "label": "脚孔心距脚底",
+          "type": "number",
+          "min": 0.01,
+          "max": 500,
+          "step": 0.1,
+          "unit": "mm"
+        },
+        {
+          "key": "footHoles",
+          "label": "脚孔位置",
+          "type": "select",
+          "options": [
+            {
+              "value": "none",
+              "label": "无"
+            },
+            {
+              "value": "front",
+              "label": "前脚（-Y）"
+            },
+            {
+              "value": "back",
+              "label": "后脚（+Y）"
+            },
+            {
+              "value": "both",
+              "label": "两脚"
+            }
+          ]
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "ironFoot"
+      },
+      "normalExample": {
+        "kind": "ironFoot",
+        "lengthMm": 23.5,
+        "widthMm": 5.5,
+        "heightMm": 12,
+        "thicknessMm": 0.5,
+        "topHoleDiameterMm": 2.3,
+        "topHolePitchMm": 18,
+        "endRadiusMm": 2.75,
+        "taperAngleDeg": 0,
+        "footHoleDiameterMm": 2.5,
+        "footHoleHeightMm": 2.75,
+        "footHoles": "back"
+      }
+    },
     {
       "kind": "ring",
       "title": "Ring",
@@ -10129,5 +9505,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:0891f42e35556ba1d3b595b8fd6f1ca774ac6951c62f39f9a27a14aa7dc40093"
+  "docsHash": "sha256:546ef595e6d0ad3c9584e1c329fd3d70bcc3490e4f954b49d13f7a85452bceb1"
 }

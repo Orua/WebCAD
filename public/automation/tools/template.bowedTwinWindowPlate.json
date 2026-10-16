@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "A flat plate with straight top/bottom, tangent bowed sides and four small corner arcs, plus two symmetric capsule windows. Optional edge fillet. Symmetric parameter model only.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "bowedTwinWindowPlate"
@@ -412,22 +371,29 @@
       "outerHeight": {
         "type": "number",
         "default": 24.5,
-        "description": "Outer height"
+        "description": "Outer height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "topStraightWidth": {
         "type": "number",
         "default": 30.2527,
-        "description": "Top/bottom straight length"
+        "description": "Top/bottom straight length",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sideRadius": {
         "type": "number",
         "default": 35.688467,
-        "description": "Bowed side radius"
+        "description": "Bowed side radius",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "cornerRadius": {
         "type": "number",
         "default": 6,
         "description": "Corner radius",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -435,22 +401,29 @@
       "windowWidth": {
         "type": "number",
         "default": 32,
-        "description": "Window width"
+        "description": "Window width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "windowHeight": {
         "type": "number",
         "default": 6.55,
-        "description": "Window height"
+        "description": "Window height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "windowSpacing": {
         "type": "number",
         "default": 10.35,
-        "description": "Window center spacing"
+        "description": "Window center spacing",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "thickness": {
         "type": "number",
         "default": 3.7,
         "description": "Thickness",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -458,11 +431,13 @@
       "edgeRadius": {
         "type": "number",
         "default": 0.8,
-        "description": "Front/back edge radius"
+        "description": "Front/back edge radius",
+        "minimum": 0,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:bb6e654bff418ab0637586c067894acd18ac36efc1e95be3f7a116adb5277cbf",
+  "schemaHash": "sha256:773a434a150e2fcdc7266f87c20bac894587f59cc9d1f9bf1cbfcb1a8ade1e1c",
   "defaults": {
     "outerHeight": 24.5,
     "topStraightWidth": 30.2527,
@@ -587,5 +562,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:089109edc62029562aaa74d5ec908d6fd564282aed62fa3c32526ff8d0bd4e43"
+  "docsHash": "sha256:0d8182a5eb04167d65bdcf4b1220c5dea179423bd95bc533ca54bc882251d2e2"
 }

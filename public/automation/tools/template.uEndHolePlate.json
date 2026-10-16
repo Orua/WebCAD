@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "One flat U plate with concentric semicircular crowns, equal-width straight legs and one through-hole at each end. No second assembly component, thread or round-wire section.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "uEndHolePlate"
@@ -412,22 +371,29 @@
       "outerWidth": {
         "type": "number",
         "default": 22,
-        "description": "Outer width"
+        "description": "Outer width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerWidth": {
         "type": "number",
         "default": 10,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "totalHeight": {
         "type": "number",
         "default": 31.7,
-        "description": "Total height"
+        "description": "Total height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "thickness": {
         "type": "number",
         "default": 3,
         "description": "Plate thickness",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -436,6 +402,7 @@
         "type": "number",
         "default": 3.3,
         "description": "End-hole diameter",
+        "minimum": 0.1,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -443,11 +410,13 @@
       "holeInset": {
         "type": "number",
         "default": 2.7,
-        "description": "Hole center inset from leg end"
+        "description": "Hole center inset from leg end",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:7650e18934e9441b7d92e82fab7a8e1a23cc243afd19e5d605abc080d43df67c",
+  "schemaHash": "sha256:9522f32716e49cf0480f3c5d95345ce60166fd163f1f07d3f3acb8736237af29",
   "defaults": {
     "outerWidth": 22,
     "innerWidth": 10,
@@ -542,5 +511,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:5fccba674ab42c55c5c7c937ec181f27e70e2dd1b007cfcd51eb8394db8bb7ab"
+  "docsHash": "sha256:74d0934242c393d33aecfe7d4640cda50ca93ccd88500193ca33203c0e21856c"
 }

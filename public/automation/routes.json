@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.48.0",
-  "buildId": "ba374d2e2ba15c8a6afca16c2f84d7b5d78cfbfd-src-cb055a48e584ad47",
-  "catalogHash": "sha256:c3092a5a5ed454a587edbf97b682cda8b904af41196bde3c5986a7a5f08a4cd7",
-  "docsHash": "sha256:44939b4f8b60ff44bab89dd01eb3a646677a222e9335fca05251c11ece51eeda",
+  "pageApiVersion": "1.49.0",
+  "buildId": "24b13cee5171b61486d5f711e2c1cb192b6ce6ee-src-25fa2ccd0d386976",
+  "catalogHash": "sha256:8d55dc62d8a7f51ea39fd6ca0744c0f45aa9e573c7be93a9efda2175783ced10",
+  "docsHash": "sha256:7fdc7dc9a0a9a57f1b5dd17e6eb28f8c2fd2f831e455d273da8342e9fc166fbb",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -628,16 +628,15 @@
         "run"
       ],
       "method": "updateModelLibrary",
-      "usage": "getModelLibrary读取当前revision、每条字段及完整生成契约。updateModelLibrary传当前context和expectedLibraryRevision，operation=upsert/remove/move/restore/import。resolveModelLibrary返回冻结的quickModel参数，run/add生成，删除库条目不影响历史。"
+      "usage": "固定快捷工具目录。getModelLibrary读取字段、范围与执行参数；resolveModelLibrary解析用户参数后run/add。updateModelLibrary仅move/restore显示顺序。缩略图与尺寸指示图为预制静态资源。"
     },
     "modelLibraryEdit": {
       "tools": [
         "getModelLibrary",
-        "updateModelLibrary",
-        "resolveModelLibrary"
+        "updateModelLibrary"
       ],
       "method": "updateModelLibrary",
-      "usage": "浮动编辑层维护工具名称、默认参数和script。getModelLibrary读取后upsert，唯一id新增、已有id修改；script步骤及引用按api.model-library验证；expectedLibraryRevision拒绝陈旧库写入。"
+      "usage": "快捷工具定义由软件内置。getModelLibrary读取revision；updateModelLibrary只允许move（id,index）或restore恢复默认顺序；不修改工具定义或工程。"
     },
     "moveTool": {
       "tools": [
@@ -874,7 +873,7 @@
         "preview.start"
       ],
       "method": "setView",
-      "usage": "实体→快捷模型打开画布中央浮动选择菜单：setView({context,workspace:\"library\"})；选择后在浮动对话框设置参数。getModelLibrary读取字段和完整script；resolveModelLibrary解析后run/add生成，params.modelScript冻结脚本。实体缩略图和参数引线示意不提交工程，实际模型可preview.start或quickModel生成并measure核对。"
+      "usage": "实体→快捷模型：setView({context,workspace:\"library\"})。选择固定工具后只设置参数；getModelLibrary/resolveModelLibrary与UI共用参数定义。缩略图和尺寸图直接读取预制图片，实际模型通过preview.start或quickModel生成。"
     },
     "quickModelFavorites": {
       "tools": [
@@ -1446,7 +1445,7 @@
     "pathFillet": "二维圆角 / prepareProfileEdit / 修改参数",
     "pathTrimCircle": "整圆裁剪 / prepareProfileEdit / 修改参数",
     "vectorImport": "矢量取线成面 / readVector / connectVector / 绘制轮廓",
-    "modelLibraryEdit": "getModelLibrary / updateModelLibrary / resolveModelLibrary",
+    "modelLibraryEdit": "getModelLibrary / updateModelLibrary",
     "quickModelFavorites": "快捷模型 / setView / getQuickModelUsage",
     "reference.setWorkFrame": "设置参考锚点（工作基准）",
     "reference.resetWorkFrame": "重置参考锚点（工作基准）",

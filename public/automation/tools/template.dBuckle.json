@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "dBuckle"
@@ -422,41 +381,55 @@
       "sectionSize": {
         "type": "number",
         "default": 3,
-        "description": "Wire diameter / square size"
+        "description": "Wire diameter / square size",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionRadius": {
         "type": "number",
         "default": 0.3,
-        "description": "Square section corner R"
+        "description": "Square section corner R",
+        "minimum": 0,
+        "unit": "mm"
       },
       "sectionChamfer": {
         "type": "number",
         "default": 0.6,
-        "description": "Square section chamfer C"
+        "description": "Square section chamfer C",
+        "minimum": 0,
+        "unit": "mm"
       },
       "gapWidth": {
         "type": "number",
         "default": 0,
-        "description": "Bottom gap (0 = closed)"
+        "description": "Bottom gap (0 = closed)",
+        "minimum": 0,
+        "unit": "mm"
       },
       "innerWidth": {
         "type": "number",
         "default": 24,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerHeight": {
         "type": "number",
         "default": 19,
-        "description": "Inner height"
+        "description": "Inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerRadius": {
         "type": "number",
         "default": 2,
-        "description": "Bottom inner radius"
+        "description": "Bottom inner radius",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:89c260e719b0b56c18f659621edd67c5835fbac7f6c62a66a5eef868347bd812",
+  "schemaHash": "sha256:7624cb7dffd7d1534613accbfeb308a9d373b2feb897f966b3b60b0488ee6c7b",
   "defaults": {
     "section": "round",
     "sectionSize": 3,
@@ -586,5 +559,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:b62e89251c7ef75ab4971065ec7db2a9ce71a165466f2c0f4a29efce407b7792"
+  "docsHash": "sha256:f1f7aacd89ce662ac878f0bcf95614c93b3542dd1b2e595eec742401aa173009"
 }

@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "Sweep an elliptical cross-section around a rounded rectangular centerline. Front band width and side depth are independent; the inner planar radius is separate from section shape.",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "ellipseSectionRectFrame"
@@ -412,31 +371,41 @@
       "innerWidth": {
         "type": "number",
         "default": 25,
-        "description": "Inner width"
+        "description": "Inner width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerHeight": {
         "type": "number",
         "default": 19,
-        "description": "Inner height"
+        "description": "Inner height",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "innerRadius": {
         "type": "number",
         "default": 2.5,
-        "description": "Inner planar radius"
+        "description": "Inner planar radius",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionWidth": {
         "type": "number",
         "default": 5.5,
-        "description": "Front band width"
+        "description": "Front band width",
+        "minimum": 0.1,
+        "unit": "mm"
       },
       "sectionDepth": {
         "type": "number",
         "default": 6,
-        "description": "Side depth"
+        "description": "Side depth",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:9d1b040d6e4b1fd46748dd8f1c6e9a3a9a1a2a4ea964549bcaa0dfb8cbc77aa3",
+  "schemaHash": "sha256:0e27a63fd484d9aef176115987e995e5246f8d13dde8464bdf0f82eb14fa3988",
   "defaults": {
     "innerWidth": 25,
     "innerHeight": 19,
@@ -521,5 +490,5 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:dda00a6afe932e4ca92e0f8fff91363c9df0d59203247b30449ac039aefbe710"
+  "docsHash": "sha256:facab58c6fcf311977cb248a2ae24771cd66111709f6245048f3f593f262a351"
 }

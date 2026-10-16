@@ -364,47 +364,6 @@
     "additionalProperties": false,
     "description": "圆线沿精确螺旋路径扫掠。螺距大于线径；半径是中心线半径。",
     "properties": {
-      "modelScript": {
-        "type": "array",
-        "minItems": 1,
-        "maxItems": 20,
-        "items": {
-          "type": "object",
-          "required": [
-            "id",
-            "op"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "string"
-            },
-            "op": {
-              "type": "string",
-              "enum": [
-                "box",
-                "cylinder",
-                "sphere",
-                "quickModel",
-                "union",
-                "cut",
-                "intersect",
-                "transform"
-              ]
-            },
-            "params": {
-              "type": "object",
-              "additionalProperties": true
-            },
-            "refs": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "kind": {
         "type": "string",
         "const": "spring"
@@ -413,6 +372,7 @@
         "type": "number",
         "default": 6,
         "description": "中心线半径",
+        "minimum": 0.01,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -421,6 +381,7 @@
         "type": "number",
         "default": 1.2,
         "description": "线径",
+        "minimum": 0.01,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -429,6 +390,7 @@
         "type": "number",
         "default": 3,
         "description": "螺距",
+        "minimum": 0.01,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -437,6 +399,7 @@
         "type": "number",
         "default": 4,
         "description": "圈数",
+        "minimum": 0.01,
         "unit": "1",
         "quantityKind": "scalar",
         "quantizationPolicy": "none"
@@ -448,7 +411,7 @@
       }
     }
   },
-  "schemaHash": "sha256:3b79c61fb41f346d18e20214f09adf34068decf1650e7e6ab73582f800bd9555",
+  "schemaHash": "sha256:5b3e860aa82db5cc5daea656f44d838d42045446af10cf901366813001ee4845",
   "defaults": {
     "radiusMm": 6,
     "wireDiameterMm": 1.2,
@@ -526,5 +489,5 @@
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:1a1bd662fa90d99e3a93ea44a360fc01dd6ce91a6bab8fa915c3f83a59529d7e"
+  "docsHash": "sha256:c3cc2b80ea78c69572de86e16e7fad2eef9f5413bf4e196c8721c6f0e4d5a4ce"
 }

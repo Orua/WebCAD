@@ -2,7 +2,7 @@
   "id": "waitFor",
   "title": "waitFor",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "waitFor({afterRevision}|{jobId},timeoutMs?,documentInstanceId?)。二选一；timeoutMs≤LIMITS.transport.waitMaxMs(25000)。替代客户端轮询 getState/getJob。",
   "synonyms": [
@@ -27,5 +27,5 @@
     "PARAM_RANGE_INVALID",
     "JOB_NOT_FOUND"
   ],
-  "docsHash": "sha256:dabaf664dccd747bd63c014933dcbc189a1f0f10c21427829890db0748a410e5"
+  "docsHash": "sha256:a5d017cb69e255b939132764dd0f205c920c3d6b2dc5bd4066e4e6e6c44b84b7"
 }

@@ -2,7 +2,7 @@
   "id": "createRequestContext",
   "title": "createRequestContext",
   "category": "page-method",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "contextPolicy": "none",
   "description": "createRequestContext(context?); omit to read the current context.",
   "synonyms": [
@@ -22,5 +22,5 @@
     "REVISION_CONFLICT"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:5dbad5d1a18ae7b9bb46376fdef7d91ef44f42f9dcf7ac950bd9ef5455f4475b"
+  "docsHash": "sha256:0b65d0bdd5c84cec5fa51fc2321e49b856d760a4eddea1655361f5f542201557"
 }

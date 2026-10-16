@@ -3,7 +3,7 @@
   "title": "精确浮雕精修",
   "label": "精确浮雕精修",
   "category": "command",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -20,5 +20,5 @@
     "浮雕精修",
     "sculpt"
   ],
-  "docsHash": "sha256:b3c4ea47cae489ca2f1ea931a3e42467d7c13b2b53bda56ae7a83c1c0fae3d77"
+  "docsHash": "sha256:98ebe85d19918e983fd0eb312cc9c03dd8e12492b9dadc6329db7885c536df3a"
 }
