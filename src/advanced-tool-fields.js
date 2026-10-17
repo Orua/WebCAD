@@ -1,6 +1,8 @@
-export const advancedNames = { bumpSet:'批量凸点',autoRound:"整件圆边", smoothTransition: "平滑过渡", curveSweep: '曲线扫掠', advancedLoft: '高级放样', curvedLogo: '曲面 LOGO', fittedSurface: '拟合曲面', thickenFace:'选面增厚' };
+import {SUBD_EXAMPLE} from './subd-contract.js';
+export const advancedNames = { bumpSet:'批量凸点',subdBody:'细分曲面体',autoRound:"整件圆边", smoothTransition: "平滑过渡", curveSweep: '曲线扫掠', advancedLoft: '高级放样', curvedLogo: '曲面 LOGO', fittedSurface: '拟合曲面', thickenFace:'选面增厚' };
 export const advancedFields = {
   bumpSet:[['bumps','凸点中心与半径（毫米，世界坐标）','[{"centerMm":[0,0,0],"radiusMm":1}]','json'],['blendRadiusMm','接缝圆角半径 mm',.1,'positive']],
+  subdBody:[['cage','控制笼（vertices 顶点、faces 四边面、creases 折痕）',JSON.stringify(SUBD_EXAMPLE.cage),'jsonObject'],['brushes','笔刷记录（推拉、膨胀、平滑）','[]','json'],['sampleDepth','细分层数（3–6）',4,'integer'],['fitGrid','面片采样点数（5–17）',9,'integer'],['fittingTolerance','面片拟合公差 mm',.03,'positive'],['sewingTolerance','缝合公差 mm',.05,'positive']],
   autoRound:[['radius','圆边半径',0.1,'positive']],
   smoothTransition:[['radius','过渡半径',0.1,'positive']],
   curveSweep: [['loftDegree','多截面放样最高次数',8,'number'],['stations','有序椭圆截面 JSON','[]','json'],['pathType','路径类型','arc',['arc','spline','segments','sections']],['points','单段路径点','10,0,0\n7.0710678118654755,7.0710678118654755,0\n0,10,0','points3'],['segments','连续线弧段 JSON','[{"type":"line","points":[[0,0,0],[5,0,0]]},{"type":"arc","points":[[5,0,0],[7,2,0],[5,4,0]]}]','json'],['section','截面类型','round',['round','chamferedSquare','ellipse','roundedRectangle']],['radius','圆截面半径',1,'positive'],['sectionSize','倒角方线边长',2,'positive'],['sectionChamfer','倒角切入量',0.5,'positive'],['sectionWidth','截面正面料宽',2.9,'positive'],['sectionDepth','截面侧深',4.3,'positive'],['sectionCornerRadius','圆角扁带截面R',0.2,'positive'],['closed','分段路径闭合',false,'boolean'],['tolerance','样条公差',0.01,'positive']],
@@ -11,6 +13,7 @@ export const advancedFields = {
 };
 export const advancedNotes = {
   bumpSet:'先选择来源实体，再填写1–64个世界坐标凸点。球使用 centerMm:[x,y,z]、radiusMm；椭球使用 centerMm 和 radiiMm:[a,b,c]。所有凸点一次融合，再联动处理来源交线；失败时保留布尔结果并报告实际半径或跳过原因，不处理无关锐边。',
+  subdBody:'编辑封闭、绕向一致的四边控制笼。顶点为毫米 XYZ，面是四个顶点序号；creases 使用 edge:[起点,终点]、sharpness:0–1，1 保留尖边。笔刷是按顺序保存的 {mode:"push"/"inflate"/"smooth",centerMm:[x,y,z],radiusMm,strength,falloff:"smooth"/"linear"}；推拉与膨胀强度单位 mm，平滑为0–1。先预览再应用，之后可在历史参数中继续编辑。结果为拟合并缝合的 B 样条实体，极点区域使用有误差检测的近似。',
   autoRound:'选一个实体，自动检测全部尖锐边，包括孔和文字边，统一倒圆。已相切接缝会跳过。半径过大或某条边无法处理时整步拒绝，不默默跳过。完成后在属性或建模历史中修改半径，可更圆或退回；0.1 mm 为示例。',
   smoothTransition:'按 Ctrl 选择相交的多个面，将这些面之间的尖锐接缝联动倒圆；交汇处也一起求解。选择整个外壳的面可处理外缘，文字面须另选。半径过大、自交或目标接缝仍尖锐时拒绝。与未选面的结束边界仍可能锐利，将单独报告。完成后可在属性修改原步骤半径，不重复叠加加工。默认 0.1 mm 是示例；预览后确认。',
   curveSweep:'sections 为 2–24 个有序椭圆截面，每项明确 centerMm、normal、widthDirection、widthMm、depthMm；支持料宽和侧深变化，开口实体，不保证源件等价。圆弧恰好三个 XYZ 点；样条为 3–30 点的公差内逼近。segments 为 2–64 段连续直线/三点圆弧，前段末点须与后段起点相同；闭环须选 closed。round 使用半径；chamferedSquare 使用边长和倒角切入量；ellipse 独立输入正面料宽与侧深。非圆截面路径须同处 XY 平面。单位 mm。',

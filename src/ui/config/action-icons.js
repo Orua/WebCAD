@@ -5,6 +5,7 @@ const move=['M12 3v18 M3 12h18 M9 6l3-3 3 3 M9 18l3 3 3-3 M6 9l-3 3 3 3 M18 9l3 
 const rotate=['M4 10a8 8 0 1 1 1 8 M4 4v6h6'];
 export const ACTION_ICONS={
  bumpSet:['M3 18h18 M4 18v-4a3 3 0 0 1 6 0v4 M9 18V9a3 3 0 0 1 6 0v9 M14 18v-5a3 3 0 0 1 6 0v5'],
+ subdBody:['M4 7Q12 1 20 7V17Q12 23 4 17Z M4 7Q12 13 20 7 M12 4V21 M4 12Q12 18 20 12'],
  folder:['M3 7h7l2 2h9v11H3Z'],
  toolbarHide:['M3 4h18v16H3Z M3 9h18 M7 6.5h.1 M11 6.5h.1 M10 15l2-2 2 2'],toolbarShow:['M3 4h18v16H3Z M3 9h18 M7 6.5h.1 M11 6.5h.1 M10 13l2 2 2-2'],
  focusCanvas:['M8 3H3v5 M16 3h5v5 M3 16v5h5 M21 16v5h-5'],exitFocus:['M3 8h5V3 M21 8h-5V3 M8 21v-5H3 M16 21v-5h5'],

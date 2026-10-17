@@ -1,3 +1,4 @@
+import {SUBD_OPERATION} from './subd-contract.js';
 import {BLEND_SELECTOR_SCHEMA} from './modeling/blend-selector-contract.js';
 import {operationDefaults,operationExamples} from './operation-examples.js';
 import {sourceOperationContract} from './operation-contracts.js';
@@ -128,6 +129,7 @@ const booleanBlendFields={blendRadiusMm:positive('Requested seam radius'),blendM
 for(const id of ['union','cut'])Object.assign(operationCatalog.operations[id].paramsSchema.properties,booleanBlendFields);
 operationCatalog.operations.fillet.paramsSchema.properties.blendLaw=blendLawSchema;
 operationCatalog.operations.bumpSet=op('批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once',1,{bumps:{type:'array',minItems:1,maxItems:64,items:{type:'object',additionalProperties:false,required:['centerMm'],oneOf:[{required:['radiusMm']},{required:['radiiMm']}],properties:{centerMm:point3,radiusMm:positive('Bump radius'),radiiMm:{...point3,items:positive('Axis radius')}}}},...booleanBlendFields},['bumps'],'One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports actual used radius and BLEND_SKIPPED if no trustworthy blend exists; does not round unrelated source edges.');
+operationCatalog.operations.subdBody=SUBD_OPERATION;
 export const legacyRoundingOperation=operationCatalog.operations.rounding;
 export const legacyUnifiedRoundingOperation=op('圆角 / Round selected edges',1,{
   specVersion:{type:'integer',const:2},

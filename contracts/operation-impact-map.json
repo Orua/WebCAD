@@ -1642,6 +1642,23 @@
       "manualChecks": [
         "17674 batch bump geometry and public report"
       ]
+    },
+    {
+      "operation": "subdBody",
+      "semanticVersion": "subdBody-1",
+      "localImpact": "Bounded Catmull-Clark cage evaluation, B-spline fitting and exact OCCT shell sewing; explicit approximation evidence",
+      "servicesImpact": "Local bounded 200000 refined-face budget; no unadvertised remote algorithm",
+      "logoImpact": "none; no glyph conversion",
+      "contractImpact": "Closed quad cage, persistent crease weights and replayable spatial brushes; subdApproximation readback",
+      "documentImpact": "Cage/brush recipe remains editable; standard BRep export and self-contained cache",
+      "cacheImpact": "Catalog/docs and local recipe hashes change",
+      "requiredTests": [
+        "tests/subd-body.test.mjs",
+        "tests/subd-integration.test.mjs"
+      ],
+      "manualChecks": [
+        "17674 source cage, brush, save/reopen, STEP export"
+      ]
     }
   ],
   "executionRouting": {
