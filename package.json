@@ -8,6 +8,7 @@
     "build": "node scripts/generate-operation-errors.mjs && node scripts/generate-page-docs.mjs && node scripts/generate-reference-coverage.mjs && vite build && node scripts/verify-release.mjs",
     "agent": "npm run build && node scripts/serve.mjs",
     "agent:cli": "node scripts/webcad-agent.mjs",
+    "webcad": "node scripts/webcad.mjs",
     "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
     "test": "node scripts/test.mjs portable",
     "test:contracts": "node scripts/test.mjs contracts",

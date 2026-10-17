@@ -755,7 +755,8 @@ export class CadKernel {
       return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges,...measured,adaptiveDisplay:adaptive?{initialTolerance:settings.tolerance,requestedQuality:quality,source:'exact-brep',sourceChanged:false,...(complexity.heavy?{heavy:true,heavyFaceIds:[...complexity.heavyFaces],splinePoles:complexity.totalPoles,coarsen:this.displayCoarsen||1}:{})}:undefined,badgeReport:shape.badgeReport,reliefReport:shape.reliefReport, refineReport:shape.refineReport, roundReport:shape.roundReport,endRoundingReport:shape.endRoundingReport,roundingReport:shape.roundingReport, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport,chainReport:shape.chainReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
     } finally { [...faces, ...edges].forEach(dispose); }
   }
-  async rebuild(document,{displayCoarsen=1}={}) {
+  async rebuild(document,{displayCoarsen=1,headless=false}={}) {
+    if(this.headless!==headless){this.headless=headless;this.renderCache=new Map();}
     // A coarser display retry must not reuse the previous (failed or finer) render cache.
     if((this.displayCoarsen||1)!==displayCoarsen){this.displayCoarsen=displayCoarsen;this.renderCache=new Map();}
     if (!document || ![1,2,3,4].includes(document.version) || !Array.isArray(document.features)) throw new Error('无效的 WebCAD 工程');
@@ -837,7 +838,13 @@ export class CadKernel {
         // then bind the same bytes without normalizing or weakening the hash.
         this.reportRebuildProgress('source-snapshot','保留精确源快照',{featureId:id});
         if(next.get(id).geometryType!=='mesh')this.geometrySourceSnapshot(next.get(id));
-        const body = cached ? {...cached.body,name:feature.name||feature.id} : this.describe(next.get(id), feature);
+        let body;
+        if(cached)body={...cached.body,name:feature.name||feature.id};
+        else if(headless&&next.get(id).geometryType!=='mesh'){
+          const shape=next.get(id),faces=shape.faces,edges=shape.edges;
+          try{body={id,name:feature.name||id,...displayMetadata(shape,faces,edges,this.oc),volume:preciseVolume(shape,this.oc),metricsDeferred:false,positions:new Float32Array(),normals:new Float32Array(),indices:new Uint32Array(),faceGroups:[],edges:[],loftReport:shape.loftReport,transitionReport:shape.transitionReport};}
+          finally{faces.forEach(dispose);edges.forEach(dispose);}
+        }else body=this.describe(next.get(id), feature);
         if(cached&&feature.op==='relief'&&body.reliefReport?.layers&&feature.params.layers)body.reliefReport={...body.reliefReport,layers:body.reliefReport.layers.map((layer,i)=>({...layer,name:feature.params.layers[layer.index??i]?.name??layer.name}))};
         if (!cached) body.renderVersion = String(++this.renderVersion);
         nextRenderCache.set(id, { body });
