@@ -214,7 +214,7 @@ installHostInteractionGuard(document,()=>hostControl.get().locked,target=>target
 // worker sat idle. Geometry, revision and receipts are still committed per step.
 let displayBatchDepth=0,deferredDisplay=null,deferredRefresh=false;
 function showCommittedModel(fit){
-  try{viewport.cancelTask();applyAppearance();viewport.setBodies(bodies,documentModel.hidden);viewport.setWorkFrame?.(documentModel.referenceSystem.workFrame);viewport.setSelection(selectedIds);
+  try{viewport.cancelTask();applyAppearance();viewport.setBodies(bodies,documentModel.hidden);viewport.setWorkFrame?.(documentModel.referenceSystem.workFrame);viewport.setSelection(selectedIds,selectedTopology);
     if(fit)viewport.fit();viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});}catch(error){lastWarnings.push({code:'DISPLAY_FAILED',message:error.message});}
 }
 function beginDisplayBatch(){displayBatchDepth++;}
@@ -325,7 +325,7 @@ async function routeChangedFeature(next,{signal,expectedRevision,featureId,expli
  }catch(error){if(!(error.code==='CANCELLED'&&error.submitted===false))servicesExecutionHistory.failure(executionKey,error);error.routingDecision=decision;throw error;}
 }
 
-async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,expectedRevision,newInstance=false,restoring=false,historyLabel,hardTimeoutMs}={}){
+async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,expectedRevision,newInstance=false,restoring=false,historyLabel,hardTimeoutMs,origin='user'}={}){
   if(busy)throw new Error('当前操作尚未完成，请稍候。');
   if(!kernelReady)throw new Error('建模内核尚未就绪。');
   setBusy(true,'正在计算精确实体…');
@@ -335,6 +335,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     const previousDocument=record&&!newInstance&&!restoring&&next.documentId===documentModel.documentId?documentModel:next;
     if(next.parameters!==undefined||next.features.some(f=>f.expressions))next=evaluateDocumentParameters(next,{previousDocument});
     assertHistoryEditSafe(previousDocument,next);
+    const retainedSelection=origin==='agent'?{ids:[...selectedIds],topology:selectedTopology?clone(selectedTopology):null}:null;
     // Keep every committed project saveable through the bounded browser file API.
     // Reserve a small margin for subsequent UI name/appearance metadata changes.
     assertDocumentCapacity(next,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});
@@ -358,8 +359,12 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     if(newInstance||documentModel.documentId!==next.documentId){documentInstanceId=crypto.randomUUID();projectFileHandle=null;}
     documentModel=next;bodies=result.bodies;selectedTopology=null;previewNext=null;previewIdentity=null;previewScopeReport=null;revision++;
     for(const feature of newQuickModels)recordQuickModelUse(feature.params.kind);
-    lastWarnings=[];dirty=true;if(save)void autosave();
-    selectedIds=insertedObject?[]:select&&bodies.some(b=>b.id===select)?[select]:selectedIds.filter(id=>bodies.some(b=>b.id===id));
+    lastWarnings=[];dirty=true;if(save)void autosave(); // selection-origin
+    // Agent writes never replace the user's selection. Only ids that no longer
+    // exist are dropped; the user's own insert/edit path keeps its old select
+    // behaviour (including clearing after an independent insertion).
+    selectedIds=origin==='agent'?retainedSelection.ids.filter(id=>bodies.some(b=>b.id===id)):insertedObject?[]:select&&bodies.some(b=>b.id===select)?[select]:selectedIds.filter(id=>bodies.some(b=>b.id===id));
+    selectedTopology=origin==='agent'&&retainedSelection.topology&&bodies.some(b=>b.id===retainedSelection.topology.bodyId)?retainedSelection.topology:null;
     // Agent batches upload the display once at the end of the batch (see beginDisplayBatch).
     if(displayBatchDepth)deferredDisplay={fit:fit||deferredDisplay?.fit===true};else showCommittedModel(fit);
     // Commit is synchronous. Persistence follows without yielding between commit
@@ -423,7 +428,7 @@ async function addFeature(op,params={},options={}){
   params=await resolveLogoParams(op,params,refs,options);
   const {next,id}=featureDocument(op,params,refs,options.name,options.placement);
   const insertOps=['vectorProfile','box','sphere','cylinder','cone','torus','extrude','revolve','copy','mirror','linearPattern','circularPattern','quickModel','sweep','loft'];
-  const select=Object.hasOwn(options,'select')?options.select:insertOps.includes(op)?undefined:id;
+  const select=options.origin==='agent'?undefined:Object.hasOwn(options,'select')?options.select:insertOps.includes(op)?undefined:id;
   const result=await rebuild(next,{...options,select,fit:!bodies.length||insertOps.includes(op)});
   const diagnostic=bodies.find(body=>body.id===id)?.surfaceDiagnostics;
   if(diagnostic)ui.showInfo('缝合检查',`${diagnostic.faces} 面，${diagnostic.solids} 实体。以 ${diagnostic.tolerance} mm 再检查：${diagnostic.freeEdges} 条自由边，${diagnostic.multipleEdges} 条非流形边。未自动补洞。`);
@@ -456,7 +461,7 @@ async function editFeature(id,params,name,options={}){
     const invalidated=new Set([id]);for(const row of next.features)if(row.refs?.some(ref=>invalidated.has(ref)))invalidated.add(row.id);
     for(const row of next.features)if(invalidated.has(row.id))delete row.compiledCheckpoint;
   }
-  await rebuild(next,{...options,select:id});
+  await rebuild(next,{...options,select:options.origin==='agent'?null:id});
 }
 async function navigateHistory(direction,options={}){
   const source=direction==='undo'?undoStack:redoStack;if(!source.length||busy)return;
@@ -839,6 +844,7 @@ const ready=(async()=>{
 function getState(){return {revision,document:clone(documentModel),bodies:bodies.map(({id,name,geometryType,triangleCount,vertexCount,meshReport,previewOrigin,metricsDeferred,measurementStatus,boundsSource,adaptiveDisplay,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,badgeReport,threadReport,chainReport,constraintReport,reliefReport,refineReport,faceGroups,edges})=>({id,name,geometryType,triangleCount,vertexCount,meshReport,previewOrigin,metricsDeferred,measurementStatus,boundsSource,adaptiveDisplay,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,badgeReport,threadReport,chainReport,constraintReport,reliefReport,refineReport,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,dirty,preview:!!previewNext};}
 function aiState(){return {sessionId:pageSessionId,revision,dirty,documentId:documentModel.documentId,documentInstanceId,documentName:documentModel.name,referenceSystem:clone(documentModel.referenceSystem),features:clone(documentModel.features),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),bodies:bodies.map(({id,name,geometryType,triangleCount,vertexCount,meshReport,previewOrigin,metricsDeferred,measurementStatus,boundsSource,adaptiveDisplay,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,badgeReport,threadReport,chainReport,constraintReport,reliefReport,refineReport,faceGroups,edges})=>({id,name,geometryType,triangleCount,vertexCount,meshReport,previewOrigin,metricsDeferred,measurementStatus,boundsSource,adaptiveDisplay,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,badgeReport,threadReport,chainReport,constraintReport,reliefReport,refineReport,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,preview:!!previewNext,previewInfo:previewIdentity?clone(previewIdentity):null,previewScope:previewScopeReport?clone(previewScopeReport):null};}
 async function executeAI(command,args={},options={}){
+  const origin=options.origin==='agent'?'agent':'user';
   if(command==='file_save'){
     const snapshot=clone(documentModel),savedRevision=revision,instance=documentInstanceId,docId=snapshot.documentId;
     const bytes=await encodeCommittedProject(snapshot);
@@ -890,7 +896,9 @@ async function executeAI(command,args={},options={}){
     if(action==='body.align'){
       const plan=planBodyAlignment(a,bodies,documentModel.referenceSystem),ids=[];
       for(const move of plan.moves){const id=crypto.randomUUID();ids.push(id);next.features.push({id,op:'transform',name:'对齐 · '+(bodies.find(b=>b.id===move.bodyId)?.name||'实体'),params:{x:move.delta[0],y:move.delta[1],z:move.delta[2],rx:0,ry:0,rz:0,scale:1},refs:[move.bodyId]});for(const key of ['appearance','colors'])if(next[key]?.[move.bodyId])next[key][id]=next[key][move.bodyId];}
-      await rebuild(next,{...options,historyLabel:'快速对齐 '+ids.length+' 件',select:ids[0]});selectedIds=ids;viewport.setSelection(ids);refresh();return aiState();
+      await rebuild(next,{...options,historyLabel:'快速对齐 '+ids.length+' 件',select:origin==='agent'?null:ids[0]});
+      if(origin==='agent'){selectedIds=selectedIds.filter(id=>bodies.some(b=>b.id===id));viewport.setSelection(selectedIds,selectedTopology);}else{selectedIds=ids;viewport.setSelection(ids);}
+      refresh();return aiState();
     }
     if(action==='body.explode'){
       const source=bodies.find(b=>b.id===a.bodyId),ids=[];
@@ -900,7 +908,9 @@ async function executeAI(command,args={},options={}){
         if(next.appearance?.[source.id])next.appearance[id]=next.appearance[source.id];
         if(next.colors?.[source.id])next.colors[id]=next.colors[source.id];
       }
-      await rebuild(next,{...options,select:ids[0]});selectedIds=ids;viewport.setSelection(ids);refresh();return aiState();
+      await rebuild(next,{...options,select:origin==='agent'?null:ids[0]});
+      if(origin==='agent'){selectedIds=selectedIds.filter(id=>bodies.some(b=>b.id===id));viewport.setSelection(selectedIds,selectedTopology);}else{selectedIds=ids;viewport.setSelection(ids);}
+      refresh();return aiState();
     }
     if(action==='document.rename')next.name=a.name.trim();
     if(action==='feature.rename')next.features.find(f=>f.id===a.featureId).name=a.name.trim();
