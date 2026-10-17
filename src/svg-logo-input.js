@@ -24,7 +24,14 @@ function validateSvg(text){
   if(doc.querySelector('parsererror')||doc.documentElement?.localName!=='svg')fail('需要完整有效的 SVG');
   let visible=0,color=null;
   function walk(node,inherited={fill:'#000000',opacity:1,fillRule:'nonzero',stroke:'none'}){
-    const tag=node.localName;if(!allowedTags.has(tag))fail(`不支持 ${tag} 元素`);
+    const tag=node.localName;
+    // Accessible labels describe the source, never add machining contours.
+    // Keep the original bytes/hash; only text with an optional id is passive.
+    if(tag==='title'||tag==='desc'){
+      if(node.children.length||[...node.attributes].some(attr=>attr.name!=='id'))fail('title/desc 只接受纯文本及可选 id');
+      return;
+    }
+    if(!allowedTags.has(tag))fail(`不支持 ${tag} 元素`);
     const next={...inherited};
     for(const attr of node.attributes){const name=attr.localName,value=attr.value.trim();if(attr.name.startsWith('on')||attr.name.includes(':')&&attr.name!=='xmlns')fail('不允许事件、链接或命名空间属性');if(!common.has(name)&&!attributes[tag].has(name))fail(`不支持 ${name} 属性`);if(name==='style')for(const item of value.split(';').filter(Boolean)){const parts=item.split(':');if(parts.length!==2||!styles.has(parts[0].trim()))fail('只支持纯色填充样式');next[parts[0].trim().replace(/-([a-z])/g,(_,c)=>c.toUpperCase())]=parts[1].trim();}else if(name==='fill')next.fill=value;else if(name==='fill-rule')next.fillRule=value;else if(name==='stroke')next.stroke=value;else if(name==='opacity')next.opacity=Number(value);else if(name==='transform')validateTransform(value);
       else if(tag==='path'&&name==='d'){if(value.replace(/[MmLlHhVvCcSsQqTtAaZz]|[-+]?(?:\d*\.\d+|\d+\.?\d*)(?:[eE][-+]?\d+)?|[\s,]+/g,''))fail('路径含不支持的命令或语法');}
