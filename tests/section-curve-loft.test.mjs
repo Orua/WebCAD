@@ -30,3 +30,10 @@ test('section loft rejects invalid degree before building',()=>{
   assert.throws(()=>buildSectionCurveLoft({stations:[{},{}],loftDegree:1},cad),/2–8/);
   assert.throws(()=>buildSectionCurveLoft({stations:[{},{}],loftDegree:2.5},cad),/2–8/);
 });
+
+const straight=(count=3,profile)=>Array.from({length:count},(_,i)=>({centerMm:[0,0,i*5],normal:[0,0,1],widthDirection:[1,0,0],widthMm:2,depthMm:2,...(profile?{profile}:{})}));
+test('UP-18 explicit seam, compatibility switch and measured volume diagnostic',()=>{
+ const shape=buildSectionCurveLoft({stations:straight(),seamAngleDeg:90,autoAlign:false},cad);
+ try{assert.equal(shape.loftReport.stationsResolved[0].startAngleDeg,90);assert.equal(shape.loftReport.autoAlign,false);assert.ok(Math.abs(shape.loftReport.ratio-1)<.08);}finally{shape.delete();}
+ assert.throws(()=>buildSectionCurveLoft({stations:straight().map((s,i)=>({...s,widthMm:i===1?8:2})),volumeCheck:'error'},cad),e=>e.code==='LOFT_VOLUME_MISMATCH'&&e.report.ratio>1.15);
+});
