@@ -49,7 +49,7 @@ function schemaFor(id, source) {
     schema.properties.edgeIds.uniqueItems = true;
     schema.properties.faceIds.minItems = 1;
     schema.properties.faceIds.uniqueItems = true;
-    schema.anyOf = [{ required: ['edgeIds'] }, { required: ['faceIds'] }, { required: ['allEdges'], properties: { allEdges: { const: true } } }];
+    schema.anyOf = [{ required: ['edgeIds'] }, { required: ['faceIds'] }, { required: ['allEdges'], properties: { allEdges: { const: true } } },...(id==='fillet'?[{required:['selector']}]:[])];
   }
   if (id === 'shell') {
     schema.properties.faceIds.uniqueItems = true;

@@ -58,6 +58,8 @@ test('fusion and cut reject valid wrong material without changing committed bodi
     for(const [op,side] of [['union',5],['union',11],['cut',11]]){
       await kernel.rebuild({version:1,features:base,imports:{}});
       const committed=kernel.shapes,signature=[...kernel.historySignature],operation=kernel.operation.bind(kernel);
+      const builderKey=op==='union'?'BRepAlgoAPI_Fuse':'BRepAlgoAPI_Cut',rawBuilder=oc[builderKey],badResults=[];
+      oc[builderKey]=function(...args){const builder=new rawBuilder(...args),bad=cad.makeBox([0,0,0],[side,side,side]);badResults.push(bad);builder.Shape=()=>bad.wrapped;return builder;};
       kernel.operation=async(feature,shapes,...rest)=>{
         if(feature.op===op){
           const source=shapes.get(feature.refs[0]),clone=source.clone.bind(source);
@@ -65,7 +67,8 @@ test('fusion and cut reject valid wrong material without changing committed bodi
         }
         return operation(feature,shapes,...rest);
       };
-      await assert.rejects(kernel.rebuild({version:1,features:[...base,{...joined,op}],imports:{}}),{code:'GEOMETRY_INVALID',featureId:'result'});
+      try{await assert.rejects(kernel.rebuild({version:1,features:[...base,{...joined,op}],imports:{}}),{code:'GEOMETRY_INVALID',featureId:'result'});}
+      finally{oc[builderKey]=rawBuilder;badResults.forEach(shape=>shape.delete());}
       assert.equal(kernel.shapes,committed);assert.deepEqual(kernel.historySignature,signature);
       assert.ok(Math.abs(cad.measureVolume(kernel.shapes.get('target'))-1000)<1e-6);
       kernel.operation=operation;
