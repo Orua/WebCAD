@@ -122,7 +122,7 @@ export class CADViewport {
       if(!edges.children.length&&body.geometryType!=='rawMesh'){const outline=new THREE.LineSegments(new THREE.EdgesGeometry(geometry,25),new THREE.LineBasicMaterial({color:0x465b6e}));outline.userData={bodyId:body.id,type:'outline'};edges.add(outline);}
       root.add(edges);root.visible=!hidden.includes(body.id);this.modelRoot.add(root);this.objects.set(body.id,{root,mesh,edges,body,displayGroup,displayPatches});
       this.exactDisplayDetail.attach(this.objects.get(body.id));
-    });this.setDisplay(this.mode);this.setMetalFinish(this.finishKey);this.applyClipping();this.updateHud();
+    });if(this.grid?.position)this.grid.position.z=floorGridZ(bodies);this.setDisplay(this.mode);this.setMetalFinish(this.finishKey);this.applyClipping();this.updateHud();
   }
   setHidden(ids){this.hidden=ids;this.applyTemporaryDisplay();}
   setTemporaryDisplay(mode){if(!['normal','selectedOnly','transparentOthers'].includes(mode))throw new Error('未知临时显示方式');this.temporaryDisplay=mode;this.applyTemporaryDisplay();}
