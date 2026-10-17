@@ -7,7 +7,7 @@ function groups(shapes){
   while(pending.size){const group=[pending.values().next().value];pending.delete(group[0]);for(let k=0;k<group.length;k++)for(const i of [...pending])if([0,1,2].every(a=>boxes[i][0][a]<=boxes[group[k]][1][a]+1e-7&&boxes[group[k]][0][a]<=boxes[i][1][a]+1e-7)){group.push(i);pending.delete(i);}result.push(group);}
   return result;
 }
-export function robustUnion(shapes,{fuzzyMm=0,glue='off',toolIds=[],toolNames=[],measure=s=>Math.abs(cad.measureVolume(s)),allowFallback=true}={}){
+export function robustUnion(shapes,{fuzzyMm=0,glue='off',toolIds=[],toolNames=[],measure=s=>Math.abs(cad.measureVolume(s)),allowFallback=true,simplifyResult=true}={}){
   if(!Number.isFinite(fuzzyMm)||fuzzyMm<0||fuzzyMm>.1||!['off','shift','full'].includes(glue))throw Object.assign(new Error('fuzzyMm须为0–0.1mm，glue须为off/shift/full'),{code:'PARAM_SCHEMA_INVALID'});
   const oc=cad.getOC(),volumes=shapes.map(measure),lower=Math.max(...volumes),upper=volumes.reduce((a,b)=>a+b,0),start=performance.now(),attempts=[];
   function check(shape){
@@ -22,7 +22,7 @@ export function robustUnion(shapes,{fuzzyMm=0,glue='off',toolIds=[],toolNames=[]
     try{
       builder=new oc.BRepAlgoAPI_Fuse();args=new oc.NCollection_List_TopoDS_Shape();tools=new oc.NCollection_List_TopoDS_Shape();args.Append(items[0].wrapped);items.slice(1).forEach(s=>tools.Append(s.wrapped));
       builder.SetArguments(args);builder.SetTools(tools);builder.SetNonDestructive(true);builder.SetRunParallel(false);builder.SetFuzzyValue(fuzzyMm);builder.SetGlue(oc.BOPAlgo_GlueEnum[{off:'BOPAlgo_GlueOff',shift:'BOPAlgo_GlueShift',full:'BOPAlgo_GlueFull'}[glue]]);
-      progress=new oc.Message_ProgressRange();builder.Build(progress);if(!builder.IsDone()||builder.HasErrors())throw new Error('多参数布尔运算失败');builder.SimplifyResult(true,true,1e-7);return booleanFaceOrigins(items,cad.cast(builder.Shape()),builder);
+      progress=new oc.Message_ProgressRange();builder.Build(progress);if(!builder.IsDone()||builder.HasErrors())throw new Error('多参数布尔运算失败');if(simplifyResult)builder.SimplifyResult(true,true,1e-7);return booleanFaceOrigins(items,cad.cast(builder.Shape()),builder);
     }finally{[progress,tools,args,builder].forEach(dispose);}
   }
   let lastError;
@@ -35,7 +35,7 @@ export function robustUnion(shapes,{fuzzyMm=0,glue='off',toolIds=[],toolNames=[]
         if(clusters.length>1){for(const cluster of clusters)owned.push(fuse(cluster.map(i=>shapes[i])));result=fuse(owned);}
         else{strategy='sequential-fuse';result=copyFaceOrigins(shapes[0],shapes[0].clone());for(const tool of shapes.slice(1)){const next=fuse([result,tool]);dispose(result);result=next;}}
       }
-      const volumeAfter=check(result);result.booleanReport={strategy,attempts:[...attempts,{strategy,status:'completed'}],fuzzyMm,glue,volumeBefore:volumes,volumeAfter,elapsedMs:performance.now()-start};const output=result;result=null;return output;
+      const volumeAfter=check(result);result.booleanReport={strategy,attempts:[...attempts,{strategy,status:'completed'}],fuzzyMm,glue,simplified:simplifyResult,volumeBefore:volumes,volumeAfter,elapsedMs:performance.now()-start};const output=result;result=null;return output;
     }catch(error){lastError=error;attempts.push({strategy,status:'failed',message:String(error.message||error)});}
     finally{dispose(result);owned.forEach(dispose);}
   }
