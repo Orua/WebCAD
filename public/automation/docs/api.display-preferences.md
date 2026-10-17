@@ -3,6 +3,7 @@
 设置主菜单分风格、渲染设置、Services、精度、吸附、语言和参数。风格预设支持原绿色 #0c827d 和灰度 #666666；唯一配置经 getServices/setServices；授权只读 hasCredential，远程几何以实际已验收 capability 为准。dimensionPrecisionMm 默认0.01 mm、范围0.000001–10；anglePrecisionDeg 默认0.1°、范围0.000001–90。只用于鼠标交互移动/旋转步长；手工输入、表达式和 API 显式数值按原值建模，预览与提交一致。显示设置和步长不改写几何，内核容差独立。工具卡 numericInputPolicy 及参数 unit/quantityKind/quantizationPolicy 公开数值语义；执行回执 numericInput 提供 requestedParams/effectiveParams。themeColor 为 #RRGGBB，默认 #2563eb；snapThresholdMm 为 0–10 mm，默认0.2（20丝），0关闭拖动吸附。吸附后下一次拖动跳过吸附。透视+边线显示曲面三角网格，只是显示网格，不是精确等参线。setDisplayPreferences({context,values})：defaultColor/background 为 #RRGGBB，defaultFinish 为材质键；environmentMode 为 studio（产品摄影棚侧光，默认）或 hdr（原 HDR）。exposure 0.1–3；environmentIntensity 0–3；environmentRotation/lightAzimuth -180–180 度（绕世界Z）；lightElevation -89–89 度；roughnessOffset 0–0.6（只影响金属）；keyIntensity/fillIntensity/ambientIntensity 0–6。字段均可部分更新。getState().displayPreferences 读当前值。cookie 保存一年，同源浏览器自动读取，persisted=false 表示未持久化。全局设置不属于工程撤销历史；单体显式颜色和材质优先，工程 document.appearance finish:null 跟随全局，否则保持工程覆盖。UI 可选标准、柔和、明暗对比预设或恢复默认。studio 使用与 CadViewer 相同的侧上方长条柔光箱、背侧轮廓光与暗反射区；lightAzimuth/lightElevation 控制相机坐标中的主光方向（默认 -65°/25°），environmentRotation 在此模式附加主光方位偏转。hdr 保留原世界环境和方向约定。曝光与定制灯光保持可调；仅与原默认灯光全部相同的旧 Cookie 自动采用新默认，自定义灯光保留。环境反射方向与直接光源方向是不同设置；金属实物显示对可见不透明实体自动增加基于深度与法线的局部遮蔽，凹槽/LOGO槽壁附近变暗，不修改几何或实际深度。setView({display:"solid"}) 隐藏辅助边线仍保留遮蔽；display:"edges" 使用柔和金属边线，选中与选边高亮保持清晰。纯线框、透明显示不启用遮蔽。getState().display.metalRendering 读回实际启用状态、采样数及投影。遮蔽是屏幕空间近似，仅使用当前可见表面，不代表离线光线追踪或隐藏表面的完整阴影。金属凹凸不等于实体几何缺陷。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -86,6 +87,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none

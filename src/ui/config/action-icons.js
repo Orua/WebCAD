@@ -4,6 +4,7 @@ const profile=['M3 19V5h7l3 6h8v8Z'];
 const move=['M12 3v18 M3 12h18 M9 6l3-3 3 3 M9 18l3 3 3-3 M6 9l-3 3 3 3 M18 9l3 3-3 3'];
 const rotate=['M4 10a8 8 0 1 1 1 8 M4 4v6h6'];
 export const ACTION_ICONS={
+ guidedLoft:'<path d="M4 19C8 16 6 8 10 5M14 19C18 16 16 8 20 5M4 19h10M10 5h10M7 12h10"/>',
  bumpSet:['M3 18h18 M4 18v-4a3 3 0 0 1 6 0v4 M9 18V9a3 3 0 0 1 6 0v9 M14 18v-5a3 3 0 0 1 6 0v5'],
  subdBody:['M4 7Q12 1 20 7V17Q12 23 4 17Z M4 7Q12 13 20 7 M12 4V21 M4 12Q12 18 20 12'],
  folder:['M3 7h7l2 2h9v11H3Z'],

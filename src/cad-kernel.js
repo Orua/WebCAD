@@ -25,6 +25,7 @@ import {finishBooleanBlend} from './modeling/boolean-blend.js';
 import {buildBumpSet} from './bump-set.js';
 import {buildSubdBRep} from './subd-brep.js';
 import {applySubdBrushes} from './subd-brushes.js';
+import {buildBoundGuidedLoft} from './guided-loft-binding.js';
 import {renderQuality} from './render-quality.js';
 import {EXACT_DISPLAY} from './viewport/exact-display-policy.js';
 import {displayEdges,displayMetadata,isPlanarPolygon} from './modeling/io/adaptive-display.js';
@@ -88,7 +89,7 @@ function placeCreation(shape,placement){
   if(axisLength>1e-12){const rotated=out.rotate(2*Math.atan2(axisLength,w)*180/Math.PI,[0,0,0],[x/axisLength,y/axisLength,z/axisLength]);dispose(out);out=rotated;}
   const translated=out.translate(...frame.origin);dispose(out);
   if(shape.chainReport)translated.chainReport=shape.chainReport;
-  for(const key of ['subdApproximation','loftReport','variationReport','blendRadiusReport','radiusSearchReport','warnings'])if(shape[key]!==undefined)translated[key]=shape[key];
+  for(const key of ['guidedLoftReport','subdApproximation','loftReport','variationReport','blendRadiusReport','radiusSearchReport','warnings'])if(shape[key]!==undefined)translated[key]=shape[key];
   if(shape.threadReport){const r=shape.threadReport;translated.threadReport={...r,axisOrigin:worldPoint(frame,r.axisOrigin.map((v,i)=>v-sourcePoint[i])),axisDirection:rotateVector(frame.quaternion,r.axisDirection),coordinateSystem:'world'};}
   return translated;
 }
@@ -262,6 +263,7 @@ export class CadKernel {
         return new MeshShape(result.mesh,{sourceBytes:original.sourceBytes,sourceHash:original.sourceHash,units:'mm',sourceFormat:'edited-mesh',report:{...original.report,edit:result.report}});
       }
       case 'bumpSet': return buildBumpSet(source(),p,feature.id,refs[0]);
+      case 'guidedLoft': return buildBoundGuidedLoft(feature,shapes,historyFeatures,cad);
       case 'subdBody': return buildSubdBRep({...p,cage:applySubdBrushes(p.cage,p.brushes)},cad);
       case 'quickModel': return buildQuickModel(p, cad, {oc:this.oc,roundAll:(shape,radius)=>buildSmoothTransition(shape,{radius,allEdges:true})});
       case 'advancedLoft': return buildAdvancedLoft(p,cad);
@@ -818,6 +820,7 @@ export class CadKernel {
       if(shape.variationReport)measured.variationReport=shape.variationReport;
       if(shape.booleanReport)measured.booleanReport=shape.booleanReport;
       if(shape.loftReport)measured.loftReport=shape.loftReport;
+      if(shape.guidedLoftReport)measured.guidedLoftReport=shape.guidedLoftReport;
       if(shape.blendRadiusReport)measured.blendRadiusReport=shape.blendRadiusReport;
       if(shape.radiusSearchReport)measured.radiusSearchReport=shape.radiusSearchReport;
       if(shape.warnings)measured.warnings=shape.warnings;
@@ -906,7 +909,7 @@ export class CadKernel {
           active.set(current, feature);
           initializeFaceOrigins(shape,feature);
         }
-       const keepOriginal = ['badge','copy','planeSection','faceBoundary','extractFaces','extractShell','surfaceTrim','referenceExtrude','referenceLoft','profileOffset','profileRepair',...mechanicalPreservedIds].includes(feature.op) || (['mirror','extractSolid'].includes(feature.op) && feature.params?.keepOriginal !== false);
+       const keepOriginal = ['guidedLoft','badge','copy','planeSection','faceBoundary','extractFaces','extractShell','surfaceTrim','referenceExtrude','referenceLoft','profileOffset','profileRepair',...mechanicalPreservedIds].includes(feature.op) || (['mirror','extractSolid'].includes(feature.op) && feature.params?.keepOriginal !== false);
         if (feature.op==='profileExtrude') { if(feature.refs?.[1])active.delete(feature.refs[1]); }
         else if(profileSolidIds.includes(feature.op)){if((feature.params?.operation??'newBody')!=='newBody')active.delete(feature.refs.at(-1));}
         else if(['union','cut','intersect'].includes(feature.op)&&feature.params?.keepTools===true){active.delete(feature.refs?.[0]);}

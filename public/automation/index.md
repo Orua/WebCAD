@@ -1,13 +1,14 @@
 # WebCAD 页面 API 索引
 
-API 1.52.1 · 操作目录 sha256:36c40a80bbcaf5e1568fed5ab3e5bd3ffbabdb868d3443665c38e79097308f96
+API 1.52.1 · 操作目录 sha256:dec82f4772386b61d55288687069cbb37b5155a2fe1ba5f9c4ea8e6f8486c69b
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
-长度 mm、角度 degrees、体积 mm³。严格契约：badge、meshHeightfieldRelief、meshBoolean、logo、union、cut、intersect、transform、copy、reliefShoulder、meshReliefPlate、meshReliefEdit、box、cylinder、sphere、cone、torus、mirror、linearPattern、circularPattern、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、tap、faceHole、round、roundEnd、rounding、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude、profileRevolve、profileSweep、profileLoft、offsetSolid、offsetSurface、draftByPlane、helix、coil、thread、profileConstraints、faceGroove、innerTurn、outerTurn、refineShape、relief；其余操作为 advisory。
+长度 mm、角度 degrees、体积 mm³。严格契约：guidedLoft、subdBody、bumpSet、badge、meshHeightfieldRelief、meshBoolean、logo、union、cut、intersect、transform、copy、reliefShoulder、meshReliefPlate、meshReliefEdit、box、cylinder、sphere、cone、torus、mirror、linearPattern、circularPattern、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、tap、faceHole、round、roundEnd、rounding、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude、profileRevolve、profileSweep、profileLoft、offsetSolid、offsetSurface、draftByPlane、helix、coil、thread、profileConstraints、faceGroove、innerTurn、outerTurn、refineShape、relief；其余操作为 advisory。
 
 ## 页面方法
 
+- `probeBlendRadius`
 - `recoverKernel`
 - `sampleMeshRelief`
 - `getModelLibrary`
@@ -94,6 +95,7 @@ API 1.52.1 · 操作目录 sha256:36c40a80bbcaf5e1568fed5ab3e5bd3ffbabdb868d3443
 - `files.import`
 - `files.save`
 - `files.export`
+- `files.reattach`
 - `files.read`
 - `files.download`
 - `files.write`
@@ -107,12 +109,13 @@ API 1.52.1 · 操作目录 sha256:36c40a80bbcaf5e1568fed5ab3e5bd3ffbabdb868d3443
 - `autoRound` · migrated · 整件圆边 / Round every sharp edge of one solid
 - `badge` · migrated · 牌仔工具 / Thicken a planar face into an edge-rounded badge
 - `box` · migrated · Box from [0,0,0] to [width,depth,height]
+- `bumpSet` · migrated · 批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once
 - `chamfer` · migrated · Equal-distance, two-distance or distance-angle chamfer of sharp edges
 - `circularPattern` · migrated · Rotated copies as a compound or explicitly fused solid
 - `coil` · migrated · Sweep a circular wire section along an exact helix to create a single spring solid
 - `cone` · migrated · Cone/frustum along +Z
 - `copy` · migrated · Copy with scale, rotation and translation
-- `curveSweep` · advisory · Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections
+- `curveSweep` · advisory · Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine
 - `curvedLogo` · advisory · Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work
 - `cut` · migrated · Subtract other bodies from first
 - `cylinder` · migrated · Cylinder on +Z from origin
@@ -129,6 +132,7 @@ API 1.52.1 · 操作目录 sha256:36c40a80bbcaf5e1568fed5ab3e5bd3ffbabdb868d3443
 - `fillet` · migrated · Round sharp edges, shared face edges, face boundaries or the whole solid
 - `fittedSurface` · advisory · Fit a single B-spline face to a structured point grid
 - `group` · advisory · Group bodies as a compound without fusing
+- `guidedLoft` · migrated · 导向放样 / Framed sections, boundary guides and actual G1/G2 source jets
 - `helix` · migrated · Create an exact helical wire in the creation frame
 - `hole` · migrated · Cylindrical cut starting at global coordinates
 - `holeWizard` · migrated · Exact plain, counterbore, or countersink hole with flat or angled blind drill point
@@ -175,6 +179,7 @@ API 1.52.1 · 操作目录 sha256:36c40a80bbcaf5e1568fed5ab3e5bd3ffbabdb868d3443
 - `smoothTransition` · migrated · 平滑过渡 / Smooth shared seams of adjacent faces together
 - `sphere` · migrated · Sphere centered at origin
 - `split` · advisory · Split body by an offset global plane
+- `subdBody` · migrated · 细分曲面体 / Catmull–Clark cage to sewn B-spline solid
 - `surfaceTrim` · advisory · 按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。
 - `sweep` · advisory · Sweep profile along a 3D polyline
 - `tap` · migrated · Tap a blind threaded hole perpendicular to a planar face
@@ -239,6 +244,7 @@ API 1.52.1 · 操作目录 sha256:36c40a80bbcaf5e1568fed5ab3e5bd3ffbabdb868d3443
 - `template.uEndHolePlate` · advisory · 半圆冠与两条等宽直腿连成一块平板，直腿末端各有一个贯穿孔；内外冠同心，孔沿厚度方向贯穿。适合源图确认的单片 U 件，不含另一装配件、螺纹或截面圆杆。
 - `template.arcBandPlate` · advisory · 同心圆弧带板，角度、厚度、两端孔距与沉孔独立输入；用于分体环段，螺纹和装配件须另建。
 - `template.gableOpenFrame` · advisory · 两只直腿与屋顶形斜肩组成开口框，端部按指定 R 做两段圆角与短平底。内外宽、内外肩高、内外峰高、板厚分别输入。
+- `probeBlendRadius` · page-method · probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?:0.75,maxAttempts?:6})；selector同语义圆角工具卡。
 - `recoverKernel` · page-method · recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。
 - `sampleMeshRelief` · page-method · sampleMeshRelief({context,bodyId,inputGeometryHash,support:{originMm,xAxis,normal},pointsMm:[[U,V],…]})；明确毫米支撑，1–256个点，点数乘三角面数不得超过1200万。
 - `getModelLibrary` · page-method · getModelLibrary()
@@ -352,6 +358,7 @@ API 1.52.1 · 操作目录 sha256:36c40a80bbcaf5e1568fed5ab3e5bd3ffbabdb868d3443
 - `files.import` · browser-file-adapter · import({context,resourceId,units?,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP or binary STL/mesh resource. Mesh requires explicit units and idempotencyKey; read api.mesh-assets. Exact-source typed imports preserve optional legacy key behavior; supply idempotencyKey for replay protection; read api.exact-source-assets. When placement is present, idempotencyKey is required; run batch injects its own step key.
 - `files.save` · browser-file-adapter · save({context,name?}); complete current context.
 - `files.export` · browser-file-adapter · export({context,format,ids?,name?}); format step/stl/brep/png.
+- `files.reattach` · browser-file-adapter · reattach({context,resourceId}); 使用尚未过期的已生成资源，重新附加到当前任务。
 - `files.read` · browser-file-adapter · read({resourceId,as?}); as is blob (default) or bytes.
 - `files.download` · browser-file-adapter · download({resourceId}); generated output only.
 - `files.write` · browser-file-adapter · write({resourceId,handle}); previously authorized FileSystemFileHandle.

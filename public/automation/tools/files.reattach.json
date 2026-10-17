@@ -1,0 +1,59 @@
+{
+  "id": "files.reattach",
+  "title": "files.reattach",
+  "category": "file",
+  "version": "1.52.1",
+  "contextPolicy": "none",
+  "label": "reattach",
+  "synonyms": [
+    "reattach",
+    "reattach"
+  ],
+  "description": "reattach({context,resourceId}); 使用尚未过期的已生成资源，重新附加到当前任务。",
+  "inputContract": "reattach({context,resourceId}); 使用尚未过期的已生成资源，重新附加到当前任务。",
+  "outputContract": "status=generated，返回原文件名、字节数和SHA256；宿主重新传输原字节，不重建几何、不覆盖原命令终态。RESOURCE_EXPIRED须重新生成。",
+  "units": {
+    "length": "mm",
+    "angle": "degrees"
+  },
+  "implementationStatus": "page-adapter",
+  "contractStatus": "browser-file-adapter",
+  "runtimeAvailability": "requires_ready_page",
+  "argumentKeys": [
+    "context",
+    "resourceId"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.reattach\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
+  "limits": {
+    "maxBytes": 104857600,
+    "maxResources": 32,
+    "maxTotalBytes": 536870912,
+    "ttlSeconds": 1800
+  },
+  "typedByteBudgets": {
+    "step": 134217728,
+    "stp": 134217728,
+    "brep": 134217728,
+    "brp": 134217728,
+    "stl": 134217728,
+    "mesh": 402653184,
+    "webcad": 536870912
+  },
+  "additionalDocs": [
+    "api.exact-source-assets",
+    "api.mesh-assets"
+  ],
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "caveats": [],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "RESOURCE_EXPIRED",
+    "ASSET_INVALID"
+  ],
+  "docsHash": "sha256:c663ca9d28cdd1c64b40c03c5a5c161dcdf13a3bf39ea39993ae12963edb986a"
+}

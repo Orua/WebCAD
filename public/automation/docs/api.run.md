@@ -8,6 +8,7 @@ add 是 feature.add 的适配器，自动读取当前工具版本/schemaHash，�
 files.save/export 返回 generated 资源，未证明磁盘保存；脚本客户端再 files.read/download/write，面板使用“下载”按钮只证明发起下载。新建/打开工程和截图使用专用页面 API，不属于批次。几何修改由旧有命令队列执行，其他 UI/客户端插入修改后批次停止，不自动接受新 revision。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -91,6 +92,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none

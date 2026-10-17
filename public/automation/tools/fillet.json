@@ -5,9 +5,49 @@
     "type": "object",
     "properties": {
       "radius": {
-        "type": "number",
-        "description": "Fillet radius (mm)",
-        "exclusiveMinimum": 0,
+        "oneOf": [
+          {
+            "type": "number",
+            "description": "Exact radius in mm (mm)",
+            "exclusiveMinimum": 0,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "maxMm",
+              "minMm"
+            ],
+            "properties": {
+              "maxMm": {
+                "type": "number",
+                "description": "Maximum sampled radius (mm)",
+                "exclusiveMinimum": 0
+              },
+              "minMm": {
+                "type": "number",
+                "description": "Minimum radius (mm)",
+                "exclusiveMinimum": 0
+              },
+              "stepRatio": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "exclusiveMaximum": 1
+              },
+              "maxAttempts": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 6
+              }
+            },
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          }
+        ],
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -51,6 +91,169 @@
       "allEdges": {
         "type": "boolean",
         "description": "Explicitly process every sharp edge of the body"
+      },
+      "blendLaw": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "startRadiusMm",
+          "endRadiusMm"
+        ],
+        "properties": {
+          "startRadiusMm": {
+            "type": "number",
+            "description": "Edge start radius (mm)",
+            "exclusiveMinimum": 0
+          },
+          "endRadiusMm": {
+            "type": "number",
+            "description": "Edge end radius (mm)",
+            "exclusiveMinimum": 0
+          }
+        }
+      },
+      "selector": {
+        "type": "object",
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "faceIds"
+            ]
+          },
+          {
+            "required": [
+              "edgeIds"
+            ]
+          },
+          {
+            "required": [
+              "allEdges"
+            ]
+          },
+          {
+            "required": [
+              "seamBetween"
+            ]
+          },
+          {
+            "required": [
+              "edgesNear"
+            ]
+          },
+          {
+            "required": [
+              "facesFromFeature"
+            ]
+          }
+        ],
+        "properties": {
+          "faceIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 1,
+            "maxItems": 128,
+            "uniqueItems": true,
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          },
+          "edgeIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 1,
+            "maxItems": 128,
+            "uniqueItems": true,
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          },
+          "allEdges": {
+            "const": true
+          },
+          "seamBetween": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "a",
+              "b"
+            ],
+            "properties": {
+              "a": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              },
+              "b": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              }
+            }
+          },
+          "edgesNear": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pointMm",
+              "radiusMm"
+            ],
+            "properties": {
+              "pointMm": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "radiusMm": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "sharpOnly": {
+                "type": "boolean"
+              }
+            }
+          },
+          "facesFromFeature": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "featureId"
+            ],
+            "properties": {
+              "featureId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "all",
+                  "side",
+                  "cap"
+                ]
+              }
+            }
+          }
+        }
       }
     },
     "required": [
@@ -78,6 +281,11 @@
             "const": true
           }
         }
+      },
+      {
+        "required": [
+          "selector"
+        ]
       }
     ]
   },
@@ -133,7 +341,7 @@
     "半径"
   ],
   "description": "Round sharp edges, shared face edges, face boundaries or the whole solid",
-  "schemaHash": "sha256:6a30edc68970a527e9e6155563f5b79edfb5db35d7a984dd7e958f33f8ccc69b",
+  "schemaHash": "sha256:ac92b6d61d49f22dc8a989da548d4c513a11dd8f09bcf7ebbb3a4e13eaf7904b",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -284,10 +492,10 @@
     ],
     "params": {
       "radius": {
-        "meaning": "Fillet radius (mm)",
+        "meaning": "radius: Round sharp edges, shared face edges, face boundaries or the whole solid",
         "unit": "mm",
         "range": [
-          0,
+          null,
           null
         ]
       },
@@ -326,6 +534,28 @@
       },
       "allEdges": {
         "meaning": "Explicitly process every sharp edge of the body",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendLaw": {
+        "meaning": "blendLaw: Round sharp edges, shared face edges, face boundaries or the whole solid",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "selector": {
+        "meaning": "selector: Round sharp edges, shared face edges, face boundaries or the whole solid",
         "unit": "none",
         "range": [
           null,
@@ -602,5 +832,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:f5679a50265fde444dbee8061cfe791e71bdb06fec1a50d323d4e82294889495"
+  "docsHash": "sha256:aa1554d5250571ba112a3d9818648fe5d2569ef6bf95b399087389e9e1ffe6a8"
 }

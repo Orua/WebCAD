@@ -28,5 +28,8 @@ assert.equal(result.bodies[0].solidCount,1);
 const form={elements:{namedItem:()=>({value:'[[1,2,3]]'})}};
 assert.deepEqual(readAdvancedJson(form,[['points','','','json']]).points,[[1,2,3]]);
 form.elements.namedItem=()=>({value:'not json'});assert.throws(()=>readAdvancedJson(form,[['points','','','json']]),/JSON/);
+form.elements.namedItem=()=>({value:'{"featureId":"source","end":"end"}'});assert.deepEqual(readAdvancedJson(form,[['matchTo','','','jsonObjectOptional']]).matchTo,{featureId:'source',end:'end'});
+form.elements.namedItem=()=>({value:''});assert.deepEqual(readAdvancedJson(form,[['matchTo','','','jsonObjectOptional']]),{});
+form.elements.namedItem=()=>({value:'[]'});assert.throws(()=>readAdvancedJson(form,[['matchTo','','','jsonObjectOptional']]),/对象/);
 console.log('PASS UI defaults -> real kernel, fitted face -> thick solid -> curved engraving, STP, JSON parsing');
 kernel.dispose();

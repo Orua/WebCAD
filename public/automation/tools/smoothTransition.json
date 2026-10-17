@@ -5,9 +5,49 @@
     "type": "object",
     "properties": {
       "radius": {
-        "type": "number",
-        "description": "Exact transition radius; no automatic reduction (mm)",
-        "exclusiveMinimum": 0,
+        "oneOf": [
+          {
+            "type": "number",
+            "description": "Exact radius in mm (mm)",
+            "exclusiveMinimum": 0,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "maxMm",
+              "minMm"
+            ],
+            "properties": {
+              "maxMm": {
+                "type": "number",
+                "description": "Maximum sampled radius (mm)",
+                "exclusiveMinimum": 0
+              },
+              "minMm": {
+                "type": "number",
+                "description": "Minimum radius (mm)",
+                "exclusiveMinimum": 0
+              },
+              "stepRatio": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "exclusiveMaximum": 1
+              },
+              "maxAttempts": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 6
+              }
+            },
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          }
+        ],
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -28,13 +68,167 @@
         "unit": "1",
         "quantityKind": "index",
         "quantizationPolicy": "none"
+      },
+      "selector": {
+        "type": "object",
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "faceIds"
+            ]
+          },
+          {
+            "required": [
+              "edgeIds"
+            ]
+          },
+          {
+            "required": [
+              "allEdges"
+            ]
+          },
+          {
+            "required": [
+              "seamBetween"
+            ]
+          },
+          {
+            "required": [
+              "edgesNear"
+            ]
+          },
+          {
+            "required": [
+              "facesFromFeature"
+            ]
+          }
+        ],
+        "properties": {
+          "faceIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 1,
+            "maxItems": 128,
+            "uniqueItems": true,
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          },
+          "edgeIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 1,
+            "maxItems": 128,
+            "uniqueItems": true,
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          },
+          "allEdges": {
+            "const": true
+          },
+          "seamBetween": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "a",
+              "b"
+            ],
+            "properties": {
+              "a": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              },
+              "b": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              }
+            }
+          },
+          "edgesNear": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pointMm",
+              "radiusMm"
+            ],
+            "properties": {
+              "pointMm": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "radiusMm": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "sharpOnly": {
+                "type": "boolean"
+              }
+            }
+          },
+          "facesFromFeature": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "featureId"
+            ],
+            "properties": {
+              "featureId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "all",
+                  "side",
+                  "cap"
+                ]
+              }
+            }
+          }
+        }
       }
     },
     "required": [
-      "radius",
-      "faceIds"
+      "radius"
     ],
     "additionalProperties": false,
+    "anyOf": [
+      {
+        "required": [
+          "faceIds"
+        ]
+      },
+      {
+        "required": [
+          "selector"
+        ]
+      }
+    ],
     "$schema": "https://json-schema.org/draft/2020-12/schema"
   },
   "refsSchema": {
@@ -76,7 +270,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs.",
   "title": "平滑过渡 / Smooth shared seams of adjacent faces together",
   "category": "modification",
   "synonyms": [
@@ -89,7 +283,7 @@
     "blend"
   ],
   "description": "平滑过渡 / Smooth shared seams of adjacent faces together",
-  "schemaHash": "sha256:77bedf1c5f47ad01ecca444ca42c116ffdad959e18c64e185f6acd1f7c4ec1aa",
+  "schemaHash": "sha256:fb0d51e2449fc358f6995d9b0ff1186b058205fcef766c048b62ba6f18276dbe",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -151,7 +345,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction."
+    "Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs."
   ],
   "minimalExample": {
     "op": "smoothTransition",
@@ -233,7 +427,7 @@
   "contract": {
     "purpose": "平滑过渡 / Smooth shared seams of adjacent faces together",
     "whenToUse": [
-      "Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction."
+      "Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs."
     ],
     "whenNotToUse": [
       {
@@ -243,10 +437,10 @@
     ],
     "params": {
       "radius": {
-        "meaning": "Exact transition radius; no automatic reduction (mm)",
+        "meaning": "radius: 平滑过渡 / Smooth shared seams of adjacent faces together",
         "unit": "mm",
         "range": [
-          0,
+          null,
           null
         ]
       },
@@ -256,7 +450,21 @@
         "range": [
           2,
           128
-        ]
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "selector": {
+        "meaning": "selector: 平滑过渡 / Smooth shared seams of adjacent faces together",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
       }
     },
     "refs": {
@@ -421,7 +629,7 @@
   },
   "purpose": "平滑过渡 / Smooth shared seams of adjacent faces together",
   "whenToUse": [
-    "Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction."
+    "Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs."
   ],
   "whenNotToUse": [
     {
@@ -528,5 +736,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:bfd6e7eae5f0cc138fe2a26ba6c356a68dc16cfea4c69ff25208a70d05817a7b"
+  "docsHash": "sha256:db0b0d03910bb7a78fe67f157a0339af7e930cbc6560ae1a672df5132589d9bc"
 }

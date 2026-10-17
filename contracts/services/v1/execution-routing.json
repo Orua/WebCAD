@@ -179,8 +179,9 @@
     "surfaceTrim"
   ],
   "localOnlyOperations": [
-    "subdBody",
+    "guidedLoft",
     "bumpSet",
+    "subdBody",
     "badge",
     "arcProfile",
     "box",

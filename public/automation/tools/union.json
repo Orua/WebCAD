@@ -7,6 +7,53 @@
       "keepTools": {
         "type": "boolean",
         "description": "Keep original tools"
+      },
+      "fuzzyMm": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 0.1,
+        "description": "Explicit Boolean fuzzy tolerance in mm; default 0, never raised automatically."
+      },
+      "glue": {
+        "type": "string",
+        "enum": [
+          "off",
+          "shift",
+          "full"
+        ],
+        "description": "Explicit OCCT glue mode; default off."
+      },
+      "blendRadiusMm": {
+        "type": "number",
+        "description": "Requested seam radius (mm)",
+        "exclusiveMinimum": 0
+      },
+      "blendMode": {
+        "type": "string",
+        "enum": [
+          "fillet",
+          "variable"
+        ]
+      },
+      "blendLaw": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "startRadiusMm",
+          "endRadiusMm"
+        ],
+        "properties": {
+          "startRadiusMm": {
+            "type": "number",
+            "description": "Edge start radius (mm)",
+            "exclusiveMinimum": 0
+          },
+          "endRadiusMm": {
+            "type": "number",
+            "description": "Edge end radius (mm)",
+            "exclusiveMinimum": 0
+          }
+        }
       }
     },
     "required": [],
@@ -41,7 +88,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Uses one non-destructive multi-argument fuse, validates BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers.",
   "title": "Fuse bodies",
   "category": "modification",
   "synonyms": [
@@ -55,7 +102,7 @@
     "boolean union"
   ],
   "description": "Fuse bodies",
-  "schemaHash": "sha256:5143c4245959c18326b2db7990b2e05707f9f05a251cb7a94853743eb39c33b5",
+  "schemaHash": "sha256:964d5a7a3965daf668e418984d1017ac991e9093dc74b97c52ef2ac9d3c9bd35",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -116,7 +163,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range."
+    "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Uses one non-destructive multi-argument fuse, validates BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers."
   ],
   "minimalExample": {
     "op": "union",
@@ -180,7 +227,7 @@
   "contract": {
     "purpose": "Fuse bodies",
     "whenToUse": [
-      "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range."
+      "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Uses one non-destructive multi-argument fuse, validates BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers."
     ],
     "whenNotToUse": [
       {
@@ -191,6 +238,61 @@
     "params": {
       "keepTools": {
         "meaning": "Keep original tools",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "fuzzyMm": {
+        "meaning": "Explicit Boolean fuzzy tolerance in mm; default 0, never raised automatically.",
+        "unit": "mm",
+        "range": [
+          0,
+          0.1
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "glue": {
+        "meaning": "Explicit OCCT glue mode; default off.",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendRadiusMm": {
+        "meaning": "Requested seam radius (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendMode": {
+        "meaning": "blendMode: Fuse bodies",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendLaw": {
+        "meaning": "blendLaw: Fuse bodies",
         "unit": "none",
         "range": [
           null,
@@ -331,7 +433,7 @@
   },
   "purpose": "Fuse bodies",
   "whenToUse": [
-    "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range."
+    "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Uses one non-destructive multi-argument fuse, validates BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers."
   ],
   "whenNotToUse": [
     {
@@ -423,5 +525,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:79d092d1b431f03efa8928fb5a4567c3ba7e8e36d156c5677b6dfacb8f48e601"
+  "docsHash": "sha256:c17f914ca99efe8549740bb32784fd9be90ebc54c208cb61cd1386870c12795a"
 }

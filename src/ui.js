@@ -341,7 +341,7 @@ export function createUI(root,callbacks={}) {
   return addAdvancedField(form,spec,value,element)||addBasicField(form,spec,value);
  }
  function readParams(form,specs,base={}){
-  const params=readBasicParams(form,specs.filter(spec=>!['json','jsonObject','bossPoints3','edgeIds','stationRows'].includes(spec[3])),base);
+  const params=readBasicParams(form,specs.filter(spec=>!['json','jsonObject','jsonObjectOptional','bossPoints3','edgeIds','stationRows'].includes(spec[3])),base);
   if(specs.some(spec=>spec[3]==='stationRows')&&params.mode==='variable'){
    const raw=form.elements.namedItem('stationRows')?.value.trim()||'';
    const rows=raw?raw.split(/[;；\n]+/).map(line=>line.trim()).filter(Boolean):[];

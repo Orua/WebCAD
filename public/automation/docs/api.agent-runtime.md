@@ -3,6 +3,7 @@
 WebCAD是Agent适配代码与方法白名单的唯一维护源。window.webcad.agent.createHostAdapter由当前页面构建提供，宿主不复制protocol.js。connect返回agentProtocol与agentSoftware；后端按buildId、catalogHash、docsHash、contractHash下载有限软件包，逐文件核对SHA256/长度。版本改变暂停新写入、核对原回执、重握手和重新准备知识；不刷新未保存工程，不重放未知命令。files.save独立于几何内核并读取最后已提交版本，包括计算、预览或恢复期间。recoverKernel使用当前context；stopRunning默认false。连接recover:true要求宿主恢复通道；内核未就绪时另用recoverKernel，不伪造ready。仅本地运算超过localTimeoutMs改为等待提醒，继续同一计算而非终止或建议不存在的Services；初始化仍有保护时限。远程作业仍遵循Services能力及原jobId/等待决定。固定件优先group复合体；它减少对象管理但不会减少三角面/曲面，union仅用于应成为同一实体的接触材料，不融合钻石和环体改变来源。保存的compiled checkpoint可减少重建；保留配方，明确source/revision/recipe与hash。钻石布局在已下载的layout-planner.py上由webcad_docs(method=planLayout,args={layout})计算，不使用shell或浏览器内核。先按源几何读出毫米尺寸和轴系；规划器不猜图。返回world positions/normals/quaternions、实际间距与sourceBinding。使用完整copy/transform/placement卡批量插入，一次feature.addMany重建，只提交有界分组；错误核对原回执再继续未完成项。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -86,6 +87,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none

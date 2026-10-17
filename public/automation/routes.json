@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
   "pageApiVersion": "1.52.1",
-  "buildId": "3a4e9313173573bdad21bb26fb38f4f0e268018b-src-2f2f2703141c4381-working",
-  "catalogHash": "sha256:36c40a80bbcaf5e1568fed5ab3e5bd3ffbabdb868d3443665c38e79097308f96",
-  "docsHash": "sha256:7a4e4248373ee90f94474707a3bd1f62d1fdf1c54e6e63cd645fc7b1dbd11b48",
+  "buildId": "887a872bb47c554afd55719c43f9c39457d0cc91-src-78174d528310182d-working",
+  "catalogHash": "sha256:dec82f4772386b61d55288687069cbb37b5155a2fe1ba5f9c4ea8e6f8486c69b",
+  "docsHash": "sha256:73bb885674fe20cf50e963256e09bc42c9b117c4221392a325eb1cfc03870b98",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -99,6 +99,13 @@
     "box": {
       "tools": [
         "box"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "bumpSet": {
+      "tools": [
+        "bumpSet"
       ],
       "method": "execute",
       "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
@@ -357,6 +364,13 @@
       "method": "execute",
       "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
     },
+    "floorSelected": {
+      "tools": [
+        "transform"
+      ],
+      "method": "execute",
+      "usage": "将选中实体的包围盒最低 Z 平移到 0 mm；以已有 transform 特征记录，可撤销并随上游重建。"
+    },
     "gizmo": {
       "tools": [
         "setView"
@@ -395,6 +409,13 @@
     "group": {
       "tools": [
         "group"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "guidedLoft": {
+      "tools": [
+        "guidedLoft"
       ],
       "method": "execute",
       "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
@@ -1238,6 +1259,13 @@
       "method": "execute",
       "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
     },
+    "subdBody": {
+      "tools": [
+        "subdBody"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
     "surfaceTrim": {
       "tools": [
         "surfaceTrim"
@@ -1373,6 +1401,7 @@
     "arcProfile": "解析线弧轮廓 / 线弧拉伸",
     "autoRound": "整件圆边",
     "box": "长方体",
+    "bumpSet": "批量凸点",
     "chamfer": "倒角",
     "circularPattern": "环形阵列",
     "coil": "圆线弹簧",
@@ -1394,6 +1423,7 @@
     "faceHole": "面上打孔",
     "fittedSurface": "拟合曲面",
     "group": "组合",
+    "guidedLoft": "导向放样",
     "helix": "螺旋线",
     "hole": "打孔",
     "holeWizard": "孔向导",
@@ -1437,6 +1467,7 @@
     "smoothTransition": "平滑过渡",
     "sphere": "球体",
     "split": "分割",
+    "subdBody": "细分曲面体",
     "surfaceTrim": "实体修剪面 / 曲面修剪",
     "sweep": "扫掠 / 轮廓扫掠",
     "tap": "攻牙 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数 / 撤销 / 重做 / getState",
@@ -1455,6 +1486,7 @@
     "drawingCreate": "createDrawing",
     "drawingExport": "exportDrawing / 下载文件",
     "alignTool": "快速对齐 / planAlignment",
+    "floorSelected": "移动 / 旋转",
     "alignBodies": "快速对齐",
     "alignmentPlan": "planAlignment",
     "restoreHistory": "getHistory / 退回工程状态",

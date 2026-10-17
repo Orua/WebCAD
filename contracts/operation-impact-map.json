@@ -1673,6 +1673,21 @@
       "manualChecks": [
         "17674 source cage, brush, save/reopen, STEP export"
       ]
+    },
+    {
+      "operation": "guidedLoft",
+      "semanticVersion": "guidedLoft-1",
+      "localImpact": "Four exact B-spline patches per interval with framed boundary rails; G1/G2 bound to actual current source jets",
+      "servicesImpact": "none; fixed local WASM",
+      "logoImpact": "none",
+      "contractImpact": "Explicit sections/guides and optional single source refs+matchTo with frozen creation frames",
+      "documentImpact": "New independent segment preserves source, editable recipe and saved exact checkpoints",
+      "cacheImpact": "Recipe and source dependency invalidate compiled artifacts; never reuse topology indices",
+      "requiredTests": [
+        "tests/guided-loft-kernel.test.mjs",
+        "tests/guided-loft-dispatch.test.mjs",
+        "tests/loft-guides.test.mjs"
+      ]
     }
   ],
   "executionRouting": {
