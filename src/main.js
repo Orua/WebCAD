@@ -89,7 +89,7 @@ let previewComputingOwner=null;
 const hostControl=createHostControl(state=>{const entering=state.locked&&!viewport.interactionLocked,previewOwner=previewComputing?previewComputingOwner:previewIdentity?.owner??'ui';viewport.setInteractionLocked(state.locked);ui.setHostControl(state);if(entering&&(previewNext||previewComputing)&&previewOwner==='ui')void cancelPreview().catch(reportError);refresh();});
 function assertHumanEditing(){if(hostControl.get().locked)throw Object.assign(new Error('Agent 正在控制工程，释放控制后可编辑。'),{code:'HOST_INTERACTION_LOCKED'});}
 Object.assign(labels,{tap:'攻牙',badge:'牌仔工具',reliefShoulder:'浮雕中央肩部',arcProfile:'解析线弧轮廓',group:'组合',vectorProfile:'矢量路径',quickModel:'快速模型',sweep:'扫掠',loft:'放样',split:'分割',extractSolid:'提取实体',extractShell:'提取壳',faceHole:'面上打孔',faceExtrude:'面拉伸',multiHole:'多位置打孔',multiPocket:'批量矩形凹槽',multiBoss:'批量圆柱凸台',slot:'长圆槽',logo:'LOGO 凹凸字'});
-Object.assign(labels,{guidedLoft:'导向放样',bumpSet:'批量凸点',subdBody:'细分曲面体',curveSweep:'曲线扫掠',advancedLoft:'多截面放样',curvedLogo:'曲面等深刻字'});
+Object.assign(labels,{ellipsoid:'椭球',guidedLoft:'导向放样',bumpSet:'批量凸点',subdBody:'细分曲面体',curveSweep:'曲线扫掠',advancedLoft:'多截面放样',curvedLogo:'曲面等深刻字'});
 Object.assign(labels,{fittedSurface:'点阵拟合曲面',thickenFace:'选面增厚'});
 Object.assign(labels,referenceProfileNames);
 Object.assign(labels,referenceNames);

@@ -1,5 +1,5 @@
 const keys=['id','name','geometryType','triangleCount','vertexCount','meshReport','previewOrigin','metricsDeferred','measurementStatus','boundsSource','adaptiveDisplay','bounds','volume','area','solidCount','shellCount','transitionReport','blendReport','roundingReport','roundReport','endRoundingReport','repairReport','badgeReport','threadReport','chainReport','constraintReport','reliefReport','refineReport','displayReport','loftReport','variationReport','booleanReport','blendRadiusReport','radiusSearchReport','warnings'];
-keys.push('subdApproximation','guidedLoftReport');
+keys.push('subdApproximation','guidedLoftReport','ellipsoidReport');
 export function bodyState(body){return {...Object.fromEntries(keys.filter(key=>body[key]!==undefined).map(key=>[key,body[key]])),faceCount:body.faceCount??body.faceGroups?.length??0,edgeCount:body.edgeCount??body.edges?.length??0};}
 export function bodyWarnings(bodies){
   return bodies.flatMap(body=>[

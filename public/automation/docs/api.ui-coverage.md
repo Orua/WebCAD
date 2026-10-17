@@ -121,6 +121,13 @@
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "ellipsoid": {
+    "tools": [
+      "ellipsoid"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
   "extractFaces": {
     "tools": [
       "extractFaces"

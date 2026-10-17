@@ -1,10 +1,10 @@
 # WebCAD 页面 API 索引
 
-API 1.52.1 · 操作目录 sha256:dec82f4772386b61d55288687069cbb37b5155a2fe1ba5f9c4ea8e6f8486c69b
+API 1.52.1 · 操作目录 sha256:08fbff326a871ba1fc51c90c2a4c0acc8335a33b18f3a1639574841b55ba17bf
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
-长度 mm、角度 degrees、体积 mm³。严格契约：guidedLoft、subdBody、bumpSet、badge、meshHeightfieldRelief、meshBoolean、logo、union、cut、intersect、transform、copy、reliefShoulder、meshReliefPlate、meshReliefEdit、box、cylinder、sphere、cone、torus、mirror、linearPattern、circularPattern、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、tap、faceHole、round、roundEnd、rounding、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude、profileRevolve、profileSweep、profileLoft、offsetSolid、offsetSurface、draftByPlane、helix、coil、thread、profileConstraints、faceGroove、innerTurn、outerTurn、refineShape、relief；其余操作为 advisory。
+长度 mm、角度 degrees、体积 mm³。严格契约：ellipsoid、guidedLoft、subdBody、bumpSet、badge、meshHeightfieldRelief、meshBoolean、logo、union、cut、intersect、transform、copy、reliefShoulder、meshReliefPlate、meshReliefEdit、box、cylinder、sphere、cone、torus、mirror、linearPattern、circularPattern、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、tap、faceHole、round、roundEnd、rounding、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude、profileRevolve、profileSweep、profileLoft、offsetSolid、offsetSurface、draftByPlane、helix、coil、thread、profileConstraints、faceGroove、innerTurn、outerTurn、refineShape、relief；其余操作为 advisory。
 
 ## 页面方法
 
@@ -121,6 +121,7 @@ API 1.52.1 · 操作目录 sha256:dec82f4772386b61d55288687069cbb37b5155a2fe1ba5
 - `cylinder` · migrated · Cylinder on +Z from origin
 - `draftByPlane` · migrated · Draft explicitly selected analytic faces about an explicit neutral plane
 - `draftFaces` · migrated · Exact restricted four-side planar prism draft around one fixed bottom plane
+- `ellipsoid` · migrated · 椭球 / Exact rational quadratic ellipsoid
 - `extractFaces` · migrated · 先在一个实体上选择一个或多个面。faceIds 是该实体当前拓扑快照中的零起始面编号，必须非空、整数、互不重复且在范围内。单面返回保留孔环的面副本；多面返回由面副本组成的复合体。保留原对象，不缝合、不补洞、不生成实体。
 - `extractShell` · migrated · 先选中包含多个壳的对象。shellIndex 是当前对象壳拓扑顺序中的零起始索引，必须是范围内整数。提取选中壳的副本并保留原对象，不自动填成实体；闭壳可单独交给曲面缝合并要求生成实体。
 - `extractSolid` · advisory · Extract one solid from a compound

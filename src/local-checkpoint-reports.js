@@ -1,5 +1,5 @@
 import {binaryHash} from './contracts/operation-schema.js';
-const REPORTS=['loftReport','guidedLoftReport','variationReport','booleanReport','blendRadiusReport','radiusSearchReport','subdApproximation','warnings'];
+const REPORTS=['ellipsoidReport','loftReport','guidedLoftReport','variationReport','booleanReport','blendRadiusReport','radiusSearchReport','subdApproximation','warnings'];
 const TOPOLOGY=new Set(['edgeId','edgeIds','faceId','faceIds','resolvedEdgeIds','resolvedFaceIds','limitingEdgeIds','selectedEdgeIds','selectedFaceIds']);
 const digest=reports=>binaryHash(new TextEncoder().encode(JSON.stringify(reports)));
 function clean(value,depth=0){
