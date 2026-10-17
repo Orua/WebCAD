@@ -14,6 +14,7 @@ import {inspectDesignRequirements} from './design-inspection.js';
 import {findExactDragSnap} from './modeling/interaction/drag-snap.js';
 import * as cad from 'replicad';
 import {exportColoredSTEP} from './modeling/io/step-export.js';
+import {meshIntegrity,binaryStl} from './modeling/io/mesh-integrity.js';
 import {renderQuality} from './render-quality.js';
 import {EXACT_DISPLAY} from './viewport/exact-display-policy.js';
 import {displayEdges,displayMetadata,isPlanarPolygon} from './modeling/io/adaptive-display.js';
@@ -745,6 +746,8 @@ export class CadKernel {
       this.reportRebuildProgress('display-bounds','计算显示范围');
       const measured=this.geometryMetrics.get(shape)||(adaptive?displayMetadata(shape,faces,edges,this.oc):this.measureBodyGeometry(shape,faces,edges));
       const mappedFaces = mesh.faceGroups.map(g => ({ ...g, faceId: faceMap.get(g.faceId),...(adaptive?{exactPolygon:isPlanarPolygon(faces[faceMap.get(g.faceId)])}:{}) }));
+      measured.displayReport=meshIntegrity(mesh.vertices,mesh.triangles,{faceCount:faces.length,faceGroups:mappedFaces,brepVolumeMm3:measured.volume});
+      measured.displayReport.missingAreaMm2=measured.displayReport.untriangulatedFaceIds.reduce((sum,i)=>sum+cad.measureArea(faces[i]),0);
       this.reportRebuildProgress('edge-polylines','生成显示边线');
       const mappedEdges = adaptive?displayEdges(edges,settings.tolerance,this.oc):wire.edgeGroups.map(g => ({ edgeId: edgeMap.get(g.edgeId), positions: Array.from(wire.lines.slice(g.start * 3, (g.start + g.count) * 3)) }));
       if(adaptive)measured.snapPoints=mappedEdges.filter(e=>e.positions.length).flatMap(e=>[{point:e.positions.slice(0,3),type:'endpoint',edgeId:e.edgeId},{point:e.positions.slice(-3),type:'endpoint',edgeId:e.edgeId}]);
@@ -1043,7 +1046,12 @@ export class CadKernel {
     const exportShapes = owned.length ? owned : shapes;
     const combined = exportShapes.length > 1 ? cad.makeCompound(exportShapes) : exportShapes[0];
     try {
-      if (format === 'stl') return { data: new Uint8Array(await combined.blobSTL({ binary: true, tolerance: 0.05, angularTolerance: 0.1 }).arrayBuffer()), mime: 'model/stl', extension: 'stl' };
+      if (format === 'stl') {
+        // One shape-wide mesh uses the same discretization on shared BRep edges.
+        const mesh=combined.mesh({tolerance:0.05,angularTolerance:0.1});
+        const report=meshIntegrity(mesh.vertices,mesh.triangles);
+        return {data:binaryStl(mesh),mime:'model/stl',extension:'stl',report};
+      }
       if (format === 'brep') return { data: combined.serialize(), mime: 'application/octet-stream', extension: 'brep' };
       throw new Error('不支持的导出格式');
     } finally { if (owned.length) {dispose(combined);owned.forEach(dispose);} }
