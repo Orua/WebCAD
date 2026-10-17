@@ -18,7 +18,7 @@ export const UI_API_ROUTES = Object.freeze({
   drawingCreate:{tools:['createDrawing'],method:'createDrawing',usage:'与快速出图生成按钮相同；projection first/third，sections为plane/offset数组。'},
   drawingExport:{tools:['exportDrawing','files.download'],method:'exportDrawing',usage:'drawingId、format、paper、title、disabledDimensions；返回generated资源，再files.download/write。'},
   alignTool:{tools:['planAlignment','body.align'],method:'execute',usage:'显式指定移动bodyIds和target；X/Y/Z、min/center/max、group保持相对位置。'},
-  floorSelected:{tools:['transform'],method:'execute',usage:'将选中实体的包围盒最低 Z 平移到 0 mm；以已有 transform 特征记录，可撤销并随上游重建。'},
+  floorSelected:{tools:['transform'],method:'execute',usage:'transform 参数 align:{axis:"z",to:"min",valueMm:0}，省略placement；每次重建按当前精确包围盒落地，body.alignmentReport读回实际位移。可撤销。'},
   alignBodies:{tools:['body.align'],method:'execute',usage:'一次事务对齐；target.kind为body/origin/anchor/point；基准件不能同时被移动。按移动件数新增特征，超过工程2000特征或当前工程容量上限返回SIZE_LIMIT且不提交。'},
   alignmentPlan:{tools:['planAlignment'],method:'planAlignment',usage:'只读回每个移动件的世界坐标delta，便于先核对。'},
   restoreHistory:{tools:['getHistory','history.restore'],method:'execute',usage:'读取getHistory的stateId后通过history.restore一键恢复完整工程；不能使用当前特征序号替代状态ID。导入资源在保留状态间共享，全部保留状态不再引用后才回收；bytes仅为历史基线和差量大小。'},

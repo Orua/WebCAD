@@ -4,6 +4,39 @@
   "inputSchema": {
     "type": "object",
     "properties": {
+      "align": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "axis",
+          "to",
+          "valueMm"
+        ],
+        "properties": {
+          "axis": {
+            "type": "string",
+            "description": "World bounding-box axis",
+            "enum": [
+              "x",
+              "y",
+              "z"
+            ]
+          },
+          "to": {
+            "type": "string",
+            "description": "Recomputed source bounds side",
+            "enum": [
+              "min",
+              "max",
+              "center"
+            ]
+          },
+          "valueMm": {
+            "type": "number",
+            "description": "Target world coordinate (mm)"
+          }
+        }
+      },
       "positionMode": {
         "type": "string",
         "description": "relative offset or absolute bounding-box center after rotation/scaling",
@@ -238,7 +271,7 @@
     "复制"
   ],
   "description": "Copy with scale, rotation and translation",
-  "schemaHash": "sha256:767c3a46260f6121f94c93578bd1254236da1effcd0da3044c77397769dfe198",
+  "schemaHash": "sha256:07d1200eb4ade75590917bd88c6d44a01cca5ed663298d2630982b1439157244",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -375,6 +408,17 @@
       }
     ],
     "params": {
+      "align": {
+        "meaning": "align: Copy with scale, rotation and translation",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
       "positionMode": {
         "meaning": "relative offset or absolute bounding-box center after rotation/scaling",
         "unit": "none",
@@ -855,5 +899,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:b99a854b315c139ea3b729f62901d661027ebfe4ff067107bd28b798d16854ac"
+  "docsHash": "sha256:954eb3ca8c0b23bd8ef72af9c08f2df7db1b5f6c3c248cf4d62ef0e76dd9d819"
 }

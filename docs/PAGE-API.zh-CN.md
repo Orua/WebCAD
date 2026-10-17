@@ -1160,3 +1160,8 @@ inspectDesign对同实体的材料点合并一次精确common，边界距离仍�
   ]
 }
 ```
+
+
+### 动态包围盒落地（UP-30）
+
+读取当前 `transform` 完整卡后，用 `feature.add` 的 `op:"transform", refs:[当前实体ID], params:{align:{axis:"z",to:"min",valueMm:0}}` 落地。省略 `placement`、`mode`、`positionMode` 及平移字段；它使用世界轴，与明确源轴/目标轴的 `mode:"align"` 是不同参数。也可指定 x/y 轴或 max/center。每次重建按上游当前精确 BRep 的包围盒计算平移，不保存上次测出的固定 dz。读取 `getState().bodies[].alignmentReport` 的 `beforeMm`、`deltaMm` 和 `valueMm` 核对；检查点保留报告。UI「落地」记录相同配方，已位于零面的实体也保存对齐约束，便于后续尺寸修改。无效参数返回 `PARAM_SCHEMA_INVALID`，混用 placement 返回 `COORDINATE_MODE_CONFLICT`，失败不提交。

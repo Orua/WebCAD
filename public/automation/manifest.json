@@ -1,9 +1,9 @@
 {
   "version": "1.52.1",
-  "buildId": "05215589c4365ba1d97d9a7d0c206fa2928691b9-src-8bf45b1dd0d44f96-working",
+  "buildId": "bfdf63d2ff342830f4cb0f1e6da93ef81643d65d-src-c164b3285bc62add-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:08fbff326a871ba1fc51c90c2a4c0acc8335a33b18f3a1639574841b55ba17bf",
-  "docsHash": "sha256:4d23399ec3742bd523ee411306ca0eeb870c9a6a1046c8fd2b1593045b8acd7f",
+  "catalogHash": "sha256:bc85683bf95d50c74a87435cf0e9d9303b7120d2eafd15d44143e809f2d23ee1",
+  "docsHash": "sha256:f7f8cd0b2e4fe12a4b53aca449446200f5048f0b1dfac1eddd60108c957f6791",
   "apiMethods": [
     "probeBlendRadius",
     "recoverKernel",
@@ -180,7 +180,7 @@
       "label": "复制",
       "category": "organization",
       "version": "1.0.0",
-      "docsHash": "sha256:b99a854b315c139ea3b729f62901d661027ebfe4ff067107bd28b798d16854ac",
+      "docsHash": "sha256:954eb3ca8c0b23bd8ef72af9c08f2df7db1b5f6c3c248cf4d62ef0e76dd9d819",
       "url": "tools/copy.json"
     },
     {
@@ -837,7 +837,7 @@
       "label": "移动 / 旋转",
       "category": "organization",
       "version": "1.0.0",
-      "docsHash": "sha256:bd21ccf2b6f2a2bdc4d6118565c3301e919952fc4c310d6e528d414f1caf59e2",
+      "docsHash": "sha256:43c6eb6948b16d94382be44601fb825815f8f2b6924fa9f12393478b26aa451a",
       "url": "tools/transform.json"
     },
     {
@@ -2381,7 +2381,7 @@
     },
     {
       "id": "api.editor",
-      "docsHash": "sha256:d059219427807bb6bba3a23118adcba3bf8a124ce474eda6c507e4c2cc0a0e6d",
+      "docsHash": "sha256:efcd9ab8231e6d268fe229e9c59f44c15b3f4fe8c9fc8572e7df2a8a31a555ba",
       "url": "docs/api.editor.md"
     },
     {
@@ -2551,7 +2551,7 @@
     },
     {
       "id": "api.ui-coverage",
-      "docsHash": "sha256:876a3a48a8821e1eb1ce73d57e1e7a35f7b4585b51d55cc2dab99ff84a9ebc00",
+      "docsHash": "sha256:f94a6648a5ca90da9a7a65f76e662add193eaf80e0c536186f4234d7ded0e9d9",
       "url": "docs/api.ui-coverage.md"
     },
     {

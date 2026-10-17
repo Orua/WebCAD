@@ -713,7 +713,7 @@
       "transform"
     ],
     "method": "execute",
-    "usage": "将选中实体的包围盒最低 Z 平移到 0 mm；以已有 transform 特征记录，可撤销并随上游重建。"
+    "usage": "transform 参数 align:{axis:\"z\",to:\"min\",valueMm:0}，省略placement；每次重建按当前精确包围盒落地，body.alignmentReport读回实际位移。可撤销。"
   },
   "alignBodies": {
     "tools": [
