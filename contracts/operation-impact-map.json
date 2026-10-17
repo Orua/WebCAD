@@ -267,18 +267,21 @@
       "sourcePaths": [
         "src/cad-kernel.js",
         "src/operation-catalog.js",
-        "src/operation-registry.js"
+        "src/operation-registry.js",
+        "src/svg-logo-input.js",
+        "src/browser-vector-input.js"
       ],
-      "localImpact": "Unified reviewed LOGO on one exact face; legacy entries remain planar",
+      "localImpact": "Unified reviewed LOGO on one exact face; SVG title/desc text is passive metadata and does not add contours",
       "servicesImpact": "Local execution; no Services algorithm change",
-      "logoImpact": "Source-bound logo operation",
+      "logoImpact": "Source-bound logo operation; original SVG bytes/hash and filled glyph contours/holes are preserved",
       "contractImpact": "Source operation schema, shared command execution and generated tool card",
       "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
       "cacheImpact": "Feature signature/render cache and static contract hashes",
       "requiredTests": [
-        "tests/operation-contract.test.mjs"
+        "tests/operation-contract.test.mjs",
+        "tests/browser-logo-input.test.mjs"
       ],
-      "manualChecks": []
+      "manualChecks": ["17674: SHA-verified AU750.svg fixture with title metadata through public files.register/readVector/LOGO; reject nested graphics/events in title/desc"]
     },
     {
       "operation": "slot",
