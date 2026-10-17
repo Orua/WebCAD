@@ -229,7 +229,7 @@ function refresh(){if(displayBatchDepth){deferredRefresh=true;return;}document.t
 function setStatus(message){status=message;ui.setStatus(t(message));}
 function reportError(error){console.error(error);ui.showError(error.message||String(error));setStatus(error.message||String(error));}
 function pushUndo(next,label){if(next){recordTimeline(documentModel,next,{label});assertDocumentCapacity(next);}const {imports,timeline,...rest}=documentModel;undoStack.push({...clone(rest),imports,timeline});if(undoStack.length>40)undoStack.shift();redoStack=[];}
-function setBusy(value,message){if(value&&loadingDepth)message=LOADING_TEXT;if(value&&!busy){loadingTracker.reset();ui.setBusyProgress?.(null);}busy=value;viewport.setBusy?.(value);ui.setBusy(value,message);if(message)setStatus(message);refresh();}
+function setBusy(value,message){if(value&&!busy){loadingTracker.reset();ui.setBusyProgress?.(null);}busy=value;viewport.setBusy?.(value);ui.setBusy(value,value?LOADING_TEXT:undefined);if(message)setStatus(message);refresh();}
 // Opening/inserting/startup show only 载入中 (+ a bar when real progress is known).
 async function withLoading(task){loadingDepth++;loadingTracker.reset();ui.setBusyProgress?.(null);if(!busy){ui.setBusy(true,LOADING_TEXT);setStatus(LOADING_TEXT);}try{return await task();}finally{loadingDepth--;if(!busy&&!loadingDepth)ui.setBusy(false);}}
 function selectRectangle(input){if(busy)return;const ids=viewport.rectangleCandidates(input);ui.discardForSelection();selectedIds=input.additive?[...new Set([...selectedIds,...ids])]:ids;selectedTopology=null;viewport.setSelection(selectedIds);refresh();return {status:'read',selectedIds:[...selectedIds],context:pageAPI.getState().context};}

@@ -60,4 +60,5 @@ test('main.js no longer renders step names, counts or triangles',()=>{
 test('overlay markup: 载入中 + hidden progressbar',()=>{
   assert.match(ui,/<span class="busy-message">载入中<\/span><div class="busy-progress" role="progressbar"/);
   assert.match(ui,/setBusyProgress\(fraction\)/);
+  assert.match(ui,/setBusy\(value,message\)\{state\.busy=!!value;q\('\.busy-overlay'\)\.hidden=!value;q\('\.busy-message'\)\.textContent='载入中'/);
 });
