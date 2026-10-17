@@ -369,7 +369,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     if(displayBatchDepth)deferredDisplay={fit:fit||deferredDisplay?.fit===true};else showCommittedModel(fit);
     // Commit is synchronous. Persistence follows without yielding between commit
     // and the command acknowledgement, so a late abort cannot claim rollback.
-    try{ui.clearErrors();setStatus(`就绪 · ${bodies.length} 个实体 · ${bodies.reduce((sum,b)=>sum+(b.solidCount||0),0)} 个封闭实心体`);}catch(error){lastWarnings.push({code:'DISPLAY_FAILED',message:error.message});}
+    try{ui.clearErrors();setStatus(`就绪 · ${formatBodyCount(bodies)}`);}catch(error){lastWarnings.push({code:'DISPLAY_FAILED',message:error.message});}
     if(routed?.record)servicesExecutionHistory.success(routed.record.input,routed.record.executor,routed.record.executor==='local'?{totalMs:performance.now()-localBegan}:routed.record.measurements);
     if(lastServicesDecision?.documentInstanceId===documentInstanceId&&lastServicesDecision.revision===revision-1){lastServicesDecision.revision=revision;setStatus(`就绪 · ${lastServicesDecision.executor==='remote'?'Services':'本地'} · ${lastServicesDecision.reason}`);}
     return result;
