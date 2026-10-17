@@ -89,7 +89,7 @@ let previewComputingOwner=null;
 const hostControl=createHostControl(state=>{const entering=state.locked&&!viewport.interactionLocked,previewOwner=previewComputing?previewComputingOwner:previewIdentity?.owner??'ui';viewport.setInteractionLocked(state.locked);ui.setHostControl(state);if(entering&&(previewNext||previewComputing)&&previewOwner==='ui')void cancelPreview().catch(reportError);refresh();});
 function assertHumanEditing(){if(hostControl.get().locked)throw Object.assign(new Error('Agent 正在控制工程，释放控制后可编辑。'),{code:'HOST_INTERACTION_LOCKED'});}
 Object.assign(labels,{tap:'攻牙',badge:'牌仔工具',reliefShoulder:'浮雕中央肩部',arcProfile:'解析线弧轮廓',group:'组合',vectorProfile:'矢量路径',quickModel:'快速模型',sweep:'扫掠',loft:'放样',split:'分割',extractSolid:'提取实体',extractShell:'提取壳',faceHole:'面上打孔',faceExtrude:'面拉伸',multiHole:'多位置打孔',multiPocket:'批量矩形凹槽',multiBoss:'批量圆柱凸台',slot:'长圆槽',logo:'LOGO 凹凸字'});
-Object.assign(labels,{bumpSet:'批量凸点',curveSweep:'曲线扫掠',advancedLoft:'多截面放样',curvedLogo:'曲面等深刻字'});
+Object.assign(labels,{bumpSet:'批量凸点',subdBody:'细分曲面体',curveSweep:'曲线扫掠',advancedLoft:'多截面放样',curvedLogo:'曲面等深刻字'});
 Object.assign(labels,{fittedSurface:'点阵拟合曲面',thickenFace:'选面增厚'});
 Object.assign(labels,referenceProfileNames);
 Object.assign(labels,referenceNames);
@@ -432,7 +432,7 @@ async function addFeature(op,params={},options={}){
   const {next,id}=featureDocument(op,params,refs,options.name,options.placement);
   const insertOps=['vectorProfile','box','sphere','cylinder','cone','torus','extrude','revolve','copy','mirror','linearPattern','circularPattern','quickModel','sweep','loft'];
   const select=options.origin==='agent'?undefined:Object.hasOwn(options,'select')?options.select:insertOps.includes(op)?undefined:id;
-  const autoPlace=options.origin==='agent'&&insertOps.includes(op)&&options.placementExplicit!==true;
+  const autoPlace=options.origin==='agent'&&(placementPolicy(op)==='C'||insertOps.includes(op))&&options.placementExplicit!==true;
   const beforeBounds=autoPlace?bodies.map(body=>body.bounds).filter(Boolean):[],beforeIds=new Set(bodies.map(body=>body.id));
   const result=await rebuild(next,{...options,select,fit:!bodies.length||insertOps.includes(op)});
   if(autoPlace){

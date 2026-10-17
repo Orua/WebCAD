@@ -15,7 +15,7 @@ import operationSourceErrors from '../contracts/operation-source-errors.json' wi
 import {migrateReliefParams,legacyReliefParams,reliefParamOperations} from './relief-param-migration.js';
 
 export const apiVersion = '2.0';
-export const migratedOperationIds = Object.freeze(['bumpSet','badge','meshHeightfieldRelief','meshBoolean','logo','union','cut','intersect','transform','copy','reliefShoulder','meshReliefPlate','meshReliefEdit','box', 'cylinder', 'sphere', 'cone', 'torus', 'mirror', 'linearPattern', 'circularPattern', 'hole', 'holeWizard', 'draftFaces', 'multiHole', 'multiPocket', 'multiBoss', 'tap', 'faceHole', 'round', 'roundEnd', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell','sketchProfile','profileOffset','profileRepair','profileExtrude',...mechanicalIds]);
+export const migratedOperationIds = Object.freeze(['subdBody','bumpSet','badge','meshHeightfieldRelief','meshBoolean','logo','union','cut','intersect','transform','copy','reliefShoulder','meshReliefPlate','meshReliefEdit','box', 'cylinder', 'sphere', 'cone', 'torus', 'mirror', 'linearPattern', 'circularPattern', 'hole', 'holeWizard', 'draftFaces', 'multiHole', 'multiPocket', 'multiBoss', 'tap', 'faceHole', 'round', 'roundEnd', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell','sketchProfile','profileOffset','profileRepair','profileExtrude',...mechanicalIds]);
 const migrated = new Set(migratedOperationIds);
 const clone = value => JSON.parse(JSON.stringify(value));
 const topology = new Set(['badge','tap','faceHole', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition']);
