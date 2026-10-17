@@ -245,14 +245,16 @@
         "src/operation-catalog.js",
         "src/operation-registry.js"
       ],
-      "localImpact": "平滑过渡 / Smooth shared seams of adjacent faces together",
+      "localImpact": "平滑过渡 / Smooth shared seams of adjacent faces together; current-rebuild OCCT face provenance supports semantic blend selection",
       "servicesImpact": "Shared Services routing and capability checks apply",
       "logoImpact": "none: unrelated to logo conversion",
-      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card; seamBetween, edgesNear and facesFromFeature selectors resolve against current geometry",
       "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
       "cacheImpact": "Feature signature/render cache and static contract hashes",
       "requiredTests": [
-        "tests/operation-contract.test.mjs"
+        "tests/operation-contract.test.mjs",
+        "tests/semantic-blend-integration.test.mjs",
+        "tests/face-origin-restore.test.mjs"
       ],
       "manualChecks": []
     },
@@ -697,14 +699,16 @@
         "src/operation-catalog.js",
         "src/operation-registry.js"
       ],
-      "localImpact": "Fuse bodies",
+      "localImpact": "Fuse bodies; current-rebuild OCCT face provenance supports semantic blend selection",
       "servicesImpact": "Shared Services routing and capability checks apply",
       "logoImpact": "none: unrelated to logo conversion",
-      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card; seamBetween, edgesNear and facesFromFeature selectors resolve against current geometry",
       "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
       "cacheImpact": "Feature signature/render cache and static contract hashes",
       "requiredTests": [
-        "tests/operation-contract.test.mjs"
+        "tests/operation-contract.test.mjs",
+        "tests/semantic-blend-integration.test.mjs",
+        "tests/face-origin-restore.test.mjs"
       ],
       "manualChecks": []
     },
@@ -746,9 +750,17 @@
         "tests/services-boolean-native.test.mjs",
         "tests/services-routing.test.mjs",
         "tests/project-container.test.mjs",
-        "tests/boolean-roles.test.mjs"
+        "tests/boolean-roles.test.mjs",
+        "tests/semantic-blend-integration.test.mjs",
+        "tests/face-origin-restore.test.mjs"
       ],
-      "manualChecks": []
+      "manualChecks": [],
+      "localImpact": "Same existing Boolean geometry; current-rebuild OCCT face provenance supports semantic blend selection",
+      "contractImpact": "Existing source-bound schema; seamBetween, edgesNear and facesFromFeature selectors resolve against current geometry",
+      "servicesImpact": "Existing Native routing and artifact gates retained",
+      "logoImpact": "none; no conversion change",
+      "documentImpact": "Editable feature recipe and current refs retained",
+      "cacheImpact": "Static contracts regenerated; no cached topology IDs"
     },
     {
       "operation": "intersect",
@@ -775,14 +787,16 @@
         "src/operation-catalog.js",
         "src/operation-registry.js"
       ],
-      "localImpact": "Round sharp edges, shared face edges, face boundaries or the whole solid",
+      "localImpact": "Round sharp edges, shared face edges, face boundaries or the whole solid; current-rebuild OCCT face provenance supports semantic blend selection",
       "servicesImpact": "Shared Services routing and capability checks apply",
       "logoImpact": "none: unrelated to logo conversion",
-      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card; seamBetween, edgesNear and facesFromFeature selectors resolve against current geometry",
       "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
       "cacheImpact": "Feature signature/render cache and static contract hashes",
       "requiredTests": [
-        "tests/operation-contract.test.mjs"
+        "tests/operation-contract.test.mjs",
+        "tests/semantic-blend-integration.test.mjs",
+        "tests/face-origin-restore.test.mjs"
       ],
       "manualChecks": []
     },

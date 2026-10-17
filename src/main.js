@@ -62,6 +62,7 @@ import {applyReferenceAction} from './reference-contracts.js';
 import {clearOccupiedAnchor} from './anchor-clearance.js';
 import {unionBounds,xShiftToClear} from './free-placement.js';
 import {formatBodyCount} from './count-summary.js';
+import {bodyState,bodyWarnings} from './body-state.js';
 import {webcadShortcut} from './webcad-shortcuts.js';
 import {createHostControl,installHostInteractionGuard} from './host-control.js';
 import { normalizeOperationParams, normalizeOperationPatch, migratedOperationIds, getOperation } from './operation-registry.js';
@@ -361,7 +362,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     if(newInstance||documentModel.documentId!==next.documentId){documentInstanceId=crypto.randomUUID();projectFileHandle=null;}
     documentModel=next;bodies=result.bodies;selectedTopology=null;previewNext=null;previewIdentity=null;previewScopeReport=null;revision++;
     for(const feature of newQuickModels)recordQuickModelUse(feature.params.kind);
-    lastWarnings=[];dirty=true;if(save)void autosave(); // selection-origin
+    lastWarnings=bodyWarnings(bodies);dirty=true;if(save)void autosave(); // selection-origin
     // Agent writes never replace the user's selection. Only ids that no longer
     // exist are dropped; the user's own insert/edit path keeps its old select
     // behaviour (including clearing after an independent insertion).
@@ -371,7 +372,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     if(displayBatchDepth)deferredDisplay={fit:fit||deferredDisplay?.fit===true};else showCommittedModel(fit);
     // Commit is synchronous. Persistence follows without yielding between commit
     // and the command acknowledgement, so a late abort cannot claim rollback.
-    try{ui.clearErrors();setStatus(`就绪 · ${formatBodyCount(bodies)}`);}catch(error){lastWarnings.push({code:'DISPLAY_FAILED',message:error.message});}
+    try{ui.clearErrors();const warning=lastWarnings.find(w=>w.code==='DISPLAY_INCOMPLETE'||w.code==='DISPLAY_VOLUME_MISMATCH');setStatus(warning?warning.message:`就绪 · ${formatBodyCount(bodies)}`);}catch(error){lastWarnings.push({code:'DISPLAY_FAILED',message:error.message});}
     if(routed?.record)servicesExecutionHistory.success(routed.record.input,routed.record.executor,routed.record.executor==='local'?{totalMs:performance.now()-localBegan}:routed.record.measurements);
     if(lastServicesDecision?.documentInstanceId===documentInstanceId&&lastServicesDecision.revision===revision-1){lastServicesDecision.revision=revision;setStatus(`就绪 · ${lastServicesDecision.executor==='remote'?'Services':'本地'} · ${lastServicesDecision.reason}`);}
     return result;
@@ -877,8 +878,8 @@ const ready=(async()=>{
   catch(error){reportError(error);return false;}
 })();
 // Public automation surface also used by reproducible acceptance checks; never runs arbitrary code.
-function getState(){return {revision,document:clone(documentModel),bodies:bodies.map(({id,name,geometryType,triangleCount,vertexCount,meshReport,previewOrigin,metricsDeferred,measurementStatus,boundsSource,adaptiveDisplay,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,badgeReport,threadReport,chainReport,constraintReport,reliefReport,refineReport,faceGroups,edges})=>({id,name,geometryType,triangleCount,vertexCount,meshReport,previewOrigin,metricsDeferred,measurementStatus,boundsSource,adaptiveDisplay,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,badgeReport,threadReport,chainReport,constraintReport,reliefReport,refineReport,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,dirty,preview:!!previewNext};}
-function aiState(){return {sessionId:pageSessionId,revision,dirty,documentId:documentModel.documentId,documentInstanceId,documentName:documentModel.name,referenceSystem:clone(documentModel.referenceSystem),features:clone(documentModel.features),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),bodies:bodies.map(({id,name,geometryType,triangleCount,vertexCount,meshReport,previewOrigin,metricsDeferred,measurementStatus,boundsSource,adaptiveDisplay,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,badgeReport,threadReport,chainReport,constraintReport,reliefReport,refineReport,faceGroups,edges})=>({id,name,geometryType,triangleCount,vertexCount,meshReport,previewOrigin,metricsDeferred,measurementStatus,boundsSource,adaptiveDisplay,bounds,volume,area,solidCount,shellCount,transitionReport,blendReport,roundingReport,roundReport,endRoundingReport,repairReport,badgeReport,threadReport,chainReport,constraintReport,reliefReport,refineReport,faceCount:faceGroups.length,edgeCount:edges.length})),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,preview:!!previewNext,previewInfo:previewIdentity?clone(previewIdentity):null,previewScope:previewScopeReport?clone(previewScopeReport):null};}
+function getState(){return {revision,document:clone(documentModel),bodies:bodies.map(bodyState),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,dirty,preview:!!previewNext};}
+function aiState(){return {sessionId:pageSessionId,revision,dirty,documentId:documentModel.documentId,documentInstanceId,documentName:documentModel.name,referenceSystem:clone(documentModel.referenceSystem),features:clone(documentModel.features),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),bodies:bodies.map(bodyState),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,preview:!!previewNext,previewInfo:previewIdentity?clone(previewIdentity):null,previewScope:previewScopeReport?clone(previewScopeReport):null};}
 async function executeAI(command,args={},options={}){
   const origin=options.origin==='agent'?'agent':'user';
   if(command==='file_save'){

@@ -1,29 +1,39 @@
 import * as cad from 'replicad';
 import {topologyDetails,sharpAngleDeg} from './modeling/rounding/topology.js';
+import {resolveBlendSelector} from './semantic-blend-selector.js';
+import {buildBlendRadius} from './blend-radius.js';
 export {topologyDetails,sharpAngleDeg} from './modeling/rounding/topology.js';
 const dispose = value => { try { value?.delete(); } catch {} };
 const fail = message => { throw Object.assign(new Error(message), {code:'GEOMETRY_INVALID'}); };
-export function buildSmoothTransition(shape,{faceIds,radius,allEdges=false}={}) {
+export function buildSmoothTransition(shape,{faceIds,selector,context,radius,allEdges=false}={}) {
   const faces=shape.faces,solids=shape.solids;
   try {
     if(allEdges)faceIds=faces.map((_,i)=>i);
     if(solids.length!==1)fail('平滑过渡需要一个封闭实心体');
-    if(!Array.isArray(faceIds)||faceIds.length<2||new Set(faceIds).size!==faceIds.length||faceIds.some(i=>!Number.isInteger(i)||i<0||i>=faces.length))fail('请选择至少两个不同的相邻面');
+    if(!selector&&(!Array.isArray(faceIds)||faceIds.length<2||new Set(faceIds).size!==faceIds.length||faceIds.some(i=>!Number.isInteger(i)||i<0||i>=faces.length)))fail('请选择至少两个不同的相邻面');
     if(typeof radius!=='number'||!Number.isFinite(radius)||radius<=0)fail('过渡半径必须为正数，单位 mm');
   }finally{faces.forEach(dispose);solids.forEach(dispose);}
-  const selected=new Set(faceIds),before=topologyDetails(shape);
+  const before=topologyDetails(shape);
   if(allEdges&&before.some(e=>e.sharp===null))fail(`整件圆边无法判定边 ${before.filter(e=>e.sharp===null).map(e=>e.edgeId).join(', ')} 的相邻面法向，请检查开口或无效曲面，未修改模型`);
-  const shared=before.filter(e=>e.adjacentFaceIds.length===2&&e.adjacentFaceIds.every(i=>selected.has(i)));
+  let selection=null,shared;
+  if(selector){
+    try{selection=resolveBlendSelector(shape,{selector},context);}
+    catch(error){throw Object.assign(error,{code:error.code||'GEOMETRY_INVALID'});}
+    shared=selection.targets;
+  }else{
+    const selected=new Set(faceIds);
+    shared=before.filter(e=>e.adjacentFaceIds.length===2&&e.adjacentFaceIds.every(i=>selected.has(i)));
+  }
   if(!shared.length)fail('所选面没有公共接缝，请选择互相连接的面');
   if(shared.some(e=>e.sharp===null))fail('接缝法向无法可靠测量，未修改模型');
   const targets=shared.filter(e=>e.sharp);
+  const selected=selection?new Set(selection.selectorReport.resolvedFaceIds):new Set(faceIds||[]);
   if(!targets.length)fail('所选面之间已相切，没有需要处理的尖锐接缝');
   const inputEdges=shape.edges,inputFaces=shape.faces;
   let result,finder;
   try {
-    finder=new cad.EdgeFinder().inList(targets.map(e=>inputEdges[e.edgeId]));
     // Solve all shared sharp seams together so their end patches meet in one OCCT build.
-    result=shape.fillet({radius,filter:finder});
+    result=buildBlendRadius(shape,{selector:{edgeIds:targets.map(e=>e.edgeId)},radiusMm:radius,context});
     const check=new (cad.getOC().BRepCheck_Analyzer)(result.wrapped,true,false,false);
     try{if(!check.IsValid())fail('过渡面自交或几何无效');}finally{dispose(check);}
     const resultSolids=result.solids;
@@ -50,7 +60,7 @@ export function buildSmoothTransition(shape,{faceIds,radius,allEdges=false}={}) 
         boundarySharpEdges.push(edge.edgeId);
       }
     }
-    result.transitionReport={mode:allEdges?'body':'faces',radius,sourceFaceIds:[...faceIds],processedEdgeIds:targets.map(e=>e.edgeId),
+    result.transitionReport={mode:allEdges?'body':selector?'semantic-selector':'faces',radius,...(faceIds?{sourceFaceIds:[...faceIds]}:{}),...(selection?selection.selectorReport:{}),processedEdgeIds:targets.map(e=>e.edgeId),
       processedSeams:targets.length,remainingSharpEdges:sharpAfter.map(e=>e.edgeId),
       remainingSharpEdgeCount:sharpAfter.length,boundarySharpEdges,normalSampleFractions:[.2,.5,.8],angleToleranceDeg:sharpAngleDeg,
       validation:boundarySharpEdges.length?'valid-solid; selected-sharp-seams-removed; unselected-boundary-creases-reported':'valid-solid; selected-sharp-seams-removed; no-new-sharp-seams-at-samples',

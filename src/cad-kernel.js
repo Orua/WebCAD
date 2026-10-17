@@ -15,6 +15,9 @@ import {findExactDragSnap} from './modeling/interaction/drag-snap.js';
 import * as cad from 'replicad';
 import {exportColoredSTEP} from './modeling/io/step-export.js';
 import {meshIntegrity,binaryStl} from './modeling/io/mesh-integrity.js';
+import {robustUnion} from './modeling/robust-union.js';
+import {initializeFaceOrigins,copyFaceOrigins,blendContext,restoreFaceOrigins,cutWithFaceOrigins} from './modeling/face-origins.js';
+import {buildBlendRadius} from './blend-radius.js';
 import {renderQuality} from './render-quality.js';
 import {EXACT_DISPLAY} from './viewport/exact-display-policy.js';
 import {displayEdges,displayMetadata,isPlanarPolygon} from './modeling/io/adaptive-display.js';
@@ -611,13 +614,14 @@ export class CadKernel {
       }
       case 'union': case 'cut': case 'intersect': {
         if (sources.length < 2) throw new Error('布尔操作至少需要两个实体');
-        let out = sources[0].clone(); const method = { union: 'fuse', cut: 'cut', intersect: 'intersect' }[feature.op];
+        if(feature.op==='union')return robustUnion(sources,{...p,toolIds:refs,toolNames:refs.map(id=>historyFeatures.find(f=>f.id===id)?.name||id),measure:shape=>preciseVolume(shape,this.oc)});
+        let out = copyFaceOrigins(sources[0],sources[0].clone()); const method = { union: 'fuse', cut: 'cut', intersect: 'intersect' }[feature.op];
         try {
           for (const tool of sources.slice(1)) {
             const before = preciseVolume(out,this.oc), toolVolume = preciseVolume(tool,this.oc);
             const lower = feature.op === 'union' ? Math.max(before,toolVolume) : 0;
             const upper = feature.op === 'union' ? before+toolVolume : feature.op === 'cut' ? before : Math.min(before,toolVolume);
-            const next = out[method](tool);
+            const next = feature.op==='cut'?cutWithFaceOrigins(out,tool):out[method](tool);
             try {
               const volume = preciseVolume(next,this.oc);
               // Valid topology can still contain the wrong material. Apply the
@@ -635,12 +639,13 @@ export class CadKernel {
         catch (error) { dispose(out); throw error; }
       }
       case 'autoRound': return buildSmoothTransition(source(),{...p,allEdges:true});
-      case 'smoothTransition': return buildSmoothTransition(source(),p);
+      case 'smoothTransition': return buildSmoothTransition(source(),{...p,context:blendContext(source())});
       case 'round': return buildRoundTool(source(),p);
       case 'roundEnd': return buildEndRounding(source(),p);
       case 'rounding': return buildRounding(source(),p,{sourceBodyId:refs[0]});
       case 'fillet': case 'chamfer': {
         const shape = source(), amount = positive(p, feature.op === 'fillet' ? 'radius' : 'distance');
+        if(p.selector&&feature.op==='fillet')return buildBlendRadius(shape,{selector:p.selector,radiusMm:amount,context:blendContext(shape)});
         const scopes=Number(!!p.edgeIds?.length)+Number(!!p.faceIds?.length)+Number(p.allEdges===true);
         if(scopes!==1)throw new Error('圆角/倒角必须明确选择边、面边界或整个实体的全部边');
         return buildEdgeBlend(shape,feature.op,p);
@@ -747,6 +752,9 @@ export class CadKernel {
       const measured=this.geometryMetrics.get(shape)||(adaptive?displayMetadata(shape,faces,edges,this.oc):this.measureBodyGeometry(shape,faces,edges));
       const mappedFaces = mesh.faceGroups.map(g => ({ ...g, faceId: faceMap.get(g.faceId),...(adaptive?{exactPolygon:isPlanarPolygon(faces[faceMap.get(g.faceId)])}:{}) }));
       measured.displayReport=meshIntegrity(mesh.vertices,mesh.triangles,{faceCount:faces.length,faceGroups:mappedFaces,brepVolumeMm3:measured.volume});
+      if(shape.booleanReport)measured.booleanReport=shape.booleanReport;
+      if(shape.loftReport)measured.loftReport=shape.loftReport;
+      if(shape.blendRadiusReport)measured.blendRadiusReport=shape.blendRadiusReport;
       measured.displayReport.missingAreaMm2=measured.displayReport.untriangulatedFaceIds.reduce((sum,i)=>sum+cad.measureArea(faces[i]),0);
       this.reportRebuildProgress('edge-polylines','生成显示边线');
       const mappedEdges = adaptive?displayEdges(edges,settings.tolerance,this.oc):wire.edgeGroups.map(g => ({ edgeId: edgeMap.get(g.edgeId), positions: Array.from(wire.lines.slice(g.start * 3, (g.start + g.count) * 3)) }));
@@ -790,6 +798,8 @@ export class CadKernel {
           try {
             for(const id of new Set(feature.refs||[]))if(next.has(id)){
               const original=next.get(id),copy=original.geometryType==='mesh'?original.clone():cad.deserializeShape(this.geometrySourceSnapshot(original));
+              if(original.geometryType!=='mesh')copyFaceOrigins(original,copy);
+              if(copy.faceOrigins)copy.faceOrigins=copy.faceOrigins.map(row=>row?{...row,featureIds:[...new Set([...(row.featureIds||[row.featureId]),id])]}:null);
               copies.push(copy);inputs.set(id,copy);
             }
             // Bind the same authoritative cached source bytes that were
@@ -823,6 +833,7 @@ export class CadKernel {
             try { if (!checker.IsValid()) throw new Error('操作生成无效几何，请减小参数或检查轮廓是否自交'); } finally { dispose(checker); }
           }
           active.set(current, feature);
+          initializeFaceOrigins(shape,feature);
         }
        const keepOriginal = ['badge','copy','planeSection','faceBoundary','extractFaces','extractShell','surfaceTrim','referenceExtrude','referenceLoft','profileOffset','profileRepair',...mechanicalPreservedIds].includes(feature.op) || (['mirror','extractSolid'].includes(feature.op) && feature.params?.keepOriginal !== false);
         if (feature.op==='profileExtrude') { if(feature.refs?.[1])active.delete(feature.refs[1]); }
