@@ -531,14 +531,14 @@
     {
       "operation": "mirror",
       "semanticVersion": "1.2.0",
-      "localImpact": "New UI/API mirrors default keepOriginal=false; explicit true retains a copy",
-      "servicesImpact": "none: mirror executes in browser, no remote mirror operation",
-      "logoImpact": "none: logo mirrorX is unchanged",
-      "contractImpact": "mirror card version/defaults updated",
-      "documentImpact": "New features persist explicit false; old recipes keep their saved behavior",
-      "cacheImpact": "Geometry inputs include the explicit keepOriginal field; no Services cache change",
+      "localImpact": "Deterministic seed perturbation and source-linked numeric recipe overrides, preserving creation placement",
+      "servicesImpact": "none; local mirror operation unchanged in routing",
+      "logoImpact": "none; no conversion change",
+      "contractImpact": "variation seed/ranges and linkedOverrides strict fields; actual variationReport",
+      "documentImpact": "Seed and overrides replay from current source recipe; undo/save retain params",
+      "cacheImpact": "Full params and source geometry signature invalidate derived mirror",
       "requiredTests": [
-        "tests/operation-registry.test.mjs"
+        "tests/mirror-variation.test.mjs"
       ],
       "schemaFiles": [],
       "targetedTests": [],
