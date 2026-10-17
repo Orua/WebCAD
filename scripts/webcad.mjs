@@ -21,6 +21,7 @@ else{
     report.bodies=result.bodies.map(b=>({id:b.id,name:b.name,volumeMm3:b.volume,bboxMin:b.bounds.min,bboxMax:b.bounds.max,faces:b.faceCount,solids:b.solidCount}));
     report.displayMesh=result.bodies.filter(b=>b.displayReport).map(b=>({bodyId:b.id,...b.displayReport}));
     report.loftChecks=[...kernel.shapes].filter(([,s])=>s.loftReport).map(([featureId,s])=>({featureId,...s.loftReport}));
+    report.radiusChecks=[...kernel.shapes].filter(([,s])=>s.radiusSearchReport).map(([featureId,s])=>({featureId,...s.radiusSearchReport}));
     for(const row of report.displayMesh){if(row.untriangulatedFaceIds.length)report.warnings.push({code:'DISPLAY_INCOMPLETE',bodyId:row.bodyId,faceIds:row.untriangulatedFaceIds});if(row.volumeErrorRatio>.02)report.warnings.push({code:'DISPLAY_VOLUME_MISMATCH',bodyId:row.bodyId,ratio:row.volumeErrorRatio});if(!row.watertight)report.warnings.push({code:'DISPLAY_NOT_WATERTIGHT',bodyId:row.bodyId});}
     if(options.stl){const out=await kernel.export('stl');await fs.writeFile(options.stl,out.data);report.stl={file:options.stl,bytes:out.data.length,...out.report};if(!out.report?.watertight)report.warnings.push({code:'STL_NOT_WATERTIGHT'});}
     process.exitCode=report.warnings.length?1:0;

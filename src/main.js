@@ -1083,6 +1083,7 @@ const pageAPI=createPageAPI({
   inspectThickness:input=>request('inspectThickness',{input}),
   inspectDraft:input=>request('inspectDraft',{input}),
   inspectRound:input=>request('inspectRound',{input}),
+  probeBlendRadius:input=>request('probeBlendRadius',{input}),
   measureRelation:input=>request('measureRelation',{input}),
   displayBatch:Object.freeze({begin:beginDisplayBatch,end:endDisplayBatch,endDeferred:endDisplayBatchDeferred,flush:flushDisplayBatch}),
   display:()=>viewport.displayState(),frame:()=>{flushDisplayBatch();if(lastWarnings.some(w=>w.code==='DISPLAY_FAILED'))throw Object.assign(new Error('Display failed; call redraw'),{code:'DISPLAY_FAILED'});viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});return viewport.frame();},capture:(opts)=>viewport.screenshot(opts),

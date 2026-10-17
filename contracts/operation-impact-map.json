@@ -245,16 +245,18 @@
         "src/operation-catalog.js",
         "src/operation-registry.js"
       ],
-      "localImpact": "平滑过渡 / Smooth shared seams of adjacent faces together; current-rebuild OCCT face provenance supports semantic blend selection",
+      "localImpact": "平滑过渡 / Smooth shared seams of adjacent faces together; current-rebuild OCCT face provenance supports semantic blend selection; bounded radius samples reuse one current independent BRep source",
       "servicesImpact": "Shared Services routing and capability checks apply",
       "logoImpact": "none: unrelated to logo conversion",
-      "contractImpact": "Source operation schema, shared command execution and generated tool card; seamBetween, edgesNear and facesFromFeature selectors resolve against current geometry",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card; seamBetween, edgesNear and facesFromFeature selectors resolve against current geometry; numeric or bounded radius range and read-only probeBlendRadius with actual used radius",
       "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
       "cacheImpact": "Feature signature/render cache and static contract hashes",
       "requiredTests": [
         "tests/operation-contract.test.mjs",
         "tests/semantic-blend-integration.test.mjs",
-        "tests/face-origin-restore.test.mjs"
+        "tests/face-origin-restore.test.mjs",
+        "tests/blend-radius-page.test.mjs",
+        "tests/blend-radius-search.test.mjs"
       ],
       "manualChecks": []
     },
@@ -787,16 +789,18 @@
         "src/operation-catalog.js",
         "src/operation-registry.js"
       ],
-      "localImpact": "Round sharp edges, shared face edges, face boundaries or the whole solid; current-rebuild OCCT face provenance supports semantic blend selection",
+      "localImpact": "Round sharp edges, shared face edges, face boundaries or the whole solid; current-rebuild OCCT face provenance supports semantic blend selection; bounded radius samples reuse one current independent BRep source",
       "servicesImpact": "Shared Services routing and capability checks apply",
       "logoImpact": "none: unrelated to logo conversion",
-      "contractImpact": "Source operation schema, shared command execution and generated tool card; seamBetween, edgesNear and facesFromFeature selectors resolve against current geometry",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card; seamBetween, edgesNear and facesFromFeature selectors resolve against current geometry; numeric or bounded radius range and read-only probeBlendRadius with actual used radius",
       "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
       "cacheImpact": "Feature signature/render cache and static contract hashes",
       "requiredTests": [
         "tests/operation-contract.test.mjs",
         "tests/semantic-blend-integration.test.mjs",
-        "tests/face-origin-restore.test.mjs"
+        "tests/face-origin-restore.test.mjs",
+        "tests/blend-radius-page.test.mjs",
+        "tests/blend-radius-search.test.mjs"
       ],
       "manualChecks": []
     },
