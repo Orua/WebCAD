@@ -111,6 +111,16 @@ test('studio v2: lacquer coat on polished plating, brushed anisotropy on matt fi
   assert.match(shader.fragmentShader,/float productSoftbox\(vec3 ray,vec3 center,vec2 size,vec2 blur\)/);
   assert.equal(material.customProgramCacheKey(),'webcad-metal-product-studio-v10-light-tent-gold-depth');
 });
+
+test('matte nickel remains brighter than gunmetal and precious metal finishes are selectable',()=>{
+  assert.ok(METAL_FINISHES['matt-nickel'].color[0]>METAL_FINISHES.gunmetal.color[0]);
+  const luminance=finish=>finish.color[0]*0.2126+finish.color[1]*0.7152+finish.color[2]*0.0722;
+  assert.ok(luminance(METAL_FINISHES['matt-nickel'])*METAL_FINISHES['matt-nickel'].reflectionStrength>luminance(METAL_FINISHES.gunmetal)*METAL_FINISHES.gunmetal.reflectionStrength);
+  for(const key of ['rose-gold','silver-925','white-gold-18k'])assert.ok(METAL_FINISHES[key],`missing ${key}`);
+  const rose=new THREE.Color().setRGB(...METAL_FINISHES['rose-gold'].color,THREE.LinearSRGBColorSpace);
+  const target=new THREE.Color('#B76E79');
+  assert.ok(Math.hypot(rose.r-target.r,rose.g-target.g,rose.b-target.b)<0.01,'rose gold uses the requested base hue in linear RGB');
+});
 test('studio v3 light tent keeps dark seams and plating colours stay physically ordered',()=>{
   assert.equal(PRODUCT_STUDIO.version,3);assert.equal(PRODUCT_STUDIO.model,'light-tent');
   for(const name of ['horizon','seamTop','seamSide','cameraOpening'])assert.match(PRODUCT_STUDIO_SHADER,new RegExp(`float ${name}=`));

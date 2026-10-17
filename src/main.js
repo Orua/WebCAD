@@ -922,6 +922,7 @@ async function executeAI(command,args={},options={}){
     checkTransaction(options.signal,options.expectedRevision);pushUndo(next,EDITOR_ACTIONS[action]?.title);documentModel=next;dirty=true;revision++;
     if(action==='feature.rename'){const body=bodies.find(b=>b.id===a.featureId);if(body)body.name=a.name.trim();}
     lastWarnings=[];
+    if(origin==='agent'&&action==='body.appearance'&&a.color!==undefined&&a.finish&&a.finish!=='design')lastWarnings.push({code:'COLOR_IGNORED_BY_METAL_FINISH',finish:a.finish,color:a.color});
     try{if(['body.appearance','document.appearance'].includes(action))clearSelection();applyAppearance();viewport.setHidden(next.hidden);flushDisplayBatch();viewport.markModel({documentId:next.documentId,documentInstanceId,revision});refresh();}catch(e){lastWarnings.push({code:'DISPLAY_FAILED',message:e.message});}
     void autosave();return aiState();
   }
