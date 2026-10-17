@@ -245,18 +245,20 @@
         "src/operation-catalog.js",
         "src/operation-registry.js"
       ],
-      "localImpact": "平滑过渡 / Smooth shared seams of adjacent faces together; current-rebuild OCCT face provenance supports semantic blend selection; bounded radius samples reuse one current independent BRep source",
+      "localImpact": "平滑过渡 / Smooth shared seams of adjacent faces together; current-rebuild OCCT face provenance supports semantic blend selection; bounded radius samples reuse one current independent BRep source; independent DAG branches may run on up to four Workers; per-feature timings and exact BRep checkpoints",
       "servicesImpact": "Shared Services routing and capability checks apply",
       "logoImpact": "none: unrelated to logo conversion",
-      "contractImpact": "Source operation schema, shared command execution and generated tool card; seamBetween, edgesNear and facesFromFeature selectors resolve against current geometry; numeric or bounded radius range and read-only probeBlendRadius with actual used radius",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card; seamBetween, edgesNear and facesFromFeature selectors resolve against current geometry; numeric or bounded radius range and read-only probeBlendRadius with actual used radius; getState.kernelPerformance and optional local-rebuild persisted checkpoint, Native artifact gates unchanged",
       "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
-      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "cacheImpact": "Feature signature/render cache and static contract hashes; local kernel/semantic/codec/recipe/upstream artifact hashes invalidate checkpoints; no persisted topology indices",
       "requiredTests": [
         "tests/operation-contract.test.mjs",
         "tests/semantic-blend-integration.test.mjs",
         "tests/face-origin-restore.test.mjs",
         "tests/blend-radius-page.test.mjs",
-        "tests/blend-radius-search.test.mjs"
+        "tests/blend-radius-search.test.mjs",
+        "tests/local-checkpoint.test.mjs",
+        "tests/rebuild-pool.test.mjs"
       ],
       "manualChecks": []
     },
@@ -701,18 +703,20 @@
         "src/operation-catalog.js",
         "src/operation-registry.js"
       ],
-      "localImpact": "Fuse bodies; current-rebuild OCCT face provenance supports semantic blend selection; one multi-fuse with one validated recovery and accurate failure points",
+      "localImpact": "Fuse bodies; current-rebuild OCCT face provenance supports semantic blend selection; one multi-fuse with one validated recovery and accurate failure points; independent DAG branches may run on up to four Workers; per-feature timings and exact BRep checkpoints",
       "servicesImpact": "Shared Services routing and capability checks apply",
       "logoImpact": "none: unrelated to logo conversion",
-      "contractImpact": "Source operation schema, shared command execution and generated tool card; seamBetween, edgesNear and facesFromFeature selectors resolve against current geometry; explicit fuzzyMm/glue; bounded details identify participating tools or invalid transient topology",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card; seamBetween, edgesNear and facesFromFeature selectors resolve against current geometry; explicit fuzzyMm/glue; bounded details identify participating tools or invalid transient topology; getState.kernelPerformance and optional local-rebuild persisted checkpoint, Native artifact gates unchanged",
       "documentImpact": "Feature recipe and referenced source bodies retained by the document authority; failed operation leaves committed history and geometry unchanged",
-      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "cacheImpact": "Feature signature/render cache and static contract hashes; local kernel/semantic/codec/recipe/upstream artifact hashes invalidate checkpoints; no persisted topology indices",
       "requiredTests": [
         "tests/operation-contract.test.mjs",
         "tests/semantic-blend-integration.test.mjs",
         "tests/face-origin-restore.test.mjs",
         "tests/robust-union.test.mjs",
-        "tests/boolean-roles.test.mjs"
+        "tests/boolean-roles.test.mjs",
+        "tests/local-checkpoint.test.mjs",
+        "tests/rebuild-pool.test.mjs"
       ],
       "manualChecks": []
     },
@@ -756,15 +760,17 @@
         "tests/project-container.test.mjs",
         "tests/boolean-roles.test.mjs",
         "tests/semantic-blend-integration.test.mjs",
-        "tests/face-origin-restore.test.mjs"
+        "tests/face-origin-restore.test.mjs",
+        "tests/local-checkpoint.test.mjs",
+        "tests/rebuild-pool.test.mjs"
       ],
       "manualChecks": [],
-      "localImpact": "Same existing Boolean geometry; current-rebuild OCCT face provenance supports semantic blend selection",
-      "contractImpact": "Existing source-bound schema; seamBetween, edgesNear and facesFromFeature selectors resolve against current geometry",
+      "localImpact": "Same existing Boolean geometry; current-rebuild OCCT face provenance supports semantic blend selection; independent DAG branches may run on up to four Workers; per-feature timings and exact BRep checkpoints",
+      "contractImpact": "Existing source-bound schema; seamBetween, edgesNear and facesFromFeature selectors resolve against current geometry; getState.kernelPerformance and optional local-rebuild persisted checkpoint, Native artifact gates unchanged",
       "servicesImpact": "Existing Native routing and artifact gates retained",
       "logoImpact": "none; no conversion change",
       "documentImpact": "Editable feature recipe and current refs retained",
-      "cacheImpact": "Static contracts regenerated; no cached topology IDs"
+      "cacheImpact": "Static contracts regenerated; no cached topology IDs; local kernel/semantic/codec/recipe/upstream artifact hashes invalidate checkpoints; no persisted topology indices"
     },
     {
       "operation": "intersect",
@@ -791,18 +797,20 @@
         "src/operation-catalog.js",
         "src/operation-registry.js"
       ],
-      "localImpact": "Round sharp edges, shared face edges, face boundaries or the whole solid; current-rebuild OCCT face provenance supports semantic blend selection; bounded radius samples reuse one current independent BRep source",
+      "localImpact": "Round sharp edges, shared face edges, face boundaries or the whole solid; current-rebuild OCCT face provenance supports semantic blend selection; bounded radius samples reuse one current independent BRep source; independent DAG branches may run on up to four Workers; per-feature timings and exact BRep checkpoints",
       "servicesImpact": "Shared Services routing and capability checks apply",
       "logoImpact": "none: unrelated to logo conversion",
-      "contractImpact": "Source operation schema, shared command execution and generated tool card; seamBetween, edgesNear and facesFromFeature selectors resolve against current geometry; numeric or bounded radius range and read-only probeBlendRadius with actual used radius",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card; seamBetween, edgesNear and facesFromFeature selectors resolve against current geometry; numeric or bounded radius range and read-only probeBlendRadius with actual used radius; getState.kernelPerformance and optional local-rebuild persisted checkpoint, Native artifact gates unchanged",
       "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
-      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "cacheImpact": "Feature signature/render cache and static contract hashes; local kernel/semantic/codec/recipe/upstream artifact hashes invalidate checkpoints; no persisted topology indices",
       "requiredTests": [
         "tests/operation-contract.test.mjs",
         "tests/semantic-blend-integration.test.mjs",
         "tests/face-origin-restore.test.mjs",
         "tests/blend-radius-page.test.mjs",
-        "tests/blend-radius-search.test.mjs"
+        "tests/blend-radius-search.test.mjs",
+        "tests/local-checkpoint.test.mjs",
+        "tests/rebuild-pool.test.mjs"
       ],
       "manualChecks": []
     },
@@ -1076,14 +1084,16 @@
         "src/operation-catalog.js",
         "src/operation-registry.js"
       ],
-      "localImpact": "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+      "localImpact": "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections; independent DAG branches may run on up to four Workers; per-feature timings and exact BRep checkpoints",
       "servicesImpact": "Shared Services routing and capability checks apply",
       "logoImpact": "none: unrelated to logo conversion",
-      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card; getState.kernelPerformance and optional local-rebuild persisted checkpoint, Native artifact gates unchanged",
       "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
-      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "cacheImpact": "Feature signature/render cache and static contract hashes; local kernel/semantic/codec/recipe/upstream artifact hashes invalidate checkpoints; no persisted topology indices",
       "requiredTests": [
-        "tests/operation-contract.test.mjs"
+        "tests/operation-contract.test.mjs",
+        "tests/local-checkpoint.test.mjs",
+        "tests/rebuild-pool.test.mjs"
       ],
       "manualChecks": []
     },
@@ -1094,14 +1104,16 @@
         "src/operation-catalog.js",
         "src/operation-registry.js"
       ],
-      "localImpact": "Solid or open shell through hand-defined XY sections",
+      "localImpact": "Solid or open shell through hand-defined XY sections; independent DAG branches may run on up to four Workers; per-feature timings and exact BRep checkpoints",
       "servicesImpact": "Shared Services routing and capability checks apply",
       "logoImpact": "none: unrelated to logo conversion",
-      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card; getState.kernelPerformance and optional local-rebuild persisted checkpoint, Native artifact gates unchanged",
       "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
-      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "cacheImpact": "Feature signature/render cache and static contract hashes; local kernel/semantic/codec/recipe/upstream artifact hashes invalidate checkpoints; no persisted topology indices",
       "requiredTests": [
-        "tests/operation-contract.test.mjs"
+        "tests/operation-contract.test.mjs",
+        "tests/local-checkpoint.test.mjs",
+        "tests/rebuild-pool.test.mjs"
       ],
       "manualChecks": []
     },

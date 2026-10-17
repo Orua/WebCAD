@@ -1,10 +1,3 @@
-import {buildSubdBRep} from './subd-brep.js';
-import {applySubdBrushes} from './subd-brushes.js';
-import {probeBlendRadius} from './blend-radius-search.js';
-import {rangedBlend} from './blend-radius-range.js';
-import {finishBooleanBlend} from './modeling/boolean-blend.js';
-import {buildBumpSet} from './bump-set.js';
-import {applyMirrorVariation,overriddenParams} from './mirror-variation.js';
 import {buildTap} from './modeling/manufacturing/tap-tool.js';
 import {sampleMeshRelief} from './mesh/relief-sample.js';
 import {exactSourceBytes} from './exact-source.js';
@@ -22,9 +15,16 @@ import {findExactDragSnap} from './modeling/interaction/drag-snap.js';
 import * as cad from 'replicad';
 import {exportColoredSTEP} from './modeling/io/step-export.js';
 import {meshIntegrity,binaryStl} from './modeling/io/mesh-integrity.js';
+import {applyMirrorVariation,overriddenParams} from './mirror-variation.js';
 import {robustUnion} from './modeling/robust-union.js';
-import {initializeFaceOrigins,copyFaceOrigins,blendContext,restoreFaceOrigins,cutWithFaceOrigins} from './modeling/face-origins.js';
+import {initializeFaceOrigins,copyFaceOrigins,blendContext,originSignatures,restoreFaceOrigins,cutWithFaceOrigins} from './modeling/face-origins.js';
 import {buildBlendRadius} from './blend-radius.js';
+import {probeBlendRadius} from './blend-radius-search.js';
+import {rangedBlend} from './blend-radius-range.js';
+import {finishBooleanBlend} from './modeling/boolean-blend.js';
+import {buildBumpSet} from './bump-set.js';
+import {buildSubdBRep} from './subd-brep.js';
+import {applySubdBrushes} from './subd-brushes.js';
 import {renderQuality} from './render-quality.js';
 import {EXACT_DISPLAY} from './viewport/exact-display-policy.js';
 import {displayEdges,displayMetadata,isPlanarPolygon} from './modeling/io/adaptive-display.js';
@@ -228,6 +228,9 @@ function faceBoundaryEdges(shape, faceIds) {
   }
 }
 import {compiledCheckpointBytes,geometryRecipeFingerprint} from './services/geometry-exchange.js';
+import {LOCAL_KERNEL_BUILD_ID,LOCAL_REBUILD_SEMANTICS,GEOMETRY_CODEC,localCheckpointFingerprint} from './services/geometry-exchange.js';
+import {recordTimeline} from './document-timeline.js';
+import {checkpointReports,restoreCheckpointReports} from './local-checkpoint-reports.js';
 export class CadKernel {
   constructor(oc) { cad.setOC(oc); this.oc = oc; this.shapes = new Map(); this.active = new Map(); this.renderCache = new Map();this.geometryMetrics=new WeakMap();this.geometrySourceSnapshots=new WeakMap();this.reliefLayerCache=new ReliefLayerCache(); this.historySignature = []; this.importsSignature = ''; this.renderVersion = 0; }
   async operation(feature, shapes, imports, historyFeatures=[],execution={}) {
@@ -685,6 +688,28 @@ export class CadKernel {
       default: throw new Error(`不支持的操作：${feature.op}`);
     }
   }
+  async rebuildFeatureFromSnapshots(document,featureId){
+    const feature=document.features.find(row=>row.id===featureId),inputs=new Map(),owned=[];
+    if(!feature)throw Object.assign(new Error('并行目标特征不存在'),{featureId,code:'STALE_REFERENCE'});
+    let shape;
+    try{
+      for(const id of feature.refs||[]){
+        const source=document.features.find(row=>row.id===id),bytes=source&&compiledCheckpointBytes(document,source);
+        if(!bytes||source.compiledCheckpoint?.kind!=='local-rebuild')throw Object.assign(new Error('并行特征缺少已校验的本地依赖快照'),{code:'PARALLEL_DEPENDENCY_MISSING'});
+        const copy=cad.deserializeShape(new TextDecoder().decode(bytes));owned.push(copy);
+        if(source.compiledCheckpoint.faceOriginSignatures&&['union','cut','intersect','smoothTransition','fillet','bumpSet'].includes(feature.op))restoreFaceOrigins(copy,source.compiledCheckpoint.faceOriginSignatures);
+        if(copy.faceOrigins)copy.faceOrigins=copy.faceOrigins.map(row=>row?{...row,featureIds:[...new Set([...(row.featureIds||[row.featureId]),id])]}:null);
+        inputs.set(id,copy);
+      }
+      shape=await this.operation(feature,inputs,document.imports||{},document.features);
+      if(!shape||shape.geometryType==='mesh')throw new Error('并行特征未生成精确 BRep');
+      if(feature.placement&&placementPolicy(feature.op)==='C'){const placed=placeCreation(shape,feature.placement);dispose(shape);shape=placed;}
+      const check=new this.oc.BRepCheck_Analyzer(shape.wrapped,true,false,false);
+      try{if(shape.isNull||!check.IsValid())throw new Error('并行特征生成无效几何');}finally{dispose(check);}
+      initializeFaceOrigins(shape,feature);this.shapes.set(featureId,shape);this.geometrySourceSnapshot(shape);shape=null;
+    }catch(error){throw Object.assign(error,{featureId,code:error.code||'GEOMETRY_INVALID'});}
+    finally{owned.forEach(dispose);dispose(shape);}
+  }
   geometrySourceSnapshot(shape){
     if(shape?.geometryType==='mesh')throw meshError('MESH_BREP_UNAVAILABLE','A raw mesh is not a BRep source; no implicit faceted conversion.');
     let snapshot=this.geometrySourceSnapshots.get(shape);
@@ -694,6 +719,20 @@ export class CadKernel {
   serializeFeatureShape(featureId){
     const shape=this.shapes.get(featureId);if(!shape)throw Object.assign(new Error('来源特征几何已失效'),{code:'STALE_REFERENCE'});
     return {data:new TextEncoder().encode(this.geometrySourceSnapshot(shape))};
+  }
+  bakeProject(document,{thresholdMs=1000}={}){
+    const result={...document,features:document.features.map(f=>({...f})),compiledArtifacts:{...document.compiledArtifacts}},baked=[],skipped=[];
+    for(const feature of result.features){
+      const timing=this.lastFeatureTimings?.find(row=>row.featureId===feature.id),shape=this.shapes.get(feature.id);
+      if(feature.compiledCheckpoint&&!(feature.compiledCheckpoint.kind==='local-rebuild'&&this.lastCompiledInvalidated?.includes(feature.id))||!shape||shape.geometryType==='mesh'||!timing||timing.ms<thresholdMs)continue;
+      const bytes=this.serializeFeatureShape(feature.id).data;
+      if(bytes.length>20*1024*1024){skipped.push({featureId:feature.id,reason:'CHECKPOINT_CLIENT_CAPACITY'});continue;}
+      const artifactSha256=binaryHash(bytes).slice(7),inputSha256=feature.refs.map(id=>binaryHash(this.serializeFeatureShape(id).data).slice(7));
+      feature.compiledCheckpoint={kind:'local-rebuild',codec:GEOMETRY_CODEC,brepVersion:3,kernelBuildId:LOCAL_KERNEL_BUILD_ID,semanticVersion:LOCAL_REBUILD_SEMANTICS,recipeFingerprint:localCheckpointFingerprint(result,feature.id),artifactSha256,inputSha256,sourceSnapshotVersion:2,faceOriginSignatures:originSignatures(shape),reports:checkpointReports(shape)};
+      result.compiledArtifacts[artifactSha256]=bytes;baked.push(feature.id);
+    }
+    if(baked.length){result.version=4;result.binaryAssets={...document.binaryAssets};if(document.timeline)recordTimeline(document,result,{label:'保留重建检查点'});}
+    return {document:result,baked,skipped};
   }
   sourceComplexity(featureId,faceId){
     const shape=this.shapes.get(featureId);if(!shape)throw Object.assign(new Error('来源特征几何已失效'),{code:'STALE_REFERENCE'});
@@ -779,9 +818,9 @@ export class CadKernel {
       if(shape.variationReport)measured.variationReport=shape.variationReport;
       if(shape.booleanReport)measured.booleanReport=shape.booleanReport;
       if(shape.loftReport)measured.loftReport=shape.loftReport;
-      if(shape.warnings)measured.warnings=shape.warnings;
       if(shape.blendRadiusReport)measured.blendRadiusReport=shape.blendRadiusReport;
       if(shape.radiusSearchReport)measured.radiusSearchReport=shape.radiusSearchReport;
+      if(shape.warnings)measured.warnings=shape.warnings;
       if(shape.subdApproximation)measured.subdApproximation=shape.subdApproximation;
       measured.displayReport.missingAreaMm2=measured.displayReport.untriangulatedFaceIds.reduce((sum,i)=>sum+cad.measureArea(faces[i]),0);
       this.reportRebuildProgress('edge-polylines','生成显示边线');
@@ -806,10 +845,11 @@ export class CadKernel {
     while (prefix < signatures.length && prefix < this.historySignature.length && signatures[prefix] === this.historySignature[prefix] && importsSignature === this.importsSignature) prefix++;
     const reused = new Set();
     const nextRenderCache = new Map();
-    const compiledReuse=[],compiledInvalidated=[];
+    const compiledReuse=[],compiledInvalidated=[],perFeatureMs=[];
     try {
       for (let index = 0; index < features.length; index++) {
         const feature = features[index];
+        const featureStarted=performance.now();
         current = feature.id;
         this.reportRebuildProgress('feature','重建特征',{featureId:current,completed:index,total:features.length});
         if (!current || ids.has(current)) throw new Error('特征 ID 缺失或重复');
@@ -824,17 +864,11 @@ export class CadKernel {
           const inputs=new Map(next),copies=[];
           const sourceFingerprint=feature.op==='relief'&&feature.refs?.length===1?binaryHash(new TextEncoder().encode(this.geometrySourceSnapshot(next.get(feature.refs[0])))):undefined;
           try {
-            for(const id of new Set(feature.refs||[]))if(next.has(id)){
-              const original=next.get(id),copy=original.geometryType==='mesh'?original.clone():cad.deserializeShape(this.geometrySourceSnapshot(original));
-              if(original.geometryType!=='mesh')copyFaceOrigins(original,copy);
-              if(copy.faceOrigins)copy.faceOrigins=copy.faceOrigins.map(row=>row?{...row,featureIds:[...new Set([...(row.featureIds||[row.featureId]),id])]}:null);
-              copies.push(copy);inputs.set(id,copy);
-            }
             // Bind the same authoritative cached source bytes that were
             // uploaded. Reading a defensive BRep copy can rewrite serialization
             // flags without changing geometry; that copy is for computation.
-            const checkpointSources=feature.compiledCheckpoint?feature.refs.map(id=>new TextEncoder().encode(this.geometrySourceSnapshot(next.get(id)))):null;
-            let checkpoint=compiledCheckpointBytes(document,feature,checkpointSources?(feature.op==='cut'?checkpointSources:checkpointSources[0]):undefined);
+            const checkpointSources=feature.compiledCheckpoint&&feature.compiledCheckpoint.kind!=='local-rebuild'?feature.refs.map(id=>new TextEncoder().encode(this.geometrySourceSnapshot(next.get(id)))):null;
+            let checkpoint=compiledCheckpointBytes(document,feature,checkpointSources?(feature.op==='cut'||feature.compiledCheckpoint.kind==='local-rebuild'?checkpointSources:checkpointSources[0]):undefined);
             // Pre-snapshot v3 artifacts could include display triangulations.
             // Recreate that source representation once and require its exact
             // original hash. This is source mesh work, never relief recompute.
@@ -842,8 +876,17 @@ export class CadKernel {
               const legacySource=next.get(feature.refs[0]);this.describe(legacySource,{id:feature.refs[0],op:'legacy-source'});
               checkpoint=compiledCheckpointBytes(document,feature,new TextEncoder().encode(legacySource.serialize()));
             }
-            if(checkpoint){shape=cad.deserializeShape(new TextDecoder().decode(checkpoint));if(feature.op==='round')shape.roundReport=feature.compiledCheckpoint.roundReport;if(feature.op==='reliefShoulder')shape.reliefReport=feature.compiledCheckpoint.reliefReport;compiledReuse.push(current);}
-            else {if(feature.compiledCheckpoint)compiledInvalidated.push(current);shape=await this.operation(feature,inputs,document.imports||{},document.features,{sourceFingerprint});}
+            if(checkpoint){shape=cad.deserializeShape(new TextDecoder().decode(checkpoint));restoreCheckpointReports(shape,feature.compiledCheckpoint.reports);if(feature.compiledCheckpoint.faceOriginSignatures)restoreFaceOrigins(shape,feature.compiledCheckpoint.faceOriginSignatures,{defer:true});if(feature.op==='round')shape.roundReport=feature.compiledCheckpoint.roundReport;if(feature.op==='reliefShoulder')shape.reliefReport=feature.compiledCheckpoint.reliefReport;compiledReuse.push(current);}
+            else {
+              if(feature.compiledCheckpoint)compiledInvalidated.push(current);
+              for(const id of new Set(feature.refs||[]))if(next.has(id)){
+                const original=next.get(id),copy=original.geometryType==='mesh'?original.clone():cad.deserializeShape(this.geometrySourceSnapshot(original));
+                if(original.geometryType!=='mesh')copyFaceOrigins(original,copy);
+                if(copy.faceOrigins)copy.faceOrigins=copy.faceOrigins.map(row=>row?{...row,featureIds:[...new Set([...(row.featureIds||[row.featureId]),id])]}:null);
+                copies.push(copy);inputs.set(id,copy);
+              }
+              shape=await this.operation(feature,inputs,document.imports||{},document.features,{sourceFingerprint});
+            }
             if(shape&&!checkpoint&&feature.placement&&placementPolicy(feature.op)==='C'){const placed=placeCreation(shape,feature.placement);dispose(shape);shape=placed;}
           } finally {copies.forEach(dispose);}
         }
@@ -868,6 +911,7 @@ export class CadKernel {
         else if(profileSolidIds.includes(feature.op)){if((feature.params?.operation??'newBody')!=='newBody')active.delete(feature.refs.at(-1));}
         else if(['union','cut','intersect'].includes(feature.op)&&feature.params?.keepTools===true){active.delete(feature.refs?.[0]);}
         else if (!keepOriginal) for (const id of feature.refs || []) active.delete(id);
+        perFeatureMs.push({featureId:feature.id,op:feature.op,ms:performance.now()-featureStarted,reused:reused.has(feature.id),checkpoint:compiledReuse.includes(feature.id)});
       }
       const bodies = [...active].map(([id, feature]) => {
         current = id;
@@ -892,8 +936,10 @@ export class CadKernel {
       this.shapes.forEach((shape, id) => { if (!reused.has(id) && !next.has(id)) dispose(shape); });
       this.shapes.forEach((shape, id) => { if (next.has(id) && next.get(id) !== shape && !reused.has(id)) dispose(shape); });
       this.shapes = next; this.active = active; this.historySignature = signatures; this.importsSignature = importsSignature; this.renderCache = nextRenderCache;
+      this.lastFeatureTimings=perFeatureMs;
+      this.lastCompiledInvalidated=compiledInvalidated;
       this.reportRebuildProgress('complete','重建完成');
-      return { bodies, renderVersion: String(this.renderVersion), compiledReuse,compiledInvalidated,stats: { bodies: bodies.length, solids: bodies.reduce((n, b) => n + b.solidCount, 0), volume: bodies.some(b=>b.metricsDeferred)?null:bodies.reduce((n, b) => n + (b.volume || 0), 0) } };
+      return { bodies, renderVersion: String(this.renderVersion), compiledReuse,compiledInvalidated,perFeatureMs,stats: { bodies: bodies.length, solids: bodies.reduce((n, b) => n + b.solidCount, 0), volume: bodies.some(b=>b.metricsDeferred)?null:bodies.reduce((n, b) => n + (b.volume || 0), 0),checkpointCandidates:perFeatureMs.filter(row=>row.ms>1000).map(row=>row.featureId) } };
     } catch (error) {
       next.forEach((shape, id) => { if (!reused.has(id)) dispose(shape); });
       const raw=String(error?.message||error||'');
