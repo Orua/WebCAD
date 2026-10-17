@@ -10,6 +10,8 @@ import { MetalMaterials, METAL_FINISHES } from './metal-materials.js';
 import { getLanguage } from './i18n.js';
 import { loadDisplayPreferences } from './display-preferences.js';
 import {chooseDisplayLevel} from './mesh/display-lod.js';
+import {formatBodyCount} from './count-summary.js';
+import {floorGridZ} from './floor-grid.js';
 import {ExactDisplayDetail} from './viewport/exact-detail.js';
 import {MetalOcclusionPass,metalEdgeOpacity} from './viewport/metal-occlusion.js';
 const say=(zh,en)=>getLanguage()==='en'?en:zh;
