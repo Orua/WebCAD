@@ -19,8 +19,9 @@ export const JOB_METHODS = new Set(['run','execute','queryGeometry','measure','m
   'inspectDesign','inspectFit','inspectThickness','inspectDraft','setView','setRenderQuality','files.save','files.export','files.import',
   'prepareProfileEdit','projectProfile','createDrawing','exportDrawing','copySelection','pasteSelection','inspectRound']);
 export const EDIT_METHODS = new Set(['execute','files.import','copySelection','pasteSelection','recoverKernel']);
-export const EXPORT_METHODS = new Set(['files.save','files.export','createDrawing','exportDrawing']);
+export const EXPORT_METHODS = new Set(['files.save','files.export','files.reattach','createDrawing','exportDrawing']);
 JOB_METHODS.add('recoverKernel');
+JOB_METHODS.add('files.reattach');
 const contract={schemaVersion:1,adapterVersion:2,protocol:PROTOCOL,
   readMethods:[...READ_METHODS].sort(),viewMethods:[...VIEW_METHODS].sort(),jobMethods:[...JOB_METHODS].sort(),
   discoveryMethods:[...DISCOVERY_METHODS].sort(),editActions:[...EDIT_ACTIONS].sort(),

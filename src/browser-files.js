@@ -180,6 +180,12 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
       if (!['step', 'stl', 'brep', 'png'].includes(format)) throw failure('FORMAT_UNSUPPORTED', 'Unsupported export format');
       return generated({ context, action: 'export', args: { format, ...(ids === undefined ? {} : { ids }) }, name });
     },
+    reattach({resourceId}={}){
+      const resource=requireResource(resourceId);
+      if(resource.kind!=='output')throw failure('ASSET_INVALID','只能重新附加已生成的文件');
+      const {name,mime,size,sha256,expiresAt,context}=resource;
+      return {status:'generated',resourceId,name,mime,size,sha256,expiresAt,...(context?{context}:{})};
+    },
     async read({ resourceId, as = 'blob' } = {}) {
       const resource = requireResource(resourceId);
       if (as === 'blob') return resource.blob;
