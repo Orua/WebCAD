@@ -117,6 +117,9 @@ for(const id of ['smoothTransition','fillet'])operationCatalog.operations[id].pa
 operationCatalog.operations.smoothTransition.paramsSchema.required=['radius'];
 operationCatalog.operations.smoothTransition.paramsSchema.anyOf=[{required:['faceIds']},{required:['selector']}];
 operationCatalog.operations.smoothTransition.notes+=' selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs.';
+operationCatalog.operations.mirror.paramsSchema.properties.variation={type:'object',additionalProperties:false,required:['seed'],properties:{seed:{type:'string',minLength:1,maxLength:200},translateMm:{...point3,items:{type:'number',minimum:0}},rotateDeg:{...point3,items:{type:'number',minimum:0}},scale:{type:'array',items:{type:'number',exclusiveMinimum:0},minItems:2,maxItems:2}}};
+operationCatalog.operations.mirror.paramsSchema.properties.linkedOverrides={type:'object',additionalProperties:{type:'number'},description:'At most 100 numeric source-recipe overrides by existing parameter path; source dependencies remain linked.'};
+operationCatalog.operations.mirror.notes+=' variation uses a deterministic seed, signed translation/rotation bounds and a positive scale interval; variationReport records actual values. linkedOverrides re-evaluates the current source recipe with numeric path overrides; no topology IDs are cached.';
 export const legacyRoundingOperation=operationCatalog.operations.rounding;
 export const legacyUnifiedRoundingOperation=op('圆角 / Round selected edges',1,{
   specVersion:{type:'integer',const:2},

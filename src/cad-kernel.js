@@ -1,3 +1,4 @@
+import {applyMirrorVariation,overriddenParams} from './mirror-variation.js';
 import {buildTap} from './modeling/manufacturing/tap-tool.js';
 import {sampleMeshRelief} from './mesh/relief-sample.js';
 import {exactSourceBytes} from './exact-source.js';
@@ -485,7 +486,17 @@ export class CadKernel {
       case 'transform': case 'copy': return p.mode?applySpatialTransform(source(),p,feature.placement):applyTransform(source(),p);
       case 'mirror': {
         const plane=workPlane(planeName(p),finite(p,'offsetMm'));
-        try{return source().clone().mirror(plane);}finally{dispose(plane);}
+        let linked,mirrored;
+        try{
+          if(p.linkedOverrides){
+            const recipe=historyFeatures.find(row=>row.id===feature.refs[0]);if(!recipe)throw new Error('链接源特征不存在');
+            linked=await this.operation({...recipe,params:overriddenParams(recipe.params,p.linkedOverrides)},shapes,imports,historyFeatures);
+            if(recipe.placement&&placementPolicy(recipe.op)==='C'){const placed=placeCreation(linked,recipe.placement);dispose(linked);linked=placed;}
+          }
+          mirrored=(linked||source()).clone().mirror(plane);
+          if(!p.variation){const result=mirrored;mirrored=null;return result;}
+          const result=applyMirrorVariation(mirrored,p.variation);dispose(mirrored);mirrored=null;return result;
+        }finally{dispose(mirrored);dispose(linked);dispose(plane);}
       }
       case 'slot': {
         const shape=source(),length=positive(p,'length',20),width=positive(p,'width',6),depth=positive(p,'depth',5);
@@ -752,6 +763,7 @@ export class CadKernel {
       const measured=this.geometryMetrics.get(shape)||(adaptive?displayMetadata(shape,faces,edges,this.oc):this.measureBodyGeometry(shape,faces,edges));
       const mappedFaces = mesh.faceGroups.map(g => ({ ...g, faceId: faceMap.get(g.faceId),...(adaptive?{exactPolygon:isPlanarPolygon(faces[faceMap.get(g.faceId)])}:{}) }));
       measured.displayReport=meshIntegrity(mesh.vertices,mesh.triangles,{faceCount:faces.length,faceGroups:mappedFaces,brepVolumeMm3:measured.volume});
+      if(shape.variationReport)measured.variationReport=shape.variationReport;
       if(shape.booleanReport)measured.booleanReport=shape.booleanReport;
       if(shape.loftReport)measured.loftReport=shape.loftReport;
       if(shape.blendRadiusReport)measured.blendRadiusReport=shape.blendRadiusReport;
