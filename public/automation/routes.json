@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
   "pageApiVersion": "1.52.1",
-  "buildId": "887a872bb47c554afd55719c43f9c39457d0cc91-src-78174d528310182d-working",
-  "catalogHash": "sha256:dec82f4772386b61d55288687069cbb37b5155a2fe1ba5f9c4ea8e6f8486c69b",
-  "docsHash": "sha256:73bb885674fe20cf50e963256e09bc42c9b117c4221392a325eb1cfc03870b98",
+  "buildId": "b33eae5e74de51ea11f8e126a23de3173192541d-src-0c5975b505b80602-working",
+  "catalogHash": "sha256:08fbff326a871ba1fc51c90c2a4c0acc8335a33b18f3a1639574841b55ba17bf",
+  "docsHash": "sha256:fe8a73d4705d6532de8c4a11c00d121c40c930c7de13269c09b80448bb6f5820",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -262,6 +262,13 @@
         "feature.rename"
       ],
       "method": "execute"
+    },
+    "ellipsoid": {
+      "tools": [
+        "ellipsoid"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
     },
     "explode": {
       "tools": [
@@ -1413,6 +1420,7 @@
     "cylinder": "圆柱",
     "draftByPlane": "平面拔模",
     "draftFaces": "受限拔模 / 拔模",
+    "ellipsoid": "椭球",
     "extractFaces": "提取指定面 / 提取面",
     "extractShell": "提取壳",
     "extractSolid": "提取实体",

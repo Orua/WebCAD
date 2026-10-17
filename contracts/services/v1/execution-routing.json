@@ -179,6 +179,7 @@
     "surfaceTrim"
   ],
   "localOnlyOperations": [
+    "ellipsoid",
     "guidedLoft",
     "bumpSet",
     "subdBody",

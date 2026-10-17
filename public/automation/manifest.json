@@ -1,9 +1,9 @@
 {
   "version": "1.52.1",
-  "buildId": "887a872bb47c554afd55719c43f9c39457d0cc91-src-78174d528310182d-working",
+  "buildId": "b33eae5e74de51ea11f8e126a23de3173192541d-src-0c5975b505b80602-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:dec82f4772386b61d55288687069cbb37b5155a2fe1ba5f9c4ea8e6f8486c69b",
-  "docsHash": "sha256:73bb885674fe20cf50e963256e09bc42c9b117c4221392a325eb1cfc03870b98",
+  "catalogHash": "sha256:08fbff326a871ba1fc51c90c2a4c0acc8335a33b18f3a1639574841b55ba17bf",
+  "docsHash": "sha256:fe8a73d4705d6532de8c4a11c00d121c40c930c7de13269c09b80448bb6f5820",
   "apiMethods": [
     "probeBlendRadius",
     "recoverKernel",
@@ -236,6 +236,15 @@
       "version": "1.0.0",
       "docsHash": "sha256:7d4161732f86af2bbd461cc81e015f1d666a33997c74ea804d6114e9a358ff63",
       "url": "tools/draftFaces.json"
+    },
+    {
+      "id": "ellipsoid",
+      "title": "椭球 / Exact rational quadratic ellipsoid",
+      "label": "椭球",
+      "category": "creation",
+      "version": "1.0.0",
+      "docsHash": "sha256:d59750d3ac062167ad88ba81358ee2ea7350ba5f4a8b9bc56c332c1521f13028",
+      "url": "tools/ellipsoid.json"
     },
     {
       "id": "extractFaces",
@@ -2542,7 +2551,7 @@
     },
     {
       "id": "api.ui-coverage",
-      "docsHash": "sha256:c4098951b608b59027b862f503762ba54aafd9bed7c8c6afa457addd402f81bf",
+      "docsHash": "sha256:876a3a48a8821e1eb1ce73d57e1e7a35f7b4585b51d55cc2dab99ff84a9ebc00",
       "url": "docs/api.ui-coverage.md"
     },
     {

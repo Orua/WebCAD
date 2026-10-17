@@ -1688,6 +1688,19 @@
         "tests/guided-loft-dispatch.test.mjs",
         "tests/loft-guides.test.mjs"
       ]
+    },
+    {
+      "operation": "ellipsoid",
+      "semanticVersion": "ellipsoid-1",
+      "localImpact": "Exact rational quadratic octants, valid solid and analytic volume check; no general deformation fallback",
+      "servicesImpact": "none; fixed local WASM",
+      "logoImpact": "none",
+      "contractImpact": "Explicit three positive semi-axis radii; Chinese UI and same strict public operation",
+      "documentImpact": "Editable creation recipe, ordinary placement, save and undo with ellipsoidReport",
+      "cacheImpact": "All parameters and frozen placement included; numeric report retained without topology IDs",
+      "requiredTests": [
+        "tests/ellipsoid.test.mjs"
+      ]
     }
   ],
   "executionRouting": {

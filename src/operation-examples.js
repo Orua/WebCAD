@@ -51,5 +51,6 @@ export const operationExamples = {badge:{faceId:0,thicknessMm:2,side:'double',di
   bumpSet:{bumps:[{centerMm:[0,0,4],radiusMm:1}],blendRadiusMm:.1},
   subdBody:SUBD_EXAMPLE,
   guidedLoft:guidedExample,
+  ellipsoid:{radiiMm:[2,3,4]},
 };
 

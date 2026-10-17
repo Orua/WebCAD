@@ -5,7 +5,7 @@ import {mechanicalIds,mechanicalCreationIds} from './mechanical-tool-contracts.j
 // C: independent creation; T: tool/additive material; S: target face;
 // X: axis/plane/vector; N: existing topology/location; L: legacy only.
 const category={
-  C:['guidedLoft','subdBody','meshReliefPlate','meshHeightfieldRelief','box','cylinder','sphere','cone','torus','extrude','revolve','sweep','loft','quickModel','vectorProfile','arcProfile','sketchProfile','curveSweep','advancedLoft','fittedSurface','import'],
+  C:['ellipsoid','guidedLoft','subdBody','meshReliefPlate','meshHeightfieldRelief','box','cylinder','sphere','cone','torus','extrude','revolve','sweep','loft','quickModel','vectorProfile','arcProfile','sketchProfile','curveSweep','advancedLoft','fittedSurface','import'],
   T:['hole','holeWizard','multiHole','slot','multiPocket','multiBoss'],
   S:['faceHole','logo'],
   X:['transform','copy','mirror','linearPattern','circularPattern','split','planeSection','referenceExtrude'],
