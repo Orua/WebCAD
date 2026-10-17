@@ -134,10 +134,11 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
     const outputName = basename(name ?? `document.${extension}`);
     const savedContext = { sessionId: context.sessionId, documentId: context.documentId,
       documentInstanceId: context.documentInstanceId, revision };
-    return add({ kind: 'output', name: outputName, mime: result.mime, bytes:result.encoding==='bytes'?result.data:bytesFromBase64(result.data),
+    const artifact=await add({ kind: 'output', name: outputName, mime: result.mime, bytes:result.encoding==='bytes'?result.data:bytesFromBase64(result.data),
       context: savedContext,
       saveSnapshot: action === 'save' ? { documentId: context.documentId,
         documentInstanceId: context.documentInstanceId, savedRevision: revision } : undefined });
+    return {...artifact,...(result.report?{report:result.report}:{})};
   }
 
   return Object.freeze({
