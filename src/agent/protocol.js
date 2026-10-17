@@ -21,6 +21,8 @@ export const JOB_METHODS = new Set(['run','execute','queryGeometry','measure','m
 export const EDIT_METHODS = new Set(['execute','files.import','copySelection','pasteSelection','recoverKernel']);
 export const EXPORT_METHODS = new Set(['files.save','files.export','files.reattach','createDrawing','exportDrawing']);
 JOB_METHODS.add('recoverKernel');
+READ_METHODS.add('probeBlendRadius');
+JOB_METHODS.add('probeBlendRadius');
 JOB_METHODS.add('files.reattach');
 const contract={schemaVersion:1,adapterVersion:2,protocol:PROTOCOL,
   readMethods:[...READ_METHODS].sort(),viewMethods:[...VIEW_METHODS].sort(),jobMethods:[...JOB_METHODS].sort(),

@@ -1,3 +1,5 @@
+import {probeBlendRadius} from './blend-radius-search.js';
+import {rangedBlend} from './blend-radius-range.js';
 import {finishBooleanBlend} from './modeling/boolean-blend.js';
 import {buildBumpSet} from './bump-set.js';
 import {applyMirrorVariation,overriddenParams} from './mirror-variation.js';
@@ -653,11 +655,12 @@ export class CadKernel {
         catch (error) { dispose(out); throw error; }
       }
       case 'autoRound': return buildSmoothTransition(source(),{...p,allEdges:true});
-      case 'smoothTransition': return buildSmoothTransition(source(),{...p,context:blendContext(source())});
+      case 'smoothTransition': return typeof p.radius==='object'?rangedBlend(source(),p,{smooth:true}):buildSmoothTransition(source(),{...p,context:blendContext(source())});
       case 'round': return buildRoundTool(source(),p);
       case 'roundEnd': return buildEndRounding(source(),p);
       case 'rounding': return buildRounding(source(),p,{sourceBodyId:refs[0]});
       case 'fillet': case 'chamfer': {
+        if(feature.op==='fillet'&&typeof p.radius==='object')return rangedBlend(source(),p);
         const shape = source(), amount = positive(p, feature.op === 'fillet' ? 'radius' : 'distance');
         if((p.selector||p.blendLaw)&&feature.op==='fillet'){
           const selector=p.selector??(p.edgeIds?.length?{edgeIds:p.edgeIds}:p.faceIds?.length?{faceIds:p.faceIds}:p.allEdges===true?{allEdges:true}:null);
@@ -774,6 +777,7 @@ export class CadKernel {
       if(shape.loftReport)measured.loftReport=shape.loftReport;
       if(shape.warnings)measured.warnings=shape.warnings;
       if(shape.blendRadiusReport)measured.blendRadiusReport=shape.blendRadiusReport;
+      if(shape.radiusSearchReport)measured.radiusSearchReport=shape.radiusSearchReport;
       measured.displayReport.missingAreaMm2=measured.displayReport.untriangulatedFaceIds.reduce((sum,i)=>sum+cad.measureArea(faces[i]),0);
       this.reportRebuildProgress('edge-polylines','生成显示边线');
       const mappedEdges = adaptive?displayEdges(edges,settings.tolerance,this.oc):wire.edgeGroups.map(g => ({ edgeId: edgeMap.get(g.edgeId), positions: Array.from(wire.lines.slice(g.start * 3, (g.start + g.count) * 3)) }));
@@ -1064,6 +1068,10 @@ export class CadKernel {
   measureRelation(input){return measureRelationExact(input,id=>this.activeShape(id),this.oc,cad);}
   inspectDraft(input){return inspectDraftExact(this.activeShape(input.bodyId),input);}
   inspectRound(input){return {bodyId:input.bodyId,...inspectRoundTool(this.activeShape(input.bodyId),input.params)};}
+  probeBlendRadius(input){
+    const source=this.activeShape(input.bodyId),copy=cad.deserializeShape(this.geometrySourceSnapshot(source));copyFaceOrigins(source,copy);
+    try{return {bodyId:input.bodyId,...probeBlendRadius(copy,{...input,context:blendContext(copy)})};}finally{dispose(copy);}
+  }
   async export(format, ids, {colors = {}, defaultColor = '#aac4d9'} = {}) {
     const selected = ids === undefined ? [...this.active.keys()] : ids;
     if (!Array.isArray(selected) || !selected.length) throw new Error('没有可导出的实体');

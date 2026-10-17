@@ -113,7 +113,10 @@ operationCatalog.operations.badge=op('牌仔工具 / Thicken a planar face into 
 },['faceId','thicknessMm'],'Preserves the source and creates one independent exact solid. Single-sided extends by the total thickness along direction times face normal; double-sided spans -thickness/2 to +thickness/2. Preserve source footprint and holes before filleting all sharp edges, including hole rims and side corners; tangent seams are skipped. Radius must be less than half thickness. One fillet attempt; failure rejects the entire step without radius reduction. Read badgeReport for resolved R, offsets and rounded edge count. Local WASM only.');
 
 // Saved v1/v2 features and explicit legacy API calls retain their original contract.
-for(const id of ['smoothTransition','fillet'])operationCatalog.operations[id].paramsSchema.properties.selector=BLEND_SELECTOR_SCHEMA;
+for(const id of ['smoothTransition','fillet']){
+ operationCatalog.operations[id].paramsSchema.properties.selector=BLEND_SELECTOR_SCHEMA;
+ operationCatalog.operations[id].paramsSchema.properties.radius={oneOf:[positive('Exact radius in mm'),{type:'object',additionalProperties:false,required:['maxMm','minMm'],properties:{maxMm:positive('Maximum sampled radius'),minMm:positive('Minimum radius'),stepRatio:{type:'number',exclusiveMinimum:0,exclusiveMaximum:1},maxAttempts:{type:'integer',minimum:1,maximum:6}}}]};
+}
 operationCatalog.operations.smoothTransition.paramsSchema.required=['radius'];
 operationCatalog.operations.smoothTransition.paramsSchema.anyOf=[{required:['faceIds']},{required:['selector']}];
 operationCatalog.operations.smoothTransition.notes+=' selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs.';

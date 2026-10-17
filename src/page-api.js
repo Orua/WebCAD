@@ -296,6 +296,13 @@ export function createPageAPI(host){
       const result=await host.inspectRound({...input,params});check(input,['context','bodyId','params']);
       return {status:'read',source:'exact-brep-plan',units:{length:'mm'},context:current().context,...result};
     }),
+    probeBlendRadius:guarded(async input=>{
+      check(input,['context','bodyId','selector','maxMm','minMm','stepRatio','maxAttempts']);
+      if(typeof input.bodyId!=='string'||!current().bodies.some(body=>body.id===input.bodyId&&body.solidCount===1))fail('STALE_REFERENCE','选择一个当前封闭实心体');
+      if(!input.selector||!Number.isFinite(input.maxMm)||!Number.isFinite(input.minMm)||input.minMm<=0||input.maxMm<input.minMm)fail('PARAM_SCHEMA_INVALID','提供选择器和0<minMm<=maxMm');
+      const result=await host.probeBlendRadius(input);check(input,['context','bodyId','selector','maxMm','minMm','stepRatio','maxAttempts']);
+      return {...result,status:'read',feasibility:result.status,source:'exact-brep-radius-samples',context:current().context,units:{length:'mm'}};
+    }),
     inspectDraft:guarded(async input=>{
       check(input,['context','bodyId','pullDirection','thresholdDeg']);
       if(typeof input.bodyId!=='string'||!current().bodies.some(body=>body.id===input.bodyId&&body.solidCount===1))fail('STALE_REFERENCE','选择一个当前单一封闭实体');

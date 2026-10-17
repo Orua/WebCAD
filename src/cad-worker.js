@@ -22,6 +22,7 @@ self.onmessage = ({ data }) => {
       let result;
       if(type==='ready')result={ready:true};
       else if(type==='encodeProject')result={bytes:encodeProjectV4(data.document)};
+      else if(type==='probeBlendRadius')result=engine.probeBlendRadius(data.input);
       else if(type==='decodeProject')result={document:await decodeProject(data.bytes)};
       else if(type==='rebuild')result=await engine.rebuild(data.document,{displayCoarsen:data.displayCoarsen||1});
       else if(type==='remesh')result=engine.remesh(data.quality);
