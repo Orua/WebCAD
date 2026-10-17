@@ -8,6 +8,7 @@ export function createPageJobs(api,{runBatch}={}) {
   methods.add('inspectDesign');
   methods.add('inspectRound');
   methods.add('recoverKernel');
+  methods.add('files.reattach');
   for(const name of ['createDrawing','exportDrawing','copySelection','pasteSelection'])methods.add(name);
   const fail = (code,message) => {throw Object.assign(new Error(message),{code});};
   const snapshot = job => structuredClone(Object.fromEntries(Object.entries(job).filter(([k])=>!['fingerprint','args'].includes(k))));

@@ -72,7 +72,17 @@ export async function uploadArtifact({bytes,name,client,limits=T,onProgress=()=>
   assertArtifactSize(bytes.byteLength,artifactByteBudget(name,limits.maxArtifactBytes));
   if(typeof client?.post==='function'&&bytes.byteLength<=limits.chunkBytes){
     if(signal?.aborted)throw transferError('CANCELLED','上传已取消。');
-    const sha256=await sha256Hex(bytes),descriptor=await client.post({name,size:bytes.byteLength,sha256},bytes);
+    const sha256=await sha256Hex(bytes);let descriptor;
+    for(let attempt=0;;attempt++){
+      try{descriptor=await client.post({name,size:bytes.byteLength,sha256},bytes);break;}
+      catch(error){
+        error.attempts=attempt+1;
+        const fatal=['HASH_MISMATCH','SIZE_LIMIT','ASSET_INVALID'].includes(error?.code)||[400,403,413].includes(error?.status);
+        if(fatal||attempt>=limits.chunkRetries)throw error;
+        if(signal?.aborted)throw transferError('CANCELLED','上传已取消。');
+        await new Promise(resolve=>setTimeout(resolve,300*2**attempt));
+      }
+    }
     onProgress({uploadId:null,done:1,total:1});
     return {uploadId:null,sha256,size:bytes.byteLength,chunkCount:1,mode:'single',descriptor};
   }

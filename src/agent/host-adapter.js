@@ -24,7 +24,15 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
     if (artifact && result?.status==='generated' && result.resourceId) {
       try {
         const bytes=await api.files.read({resourceId:result.resourceId,as:'bytes'});
-        const attachment=await artifact(entry.command,result,bytes);
+        let attachment;
+        for(let attempt=0;;attempt++){
+          try{attachment=await artifact(entry.command,result,bytes);break;}
+          catch(error){
+            error.attempts=error.attempts||attempt+1;
+            if(attempt>=2||error.attempts>=4||['HASH_MISMATCH','SIZE_LIMIT','ASSET_INVALID','CANCELLED'].includes(error.code)||[400,403,413].includes(error.status))throw error;
+            await wait(300*2**attempt);
+          }
+        }
         result={...result,attachment};
         if(entry.command.payload.method==='files.save' && attachment?.status==='agent_write_verified' && attachment.size===result.size && attachment.sha256===result.sha256){
           try {
@@ -34,7 +42,7 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
           }
         }
       } catch(error) {
-        result={...result,attachment:{status:'failed',error:{code:error.code||'ARTIFACT_TRANSFER_FAILED',message:error.message}}};
+        result={...result,attachment:{status:'failed',error:{code:'ARTIFACT_TRANSFER_FAILED',cause:error.code,message:error.message,httpStatus:error.status??null,attempts:error.attempts??1}}};
       }
     }
     entry.result=structuredClone(result);

@@ -31,6 +31,17 @@ function harness() {
     get dirty() { return dirty; }, set revision(value) { revision = value; } };
 }
 
+test('UP-02 reattach returns the exact retained output without invoking geometry again',async()=>{
+  const h=harness();
+  const output=await h.files.save({context:context()});
+  const calls=h.calls.length;
+  const retained=h.files.reattach({context:context(),resourceId:output.resourceId});
+  assert.equal(retained.sha256,output.sha256);assert.equal(retained.size,output.size);assert.equal(retained.resourceId,output.resourceId);
+  assert.equal(h.calls.length,calls);
+  h.files.release({resourceId:output.resourceId});
+  assert.throws(()=>h.files.reattach({context,resourceId:output.resourceId}),error=>error.code==='RESOURCE_EXPIRED');
+});
+
 test('register copies bytes, applies basename and size limits, and forwards exact open/import bytes', async () => {
   const h = harness();
   const original = new Uint8Array([0, 1, 2, 255]);

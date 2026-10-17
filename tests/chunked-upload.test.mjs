@@ -17,7 +17,18 @@ test('rejects above 100 MiB with a Chinese message, accepts exactly 100 MiB',()=
 test('uploads all chunks with per-chunk and whole-file hashes, retrying transient failures',async()=>{const bytes=new Uint8Array(5000).map((_,i)=>i%251),s=fakeServer({failOnce:new Set([2])});const r=await uploadChunked({bytes,name:'a.stl',client:s,limits});assert.equal(r.chunkCount,5);assert.equal(r.descriptor.size,5000);assert.equal(s.parts.size,5);});
 test('resumes: chunks already on the server are not resent',async()=>{const bytes=new Uint8Array(4096).fill(7),s=fakeServer();s.parts.set(0,bytes.subarray(0,1024));s.parts.set(1,bytes.subarray(1024,2048));const r=await uploadChunked({bytes,name:'a.step',client:s,limits});assert.equal(s.puts,2);assert.equal(r.descriptor.size,4096);});
 test('after a dropped connection only missing chunks are resent',async()=>{const bytes=new Uint8Array(8192).fill(3),s=fakeServer({dropAfter:3});await uploadChunked({bytes,name:'a.step',client:s,limits:{...limits,chunkRetries:0,chunkConcurrency:1}});assert.ok(s.dropped);assert.equal(s.parts.size,8);assert.equal(s.puts,9);});
-import {createBrokerUploadClient} from '../src/transfer/chunked-upload.js';
+import {createBrokerUploadClient,uploadArtifact} from '../src/transfer/chunked-upload.js';
+
+test('UP-02 single POST retries 503 and reports the exact failed attempt count',async()=>{
+  let calls=0;
+  const bytes=new Uint8Array([1,2,3]);
+  const client={post:async()=>{calls++;if(calls===1)throw Object.assign(new Error('temporary'),{status:503});return {status:'agent_write_verified'};}};
+  assert.equal((await uploadArtifact({bytes,name:'a.stl',client})).descriptor.status,'agent_write_verified');
+  assert.equal(calls,2);
+  calls=0;client.post=async()=>{calls++;throw Object.assign(new Error('temporary'),{status:503});};
+  await assert.rejects(uploadArtifact({bytes,name:'a.stl',client}),error=>error.status===503&&error.attempts===4);
+  assert.equal(calls,4);
+});
 test('broker client maps to codexagent upload routes and surfaces Chinese 413 errors',async()=>{
   const calls=[];const fetchImpl=async(url,init)=>{calls.push([init.method,url,init.headers['X-Chunk-Sha256']]);if(url.endsWith('/uploads'))return {ok:true,json:async()=>({uploadId:'a'.repeat(32),received:[]})};if(url.includes('/complete'))return {ok:false,status:413,json:async()=>({error:{code:'RESOURCE_LIMIT',message:'导出文件超过上限'}})};return {ok:true,json:async()=>({received:[0]})};};
   const c=createBrokerUploadClient({apiBase:'https://h/x/',sessionId:'s 1',commandId:'c',fetchImpl});

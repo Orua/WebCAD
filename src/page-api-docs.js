@@ -184,6 +184,7 @@ const fileDetails = {
   import: ['import({context,resourceId,units?,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP or binary STL/mesh resource. Mesh requires explicit units and idempotencyKey; read api.mesh-assets. Exact-source typed imports preserve optional legacy key behavior; supply idempotencyKey for replay protection; read api.exact-source-assets. When placement is present, idempotencyKey is required; run batch injects its own step key.', 'Imported source-backed feature in current project; omitted placement freezes the current work frame with model-origin source anchor. Explicit world retains source coordinates.'],
   save: ['save({context,name?}); complete current context.', 'status=generated native project resource with exact source snapshot; not a disk save.'],
   export: ['export({context,format,ids?,name?}); format step/stl/brep/png.', 'status=generated output resource with exact source snapshot.'],
+  reattach: ['reattach({context,resourceId}); 使用尚未过期的已生成资源，重新附加到当前任务。', 'status=generated，返回原文件名、字节数和SHA256；宿主重新传输原字节，不重建几何、不覆盖原命令终态。RESOURCE_EXPIRED须重新生成。'],
   read: ['read({resourceId,as?}); as is blob (default) or bytes.', 'Actual Blob or Uint8Array; host JSON boundaries may need bounded transfer.'],
   download: ['download({resourceId}); generated output only.', 'status=download_initiated; disk completion cannot be claimed.'],
   write: ['write({resourceId,handle}); previously authorized FileSystemFileHandle.', 'status=write_verified after close and size/SHA-256 readback; snapshot confirmation is separate.'],
