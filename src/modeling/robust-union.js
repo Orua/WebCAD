@@ -10,9 +10,18 @@ function groups(shapes){
 export function robustUnion(shapes,{fuzzyMm=0,glue='off',toolIds=[],toolNames=[],measure=s=>Math.abs(cad.measureVolume(s)),allowFallback=true,simplifyResult=true}={}){
   if(!Number.isFinite(fuzzyMm)||fuzzyMm<0||fuzzyMm>.1||!['off','shift','full'].includes(glue))throw Object.assign(new Error('fuzzyMm须为0–0.1mm，glue须为off/shift/full'),{code:'PARAM_SCHEMA_INVALID'});
   const oc=cad.getOC(),volumes=shapes.map(measure),lower=Math.max(...volumes),upper=volumes.reduce((a,b)=>a+b,0),start=performance.now(),attempts=[];
+  let invalidSubshapes;
   function check(shape){
     const analyzer=new oc.BRepCheck_Analyzer(shape.wrapped,true,false,false);
-    try{if(!analyzer.IsValid())throw new Error('BRepCheck未通过');}finally{dispose(analyzer);}
+    try{if(!analyzer.IsValid()){
+      const faces=shape.faces,edges=shape.edges,faceIds=[],edgeIds=[],pointsMm=[];
+      try{
+        for(const [i,face] of faces.entries())if(!analyzer.IsValid(face.wrapped)){faceIds.push(i);const [min,max]=bounds(face);pointsMm.push(min.map((v,j)=>(v+max[j])/2));}
+        for(const [i,edge] of edges.entries())if(!analyzer.IsValid(edge.wrapped))edgeIds.push(i);
+        invalidSubshapes={faceIds,edgeIds,pointsMm,topologyScope:'failed-transient-result'};
+      }finally{faces.forEach(dispose);edges.forEach(dispose);}
+      throw new Error('BRepCheck未通过');
+    }}finally{dispose(analyzer);}
     const volume=measure(shape),epsilon=1e-7+upper*1e-8;
     if(!Number.isFinite(volume)||volume<lower-epsilon||volume>upper+epsilon)throw new Error('融合结果违反输入材料体积范围');return volume;
   }
@@ -40,6 +49,7 @@ export function robustUnion(shapes,{fuzzyMm=0,glue='off',toolIds=[],toolNames=[]
     finally{dispose(result);owned.forEach(dispose);}
   }
   const tools=shapes.map((shape,i)=>{const [min,max]=bounds(shape);return {toolId:toolIds[i],toolName:toolNames[i],pointMm:min.map((v,j)=>(v+max[j])/2),volumeMm3:volumes[i]};});
-  const details={strategy:attempts.at(-1)?.strategy,attempts,tools,toolIds:tools.map(t=>t.toolId),pointsMm:tools.map(t=>t.pointMm),volumeBefore:volumes,suggestion:"检查共面端面；可在确认公差后指定glue:'shift'或fuzzyMm。",elapsedMs:performance.now()-start};
+  const pointsMm=invalidSubshapes?.pointsMm?.length?invalidSubshapes.pointsMm:tools.map(t=>t.pointMm);
+  const details={strategy:attempts.at(-1)?.strategy,attempts,tools,toolIds:tools.map(t=>t.toolId),...invalidSubshapes,pointsMm,pointSource:invalidSubshapes?.pointsMm?.length?'invalid-subshape-bounds-center':'participating-tool-bounds-center',volumeBefore:volumes,suggestion:"检查共面端面；可在确认公差后指定glue:'shift'或fuzzyMm。",elapsedMs:performance.now()-start};
   throw Object.assign(new Error('融合失败：'+String(lastError?.message||lastError)+'；原模型保留。'),{code:'GEOMETRY_INVALID',details,report:details});
 }

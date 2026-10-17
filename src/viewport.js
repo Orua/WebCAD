@@ -45,7 +45,7 @@ export class CADViewport {
     const light=new THREE.DirectionalLight(0xffffff,3.1);light.position.set(30,-50,100);this.scene.add(light);
     const fill=new THREE.DirectionalLight(0xe1edff,1.8);fill.position.set(-60,20,30);this.scene.add(fill);
     this.studioLights=[hemisphere,light,fill];
-    this.modelRoot=new THREE.Group();this.scene.add(this.modelRoot);this.guideRoot=new THREE.Group();this.scene.add(this.guideRoot);
+    this.modelRoot=new THREE.Group();this.scene.add(this.modelRoot);this.guideRoot=new THREE.Group();this.scene.add(this.guideRoot);this.errorRoot=new THREE.Group();this.scene.add(this.errorRoot);this.errorPoints=[];
     this.anchorProxy=new THREE.Object3D();this.scene.add(this.anchorProxy);
     this.anchorVisual=new THREE.Group();this.anchorVisual.renderOrder=900;this.scene.add(this.anchorVisual);
     this.anchorVisible=localStorage.getItem('webcad.anchorVisible')!=='false';
@@ -70,6 +70,12 @@ export class CADViewport {
   resize(){const {width,height}=this.host.getBoundingClientRect();if(width<1||height<1)return;this.camera.aspect=width/height;if(this.camera.isOrthographicCamera){this.camera.left=-this.camera.top*this.camera.aspect;this.camera.right=this.camera.top*this.camera.aspect;}this.camera.updateProjectionMatrix();this.renderer.setSize(width,height);this.lastFrameKey=null;}
   disposeObject(root){root.traverse(o=>{o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose();});}
   clearGuides(){for(const child of [...this.guideRoot.children]){this.disposeObject(child);this.guideRoot.remove(child);}}
+  setErrorPoints(points=[]){
+    for(const child of [...this.errorRoot.children]){this.disposeObject(child);this.errorRoot.remove(child);}
+    this.errorPoints=points.filter(p=>Array.isArray(p)&&p.length===3&&p.every(Number.isFinite)).slice(0,64).map(p=>[...p]);
+    for(const point of this.errorPoints){const marker=new THREE.Mesh(new THREE.SphereGeometry(Math.max(.03,this.span*.006),12,8),new THREE.MeshBasicMaterial({color:0xdc2626,depthTest:false}));marker.position.set(...point);marker.renderOrder=1000;this.errorRoot.add(marker);}
+    if(this.errorPoints.length)this.renderFrame();
+  }
   rectangleCandidates(input){return rectangleCandidates(this,input);}
   clearRoundGuide(){this.roundGuide?.dispose();this.roundGuide=null;}
   setRoundGuide(report,handlers){this.clearRoundGuide();if(report)this.roundGuide=new RoundRangeGuide(this,report,handlers);}

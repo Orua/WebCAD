@@ -67,7 +67,17 @@ test('fusion and cut reject valid wrong material without changing committed bodi
         }
         return operation(feature,shapes,...rest);
       };
-      try{await assert.rejects(kernel.rebuild({version:1,features:[...base,{...joined,op}],imports:{}}),{code:'GEOMETRY_INVALID',featureId:'result'});}
+      try{await assert.rejects(kernel.rebuild({version:1,features:[...base,{...joined,op}],imports:{}}),error=>{
+        assert.equal(error.code,'GEOMETRY_INVALID');assert.equal(error.featureId,'result');
+        if(op==='union'){
+          assert.deepEqual(error.details.toolIds,['target','tool']);
+          assert.equal(error.details.pointSource,'participating-tool-bounds-center');
+          assert.equal(error.details.pointsMm.length,2);
+          assert(error.details.pointsMm.every(point=>point.length===3&&point.every(Number.isFinite)));
+          assert.equal(error.details.attempts.length,2);
+        }
+        return true;
+      });}
       finally{oc[builderKey]=rawBuilder;badResults.forEach(shape=>shape.delete());}
       assert.equal(kernel.shapes,committed);assert.deepEqual(kernel.historySignature,signature);
       assert.ok(Math.abs(cad.measureVolume(kernel.shapes.get('target'))-1000)<1e-6);

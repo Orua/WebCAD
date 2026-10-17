@@ -701,16 +701,18 @@
         "src/operation-catalog.js",
         "src/operation-registry.js"
       ],
-      "localImpact": "Fuse bodies; current-rebuild OCCT face provenance supports semantic blend selection",
+      "localImpact": "Fuse bodies; current-rebuild OCCT face provenance supports semantic blend selection; one multi-fuse with one validated recovery and accurate failure points",
       "servicesImpact": "Shared Services routing and capability checks apply",
       "logoImpact": "none: unrelated to logo conversion",
-      "contractImpact": "Source operation schema, shared command execution and generated tool card; seamBetween, edgesNear and facesFromFeature selectors resolve against current geometry",
-      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card; seamBetween, edgesNear and facesFromFeature selectors resolve against current geometry; explicit fuzzyMm/glue; bounded details identify participating tools or invalid transient topology",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority; failed operation leaves committed history and geometry unchanged",
       "cacheImpact": "Feature signature/render cache and static contract hashes",
       "requiredTests": [
         "tests/operation-contract.test.mjs",
         "tests/semantic-blend-integration.test.mjs",
-        "tests/face-origin-restore.test.mjs"
+        "tests/face-origin-restore.test.mjs",
+        "tests/robust-union.test.mjs",
+        "tests/boolean-roles.test.mjs"
       ],
       "manualChecks": []
     },
