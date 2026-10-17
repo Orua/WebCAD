@@ -195,7 +195,7 @@ export function createCommandService(adapter) {
       if(command==='editor_action'&&input.action==='body.align')assertFeatureCapacity(s.features,args.values.bodyIds.length);
       if(command==='editor_action'&&input.action==='body.explode')assertFeatureCapacity(s.features,s.bodies.find(body=>body.id===args.values.bodyId).solidCount);
       context(input.context,snapshot());available(snapshot(),allowPreview);revisionBefore=s.revision;
-      await adapter.execute(command,args,{signal:options.signal,expectedRevision:s.revision});
+      await adapter.execute(command,args,{signal:options.signal,expectedRevision:s.revision,origin:options.fromUI?'user':'agent'});
       const after=snapshot();let result;
       if(after.revision===revisionBefore){const afterCtx0=contextOf(after);result={status:'no_change',requestId,context:afterCtx0,requestContext:{sessionId:afterCtx0.sessionId,documentId:afterCtx0.documentId,documentInstanceId:afterCtx0.documentInstanceId,expectedRevision:afterCtx0.revision},commitState:'not_committed'};}
       else{
