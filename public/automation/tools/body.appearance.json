@@ -47,7 +47,10 @@
     "matt-24k-gold",
     "matt-gunmetal",
     "antique-brass",
-    "antique-silver"
+    "antique-silver",
+    "rose-gold",
+    "silver-925",
+    "white-gold-18k"
   ],
   "minimalExample": {
     "action": "body.appearance",
@@ -61,5 +64,5 @@
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:f0c3abb5a7c2e67c518ed85620ecf3a8cc9436420eb48942ad2f3ec45ad04784"
+  "docsHash": "sha256:de55a14dcfe33bd56a42d10556823deed0a567ab4f1980513c1169facac9e924"
 }

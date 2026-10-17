@@ -89,7 +89,7 @@ let previewComputingOwner=null;
 const hostControl=createHostControl(state=>{const entering=state.locked&&!viewport.interactionLocked,previewOwner=previewComputing?previewComputingOwner:previewIdentity?.owner??'ui';viewport.setInteractionLocked(state.locked);ui.setHostControl(state);if(entering&&(previewNext||previewComputing)&&previewOwner==='ui')void cancelPreview().catch(reportError);refresh();});
 function assertHumanEditing(){if(hostControl.get().locked)throw Object.assign(new Error('Agent 正在控制工程，释放控制后可编辑。'),{code:'HOST_INTERACTION_LOCKED'});}
 Object.assign(labels,{tap:'攻牙',badge:'牌仔工具',reliefShoulder:'浮雕中央肩部',arcProfile:'解析线弧轮廓',group:'组合',vectorProfile:'矢量路径',quickModel:'快速模型',sweep:'扫掠',loft:'放样',split:'分割',extractSolid:'提取实体',extractShell:'提取壳',faceHole:'面上打孔',faceExtrude:'面拉伸',multiHole:'多位置打孔',multiPocket:'批量矩形凹槽',multiBoss:'批量圆柱凸台',slot:'长圆槽',logo:'LOGO 凹凸字'});
-Object.assign(labels,{bumpSet:'批量凸点',subdBody:'细分曲面体',curveSweep:'曲线扫掠',advancedLoft:'多截面放样',curvedLogo:'曲面等深刻字'});
+Object.assign(labels,{guidedLoft:'导向放样',bumpSet:'批量凸点',subdBody:'细分曲面体',curveSweep:'曲线扫掠',advancedLoft:'多截面放样',curvedLogo:'曲面等深刻字'});
 Object.assign(labels,{fittedSurface:'点阵拟合曲面',thickenFace:'选面增厚'});
 Object.assign(labels,referenceProfileNames);
 Object.assign(labels,referenceNames);
@@ -396,6 +396,7 @@ function featureDocument(op,params={},explicitRefs=[],name,placement){
     if(selection.length<2)throw new Error('请按住 Shift 依次选择至少两个实体。切除时先选保留的主体，再选刀具。');
     refs.push(...selection);
   }
+  if(op==='guidedLoft'){if(params.matchTo){if(selection.length!==1||selection[0]!==params.matchTo.featureId)throw new Error('接续来源必须与唯一引用一致');refs.push(selection[0]);}else if(selection.length)throw new Error('独立导向放样不引用来源');}
   if(op==='referenceLoft'){
     if(selection.length<2||selection.length>12)throw new Error('请按顺序选择 2–12 个闭合截面对象。');
     refs.push(...selection);
@@ -437,7 +438,7 @@ async function addFeature(op,params={},options={}){
   const {next,id}=featureDocument(op,params,refs,options.name,options.placement);
   const insertOps=['vectorProfile','box','sphere','cylinder','cone','torus','extrude','revolve','copy','mirror','linearPattern','circularPattern','quickModel','sweep','loft'];
   const select=options.origin==='agent'?undefined:Object.hasOwn(options,'select')?options.select:insertOps.includes(op)?undefined:id;
-  const autoPlace=options.origin==='agent'&&(placementPolicy(op)==='C'||insertOps.includes(op))&&options.placementExplicit!==true;
+  const autoPlace=options.origin==='agent'&&(placementPolicy(op)==='C'||insertOps.includes(op))&&options.placementExplicit!==true&&!(op==='guidedLoft'&&params.matchTo);
   const beforeBounds=autoPlace?bodies.map(body=>body.bounds).filter(Boolean):[],beforeIds=new Set(bodies.map(body=>body.id));
   const result=await rebuild(next,{...options,select,fit:!bodies.length||insertOps.includes(op)});
   if(autoPlace){
@@ -810,8 +811,8 @@ async function performAction(action,params={}){
   if(Object.hasOwn(labels,action)&&action!=='import'){
     const input={...params},useFrame=input.useWorkFrame===true,sourceAnchor=input.placementSourceAnchor,taskRefs=input._targetRefs,taskTopology=input._targetTopology,frameSnapshot=input._placementFrameSnapshot;delete input.useWorkFrame;delete input.placementSourceAnchor;delete input._targetRefs;delete input._targetTopology;delete input._placementFrameSnapshot;
     const refs=taskRefs||[...selectedIds],adapted=adaptUISelection(action,input,refs,taskRefs?taskTopology:selectedTopology);
-    if(useFrame){const card=getOperation(action),placedRefs=placementPolicy(action)==='C'?[]:refs;return runEditorAction('feature.add',{op:action,opVersion:card.version,schemaHash:card.schemaHash,params:adapted,refs:placedRefs,placement:{version:1,frame:frameSnapshot?{kind:'snapshot',origin:[...frameSnapshot.origin],quaternion:[...frameSnapshot.quaternion]}:{kind:'work',expectedFrameVersion:documentModel.referenceSystem.workFrame.frameVersion},sourceAnchor:sourceAnchor||{kind:action==='box'?'bottom-center':'model-origin'}}});}
-    await addFeature(action,adapted,{refs});return;
+    if(useFrame||action==='guidedLoft'){const card=getOperation(action),placedRefs=action==='guidedLoft'?(adapted.matchTo?[adapted.matchTo.featureId]:[]):placementPolicy(action)==='C'?[]:refs;return runEditorAction('feature.add',{op:action,opVersion:card.version,schemaHash:card.schemaHash,params:adapted,refs:placedRefs,placement:{version:1,frame:!useFrame?{kind:'world'}:frameSnapshot?{kind:'snapshot',origin:[...frameSnapshot.origin],quaternion:[...frameSnapshot.quaternion]}:{kind:'work',expectedFrameVersion:documentModel.referenceSystem.workFrame.frameVersion},sourceAnchor:sourceAnchor||{kind:action==='box'?'bottom-center':'model-origin'}}});}
+    await addFeature(action,adapted,{refs:action==='guidedLoft'?(adapted.matchTo?[adapted.matchTo.featureId]:[]):refs});return;
   }
   throw new Error('尚未识别的操作：'+action);
 }

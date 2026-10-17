@@ -3,6 +3,8 @@ import {heightfieldReliefExample} from './mesh/heightfield-relief.js';
 import {meshBooleanExample} from './mesh/mesh-boolean.js';
 import {reliefEditExample} from './mesh/relief-edit-contract.js';
 import {SUBD_EXAMPLE} from './subd-contract.js';
+import {guidedLoftFiniteExample} from './guided-loft-contract.js';
+const {matchTo:unusedGuidedMatch,...guidedExample}=guidedLoftFiniteExample;guidedExample.startCondition='G0';
 import {mechanicalDefaults,mechanicalExamples} from './mechanical-tool-contracts.js';
 export const operationDefaults = {badge:{side:'single',direction:1,radiusMm:0},reliefShoulder:{}, meshReliefEdit:{},meshReliefPlate:{}, cylinder:{},sphere:{},cone:{radius1:10,radius2:0},torus:{},round:{mode:'auto',strength:.5}, roundEnd:{axis:'Y',direction:1,profileAxis:'Z'}, rounding:{strength:1}, autoRound:{}, smoothTransition: {}, box: {}, hole: { x: 0, y: 0, z: 0, axis: 'Z', direction: 1 },holeWizard:{kind:'plain',axis:'Z',direction:1,through:false},
   mirror:{plane:'XY',offsetMm:0,keepOriginal:false},linearPattern:{count:3,dx:0,dy:0,dz:0,outputMode:'compound'},circularPattern:{count:3,angle:360,axis:'Z',cx:0,cy:0,cz:0,outputMode:'compound'},
@@ -48,5 +50,6 @@ export const operationExamples = {badge:{faceId:0,thicknessMm:2,side:'double',di
   ...mechanicalExamples,
   bumpSet:{bumps:[{centerMm:[0,0,4],radiusMm:1}],blendRadiusMm:.1},
   subdBody:SUBD_EXAMPLE,
+  guidedLoft:guidedExample,
 };
 

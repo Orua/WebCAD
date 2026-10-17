@@ -1,0 +1,204 @@
+{
+  "id": "probeBlendRadius",
+  "title": "probeBlendRadius",
+  "category": "page-method",
+  "version": "1.52.1",
+  "contextPolicy": "identity",
+  "description": "probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?:0.75,maxAttempts?:6})；selector同语义圆角工具卡。",
+  "synonyms": [
+    "probeBlendRadius",
+    "圆角",
+    "半径",
+    "可行区间",
+    "只读",
+    "探测",
+    "语义",
+    "接缝"
+  ],
+  "inputContract": "probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?:0.75,maxAttempts?:6})；selector同语义圆角工具卡。",
+  "outputContract": "status=read；feasibility=feasible|infeasible，feasibleMaxMm、limitingEdgeIds、tried、elapsedMs、readOnly；无几何提交、无历史变动。仅有界离散采样，不是数学全局最大半径。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docs": "api.blend-radius",
+  "relatedTools": [
+    "smoothTransition",
+    "fillet",
+    "queryGeometry"
+  ],
+  "units": {
+    "length": "mm"
+  },
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "context",
+      "bodyId",
+      "selector",
+      "maxMm",
+      "minMm"
+    ],
+    "properties": {
+      "context": {
+        "type": "object"
+      },
+      "bodyId": {
+        "type": "string"
+      },
+      "selector": {
+        "type": "object",
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "faceIds"
+            ]
+          },
+          {
+            "required": [
+              "edgeIds"
+            ]
+          },
+          {
+            "required": [
+              "allEdges"
+            ]
+          },
+          {
+            "required": [
+              "seamBetween"
+            ]
+          },
+          {
+            "required": [
+              "edgesNear"
+            ]
+          },
+          {
+            "required": [
+              "facesFromFeature"
+            ]
+          }
+        ],
+        "properties": {
+          "faceIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minItems": 1,
+            "maxItems": 128,
+            "uniqueItems": true
+          },
+          "edgeIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minItems": 1,
+            "maxItems": 128,
+            "uniqueItems": true
+          },
+          "allEdges": {
+            "const": true
+          },
+          "seamBetween": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "a",
+              "b"
+            ],
+            "properties": {
+              "a": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              },
+              "b": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              }
+            }
+          },
+          "edgesNear": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pointMm",
+              "radiusMm"
+            ],
+            "properties": {
+              "pointMm": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "radiusMm": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "sharpOnly": {
+                "type": "boolean"
+              }
+            }
+          },
+          "facesFromFeature": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "featureId"
+            ],
+            "properties": {
+              "featureId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "all",
+                  "side",
+                  "cap"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "maxMm": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "minMm": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "stepRatio": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "exclusiveMaximum": 1
+      },
+      "maxAttempts": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 6
+      }
+    }
+  },
+  "executionPolicy": {
+    "readOnly": true,
+    "maxAttempts": 6,
+    "source": "independent-current-brep"
+  },
+  "docsHash": "sha256:3ac968624937e2ee48a13476551efbf0e0ce88c8c5aa48de1ff2e9b13c03c210"
+}

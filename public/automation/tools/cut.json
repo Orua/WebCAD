@@ -7,6 +7,38 @@
       "keepTools": {
         "type": "boolean",
         "description": "Keep original tools"
+      },
+      "blendRadiusMm": {
+        "type": "number",
+        "description": "Requested seam radius (mm)",
+        "exclusiveMinimum": 0
+      },
+      "blendMode": {
+        "type": "string",
+        "enum": [
+          "fillet",
+          "variable"
+        ]
+      },
+      "blendLaw": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "startRadiusMm",
+          "endRadiusMm"
+        ],
+        "properties": {
+          "startRadiusMm": {
+            "type": "number",
+            "description": "Edge start radius (mm)",
+            "exclusiveMinimum": 0
+          },
+          "endRadiusMm": {
+            "type": "number",
+            "description": "Edge end radius (mm)",
+            "exclusiveMinimum": 0
+          }
+        }
       }
     },
     "required": [],
@@ -59,7 +91,7 @@
     "subtract"
   ],
   "description": "Subtract other bodies from first",
-  "schemaHash": "sha256:169bdb4b922e2637aab1100f409f3f8b07fc85cbfde06adc2a6d2622c80132fa",
+  "schemaHash": "sha256:64b268221ad330f566b1f2e17b4df47312337c8e1e1ffbf9d74e5bd055190a07",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -195,6 +227,39 @@
     "params": {
       "keepTools": {
         "meaning": "Keep original tools",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendRadiusMm": {
+        "meaning": "Requested seam radius (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendMode": {
+        "meaning": "blendMode: Subtract other bodies from first",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendLaw": {
+        "meaning": "blendLaw: Subtract other bodies from first",
         "unit": "none",
         "range": [
           null,
@@ -427,5 +492,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:91accd8fb20aa261b30dc1f769f18efe683ab304861ed906e19e4c58de0e87e9"
+  "docsHash": "sha256:c85ee24113d9a2b03a34ed471e5820d16d459f0fd2aa348936c4cf13d9e1cbe8"
 }

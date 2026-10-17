@@ -26,6 +26,62 @@
         "type": "boolean",
         "description": "Preserve original as a mirror copy; default false",
         "default": false
+      },
+      "variation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "seed"
+        ],
+        "properties": {
+          "seed": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "translateMm": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": 0
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "World coordinate [x,y,z] in mm"
+          },
+          "rotateDeg": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": 0
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "World coordinate [x,y,z] in mm"
+          },
+          "scale": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "unit": "1",
+              "quantityKind": "scalar",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 2,
+            "maxItems": 2,
+            "unit": "1",
+            "quantityKind": "scalar",
+            "quantizationPolicy": "none"
+          }
+        }
+      },
+      "linkedOverrides": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "number"
+        },
+        "description": "At most 100 numeric source-recipe overrides by existing parameter path; source dependencies remain linked."
       }
     },
     "required": [],
@@ -65,7 +121,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults plane=XY, offsetMm=0, keepOriginal=false. The mirror replaces its input by default; explicitly set keepOriginal=true to create a mirror copy. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults plane=XY, offsetMm=0, keepOriginal=false. The mirror replaces its input by default; explicitly set keepOriginal=true to create a mirror copy. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates. variation uses a deterministic seed, signed translation/rotation bounds and a positive scale interval; variationReport records actual values. linkedOverrides re-evaluates the current source recipe with numeric path overrides; no topology IDs are cached.",
   "title": "Mirror across a coordinate plane at an explicit offset",
   "category": "organization",
   "synonyms": [
@@ -75,7 +131,7 @@
     "镜像"
   ],
   "description": "Mirror across a coordinate plane at an explicit offset",
-  "schemaHash": "sha256:9ab8be88aea3ce216586b63770528145e62d72fe9fc0036ab14a9620c6048f05",
+  "schemaHash": "sha256:40a2a4601fe628b39a107cc95ee65072d518912ad6279a1148bbfb41d3eb6aa8",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -136,7 +192,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Defaults plane=XY, offsetMm=0, keepOriginal=false. The mirror replaces its input by default; explicitly set keepOriginal=true to create a mirror copy. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates."
+    "Defaults plane=XY, offsetMm=0, keepOriginal=false. The mirror replaces its input by default; explicitly set keepOriginal=true to create a mirror copy. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates. variation uses a deterministic seed, signed translation/rotation bounds and a positive scale interval; variationReport records actual values. linkedOverrides re-evaluates the current source recipe with numeric path overrides; no topology IDs are cached."
   ],
   "minimalExample": {
     "op": "mirror",
@@ -203,7 +259,7 @@
   "contract": {
     "purpose": "Mirror across a coordinate plane at an explicit offset",
     "whenToUse": [
-      "Defaults plane=XY, offsetMm=0, keepOriginal=false. The mirror replaces its input by default; explicitly set keepOriginal=true to create a mirror copy. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates."
+      "Defaults plane=XY, offsetMm=0, keepOriginal=false. The mirror replaces its input by default; explicitly set keepOriginal=true to create a mirror copy. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates. variation uses a deterministic seed, signed translation/rotation bounds and a positive scale interval; variationReport records actual values. linkedOverrides re-evaluates the current source recipe with numeric path overrides; no topology IDs are cached."
     ],
     "whenNotToUse": [
       {
@@ -238,6 +294,28 @@
           null
         ],
         "default": false
+      },
+      "variation": {
+        "meaning": "variation: Mirror across a coordinate plane at an explicit offset",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "linkedOverrides": {
+        "meaning": "At most 100 numeric source-recipe overrides by existing parameter path; source dependencies remain linked.",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
       }
     },
     "refs": {
@@ -375,7 +453,7 @@
   },
   "purpose": "Mirror across a coordinate plane at an explicit offset",
   "whenToUse": [
-    "Defaults plane=XY, offsetMm=0, keepOriginal=false. The mirror replaces its input by default; explicitly set keepOriginal=true to create a mirror copy. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates."
+    "Defaults plane=XY, offsetMm=0, keepOriginal=false. The mirror replaces its input by default; explicitly set keepOriginal=true to create a mirror copy. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates. variation uses a deterministic seed, signed translation/rotation bounds and a positive scale interval; variationReport records actual values. linkedOverrides re-evaluates the current source recipe with numeric path overrides; no topology IDs are cached."
   ],
   "whenNotToUse": [
     {
@@ -466,5 +544,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:4f8c77f427f74e7118735081d8fcd9c89a6f5f6768b685101d4a65ca01251e0d"
+  "docsHash": "sha256:42921d2b512f6e080a1116f3460710f0b56c4dd792df7c84e624bba57a3698cd"
 }

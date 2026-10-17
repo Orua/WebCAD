@@ -15,7 +15,7 @@ import operationSourceErrors from '../contracts/operation-source-errors.json' wi
 import {migrateReliefParams,legacyReliefParams,reliefParamOperations} from './relief-param-migration.js';
 
 export const apiVersion = '2.0';
-export const migratedOperationIds = Object.freeze(['subdBody','bumpSet','badge','meshHeightfieldRelief','meshBoolean','logo','union','cut','intersect','transform','copy','reliefShoulder','meshReliefPlate','meshReliefEdit','box', 'cylinder', 'sphere', 'cone', 'torus', 'mirror', 'linearPattern', 'circularPattern', 'hole', 'holeWizard', 'draftFaces', 'multiHole', 'multiPocket', 'multiBoss', 'tap', 'faceHole', 'round', 'roundEnd', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell','sketchProfile','profileOffset','profileRepair','profileExtrude',...mechanicalIds]);
+export const migratedOperationIds = Object.freeze(['guidedLoft','subdBody','bumpSet','badge','meshHeightfieldRelief','meshBoolean','logo','union','cut','intersect','transform','copy','reliefShoulder','meshReliefPlate','meshReliefEdit','box', 'cylinder', 'sphere', 'cone', 'torus', 'mirror', 'linearPattern', 'circularPattern', 'hole', 'holeWizard', 'draftFaces', 'multiHole', 'multiPocket', 'multiBoss', 'tap', 'faceHole', 'round', 'roundEnd', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition', 'autoRound', 'extractFaces','extractShell','sketchProfile','profileOffset','profileRepair','profileExtrude',...mechanicalIds]);
 const migrated = new Set(migratedOperationIds);
 const clone = value => JSON.parse(JSON.stringify(value));
 const topology = new Set(['badge','tap','faceHole', 'rounding', 'fillet', 'chamfer', 'shell', 'smoothTransition']);
@@ -70,7 +70,7 @@ function refsFor(refs) {
 function categoryFor(id) {
   if (['remove', 'import'].includes(id)) return 'document';
   if (['planeSection', 'faceBoundary', 'extractFaces', 'extractShell', 'referenceExtrude', 'referenceLoft','sketchProfile','profileOffset','profileRepair','profileExtrude'].includes(id)) return 'reference';
-  if (['fittedSurface', 'thickenFace', 'sewFaces', 'surfaceTrim', 'curvedLogo', 'advancedLoft'].includes(id)) return 'surface';
+  if (['guidedLoft','subdBody','fittedSurface', 'thickenFace', 'sewFaces', 'surfaceTrim', 'curvedLogo', 'advancedLoft'].includes(id)) return 'surface';
   if (['transform', 'copy', 'mirror', 'linearPattern', 'circularPattern', 'group', 'extractSolid', 'split'].includes(id)) return 'organization';
   return operationCatalog.operations[id].refs === 0 ? 'creation' : 'modification';
 }
@@ -90,7 +90,7 @@ function buildCard(id, source) {
     location: 'args.selectionToken', featureAddOnly: true,
     conflictsWith: ['faceId', 'faceIds', 'edgeIds', 'allEdges'],
     phases: 'Validate user params with phase=input and selectionToken, resolve against current snapshot, then validate complete params with phase=resolved.' } : { supported: false };
-  const preserves = profileSolidIds.includes(id) ? 'Preserves section/path sources; replaces only the last target for join/cut/intersect.' : ['badge','copy', 'planeSection', 'faceBoundary', 'extractFaces', 'extractShell', 'surfaceTrim', 'referenceExtrude', 'referenceLoft','profileOffset','profileRepair',...mechanicalPreservedIds].includes(id) ? true
+  const preserves = profileSolidIds.includes(id) ? 'Preserves section/path sources; replaces only the last target for join/cut/intersect.' : ['guidedLoft','badge','copy', 'planeSection', 'faceBoundary', 'extractFaces', 'extractShell', 'surfaceTrim', 'referenceExtrude', 'referenceLoft','profileOffset','profileRepair',...mechanicalPreservedIds].includes(id) ? true
     : ['mirror', 'extractSolid'].includes(id) ? 'unless keepOriginal=false' : false;
   const minRefs = refsSchema.minItems;
   const example = { op: id, params: clone(examples[id]), refs: Array.from({ length: minRefs }, (_, i) => `<current-bodyId-${i + 1}>`),

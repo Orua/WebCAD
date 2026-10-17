@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.52.1 · sha256:36c40a80bbcaf5e1568fed5ab3e5bd3ffbabdb868d3443665c38e79097308f96
+API 1.52.1 · sha256:dec82f4772386b61d55288687069cbb37b5155a2fe1ba5f9c4ea8e6f8486c69b
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -9,6 +9,7 @@ API 1.52.1 · sha256:36c40a80bbcaf5e1568fed5ab3e5bd3ffbabdb868d3443665c38e790973
 WebCAD是Agent适配代码与方法白名单的唯一维护源。window.webcad.agent.createHostAdapter由当前页面构建提供，宿主不复制protocol.js。connect返回agentProtocol与agentSoftware；后端按buildId、catalogHash、docsHash、contractHash下载有限软件包，逐文件核对SHA256/长度。版本改变暂停新写入、核对原回执、重握手和重新准备知识；不刷新未保存工程，不重放未知命令。files.save独立于几何内核并读取最后已提交版本，包括计算、预览或恢复期间。recoverKernel使用当前context；stopRunning默认false。连接recover:true要求宿主恢复通道；内核未就绪时另用recoverKernel，不伪造ready。仅本地运算超过localTimeoutMs改为等待提醒，继续同一计算而非终止或建议不存在的Services；初始化仍有保护时限。远程作业仍遵循Services能力及原jobId/等待决定。固定件优先group复合体；它减少对象管理但不会减少三角面/曲面，union仅用于应成为同一实体的接触材料，不融合钻石和环体改变来源。保存的compiled checkpoint可减少重建；保留配方，明确source/revision/recipe与hash。钻石布局在已下载的layout-planner.py上由webcad_docs(method=planLayout,args={layout})计算，不使用shell或浏览器内核。先按源几何读出毫米尺寸和轴系；规划器不猜图。返回world positions/normals/quaternions、实际间距与sourceBinding。使用完整copy/transform/placement卡批量插入，一次feature.addMany重建，只提交有界分组；错误核对原回执再继续未完成项。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -92,6 +93,103 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
+files.read: contextPolicy=none
+files.download: contextPolicy=none
+files.write: contextPolicy=none
+files.confirmWritten: contextPolicy=none
+files.release: contextPolicy=none
+
+## api.blend-radius
+
+语义圆角使用selector:{seamBetween:{a:特征ID,b:特征ID}}、edgesNear:{pointMm,radiusMm,sharpOnly}或facesFromFeature:{featureId,role}，每次重建由当前OCCT历史解析，不保存面号。smoothTransition/fillet的radius可为正数或{maxMm,minMm,stepRatio:0.75,maxAttempts:6}，区间内只重用同一来源，不重建前缀；回执radiusSearchReport写明实际半径与逐次结果。probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?,maxAttempts?})只读当前独立BRep副本，不改变revision、历史和选择；feasibleMaxMm为最多6个下降样本中的最大可行半径，不是认证全局最大值。全部失败返回feasibility:infeasible、feasibleMaxMm:null和tried；不自动应用。优先给用户允许的区间，回显radiusUsedMm。
+
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
+recoverKernel: contextPolicy=revision
+sampleMeshRelief: contextPolicy=identity
+getModelLibrary: contextPolicy=none
+updateModelLibrary: contextPolicy=revision
+resolveModelLibrary: contextPolicy=identity
+planPatternMachining: contextPolicy=identity
+decideServicesWait: contextPolicy=none
+recoverServicesJob: contextPolicy=none
+prepareReliefTopologyUpgrade: contextPolicy=identity
+sampleReliefHeight: contextPolicy=identity
+prepareReliefSculpt: contextPolicy=identity
+readRelief: contextPolicy=identity
+getHistory: contextPolicy=none
+planAlignment: contextPolicy=identity
+selectRectangle: contextPolicy=identity
+createDrawing: contextPolicy=revision
+exportDrawing: contextPolicy=revision
+getQuickModelUsage: contextPolicy=none
+copySelection: contextPolicy=revision
+pasteSelection: contextPolicy=revision
+createRequestContext: contextPolicy=none
+getUILayout: contextPolicy=none
+setRenderQuality: contextPolicy=identity
+invoke: contextPolicy=none
+submit: contextPolicy=none
+getJob: contextPolicy=none
+cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
+connect: contextPolicy=none
+info: contextPolicy=none
+getState: contextPolicy=none
+searchTools: contextPolicy=none
+getTools: contextPolicy=none
+getTool: contextPolicy=none
+readDocs: contextPolicy=none
+queryGeometry: contextPolicy=identity
+queryReferences: contextPolicy=identity
+resolvePlacement: contextPolicy=identity
+execute: contextPolicy=revision
+measure: contextPolicy=identity
+measureRelation: contextPolicy=identity
+inspectDesign: contextPolicy=identity
+inspectPrintability: contextPolicy=identity
+inspectProfile: contextPolicy=identity
+prepareProfileEdit: contextPolicy=identity
+inspectConstraints: contextPolicy=identity
+projectProfile: contextPolicy=identity
+inspectFit: contextPolicy=identity
+inspectThickness: contextPolicy=identity
+inspectDraft: contextPolicy=identity
+inspectRound: contextPolicy=identity
+readVector: contextPolicy=identity
+connectVector: contextPolicy=none
+fitProfile: contextPolicy=identity
+traceTwinWindow: contextPolicy=identity
+executeText: contextPolicy=revision
+setDisplayPreferences: contextPolicy=identity
+getAgentPanel: contextPolicy=none
+configureAgentPanel: contextPolicy=revision
+setAgentPanel: contextPolicy=revision
+getServices: contextPolicy=none
+setServices: contextPolicy=revision
+getServicesCapabilities: contextPolicy=none
+getServicesRouting: contextPolicy=none
+clearServicesCredential: contextPolicy=revision
+getServicesJob: contextPolicy=none
+getServicesRequest: contextPolicy=none
+cancelServicesJob: contextPolicy=revision
+getLogoConverter: contextPolicy=none
+setLogoConverter: contextPolicy=revision
+convertLogoPdf: contextPolicy=revision
+setView: contextPolicy=identity
+redraw: contextPolicy=identity
+capture: contextPolicy=identity
+run: contextPolicy=revision
+files.capabilities: contextPolicy=none
+files.register: contextPolicy=none
+files.new: contextPolicy=none
+files.open: contextPolicy=revision
+files.import: contextPolicy=revision
+files.save: contextPolicy=revision
+files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -121,6 +219,7 @@ connect 的 queries 是最多4个短字符串；searchTools 使用单个 query �
 静态文档可直接按页面 base URL 读取 automation/quickstart.md、automation/tools/<id>.json、automation/docs/<docId>.md。HTTP 读取 JSON 必须按 UTF-8 解码，避免中文乱码。manifest/index 为程序索引输入，不要将全目录或全库打印进模型上下文。缓存只包含静态契约，不能代替实时工程状态。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -204,6 +303,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -239,6 +339,7 @@ requirePass:true 时，只要有fail/unverified就返回status:failed及DESIGN_R
 限制：只验证列出的检查，不自动证明完整连接、所有孔、截面形状、圆角G1/G2、标准螺纹或装配合格；渲染、文件生成及磁盘写入仍各自确认。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -322,6 +423,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -337,6 +439,7 @@ connect 可传 knownCatalogHash/knownDocsHash 检查整体漂移；changed 只�
 可选离线库：一次下载同版本 automation/index.json 与 automation/tool-library.mjs；在具备持久存储能力的宿主保存。import {createToolLibrary} from './tool-library.mjs'; const lib=createToolLibrary(snapshot); lib.search(query) 返回摘要，lib.get(id) 取完整卡，lib.readDoc(id) 取一篇说明；lib.isCurrent(api.connect()) 对比 catalogHash/docsHash，漂移时刷新快照。离线库与页面使用相同搜索实现，所有运行可用性为 unknown；始终从目标页面取得新鲜 requestContext/实体/拓扑。不要把完整快照打印进模型上下文。没有磁盘能力的侧栏直接调用页面搜索即可。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -420,6 +523,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -431,6 +535,7 @@ files.release: contextPolicy=none
 设置主菜单分风格、渲染设置、Services、精度、吸附、语言和参数。风格预设支持原绿色 #0c827d 和灰度 #666666；唯一配置经 getServices/setServices；授权只读 hasCredential，远程几何以实际已验收 capability 为准。dimensionPrecisionMm 默认0.01 mm、范围0.000001–10；anglePrecisionDeg 默认0.1°、范围0.000001–90。只用于鼠标交互移动/旋转步长；手工输入、表达式和 API 显式数值按原值建模，预览与提交一致。显示设置和步长不改写几何，内核容差独立。工具卡 numericInputPolicy 及参数 unit/quantityKind/quantizationPolicy 公开数值语义；执行回执 numericInput 提供 requestedParams/effectiveParams。themeColor 为 #RRGGBB，默认 #2563eb；snapThresholdMm 为 0–10 mm，默认0.2（20丝），0关闭拖动吸附。吸附后下一次拖动跳过吸附。透视+边线显示曲面三角网格，只是显示网格，不是精确等参线。setDisplayPreferences({context,values})：defaultColor/background 为 #RRGGBB，defaultFinish 为材质键；environmentMode 为 studio（产品摄影棚侧光，默认）或 hdr（原 HDR）。exposure 0.1–3；environmentIntensity 0–3；environmentRotation/lightAzimuth -180–180 度（绕世界Z）；lightElevation -89–89 度；roughnessOffset 0–0.6（只影响金属）；keyIntensity/fillIntensity/ambientIntensity 0–6。字段均可部分更新。getState().displayPreferences 读当前值。cookie 保存一年，同源浏览器自动读取，persisted=false 表示未持久化。全局设置不属于工程撤销历史；单体显式颜色和材质优先，工程 document.appearance finish:null 跟随全局，否则保持工程覆盖。UI 可选标准、柔和、明暗对比预设或恢复默认。studio 使用与 CadViewer 相同的侧上方长条柔光箱、背侧轮廓光与暗反射区；lightAzimuth/lightElevation 控制相机坐标中的主光方向（默认 -65°/25°），environmentRotation 在此模式附加主光方位偏转。hdr 保留原世界环境和方向约定。曝光与定制灯光保持可调；仅与原默认灯光全部相同的旧 Cookie 自动采用新默认，自定义灯光保留。环境反射方向与直接光源方向是不同设置；金属实物显示对可见不透明实体自动增加基于深度与法线的局部遮蔽，凹槽/LOGO槽壁附近变暗，不修改几何或实际深度。setView({display:"solid"}) 隐藏辅助边线仍保留遮蔽；display:"edges" 使用柔和金属边线，选中与选边高亮保持清晰。纯线框、透明显示不启用遮蔽。getState().display.metalRendering 读回实际启用状态、采样数及投影。遮蔽是屏幕空间近似，仅使用当前可见表面，不代表离线光线追踪或隐藏表面的完整阴影。金属凹凸不等于实体几何缺陷。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -514,6 +619,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -525,6 +631,7 @@ files.release: contextPolicy=none
 traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBottomY,simplifyToleranceMm?}) 是只读闭合轮廓计算工具。四条曲线均为从上到下的有限 XY 采样点数组，每条3–2000点，左右对应端点 Y 差≤0.01 mm。外轮廓由左右外曲线及上下直线闭合；内轮廓在 barTopY/barBottomY 横向切分为上下两个孔，输出已按外包围盒中心归零的 vectorProfile regions、原始 bounds、size、简化前后点数与相对采样折线的最大观测偏差。simplifyToleranceMm 可选，范围0..0.2 mm，默认0表示不简化；保留端点和X极值点。工具不读取 DWG，不补造样条，不证明采样精度；源 DXF 样条必须由可靠解析器先按显式容差采样，且应核对原图横条边界。调用 api.run({steps:[{id:"shape",method:"add",args:{op:"vectorProfile",refs:[],params:{regions:result.regions,output:"solid",height:3.5}}}]}) 建实体。PG4307 源样条经 ezdxf 0.01 mm 参数采样得到24.006×21 mm、983.047 mm³的源线近似实体；再以简化公差0.01 mm处理628个侧曲线点，可降到162点，实际最大采样点偏差约0.00963 mm，体积约983.073648 mm³；样条采样及端点/交叉验证是独立前提。vectorProfile.params.source 应记录 DWG 哈希、采样距离和选用的实体 handle；本机采样脚本为 text-to-cad/agent/tools/cad-learning/export_spline_samples.py，完整调用见 docs/PAGE-API.zh-CN.md。非法或过大的输入返回 failed，不修改工程。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -608,6 +715,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -619,6 +727,7 @@ files.release: contextPolicy=none
 所有编辑动作均使用 execute({context,idempotencyKey,action,args}) 或 run 的 execute 步骤。先 getTool({id:动作名称})，不要猜字段。document.rename 修改工程名称；feature.rename 可改导入件名称；body.visibility 指定 bodyIds/visible；body.appearance 设置 color/finish；document.appearance 设置工程默认 finish；body.explode 拆多实体组合；body.align 平移对齐；history.restore 回到保留的工程状态。后三者成功提交后的 validation.geometry=passed 表示经过重建，no_change 为 unchanged；外观/显隐/改名的几何保持 unchanged。该字段不证明当前画面已渲染或工程已保存。颜色 #RRGGBB，null 重置；finish:null 跟随工程，design 显示原色，金属材质暂时盖住原色但保留其数值。getState().colors/appearance/renderFinish/hidden 可读回。外观/显隐/改名不重算几何，保存到 .webcad 且支持撤销。preview.start 的普通特征 args 同 feature.add；文件来源用 fileImport:{resourceId,placement}。回执返回 previewId/generation，更新用 preview.update 的 expectedGeneration，提交或取消也必须带当前预览身份；旧 UI 预览继续接受空 args。草稿不改工程 revision。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -702,6 +811,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -713,6 +823,7 @@ files.release: contextPolicy=none
 STEP/STP/BREP/BRP 每源128MiB，通过files.register的真实二进制资源导入；UI打开与插入预览共用。原字节按SHA-256存于v4 ZIP资产，别名归一step/brep；导入当前曲面实体不会恢复来源软件的鼻眼等语义或特征配方。v4工程总512MiB、JSON元数据20MiB、2000特征；旧JSON/v3仍20MiB并继续可读。源在全部保留历史不再引用后才回收；撤销与冷开保存保留源。STEP/BREP导出也走二进制资源，不在Agent回执内回传base64。IGES及Logo转换预算不变，Services精确检查点仍独立20MiB。128MiB是输入预算而非全范围性能保证；真实内核失败/超时保留原工程。读取files.capabilities().typedByteBudgets并使用唯一idempotencyKey以便安全取回同次导入回执。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -796,6 +907,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -808,6 +920,7 @@ execute(request) 使用当前 CommandService 的结构化请求：{context:{sess
 同一页面修改由原命令队列串行处理。幂等回执只在当前 documentInstanceId 的有限内存范围内有效，不跨页面重载。成功提交与后续显示或文件写入失败应分别报告。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -891,6 +1004,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -905,6 +1019,7 @@ execute action feature.addMany 的 args 为 {features:[{key,op,opVersion,schemaH
 几何提交后可用{$ref:"build.featurePlan.featureIds.finalKey"}检查或导出；仅最终仍存在的bodyId可做后续操作。检查关键材料/尺寸及displayMatchesContext，一次通过即交付。速度统计必须注明WASM启动、计划编写/读图、计算/网格、检查、导出与传输是否计入；单事务速度不代表整件已经正确。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -988,6 +1103,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -999,6 +1115,7 @@ files.release: contextPolicy=none
 页面建模、测量、视图与截图方法的失败通常返回 {status:"failed",commitState:"not_committed",error:{code,message},context}；execute 和 queryGeometry 使用 CommandService 的更完整结果。普通 fillet/chamfer 失败的 error.report 包含 operation/stage/attemptCount/elapsedMs、confirmedFailedEdgeIds 与 candidateEdgeIds、supportGeometry；仅 confirmedFailedEdgeIds 是内核确认，候选不能当作确认原因。默认只尝试请求参数一次，不自动扫描或应用较小 R；stage=selection 时 attemptCount=0。报告过大时显式返回 truncated/omittedPaths 摘要。files 方法抛出带 code 的 Error，调用方应捕获，不能把异常解释为已保存。文件状态分别为 registered、generated、download_initiated、write_verified；generated 不证明磁盘写入。输入资源、导入和输出按扩展名与实际内容双重校验：STEP/STP/BREP/BRP/STL 128MiB、mesh384MiB、v4工程512MiB；普通资源与旧JSON/v3工程20MiB。最多32资源、合计512MiB、30分钟有效。v4把完整源资产独立保存，JSON元数据仍20MiB、最多2000个历史特征。2000 是建模特征数，不是撤销步数。新增、预览、导入、粘贴、批量对齐和拆散均受限；批量按实际新增特征数计数，编辑或删除仍可使用。计算前在无 timeline 的工程大小上预留 4 KiB，提交前按含锚点和裁剪后历史的完整文件再次校验。超限返回 SIZE_LIMIT，已运行的内核恢复原工程，revision、撤销/重做和当前工程不提交变化；不要重复重试，应减少特征或拆分工程。读取 files.capabilities() 获得当前实际上限。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -1082,6 +1199,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -1093,6 +1211,7 @@ files.release: contextPolicy=none
 同源宿主通过 window.webcad.hostControl.set({locked?:boolean,connected?:boolean}) 同步设置，get() 读取；返回 {version:1,locked,connected,mouseMode:"view"|"editable",pageApiWritable:true}。不是建模工具，不需要工程context，不增加revision、不存入工程。locked=true 仅允许鼠标在视口旋转、缩放和平移；人工菜单、属性、快捷键、拖入文件、锚点及实体手柄不可用；page API 建模、编辑、文件和查询仍可用。释放 set({locked:false}) 恢复人工编辑并保留查看模式。连接和控制状态显示在已有顶栏右侧；getState().hostControl 同步读取。宿主应在iframe加载后重新设置状态；跨源宿主不授权此直连接口。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -1176,6 +1295,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -1188,6 +1308,7 @@ files.release: contextPolicy=none
 绘制轮廓默认按图元点击，不要求用户配置全部选项；API 使用现有严格 sketchProfile 契约，显式传 entities 和 chains/loops/regions，output 为 wire 或 face，工作平面用 placement。先读 getTool({id:"sketchProfile"})；minimalExample 是完整可执行参数示例。线、圆、三点圆弧、矩形、折线等图元均保存为解析来源；参数矩形、圆角矩形、长圆的外环可直接引用其原始图元 ID 一次（entityId 为该 id，reversed 为 false），内部会自动展开有序边；不自动生成 loops/regions，也不要求猜派生边 ID。sketchProfile.normalExample 提供完整40×30矩形闭面；详见 recipes.rectangle-profile。二维 heightMm 不表示拉伸厚度，profileExtrude.distanceMm 必须来自用户要求。人工参数和高级编辑按当前任务显示；菜单页签、分组和展开策略保持用户原设计。inspectProfile({context,bodyId}) 只读诊断。prepareProfileEdit 为高级修剪/延伸/圆角提供明确 entityId/targetId 与交点候选，selectionRequired=true 时必须选择候选；不猜测交点。轮廓成体另用 profileExtrude，保持轮廓来源可编辑。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -1271,6 +1392,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -1287,6 +1409,7 @@ connect().onboarding.knowledge.policy=required-on-first-handshake。Agent首次�
 await client.route('DWG图纸重建')返回匹配路由和需要的doc/tool IDs；await client.readLocal({docIds:['api.reconstruction'],toolIds:['inspectDesign']})仅取这两项。默认字符预算32000，不能容纳的整项返回omitted/CHAR_BUDGET，不截断schema；调用方缩小本次读取范围。下载不自动安装技能；安装包仍由宿主选择并执行。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -1370,6 +1493,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -1387,6 +1511,7 @@ planPatternMachining({context,intent})只读规划。intent.version=1；requeste
 统一 LOGO：工具栏“加工→LOGO”与页面 execute({action:"feature.add",args:{op:"logo",...}}) 共用建模内核。先 getState() 得到当前 bodyId/revision，queryGeometry({context,bodyId,kind:"face",requireUnique:false}) 找精确 BRep 面与 faceId；放置点 point 必须为该面的三维 XYZ。新操作 params 使用 {placementVersion:2,faceId,point:[x,y,z],mode:"engrave"|"emboss",depth:显式正数,draftAngle:0,scale:1,angle:0,offsetX:0,offsetY:0,mirrorX:false,regions:[{outer:[[x,y],...],holes:[]}],source:{kind:"reviewed-contours",reviewed:true,original:{...}}}，refs:[bodyId]。source.reviewed=true 是调用者已复核轮廓来源、尺寸和孔洞的明确声明；新流程不猜深度。平面可凹刻/凸字/拔模，非平面只允许 mode=engrave 且 draftAngle=0，仍受原曲面边界、接缝、薄壁校验。创建时记录源 BRep 哈希作快照审计；历史重建以稳定的面几何签名、类型、面积与中心校验，不能把跨内核不稳定的原始序列化字节误作历史匹配依据。旧 logo 缺少 placementVersion 沿用原平面语义，旧 curvedLogo 只供历史兼容。轮廓单位 mm、局部 X 为全局 X 投影到目标面切平面（X 法向附近改 Y）、局部 Y=法向×局部 X。浏览器 UI 本地读取 .logo.json/受限 SVG/粘贴 SVG 或闭合 d；外部 AI 可直接提供经复核的 regions，不能把 SVG 字符串当 regions。SVG 曲线离散误差源尺度约 0.005 mm，等比放大后误差也按比例增加。静态版没有位图/复杂矢量转换服务。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -1470,6 +1595,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -1487,6 +1613,7 @@ thread refs=[单一实体]，当前圆柱 faceId、kind=external/internal、pitc
 本扩展不把装配配合/工程图、通用草图样条约束、自由曲面G2、变半径圆角、钣金/凸轮/CAM视为已补齐。这些需要各自的数据模型、几何处理与验收；工具数量不表示主流机械CAD全功能覆盖。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -1570,6 +1697,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -1582,6 +1710,7 @@ files.release: contextPolicy=none
 STEP/BREP同样可使用独立完整源资产（详见api.exact-source-assets）。工程v4是含完整源字节的ZIP，按类型白名单与哈希核验，展开上限512MiB；v1-v3保持读取，旧版本不能降级丢网格。历史只引用资产，所有保留历史不再使用才回收。大文件通过资源描述及二进制通道，不把百万坐标/base64放入Agent回执。编码/解码/导入在Worker完成；无网络即可读取保存的源、测量和导出。源文件没有制造单位证据，显式单位输入仅为使用者解释。Services新增同一入口的受控MeshWorker，真实source/codec/client/offline检查未通过时保持禁用；当前自交未经独立核验，布尔/自动修复不开放。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -1665,6 +1794,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -1676,6 +1806,7 @@ files.release: contextPolicy=none
 meshReliefPlate创建可复用底板：widthMm/depthMm/thicknessMm/spacingMm及bumps，中心XY、正面0、背面负厚度；bumps明确中心、高度、平顶半径及外半径，叠加是相加，导出仍为网格。创建和编辑都通过同一CommandService及Worker。网格局部修高meshReliefEdit通过feature.add或preview.start/commit调用。先getTool读取严格契约，getState.bodies[].meshReport.geometryHash绑定当前源，expectedRevision绑定文档。support显式毫米原点、单位xAxis/normal；seedMm为当前正面上的世界点；region为支撑XY核心半径和过渡宽，protectedRegions为硬保护圆。scaleHeight按支撑基面缩放局部高度；offset沿法向毫米增量；flatten指定基面高度；replace传field:{originMm:[U,V],sizeMm:[宽,高],heightsMm:二维毫米高度矩阵}，行沿正V，双线性目标在核心替换旧面、过渡带混合，绝非max覆盖。replace也可传profile代替field：segments为二维三次Bezier控制点，stations按近似弧长比例0到1列出sectionMm横向毫米/高度毫米样点，正横向为路径左边；endTaperMm控制首尾收尖，baseHeightMm为路径外基面，curveToleranceMm控制路径弦偏差，maxSourceSpacingMm为源采样门禁。截面和纵向线性插值，无高度插值过冲；首尾为三次平滑收尖。也可用deformation:{pivotMm,translationMm,scale:[正U比例,正V比例],angleDeg,sourceRegion:{centerMm,radiusMm},baseHeightMm,maxSourceSpacingMm}局部移动/收窄/旋转；只对sourceRegion内不可变原网格逆变换采样，域外用显式baseHeightMm，避免复制邻件；保留峰高、固定拓扑及保护域，存在重采样误差，需独立验收，间距门禁不证明精度。layers模式按数组顺序合成1—16层，每层id唯一且enabled明确。surface层声明role=macro/detail：add/remove使用正heightMm及attachment=followHeight，表示沿法向的相对增减；replace使用attachment=absolute及heightMm/field/profile之一，表示绝对目标。freeze层regions冻结此后各层对应区域；全局保护作用于全部层。每层region必须在总域内。通过feature.edit修改原特征的整个layers数组，从该特征不可变输入重算；顺序与启停写入工程。细节随动限高度方向，不承诺横向或切向自动附着。强制targets检查最终合成，任一层失败整次不提交；edit.layers回读逐层结果，最小厚度为各层影响域保守下限，并非全模型厚度证书。profile、field、deformation、value、layers互斥；原特征跨模式变更涉及参数删除时新建派生操作。源三角面间距超出目标网格间距拒绝RELIEF_RESOLUTION_INSUFFICIENT，不自动重网格。仅正向单值、闭合一致定向网格，固定XY、Float64，不改拓扑。投影面片重叠区域的顶点及受影响顶点/重心检查底面厚度和近邻穿入，不能据此宣称任意三维自交验证。sampleMeshRelief读取当前正式网格支撑坐标下全部交点高度，可数值核对截面、底面与峰谷；空命中和多层交点显式返回。可选targets:{pointMm,heightMm,toleranceMm}数组为强制验收点，保护/域与目标冲突返回RELIEF_CONSTRAINT_CONFLICT及targets索引，不提交。meshReport.edit.constraints回读实测偏差。meshReport.edit读回输入/输出hash、影响量、保护差和实际最小厚度。最多20万三角面、2万修改点、1200万射线测试，超限保留源；分区不能免除相邻壳检查。历史撤销恢复原配方/源，不刷反向笔触。精确BRep与STEP继续使用曲面工具，本操作不会将网格伪装STEP。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -1759,6 +1890,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -1770,6 +1902,7 @@ files.release: contextPolicy=none
 快捷工具定义由软件内置，只允许调整创建参数和显示顺序。getModelLibrary读取readOnlyDefinitions:true、allowedOperations:[move,restore]、revision及各工具fields/schema/execution；resolveModelLibrary({context,id,expectedLibraryRevision,params})返回run/add实际参数，params只接受该工具字段。updateModelLibrary({context,expectedLibraryRevision,operation:move,id,index})调整显示位置；restore恢复默认顺序。定义、脚本、导入、删除、upsert均拒绝。列表为45个当前工具，6个移除工具仅保留历史重建。category/categoryLabel标明分组，默认同组相邻、简单在前。catalogOrderVersion升级时启用新默认分组排序，原存储保留；升级后用户调整的顺序继续持久化。旧工程冻结脚本仍可重建，新建API不接受modelScript。缩略图与默认尺寸图在开发时预生成，运行时只加载静态资源，不启动预览几何内核；丝筒内部结构用半透明实体加边线。图片表示默认参数，创建值以输入框/参数为准。旧远程助手可用getUILayout({includeModelLibrary:true}).modelLibrary读库，并通过setView.modelLibraryChange执行同一排序接口。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -1853,6 +1986,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -1865,6 +1999,7 @@ files.release: contextPolicy=none
 参数定义按名称合并；绑定按特征 ID 和数值路径合并。单位仅 mm/scalar，表达式支持有界四则运算和已注册函数，不执行 JS。未定义参数、循环、单位不符、越界或不安全的后续拓扑索引会拒绝并保留原模型。已绑定字段的直接数值编辑返回 PARAMETER_BOUND；请通过参数表或 document.parameters 修改。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -1948,6 +2083,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -1978,6 +2114,7 @@ planPatternMachining({context,intent})只读规划。intent.version=1；requeste
 heightfieldSculpt和reliefSculpt是发现入口，执行真实feature.edit/prepareReliefSculpt，并非独立建模op。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -2061,6 +2198,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -2072,6 +2210,7 @@ files.release: contextPolicy=none
 从 text-to-cad 的 dfam-check 迁移的浏览器几何事实检查。inspectPrintability({context,bodyId,angleLimitDeg?:45}) 接受当前实体 ID，角度须大于 0 小于 90 度。读取当前显示网格逐三角面计算表面积、六种轴向摆放的悬垂面积、面积占比、成型高度与支撑柱体粗估；距平台 0.1 mm 内的面视为已支撑。包围盒、体积与 solidCount 取内核 B-Rep 元数据。结果不改变工程 revision，不给合格判定。网格精度、材料、工艺、壁厚、孔径、粉末排出和切片支撑均需另行核验。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -2155,6 +2294,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -2173,6 +2313,7 @@ TypeID为本地系统分类线索，不当结构真值。明确familyId可跨品
 目录由结构抽样经验形成，非模型权重训练、非完整产品验证。原始业务图纸与照片留在本地，不随公共知识包下载。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -2256,6 +2397,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -2267,6 +2409,7 @@ files.release: contextPolicy=none
 fitProfile({context,kind:"circle"|"line",plane?:"XY"|"XZ"|"YZ",points:[[u,v],...],maxResidualMm?}) 基于 3–1000 个按截面坐标给出的有限采样点，只计算圆或直线候选，不生成实体也不修改 revision。circle 返回圆心、半径、按输入顺序展开的角覆盖；line 返回中心点、方向和投影长度；两者都返回最大与 RMS 残差。maxResidualMm 只作用户输入阈值的数值比较，不是默认产品公差。源自 text-to-cad 的截面圆候选算法思想；结果是点样本的近似，不能替代原图尺寸、完整拓扑或内核精确实体。拟合曲面建模另有 fittedSurface 操作，需 3–12×3–12 对应点阵。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -2350,6 +2493,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -2361,6 +2505,7 @@ files.release: contextPolicy=none
 queryGeometry({context,bodyId,kind:"face"|"edge",filter:{},requireUnique:false,limit:20}) 返回精确 BRep 候选、总数、分页及快照绑定令牌。face.surfaceType 筛选支持 plane/cylinder/cone/sphere/torus/bspline/bezier/revolution/extrusion/offset/other；edge.curveType 支持 line/circle/ellipse/hyperbola/parabola/bspline/bezier/offset/other，也兼容内核原始小写类型（cylindre、bspline_surface、bspline_curve 等）。返回 geomType/surfaceType/curveType 保留实际内核编码。plane 另包含已证实共面的 BSpline（planar=true）。normal 和 atExtreme 仍仅适用于可识别平面；非平面不能伪造统一法向。BSpline 返回 spline 次数、控制点数量与节点数量，尚不返回完整控制网或 G0/G1/G2 认证。圆边返回 radiusMm/center/axis；radiusRangeMm 不适用于椭圆。拓扑编号和 selectionToken 只属于返回的工程实例与 revision。改模型后重新查询。 新筛选 bounds:{min:[x,y,z],max:[x,y,z],mode:"contained"|"intersects",toleranceMm?:0.000001} 使用世界坐标 BRep 包围盒；默认完整包含，不是实体体积相交证明。边支持 adjacentSurfaceTypes:["plane","cylinder"]，按实际相邻曲面类型匹配（两项要求两个邻面）。onFaceToken 限定当前面后可用 loopIndex，边返回 boundaryLoopIndices；环索引仅当前修订有效，不猜内外环。解析柱面返回 cylinder:{radiusMm,origin,axis}。expectedCount 为正整数，与匹配数量不符返回 SELECTION_COUNT_CHANGED（0 匹配为 NO_MATCH），报告 matchCount/expectedCount，且不创建选择令牌、不进入加工。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -2444,6 +2589,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -2455,6 +2601,7 @@ files.release: contextPolicy=none
 三种链新建默认4节，一个历史特征/模型Compound，内部为互相穿接的独立实体。sizeMode=count时linkCount为1..100整数，maxLengthMm省略或0；sizeMode=length时maxLengthMm为正数≤10000，linkCount省略或0。二选一，冲突拒绝。总长按局部Y外包络名义尺寸L+(N-1)×pitch，O字链pitch=L-2d-0.2，钮链/磨链pitch=0.56×L；选不大于上限的最大完整节数，小于一节或超过100节拒绝，不裁断。O字链在0/90度两个姿态交替，方向规律。钮链和磨链全部同向，后一节嵌入前一节高低凹位，不累计旋转；链中心沿+Y，磨面共面。成链时来源中心线Z起伏乘1.6，径向圆线不随之放大，W/L/线径不变，磨链仍裁到groundThicknessMm；原来源凹位太浅，原样同向装配会穿透。单节仍采用原来源起伏。chainReport.twistFactor/rollPatternDeg/layoutVersion可读。内核检查穿接及保守间隙，比例无效明确失败。getState().bodies[].chainReport返回linkCount、lengthMm、pitchMm、sizeMode、rollStepDeg、validation；只省略尺寸键的旧工程配方继续重建单节。feature.edit切换方式须同时清零原来激活的数值。示例params:{kind: oChain,sizeMode:length,maxLengthMm:50,linkCount:0}（字符串值需引号）。来源驱动快捷工具：template.oChain、template.twistedChain、template.groundChain、template.ironFoot。均用add op:quickModel params.kind创建，固定本地WASM。链环outerWidthMm/outerLengthMm为X/Y外宽外长，wireDiameterMm为来源圆线尺度，gapMm为-Y端接缝，0闭合。O字链内孔为真椭圆，非跑道圆角矩形；扭链保持NL来源对角起伏，独立调中心线宽长和线径，不提供任意扭转角；磨链groundThicknessMm为上下磨面间距、grindRadiusMm为磨边固定R。底面Z=0。铁脚仔桥长Y、片宽X、顶面Z=0、脚朝-Z；taperAngleDeg控制脚侧收角，endRadiusMm控制脚端圆弧，footHoles为none/front(-Y)/back(+Y)/both；孔径0无孔。heightMm含顶片厚。V01默认单后脚孔，V02收脚4.2度/桥长10.5/片宽4.8/总高8.5/R1.9/片厚0.5/顶孔2.3/孔距5.5/脚孔2/脚孔心距底1.9/front；V03长26.4/宽6.1/高15.3/R3.05/厚0.5/顶孔2.6/孔距19/脚孔2.5/脚孔心3.05/both。省略字段沿当前卡默认，来源参数应完整传入。所有几何关系由内核校验，失败不改已提交工程；编辑用feature.edit，量测用measure/queryGeometry，保存/重开保持同一配方。O和磨链是通用重建，默认源件体积偏差分别约0.022%/0.010%；不是原STEP逐面字节复制。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -2538,6 +2685,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -2549,6 +2697,7 @@ files.release: contextPolicy=none
 铜皮鸡眼template.twoPieceEyelet与合金鸡眼template.alloyEyelet均为一个quickModel特征、两个独立同轴实体。通过run的add op:quickModel、params.kind创建，feature.edit修改、getState/measure读取实体和尺寸；kind名称不是execute操作名。faceStyle=flat或curved，faceRiseMm为弧面径向拱高，flat忽略该值。A长脚件在上方（+Z），脚向下；B底片在下方（-Z），颈口向上，两片外观面朝外，底面Z=0。铜皮鸡眼新建默认explodedOffsetMm=0，assemblyGapMm=0，按长脚与短脚尺寸静态套合；assemblyGapMm为额外轴向拉开距离，正的explodedOffsetMm横向错开展示但仍相向。旧配方无faceStyle且未写横移时沿用24mm同向分开展示；新建会冻结faceStyle和定位参数。铜皮薄板以圆弧旋转形成曲面，轴向板厚保持，不模拟冲压。合金鸡眼参考PG14922，A外套管与B内套管相套，无内侧爪针；outerDiameterMm/boreDiameterMm为两面共用外径孔径，aFaceThicknessMm/bFaceThicknessMm为面厚，edgeChamferMm为真实面框倒角。a/bNeckOuterDiameterMm、InnerDiameterMm、LengthMm分别为两套管尺寸。materialGapMm为两面框内侧平面净距，须比最长套管大至少0.01mm；B套管外径须小于A套管内径。倒角须小于两面厚及环宽的一半，弧高须小于有效面环径向宽的一半。尺寸关系不成立明确失败且不提交工程。默认合金外径19.8/孔10及套管尺寸参考来源，平面/倒角/无针是用户指定改型，间隙与弧高为可调设计值，不冒充原图标注。铜皮装配朝向参考PG15211，默认尺寸仍为通用尺寸。两类均不模拟压铆、变形、锁扣与安装材料。原frameEyelet为带安装螺丝柱的另一类鸡眼面，保留其现有接口。保存重开与撤销共用标准历史配方。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -2632,6 +2781,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -2643,6 +2793,7 @@ files.release: contextPolicy=none
 快捷模型包括 spring 弹簧、screw 螺丝、threadedSleeve 丝筒、domedPin 半圆钉。先 getTool({id:'template.screw'}) 或其他 template.kind 读完整 defaults、fields、inputSchema，然后 run({context,idempotencyKey,steps:[{id:'part',method:'add',args:{op:'quickModel',refs:[],params:{kind:'screw',headType:'flat',headWidthMm:6,headThicknessMm:2,threadSize:'M3',threadLengthMm:8,drive:'cross'}}}]})；每次使用新鲜 context 和唯一幂等键，默认放到当前参考位置。页面 API 中尺寸单位 mm。螺丝平头是圆柱头，沉头固定 0.20 mm 外缘直升位加圆锥，headThicknessMm 包含直升位；头的最下面位于参考位置，牙杆朝本地 +Z。槽型 cross/slotted/star/hex，默认十字，梅花由六组相切圆弧组成。M1–M12 支持卡内列出的粗牙规格，自动选螺距；实际 V 型牙槽不声称标准等级或配合公差，最长 100 圈。丝筒 upper bottom 在参考位置、本地 -Z 向下，face 是下端；从下端向 +Z 攻内牙，threadDepthMm 不超过总高，两端外径须大于名义螺牙直径。螺牙直径必须匹配支持的 M 粗牙直径。半圆钉只有 diameterMm、heightMm，由光滑 Bézier 母线旋转，平底在参考位置、凸面向 +Z，不要求球面。弹簧 radiusMm 是中心线半径，wireDiameterMm 是线径，pitchMm 是每圈轴向螺距，turns 是圈数，leftHanded 是左旋；螺距必须大于线径。getQuickModelUsage() 返回本浏览器累计成功创建次数和五个常用项；完整目录按简单优先，面板列表固定最小 240px，空间不足纵向滚动。仅新创建并提交后计数，不统计预览、失败、修改、撤销重做和打开工程。锣槽 faceGroove(refs:[bodyId],params:{faceId,lengthMm,widthMm,depthMm})；内车 innerTurn/外车 outerTurn(refs:[bodyId],params:{faceId,diameterMm,depthMm})。先 queryGeometry 选真实 planar faceId，工具沿该面的反向法线进入材料，中心用面面积中心；锣槽 X 为世界 X 在面上的投影（退化时世界 Y），宽方向保持右手系。内车移除给定直径的内圆柱材料，外车在给定深度内移除给定直径之外材料；不会把当前工作锚点再次应用到加工几何。选择只能是一个平面截面，非平面、没有切到材料或破坏单一有效实体会失败，来源不改。它们是实体几何操作，没有机床刀路或进给。读回 receipts、measure、queryGeometry 和 rendered revision；修改用 feature.edit，保存/STEP 导出用 files API。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -2726,6 +2877,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -2737,6 +2889,7 @@ files.release: contextPolicy=none
 安装结构先按剖面选族：薄壁旋转翻边两件用 template.twoPieceEyelet；圆/圆角方形面框、短颈口和对称柱/普通孔用 template.frameEyelet；恒厚开口U夹用 template.uStrapClip。先 getTool({id:'template.frameEyelet'}) 或 getTool({id:'template.uStrapClip'}) 读该模板完整字段、默认值与限制，不必加载总目录。调用 run({context:新鲜requestContext,idempotencyKey:唯一键,steps:[{id:'part',method:'add',args:{op:'quickModel',refs:[],params:{kind:'frameEyelet'},name:'安装鸡眼'}}]})，U夹把kind改为uStrapClip；省略字段沿完整卡defaults，实际来源尺寸必须显式覆盖。两者一次创建一个精确实体、一条可编辑历史和一个撤销步骤；UI模型库→快捷模型共用同一构建。frameEyelet面框XY居中、底面Z=0，颈口/柱朝本地+Z，2柱沿Y、4柱按XY中心距；round要求内外宽高分别相等，角R仅控制roundedRect平面轮廓。孔径0为实柱；孔深0是通孔，正孔深从柱顶向-Z且必须留底。颈口/柱长0可生成背片，背片安装孔同样为直孔。uStrapClip宽沿X，后片+Y，底面Z=0，开口+Z；前后高度含底厚，外弯R=内弯R+壁厚，内弯R不能超过内净距/2；等于一半时为半圆底，0为内直角。后孔只穿后片，孔高从底面量，完整孔须位于直段。闭合帽套、变壁厚和空间扭曲不能套用。两者不模拟真实攻牙、锥孔、饰面/LOGO、压铆、弹性和三维边圆角；平面轮廓R不是三维边圆角。需按来源另用thread/holeWizard/rounding或原剖面建模，不能拿基础模板宣称产品完整通过。改尺寸用feature.edit（读新鲜context），然后measure/inspectDesign检查开孔、颈壁、盲孔底及后片孔；rendered revision须与提交一致。模板不自动保存或导出，也不修改源图。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -2820,6 +2973,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -2838,6 +2992,7 @@ files.release: contextPolicy=none
 细节见readDocs({docId:'api.design-checks'})；材料检查的来源标签仍由调用者核对。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -2921,6 +3076,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -2932,6 +3088,7 @@ files.release: contextPolicy=none
 世界原点不可修改；工作基准是工程元数据，getState().referenceSystem.workFrame 返回 origin/quaternion/locked/frameVersion。reference.setWorkFrame、resetWorkFrame、setLocked 与保存/激活/改名/删除具名基准均经 execute 的 revision 与幂等检查，可撤销且不移动旧实体。queryReferences({context,kind:"point"|"axis"|"frame",bodyIds,filter:{types?,near?},limit?,offset?,requireUnique?}) 返回精确 B-Rep 或明确派生候选、referenceId、几何指纹、歧义和分页；edge-nearest/trimmed-face-point 必须给 near:{point:[x,y,z],radiusMm}。圆心不冒充面内点；凹面/有孔面面积重心标为不保证落在修剪区域。referenceId 在工程 revision、实例或几何指纹变化后失效。reference.setBodyAnchor 需要当前对象的精确点 referenceId、bodyId、name、单位 quaternion；保存版本和指纹。已知刚体 transform/copy 继承锚点，改形无法证明映射时标记 stale，named 锚点定位拒绝旧来源。placement:{version:1,frame:{kind:"world"|"snapshot"|"work"|"saved",...},sourceAnchor:{kind:"model-origin"|"bottom-center"|"bounds-center"|"named"|"point",anchorId?,point?}}；work/saved 要对应版本，历史保存 frameSnapshot。各工具卡 placementPolicy 声明定位是否适用。transform/copy 新 mode 有 translate、toPoint、rotate、scale、align；align 必须给源/目标点、轴、面内方向、同向/反向、间隙和扭转角，缺失或退化拒绝。新追加的独立创建（placementPolicy.mode=creation-frame）省略 placement 时默认当前 workFrame 并保存快照；显式 world、既有无 placement 历史、旧工程重建和编辑保留世界坐标语义。新版工程 version:2，仍读取 version:1。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -3015,6 +3172,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -3026,6 +3184,7 @@ files.release: contextPolicy=none
 清理分割线 refineShape：用于导入实体或建模后残留的同域分割，不用于删孔、补洞或圆角。先 connect({toolIds:['refineShape','getState','queryGeometry']})，核对 canExecute，再 run({context:当前requestContext,idempotencyKey:crypto.randomUUID(),steps:[{id:'clean',method:'add',args:{op:'refineShape',refs:[当前bodyId],params:{}}}]}）。仅一个封闭实体，最多400面/2000边。固定线性公差1e-7 mm、角公差1e-7 rad；不开放公差放大。采用独立 BREP 副本、OCCT ShapeUpgrade_UnifySameDomain，随后验证有效实体、外廓、体积和两个方向的材料差。无减少返回 NO_CHANGE；失败不写历史。UI 位于修饰→实体整理，选件后预览/应用，无数值参数。getState().bodies[].refineReport 返回 before/after 面边数、removedFaceCount、removedEdgeCount、removedMm3、addedMm3、volumeDeviationMm3、boundsDeviationMm。清理会重新编号边面，后续 queryGeometry 必须重新查询；上游历史保留，可撤销。现有布尔通常已自动整理，简单新建件返回 NO_CHANGE 是正常结果。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -3109,6 +3268,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -3120,6 +3280,7 @@ files.release: contextPolicy=none
 所有带 context 的页面入口接受 getState().context（revision）或 connect().requestContext（expectedRevision）。createRequestContext(context?) 可显式转换；两字段同时出现且不一致时报错，绝不自动采用新版本。大文件使用 files.register/read，禁止塞进批次或反复回传模型上下文。files.save 生成资源，files.download 只发起下载；files.write 返回 verified 才证明句柄文件写入校验。按格式限制：STEP/STP/BREP/BRP/STL为128MiB、mesh384MiB、v4工程512MiB，其他普通资源20MiB；总资源512MiB。统一异常入口 await api.invoke({method,args}) 支持当前页面方法及 files.*；原同步发现和 files 方法保持兼容，可抛带 code 的异常。后台计算回执：submit({jobId,method,args}) 立即返回 queued，轮询 getJob({jobId})，完全相同 jobId/参数只取原任务；不得换 key 重复提交超时任务。状态 queued/running/committed/completed/partial/failed/unknown/cancelled，result 保留原回执与 context。分层浮雕通过 getJob.progress 或 getState.kernelProgress 提供实际层/轮廓计数及合成阶段，不是时间百分比；工程重建也返回kind=rebuild的阶段进度（特征、校验、源快照、显示、吸附、测量），elapsedMs为已用时间，不是完成百分比；其他操作可能progress:null。已路由本地的计算超过localTimeoutMs只提醒并继续同一任务，可保存最后已提交工程；不因时限终止Worker或推荐不存在的Services。内核初始化仍有保护时限，未就绪可recoverKernel，不刷新、不重放。cancelJob 可取消尚未运行任务；运行中的 run 请求会返回 STOP_REQUESTED_AFTER_CURRENT_STAGE，并在当前步骤回执后停止后续步骤，已提交结果保留。运行中的单次同步内核不承诺中断。run 的每步可提供 stage 描述，getJob.progress 返回当前 stepId、stage、completedSteps、totalSteps 及实际 kernel 子进度。仅当前页面内存中保留最多100任务，刷新后先检查模型，不自动重放；无额外服务。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -3203,6 +3364,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -3220,6 +3382,7 @@ planPatternMachining({context,intent})只读规划。intent.version=1；requeste
 sampleReliefHeight({context,featureId,point:[x,y],draft?}) 只读吸取控制高度，与 UI Alt 吸管共用算法；返回 targetMm、quantity:height/depth、units:mm，可直接用于 flatten。点为图案局部[-.5,.5]，Y向上；轮廓外/孔洞内返回RELIEF_SAMPLE_OUTSIDE。draft不传读取工程，传入则采样该精修草稿；采样不修改工程。浮雕精修：prepareReliefSculpt 接收 featureId、strokes 与可选 draft，返回独立 deltaMm/mask 草稿；canCommit 为 true 后 feature.edit 提交。原始 values/轮廓保留。抬高、压低、平滑、定高、填洼、削峰、锐化、恢复、遮罩共用局部坐标笔刷，支持 hardness 和 symmetry；凹雕抬高变浅、压低加深；定高字段 targetMm 在凹雕中表示深度。所有现有浮雕模式适用，STEP无来源数据不适用。后续面边编号可能失效，提前返回 blockers，不删除下游特征。 浮雕在单个有效实体的平面或外凸圆柱面上加工。新流程 readRelief 返回 values、regions、surfaceMode、source，全部传给 relief。regions 为独立图案轮廓，outer/holes 坐标归一化到图像中心的[-0.5,0.5]，按widthMm/heightMm缩放；孔和轮廓外保持原主体表面，不生成矩形底层。轮廓最多1024区、每环2000点、合计64000点，拒绝自交/相触。surfaceMode=flat 生成真正的解析平顶面，depthMm 从放置中心切平面计算；smooth 使用4–65行列的0–1高度控制网格拟合三次B样条，轮廓独立裁切，内部起伏仍为平滑近似。readRelief 的独立轮廓采样为257，约0.2像素简化，位图边界精度受原图限制；准确CAD轮廓可直接提供regions。平面以面质心加offsetX/Y放置，局部X为世界X投影（近共线改Y），Y=外法向叉X，可angleDeg旋转。柱面须point，局部X沿圆周弧长、Y沿轴；轮廓沿放置法向投影，angleDeg=0，半径1–10000mm、角宽≤90°、总起伏≤半径20%。平顶凹雕depthMm须超过图案范围弓高。有regions时检查实际图案，允许空白区跨孔；无regions的旧高度场仍检查完整矩形。mode=emboss/engrave，结果必须融合为一个有效实体；失败保留原件。旧工程不含regions时保持原矩形高度场语义，柱面仍须显式baseMm=0.005–1mm；新轮廓模式平滑肩部内部默认0.005mm，平顶忽略baseMm，外部背景不加工。图像亮度不是照片深度。参数与来源哈希存入历史，可改参、重建、预览、撤销。reliefReport回读surfaceMode、background、regionCount、smoothing、材料体积和限制。 分层矢量：layers最多32层，明确name、heightMm、mode及regions或strokes，各层以原始选面为共同基准，整个操作一次预览、提交和撤销。凸层按实体并集合成（重叠处取更高层）；凹层从原主体面向内刻。浅层肌理用完整低凸层加带细节孔的高凸层，不能把肌理内线全部当穿到底的孔。每层可选startHeightMm（默认0，须低于heightMm），用于从已存在的下层表面附近开始加工，避免复杂层完整重叠；须确保下层实际承托，否则拒绝不连续实体。每层可选values，否则为等高4×4网格。strokes包含points（归一化局部坐标，至少2点）与widthMm，形成圆端开放刻线，相交或重叠部分先在二维合并，再生成统一刀具；方向与深度由mode/heightMm决定。contourSnapMm为显式轮廓清理网格（mm，0关闭）；每轴最多移动半个网格，小于该精度的缝隙/孔可能合并。建议先对照原图选择0.005mm，保留原始参数可撤销。curveToleranceMm为显式曲线拟合公差0–0.05mm，0保留折线，推荐0.005mm；不推断CAD内线用途。UI和readRelief均可读取version:1、widthMm、heightMm、layers的.relief.json文件，UI逐层编辑高度和方向；AI也可直接传layers，getState及reliefReport.layers回读。分层回执不重复计算逐层材料体积，addedMm3/removedMm3为null，最终实体的测量仍正常提供。分层工程通过prepareReliefSculpt({context,featureId,layerIndex,strokes})选择单层，返回params.layers供feature.edit一次提交；各层sculpt独立保存。未有values/sculpt的等高层可显式samples=4–65初始化网格，已有网格不隐式重采样。精修保留轮廓和孔，仅改变该层高度，不保证消除相邻层台阶。timingsMs区分源复制、刀具、轮廓裁切、边界检查、精确布尔和最终有效性检查；最终仍须为有效单实体。 files.register登记图像后readRelief({context,resourceId,name,samples:33,whiteHigh:false,style:"rounded",sourceInterpretation:"rasterArtwork"})返回values/regions/surfaceMode/aspectRatio/source。style:"rounded"按背景距离鼓起，style:"grayscale"保留灰度层次。flat/rounded的threshold默认0.5且须在0和1之间；grayscale轮廓阈值为1/255。透明像素属于背景。图片最多8 MiB/1600万像素；SVG支持基本形状、路径与渐变，文字需转路径，拒绝外部资源。run add op:relief，refs:[bodyId]，params:{faceId,widthMm,heightMm,depthMm,values,regions,surfaceMode,source,mode:"emboss",point:[x,y,z]}；平面可省point。不要丢弃regions而恢复矩形旧模式。preview.start/commit/cancel、feature.edit、history.undo与UI同路。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -3303,6 +3466,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -3327,6 +3491,7 @@ files.release: contextPolicy=none
 heightfieldSculpt和reliefSculpt是发现入口，执行真实feature.edit/prepareReliefSculpt，并非独立建模op。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -3410,6 +3575,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -3421,6 +3587,7 @@ files.release: contextPolicy=none
 inspectRound({context,bodyId,params:{edgeIds:[当前边号],mode:"edge",radiusMm:0.3}}) 复用 round 内部规划，只读独立 BRep 副本。params 按 getTool({id:"round"}) 完整契约；恰选 edgeIds 或 faceIds，faceIds 仅解析平面边界。返回实际 resolved/scope、targetCount、targets[].supportSurfaceTypes、constructionCategories、限制和 attemptCount:0。自动端头模式会测量一个真实截面；没有构造圆角、没有多半径扫描，不保证 R 或推荐深度可行。来源与历史不改。失败报告 stage=planning，不误报成半径失败。加工后须新 context 与 queryGeometry 重新选边；旧预检不跨 revision 生效。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -3504,6 +3671,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -3520,6 +3688,7 @@ add 是 feature.add 的适配器，自动读取当前工具版本/schemaHash，�
 files.save/export 返回 generated 资源，未证明磁盘保存；脚本客户端再 files.read/download/write，面板使用“下载”按钮只证明发起下载。新建/打开工程和截图使用专用页面 API，不属于批次。几何修改由旧有命令队列执行，其他 UI/客户端插入修改后批次停止，不自动接受新 revision。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -3603,6 +3772,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -3614,6 +3784,7 @@ files.release: contextPolicy=none
 autoRound 是严格 v2 整件圆边：params:{radius:0.1}，refs:[bodyId]，所有尖锐边统一处理，失败不部分提交。smoothTransition 是严格 v2 面组过渡：params:{radius:0.1,faceIds:[当前相邻面序号,...]}，refs:[bodyId]。选至少两个相邻面，仅对其公共尖缝联动倒圆。queryGeometry 边含 startPoint/endPoint/midpoint/bounds/adjacentFaceIds/normalAngleDeg/sharp/degenerate，面含 edgeIds；按位置和邻接找交线。getState().bodies[].transitionReport 含 processedEdgeIds/processedSeams/remainingSharpEdges/remainingSharpEdgeCount。过大半径、自交、未消除目标尖缝或抽样发现非边界新尖缝时拒绝，原模型保留。局部过渡与未选面的结束边界可能锐利，boundarySharpEdges 单独报告。检查法向为边上20/50/80%三点与1度阈值，不是曲率连续证明或全部顶点认证。未选原有锐边（如文字边）保留，不能宣称整件无利角。UI 加工→曲面处理→整件圆边/平滑过渡，选实体或 Ctrl 多选面，预览再确认。完成后用 feature.edit 修改原特征 params.radius，会从源几何重建并重算后续步骤；不是在结果上再倒一次圆角。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -3697,6 +3868,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -3708,6 +3880,7 @@ files.release: contextPolicy=none
 readVector 对当前不能直接建模的 SPLINE 返回 unsupported[].sourceSpline，保留次数、控制点/节点/权重/周期性，或独立拟合点、拟合公差、端切向和源 handle；representation 区分 nurbs-parameters、fit-points、incomplete-spline。geometryCreated=false：保留参数不等于实现原始 NURBS 构造；fit-points 不能证明原始样条。DXF 源组码及 DWG 解码器实际提供的字段分别保留，不把不同源图元闭合插值成一条曲线。reliefReport.curveConversion（分层在 layers[]）记录实际使用的清理后点列/拟合边数、采样偏差、精确线圆弧面积、环孔数与核验类型；偏差参考 supplied-polyline-after-explicit-cleanup，sourceSplineDeviation=unknown，不是对源样条的全域误差界。成功回执在64000段/1024区域既有预算内保留完整环详情，ringCount/truncated明确表示完整性；错误诊断仍有界。采样偏差超过显式 curveToleranceMm 或面积改变量超过公差面积预算时拒绝转换；这也不替代源图尖角与区域用途的核对。完整原样条实体入口尚未开放。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -3791,6 +3964,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -3802,6 +3976,7 @@ files.release: contextPolicy=none
 executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口，不执行任意 JS 或 shell。每行一条，最多 20 行、总长 16384 字符。语法：add <操作ID> key=value ...；measure <bodyId|$last>。示例：add box width=30 depth=20 height=2.5 name="牌子"，下一行 measure $last。复杂参数可用 JSON 值，例如 points=[[[0,0,0],[1,0,0],[2,0,0]],[[0,1,0],[1,1,0],[2,1,0]],[[0,2,0],[1,2,0],[2,2,0]]]。refs 可用 JSON 数组或 $last。dryRun:true 仅返回解析后的步骤；正常执行交给同一 api.run/CommandService，返回逐步回执，非原子，已提交步骤保留。每次执行需新 idempotencyKey，重试同一请求可复用原 key。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -3885,6 +4060,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -3926,6 +4102,13 @@ files.release: contextPolicy=none
   "box": {
     "tools": [
       "box"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
+  "bumpSet": {
+    "tools": [
+      "bumpSet"
     ],
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
@@ -4073,6 +4256,13 @@ files.release: contextPolicy=none
   "group": {
     "tools": [
       "group"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
+  "guidedLoft": {
+    "tools": [
+      "guidedLoft"
     ],
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
@@ -4424,6 +4614,13 @@ files.release: contextPolicy=none
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "subdBody": {
+    "tools": [
+      "subdBody"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
   "surfaceTrim": {
     "tools": [
       "surfaceTrim"
@@ -4572,6 +4769,13 @@ files.release: contextPolicy=none
     ],
     "method": "execute",
     "usage": "显式指定移动bodyIds和target；X/Y/Z、min/center/max、group保持相对位置。"
+  },
+  "floorSelected": {
+    "tools": [
+      "transform"
+    ],
+    "method": "execute",
+    "usage": "将选中实体的包围盒最低 Z 平移到 0 mm；以已有 transform 特征记录，可撤销并随上游重建。"
   },
   "alignBodies": {
     "tools": [
@@ -5258,6 +5462,7 @@ files.release: contextPolicy=none
 }
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -5341,6 +5546,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -5352,6 +5558,7 @@ files.release: contextPolicy=none
 从 files.register 的文件资源或 text 直接 readVector；name 后缀 DWG/ASCII DXF/SVG/JSON。DWG 由浏览器 Worker 内 LibreDWG 解码并释放内存，不上传。DWG/DXF 支持模型空间 LINE、ARC、CIRCLE、无宽度 LWPOLYLINE（含 bulge 圆弧）；跳过类型逐项报告，包括 INSERT/标注/文字/样条，不展开块。scaleMm 显式指定每源单位的毫米数，默认1，不猜单位。SVG复用受限填充路径解析器，曲线离散近似约0.005mm；不冒充精确圆弧，必须声明或输入毫米宽度。JSON为 entities 解析格式，单位mm。bounds 框选只包含整条边，entityIds/layers 可同时过滤；注意分页 total/truncated。先选需要的产品轮廓，再 connectVector 排序、反向、配对容差内唯一端点，报告每处实际移动量；容差0..1mm默认1e-6，不添加长补线。origin/flipY 仅为显式平移/翻转；源坐标和方向默认保留。canCreateFace=false 时返回开口/分叉/重线/交叉位置，不提交部分面。成功的 profile 经 api.run add sketchProfile 由精确内核检查成面，支持外环和孔洞；撤销一次即可删除新面，原图不改。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -5435,6 +5642,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -5446,6 +5654,7 @@ files.release: contextPolicy=none
 setView({context,interactionPhase?,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?,anchorVisible?,panels?}) 控制当前视口。interactionPhase 为 start/update/end，显式开始/更新网格快速显示预览，end后网格恢复完整显示；复杂BRep则按当前可见范围渐进细化，显示缓存不作为精确几何。鼠标操作使用同一生命周期，停止运动后恢复精细帧。display.detail报告是否approximate、正式/预览面数、像素误差预算和空间块视锥裁剪；近似显示不能作几何验收。缓存复用静止帧，旋转使用独立显示网格而非单图透视伪造。display 为 solid/edges/wire/transparentEdges（半透明实体、边线与显示曲面三角网格）；grid/snap 为布尔值；gizmo 为 off/translate/rotate；selectionMode 为 view/body/face/edge；默认 view 查看模式不点选、不框选，左键旋转、右键平移、滚轮缩放；主动选择 body/face/edge 后进入选择模式；language 为 zh/en；camera 为 {position:[x,y,z],target:[x,y,z]}，可替代旋转、平移、缩放手势。temporaryDisplay 为 normal/selectedOnly/transparentOthers，只改变临时显示并保留工程中原有隐藏状态；getState().view 读回设置。direction 可为 top/bottom/front/back/left/right/side/iso；projection 可为 orthographic/perspective；fit 是布尔值；selectedIds 是当前实体 ID 数组，最多 200 个且不得重复。section 为 {axis:"X"|"Y"|"Z",position:有限数字,enabled:布尔值}，仅做显示裁剪，不切割精确 B-Rep。相机与裁剪变化不增加建模 revision。redraw({context}) 重绘当前提交版本；capture({context}) 等待匹配当前模型的渲染帧，返回 image/png dataUrl、context 和 display，失败时可能为 DISPLAY_FAILED。调用前从 getState().context 取完整当前身份与 expectedRevision。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -5529,6 +5738,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -5560,6 +5770,7 @@ await api.run({context:c.requestContext,idempotencyKey:crypto.randomUUID(),steps
 组合建模练习见 readDocs({docId:"recipes.hardware-practice"})：保留轮廓的槽轮旋转与四孔加工、三截面扭转旋钮放样与轴孔。多零件配合流程见 readDocs({docId:"recipes.clevis-practice"})：开口叉架、跨两耳贯穿孔、销轴、双垫片及间隙验证。示例只在获得建模授权后执行，追加当前工程，不自动保存或导出。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -5643,6 +5854,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -5654,6 +5866,7 @@ files.release: contextPolicy=none
 UI配置源src/ui-layout.js。顶层只有CAD工具菜单。实体→快捷模型打开画布中央非全屏浮动模型选择工具，设置→Agent 配置打开软件配置弹窗；建模工具按编辑/路径/创建/实体/面加工/实体加工/曲面/修饰/检查/视图/设置分类。setView的workspace、toolbar、libraryMode、focus显式控制布局；getUILayout().current与getState().view.workspaceLayout读回。快捷模型工具保留工具与两侧栏的原显隐；关闭按钮或Esc返回画布；modelLibraryOpen/modelLibraryPresentation=floating-menu读回；Agent 配置不切换画布或显隐；专注画布保留顶栏恢复入口及查看/选体/选面/选边模式栏；setView.selectionMode 与 getState().view.selectionMode 同步，选中实体显示蓝色高亮、面和边橙色强调，清除选择恢复原外观，不修改工程颜色。Agent 模式进入（包括外部 Agent 入口 bindExternal）或 hostControl.connected 首次变为 true 时自动 focus:true、toolbar:false；退出 Agent 后恢复之前的工具及面板显隐，已有专注状态保持；活动任务先保留，完成后进入专注。视图工具栏与其他菜单同为44px；所有工具图标统一20px，按钮34px且不压缩，选中态只用背景色、不用外框占空间。左右属性栏仍独立可隐藏。模型库可卡片/详细列表、搜索及显示排序；工具定义固定，仅创建参数可调；getModelLibrary/updateModelLibrary/resolveModelLibrary与UI共用服务。setView切换遇活动任务或草稿时拒绝UI_TASK_ACTIVE；先应用或取消预览。浏览器标题显示未保存标记；URL document参数不是可恢复分享链接。setRenderQuality({context,quality}) 提供 draft/standard/fine/ultra 四档，getState().renderQuality 提供毫米公差、角度公差（弧度）及三角面数。只重算显示网格，不改工程 revision、精确 BRep 或 STEP 导出；不是屏幕自适应网格。OpenCascade 可保留已有更细网格，降档不承诺减少三角面数。当前不提供斑马纹、曲率梳和精确 G0/G1/G2 连续性认证；导入 STEP 也不能反推原始特征历史。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -5737,6 +5950,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -5773,6 +5987,7 @@ PERSISTENCE_FAILED / RESULT_UNKNOWN: distinguish committed memory from durable s
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -5856,6 +6071,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -5871,6 +6087,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -5954,6 +6171,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -5969,6 +6187,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -6052,6 +6271,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -6067,6 +6287,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -6150,6 +6371,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -6165,6 +6387,7 @@ U槽尾夹
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -6248,6 +6471,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -6263,6 +6487,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -6346,6 +6571,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -6361,6 +6587,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -6444,6 +6671,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -6459,6 +6687,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -6542,6 +6771,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -6557,6 +6787,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -6640,6 +6871,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -6655,6 +6887,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -6738,6 +6971,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -6753,6 +6987,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -6836,6 +7071,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -6851,6 +7087,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -6934,6 +7171,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -6949,6 +7187,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -7032,6 +7271,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -7047,6 +7287,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -7130,6 +7371,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -7145,6 +7387,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -7228,6 +7471,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -7243,6 +7487,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -7326,6 +7571,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -7341,6 +7587,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -7424,6 +7671,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -7439,6 +7687,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -7522,6 +7771,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -7537,6 +7787,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -7620,6 +7871,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -7635,6 +7887,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -7718,6 +7971,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -7733,6 +7987,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -7816,6 +8071,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -7831,6 +8087,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -7914,6 +8171,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -7929,6 +8187,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -8012,6 +8271,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -8027,6 +8287,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -8110,6 +8371,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -8125,6 +8387,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -8208,6 +8471,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -8223,6 +8487,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -8306,6 +8571,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -8321,6 +8587,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -8404,6 +8671,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -8419,6 +8687,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -8502,6 +8771,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -8517,6 +8787,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -8600,6 +8871,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -8615,6 +8887,7 @@ files.release: contextPolicy=none
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -8698,6 +8971,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -8709,6 +8983,7 @@ files.release: contextPolicy=none
 打开用户提供的 .webcad 工程：经授权取得文件字节，await api.files.register({name,data}) 后调用 files.open({context,resourceId,unsaved:"fail"})。context 在读文件前取得；遇并发修改拒绝，未保存工程不能替换。读取卡片 files.write 了解真实磁盘保存；仅 files.save 生成字节不清除 dirty。正式界面不提供预置示例。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -8792,6 +9067,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -8804,6 +9080,7 @@ files.release: contextPolicy=none
 普通单资源20MiB；STEP/STP/BREP/BRP/STL128MiB、mesh384MiB、v4工程512MiB（按扩展名预检、内容仍须核验），最多32个、总计512MiB、有效期 30 分钟。生成 Blob 不等于写盘，下载启动不等于写盘成功。旧快照写入不能清除新 revision 的 dirty。页面 API 的新建/打开遇 dirty 一律拒绝 UNSAVED_REPLACEMENT；UI 的真实用户确认是独立路径。File/Blob 不保证能跨侧边栏 JSON 通道传递；宿主不能传字节时由用户在页面选择文件。当前静态版不含本机 IGES 转换器及服务端矢量转换器。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -8887,6 +9164,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -8898,6 +9176,7 @@ files.release: contextPolicy=none
 解析线弧轮廓：先 getTool({id:'arcProfile'})。outer 是顺序相接且闭合的数组，每环2–256段，holes最多16环；每段 {type:'line',points:[[起点X,Y],[终点X,Y]]} 或 {type:'arc',points:[[起点X,Y],[弧中X,Y],[终点X,Y]]}。holes 是同样轮廓的数组，height 为非零有符号 Z 拉伸深度（mm）。相邻端点及首尾端点须在0.000001 mm内重合；孔必须切除材料，输出必须是拓扑有效单实体，失败不提交。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const outer=[{type:'line',points:[[0,0],[10,0]]},{type:'arc',points:[[10,0],[12,2.5],[10,5]]},{type:'line',points:[[10,5],[0,5]]},{type:'line',points:[[0,5],[0,0]]}];const r=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'part',method:'add',args:{op:'arcProfile',refs:[],params:{outer,holes:[],height:3}}},{id:'size',method:'measure',args:{bodyId:{$ref:'part.createdBodyIds.0'}}}]});检查逐步 status、solidCount、精确测量和 getState().display.rendered.revision；历史可 feature.edit 修改原段列表及高度。该工具保留 CAD 中的解析圆弧与侧面圆柱面；不读取本地 DXF、不猜轮廓归属、不支持样条、变厚或曲面投影。PG11419 原 DXF 的12个明确 LINE/ARC handle 可经 text-to-cad/agent/tools/cad-learning/export_dxf_arc_profile.py 转为此操作参数，详见 recipes.pg11419-analytic-profile。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -8981,6 +9260,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -8992,6 +9272,7 @@ files.release: contextPolicy=none
 局部圆柱/平面凹根补料配方（GC14785 原销耳案例，不属于当前主面/浮雕要求）：自动 analytic-planar-arc 族要求无孔支撑平面与明确径向端面，本例因支撑面含孔而拒绝，不能放宽此保护。复用 sketchProfile 精确三边截面 + profileRevolve 的 join。源轴点 O=[-0.374944080737,0,-218.283357828157]、轴 Y、源圆柱半径 r=220.229963736933；经原圆弧端点确定起角 a 和正旋转范围 Δ，不沿用旧边号。局部 XY 截面为 corner=[r,y]→side=[r-R,y]，三点圆弧 side→top=[r,y+sR]，mid=[r-R+R/√2,y+sR(1-1/√2)]，再直线 top→corner。R=0.3，s 由材料方向明确指定。用 sketchProfile 的 line/arc3 与一个 loop/region 成面；placement:{version:1,frame:{kind:"snapshot",origin:O,quaternion:[0,-sin(a/2),0,cos(a/2)]},sourceAnchor:{kind:"model-origin"}}。随后 profileRevolve refs:[截面ID,目标实体ID]，params:{operation:"join",axisPoint:O,axisDirection:[0,1,0],angleDeg:Δ}。本次真实局部 y=18.15、s=-1、Δ=1.9749106718885936°。回读两端截面圆弧 R0.3、沿程20/50/80%两侧法向接续、孔壁和局部材料；端部三维收口仍未认证。只证明此指定凹根局部，不代表一般曲面圆角，也不授权给主面工程补背部结构。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -9075,6 +9356,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -9086,6 +9368,7 @@ files.release: contextPolicy=none
 双孔弧形带板：UI 在“快捷模型”选择同名工具，AI 先 getTool({id:"quickModel"}) 查 kind=arcBandPlate 参数。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"band",method:"add",args:{op:"quickModel",refs:[],params:{kind:"arcBandPlate",outerRadius:20,innerRadius:15,centerAngle:270,spanAngle:111.2807337553,thickness:5,holeInsetAngle:8.4521160504,holeDiameter:2.3,recessDiameter:3.3,recessDepth:0.7}}},{id:"size",method:"measure",args:{bodyId:{$ref:"band.createdBodyIds.0"}}}]})。参数单位 mm/度；同心弧间形成恒宽平板，两孔沿中半径从弧端对称退让，可选上表面沉孔。要求外R>内R>0、0<spanAngle<350、孔及沉孔完整落在板上且彼此分离、0≤沉孔深<板厚，失败整步回滚。PG5752 B 件源 DWG 明确 R20/R15、孔中心距25.6757、孔 Ø2.3/Ø3.3；弧跨度111.2807338°和退让8.4521161°由源几何计算。沉孔深0.7 mm 是展示候选，源图未证实该层深，螺纹与 A 件另建。读取状态、测量和 rendered revision；feature.edit 可调同一历史。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -9169,6 +9452,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -9180,6 +9464,7 @@ files.release: contextPolicy=none
 圆弧拱弯平板双窗扣：UI 在“快捷模型”选择同名工具；AI 先 getTool({id:"quickModel"}) 读取 kind=archedTwinWindowPlate 参数卡。PG5821 的薄条外观试建脚本：const api=window.webcad.api; const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"arch",method:"add",args:{op:"quickModel",refs:[],params:{kind:"archedTwinWindowPlate",outerWidth:32.9,outerHeight:25.5,outerRadius:3,windowWidth:25.4,totalInnerHeight:18.5,windowRadius:0.5,barWidth:3.5,bendRadius:43.90964782342324,radialThickness:2.3}}},{id:"size",method:"measure",args:{bodyId:{$ref:"arch.createdBodyIds.0"}}}]})。参数为正视圆角双窗、圆筒外弧 R 与径向板厚；沿 Y 弯曲，圆筒轴沿 X。工具用正视轮廓柱体裁切精确同轴圆筒薄壁，建成一个有效实体。PG5821 模型包围约32.9×25.5×4.302 mm，图面侧深4.2，尚未叠加原侧视及验证未知边缘过渡，只计薄条外观试建。PG7219 侧视含两端 Ø5 圆截面与中部 Ø4 圆杆，属于弯曲圆线框加横杆，不能套此薄板工具。要求内弧半径>外高一半、窗口完全在外廓内，失败整步回滚。读批次状态、精确尺寸/体积和 rendered revision；feature.edit 可改历史参数。此工具不构造原件可能存在的局部边缘过渡，也不适用于弯曲轴向不明的图。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -9263,6 +9548,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -9274,6 +9560,7 @@ files.release: contextPolicy=none
 鼓侧边平板双窗扣：UI 在“快捷模型”选择“鼓侧边平板双窗扣”，AI 先 getTool({id:"quickModel"}) 查看 kind=bowedTwinWindowPlate 参数卡。页面示例：const api=window.webcad.api; const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"plate",method:"add",args:{op:"quickModel",refs:[],params:{kind:"bowedTwinWindowPlate",outerHeight:24.5,topStraightWidth:30.2527,sideRadius:35.688467,cornerRadius:6,windowWidth:32,windowHeight:6.55,windowSpacing:10.35,thickness:3.7,edgeRadius:0.8}}},{id:"size",method:"measure",args:{bodyId:{$ref:"plate.createdBodyIds.0"}}}]})。外廓上下直段、四角小 R、两侧相切大 R 鼓弧；两窗为直段加半圆，windowSpacing 是中心距；edgeRadius 是三维边倒 R。侧弧圆心由直段、外高和两 R 计算。PG3781 名义对称试建得到约43.58336×24.5×3.7 mm、2204.792137 mm³；独立 text-to-cad 源圆弧 STEP 为43.597847×24.5×3.7、2206.094501，横向差约0.01449 mm、体积差约1.30236 mm³。源 DWG 左右及上下圆弧有微小非对称，本参数模型不声称源弧精确重合。输入需侧R>角R、两者可相切、两孔分离且位于板内、边R小于板厚和壁厚一半；失败整步不提交。读取批次状态、精确尺寸/体积、渲染修订；feature.edit 可调同一历史特征。不是侧向拱弯板或独立杆装配。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -9357,6 +9644,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -9368,6 +9656,7 @@ files.release: contextPolicy=none
 圆线直段长圈：UI 在“快捷模型”选择“圆线直段长圈”；AI 先 getTool({id:"quickModel"}) 查 kind=capsuleWire 参数。调用 const api=window.webcad.api; const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"loop",method:"add",args:{op:"quickModel",refs:[],params:{kind:"capsuleWire",innerWidth:34.9,innerHeight:13.9,sectionSize:6.1}}},{id:"size",method:"measure",args:{bodyId:{$ref:"loop.createdBodyIds.0"}}}]})。内宽>内高>0、圆线直径>0；两端是精确半圆，中间上下直段，闭合且没有人为缝宽。外宽=内宽+2×线径，外高=内高+2×线径。PG11140 得 47.1×26.1×6.1 mm、体积约 3063.675857 mm³；PG9782 的 12.3×8.4/Ø3 得 18.3×14.4×3 mm、约 308.290304 mm³，两款均与 text-to-cad 独立 STEP 回读一致。PG9782 的孤立无标注轮廓没有确定语义，工具只代表有完整尺寸的主侧视主体。PG4680 底部接缝无数值，不能借用此闭合模型声称其无缝；真椭圆、四圆弧、圆角扁方截面分别使用对应工具。读回执/精确测量/渲染修订，失败整步回滚，同一历史可 feature.edit。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -9451,6 +9740,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -9462,6 +9752,7 @@ files.release: contextPolicy=none
 倒角方线恒截面框：UI 在快捷模型选择 D 扣、方扣、日字扣、圆圈、开口 C 环或四圆弧旦扣；AI 先 getTool({id:'quickModel'})，选择 section:'chamferedSquare'、sectionSize 方线正面宽/侧深、sectionChamfer 单边 45°倒角切入量，须 0<C<sectionSize/2。截面是八条直线组成的等宽等深八边形，四角为平倒角而非圆角；sectionRadius 在该截面下忽略。PG4819 图面正视外37×28.5、内25×16.5，侧剖总深6、顶面平段3，所以截面边长6、C1.5。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'frame',method:'add',args:{op:'quickModel',refs:[],params:{kind:'dBuckle',section:'chamferedSquare',sectionSize:6,sectionChamfer:1.5,innerWidth:25,innerHeight:16.5,innerRadius:2,gapWidth:0}}},{id:'size',method:'measure',args:{bodyId:{$ref:'frame.createdBodyIds.0'}}}]});检查 status、solidCount、精确 bounds/volume 和 getState().display.rendered.revision。该候选应为37×28.5×6 mm 单实体；innerRadius:2 与 D 扣半圆冠路径是外观试拟，PG4819 源冠部为多段不同 R 圆弧，故不可宣称逐线复刻或量化80%相似。方扣等其它中心路径复用同一截面，但须各自满足工具的几何护栏。非法 C 或扫掠失败不提交；历史用 feature.edit 修改 sectionChamfer。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -9545,6 +9836,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -9556,6 +9848,7 @@ files.release: contextPolicy=none
 多零件练习位于 automation/clevis-practice.js（源 docs/examples/clevis-practice.js），导出 clevisPracticeSteps 和 runClevisPractice(api)。自主尺寸，不用于还原客户源 CAD，不保证工艺公差或提供装配约束求解。helper 先 connect 点名相关工具并检查 canExecute，再以一个14步有界批次追加当前工程：60×32×36毛坯减开口，孔向导沿X贯穿两个分离的耳板材料区，四个底座安装孔，定位一根销轴，创建垫片后线性阵列到两侧，测量及等轴视图。所有定位显式冻结为world或snapshot，不依赖当前锚点。结果3个对象、4个封闭实体；垫片是一个含两实体的compound，不融合。叉架体积30720−276π mm³；销轴与叉架径向最短间隙0.2 mm，垫片与叉架轴向最短间隙0.5 mm。inspectFit只接收单一实体，因此用于销轴/叉架；measureRelation shortest可测垫片compound与叉架。helper 返回各checks及verified；batch completed不自动代表这些尺寸达标。部分失败立即停，按回执续做未尝试步骤，禁止重放整批。saved:false表示未保存；rendered只反映displayMatchesContext，仍需实际画面核对。此流程经公开API到内核集成验证，浏览器视觉验收需单独记录。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -9639,6 +9932,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -9650,6 +9944,7 @@ files.release: contextPolicy=none
 闭合线弧倒角方线：先 getTool({id:'curveSweep'}) 读取当前参数卡。给出按行进方向排列的 2–64 条精确线弧 segments，相邻点及首尾端点误差须≤0.000001 mm；设置 pathType:'segments',closed:true,section:'chamferedSquare',sectionSize:6,sectionChamfer:1.5。全部路径点必须同处 XY 平面，0<sectionChamfer<sectionSize/2。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const p=(x,y)=>[x,y,0];const segments=[{type:'line',points:[p(10,-8),p(10,8)]},{type:'arc',points:[p(10,8),p(7.0710678118654755,15.071067811865476),p(0,18)]},{type:'arc',points:[p(0,18),p(-7.0710678118654755,15.071067811865476),p(-10,8)]},{type:'line',points:[p(-10,8),p(-10,-8)]},{type:'line',points:[p(-10,-8),p(10,-8)]}];const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'frame',method:'add',args:{op:'curveSweep',refs:[],params:{pathType:'segments',segments,closed:true,section:'chamferedSquare',sectionSize:2,sectionChamfer:0.5}}},{id:'size',method:'measure',args:{bodyId:{$ref:'frame.createdBodyIds.0'}}}]});检查 result.status、单实体/尺寸/体积和 getState().display.rendered.revision。可用 feature.edit 修改整段 segments 或截面参数；源图路径应由明确的 LINE/ARC handle 和侧剖截面推导，不从正视图自动猜测。该工具只支持恒截面，不表达局部变截面、侧向拱弯或未验证的倒圆。无效拓扑失败回滚。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -9733,6 +10028,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -9744,6 +10040,7 @@ files.release: contextPolicy=none
 紧凑圆线方扣：UI 在快捷模型中选择“方扣”，AI 先用 getTool({id:"quickModel"}) 读 kind=rectBuckle 的当前参数。例：const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"frame",method:"add",args:{op:"quickModel",refs:[],params:{kind:"rectBuckle",section:"round",innerWidth:10,innerHeight:25,sectionSize:3.5,innerRadius:0.9,gapWidth:0}}},{id:"size",method:"measure",args:{bodyId:{$ref:"frame.createdBodyIds.0"}}}]})。圆线闭合方框与日字扣的内宽高下限为线径 2.5 倍；开缝圆框、方线框仍为 4 倍。0<innerRadius<内短边/2，截面 0.5–20 mm，内宽高上限 200 mm。PG10251 的名义正视由此形成外 17×32、外 R4.4、深 3.5 mm 单实体候选；原 DWG 使用回退预览，尚不能据此断言其它表面特征已完整复刻。读每步回执、精确测量、当前 rendered revision；用 feature.edit 修改历史参数。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -9827,6 +10124,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -9838,6 +10136,7 @@ files.release: contextPolicy=none
 紧凑圆线日字扣：UI 在快捷模型中选择“日字扣”；AI 先用 getTool({id:"quickModel"}) 读 kind=sliderBuckle 参数。const api=window.webcad.api; const {revision,...identity}=api.getState().context; const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"frame",method:"add",args:{op:"quickModel",refs:[],params:{kind:"sliderBuckle",section:"round",innerWidth:19.9,innerHeight:20.5,innerRadius:3,sectionSize:5.8,barDiameter:3.5,barOffset:0,gapWidth:0}}},{id:"size",method:"measure",args:{bodyId:{$ref:"frame.createdBodyIds.0"}}}]})。闭合圆线内宽高各≥2.5倍线径，横杆直径>0且≤框线径；横杆必须接在左右直腿，上下各留至少一倍框线径的净孔高。以上数值取 PG3014 图面内宽19.9、内高20.5、框截面Ø5.8、中杆Ø3.5；innerRadius=3 是未标注试拟。内核实体外廓31.5×32.1×5.8 mm，与图面外廓31.7×32.3 mm 各差0.2 mm；不要擅改Ø5.8去凑外廓。源图还示局部细节，须独立核验。读取 status/results/精确尺寸和 rendered revision；失败不提交，可通过 feature.edit 修订。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -9921,6 +10220,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -9932,6 +10232,7 @@ files.release: contextPolicy=none
 独立底角 R 平板 D 框：UI 在“快捷模型”选择同名工具；AI 先 getTool({id:"quickModel"}) 查看当前参数卡。页面调用：const api=window.webcad.api; const {revision,...identity}=api.getState().context; const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"d",method:"add",args:{op:"quickModel",refs:[],params:{kind:"dFlatFrame",outerWidth:28,outerHeight:25,innerWidth:20,innerHeight:17,outerBottomRadius:3.5,innerBottomRadius:2,thickness:4,gapWidth:1}}},{id:"size",method:"measure",args:{bodyId:{$ref:"d.createdBodyIds.0"}}}]}); 形状为半圆冠、直腿、独立内外底角 R 的平板单实体；gapWidth=0 为闭合，正数按实际平行缝宽切开底部中央。上例缝宽 1 mm 只是工具演示，PG9998 图面未确认该数值，不能把试算当源件复刻。厚度是平板 Z 深度，不是圆线直径；两条 D 轮廓不得相交或相切，内外高须足以容纳半圆冠和底角；底缝小于内底直段。失败整步回滚。检查批次状态、精确测量和 rendered revision；后续用 feature.edit 修改历史参数。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -10015,6 +10316,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -10026,6 +10328,7 @@ files.release: contextPolicy=none
 DXF 闭合源轮廓：先在原图核定有效产品视图与 LINE/ARC/CIRCLE/SPLINE handle，使用 text-to-cad/agent/tools/cad-learning/export_dxf_profile.py 经 run-silent.ps1 以 --dxf 输入路径、--output 临时 JSON、--outer 逗号分隔外轮廓 handle、重复 --hole 指定各孔，--distance 0.01（圆弧弦高或样条展平距离 mm）、--join 0.01（源端点相接容差 mm）导出。工具自动沿端点连接并反向必要的边，拒绝断链/分叉/重复 handle/非闭合，输出居中的 regions、point_counts、max_join_gap_mm、源坐标包围和 handle 清单；每轮廓≤2000点、总数≤12000。页面已有 AI 可调用 add.vectorProfile：const api=window.webcad.api; const {revision,...identity}=api.getState().context; const sampled=已复核的导出JSON; const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"profile",method:"add",args:{op:"vectorProfile",refs:[],params:{regions:sampled.regions,output:"solid",height:5,source:{kind:"dxf-arc-profile",outerHandles:sampled.outer_handles,holeHandles:sampled.hole_handles,distanceMm:sampled.distance_mm}}}},{id:"size",method:"measure",args:{bodyId:{$ref:"profile.createdBodyIds.0"}}}]})。PG8091 有效改模版例：外轮廓 F6,FE,FF,F8,F7,FB,F9,FA,FD,FC；孔 F5 与 100,102,103,101,105,104。采样轮廓为112/87/60点，源闭合最大接缝约0.000001 mm；源轮廓拉伸5 mm 试件为41.202×52.181×5 mm、4146.667412 mm³ 单实体。图面标外宽40.6、高52.2，宽度与采样几何差约0.602 mm，未解释前不称精确复刻；源图3D截面和边缘过渡也未证明。PG4307 两条 LINE + 两条 SPLINE 的外轮廓可用同一脚本导出，采样宽 24.006007、高 21 mm；内样条与邻近直线端点不重合，应继续使用 traceTwinWindow 专用拼接，不能放宽 --join 强凑。开放中心路径不适用。导出脚本不自动选择产品或猜孔层级，页面也不直接读取本机 DXF。读运行回执、精确尺寸、渲染修订；失败不提交。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -10109,6 +10412,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -10120,6 +10424,7 @@ files.release: contextPolicy=none
 DXF 闭合 LWPOLYLINE bulge 圆弧：先核定有效产品视图及每个外/孔 handle。text-to-cad/agent/tools/cad-learning/export_dxf_arc_profile.py 经 run-silent.ps1 输入 --dxf 源图转换的 DXF、--outer 一个闭合 LWPOLYLINE handle、每个 --hole 一个闭合 LWPOLYLINE 或 CIRCLE handle、--height 侧视支持的等深厚度、--output 临时 JSON。脚本将各段 bulge 转为解析三点圆弧，保留正负弧向，拒绝开放多段线、零长边、非有限 bulge、非 XY 挤出方向或非零源 Z。AI 先读 getTool({id:'arcProfile'})，再以 const api=window.webcad.api;const {revision,...identity}=api.getState().context;const r=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'part',method:'add',args:{op:'arcProfile',refs:[],params:data.params}},{id:'size',method:'measure',args:{bodyId:{$ref:'part.createdBodyIds.0'}}}]});复核回执和渲染。PG7440 的外 BCA1、内 BCA0 是闭合圆角方框：该脚本精确提取 33×23 mm 正视轮廓，但侧视 Ø4 是圆线截面，直接 arcProfile 等深板会错误表达截面。应复用 quickModel.rectBuckle 与 recipes.source-round-rect 建源件候选；arcProfile 仅作正视轮廓校验或适用于确有平板截面的其他产品。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -10203,6 +10508,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -10214,6 +10520,7 @@ files.release: contextPolicy=none
 DXF 成对边界推导闭合或开放中心线：在 text-to-cad 仓库使用 agent/tools/cad-learning/run-silent.ps1 调用 agent/tools/cad-learning/export_dxf_midline.py。指定 --dxf 源 DXF、--output 临时 JSON、--diameter 截面正面宽度，按行进顺序重复 --segment TYPE:OUTER_HANDLE:INNER_HANDLE:forward|reverse。TYPE 是 line 或 arc；圆弧两条边须同心同角域、半径差等于 diameter，直线等长平行且垂直偏移 diameter。--join 允许源端点接缝误差，最大0.1 mm；输出 max_join_gap_mm，超过容差拒绝。闭环加 --closed；倒角方线加 --section chamferedSquare --chamfer 倒角切入量，否则默认圆线。示例 PowerShell：& agent/tools/cad-learning/run-silent.ps1 -Script agent/tools/cad-learning/export_dxf_midline.py -ScriptArguments @('--dxf','source.dxf','--output','agent/temp/midline.json','--diameter','2','--closed','--section','chamferedSquare','--chamfer','0.5','--segment','arc:OUTER1:INNER1:forward','--segment','arc:OUTER2:INNER2:forward')。导出 params 可直接作为 WebCAD api.run 的 curveSweep 参数；先 getTool({id:'curveSweep'})，再按 recipes.closed-chamfered-path 调用、测量并读回。脚本不替用户选 handle，不修复自交、变截面或源 DXF 圆弧角度截断。PG4819 的 8 段源路径最大端点偏差约0.04935 mm，导出成功，但 WebCAD/OCCT 扫掠拓扑无效，未生成源路径实体；不能把该候选称为复刻。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -10297,6 +10604,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -10308,6 +10616,7 @@ files.release: contextPolicy=none
 椭圆圈固定横杆：UI 在“快捷模型”选择“椭圆圈固定横杆”；AI 先从 getTool({id:"quickModel"}) 查 kind=ellipseBar 参数。调用 const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"oval",method:"add",args:{op:"quickModel",refs:[],params:{kind:"ellipseBar",innerWidth:35,innerHeight:25,sectionSize:5,barDiameter:5,barDepthOffset:0}}},{id:"size",method:"measure",args:{bodyId:{$ref:"oval.createdBodyIds.0"}}}]})。从给定的真椭圆内轮廓向外偏置半线径成中心路径，以圆线扫掠，并融合一根沿 X 的固定圆杆；barDepthOffset 沿 Z 调整杆轴。约束：innerWidth>innerHeight≥4×sectionSize>0，0<barDiameter≤sectionSize，abs(barDepthOffset)<(sectionSize+barDiameter)/2。PG5155 DWG 有内 35×25 真椭圆、外样条和 Ø5 侧截面；当前内核候选实际包围 45.058424×35×5 mm，X 比 nominal 45 多约 0.058424 mm，不能按 45 mm 精确交付。一次构建在本地约 25 秒，生产源样条与杆端过渡尚未逐曲面核对。读回执、精确测量和 rendered revision；失败整步回滚，历史可由 feature.edit 修改。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -10391,6 +10700,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -10402,6 +10712,7 @@ files.release: contextPolicy=none
 内真椭圆开缝圆线圈：UI 在“快捷模型”选择“内真椭圆开缝圆线圈”；AI 先从 getTool({id:"quickModel"}) 查 kind=ellipseOpenWire 参数。调用 const api=window.webcad.api; const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"loop",method:"add",args:{op:"quickModel",refs:[],params:{kind:"ellipseOpenWire",innerWidth:15,innerHeight:20,sectionSize:3.5,gapWidth:0.2}}},{id:"size",method:"measure",args:{bodyId:{$ref:"loop.createdBodyIds.0"}}}]})。输入真椭圆内孔宽高、圆线直径、底中实际平切缝宽，单位 mm；两轴须不等，短轴≥4×线径>0，0<缝宽<线径。内真椭圆外偏半线径为扫掠中心路径，再切出 X=±gapWidth/2 的平行端面。PG11580 名义参数的内核单实体约 22×26.999563×3.5 mm，平切端间距 0.2 mm；开缝会让实际总高略低于闭环名义 27 mm。当前只支持内轮廓是真椭圆、底中缝且平行平切；PG9432 外真椭圆基准的 WebCAD 切缝试验拓扑无效，不能填本工具的 innerWidth/innerHeight 强行冒充。PG12429 双独立椭圆亦须先确定轮廓基准。读回执和渲染修订，失败整步回滚；修改参数用 feature.edit。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -10485,6 +10796,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -10496,6 +10808,7 @@ files.release: contextPolicy=none
 椭圆截面圆角方框：UI 在“快捷模型”选择同名工具，AI 先 getTool({id:"quickModel"}) 读取 kind=ellipseSectionRectFrame 参数卡。页面脚本：const api=window.webcad.api; const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"frame",method:"add",args:{op:"quickModel",refs:[],params:{kind:"ellipseSectionRectFrame",innerWidth:25,innerHeight:19,innerRadius:2.5,sectionWidth:5.5,sectionDepth:6}}},{id:"size",method:"measure",args:{bodyId:{$ref:"frame.createdBodyIds.0"}}}]})。正面宽=内宽+2×sectionWidth，正面高=内高+2×sectionWidth；侧深独立。沿圆角矩形中心线扫掠精确椭圆截面，PG5866 名义尺寸得36×30×6 mm、2617.38796 mm³ 单实体候选。源图仅明示宽高及侧视 Ø6，内 R2.5 和椭圆截面是试拟，不能把椭圆当源图已证实截面或声称完整复刻。sectionWidth 与 sectionDepth 必须不等，内宽高至少为正面料宽2.5倍、均≤200，0<内R<内短边一半；失败整步回滚。读批次 status、measure、rendered revision；feature.edit 改历史参数。PG5134 可反向设置：内17.7×19.7、正面料宽5.25、侧深4，内 R2.5 仍为试拟；名义实体28.2×30.2×4 mm。圆截面请用 rectBuckle。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -10579,6 +10892,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -10590,6 +10904,7 @@ files.release: contextPolicy=none
 椭圆截面圆环：UI 在“快捷模型”选择同名工具，AI 先 getTool({id:"quickModel"}) 查 kind=ellipseSectionRing 参数。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"ring",method:"add",args:{op:"quickModel",refs:[],params:{kind:"ellipseSectionRing",innerDiameter:37.4,sectionWidth:4.1,sectionDepth:5}}},{id:"size",method:"measure",args:{bodyId:{$ref:"ring.createdBodyIds.0"}}}]})。内径、正面带宽和侧深独立；沿圆形中心线扫掠精确椭圆截面，外径=内径+2×带宽。要求内径≥2.5×带宽、宽深均正且不等；失败整步回滚。PG6148 源 DWG 同心圆内Ø37.4/外Ø45.6、侧深5，而把侧深当圆线径会错误得到外Ø47.4；椭圆截面是对两投影的试拟，不是源已证实曲面。名义候选单实体45.6×45.6×5 mm、约2099.141486 mm³。读 status、measure、rendered revision；feature.edit 可调历史。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -10673,6 +10988,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -10684,6 +11000,7 @@ files.release: contextPolicy=none
 开口 U 形椭圆截面线：先 getTool({id:'curveSweep'})。由外宽 W、内宽 I 得正面料宽 s=(W-I)/2；外冠 R、外高 H 得中心线冠 R_c=R-s/2、冠圆心 X_c=W/2-R、Y_c=H-s/2-R_c。路径为右直腿、右四分之一圆弧、顶短直线、左四分之一圆弧、左直腿，所有段按行进方向首尾精确相接。section:'ellipse',sectionWidth:s,sectionDepth:侧视深度，均为 mm 且宽深不同。PG10537 图面 W26.8、I21、H36、外冠R11、内冠约R8、侧深4.3，故 s2.9、R_c9.55、X_c2.4、Y_c25；内冠计算R8.1与名义R8差0.1 mm，截面椭圆是外观试拟。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const p=(x,y)=>[x,y,0],q=Math.SQRT1_2,segments=[{type:'line',points:[p(11.95,0),p(11.95,25)]},{type:'arc',points:[p(11.95,25),p(2.4+9.55*q,25+9.55*q),p(2.4,34.55)]},{type:'line',points:[p(2.4,34.55),p(-2.4,34.55)]},{type:'arc',points:[p(-2.4,34.55),p(-2.4-9.55*q,25+9.55*q),p(-11.95,25)]},{type:'line',points:[p(-11.95,25),p(-11.95,0)]}];const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'u',method:'add',args:{op:'curveSweep',refs:[],params:{pathType:'segments',segments,section:'ellipse',sectionWidth:2.9,sectionDepth:4.3}}},{id:'size',method:'measure',args:{bodyId:{$ref:'u.createdBodyIds.0'}}}]});检查逐步 status、单实体、包围尺寸、体积及 getState().display.rendered.revision。历史用 feature.edit 修改 segments/sectionWidth/sectionDepth。工具生成恒截面开口 U；端部 M2.5、倒角、打磨及实际截面没有足够源证据，未构造，不称完整复刻。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -10767,6 +11084,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -10778,6 +11096,7 @@ files.release: contextPolicy=none
 双孔葫芦形圆线：复用 quickModel.kind='capsuleWire'、transform、union 三张现有工具卡，不增内核原语。先 getTool({id:'quickModel'})、getTool({id:'transform'})、getTool({id:'union'})。设每孔 innerWidth、innerHoleHeight、wireDiameter、两孔中心距 centerSpacing，要求 innerWidth>innerHoleHeight>0、wireDiameter>0、innerHoleHeight<centerSpacing<innerHoleHeight+2*wireDiameter，保证两孔分开且圆线实体有体积交叠。页面批量脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const p={kind:'capsuleWire',innerWidth:34.7,innerHeight:8.3,sectionSize:5.5};const offset=11.4/2;const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'top',method:'add',args:{op:'quickModel',refs:[],params:p}},{id:'topMove',method:'add',args:{op:'transform',refs:[{$ref:'top.createdBodyIds.0'}],params:{y:offset}}},{id:'bottom',method:'add',args:{op:'quickModel',refs:[],params:p}},{id:'bottomMove',method:'add',args:{op:'transform',refs:[{$ref:'bottom.createdBodyIds.0'}],params:{y:-offset}}},{id:'joined',method:'add',args:{op:'union',refs:[{$ref:'topMove.createdBodyIds.0'},{$ref:'bottomMove.createdBodyIds.0'}],params:{}}},{id:'size',method:'measure',args:{bodyId:{$ref:'joined.createdBodyIds.0'}}}]});检查 result.status、逐步回执、measure.solidCount 和 getState().display.rendered.revision。理论包围宽=innerWidth+2*wireDiameter，高=innerHoleHeight+2*wireDiameter+centerSpacing，厚=wireDiameter。PG2145 的源内孔端 R4.15、外端 R9.65、圆心上下距11.4，合并模型 45.7×30.7×5.5 mm；图面名义高30.6，存在0.1 mm差，源腰部 R0.6 圆滑连接未复刻。该配方有5个可编辑历史特征，不自动猜源件全部三维接头；调参须同步修改两圈和对称偏移，或重新执行配方。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -10861,6 +11180,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -10872,6 +11192,7 @@ files.release: contextPolicy=none
 平垫圈：UI 在“快捷模型”选择“平垫圈”；AI 用 getTool({id:"quickModel"}) 读取 kind=washer 当前参数卡。PG1797 名义例：const api=window.webcad.api; const {revision,...identity}=api.getState().context; const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"washer",method:"add",args:{op:"quickModel",refs:[],params:{kind:"washer",innerDiameter:36.2,sectionSize:7,innerHeight:3.2}}},{id:"size",method:"measure",args:{bodyId:{$ref:"washer.createdBodyIds.0"}}}]}); sectionSize 是径向壁宽=(外径−内径)/2，并非圆线直径；innerHeight 在此工具是轴向厚度。结果外 Ø50.2、内 Ø36.2、厚 3.2 mm，体积约 3040.056379 mm³。PG0203 输入内径25、径向壁宽4.4、厚3.8，得外 Ø33.8、体积约1544.306418 mm³。内径、壁宽、厚度都必须大于0；输出是锐边平面圆环。原图未标边缘 R/C 时不自动添加。读批次状态、精确测量和 rendered revision；失败不提交，历史可用 feature.edit 改参数。不要把 washer 当作圆线圈 ring，也不要把 sectionSize 当作外径。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -10955,6 +11276,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -10966,6 +11288,7 @@ files.release: contextPolicy=none
 斜肩开口框：UI 在“快捷模型”选择“斜肩开口框”；AI 先 getTool({id:"quickModel"}) 读 kind=gableOpenFrame 参数。页面脚本：const api=window.webcad.api; const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"gable",method:"add",args:{op:"quickModel",refs:[],params:{kind:"gableOpenFrame",outerWidth:25,innerWidth:20,outerPeakHeight:16,outerShoulderHeight:12.4,innerPeakHeight:13.5,innerShoulderHeight:10.5,thickness:4,endRadius:1}}},{id:"size",method:"measure",args:{bodyId:{$ref:"gable.createdBodyIds.0"}}}]})。正视两个斜肩屋顶轮廓之间留开口，脚端有真实 R1 四分之一圆弧和短平底，外 25×16×4 mm；不通过事后倒圆改变总高。PG7918 图面明确外宽25、内宽20、外峰高16、外肩约12.4、脚端R1、侧深4；内峰13.5/内肩10.5依据图面轮廓试拟，尚未逐边回读源 CAD，不宣称完全复刻。此工具是平板正视轮廓拉伸，未处理侧视的完整圆端截面。须满足内外峰、肩分离和端R≤带宽一半；失败整步回滚。检查批次 status、measure 和 rendered revision；历史参数用 feature.edit。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -11049,6 +11372,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -11060,6 +11384,7 @@ files.release: contextPolicy=none
 可复用组合流程位于 automation/hardware-practice.js（源文件 docs/examples/hardware-practice.js），导出 hardwarePracticeBatches 与 runHardwarePractice(api)。尺寸为自主练习值，不用于重建客户源 CAD。先通过受支持的页面脚本通道取得 api，读取相关卡与最新 context，并确认 canExecute；helper 每批重新取 context，失败即停，不重放已完成批次。第一批 5 步：保存槽轮母线，沿世界 Y 轴旋转，切四个安装孔，使用 body.visibility 的 visible:false 隐藏母线，精确测量。成品外径 32 mm、轴向长度 18 mm。第二批 8 步：保存三个不同尺寸与转角的圆角截面，依次放样，切直径 6 mm 的轴孔，隐藏来源，测量，等轴显示；旋钮高 32 mm。几何量、修订与来源引用来自实际回执，只有 displayMatchesContext 与实际页面画面确认后才算显示验收。helper 的 saved:false 明确表示未写工程文件。内核/公开 API 集成测试不能代替真实页面验收。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -11143,6 +11468,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -11155,6 +11481,7 @@ files.release: contextPolicy=none
 命名参数已通过 execute action document.parameters 接出；可绑定板长和右孔 X 到 length 与 length-edgeMargin，再只改 length。具体示例见 docs/examples/page-api-plate.js。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -11238,6 +11565,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -11249,6 +11577,7 @@ files.release: contextPolicy=none
 批量圆柱凸台：先 getState() 取得当前上下文和真实 bodyId，getTool({id:"multiBoss"}) 读取严格 v2 卡。UI 路径“加工 → 槽与凸台 → 更多 → 批量圆柱凸台”。在 40×20×3 mm 板顶加两个凸台：feature.add 的 refs:[实际 bodyId]、params:{radius:2,height:3,axis:"Z",direction:1,points:[[10,10,3],[30,10,3]]}。每个 XYZ 是世界坐标的凸台底面中心，圆柱沿指定轴和符号方向长出。最多 64 个；每个都必须与当前主体融合为一个实体且增加材料，否则整步不提交。成功后读回 revision/body/feature，测量精确体积；示例理论值 2400+2×π×2²×3 mm³。历史修改用 feature.edit 传 radius/height/axis/direction 或完整 points 数组。工具只生成实心圆柱；通孔另用 multiHole，圆角另用 fillet/autoRound，不猜轴心或表面。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -11332,6 +11661,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -11343,6 +11673,7 @@ files.release: contextPolicy=none
 批量矩形凹槽：先用 getState() 取得当前上下文和实际 bodyId，再用 getTool({id:"multiPocket"}) 读取版本、schemaHash 和严格参数。UI 路径为“加工 → 槽与凸台 → 更多 → 批量矩形凹槽”。在一个已有 40×20×3 mm 板件上执行 feature.add，refs:[实际 bodyId]，params:{depth:0.5,axis:"Z",direction:-1,pockets:[{x:10,y:10,z:3,width:6,height:4},{x:25,y:10,z:3,width:6,height:4,cornerRadius:0.5}]}。每组 XYZ 是世界坐标的刀具入口中心；切入轴 Z 时宽/高沿 X/Y，X 时沿 Y/Z，Y 时沿 Z/X。例中从 Z=3 向下切至 2.5。cornerRadius 可省略或为 0，若提供则必须小于宽高短边一半。1–64 个凹槽，每个都须去除剩余材料；任一失败，整步不提交。用 getState() 读回新 feature/body/revision，再 measure 精确体积。可通过 feature.edit 修改历史步骤的 depth、axis、direction 或完整 pockets 数组，从原始几何重建。圆孔用 multiHole；任意曲面区域另用相应面工具。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -11426,6 +11757,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -11437,6 +11769,7 @@ files.release: contextPolicy=none
 竖向底部开口四圆弧圈：先分别读 getTool({id:"quickModel"}) 中 kind=ovalBuckle 与 getTool({id:"transform"})。可在同一个 api.run 请求的 steps 依次使用 {id:"oval",method:"add",args:{op:"quickModel",refs:[],params:{kind:"ovalBuckle",section:"round",innerWidth:20,innerHeight:15,innerRadius:7,sectionSize:3.5,gapWidth:0.2}}} 和 {id:"upright",method:"add",args:{op:"transform",refs:[{$ref:"oval.createdBodyIds.0"}],params:{rz:-90}}}。请求使用 const {revision,...identity}=getState().context，context:{...identity,expectedRevision:revision}，idempotencyKey 每个新请求唯一。横向模板右端开口经绕 Z -90° 后移到竖向底部；旋转后的外包围约 22×27×3.5 mm。用 upright 步实际回执里的新 bodyId 测量及读 rendered revision。四圆弧不等于真椭圆；innerRadius 必须由源图或拟合证据决定，例中 7 mm 仅为操作演示。没有源证据时不能把这个示例宣称为实际产品复刻。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -11520,6 +11853,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -11531,6 +11865,7 @@ files.release: contextPolicy=none
 PG11419 倒置 D 框源线实例：在 text-to-cad 目录使用 run-silent.ps1 调用 agent/tools/cad-learning/export_dxf_arc_profile.py，--dxf 指向由源 DWG 只读转换的 DXF，--output 指向 agent/temp 下 JSON，--outer 62BF,62CC,62D0,62C3,62C5,62C8,62C9,62BB，--hole 62F5,676A,6774,62F2，--height 3.5，--join 0.01。先核对 JSON 的 source_bounds、max_join_gap_mm、原图句柄与侧视。页面脚本：const api=window.webcad.api;const data=已复核的导出JSON;const {revision,...identity}=api.getState().context;const r=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'part',method:'add',args:{op:'arcProfile',refs:[],params:data.params}},{id:'size',method:'measure',args:{bodyId:{$ref:'part.createdBodyIds.0'}}}]});检查 r.status、逐步回执、单实体、尺寸体积、渲染 revision。height=3.5 mm 是侧视 3.4 与 3.7 mm 之间的等深试拟；源件变深和局部加工未重建。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -11614,6 +11949,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -11625,6 +11961,7 @@ files.release: contextPolicy=none
 PG5752 A/B 两件源图分别试建：在 text-to-cad 目录通过 run-silent.ps1 调用 export_dxf_arc_profile.py。A 用 --outer 3D2,3D6,3D8,3D9 --hole 3DD --hole 3E1 --height 5 --join 0.01；B 用 --outer 52E,532,52F,530 --hole 579 --hole 57A --height 5 --join 0.05；均指定同一已核对 DXF 与 agent/temp 下不同 --output。A 两孔 R0.85，源标 2-M2，普通圆柱孔不表示螺纹；B 两孔 R1.15，大同心圆的沉孔深度不明。先 getTool({id:'arcProfile'}) 和 getTool({id:'transform'})，把导出 JSON 分别作为 dataA/dataB。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const r=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'a',method:'add',args:{op:'arcProfile',refs:[],params:dataA.params}},{id:'b',method:'add',args:{op:'arcProfile',refs:[],params:dataB.params}},{id:'bDisplay',method:'add',args:{op:'transform',refs:[{$ref:'b.createdBodyIds.0'}],params:{x:60}}},{id:'aSize',method:'measure',args:{bodyId:{$ref:'a.createdBodyIds.0'}}},{id:'bSize',method:'measure',args:{bodyId:{$ref:'bDisplay.createdBodyIds.0'}}}]});检查逐步回执、两个单实体的尺寸体积和渲染 revision。B 的 x=60 仅供同屏对照，不是源图装配定位，不做布尔合并。A 实测40×35.725769605×5 mm、2156.407441 mm³；B 实测33.020453×11.534217×5 mm、808.171586 mm³。装配间距、配合、螺纹和孔口层深仍需源证据。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -11708,6 +12045,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -11719,6 +12057,7 @@ files.release: contextPolicy=none
 PG8091 改模版源线试建：从源 DWG 只读转换 DXF 后，用 text-to-cad/agent/tools/cad-learning/run-silent.ps1 调用 export_dxf_arc_profile.py。外 handle F6,FE,FF,F8,F7,FB,F9,FA,FD,FC；中心圆孔 F5（单个 CIRCLE 被拆为两条精确半圆弧）；弧槽孔 100,102,103,101,105,104；--height 5 取自侧视，--join 0.01。导出 JSON 的 params 可直接传入 api.run({context:{...api.getState().context,expectedRevision:api.getState().context.revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'part',method:'add',args:{op:'arcProfile',refs:[],params:data.params}},{id:'size',method:'measure',args:{bodyId:{$ref:'part.createdBodyIds.0'}}}]})。先读取 getTool({id:'arcProfile'}) 和 recipes.analytic-arc-profile。源 DXF 解析外宽约41.208906 mm、图面标40.6 mm，差约0.608906 mm；未解释前按源线候选，不缩放成名义尺寸。只建正视等深实体，不推断侧面局部加工。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -11802,6 +12141,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -11813,6 +12153,7 @@ files.release: contextPolicy=none
 圆周重复孔位：复用 quickModel/washer 和 multiHole 两个现有脚本工具，无需专用固定孔数模型。先 getTool({id:"quickModel"})、getTool({id:"multiHole"}) 查当前参数卡。PG3389 源图主视同心圆内 R10/外 R14.5，侧厚3.6；16个 R1.5 圆位均匀分布在中心半径12.25上，首孔90°，角步22.5°。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const points=Array.from({length:16},(_,i)=>{const a=(90+i*360/16)*Math.PI/180;return [12.25*Math.cos(a),12.25*Math.sin(a),1.8]});const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"ring",method:"add",args:{op:"quickModel",refs:[],params:{kind:"washer",innerDiameter:20,sectionSize:4.5,innerHeight:3.6}}},{id:"holes",method:"add",args:{op:"multiHole",refs:[{$ref:"ring.createdBodyIds.0"}],params:{radius:1.5,depth:0.5,axis:"Z",direction:-1,points}}},{id:"size",method:"measure",args:{bodyId:{$ref:"holes.createdBodyIds.0"}}}]}); 浅圆座深0.5 mm仅是可见试拟；源图文字说明为镶钻，未给出石座深度和宝石形状。外观试建为一个29×29×3.6 mm实体，体积=π(14.5²−10²)×3.6−16π1.5²×0.5。通用时改变 count、中心半径、起始角和半径，并检查每个孔完全在环带内、不互交；depth 从上表面向下切，PG3389 的0.5只是试拟。读 status、measure、rendered revision；参数变化用 feature.edit 改完整 points 数组。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -11896,6 +12237,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -11907,6 +12249,7 @@ files.release: contextPolicy=none
 圆角扁方截面直段长圈：UI 在“快捷模型”选择“圆角扁方截面直段长圈”；AI 先 getTool({id:"quickModel"}) 查 kind=profileLoop 参数。调用 const api=window.webcad.api; const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"loop",method:"add",args:{op:"quickModel",refs:[],params:{kind:"profileLoop",innerWidth:35.2,innerHeight:14.6,sectionWidth:5.5,sectionDepth:6,sectionRadius:2.5}}},{id:"size",method:"measure",args:{bodyId:{$ref:"loop.createdBodyIds.0"}}}]})。内宽>内高>0；sectionWidth 为正面料宽，sectionDepth 为侧面总厚，sectionRadius 是截面 R，0<R≤min(宽,厚)/2，全部单位 mm。R 等于短边一半时用两半圆加直段构造截面，避免圆角矩形草图退化。中心路径为上下直段加两端半圆；外宽=内宽+2×料宽，外高=内高+2×料宽。PG3195 名义参数得 46.2×25.6×6 mm、约 2883.597260 mm³；独立 text-to-cad STEP 体积约 2883.597257。PG10669 参数为内51×15、sectionWidth4、sectionDepth8、sectionRadius2，名义实体59×23×8 mm；侧视细部和源曲面尚未逐线核对。别把厚 6 当 Ø6 圆线、别把跑道形误认为真椭圆。读批次回执、测量和 rendered revision；失败整步回滚，feature.edit 可修改参数。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -11990,6 +12333,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -12003,6 +12347,7 @@ files.release: contextPolicy=none
 用户要求成体并给出厚度后，读取 profileExtrude 卡；把该用户明确给出的正毫米厚度记为 userDepthMm，步骤为 {id:"solid",method:"add",args:{op:"profileExtrude",refs:[{$ref:"outline.createdBodyIds.0"}],params:{operation:"newBody",extent:"distance",distanceMm:userDepthMm,direction:1}}。可以放在 outline 后的同一 run 批次；分批时使用闭面回执的真实 bodyId 和新鲜 context。distanceMm 不从二维 heightMm 推导，也不沿用示例默认值。厚度或拉伸正负方向缺失且会影响任务结果时，先向用户确认；只画闭面不需要厚度。检查闭面 solidCount=0、faceCount=1、面积1200 mm²，成体单实体体积为1200×userDepthMm mm³，以及当前 rendered revision。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -12086,6 +12431,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -12097,6 +12443,7 @@ files.release: contextPolicy=none
 读取 info()/getState() 后，搜索 referenceExtrude/referenceLoft 并读工具卡。已有 planeSection 与 faceBoundary 提供精确参考线框。referenceExtrude 接收一个平面闭合线框或单张带孔平面面，params:{direction:[0,0,1],distance:3}；散边多环不猜孔关系。referenceLoft 按 refs 顺序使用 2–12 个平面单闭环截面，params:{ruled:false}。结果均保留原参考对象；STEP 导出应显式传新实体 ids。可先平移/复制一个参考截面再放样。不自动补缺边，不提高公差来强行闭合。参考驱动的成体不等同从零参数化重建，放样的截面间形状必须对照源件验证。静态版仍无直接 IGES 转换器，离线开发检查的 OCP 不属于产品运行依赖。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -12180,6 +12527,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -12191,6 +12539,7 @@ files.release: contextPolicy=none
 圆环内接横杆：UI 在快捷模型中选“圆环内接横杆”；AI 用 getTool({id:"quickModel"}) 找 kind=ringBar 的参数卡。先用 const {revision,...identity}=getState().context 分离当前身份与版本，再调用 api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"ring",method:"add",args:{op:"quickModel",refs:[],params:{kind:"ringBar",section:"round",innerDiameter:20,sectionSize:3,barDiameter:2,barOffset:0,barDepthOffset:0}}},{id:"size",method:"measure",args:{bodyId:{$ref:"ring.createdBodyIds.0"}}}]})。读取每步回执、新 revision 和 rendered revision。内径为孔的名义直径，外径=内径+2×截面尺寸；横杆沿 X，barOffset 是 Y 偏移，barDepthOffset 是相对环中面的 Z 错层，默认 0。还支持 section:"square" 和 0<sectionRadius<sectionSize/2。约束：内径≥4×截面尺寸、0<杆径≤截面尺寸、杆必须在孔内、abs(barDepthOffset)<(sectionSize+barDiameter)/2 才能交叠。PG10225/PG10226 的 Ø5 框与杆用错层 4 mm 可建 9 mm 总深的单实体名义轮廓，但源图 R1.5 接头、背面端部和制造表面未复刻，不能宣称完整产品。只适用固定单横杆；活动件、多个横杆和真实源图未标注的尺寸需分别建模。历史参数通过 feature.edit 修改。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -12274,6 +12623,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -12285,6 +12635,7 @@ files.release: contextPolicy=none
 圆线日字扣外观候选：UI 选择“快捷模型 → 日字扣”，AI 先读 getTool({id:'quickModel'}) 的 kind=sliderBuckle 参数卡。const api=window.webcad.api;const {revision,...identity}=api.getState().context;const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'frame',method:'add',args:{op:'quickModel',refs:[],params:{kind:'sliderBuckle',section:'round',innerWidth:45,innerHeight:20,innerRadius:7,sectionSize:5,barDiameter:5,barOffset:0,gapWidth:0}}},{id:'size',method:'measure',args:{bodyId:{$ref:'frame.createdBodyIds.0'}}}]});检查 result.status、measure.solidCount、bounds、volume，并等 getState().display.rendered.revision 与新 revision 一致。PG8570 源 DWG 标内 45×20、外 55×30、框 Ø5；上述一体单实体候选实测 55×30×5 mm、3523.416492 mm³。innerRadius=7 是外观试拟，源上下边轻微鼓弧尚未复刻；侧视 4.3 的指向和中杆真实截面尚未完全消歧，不能把圆杆假设当源实体精确复原。若设 innerRadius=8 且 barDiameter=5，横杆端落在弯角区，工具返回 GEOMETRY_INVALID 且不提交。适用闭合圆线外框与固定中杆，不适用平板双窗或可动杆；历史可 feature.edit，失败时须调整源证实的参数而非放宽几何约束。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -12368,6 +12719,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -12379,6 +12731,7 @@ files.release: contextPolicy=none
 圆边独立 R 框：UI 在“快捷模型”选择“圆边独立 R 平面框”；AI 先 getTool({id:"quickModel"}) 查 kind=roundedFlatFrame 的当前参数卡。用 const {revision,...identity}=getState().context，再 api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"frame",method:"add",args:{op:"quickModel",refs:[],params:{kind:"roundedFlatFrame",outerWidth:48,outerHeight:28,innerWidth:40,innerHeight:20,outerRadius:5,innerRadius:1.5,thickness:4,edgeRadius:1.9}}},{id:"size",method:"measure",args:{bodyId:{$ref:"frame.createdBodyIds.0"}}}]})。一个可编辑历史特征先生成独立内外 R 闭合框，再对所有尖锐边一次倒圆。参数要求真实内外轮廓不相交、0<edgeRadius≤thickness/2；任一尖边无法完成则整步不提交，不缩小输入 R。PG8016/PG8017 型尺寸在 R1.9 mm 下内核通过；R2 mm 在这些测试中被拒绝，故 R1.9 是外观近似，不等于精确半圆截面或原件全面验收。PG3213 可设外42×23、内30×11、外R6/内R1.5、厚6、整件圆边R2.9，精确测量42×23×6 mm、2923.414344 mm³；R3内核拒绝，不能称精确Ø6截面。其直边料宽6而外内角R差4.5，不满足恒截面扫掠的同心偏置，需保留独立内外R。读取批次回执、精确体积和 rendered revision；后续用 feature.edit 修改同一特征的参数。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -12462,6 +12815,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -12473,6 +12827,7 @@ files.release: contextPolicy=none
 连续线弧圆线：先 getTool({id:'curveSweep'}) 获取当前参数卡。pathType:'segments' 接受 2–64 个有序段，每段 {type:'line',points:[起点XYZ,终点XYZ]} 或 {type:'arc',points:[起点XYZ,弧中XYZ,终点XYZ]}；相邻端点误差必须≤0.000001 mm，整条路径须开放，圆弧三点不能共线。radius 是圆截面半径（mm）。示例：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const segments=[{type:'line',points:[[0,0,0],[1,0,0]]},{type:'arc',points:[[1,0,0],[2,1,0],[1,2,0]]},{type:'line',points:[[1,2,0],[0,2,0]]}];const r=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'wire',method:'add',args:{op:'curveSweep',refs:[],params:{pathType:'segments',segments,radius:0.2}}},{id:'size',method:'measure',args:{bodyId:{$ref:'wire.createdBodyIds.0'}}}]});检查逐步 status、measure 的 solidCount/体积、getState().display.rendered.revision。此模式用连续解析线弧的精确 BRep 扫掠及 transformed 过渡，内核拓扑无效则整步拒绝；不从正视轮廓自动猜三维中心线、截面或端头。源图 PG8061 的成对同心弧可用于计算候选中心路径，但源端部 R0.8 与完整三维端面仍需另验。历史中可用 feature.edit 修改整段数组或 radius。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -12556,6 +12911,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -12567,6 +12923,7 @@ files.release: contextPolicy=none
 小双窗扣外观候选：UI 选“快捷模型 → 平板双窗扣”，AI 先 getTool({id:"quickModel"}) 查 kind=twinWindowPlate 的当前参数卡。PG4307 页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"plate",method:"add",args:{op:"quickModel",refs:[],params:{kind:"twinWindowPlate",outerWidth:24,outerHeight:21,outerRadius:6,windowWidth:17,totalInnerHeight:14,windowRadius:2,barWidth:3,thickness:3.5,edgeRadius:0}}},{id:"size",method:"measure",args:{bodyId:{$ref:"plate.createdBodyIds.0"}}}]})。源图外廓标24×21、横条3、侧厚3.5；产品栏17×14作为名义内孔总范围。外R6、窗R2是从图面选择的圆角矩形试拟，源实体含 SPLINE，不能宣称与源曲线重合；真实双窗也可能有局部过渡或侧面变化。工具给一实体24×21×3.5 mm，正视双窗+横条可见；不自动添加未标边缘R。历史可 feature.edit 修改；下一步若要求更高保真，应引入源样条拟合后的闭合轮廓并核验偏差，而非继续猜圆角。读批次 status、measure、rendered revision；失败回滚。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -12650,6 +13007,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -12661,6 +13019,7 @@ files.release: contextPolicy=none
 源线弧薄板加前后圆边：先确认产品有效正视的闭合外轮廓与每个孔、侧视板厚和边缘 R。text-to-cad/agent/tools/cad-learning/export_dxf_arc_profile.py 经 run-silent.ps1 导出 arcProfile 的 params；页面先 getTool({id:'arcProfile'}) 与 getTool({id:'autoRound'})。脚本 const api=window.webcad.api;const {revision,...identity}=api.getState().context;const r=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'profile',method:'add',args:{op:'arcProfile',refs:[],params:data.params}},{id:'rounded',method:'add',args:{op:'autoRound',refs:[{$ref:'profile.createdBodyIds.0'}],params:{radius:0.5}}},{id:'size',method:'measure',args:{bodyId:{$ref:'rounded.createdBodyIds.0'}}}]});检查每步 committed、单实体、精确测量和渲染 revision；圆边失败不缩小源 R，应保留前一步并复核局部空间。PG6217 有效视图外 LINE 97E2,97E3,97E7,97EB 与 ARC 9A99,9AA3,9AB6,9AC0；上孔 LINE 97F0,97F1,97F2,97F8 与 ARC 97F4,97F5,97FE,97FF；下孔 LINE 97F9,97FA,97FB,97F3 与 ARC 97FC,97FD,97F6,97F7。侧厚3.5、前后 R0.5；源线外宽44.8、高26.646181，图面名义高26.6，保留差0.046181 mm。该流程为可编辑的两个历史特征，适合源 LINE/ARC 清晰的等厚薄板，不适用圆线截面、变深或来源散乱的 DXF。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -12744,6 +13103,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -12755,6 +13115,7 @@ files.release: contextPolicy=none
 PG5752 B 件源线弧带板：先在有效工程视图选 B 件，不混 A 件。DXF 外 ARC 52E(R20)、532(R15) 与端 LINE 52F、530；两只通孔 CIRCLE 579、57A(R1.15)，板厚5。text-to-cad 下用 run-silent.ps1 调用 export_dxf_arc_profile.py，传 --dxf 源 DXF、--output agent/temp 下 JSON、--outer 52E,532,52F,530、--hole 579、--hole 57A、--height 5、--join 0.05。默认0.01会正确拒绝源内弧与端线约0.040002 mm 缝；0.05 为明确修缝容差，导出器保留原 ARC 三点并只把邻接 LINE 端点吸附到弧端，JSON 与 params.source 记录 maxJoinGapMm 和 joinStrategy。AI 先读 getTool({id:'arcProfile'})，再用 const api=window.webcad.api;const {revision,...identity}=api.getState().context;const r=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'part',method:'add',args:{op:'arcProfile',refs:[],params:data.params}},{id:'size',method:'measure',args:{bodyId:{$ref:'part.createdBodyIds.0'}}}]});检查单实体、测量和渲染 revision。另两只 R1.65 同心圆代表更大孔口轮廓，但深度未标；本配方不造沉孔、不建 A 件或装配。修缝后不称原始轮廓完全闭合或制造级复刻。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -12838,6 +13199,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -12849,6 +13211,7 @@ files.release: contextPolicy=none
 源件参考建模：先 queryGeometry({context,bodyId,kind:"face",filter:{surfaceType:"plane"},requireUnique:false}) 找平面。planar=true 包括解析平面和全部控制点共面（1e-7 mm）的 BSpline；geomType/surfaceType 保留源编码，不伪装成解析 PLANE。未识别的 offset/revolution 等曲面不猜成平面。面结果的 wireCount 表示边界环数；面查询只计算边邻接，不计算全部边的锐角，要查锐边请查询 kind:"edge"。按面积、中心与法向选定当前 faceId，再 add extractFaces，params:{faceIds:[faceId]}，refs:[sourceId]；结果保留内孔并保留源对象，多个 faceIds 得到面复合体。提取结果不是实体。单张平面可再 referenceExtrude，指定世界 direction 与 distance；多截面可 referenceLoft。闭合轮廓端点偏差超过 1e-7 mm 会拒绝，即使源文件带闭合标志也不会自动补缝。识别成几何平面不代表 faceHole/faceExtrude 接受 BSpline 编码；这两个工具仍要求解析平面。所有结果仍须对照源件，局部成体、参考面加厚都不能计作完整产品重建。多壳源件先 sewFaces({tolerance:0.01,makeSolid:false})，从 getState().bodies 或 measure 读 shellCount，再 extractShell({shellIndex:0}) 提取当前零起始序号的壳（保留源对象）。按提取结果的边界、位置和尺寸识别部件，必要时 feature.edit 修改 shellIndex；重建可能重排序号，必须重新核对。已确认独立且闭合的壳可单独 sewFaces({tolerance:0.01,makeSolid:true})；开放壳报错，不自动补洞；内外嵌套壳可能表示空腔，不能逐壳实心化后当作原产品。缝合/提壳属于源件恢复，不是参数化产品重建。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -12932,6 +13295,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -12943,6 +13307,7 @@ files.release: contextPolicy=none
 源图内外角可校验的圆线方框：UI 选择“快捷模型 → 方扣”，AI 先读 getTool({id:'quickModel'}) 的 kind=rectBuckle 参数卡。对任一图，先核外宽-内宽=外高-内高=2×线径，外角R-内角R=线径，侧视截面为同一圆线且闭合；不满足任一条件时不要套此配方。PG7440 的有效正视闭合多段线给外33×23、内25×15、外角R4.5、内角R0.5，侧视圆端R2，故可取线径4。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'frame',method:'add',args:{op:'quickModel',refs:[],params:{kind:'rectBuckle',section:'round',innerWidth:25,innerHeight:15,innerRadius:0.5,sectionSize:4,gapWidth:0}}},{id:'size',method:'measure',args:{bodyId:{$ref:'frame.createdBodyIds.0'}}}]});检查 status、solidCount、bounds、volume，再核 getState().display.rendered.revision。实测单实体33×23×4 mm，1152.436255 mm³；体积与圆截面积 π×2² 乘圆角中心路径长度 76+5π 一致。该几何复现正视理想圆弧与圆截面；图面未说明的接缝、局部表面和制造过渡仍须单独核验。历史用 feature.edit 修订，失败不提交。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -13026,6 +13391,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -13037,6 +13403,7 @@ files.release: contextPolicy=none
 平板双窗扣：UI 在“快捷模型”选择“平板双窗扣”；AI 从 getTool({id:"quickModel"}) 查 kind=twinWindowPlate 参数。PG6217 图纸名义例：const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"plate",method:"add",args:{op:"quickModel",refs:[],params:{kind:"twinWindowPlate",outerWidth:44.8,outerHeight:26.6,outerRadius:3.5,windowWidth:37.8,totalInnerHeight:19.6,windowRadius:2,barWidth:3.5,thickness:3.5,edgeRadius:0.5}}},{id:"size",method:"measure",args:{bodyId:{$ref:"plate.createdBodyIds.0"}}}]})。两孔等高=(totalInnerHeight-barWidth)/2=8.05，孔中心 Y=±(totalInnerHeight+barWidth)/4；横条是板体，不是圆杆。outerRadius/windowRadius 为 XY 平面角半径，edgeRadius 为前后尖边截面 R。约束：外宽>孔宽，外高>总内高>横条宽>0，平面 R 严格小于相应短边一半，2*edgeRadius 严格小于板厚、横条宽和最窄框壁；R=0 可做未倒边板。任何切孔或倒边失败时整步不提交，不自动缩小半径。成功读步骤回执、精确测量和 rendered revision；feature.edit 可改这一历史特征。只适用平板对称双窗；PG6217 产品照片外角比该 DWG 名义 R3.5 尖，版本仍待确认。鼓侧边、侧向拱弯、偏置孔及独立杆不属于此模板。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -13120,6 +13487,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -13131,6 +13499,7 @@ files.release: contextPolicy=none
 半圆冠双端孔 U 板：UI 在快捷模型中选择同名工具；AI 先 getTool({id:"quickModel"}) 读取 kind=uEndHolePlate 参数。页面脚本 const api=window.webcad.api; const {revision,...identity}=api.getState().context; const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"partA",method:"add",args:{op:"quickModel",refs:[],params:{kind:"uEndHolePlate",outerWidth:22,innerWidth:10,totalHeight:31.7,thickness:3,holeDiameter:3.3,holeInset:2.7}}},{id:"size",method:"measure",args:{bodyId:{$ref:"partA.createdBodyIds.0"}}}]})。内外冠同心且均为半圆，两条直腿等宽、两端通孔沿 Z 贯穿。孔心 X=±(outerWidth+innerWidth)/4，Y 自端面向冠方向量 holeInset。限制 outerWidth>innerWidth>0、totalHeight>outerWidth/2、thickness>0、0<holeDiameter<(outerWidth-innerWidth)/2，孔与端面、冠保持净距；非法输入失败回滚。PG11804 A 件图面外宽22、内宽10、总高31.7、侧深3、孔位标注2-Ø3.3，另有2-M2标注；holeInset=2.7 是试拟，通孔不能代表真实攻牙。B 件和装配、局部圆润截面未建。读结果 status、精确 measure 和 rendered revision；历史修改用 feature.edit。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -13214,6 +13583,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -13227,6 +13597,7 @@ WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键�
 页面 JS 执行通道必须由调用客户端提供并获用户授权；页面公开函数不证明某个侧边栏已能调用。建模写入须传当前 sessionId、documentId、documentInstanceId、expectedRevision，不能猜 revision。页面方法不接收任意脚本源码、任意 URL 或本地路径。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -13310,6 +13681,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none
@@ -16218,6 +16590,619 @@ files.release: contextPolicy=none
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
   "docsHash": "sha256:33e5a299b30f323b2425ed1149b43bccf4d00df3e43acd182b2a2d563a674b1a"
+}
+```
+
+## 工具 bumpSet · 批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once
+
+```json
+{
+  "id": "bumpSet",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "bumps": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 64,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "centerMm"
+          ],
+          "oneOf": [
+            {
+              "required": [
+                "radiusMm"
+              ]
+            },
+            {
+              "required": [
+                "radiiMm"
+              ]
+            }
+          ],
+          "properties": {
+            "centerMm": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "minItems": 3,
+              "maxItems": 3,
+              "description": "World coordinate [x,y,z] in mm",
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            "radiusMm": {
+              "type": "number",
+              "description": "Bump radius (mm)",
+              "exclusiveMinimum": 0,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            "radiiMm": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "description": "Axis radius (mm)",
+                "exclusiveMinimum": 0
+              },
+              "minItems": 3,
+              "maxItems": 3,
+              "description": "World coordinate [x,y,z] in mm"
+            }
+          }
+        }
+      },
+      "blendRadiusMm": {
+        "type": "number",
+        "description": "Requested seam radius (mm)",
+        "exclusiveMinimum": 0
+      },
+      "blendMode": {
+        "type": "string",
+        "enum": [
+          "fillet",
+          "variable"
+        ]
+      },
+      "blendLaw": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "startRadiusMm",
+          "endRadiusMm"
+        ],
+        "properties": {
+          "startRadiusMm": {
+            "type": "number",
+            "description": "Edge start radius (mm)",
+            "exclusiveMinimum": 0
+          },
+          "endRadiusMm": {
+            "type": "number",
+            "description": "Edge end radius (mm)",
+            "exclusiveMinimum": 0
+          }
+        }
+      }
+    },
+    "required": [
+      "bumps"
+    ],
+    "additionalProperties": false,
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports actual used radius and BLEND_SKIPPED if no trustworthy blend exists; does not round unrelated source edges.",
+  "title": "批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once",
+  "category": "modification",
+  "synonyms": [
+    "bumpSet",
+    "批量凸点",
+    "Fuse spherical or exact rational ellipsoid bumps and blend their seams once",
+    "bump Set operation"
+  ],
+  "description": "批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once",
+  "schemaHash": "sha256:004ad493dc6fb8a666356734a6603e7fc5af4cfd471b8b45bfa76526be325059",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports actual used radius and BLEND_SKIPPED if no trustworthy blend exists; does not round unrelated source edges."
+  ],
+  "minimalExample": {
+    "op": "bumpSet",
+    "params": {
+      "bumps": [
+        {
+          "centerMm": [
+            0,
+            0,
+            4
+          ],
+          "radiusMm": 1
+        }
+      ],
+      "blendRadiusMm": 0.1
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "bumpSet",
+    "params": {
+      "bumps": [
+        {
+          "centerMm": [
+            0,
+            0,
+            4
+          ],
+          "radiusMm": 1
+        }
+      ],
+      "blendRadiusMm": 0.1
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "bumps": [
+          {
+            "centerMm": [
+              0,
+              0,
+              4
+            ],
+            "radiusMm": 1
+          }
+        ],
+        "blendRadiusMm": 0.1,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once",
+    "whenToUse": [
+      "One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports actual used radius and BLEND_SKIPPED if no trustworthy blend exists; does not round unrelated source edges."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "bumps": {
+        "meaning": "bumps: 批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once",
+        "unit": "none",
+        "range": [
+          1,
+          64
+        ]
+      },
+      "blendRadiusMm": {
+        "meaning": "Requested seam radius (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendMode": {
+        "meaning": "blendMode: 批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendLaw": {
+        "meaning": "blendLaw: 批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      }
+    },
+    "refs": {
+      "min": 1,
+      "max": 1,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "bumpSet",
+        "params": {
+          "bumps": [
+            {
+              "centerMm": [
+                0,
+                0,
+                4
+              ],
+              "radiusMm": 1
+            }
+          ],
+          "blendRadiusMm": 0.1
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "bumpSet",
+        "params": {
+          "bumps": [
+            {
+              "centerMm": [
+                0,
+                0,
+                4
+              ],
+              "radiusMm": 1
+            }
+          ],
+          "blendRadiusMm": 0.1
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "bumps": [
+              {
+                "centerMm": [
+                  0,
+                  0,
+                  4
+                ],
+                "radiusMm": 1
+              }
+            ],
+            "blendRadiusMm": 0.1,
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "sketchProfile",
+      "profileExtrude",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "bumpSet",
+      "批量凸点",
+      "Fuse spherical or exact rational ellipsoid bumps and blend their seams once",
+      "bump Set operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once",
+  "whenToUse": [
+    "One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports actual used radius and BLEND_SKIPPED if no trustworthy blend exists; does not round unrelated source edges."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "label": "批量凸点",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "docsHash": "sha256:570646a470c2c0deddafe5e311ab988fc713ab65407e1adaa7d338599f8f452c"
 }
 ```
 
@@ -19366,7 +20351,7 @@ files.release: contextPolicy=none
 }
 ```
 
-## 工具 curveSweep · Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections
+## 工具 curveSweep · Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine
 
 ```json
 {
@@ -19382,7 +20367,8 @@ files.release: contextPolicy=none
           "arc",
           "spline",
           "segments",
-          "sections"
+          "sections",
+          "spine"
         ]
       },
       "points": {
@@ -19408,49 +20394,337 @@ files.release: contextPolicy=none
         "quantizationPolicy": "none"
       },
       "stations": {
-        "type": "array",
-        "minItems": 2,
-        "maxItems": 24,
-        "items": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "centerMm",
-            "normal",
-            "widthDirection",
-            "widthMm",
-            "depthMm"
-          ],
-          "properties": {
-            "centerMm": {
-              "type": "array",
-              "items": {
-                "type": "number",
-                "unit": "mm",
-                "quantityKind": "length",
-                "quantizationPolicy": "none"
-              },
-              "minItems": 3,
-              "maxItems": 3,
-              "unit": "mm",
-              "quantityKind": "length",
-              "quantizationPolicy": "none"
-            },
-            "normal": {
-              "type": "array",
-              "items": {
-                "type": "number",
+        "oneOf": [
+          {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 64,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "centerMm",
+                "normal",
+                "widthDirection",
+                "widthMm",
+                "depthMm"
+              ],
+              "properties": {
+                "centerMm": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "unit": "mm",
+                    "quantityKind": "length",
+                    "quantizationPolicy": "none"
+                  },
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
+                },
+                "normal": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "unit": "1",
+                    "quantityKind": "direction",
+                    "quantizationPolicy": "none"
+                  },
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "unit": "1",
+                  "quantityKind": "direction",
+                  "quantizationPolicy": "none"
+                },
+                "widthDirection": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "widthMm": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
+                },
+                "depthMm": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
+                },
+                "startAngleDeg": {
+                  "type": "number"
+                },
+                "profile": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "kind": {
+                          "const": "ellipse"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "kind": {
+                          "const": "superellipse"
+                        },
+                        "exponent": {
+                          "type": "number",
+                          "minimum": 2,
+                          "maximum": 8
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "exponent"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "kind": {
+                          "const": "asymmetric"
+                        },
+                        "depthUpMm": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "depthDownMm": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "widthLeftMm": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "widthRightMm": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "kind": {
+                          "const": "airfoil"
+                        },
+                        "naca": {
+                          "oneOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^[0-9]{4}$"
+                            },
+                            {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "properties": {
+                                "thicknessPct": {
+                                  "type": "number",
+                                  "exclusiveMinimum": 0,
+                                  "maximum": 40
+                                },
+                                "camberPct": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 20
+                                },
+                                "camberPosPct": {
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 100
+                                }
+                              },
+                              "required": [
+                                "thicknessPct"
+                              ]
+                            }
+                          ]
+                        },
+                        "chordAlong": {
+                          "type": "string",
+                          "const": "width"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "naca"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "kind": {
+                          "const": "spline"
+                        },
+                        "points2d": {
+                          "type": "array",
+                          "minItems": 3,
+                          "maxItems": 128,
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "number"
+                            },
+                            "minItems": 2,
+                            "maxItems": 2
+                          }
+                        },
+                        "closed": {
+                          "const": true
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "points2d",
+                        "closed"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "count": {
+                "type": "integer",
+                "minimum": 2,
+                "maximum": 64,
+                "default": 32,
                 "unit": "1",
-                "quantityKind": "direction",
+                "quantityKind": "scalar",
                 "quantizationPolicy": "none"
               },
-              "minItems": 3,
-              "maxItems": 3,
-              "unit": "1",
-              "quantityKind": "direction",
-              "quantizationPolicy": "none"
+              "distribution": {
+                "type": "string",
+                "enum": [
+                  "uniform",
+                  "curvature"
+                ],
+                "default": "uniform"
+              }
             },
-            "widthDirection": {
+            "required": [
+              "count"
+            ]
+          }
+        ]
+      },
+      "loftDegree": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 8,
+        "default": 8
+      },
+      "seamAngleDeg": {
+        "type": "number"
+      },
+      "autoAlign": {
+        "type": "boolean",
+        "default": true
+      },
+      "volumeCheck": {
+        "type": "string",
+        "enum": [
+          "error",
+          "warn",
+          "off"
+        ],
+        "default": "warn"
+      },
+      "startCap": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "flat",
+              "point",
+              "round"
+            ]
+          },
+          "pointMm": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "lengthMm": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "endCap": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "flat",
+              "point",
+              "round"
+            ]
+          },
+          "pointMm": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "lengthMm": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "spine": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pointsMm": {
+            "type": "array",
+            "items": {
               "type": "array",
               "items": {
                 "type": "number"
@@ -19458,28 +20732,237 @@ files.release: contextPolicy=none
               "minItems": 3,
               "maxItems": 3
             },
-            "widthMm": {
-              "type": "number",
-              "exclusiveMinimum": 0,
-              "unit": "mm",
-              "quantityKind": "length",
-              "quantizationPolicy": "none"
-            },
-            "depthMm": {
-              "type": "number",
-              "exclusiveMinimum": 0,
-              "unit": "mm",
-              "quantityKind": "length",
-              "quantizationPolicy": "none"
-            }
+            "minItems": 2,
+            "maxItems": 128
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "polyline",
+              "bspline"
+            ]
           }
+        },
+        "required": [
+          "pointsMm"
+        ]
+      },
+      "widthLaw": {
+        "oneOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "spline"
+              },
+              "samples": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 64,
+                "items": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": {
+                    "type": "number",
+                    "unit": "1",
+                    "quantityKind": "scalar",
+                    "quantizationPolicy": "none"
+                  },
+                  "unit": "1",
+                  "quantityKind": "scalar",
+                  "quantizationPolicy": "none"
+                },
+                "unit": "1",
+                "quantityKind": "scalar",
+                "quantizationPolicy": "none"
+              }
+            },
+            "required": [
+              "kind",
+              "samples"
+            ]
+          }
+        ]
+      },
+      "depthLaw": {
+        "oneOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "spline"
+              },
+              "samples": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 64,
+                "items": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": {
+                    "type": "number",
+                    "unit": "1",
+                    "quantityKind": "scalar",
+                    "quantizationPolicy": "none"
+                  },
+                  "unit": "1",
+                  "quantityKind": "scalar",
+                  "quantizationPolicy": "none"
+                },
+                "unit": "1",
+                "quantityKind": "scalar",
+                "quantizationPolicy": "none"
+              }
+            },
+            "required": [
+              "kind",
+              "samples"
+            ]
+          }
+        ]
+      },
+      "rollLawDeg": {
+        "oneOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "spline"
+              },
+              "samples": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 64,
+                "items": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": {
+                    "type": "number",
+                    "unit": "1",
+                    "quantityKind": "scalar",
+                    "quantizationPolicy": "none"
+                  },
+                  "unit": "1",
+                  "quantityKind": "scalar",
+                  "quantizationPolicy": "none"
+                },
+                "unit": "1",
+                "quantityKind": "scalar",
+                "quantizationPolicy": "none"
+              }
+            },
+            "required": [
+              "kind",
+              "samples"
+            ]
+          }
+        ]
+      },
+      "profileLaw": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 64,
+        "items": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2
         }
       },
-      "loftDegree": {
-        "type": "integer",
-        "minimum": 2,
-        "maximum": 8,
-        "default": 8
+      "upHint": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "guides": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 2,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "pointsMm": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "minItems": 2,
+              "maxItems": 128
+            },
+            "role": {
+              "type": "string",
+              "enum": [
+                "dorsal",
+                "ventral",
+                "lateral"
+              ]
+            }
+          },
+          "required": [
+            "pointsMm"
+          ]
+        }
+      },
+      "startCondition": {
+        "type": "string",
+        "enum": [
+          "G0",
+          "G1",
+          "G2"
+        ],
+        "default": "G0"
+      },
+      "endCondition": {
+        "type": "string",
+        "enum": [
+          "G0",
+          "G1",
+          "G2"
+        ],
+        "default": "G0"
+      },
+      "matchTo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "featureId": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string",
+            "enum": [
+              "start",
+              "end"
+            ]
+          }
+        },
+        "required": [
+          "featureId",
+          "end"
+        ]
       },
       "segments": {
         "type": "array",
@@ -19614,17 +21097,17 @@ files.release: contextPolicy=none
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Set closed:true only for a closed segment chain. Round requires radius; chamferedSquare needs sectionSize and sectionChamfer; ellipse needs unequal sectionWidth and sectionDepth. roundedRectangle sweeps a flat strip: sectionWidth across the strip, sectionDepth along the in-plane bend normal, and 0<sectionCornerRadius<min(width,depth)/2. Non-round sweep sections need an XY-planar path. Sections mode requires 2–24 ordered stations with explicit centerMm, normal, perpendicular widthDirection, widthMm and depthMm; each station is an elliptical plane section. It allows varying width/depth and plane orientation, but no closed loop or automatic shape inference. Crossing station planes or sharp turns can fail. loftDegree (integer 2–8, default 8) bounds surface degree; 2 can reduce interpolation overshoot. Always measure the resulting envelope because a valid solid can exceed the station bounds. Result must be one valid positive-volume solid.",
-  "title": "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Profiles are sampled into 64 corresponding points. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid.",
+  "title": "Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
   "category": "creation",
   "synonyms": [
     "curveSweep",
-    "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+    "Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
     "curve Sweep operation",
     "曲线扫掠"
   ],
-  "description": "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
-  "schemaHash": "sha256:8adc3de3c189133385e1b49496a0486ef030933aa9aa677f83ce169a60a01d0a",
+  "description": "Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
+  "schemaHash": "sha256:f38451d896e94a62bcbf12eaf1bd7f0c646c5eb443acf52a1f52df03637a7ada",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -19685,7 +21168,7 @@ files.release: contextPolicy=none
     }
   ],
   "knownUnsupportedCases": [
-    "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Set closed:true only for a closed segment chain. Round requires radius; chamferedSquare needs sectionSize and sectionChamfer; ellipse needs unequal sectionWidth and sectionDepth. roundedRectangle sweeps a flat strip: sectionWidth across the strip, sectionDepth along the in-plane bend normal, and 0<sectionCornerRadius<min(width,depth)/2. Non-round sweep sections need an XY-planar path. Sections mode requires 2–24 ordered stations with explicit centerMm, normal, perpendicular widthDirection, widthMm and depthMm; each station is an elliptical plane section. It allows varying width/depth and plane orientation, but no closed loop or automatic shape inference. Crossing station planes or sharp turns can fail. loftDegree (integer 2–8, default 8) bounds surface degree; 2 can reduce interpolation overshoot. Always measure the resulting envelope because a valid solid can exceed the station bounds. Result must be one valid positive-volume solid.",
+    "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Profiles are sampled into 64 corresponding points. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
@@ -19781,9 +21264,9 @@ files.release: contextPolicy=none
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "contract": {
-    "purpose": "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+    "purpose": "Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
     "whenToUse": [
-      "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Set closed:true only for a closed segment chain. Round requires radius; chamferedSquare needs sectionSize and sectionChamfer; ellipse needs unequal sectionWidth and sectionDepth. roundedRectangle sweeps a flat strip: sectionWidth across the strip, sectionDepth along the in-plane bend normal, and 0<sectionCornerRadius<min(width,depth)/2. Non-round sweep sections need an XY-planar path. Sections mode requires 2–24 ordered stations with explicit centerMm, normal, perpendicular widthDirection, widthMm and depthMm; each station is an elliptical plane section. It allows varying width/depth and plane orientation, but no closed loop or automatic shape inference. Crossing station planes or sharp turns can fail. loftDegree (integer 2–8, default 8) bounds surface degree; 2 can reduce interpolation overshoot. Always measure the resulting envelope because a valid solid can exceed the station bounds. Result must be one valid positive-volume solid."
+      "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Profiles are sampled into 64 corresponding points. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid."
     ],
     "whenNotToUse": [
       {
@@ -19793,7 +21276,7 @@ files.release: contextPolicy=none
     ],
     "params": {
       "pathType": {
-        "meaning": "pathType: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "meaning": "pathType: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
         "unit": "none",
         "range": [
           null,
@@ -19801,7 +21284,7 @@ files.release: contextPolicy=none
         ]
       },
       "points": {
-        "meaning": "points: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "meaning": "points: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
         "unit": "mm",
         "range": [
           3,
@@ -19812,18 +21295,18 @@ files.release: contextPolicy=none
         }
       },
       "stations": {
-        "meaning": "stations: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "meaning": "stations: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
         "unit": "none",
         "range": [
-          2,
-          24
+          null,
+          null
         ],
         "default": {
           "behavior": "omitted; retain the operation source default"
         }
       },
       "loftDegree": {
-        "meaning": "loftDegree: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "meaning": "loftDegree: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
         "unit": "none",
         "range": [
           2,
@@ -19831,8 +21314,165 @@ files.release: contextPolicy=none
         ],
         "default": 8
       },
+      "seamAngleDeg": {
+        "meaning": "seamAngleDeg: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
+        "unit": "dimensionless",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "autoAlign": {
+        "meaning": "autoAlign: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": true
+      },
+      "volumeCheck": {
+        "meaning": "volumeCheck: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": "warn"
+      },
+      "startCap": {
+        "meaning": "startCap: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "endCap": {
+        "meaning": "endCap: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "spine": {
+        "meaning": "spine: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "widthLaw": {
+        "meaning": "widthLaw: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "depthLaw": {
+        "meaning": "depthLaw: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "rollLawDeg": {
+        "meaning": "rollLawDeg: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "profileLaw": {
+        "meaning": "profileLaw: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
+        "unit": "none",
+        "range": [
+          2,
+          64
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "upHint": {
+        "meaning": "upHint: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
+        "unit": "none",
+        "range": [
+          3,
+          3
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "guides": {
+        "meaning": "guides: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
+        "unit": "none",
+        "range": [
+          1,
+          2
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "startCondition": {
+        "meaning": "startCondition: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": "G0"
+      },
+      "endCondition": {
+        "meaning": "endCondition: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": "G0"
+      },
+      "matchTo": {
+        "meaning": "matchTo: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
       "segments": {
-        "meaning": "segments: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "meaning": "segments: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
         "unit": "1",
         "range": [
           2,
@@ -19843,7 +21483,7 @@ files.release: contextPolicy=none
         }
       },
       "radius": {
-        "meaning": "radius: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "meaning": "radius: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
         "unit": "mm",
         "range": [
           0,
@@ -19854,7 +21494,7 @@ files.release: contextPolicy=none
         }
       },
       "section": {
-        "meaning": "section: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "meaning": "section: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
         "unit": "none",
         "range": [
           null,
@@ -19865,7 +21505,7 @@ files.release: contextPolicy=none
         }
       },
       "sectionSize": {
-        "meaning": "sectionSize: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "meaning": "sectionSize: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
         "unit": "dimensionless",
         "range": [
           0,
@@ -19876,7 +21516,7 @@ files.release: contextPolicy=none
         }
       },
       "sectionChamfer": {
-        "meaning": "sectionChamfer: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "meaning": "sectionChamfer: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
         "unit": "dimensionless",
         "range": [
           0,
@@ -19887,7 +21527,7 @@ files.release: contextPolicy=none
         }
       },
       "sectionWidth": {
-        "meaning": "sectionWidth: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "meaning": "sectionWidth: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
         "unit": "dimensionless",
         "range": [
           0,
@@ -19898,7 +21538,7 @@ files.release: contextPolicy=none
         }
       },
       "sectionDepth": {
-        "meaning": "sectionDepth: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "meaning": "sectionDepth: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
         "unit": "dimensionless",
         "range": [
           0,
@@ -19909,7 +21549,7 @@ files.release: contextPolicy=none
         }
       },
       "sectionCornerRadius": {
-        "meaning": "sectionCornerRadius: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "meaning": "sectionCornerRadius: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
         "unit": "dimensionless",
         "range": [
           0,
@@ -19920,7 +21560,7 @@ files.release: contextPolicy=none
         }
       },
       "closed": {
-        "meaning": "closed: Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+        "meaning": "closed: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
         "unit": "none",
         "range": [
           null,
@@ -20094,16 +21734,16 @@ files.release: contextPolicy=none
     ],
     "synonyms": [
       "curveSweep",
-      "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
-      "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+      "Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
+      "Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
       "curve Sweep operation"
     ],
     "status": "experimental",
     "sourcePaths": []
   },
-  "purpose": "Sweep a constant section along a curve, or smoothly loft ordered variable elliptical sections",
+  "purpose": "Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
   "whenToUse": [
-    "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Set closed:true only for a closed segment chain. Round requires radius; chamferedSquare needs sectionSize and sectionChamfer; ellipse needs unequal sectionWidth and sectionDepth. roundedRectangle sweeps a flat strip: sectionWidth across the strip, sectionDepth along the in-plane bend normal, and 0<sectionCornerRadius<min(width,depth)/2. Non-round sweep sections need an XY-planar path. Sections mode requires 2–24 ordered stations with explicit centerMm, normal, perpendicular widthDirection, widthMm and depthMm; each station is an elliptical plane section. It allows varying width/depth and plane orientation, but no closed loop or automatic shape inference. Crossing station planes or sharp turns can fail. loftDegree (integer 2–8, default 8) bounds surface degree; 2 can reduce interpolation overshoot. Always measure the resulting envelope because a valid solid can exceed the station bounds. Result must be one valid positive-volume solid."
+    "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Profiles are sampled into 64 corresponding points. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid."
   ],
   "whenNotToUse": [
     {
@@ -20194,7 +21834,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:73dcda08d1e5e2cd5eaf1179b4e0a86a693efb924751cf0396517255f091f893"
+  "docsHash": "sha256:cca42175c4fadaa92bd3506533ed59459dfcf6708065068276ceab498ee6e8a9"
 }
 ```
 
@@ -21200,6 +22840,38 @@ files.release: contextPolicy=none
       "keepTools": {
         "type": "boolean",
         "description": "Keep original tools"
+      },
+      "blendRadiusMm": {
+        "type": "number",
+        "description": "Requested seam radius (mm)",
+        "exclusiveMinimum": 0
+      },
+      "blendMode": {
+        "type": "string",
+        "enum": [
+          "fillet",
+          "variable"
+        ]
+      },
+      "blendLaw": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "startRadiusMm",
+          "endRadiusMm"
+        ],
+        "properties": {
+          "startRadiusMm": {
+            "type": "number",
+            "description": "Edge start radius (mm)",
+            "exclusiveMinimum": 0
+          },
+          "endRadiusMm": {
+            "type": "number",
+            "description": "Edge end radius (mm)",
+            "exclusiveMinimum": 0
+          }
+        }
       }
     },
     "required": [],
@@ -21252,7 +22924,7 @@ files.release: contextPolicy=none
     "subtract"
   ],
   "description": "Subtract other bodies from first",
-  "schemaHash": "sha256:169bdb4b922e2637aab1100f409f3f8b07fc85cbfde06adc2a6d2622c80132fa",
+  "schemaHash": "sha256:64b268221ad330f566b1f2e17b4df47312337c8e1e1ffbf9d74e5bd055190a07",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -21388,6 +23060,39 @@ files.release: contextPolicy=none
     "params": {
       "keepTools": {
         "meaning": "Keep original tools",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendRadiusMm": {
+        "meaning": "Requested seam radius (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendMode": {
+        "meaning": "blendMode: Subtract other bodies from first",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendLaw": {
+        "meaning": "blendLaw: Subtract other bodies from first",
         "unit": "none",
         "range": [
           null,
@@ -21620,7 +23325,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:91accd8fb20aa261b30dc1f769f18efe683ab304861ed906e19e4c58de0e87e9"
+  "docsHash": "sha256:c85ee24113d9a2b03a34ed471e5820d16d459f0fd2aa348936c4cf13d9e1cbe8"
 }
 ```
 
@@ -27339,9 +29044,49 @@ files.release: contextPolicy=none
     "type": "object",
     "properties": {
       "radius": {
-        "type": "number",
-        "description": "Fillet radius (mm)",
-        "exclusiveMinimum": 0,
+        "oneOf": [
+          {
+            "type": "number",
+            "description": "Exact radius in mm (mm)",
+            "exclusiveMinimum": 0,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "maxMm",
+              "minMm"
+            ],
+            "properties": {
+              "maxMm": {
+                "type": "number",
+                "description": "Maximum sampled radius (mm)",
+                "exclusiveMinimum": 0
+              },
+              "minMm": {
+                "type": "number",
+                "description": "Minimum radius (mm)",
+                "exclusiveMinimum": 0
+              },
+              "stepRatio": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "exclusiveMaximum": 1
+              },
+              "maxAttempts": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 6
+              }
+            },
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          }
+        ],
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -27385,6 +29130,169 @@ files.release: contextPolicy=none
       "allEdges": {
         "type": "boolean",
         "description": "Explicitly process every sharp edge of the body"
+      },
+      "blendLaw": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "startRadiusMm",
+          "endRadiusMm"
+        ],
+        "properties": {
+          "startRadiusMm": {
+            "type": "number",
+            "description": "Edge start radius (mm)",
+            "exclusiveMinimum": 0
+          },
+          "endRadiusMm": {
+            "type": "number",
+            "description": "Edge end radius (mm)",
+            "exclusiveMinimum": 0
+          }
+        }
+      },
+      "selector": {
+        "type": "object",
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "faceIds"
+            ]
+          },
+          {
+            "required": [
+              "edgeIds"
+            ]
+          },
+          {
+            "required": [
+              "allEdges"
+            ]
+          },
+          {
+            "required": [
+              "seamBetween"
+            ]
+          },
+          {
+            "required": [
+              "edgesNear"
+            ]
+          },
+          {
+            "required": [
+              "facesFromFeature"
+            ]
+          }
+        ],
+        "properties": {
+          "faceIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 1,
+            "maxItems": 128,
+            "uniqueItems": true,
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          },
+          "edgeIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 1,
+            "maxItems": 128,
+            "uniqueItems": true,
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          },
+          "allEdges": {
+            "const": true
+          },
+          "seamBetween": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "a",
+              "b"
+            ],
+            "properties": {
+              "a": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              },
+              "b": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              }
+            }
+          },
+          "edgesNear": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pointMm",
+              "radiusMm"
+            ],
+            "properties": {
+              "pointMm": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "radiusMm": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "sharpOnly": {
+                "type": "boolean"
+              }
+            }
+          },
+          "facesFromFeature": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "featureId"
+            ],
+            "properties": {
+              "featureId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "all",
+                  "side",
+                  "cap"
+                ]
+              }
+            }
+          }
+        }
       }
     },
     "required": [
@@ -27412,6 +29320,11 @@ files.release: contextPolicy=none
             "const": true
           }
         }
+      },
+      {
+        "required": [
+          "selector"
+        ]
       }
     ]
   },
@@ -27467,7 +29380,7 @@ files.release: contextPolicy=none
     "半径"
   ],
   "description": "Round sharp edges, shared face edges, face boundaries or the whole solid",
-  "schemaHash": "sha256:6a30edc68970a527e9e6155563f5b79edfb5db35d7a984dd7e958f33f8ccc69b",
+  "schemaHash": "sha256:ac92b6d61d49f22dc8a989da548d4c513a11dd8f09bcf7ebbb3a4e13eaf7904b",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -27618,10 +29531,10 @@ files.release: contextPolicy=none
     ],
     "params": {
       "radius": {
-        "meaning": "Fillet radius (mm)",
+        "meaning": "radius: Round sharp edges, shared face edges, face boundaries or the whole solid",
         "unit": "mm",
         "range": [
-          0,
+          null,
           null
         ]
       },
@@ -27660,6 +29573,28 @@ files.release: contextPolicy=none
       },
       "allEdges": {
         "meaning": "Explicitly process every sharp edge of the body",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendLaw": {
+        "meaning": "blendLaw: Round sharp edges, shared face edges, face boundaries or the whole solid",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "selector": {
+        "meaning": "selector: Round sharp edges, shared face edges, face boundaries or the whole solid",
         "unit": "none",
         "range": [
           null,
@@ -27936,7 +29871,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:f5679a50265fde444dbee8061cfe791e71bdb06fec1a50d323d4e82294889495"
+  "docsHash": "sha256:aa1554d5250571ba112a3d9818648fe5d2569ef6bf95b399087389e9e1ffe6a8"
 }
 ```
 
@@ -29027,6 +30962,1217 @@ files.release: contextPolicy=none
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
   "docsHash": "sha256:755fe48185d0aa373da41e26110d651b317ccfb2455dce6e2e15eaedeb3b79fb"
+}
+```
+
+## 工具 guidedLoft · 导向放样 / Framed sections, boundary guides and actual G1/G2 source jets
+
+```json
+{
+  "id": "guidedLoft",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "sections",
+      "guides"
+    ],
+    "properties": {
+      "sections": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 32,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "frame",
+            "profile"
+          ],
+          "properties": {
+            "frame": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "centerMm",
+                "normal",
+                "widthDirection"
+              ],
+              "properties": {
+                "centerMm": {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "number",
+                    "unit": "mm",
+                    "quantityKind": "length",
+                    "quantizationPolicy": "none"
+                  },
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
+                },
+                "normal": {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "number",
+                    "unit": "1",
+                    "quantityKind": "direction",
+                    "quantizationPolicy": "none"
+                  },
+                  "unit": "1",
+                  "quantityKind": "direction",
+                  "quantizationPolicy": "none"
+                },
+                "widthDirection": {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "profile": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "kind",
+                    "widthMm",
+                    "depthMm"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "ellipse"
+                    },
+                    "widthMm": {
+                      "type": "number",
+                      "exclusiveMinimum": 0,
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    },
+                    "depthMm": {
+                      "type": "number",
+                      "exclusiveMinimum": 0,
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "kind",
+                    "edges"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "quad"
+                    },
+                    "edges": {
+                      "type": "array",
+                      "minItems": 4,
+                      "maxItems": 4,
+                      "items": {
+                        "type": "array",
+                        "minItems": 4,
+                        "maxItems": 4,
+                        "items": {
+                          "type": "array",
+                          "minItems": 2,
+                          "maxItems": 2,
+                          "items": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "guides": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 2,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "role",
+            "pointsMm"
+          ],
+          "properties": {
+            "role": {
+              "type": "string",
+              "enum": [
+                "dorsal",
+                "ventral",
+                "lateral"
+              ]
+            },
+            "pointsMm": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 32,
+              "items": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "startCondition": {
+        "type": "string",
+        "enum": [
+          "G0",
+          "G1",
+          "G2"
+        ]
+      },
+      "endCondition": {
+        "type": "string",
+        "enum": [
+          "G0",
+          "G1",
+          "G2"
+        ]
+      },
+      "matchTo": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "featureId",
+          "end"
+        ],
+        "properties": {
+          "featureId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "end": {
+            "type": "string",
+            "enum": [
+              "start",
+              "end"
+            ]
+          }
+        }
+      },
+      "matchToleranceMm": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "maximum": 0.5
+      },
+      "fitToleranceMm": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "maximum": 0.5
+      },
+      "guideToleranceMm": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "maximum": 0.5
+      }
+    },
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. matchTo.featureId must equal the sole refs entry and identify a preceding guidedLoft feature. matchTo.end is the SOURCE endpoint (start or end). The current target endpoint is inferred from the unique non-G0 startCondition/endCondition; two constrained ends are rejected. D1/D2 are read from the actual source B-spline terminal patch poles. Same-end pairing reverses D1 only. Use buildBoundGuidedLoft(feature, shapes, historyFeatures, cad) for frozen creation-frame and refs binding. Frozen creation frames are required; the previous segment stays unchanged. G0 creation uses no refs and no matchTo. Read guidedLoftReport for actual boundary error and endpoint jets.",
+  "title": "导向放样 / Framed sections, boundary guides and actual G1/G2 source jets",
+  "category": "surface",
+  "synonyms": [
+    "guidedLoft",
+    "导向放样",
+    "G2 source jets",
+    "guided Loft operation"
+  ],
+  "description": "导向放样 / Framed sections, boundary guides and actual G1/G2 source jets",
+  "schemaHash": "sha256:d8e43d8c52b2fe9c12095fed0bd0efc7a98e8c8dfd53012a18a2897c9c70e3dc",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": true,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "matchTo.featureId must equal the sole refs entry and identify a preceding guidedLoft feature. matchTo.end is the SOURCE endpoint (start or end). The current target endpoint is inferred from the unique non-G0 startCondition/endCondition; two constrained ends are rejected. D1/D2 are read from the actual source B-spline terminal patch poles. Same-end pairing reverses D1 only. Use buildBoundGuidedLoft(feature, shapes, historyFeatures, cad) for frozen creation-frame and refs binding. Frozen creation frames are required; the previous segment stays unchanged. G0 creation uses no refs and no matchTo. Read guidedLoftReport for actual boundary error and endpoint jets."
+  ],
+  "minimalExample": {
+    "op": "guidedLoft",
+    "params": {
+      "sections": [
+        {
+          "frame": {
+            "centerMm": [
+              0,
+              0,
+              0
+            ],
+            "normal": [
+              0,
+              0,
+              1
+            ],
+            "widthDirection": [
+              1,
+              0,
+              0
+            ]
+          },
+          "profile": {
+            "kind": "ellipse",
+            "widthMm": 4,
+            "depthMm": 2
+          }
+        },
+        {
+          "frame": {
+            "centerMm": [
+              0,
+              0,
+              10
+            ],
+            "normal": [
+              0,
+              0,
+              1
+            ],
+            "widthDirection": [
+              1,
+              0,
+              0
+            ]
+          },
+          "profile": {
+            "kind": "ellipse",
+            "widthMm": 3,
+            "depthMm": 1.5
+          }
+        }
+      ],
+      "guides": [
+        {
+          "role": "dorsal",
+          "pointsMm": [
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0.75,
+              10
+            ]
+          ]
+        },
+        {
+          "role": "ventral",
+          "pointsMm": [
+            [
+              0,
+              -1,
+              0
+            ],
+            [
+              0,
+              -0.75,
+              10
+            ]
+          ]
+        }
+      ],
+      "startCondition": "G0",
+      "endCondition": "G0",
+      "fitToleranceMm": 0.01
+    },
+    "refs": [],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "guidedLoft",
+    "params": {
+      "sections": [
+        {
+          "frame": {
+            "centerMm": [
+              0,
+              0,
+              0
+            ],
+            "normal": [
+              0,
+              0,
+              1
+            ],
+            "widthDirection": [
+              1,
+              0,
+              0
+            ]
+          },
+          "profile": {
+            "kind": "ellipse",
+            "widthMm": 4,
+            "depthMm": 2
+          }
+        },
+        {
+          "frame": {
+            "centerMm": [
+              0,
+              0,
+              10
+            ],
+            "normal": [
+              0,
+              0,
+              1
+            ],
+            "widthDirection": [
+              1,
+              0,
+              0
+            ]
+          },
+          "profile": {
+            "kind": "ellipse",
+            "widthMm": 3,
+            "depthMm": 1.5
+          }
+        }
+      ],
+      "guides": [
+        {
+          "role": "dorsal",
+          "pointsMm": [
+            [
+              0,
+              1,
+              0
+            ],
+            [
+              0,
+              0.75,
+              10
+            ]
+          ]
+        },
+        {
+          "role": "ventral",
+          "pointsMm": [
+            [
+              0,
+              -1,
+              0
+            ],
+            [
+              0,
+              -0.75,
+              10
+            ]
+          ]
+        }
+      ],
+      "startCondition": "G0",
+      "endCondition": "G0",
+      "fitToleranceMm": 0.01
+    },
+    "refs": [],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "sections": [
+          {
+            "frame": {
+              "centerMm": [
+                0,
+                0,
+                0
+              ],
+              "normal": [
+                0,
+                0,
+                1
+              ],
+              "widthDirection": [
+                1,
+                0,
+                0
+              ]
+            },
+            "profile": {
+              "kind": "ellipse",
+              "widthMm": 4,
+              "depthMm": 2
+            }
+          },
+          {
+            "frame": {
+              "centerMm": [
+                0,
+                0,
+                10
+              ],
+              "normal": [
+                0,
+                0,
+                1
+              ],
+              "widthDirection": [
+                1,
+                0,
+                0
+              ]
+            },
+            "profile": {
+              "kind": "ellipse",
+              "widthMm": 3,
+              "depthMm": 1.5
+            }
+          }
+        ],
+        "guides": [
+          {
+            "role": "dorsal",
+            "pointsMm": [
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0.75,
+                10
+              ]
+            ]
+          },
+          {
+            "role": "ventral",
+            "pointsMm": [
+              [
+                0,
+                -1,
+                0
+              ],
+              [
+                0,
+                -0.75,
+                10
+              ]
+            ]
+          }
+        ],
+        "startCondition": "G0",
+        "endCondition": "G0",
+        "fitToleranceMm": 0.01,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "导向放样 / Framed sections, boundary guides and actual G1/G2 source jets",
+    "whenToUse": [
+      "matchTo.featureId must equal the sole refs entry and identify a preceding guidedLoft feature. matchTo.end is the SOURCE endpoint (start or end). The current target endpoint is inferred from the unique non-G0 startCondition/endCondition; two constrained ends are rejected. D1/D2 are read from the actual source B-spline terminal patch poles. Same-end pairing reverses D1 only. Use buildBoundGuidedLoft(feature, shapes, historyFeatures, cad) for frozen creation-frame and refs binding. Frozen creation frames are required; the previous segment stays unchanged. G0 creation uses no refs and no matchTo. Read guidedLoftReport for actual boundary error and endpoint jets."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "sections": {
+        "meaning": "sections: 导向放样 / Framed sections, boundary guides and actual G1/G2 source jets",
+        "unit": "none",
+        "range": [
+          2,
+          32
+        ]
+      },
+      "guides": {
+        "meaning": "guides: 导向放样 / Framed sections, boundary guides and actual G1/G2 source jets",
+        "unit": "none",
+        "range": [
+          1,
+          2
+        ]
+      },
+      "startCondition": {
+        "meaning": "startCondition: 导向放样 / Framed sections, boundary guides and actual G1/G2 source jets",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "endCondition": {
+        "meaning": "endCondition: 导向放样 / Framed sections, boundary guides and actual G1/G2 source jets",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "matchTo": {
+        "meaning": "matchTo: 导向放样 / Framed sections, boundary guides and actual G1/G2 source jets",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "matchToleranceMm": {
+        "meaning": "matchToleranceMm: 导向放样 / Framed sections, boundary guides and actual G1/G2 source jets",
+        "unit": "mm",
+        "range": [
+          0,
+          0.5
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "fitToleranceMm": {
+        "meaning": "fitToleranceMm: 导向放样 / Framed sections, boundary guides and actual G1/G2 source jets",
+        "unit": "mm",
+        "range": [
+          0,
+          0.5
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "guideToleranceMm": {
+        "meaning": "guideToleranceMm: 导向放样 / Framed sections, boundary guides and actual G1/G2 source jets",
+        "unit": "mm",
+        "range": [
+          0,
+          0.5
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      }
+    },
+    "refs": {
+      "min": 0,
+      "max": 1,
+      "meaning": "独立创建，不引用已有实体"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": false,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "guidedLoft",
+        "params": {
+          "sections": [
+            {
+              "frame": {
+                "centerMm": [
+                  0,
+                  0,
+                  0
+                ],
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "widthDirection": [
+                  1,
+                  0,
+                  0
+                ]
+              },
+              "profile": {
+                "kind": "ellipse",
+                "widthMm": 4,
+                "depthMm": 2
+              }
+            },
+            {
+              "frame": {
+                "centerMm": [
+                  0,
+                  0,
+                  10
+                ],
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "widthDirection": [
+                  1,
+                  0,
+                  0
+                ]
+              },
+              "profile": {
+                "kind": "ellipse",
+                "widthMm": 3,
+                "depthMm": 1.5
+              }
+            }
+          ],
+          "guides": [
+            {
+              "role": "dorsal",
+              "pointsMm": [
+                [
+                  0,
+                  1,
+                  0
+                ],
+                [
+                  0,
+                  0.75,
+                  10
+                ]
+              ]
+            },
+            {
+              "role": "ventral",
+              "pointsMm": [
+                [
+                  0,
+                  -1,
+                  0
+                ],
+                [
+                  0,
+                  -0.75,
+                  10
+                ]
+              ]
+            }
+          ],
+          "startCondition": "G0",
+          "endCondition": "G0",
+          "fitToleranceMm": 0.01
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "guidedLoft",
+        "params": {
+          "sections": [
+            {
+              "frame": {
+                "centerMm": [
+                  0,
+                  0,
+                  0
+                ],
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "widthDirection": [
+                  1,
+                  0,
+                  0
+                ]
+              },
+              "profile": {
+                "kind": "ellipse",
+                "widthMm": 4,
+                "depthMm": 2
+              }
+            },
+            {
+              "frame": {
+                "centerMm": [
+                  0,
+                  0,
+                  10
+                ],
+                "normal": [
+                  0,
+                  0,
+                  1
+                ],
+                "widthDirection": [
+                  1,
+                  0,
+                  0
+                ]
+              },
+              "profile": {
+                "kind": "ellipse",
+                "widthMm": 3,
+                "depthMm": 1.5
+              }
+            }
+          ],
+          "guides": [
+            {
+              "role": "dorsal",
+              "pointsMm": [
+                [
+                  0,
+                  1,
+                  0
+                ],
+                [
+                  0,
+                  0.75,
+                  10
+                ]
+              ]
+            },
+            {
+              "role": "ventral",
+              "pointsMm": [
+                [
+                  0,
+                  -1,
+                  0
+                ],
+                [
+                  0,
+                  -0.75,
+                  10
+                ]
+              ]
+            }
+          ],
+          "startCondition": "G0",
+          "endCondition": "G0",
+          "fitToleranceMm": 0.01
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "sections": [
+              {
+                "frame": {
+                  "centerMm": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "normal": [
+                    0,
+                    0,
+                    1
+                  ],
+                  "widthDirection": [
+                    1,
+                    0,
+                    0
+                  ]
+                },
+                "profile": {
+                  "kind": "ellipse",
+                  "widthMm": 4,
+                  "depthMm": 2
+                }
+              },
+              {
+                "frame": {
+                  "centerMm": [
+                    0,
+                    0,
+                    10
+                  ],
+                  "normal": [
+                    0,
+                    0,
+                    1
+                  ],
+                  "widthDirection": [
+                    1,
+                    0,
+                    0
+                  ]
+                },
+                "profile": {
+                  "kind": "ellipse",
+                  "widthMm": 3,
+                  "depthMm": 1.5
+                }
+              }
+            ],
+            "guides": [
+              {
+                "role": "dorsal",
+                "pointsMm": [
+                  [
+                    0,
+                    1,
+                    0
+                  ],
+                  [
+                    0,
+                    0.75,
+                    10
+                  ]
+                ]
+              },
+              {
+                "role": "ventral",
+                "pointsMm": [
+                  [
+                    0,
+                    -1,
+                    0
+                  ],
+                  [
+                    0,
+                    -0.75,
+                    10
+                  ]
+                ]
+              }
+            ],
+            "startCondition": "G0",
+            "endCondition": "G0",
+            "fitToleranceMm": 0.01,
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "sketchProfile",
+      "profileExtrude",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "guidedLoft",
+      "导向放样",
+      "G2 source jets",
+      "guided Loft operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "导向放样 / Framed sections, boundary guides and actual G1/G2 source jets",
+  "whenToUse": [
+    "matchTo.featureId must equal the sole refs entry and identify a preceding guidedLoft feature. matchTo.end is the SOURCE endpoint (start or end). The current target endpoint is inferred from the unique non-G0 startCondition/endCondition; two constrained ends are rejected. D1/D2 are read from the actual source B-spline terminal patch poles. Same-end pairing reverses D1 only. Use buildBoundGuidedLoft(feature, shapes, historyFeatures, cad) for frozen creation-frame and refs binding. Frozen creation frames are required; the previous segment stays unchanged. G0 creation uses no refs and no matchTo. Read guidedLoftReport for actual boundary error and endpoint jets."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "label": "导向放样",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:52e89a503991575f88626618aa9ff98ee237a90d10e1166365105792112f7cee"
 }
 ```
 
@@ -38661,6 +41807,62 @@ files.release: contextPolicy=none
         "type": "boolean",
         "description": "Preserve original as a mirror copy; default false",
         "default": false
+      },
+      "variation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "seed"
+        ],
+        "properties": {
+          "seed": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "translateMm": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": 0
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "World coordinate [x,y,z] in mm"
+          },
+          "rotateDeg": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": 0
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "World coordinate [x,y,z] in mm"
+          },
+          "scale": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "unit": "1",
+              "quantityKind": "scalar",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 2,
+            "maxItems": 2,
+            "unit": "1",
+            "quantityKind": "scalar",
+            "quantizationPolicy": "none"
+          }
+        }
+      },
+      "linkedOverrides": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "number"
+        },
+        "description": "At most 100 numeric source-recipe overrides by existing parameter path; source dependencies remain linked."
       }
     },
     "required": [],
@@ -38700,7 +41902,7 @@ files.release: contextPolicy=none
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults plane=XY, offsetMm=0, keepOriginal=false. The mirror replaces its input by default; explicitly set keepOriginal=true to create a mirror copy. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults plane=XY, offsetMm=0, keepOriginal=false. The mirror replaces its input by default; explicitly set keepOriginal=true to create a mirror copy. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates. variation uses a deterministic seed, signed translation/rotation bounds and a positive scale interval; variationReport records actual values. linkedOverrides re-evaluates the current source recipe with numeric path overrides; no topology IDs are cached.",
   "title": "Mirror across a coordinate plane at an explicit offset",
   "category": "organization",
   "synonyms": [
@@ -38710,7 +41912,7 @@ files.release: contextPolicy=none
     "镜像"
   ],
   "description": "Mirror across a coordinate plane at an explicit offset",
-  "schemaHash": "sha256:9ab8be88aea3ce216586b63770528145e62d72fe9fc0036ab14a9620c6048f05",
+  "schemaHash": "sha256:40a2a4601fe628b39a107cc95ee65072d518912ad6279a1148bbfb41d3eb6aa8",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -38771,7 +41973,7 @@ files.release: contextPolicy=none
     }
   ],
   "knownUnsupportedCases": [
-    "Defaults plane=XY, offsetMm=0, keepOriginal=false. The mirror replaces its input by default; explicitly set keepOriginal=true to create a mirror copy. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates."
+    "Defaults plane=XY, offsetMm=0, keepOriginal=false. The mirror replaces its input by default; explicitly set keepOriginal=true to create a mirror copy. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates. variation uses a deterministic seed, signed translation/rotation bounds and a positive scale interval; variationReport records actual values. linkedOverrides re-evaluates the current source recipe with numeric path overrides; no topology IDs are cached."
   ],
   "minimalExample": {
     "op": "mirror",
@@ -38838,7 +42040,7 @@ files.release: contextPolicy=none
   "contract": {
     "purpose": "Mirror across a coordinate plane at an explicit offset",
     "whenToUse": [
-      "Defaults plane=XY, offsetMm=0, keepOriginal=false. The mirror replaces its input by default; explicitly set keepOriginal=true to create a mirror copy. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates."
+      "Defaults plane=XY, offsetMm=0, keepOriginal=false. The mirror replaces its input by default; explicitly set keepOriginal=true to create a mirror copy. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates. variation uses a deterministic seed, signed translation/rotation bounds and a positive scale interval; variationReport records actual values. linkedOverrides re-evaluates the current source recipe with numeric path overrides; no topology IDs are cached."
     ],
     "whenNotToUse": [
       {
@@ -38873,6 +42075,28 @@ files.release: contextPolicy=none
           null
         ],
         "default": false
+      },
+      "variation": {
+        "meaning": "variation: Mirror across a coordinate plane at an explicit offset",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "linkedOverrides": {
+        "meaning": "At most 100 numeric source-recipe overrides by existing parameter path; source dependencies remain linked.",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
       }
     },
     "refs": {
@@ -39010,7 +42234,7 @@ files.release: contextPolicy=none
   },
   "purpose": "Mirror across a coordinate plane at an explicit offset",
   "whenToUse": [
-    "Defaults plane=XY, offsetMm=0, keepOriginal=false. The mirror replaces its input by default; explicitly set keepOriginal=true to create a mirror copy. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates."
+    "Defaults plane=XY, offsetMm=0, keepOriginal=false. The mirror replaces its input by default; explicitly set keepOriginal=true to create a mirror copy. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates. variation uses a deterministic seed, signed translation/rotation bounds and a positive scale interval; variationReport records actual values. linkedOverrides re-evaluates the current source recipe with numeric path overrides; no topology IDs are cached."
   ],
   "whenNotToUse": [
     {
@@ -39101,7 +42325,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:4f8c77f427f74e7118735081d8fcd9c89a6f5f6768b685101d4a65ca01251e0d"
+  "docsHash": "sha256:42921d2b512f6e080a1116f3460710f0b56c4dd792df7c84e624bba57a3698cd"
 }
 ```
 
@@ -68073,9 +71297,49 @@ files.release: contextPolicy=none
     "type": "object",
     "properties": {
       "radius": {
-        "type": "number",
-        "description": "Exact transition radius; no automatic reduction (mm)",
-        "exclusiveMinimum": 0,
+        "oneOf": [
+          {
+            "type": "number",
+            "description": "Exact radius in mm (mm)",
+            "exclusiveMinimum": 0,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "maxMm",
+              "minMm"
+            ],
+            "properties": {
+              "maxMm": {
+                "type": "number",
+                "description": "Maximum sampled radius (mm)",
+                "exclusiveMinimum": 0
+              },
+              "minMm": {
+                "type": "number",
+                "description": "Minimum radius (mm)",
+                "exclusiveMinimum": 0
+              },
+              "stepRatio": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "exclusiveMaximum": 1
+              },
+              "maxAttempts": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 6
+              }
+            },
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          }
+        ],
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -68096,13 +71360,167 @@ files.release: contextPolicy=none
         "unit": "1",
         "quantityKind": "index",
         "quantizationPolicy": "none"
+      },
+      "selector": {
+        "type": "object",
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "faceIds"
+            ]
+          },
+          {
+            "required": [
+              "edgeIds"
+            ]
+          },
+          {
+            "required": [
+              "allEdges"
+            ]
+          },
+          {
+            "required": [
+              "seamBetween"
+            ]
+          },
+          {
+            "required": [
+              "edgesNear"
+            ]
+          },
+          {
+            "required": [
+              "facesFromFeature"
+            ]
+          }
+        ],
+        "properties": {
+          "faceIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 1,
+            "maxItems": 128,
+            "uniqueItems": true,
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          },
+          "edgeIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 1,
+            "maxItems": 128,
+            "uniqueItems": true,
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          },
+          "allEdges": {
+            "const": true
+          },
+          "seamBetween": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "a",
+              "b"
+            ],
+            "properties": {
+              "a": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              },
+              "b": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              }
+            }
+          },
+          "edgesNear": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pointMm",
+              "radiusMm"
+            ],
+            "properties": {
+              "pointMm": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "radiusMm": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "sharpOnly": {
+                "type": "boolean"
+              }
+            }
+          },
+          "facesFromFeature": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "featureId"
+            ],
+            "properties": {
+              "featureId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "all",
+                  "side",
+                  "cap"
+                ]
+              }
+            }
+          }
+        }
       }
     },
     "required": [
-      "radius",
-      "faceIds"
+      "radius"
     ],
     "additionalProperties": false,
+    "anyOf": [
+      {
+        "required": [
+          "faceIds"
+        ]
+      },
+      {
+        "required": [
+          "selector"
+        ]
+      }
+    ],
     "$schema": "https://json-schema.org/draft/2020-12/schema"
   },
   "refsSchema": {
@@ -68144,7 +71562,7 @@ files.release: contextPolicy=none
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs.",
   "title": "平滑过渡 / Smooth shared seams of adjacent faces together",
   "category": "modification",
   "synonyms": [
@@ -68157,7 +71575,7 @@ files.release: contextPolicy=none
     "blend"
   ],
   "description": "平滑过渡 / Smooth shared seams of adjacent faces together",
-  "schemaHash": "sha256:77bedf1c5f47ad01ecca444ca42c116ffdad959e18c64e185f6acd1f7c4ec1aa",
+  "schemaHash": "sha256:fb0d51e2449fc358f6995d9b0ff1186b058205fcef766c048b62ba6f18276dbe",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -68219,7 +71637,7 @@ files.release: contextPolicy=none
     }
   ],
   "knownUnsupportedCases": [
-    "Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction."
+    "Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs."
   ],
   "minimalExample": {
     "op": "smoothTransition",
@@ -68301,7 +71719,7 @@ files.release: contextPolicy=none
   "contract": {
     "purpose": "平滑过渡 / Smooth shared seams of adjacent faces together",
     "whenToUse": [
-      "Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction."
+      "Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs."
     ],
     "whenNotToUse": [
       {
@@ -68311,10 +71729,10 @@ files.release: contextPolicy=none
     ],
     "params": {
       "radius": {
-        "meaning": "Exact transition radius; no automatic reduction (mm)",
+        "meaning": "radius: 平滑过渡 / Smooth shared seams of adjacent faces together",
         "unit": "mm",
         "range": [
-          0,
+          null,
           null
         ]
       },
@@ -68324,7 +71742,21 @@ files.release: contextPolicy=none
         "range": [
           2,
           128
-        ]
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "selector": {
+        "meaning": "selector: 平滑过渡 / Smooth shared seams of adjacent faces together",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
       }
     },
     "refs": {
@@ -68489,7 +71921,7 @@ files.release: contextPolicy=none
   },
   "purpose": "平滑过渡 / Smooth shared seams of adjacent faces together",
   "whenToUse": [
-    "Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction."
+    "Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs."
   ],
   "whenNotToUse": [
     {
@@ -68596,7 +72028,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:bfd6e7eae5f0cc138fe2a26ba6c356a68dc16cfea4c69ff25208a70d05817a7b"
+  "docsHash": "sha256:db0b0d03910bb7a78fe67f157a0339af7e930cbc6560ae1a672df5132589d9bc"
 }
 ```
 
@@ -69484,6 +72916,1147 @@ files.release: contextPolicy=none
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
   "docsHash": "sha256:db6bdb5025aac1fd356efd7ccf8e5586522cbe5f491c8060cc39f74bd511f93a"
+}
+```
+
+## 工具 subdBody · 细分曲面体 / Catmull–Clark cage to sewn B-spline solid
+
+```json
+{
+  "id": "subdBody",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "cage"
+    ],
+    "properties": {
+      "cage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "vertices",
+          "faces"
+        ],
+        "properties": {
+          "vertices": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "minItems": 4,
+            "maxItems": 256
+          },
+          "faces": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 64,
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 255
+              },
+              "minItems": 4,
+              "maxItems": 4
+            }
+          },
+          "creases": {
+            "type": "array",
+            "maxItems": 256,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "edge",
+                "sharpness"
+              ],
+              "properties": {
+                "edge": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
+                  }
+                },
+                "sharpness": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "brushes": {
+        "type": "array",
+        "maxItems": 64,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "centerMm",
+            "radiusMm",
+            "strength"
+          ],
+          "properties": {
+            "centerMm": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "minItems": 3,
+              "maxItems": 3,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            "radiusMm": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            "strength": {
+              "type": "number"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "push",
+                "smooth",
+                "inflate"
+              ]
+            },
+            "falloff": {
+              "type": "string",
+              "enum": [
+                "smooth",
+                "linear"
+              ]
+            }
+          }
+        }
+      },
+      "sampleDepth": {
+        "type": "integer",
+        "minimum": 3,
+        "maximum": 6
+      },
+      "fitGrid": {
+        "type": "integer",
+        "minimum": 5,
+        "maximum": 17
+      },
+      "referenceGrid": {
+        "type": "integer",
+        "minimum": 4,
+        "maximum": 64
+      },
+      "fittingTolerance": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "maximum": 0.5
+      },
+      "sewingTolerance": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "maximum": 0.5
+      }
+    },
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Replays the original closed oriented quad cage and optional spatial brushes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. Refined-face budget 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee.",
+  "title": "细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+  "category": "surface",
+  "synonyms": [
+    "subdBody",
+    "细分曲面体",
+    "Catmull–Clark cage to sewn B-spline solid",
+    "subd Body operation"
+  ],
+  "description": "细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+  "schemaHash": "sha256:925533e54a15245c129b5e76b03d054cfde8a465547fb80f3dd2612c49dc816d",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "Replays the original closed oriented quad cage and optional spatial brushes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. Refined-face budget 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee."
+  ],
+  "minimalExample": {
+    "op": "subdBody",
+    "params": {
+      "cage": {
+        "vertices": [
+          [
+            -10,
+            -10,
+            -10
+          ],
+          [
+            10,
+            -10,
+            -10
+          ],
+          [
+            10,
+            10,
+            -10
+          ],
+          [
+            -10,
+            10,
+            -10
+          ],
+          [
+            -10,
+            -10,
+            10
+          ],
+          [
+            10,
+            -10,
+            10
+          ],
+          [
+            10,
+            10,
+            10
+          ],
+          [
+            -10,
+            10,
+            10
+          ]
+        ],
+        "faces": [
+          [
+            0,
+            3,
+            2,
+            1
+          ],
+          [
+            4,
+            5,
+            6,
+            7
+          ],
+          [
+            0,
+            1,
+            5,
+            4
+          ],
+          [
+            1,
+            2,
+            6,
+            5
+          ],
+          [
+            2,
+            3,
+            7,
+            6
+          ],
+          [
+            3,
+            0,
+            4,
+            7
+          ]
+        ]
+      },
+      "sampleDepth": 4,
+      "fitGrid": 9,
+      "fittingTolerance": 0.03,
+      "sewingTolerance": 0.05
+    },
+    "refs": [],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "subdBody",
+    "params": {
+      "cage": {
+        "vertices": [
+          [
+            -10,
+            -10,
+            -10
+          ],
+          [
+            10,
+            -10,
+            -10
+          ],
+          [
+            10,
+            10,
+            -10
+          ],
+          [
+            -10,
+            10,
+            -10
+          ],
+          [
+            -10,
+            -10,
+            10
+          ],
+          [
+            10,
+            -10,
+            10
+          ],
+          [
+            10,
+            10,
+            10
+          ],
+          [
+            -10,
+            10,
+            10
+          ]
+        ],
+        "faces": [
+          [
+            0,
+            3,
+            2,
+            1
+          ],
+          [
+            4,
+            5,
+            6,
+            7
+          ],
+          [
+            0,
+            1,
+            5,
+            4
+          ],
+          [
+            1,
+            2,
+            6,
+            5
+          ],
+          [
+            2,
+            3,
+            7,
+            6
+          ],
+          [
+            3,
+            0,
+            4,
+            7
+          ]
+        ]
+      },
+      "sampleDepth": 4,
+      "fitGrid": 9,
+      "fittingTolerance": 0.03,
+      "sewingTolerance": 0.05
+    },
+    "refs": [],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "cage": {
+          "vertices": [
+            [
+              -10,
+              -10,
+              -10
+            ],
+            [
+              10,
+              -10,
+              -10
+            ],
+            [
+              10,
+              10,
+              -10
+            ],
+            [
+              -10,
+              10,
+              -10
+            ],
+            [
+              -10,
+              -10,
+              10
+            ],
+            [
+              10,
+              -10,
+              10
+            ],
+            [
+              10,
+              10,
+              10
+            ],
+            [
+              -10,
+              10,
+              10
+            ]
+          ],
+          "faces": [
+            [
+              0,
+              3,
+              2,
+              1
+            ],
+            [
+              4,
+              5,
+              6,
+              7
+            ],
+            [
+              0,
+              1,
+              5,
+              4
+            ],
+            [
+              1,
+              2,
+              6,
+              5
+            ],
+            [
+              2,
+              3,
+              7,
+              6
+            ],
+            [
+              3,
+              0,
+              4,
+              7
+            ]
+          ]
+        },
+        "sampleDepth": 4,
+        "fitGrid": 9,
+        "fittingTolerance": 0.03,
+        "sewingTolerance": 0.05,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+    "whenToUse": [
+      "Replays the original closed oriented quad cage and optional spatial brushes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. Refined-face budget 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "cage": {
+        "meaning": "cage: 细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "brushes": {
+        "meaning": "brushes: 细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+        "unit": "none",
+        "range": [
+          null,
+          64
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "sampleDepth": {
+        "meaning": "sampleDepth: 细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+        "unit": "none",
+        "range": [
+          3,
+          6
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "fitGrid": {
+        "meaning": "fitGrid: 细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+        "unit": "none",
+        "range": [
+          5,
+          17
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "referenceGrid": {
+        "meaning": "referenceGrid: 细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+        "unit": "none",
+        "range": [
+          4,
+          64
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "fittingTolerance": {
+        "meaning": "fittingTolerance: 细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+        "unit": "dimensionless",
+        "range": [
+          0,
+          0.5
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "sewingTolerance": {
+        "meaning": "sewingTolerance: 细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+        "unit": "dimensionless",
+        "range": [
+          0,
+          0.5
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      }
+    },
+    "refs": {
+      "min": 0,
+      "max": 0,
+      "meaning": "独立创建，不引用已有实体"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": false,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "subdBody",
+        "params": {
+          "cage": {
+            "vertices": [
+              [
+                -10,
+                -10,
+                -10
+              ],
+              [
+                10,
+                -10,
+                -10
+              ],
+              [
+                10,
+                10,
+                -10
+              ],
+              [
+                -10,
+                10,
+                -10
+              ],
+              [
+                -10,
+                -10,
+                10
+              ],
+              [
+                10,
+                -10,
+                10
+              ],
+              [
+                10,
+                10,
+                10
+              ],
+              [
+                -10,
+                10,
+                10
+              ]
+            ],
+            "faces": [
+              [
+                0,
+                3,
+                2,
+                1
+              ],
+              [
+                4,
+                5,
+                6,
+                7
+              ],
+              [
+                0,
+                1,
+                5,
+                4
+              ],
+              [
+                1,
+                2,
+                6,
+                5
+              ],
+              [
+                2,
+                3,
+                7,
+                6
+              ],
+              [
+                3,
+                0,
+                4,
+                7
+              ]
+            ]
+          },
+          "sampleDepth": 4,
+          "fitGrid": 9,
+          "fittingTolerance": 0.03,
+          "sewingTolerance": 0.05
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "subdBody",
+        "params": {
+          "cage": {
+            "vertices": [
+              [
+                -10,
+                -10,
+                -10
+              ],
+              [
+                10,
+                -10,
+                -10
+              ],
+              [
+                10,
+                10,
+                -10
+              ],
+              [
+                -10,
+                10,
+                -10
+              ],
+              [
+                -10,
+                -10,
+                10
+              ],
+              [
+                10,
+                -10,
+                10
+              ],
+              [
+                10,
+                10,
+                10
+              ],
+              [
+                -10,
+                10,
+                10
+              ]
+            ],
+            "faces": [
+              [
+                0,
+                3,
+                2,
+                1
+              ],
+              [
+                4,
+                5,
+                6,
+                7
+              ],
+              [
+                0,
+                1,
+                5,
+                4
+              ],
+              [
+                1,
+                2,
+                6,
+                5
+              ],
+              [
+                2,
+                3,
+                7,
+                6
+              ],
+              [
+                3,
+                0,
+                4,
+                7
+              ]
+            ]
+          },
+          "sampleDepth": 4,
+          "fitGrid": 9,
+          "fittingTolerance": 0.03,
+          "sewingTolerance": 0.05
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "cage": {
+              "vertices": [
+                [
+                  -10,
+                  -10,
+                  -10
+                ],
+                [
+                  10,
+                  -10,
+                  -10
+                ],
+                [
+                  10,
+                  10,
+                  -10
+                ],
+                [
+                  -10,
+                  10,
+                  -10
+                ],
+                [
+                  -10,
+                  -10,
+                  10
+                ],
+                [
+                  10,
+                  -10,
+                  10
+                ],
+                [
+                  10,
+                  10,
+                  10
+                ],
+                [
+                  -10,
+                  10,
+                  10
+                ]
+              ],
+              "faces": [
+                [
+                  0,
+                  3,
+                  2,
+                  1
+                ],
+                [
+                  4,
+                  5,
+                  6,
+                  7
+                ],
+                [
+                  0,
+                  1,
+                  5,
+                  4
+                ],
+                [
+                  1,
+                  2,
+                  6,
+                  5
+                ],
+                [
+                  2,
+                  3,
+                  7,
+                  6
+                ],
+                [
+                  3,
+                  0,
+                  4,
+                  7
+                ]
+              ]
+            },
+            "sampleDepth": 4,
+            "fitGrid": 9,
+            "fittingTolerance": 0.03,
+            "sewingTolerance": 0.05,
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "sketchProfile",
+      "profileExtrude",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "subdBody",
+      "细分曲面体",
+      "Catmull–Clark cage to sewn B-spline solid",
+      "subd Body operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+  "whenToUse": [
+    "Replays the original closed oriented quad cage and optional spatial brushes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. Refined-face budget 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "label": "细分曲面体",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:1299c712b62082a424054df2915f08abd7d8d7823e37b1c4fed22bf05eb2ebbf"
 }
 ```
 
@@ -73639,6 +78212,53 @@ files.release: contextPolicy=none
       "keepTools": {
         "type": "boolean",
         "description": "Keep original tools"
+      },
+      "fuzzyMm": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 0.1,
+        "description": "Explicit Boolean fuzzy tolerance in mm; default 0, never raised automatically."
+      },
+      "glue": {
+        "type": "string",
+        "enum": [
+          "off",
+          "shift",
+          "full"
+        ],
+        "description": "Explicit OCCT glue mode; default off."
+      },
+      "blendRadiusMm": {
+        "type": "number",
+        "description": "Requested seam radius (mm)",
+        "exclusiveMinimum": 0
+      },
+      "blendMode": {
+        "type": "string",
+        "enum": [
+          "fillet",
+          "variable"
+        ]
+      },
+      "blendLaw": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "startRadiusMm",
+          "endRadiusMm"
+        ],
+        "properties": {
+          "startRadiusMm": {
+            "type": "number",
+            "description": "Edge start radius (mm)",
+            "exclusiveMinimum": 0
+          },
+          "endRadiusMm": {
+            "type": "number",
+            "description": "Edge end radius (mm)",
+            "exclusiveMinimum": 0
+          }
+        }
       }
     },
     "required": [],
@@ -73673,7 +78293,7 @@ files.release: contextPolicy=none
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Uses one non-destructive multi-argument fuse, validates BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers.",
   "title": "Fuse bodies",
   "category": "modification",
   "synonyms": [
@@ -73687,7 +78307,7 @@ files.release: contextPolicy=none
     "boolean union"
   ],
   "description": "Fuse bodies",
-  "schemaHash": "sha256:5143c4245959c18326b2db7990b2e05707f9f05a251cb7a94853743eb39c33b5",
+  "schemaHash": "sha256:964d5a7a3965daf668e418984d1017ac991e9093dc74b97c52ef2ac9d3c9bd35",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -73748,7 +78368,7 @@ files.release: contextPolicy=none
     }
   ],
   "knownUnsupportedCases": [
-    "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range."
+    "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Uses one non-destructive multi-argument fuse, validates BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers."
   ],
   "minimalExample": {
     "op": "union",
@@ -73812,7 +78432,7 @@ files.release: contextPolicy=none
   "contract": {
     "purpose": "Fuse bodies",
     "whenToUse": [
-      "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range."
+      "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Uses one non-destructive multi-argument fuse, validates BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers."
     ],
     "whenNotToUse": [
       {
@@ -73823,6 +78443,61 @@ files.release: contextPolicy=none
     "params": {
       "keepTools": {
         "meaning": "Keep original tools",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "fuzzyMm": {
+        "meaning": "Explicit Boolean fuzzy tolerance in mm; default 0, never raised automatically.",
+        "unit": "mm",
+        "range": [
+          0,
+          0.1
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "glue": {
+        "meaning": "Explicit OCCT glue mode; default off.",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendRadiusMm": {
+        "meaning": "Requested seam radius (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendMode": {
+        "meaning": "blendMode: Fuse bodies",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendLaw": {
+        "meaning": "blendLaw: Fuse bodies",
         "unit": "none",
         "range": [
           null,
@@ -73963,7 +78638,7 @@ files.release: contextPolicy=none
   },
   "purpose": "Fuse bodies",
   "whenToUse": [
-    "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range."
+    "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Uses one non-destructive multi-argument fuse, validates BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers."
   ],
   "whenNotToUse": [
     {
@@ -74055,7 +78730,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:79d092d1b431f03efa8928fb5a4567c3ba7e8e36d156c5677b6dfacb8f48e601"
+  "docsHash": "sha256:c17f914ca99efe8549740bb32784fd9be90ebc54c208cb61cd1386870c12795a"
 }
 ```
 
@@ -104760,6 +109435,215 @@ files.release: contextPolicy=none
 }
 ```
 
+## 工具 probeBlendRadius · probeBlendRadius
+
+```json
+{
+  "id": "probeBlendRadius",
+  "title": "probeBlendRadius",
+  "category": "page-method",
+  "version": "1.52.1",
+  "contextPolicy": "identity",
+  "description": "probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?:0.75,maxAttempts?:6})；selector同语义圆角工具卡。",
+  "synonyms": [
+    "probeBlendRadius",
+    "圆角",
+    "半径",
+    "可行区间",
+    "只读",
+    "探测",
+    "语义",
+    "接缝"
+  ],
+  "inputContract": "probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?:0.75,maxAttempts?:6})；selector同语义圆角工具卡。",
+  "outputContract": "status=read；feasibility=feasible|infeasible，feasibleMaxMm、limitingEdgeIds、tried、elapsedMs、readOnly；无几何提交、无历史变动。仅有界离散采样，不是数学全局最大半径。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docs": "api.blend-radius",
+  "relatedTools": [
+    "smoothTransition",
+    "fillet",
+    "queryGeometry"
+  ],
+  "units": {
+    "length": "mm"
+  },
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "context",
+      "bodyId",
+      "selector",
+      "maxMm",
+      "minMm"
+    ],
+    "properties": {
+      "context": {
+        "type": "object"
+      },
+      "bodyId": {
+        "type": "string"
+      },
+      "selector": {
+        "type": "object",
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "faceIds"
+            ]
+          },
+          {
+            "required": [
+              "edgeIds"
+            ]
+          },
+          {
+            "required": [
+              "allEdges"
+            ]
+          },
+          {
+            "required": [
+              "seamBetween"
+            ]
+          },
+          {
+            "required": [
+              "edgesNear"
+            ]
+          },
+          {
+            "required": [
+              "facesFromFeature"
+            ]
+          }
+        ],
+        "properties": {
+          "faceIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minItems": 1,
+            "maxItems": 128,
+            "uniqueItems": true
+          },
+          "edgeIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minItems": 1,
+            "maxItems": 128,
+            "uniqueItems": true
+          },
+          "allEdges": {
+            "const": true
+          },
+          "seamBetween": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "a",
+              "b"
+            ],
+            "properties": {
+              "a": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              },
+              "b": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              }
+            }
+          },
+          "edgesNear": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pointMm",
+              "radiusMm"
+            ],
+            "properties": {
+              "pointMm": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "radiusMm": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "sharpOnly": {
+                "type": "boolean"
+              }
+            }
+          },
+          "facesFromFeature": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "featureId"
+            ],
+            "properties": {
+              "featureId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "all",
+                  "side",
+                  "cap"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "maxMm": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "minMm": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "stepRatio": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "exclusiveMaximum": 1
+      },
+      "maxAttempts": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 6
+      }
+    }
+  },
+  "executionPolicy": {
+    "readOnly": true,
+    "maxAttempts": 6,
+    "source": "independent-current-brep"
+  },
+  "docsHash": "sha256:3ac968624937e2ee48a13476551efbf0e0ce88c8c5aa48de1ff2e9b13c03c210"
+}
+```
+
 ## 工具 recoverKernel · recoverKernel
 
 ```json
@@ -106130,7 +111014,7 @@ files.release: contextPolicy=none
     "鼠标手柄"
   ],
   "inputContract": "getState({sessionId?,include?,compact?,fields?,sinceRevision?}={}); include 可选 summary/features/bodies/selection/capabilities/references。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。",
-  "outputContract": "当前 context、referenceSystem、parameters、parameterValues、view 和 display；view.transform 为 {mode,bodyIds,attached,canDrag,blocker}，读回移动/旋转手柄与当前不可拖原因。不会默认返回导入源字节。",
+  "outputContract": "当前 context、referenceSystem、parameters、parameterValues、view 和 display；kernelPerformance 返回最近成功重建的 totalMs、perFeatureMs、slowest 前10项、compiledReuse 和 compiledInvalidated。view.transform 为 {mode,bodyIds,attached,canDrag,blocker}，读回移动/旋转手柄与当前不可拖原因。不会默认返回导入源字节。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -106139,7 +111023,7 @@ files.release: contextPolicy=none
     "PARAM_SCHEMA_INVALID",
     "INSTANCE_MISMATCH"
   ],
-  "docsHash": "sha256:bcf2c23781b4329fafa458381983d8e91897068776504519b401f41e2a92ff15"
+  "docsHash": "sha256:84189927c3b9c098af6cd739f54073f57e6a1e6565e68f5267fb5e8d64877ee4"
 }
 ```
 
@@ -108324,7 +113208,10 @@ files.release: contextPolicy=none
     "matt-24k-gold",
     "matt-gunmetal",
     "antique-brass",
-    "antique-silver"
+    "antique-silver",
+    "rose-gold",
+    "silver-925",
+    "white-gold-18k"
   ],
   "minimalExample": {
     "action": "body.appearance",
@@ -108338,7 +113225,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:f0c3abb5a7c2e67c518ed85620ecf3a8cc9436420eb48942ad2f3ec45ad04784"
+  "docsHash": "sha256:de55a14dcfe33bd56a42d10556823deed0a567ab4f1980513c1169facac9e924"
 }
 ```
 
@@ -108392,7 +113279,10 @@ files.release: contextPolicy=none
     "matt-24k-gold",
     "matt-gunmetal",
     "antique-brass",
-    "antique-silver"
+    "antique-silver",
+    "rose-gold",
+    "silver-925",
+    "white-gold-18k"
   ],
   "minimalExample": {
     "action": "document.appearance",
@@ -108402,7 +113292,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:3ab5a902602aa38f546e1a09e67e1366bcff04fdedc83e1ac3c73aead865a13c"
+  "docsHash": "sha256:177b82f6887f5cc08ed3db51b3e7b3cc755024b196fa34e14790e9a912d0ab1f"
 }
 ```
 
@@ -110023,6 +114913,70 @@ files.release: contextPolicy=none
     "FORMAT_UNSUPPORTED"
   ],
   "docsHash": "sha256:28a1192f0a57d112ec89e1d049000e04f6cd3d5be0d5457eaca6dc2b595cf3b1"
+}
+```
+
+## 工具 files.reattach · files.reattach
+
+```json
+{
+  "id": "files.reattach",
+  "title": "files.reattach",
+  "category": "file",
+  "version": "1.52.1",
+  "contextPolicy": "none",
+  "label": "reattach",
+  "synonyms": [
+    "reattach",
+    "reattach"
+  ],
+  "description": "reattach({context,resourceId}); 使用尚未过期的已生成资源，重新附加到当前任务。",
+  "inputContract": "reattach({context,resourceId}); 使用尚未过期的已生成资源，重新附加到当前任务。",
+  "outputContract": "status=generated，返回原文件名、字节数和SHA256；宿主重新传输原字节，不重建几何、不覆盖原命令终态。RESOURCE_EXPIRED须重新生成。",
+  "units": {
+    "length": "mm",
+    "angle": "degrees"
+  },
+  "implementationStatus": "page-adapter",
+  "contractStatus": "browser-file-adapter",
+  "runtimeAvailability": "requires_ready_page",
+  "argumentKeys": [
+    "context",
+    "resourceId"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.reattach\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
+  "limits": {
+    "maxBytes": 104857600,
+    "maxResources": 32,
+    "maxTotalBytes": 536870912,
+    "ttlSeconds": 1800
+  },
+  "typedByteBudgets": {
+    "step": 134217728,
+    "stp": 134217728,
+    "brep": 134217728,
+    "brp": 134217728,
+    "stl": 134217728,
+    "mesh": 402653184,
+    "webcad": 536870912
+  },
+  "additionalDocs": [
+    "api.exact-source-assets",
+    "api.mesh-assets"
+  ],
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "caveats": [],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "RESOURCE_EXPIRED",
+    "ASSET_INVALID"
+  ],
+  "docsHash": "sha256:c663ca9d28cdd1c64b40c03c5a5c161dcdf13a3bf39ea39993ae12963edb986a"
 }
 ```
 

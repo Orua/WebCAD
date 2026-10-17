@@ -4,6 +4,7 @@
 STEP/BREP同样可使用独立完整源资产（详见api.exact-source-assets）。工程v4是含完整源字节的ZIP，按类型白名单与哈希核验，展开上限512MiB；v1-v3保持读取，旧版本不能降级丢网格。历史只引用资产，所有保留历史不再使用才回收。大文件通过资源描述及二进制通道，不把百万坐标/base64放入Agent回执。编码/解码/导入在Worker完成；无网络即可读取保存的源、测量和导出。源文件没有制造单位证据，显式单位输入仅为使用者解释。Services新增同一入口的受控MeshWorker，真实source/codec/client/offline检查未通过时保持禁用；当前自交未经独立核验，布尔/自动修复不开放。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -87,6 +88,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none

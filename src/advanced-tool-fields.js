@@ -1,6 +1,8 @@
 import {SUBD_EXAMPLE} from './subd-contract.js';
-export const advancedNames = { bumpSet:'批量凸点',subdBody:'细分曲面体',autoRound:"整件圆边", smoothTransition: "平滑过渡", curveSweep: '曲线扫掠', advancedLoft: '高级放样', curvedLogo: '曲面 LOGO', fittedSurface: '拟合曲面', thickenFace:'选面增厚' };
+import {guidedLoftFiniteExample} from './guided-loft-contract.js';
+export const advancedNames = { guidedLoft:'导向放样',bumpSet:'批量凸点',subdBody:'细分曲面体',autoRound:"整件圆边", smoothTransition: "平滑过渡", curveSweep: '曲线扫掠', advancedLoft: '高级放样', curvedLogo: '曲面 LOGO', fittedSurface: '拟合曲面', thickenFace:'选面增厚' };
 export const advancedFields = {
+  guidedLoft:[['sections','有序截面（坐标系与轮廓）',JSON.stringify(guidedLoftFiniteExample.sections),'json'],['guides','边界导轨（角色与毫米坐标）',JSON.stringify(guidedLoftFiniteExample.guides),'json'],['startCondition','起点连续性','G0',['G0','G1','G2']],['endCondition','终点连续性','G0',['G0','G1','G2']],['matchTo','来源接缝（留空为新建）','','jsonObjectOptional'],['fitToleranceMm','拟合公差 mm',.01,'positive'],['guideToleranceMm','导轨公差 mm',.01,'positive'],['matchToleranceMm','接缝位置公差 mm',.01,'positive']],
   bumpSet:[['bumps','凸点中心与半径（毫米，世界坐标）','[{"centerMm":[0,0,0],"radiusMm":1}]','json'],['blendRadiusMm','接缝圆角半径 mm',.1,'positive']],
   subdBody:[['cage','控制笼（vertices 顶点、faces 四边面、creases 折痕）',JSON.stringify(SUBD_EXAMPLE.cage),'jsonObject'],['brushes','笔刷记录（推拉、膨胀、平滑）','[]','json'],['sampleDepth','细分层数（3–6）',4,'integer'],['fitGrid','面片采样点数（5–17）',9,'integer'],['fittingTolerance','面片拟合公差 mm',.03,'positive'],['sewingTolerance','缝合公差 mm',.05,'positive']],
   autoRound:[['radius','圆边半径',0.1,'positive']],
@@ -12,6 +14,7 @@ export const advancedFields = {
   ,thickenFace:[['thickness','法向厚度（正向或负向）',1,'nonzero']]
 };
 export const advancedNotes = {
+  guidedLoft:'截面给出 frame:{centerMm,normal,widthDirection} 与 profile 椭圆或四边曲线；1–2 条导轨必须逐站经过对应轮廓边界。新建时两端 G0、来源留空。接续时只选一个端为 G1/G2，来源填 {featureId:"当前来源ID",end:"start"或"end"}；end 指来源端。读取来源当前 B 样条导数，原段保留，不会为自动避让移动连接段。接续双方使用冻结坐标原点锚点。',
   bumpSet:'先选择来源实体，再填写1–64个世界坐标凸点。球使用 centerMm:[x,y,z]、radiusMm；椭球使用 centerMm 和 radiiMm:[a,b,c]。所有凸点一次融合，再联动处理来源交线；失败时保留布尔结果并报告实际半径或跳过原因，不处理无关锐边。',
   subdBody:'编辑封闭、绕向一致的四边控制笼。顶点为毫米 XYZ，面是四个顶点序号；creases 使用 edge:[起点,终点]、sharpness:0–1，1 保留尖边。笔刷是按顺序保存的 {mode:"push"/"inflate"/"smooth",centerMm:[x,y,z],radiusMm,strength,falloff:"smooth"/"linear"}；推拉与膨胀强度单位 mm，平滑为0–1。先预览再应用，之后可在历史参数中继续编辑。结果为拟合并缝合的 B 样条实体，极点区域使用有误差检测的近似。',
   autoRound:'选一个实体，自动检测全部尖锐边，包括孔和文字边，统一倒圆。已相切接缝会跳过。半径过大或某条边无法处理时整步拒绝，不默默跳过。完成后在属性或建模历史中修改半径，可更圆或退回；0.1 mm 为示例。',

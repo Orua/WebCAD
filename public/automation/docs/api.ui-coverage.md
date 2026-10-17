@@ -37,6 +37,13 @@
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "bumpSet": {
+    "tools": [
+      "bumpSet"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
   "chamfer": {
     "tools": [
       "chamfer"
@@ -180,6 +187,13 @@
   "group": {
     "tools": [
       "group"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
+  "guidedLoft": {
+    "tools": [
+      "guidedLoft"
     ],
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
@@ -531,6 +545,13 @@
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "subdBody": {
+    "tools": [
+      "subdBody"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
   "surfaceTrim": {
     "tools": [
       "surfaceTrim"
@@ -679,6 +700,13 @@
     ],
     "method": "execute",
     "usage": "显式指定移动bodyIds和target；X/Y/Z、min/center/max、group保持相对位置。"
+  },
+  "floorSelected": {
+    "tools": [
+      "transform"
+    ],
+    "method": "execute",
+    "usage": "将选中实体的包围盒最低 Z 平移到 0 mm；以已有 transform 特征记录，可撤销并随上游重建。"
   },
   "alignBodies": {
     "tools": [
@@ -1365,6 +1393,7 @@
 }
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none
@@ -1448,6 +1477,7 @@ files.open: contextPolicy=revision
 files.import: contextPolicy=revision
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
 files.read: contextPolicy=none
 files.download: contextPolicy=none
 files.write: contextPolicy=none

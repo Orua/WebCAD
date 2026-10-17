@@ -1,7 +1,8 @@
-import {SUBD_OPERATION} from './subd-contract.js';
-import {BLEND_SELECTOR_SCHEMA} from './modeling/blend-selector-contract.js';
 import {operationDefaults,operationExamples} from './operation-examples.js';
 import {sourceOperationContract} from './operation-contracts.js';
+import {BLEND_SELECTOR_SCHEMA} from './modeling/blend-selector-contract.js';
+import {SUBD_OPERATION} from './subd-contract.js';
+import {guidedLoftContract} from './guided-loft-contract.js';
 import {canonicalReliefSchema} from './relief-param-migration.js';
 /** Machine-readable help only; the existing browser/kernel remains the operation authority. */
 import { advancedOperations } from './advanced-operation-catalog.js';
@@ -114,6 +115,18 @@ operationCatalog.operations.badge=op('牌仔工具 / Thicken a planar face into 
 },['faceId','thicknessMm'],'Preserves the source and creates one independent exact solid. Single-sided extends by the total thickness along direction times face normal; double-sided spans -thickness/2 to +thickness/2. Preserve source footprint and holes before filleting all sharp edges, including hole rims and side corners; tangent seams are skipped. Radius must be less than half thickness. One fillet attempt; failure rejects the entire step without radius reduction. Read badgeReport for resolved R, offsets and rounded edge count. Local WASM only.');
 
 // Saved v1/v2 features and explicit legacy API calls retain their original contract.
+operationCatalog.operations.mirror.paramsSchema.properties.variation={type:'object',additionalProperties:false,required:['seed'],properties:{seed:{type:'string',minLength:1,maxLength:200},translateMm:{...point3,items:{type:'number',minimum:0}},rotateDeg:{...point3,items:{type:'number',minimum:0}},scale:{type:'array',items:{type:'number',exclusiveMinimum:0},minItems:2,maxItems:2}}};
+operationCatalog.operations.mirror.paramsSchema.properties.linkedOverrides={type:'object',additionalProperties:{type:'number'},description:'At most 100 numeric source-recipe overrides by existing parameter path; source dependencies remain linked.'};
+operationCatalog.operations.mirror.notes+=' variation uses a deterministic seed, signed translation/rotation bounds and a positive scale interval; variationReport records actual values. linkedOverrides re-evaluates the current source recipe with numeric path overrides; no topology IDs are cached.';
+operationCatalog.operations.union.paramsSchema.properties.fuzzyMm={type:'number',minimum:0,maximum:.1,description:'Explicit Boolean fuzzy tolerance in mm; default 0, never raised automatically.'};
+operationCatalog.operations.union.paramsSchema.properties.glue={type:'string',enum:['off','shift','full'],description:'Explicit OCCT glue mode; default off.'};
+operationCatalog.operations.union.notes+=' Uses one non-destructive multi-argument fuse, validates BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers.';
+const blendLawSchema={type:'object',additionalProperties:false,required:['startRadiusMm','endRadiusMm'],properties:{startRadiusMm:positive('Edge start radius'),endRadiusMm:positive('Edge end radius')}};
+operationCatalog.operations.subdBody=SUBD_OPERATION;
+const booleanBlendFields={blendRadiusMm:positive('Requested seam radius'),blendMode:{type:'string',enum:['fillet','variable']},blendLaw:blendLawSchema};
+for(const id of ['union','cut'])Object.assign(operationCatalog.operations[id].paramsSchema.properties,booleanBlendFields);
+operationCatalog.operations.fillet.paramsSchema.properties.blendLaw=blendLawSchema;
+operationCatalog.operations.bumpSet=op('批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once',1,{bumps:{type:'array',minItems:1,maxItems:64,items:{type:'object',additionalProperties:false,required:['centerMm'],oneOf:[{required:['radiusMm']},{required:['radiiMm']}],properties:{centerMm:point3,radiusMm:positive('Bump radius'),radiiMm:{...point3,items:positive('Axis radius')}}}},...booleanBlendFields},['bumps'],'One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports actual used radius and BLEND_SKIPPED if no trustworthy blend exists; does not round unrelated source edges.');
 for(const id of ['smoothTransition','fillet']){
  operationCatalog.operations[id].paramsSchema.properties.selector=BLEND_SELECTOR_SCHEMA;
  operationCatalog.operations[id].paramsSchema.properties.radius={oneOf:[positive('Exact radius in mm'),{type:'object',additionalProperties:false,required:['maxMm','minMm'],properties:{maxMm:positive('Maximum sampled radius'),minMm:positive('Minimum radius'),stepRatio:{type:'number',exclusiveMinimum:0,exclusiveMaximum:1},maxAttempts:{type:'integer',minimum:1,maximum:6}}}]};
@@ -121,18 +134,7 @@ for(const id of ['smoothTransition','fillet']){
 operationCatalog.operations.smoothTransition.paramsSchema.required=['radius'];
 operationCatalog.operations.smoothTransition.paramsSchema.anyOf=[{required:['faceIds']},{required:['selector']}];
 operationCatalog.operations.smoothTransition.notes+=' selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs.';
-operationCatalog.operations.mirror.paramsSchema.properties.variation={type:'object',additionalProperties:false,required:['seed'],properties:{seed:{type:'string',minLength:1,maxLength:200},translateMm:{...point3,items:{type:'number',minimum:0}},rotateDeg:{...point3,items:{type:'number',minimum:0}},scale:{type:'array',items:{type:'number',exclusiveMinimum:0},minItems:2,maxItems:2}}};
-operationCatalog.operations.mirror.paramsSchema.properties.linkedOverrides={type:'object',additionalProperties:{type:'number'},description:'At most 100 numeric source-recipe overrides by existing parameter path; source dependencies remain linked.'};
-operationCatalog.operations.mirror.notes+=' variation uses a deterministic seed, signed translation/rotation bounds and a positive scale interval; variationReport records actual values. linkedOverrides re-evaluates the current source recipe with numeric path overrides; no topology IDs are cached.';
-const blendLawSchema={type:'object',additionalProperties:false,required:['startRadiusMm','endRadiusMm'],properties:{startRadiusMm:positive('Edge start radius'),endRadiusMm:positive('Edge end radius')}};
-const booleanBlendFields={blendRadiusMm:positive('Requested seam radius'),blendMode:{type:'string',enum:['fillet','variable']},blendLaw:blendLawSchema};
-for(const id of ['union','cut'])Object.assign(operationCatalog.operations[id].paramsSchema.properties,booleanBlendFields);
-operationCatalog.operations.fillet.paramsSchema.properties.blendLaw=blendLawSchema;
-operationCatalog.operations.bumpSet=op('批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once',1,{bumps:{type:'array',minItems:1,maxItems:64,items:{type:'object',additionalProperties:false,required:['centerMm'],oneOf:[{required:['radiusMm']},{required:['radiiMm']}],properties:{centerMm:point3,radiusMm:positive('Bump radius'),radiiMm:{...point3,items:positive('Axis radius')}}}},...booleanBlendFields},['bumps'],'One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports actual used radius and BLEND_SKIPPED if no trustworthy blend exists; does not round unrelated source edges.');
-operationCatalog.operations.subdBody=SUBD_OPERATION;
-operationCatalog.operations.union.paramsSchema.properties.fuzzyMm={type:'number',minimum:0,maximum:.1,description:'Explicit Boolean fuzzy tolerance in mm; default 0, never raised automatically.'};
-operationCatalog.operations.union.paramsSchema.properties.glue={type:'string',enum:['off','shift','full'],description:'Explicit OCCT glue mode; default off.'};
-operationCatalog.operations.union.notes+=' Uses one non-destructive multi-argument fuse, validates BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers.';
+operationCatalog.operations.guidedLoft={description:'导向放样 / Framed sections, boundary guides and actual G1/G2 source jets',refs:guidedLoftContract.refs,paramsSchema:guidedLoftContract.inputSchema,notes:guidedLoftContract.functionContract.matchTo+' Frozen creation frames are required; the previous segment stays unchanged. G0 creation uses no refs and no matchTo. Read guidedLoftReport for actual boundary error and endpoint jets.'};
 export const legacyRoundingOperation=operationCatalog.operations.rounding;
 export const legacyUnifiedRoundingOperation=op('圆角 / Round selected edges',1,{
   specVersion:{type:'integer',const:2},

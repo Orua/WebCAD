@@ -1,0 +1,1136 @@
+{
+  "id": "subdBody",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "cage"
+    ],
+    "properties": {
+      "cage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "vertices",
+          "faces"
+        ],
+        "properties": {
+          "vertices": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "minItems": 4,
+            "maxItems": 256
+          },
+          "faces": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 64,
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 255
+              },
+              "minItems": 4,
+              "maxItems": 4
+            }
+          },
+          "creases": {
+            "type": "array",
+            "maxItems": 256,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "edge",
+                "sharpness"
+              ],
+              "properties": {
+                "edge": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
+                  }
+                },
+                "sharpness": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "brushes": {
+        "type": "array",
+        "maxItems": 64,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "centerMm",
+            "radiusMm",
+            "strength"
+          ],
+          "properties": {
+            "centerMm": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "minItems": 3,
+              "maxItems": 3,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            "radiusMm": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            "strength": {
+              "type": "number"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "push",
+                "smooth",
+                "inflate"
+              ]
+            },
+            "falloff": {
+              "type": "string",
+              "enum": [
+                "smooth",
+                "linear"
+              ]
+            }
+          }
+        }
+      },
+      "sampleDepth": {
+        "type": "integer",
+        "minimum": 3,
+        "maximum": 6
+      },
+      "fitGrid": {
+        "type": "integer",
+        "minimum": 5,
+        "maximum": 17
+      },
+      "referenceGrid": {
+        "type": "integer",
+        "minimum": 4,
+        "maximum": 64
+      },
+      "fittingTolerance": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "maximum": 0.5
+      },
+      "sewingTolerance": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "maximum": 0.5
+      }
+    },
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Replays the original closed oriented quad cage and optional spatial brushes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. Refined-face budget 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee.",
+  "title": "细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+  "category": "surface",
+  "synonyms": [
+    "subdBody",
+    "细分曲面体",
+    "Catmull–Clark cage to sewn B-spline solid",
+    "subd Body operation"
+  ],
+  "description": "细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+  "schemaHash": "sha256:925533e54a15245c129b5e76b03d054cfde8a465547fb80f3dd2612c49dc816d",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "Replays the original closed oriented quad cage and optional spatial brushes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. Refined-face budget 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee."
+  ],
+  "minimalExample": {
+    "op": "subdBody",
+    "params": {
+      "cage": {
+        "vertices": [
+          [
+            -10,
+            -10,
+            -10
+          ],
+          [
+            10,
+            -10,
+            -10
+          ],
+          [
+            10,
+            10,
+            -10
+          ],
+          [
+            -10,
+            10,
+            -10
+          ],
+          [
+            -10,
+            -10,
+            10
+          ],
+          [
+            10,
+            -10,
+            10
+          ],
+          [
+            10,
+            10,
+            10
+          ],
+          [
+            -10,
+            10,
+            10
+          ]
+        ],
+        "faces": [
+          [
+            0,
+            3,
+            2,
+            1
+          ],
+          [
+            4,
+            5,
+            6,
+            7
+          ],
+          [
+            0,
+            1,
+            5,
+            4
+          ],
+          [
+            1,
+            2,
+            6,
+            5
+          ],
+          [
+            2,
+            3,
+            7,
+            6
+          ],
+          [
+            3,
+            0,
+            4,
+            7
+          ]
+        ]
+      },
+      "sampleDepth": 4,
+      "fitGrid": 9,
+      "fittingTolerance": 0.03,
+      "sewingTolerance": 0.05
+    },
+    "refs": [],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "subdBody",
+    "params": {
+      "cage": {
+        "vertices": [
+          [
+            -10,
+            -10,
+            -10
+          ],
+          [
+            10,
+            -10,
+            -10
+          ],
+          [
+            10,
+            10,
+            -10
+          ],
+          [
+            -10,
+            10,
+            -10
+          ],
+          [
+            -10,
+            -10,
+            10
+          ],
+          [
+            10,
+            -10,
+            10
+          ],
+          [
+            10,
+            10,
+            10
+          ],
+          [
+            -10,
+            10,
+            10
+          ]
+        ],
+        "faces": [
+          [
+            0,
+            3,
+            2,
+            1
+          ],
+          [
+            4,
+            5,
+            6,
+            7
+          ],
+          [
+            0,
+            1,
+            5,
+            4
+          ],
+          [
+            1,
+            2,
+            6,
+            5
+          ],
+          [
+            2,
+            3,
+            7,
+            6
+          ],
+          [
+            3,
+            0,
+            4,
+            7
+          ]
+        ]
+      },
+      "sampleDepth": 4,
+      "fitGrid": 9,
+      "fittingTolerance": 0.03,
+      "sewingTolerance": 0.05
+    },
+    "refs": [],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "cage": {
+          "vertices": [
+            [
+              -10,
+              -10,
+              -10
+            ],
+            [
+              10,
+              -10,
+              -10
+            ],
+            [
+              10,
+              10,
+              -10
+            ],
+            [
+              -10,
+              10,
+              -10
+            ],
+            [
+              -10,
+              -10,
+              10
+            ],
+            [
+              10,
+              -10,
+              10
+            ],
+            [
+              10,
+              10,
+              10
+            ],
+            [
+              -10,
+              10,
+              10
+            ]
+          ],
+          "faces": [
+            [
+              0,
+              3,
+              2,
+              1
+            ],
+            [
+              4,
+              5,
+              6,
+              7
+            ],
+            [
+              0,
+              1,
+              5,
+              4
+            ],
+            [
+              1,
+              2,
+              6,
+              5
+            ],
+            [
+              2,
+              3,
+              7,
+              6
+            ],
+            [
+              3,
+              0,
+              4,
+              7
+            ]
+          ]
+        },
+        "sampleDepth": 4,
+        "fitGrid": 9,
+        "fittingTolerance": 0.03,
+        "sewingTolerance": 0.05,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+    "whenToUse": [
+      "Replays the original closed oriented quad cage and optional spatial brushes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. Refined-face budget 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "cage": {
+        "meaning": "cage: 细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "brushes": {
+        "meaning": "brushes: 细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+        "unit": "none",
+        "range": [
+          null,
+          64
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "sampleDepth": {
+        "meaning": "sampleDepth: 细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+        "unit": "none",
+        "range": [
+          3,
+          6
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "fitGrid": {
+        "meaning": "fitGrid: 细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+        "unit": "none",
+        "range": [
+          5,
+          17
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "referenceGrid": {
+        "meaning": "referenceGrid: 细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+        "unit": "none",
+        "range": [
+          4,
+          64
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "fittingTolerance": {
+        "meaning": "fittingTolerance: 细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+        "unit": "dimensionless",
+        "range": [
+          0,
+          0.5
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "sewingTolerance": {
+        "meaning": "sewingTolerance: 细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+        "unit": "dimensionless",
+        "range": [
+          0,
+          0.5
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      }
+    },
+    "refs": {
+      "min": 0,
+      "max": 0,
+      "meaning": "独立创建，不引用已有实体"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": false,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "subdBody",
+        "params": {
+          "cage": {
+            "vertices": [
+              [
+                -10,
+                -10,
+                -10
+              ],
+              [
+                10,
+                -10,
+                -10
+              ],
+              [
+                10,
+                10,
+                -10
+              ],
+              [
+                -10,
+                10,
+                -10
+              ],
+              [
+                -10,
+                -10,
+                10
+              ],
+              [
+                10,
+                -10,
+                10
+              ],
+              [
+                10,
+                10,
+                10
+              ],
+              [
+                -10,
+                10,
+                10
+              ]
+            ],
+            "faces": [
+              [
+                0,
+                3,
+                2,
+                1
+              ],
+              [
+                4,
+                5,
+                6,
+                7
+              ],
+              [
+                0,
+                1,
+                5,
+                4
+              ],
+              [
+                1,
+                2,
+                6,
+                5
+              ],
+              [
+                2,
+                3,
+                7,
+                6
+              ],
+              [
+                3,
+                0,
+                4,
+                7
+              ]
+            ]
+          },
+          "sampleDepth": 4,
+          "fitGrid": 9,
+          "fittingTolerance": 0.03,
+          "sewingTolerance": 0.05
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "subdBody",
+        "params": {
+          "cage": {
+            "vertices": [
+              [
+                -10,
+                -10,
+                -10
+              ],
+              [
+                10,
+                -10,
+                -10
+              ],
+              [
+                10,
+                10,
+                -10
+              ],
+              [
+                -10,
+                10,
+                -10
+              ],
+              [
+                -10,
+                -10,
+                10
+              ],
+              [
+                10,
+                -10,
+                10
+              ],
+              [
+                10,
+                10,
+                10
+              ],
+              [
+                -10,
+                10,
+                10
+              ]
+            ],
+            "faces": [
+              [
+                0,
+                3,
+                2,
+                1
+              ],
+              [
+                4,
+                5,
+                6,
+                7
+              ],
+              [
+                0,
+                1,
+                5,
+                4
+              ],
+              [
+                1,
+                2,
+                6,
+                5
+              ],
+              [
+                2,
+                3,
+                7,
+                6
+              ],
+              [
+                3,
+                0,
+                4,
+                7
+              ]
+            ]
+          },
+          "sampleDepth": 4,
+          "fitGrid": 9,
+          "fittingTolerance": 0.03,
+          "sewingTolerance": 0.05
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "cage": {
+              "vertices": [
+                [
+                  -10,
+                  -10,
+                  -10
+                ],
+                [
+                  10,
+                  -10,
+                  -10
+                ],
+                [
+                  10,
+                  10,
+                  -10
+                ],
+                [
+                  -10,
+                  10,
+                  -10
+                ],
+                [
+                  -10,
+                  -10,
+                  10
+                ],
+                [
+                  10,
+                  -10,
+                  10
+                ],
+                [
+                  10,
+                  10,
+                  10
+                ],
+                [
+                  -10,
+                  10,
+                  10
+                ]
+              ],
+              "faces": [
+                [
+                  0,
+                  3,
+                  2,
+                  1
+                ],
+                [
+                  4,
+                  5,
+                  6,
+                  7
+                ],
+                [
+                  0,
+                  1,
+                  5,
+                  4
+                ],
+                [
+                  1,
+                  2,
+                  6,
+                  5
+                ],
+                [
+                  2,
+                  3,
+                  7,
+                  6
+                ],
+                [
+                  3,
+                  0,
+                  4,
+                  7
+                ]
+              ]
+            },
+            "sampleDepth": 4,
+            "fitGrid": 9,
+            "fittingTolerance": 0.03,
+            "sewingTolerance": 0.05,
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "sketchProfile",
+      "profileExtrude",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "subdBody",
+      "细分曲面体",
+      "Catmull–Clark cage to sewn B-spline solid",
+      "subd Body operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
+  "whenToUse": [
+    "Replays the original closed oriented quad cage and optional spatial brushes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. Refined-face budget 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "label": "细分曲面体",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "model-origin",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "docsHash": "sha256:1299c712b62082a424054df2915f08abd7d8d7823e37b1c4fed22bf05eb2ebbf"
+}
