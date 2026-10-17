@@ -155,7 +155,7 @@ export function createCommandService(adapter) {
           }
           assertPatternExecution(op,a.params,{required:true});
           a.params=parameters(op,a.params);if(['transform','copy'].includes(op)&&a.params.mode&&a.placement===undefined)fail('FRAME_INVALID','args.placement','Spatial transform mode requires explicit placement');if(a.name!==undefined)string(a.name,'args.name',120);await verifyNamedPlacement(a.placement,s,refs);
-          command=input.action==='preview.start'?'preview_feature':'add_feature';args={op,params:a.params,refs,name:a.name,placement:resolvePlacement(newFeaturePlacement(a.placement,s.referenceSystem,op),s.referenceSystem,op,a.params),...(input.action==='preview.start'?{previewIdentity:{previewId:uid(),generation:1,baseRevision:s.revision,owner:options.fromUI?'ui':'api'}}:{})};break;
+          command=input.action==='preview.start'?'preview_feature':'add_feature';args={op,params:a.params,refs,name:a.name,placement:resolvePlacement(newFeaturePlacement(a.placement,s.referenceSystem,op),s.referenceSystem,op,a.params),placementExplicit:a.placement!==undefined,...(input.action==='preview.start'?{previewIdentity:{previewId:uid(),generation:1,baseRevision:s.revision,owner:options.fromUI?'ui':'api'}}:{})};break;
         }
         case 'preview.update':{
           object(a,['previewId','expectedGeneration','patch'],'args');string(a.previewId,'args.previewId',128);integer(a.expectedGeneration,'args.expectedGeneration',1);

@@ -423,6 +423,8 @@ function featureDocument(op,params={},explicitRefs=[],name,placement){
   return {next,id};
 }
 async function addFeature(op,params={},options={}){
+  const autoPlace=options.origin==='agent'&&insertOps.includes(op)&&options.placementExplicit!==true;
+  const beforeBounds=autoPlace?bodies.map(body=>body.bounds).filter(Boolean):[],beforeIds=new Set(bodies.map(body=>body.id));
   const refs=options.refs??[];
   if(migratedOperationIds.includes(op))params=normalizeOperationParams(op,params);
   params=await resolveLogoParams(op,params,refs,options);
@@ -437,6 +439,18 @@ async function addFeature(op,params={},options={}){
 async function resolveLogoParams(op,params,refs,options={}){
   if(op!=='logo'||params.placementVersion!==2)return params;
   if(refs.length!==1||!bodies.some(b=>b.id===refs[0]))throw Object.assign(new Error('LOGO 需要当前目标实体'),{code:'STALE_REFERENCE'});
+  if(autoPlace){
+    const created=unionBounds(bodies.filter(body=>!beforeIds.has(body.id)).map(body=>body.bounds));
+    const dx=created?xShiftToClear(beforeBounds,created,{gapMm:5}):0;
+    if(dx>1e-6){
+      const feature=documentModel.features.find(row=>row.id===id),frame=feature?.placement?.frameSnapshot;
+      if(frame?.origin?.length===3){
+        feature.placement={...feature.placement,frameSnapshot:{...frame,origin:frame.origin.map((value,index)=>index===0?value+dx:value)}};
+        await rebuild(clone(documentModel),{...options,record:false,select:null,fit:false});
+        lastWarnings.push({code:'AUTO_PLACED',message:`已放在已有模型右侧 5 mm 处（X=${(frame.origin[0]+dx).toFixed(3)} mm）`});
+      }
+    }
+  }
   if(!Number.isInteger(params.faceId)||params.faceId<0||!Array.isArray(params.point)||params.point.length!==3||params.point.some(x=>!Number.isFinite(x)))throw Object.assign(new Error('请明确选定目标面及三维放置点'),{code:'PARAM_SCHEMA_INVALID'});
   if(!params.source||typeof params.source!=='object'||params.source.reviewed!==true)throw Object.assign(new Error('请先复核 LOGO 轮廓来源、尺寸与孔洞，并设置 source.reviewed=true'),{code:'PARAM_SCHEMA_INVALID'});
   const startRevision=revision;
@@ -971,7 +985,7 @@ async function executeAI(command,args={},options={}){
     selectedIds=[...new Set(args.ids)];selectedTopology=null;viewport.setSelection(selectedIds);refresh();
   }else if(command==='add_feature'){
     if(!Object.hasOwn(labels,args.op)||['import','remove'].includes(args.op))throw new Error('Unsupported feature operation');
-    await addFeature(args.op,args.params||{},{...options,refs:args.refs??[],name:args.name,placement:args.placement});
+    await addFeature(args.op,args.params||{},{...options,refs:args.refs??[],name:args.name,placement:args.placement,placementExplicit:args.placementExplicit});
   }else if(command==='add_features'){
     const next=clone(documentModel);
     for(const feature of args.features){
