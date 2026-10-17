@@ -45,5 +45,6 @@ export const operationExamples = {badge:{faceId:0,thicknessMm:2,side:'double',di
   holeWizard:{kind:'counterbore',diameterMm:4,depthMm:6,through:false,recessDiameterMm:7,recessDepthMm:2,x:10,y:10,z:10,axis:'Z',direction:-1},
   draftFaces:{faceIds:[0,1,2,3],neutralFaceId:4,pullDirection:[0,0,1],angleDeg:2},
   ...mechanicalExamples,
+  bumpSet:{bumps:[{centerMm:[0,0,4],radiusMm:1}],blendRadiusMm:.1},
 };
 

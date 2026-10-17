@@ -1,3 +1,5 @@
+import {finishBooleanBlend} from './modeling/boolean-blend.js';
+import {buildBumpSet} from './bump-set.js';
 import {applyMirrorVariation,overriddenParams} from './mirror-variation.js';
 import {buildTap} from './modeling/manufacturing/tap-tool.js';
 import {sampleMeshRelief} from './mesh/relief-sample.js';
@@ -251,6 +253,7 @@ export class CadKernel {
         const result=editMeshRelief(original.transformed(),p);
         return new MeshShape(result.mesh,{sourceBytes:original.sourceBytes,sourceHash:original.sourceHash,units:'mm',sourceFormat:'edited-mesh',report:{...original.report,edit:result.report}});
       }
+      case 'bumpSet': return buildBumpSet(source(),p,feature.id,refs[0]);
       case 'quickModel': return buildQuickModel(p, cad, {oc:this.oc,roundAll:(shape,radius)=>buildSmoothTransition(shape,{radius,allEdges:true})});
       case 'advancedLoft': return buildAdvancedLoft(p,cad);
       case 'curveSweep': return buildCurveSweep(p,cad);
@@ -625,7 +628,7 @@ export class CadKernel {
       }
       case 'union': case 'cut': case 'intersect': {
         if (sources.length < 2) throw new Error('布尔操作至少需要两个实体');
-        if(feature.op==='union')return robustUnion(sources,{...p,toolIds:refs,toolNames:refs.map(id=>historyFeatures.find(f=>f.id===id)?.name||id),measure:shape=>preciseVolume(shape,this.oc)});
+        if(feature.op==='union')return finishBooleanBlend(robustUnion(sources,{...p,toolIds:refs,toolNames:refs.map(id=>historyFeatures.find(f=>f.id===id)?.name||id),measure:shape=>preciseVolume(shape,this.oc)}),p,refs);
         let out = copyFaceOrigins(sources[0],sources[0].clone()); const method = { union: 'fuse', cut: 'cut', intersect: 'intersect' }[feature.op];
         try {
           for (const tool of sources.slice(1)) {
@@ -645,7 +648,7 @@ export class CadKernel {
             } catch (error) { dispose(next); throw error; }
             dispose(out); out = next;
           }
-          return out;
+          return feature.op==='cut'?finishBooleanBlend(out,p,refs):out;
         }
         catch (error) { dispose(out); throw error; }
       }
@@ -656,7 +659,10 @@ export class CadKernel {
       case 'rounding': return buildRounding(source(),p,{sourceBodyId:refs[0]});
       case 'fillet': case 'chamfer': {
         const shape = source(), amount = positive(p, feature.op === 'fillet' ? 'radius' : 'distance');
-        if(p.selector&&feature.op==='fillet')return buildBlendRadius(shape,{selector:p.selector,radiusMm:amount,context:blendContext(shape)});
+        if((p.selector||p.blendLaw)&&feature.op==='fillet'){
+          const selector=p.selector??(p.edgeIds?.length?{edgeIds:p.edgeIds}:p.faceIds?.length?{faceIds:p.faceIds}:p.allEdges===true?{allEdges:true}:null);
+          return buildBlendRadius(shape,{selector,radiusMm:amount,blendLaw:p.blendLaw,context:blendContext(shape)});
+        }
         const scopes=Number(!!p.edgeIds?.length)+Number(!!p.faceIds?.length)+Number(p.allEdges===true);
         if(scopes!==1)throw new Error('圆角/倒角必须明确选择边、面边界或整个实体的全部边');
         return buildEdgeBlend(shape,feature.op,p);
@@ -766,6 +772,7 @@ export class CadKernel {
       if(shape.variationReport)measured.variationReport=shape.variationReport;
       if(shape.booleanReport)measured.booleanReport=shape.booleanReport;
       if(shape.loftReport)measured.loftReport=shape.loftReport;
+      if(shape.warnings)measured.warnings=shape.warnings;
       if(shape.blendRadiusReport)measured.blendRadiusReport=shape.blendRadiusReport;
       measured.displayReport.missingAreaMm2=measured.displayReport.untriangulatedFaceIds.reduce((sum,i)=>sum+cad.measureArea(faces[i]),0);
       this.reportRebuildProgress('edge-polylines','生成显示边线');

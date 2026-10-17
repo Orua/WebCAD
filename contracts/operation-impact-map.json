@@ -1620,6 +1620,24 @@
       "manualChecks": [
         "17674 machining form, preview and commit"
       ]
+    },
+    {
+      "operation": "bumpSet",
+      "semanticVersion": "bumpSet-1",
+      "localImpact": "One non-destructive multi-fuse preserving primitive seams, then a single optional constant/variable seam blend; exact rational ellipsoid tools",
+      "servicesImpact": "none; fixed local WASM",
+      "logoImpact": "none",
+      "contractImpact": "World centers and one radius or three radii; actual blend radius/warnings",
+      "documentImpact": "Editable batch recipe retains source; save/undo use ordinary history",
+      "cacheImpact": "Full params and source dependency identity",
+      "requiredTests": [
+        "tests/bump-set.test.mjs",
+        "tests/blend-radius.test.mjs",
+        "tests/ellipsoid.test.mjs"
+      ],
+      "manualChecks": [
+        "17674 batch bump geometry and public report"
+      ]
     }
   ],
   "executionRouting": {
