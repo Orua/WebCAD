@@ -1,5 +1,6 @@
 // 有界曲线扫掠：路径由三点圆弧、BSpline 或连续直线/圆弧段生成。
 import {buildSectionCurveLoft} from './section-curve-loft.js';
+import {buildSpineLoft} from './loft-spine.js';
 const MIN_TOLERANCE = 1e-5;
 const MAX_TOLERANCE = 0.5;
 const EPS = 1e-9;
@@ -18,6 +19,7 @@ function dispose(value) { try { value?.delete?.(); } catch {} }
 
 export function buildCurveSweep(params, cad) {
   if (!params || !cad) fail('缺少参数或 CAD 适配器');
+  if(params.pathType==='spine')return buildSpineLoft(params,cad);
   if(params.pathType==='sections')return buildSectionCurveLoft(params,cad);
   const { pathType, points, segments, radius } = params;
   const section = params.section ?? 'round';
