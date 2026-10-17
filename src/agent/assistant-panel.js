@@ -14,7 +14,7 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
   let url=defaultUrl,frame=null,channel=null,origin=null,adapter=null,visible=false,collapsed=false,panelToggle=null,phase='closed',error=null,external=null,exitOperation=null;
   let requestSeq=0,handshakeTimer=null;const pending=new Map(),adapters=new Map(),revisionSubscriptions=new Map();
   try{const saved=localStorage.getItem('webcad.assistant-url.v1');if(saved)url=validateAssistantUrl(saved);}catch{}
-  const state=()=>({version:1,url,configured:Boolean(url),visible,collapsed:visible&&collapsed,expanded:visible&&!collapsed,phase:external&&visible&&hostControl.get().connected?'connected':phase,error,connected:hostControl.get().connected,locked:hostControl.get().locked,externalHost:Boolean(external)});
+  const state=()=>({version:1,url,configured:Boolean(url),visible,collapsed:visible&&collapsed,expanded:visible&&!collapsed,phase:external&&visible&&external.agentState?.()==='offline'?'agent_offline':external&&visible&&hostControl.get().connected?'connected':phase,error,connected:hostControl.get().connected,locked:hostControl.get().locked,externalHost:Boolean(external)});
   const notify=()=>onChange(state());
   function syncPanelToggle(){
     if(!panelToggle)return;
@@ -66,7 +66,7 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
       return adapter.state();
     }
     if(method.startsWith('adapter.')){const name=method.slice(8),bound=adapters.get(args?.adapterId);if(!bound||!['receive','endTask','release','retryReports','state'].includes(name))fail('AGENT_METHOD_DENIED','助手适配器尚未就绪。');const result=await bound[name](args.payload);if(name==='retryReports'&&bound!==adapter&&!bound.state().pending.length)adapters.delete(args.adapterId);return result;}
-    if(method==='host.state'){if(!visible){setHostState({locked:false,connected:false});return state();}setHostState(args);phase=args.connected?'connected':'connecting';notify();return state();}
+    if(method==='host.state'){if(!visible){setHostState({locked:false,connected:false});return state();}const {agent,...control}=args;phase=agent==='offline'?'agent_offline':args.connected?'connected':'connecting';setHostState(control);return state();}
     if(method==='panel.userExit')return exit();
     if(method==='panel.close'){closeLocal();return state();}
     fail('AGENT_METHOD_DENIED','未知助手接入请求。');

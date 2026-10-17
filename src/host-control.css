@@ -1,5 +1,6 @@
 .host-control-status{display:inline-flex;align-items:center;gap:6px;margin-left:0;padding:0 4px;flex:none;color:#64748b;font-size:12px;white-space:nowrap}
 .host-control-status .host-connection{color:#94a3b8}
+.webcad-app .host-control-status[data-agent="offline"] .host-connection{color:#b91c1c;background:#b91c1c}
 .host-control-status[hidden]{display:none}.host-control-status svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}.host-control-status .host-connection svg{width:12px;height:12px;fill:currentColor;stroke:none}
 .host-control-status[data-connected="true"] .host-connection{color:var(--accent)}
 .host-control-status[data-locked="true"] .host-lock{color:#d97706}

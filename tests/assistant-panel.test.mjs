@@ -21,6 +21,12 @@ test('one-click exit unlocks immediately, preserves document, and ignores late o
     assert.equal(hostControl.get().locked,false);
     await listeners[0](event({kind:'request',id:'live',method:'host.state',args:{connected:true,locked:true}}));
     assert.equal(hostControl.get().locked,true);
+    await listeners[0](event({kind:'request',id:'offline',method:'host.state',args:{connected:false,locked:true,agent:'offline'}}));
+    assert.equal(panel.get().phase,'agent_offline');
+    assert.equal(hostControl.get().connected,false);
+    assert.equal(hostControl.get().locked,true);
+    await listeners[0](event({kind:'request',id:'recovered',method:'host.state',args:{connected:true,locked:true,agent:'online'}}));
+    assert.equal(panel.get().phase,'connected');
     const exiting=panel.exit();assert.equal(hostControl.get().locked,false);assert.equal(panel.get().visible,false);assert.equal(frame.hidden,true);
     const request=sent.findLast(item=>item.method==='panel.exit');
     await listeners[0](event({kind:'response',id:request.id,result:{status:'released'}}));await exiting;

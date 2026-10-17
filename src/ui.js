@@ -174,13 +174,15 @@ export function createUI(root,callbacks={}) {
  const hostStatus=element('span',{class:'host-control-status',role:'status','aria-label':'Agent 未连接 · 可编辑'});
  hostStatus.innerHTML='<span class="host-connection" aria-hidden="true"></span><span class="host-state-label"></span>';
  q('.app-header').append(hostStatus);
- let hostControlState={locked:false,connected:false};const hostDisabled=new Map();let agentPanelVisible=false,agentFocusArmed=false,agentFocusOwned=false;
+ let hostControlState={locked:false,connected:false};const hostDisabled=new Map();let agentPanelVisible=false,agentFocusArmed=false,agentFocusOwned=false,agentPanelPhase='closed';
  function syncHostControl(){
   app.classList.toggle('is-host-locked',hostControlState.locked);
   hostStatus.dataset.connected=String(hostControlState.connected);hostStatus.dataset.locked=String(hostControlState.locked);
-  hostStatus.hidden=!hostControlState.connected&&!hostControlState.locked;
-  const label=hostControlState.locked?'Agent 控制中，仅可旋转、缩放、平移':hostControlState.connected?'Agent 已连接，可编辑':'Agent 未连接，可编辑';
-  hostStatus.title=label;hostStatus.setAttribute('aria-label',label);hostStatus.querySelector('.host-state-label').textContent=hostControlState.locked?'控制中':'已连接';
+  const offline=agentPanelVisible&&agentPanelPhase==='agent_offline';
+  hostStatus.dataset.agent=offline?'offline':'online';
+  hostStatus.hidden=!offline&&!hostControlState.connected&&!hostControlState.locked;
+  const label=offline?'助手已断开，请在助手面板重新连接':hostControlState.locked?'Agent 控制中，仅可旋转、缩放、平移':hostControlState.connected?'Agent 已连接，可编辑':'Agent 未连接，可编辑';
+  hostStatus.title=label;hostStatus.setAttribute('aria-label',label);hostStatus.querySelector('.host-state-label').textContent=offline?'助手已断开':hostControlState.locked?'控制中':'已连接';
   if(hostControlState.locked){for(const control of hostDisabled.keys())if(!control.isConnected)hostDisabled.delete(control);for(const control of root.querySelectorAll('button,input,select,textarea')){if(control.matches('[data-action="save"],[data-command-id="save"],[data-command-id="agentPanel"]')||control.closest('.file-menu'))continue;if(!hostDisabled.has(control))hostDisabled.set(control,control.disabled);control.disabled=true;}}
   else{for(const [control,disabled]of hostDisabled)if(control.isConnected)control.disabled=disabled;hostDisabled.clear();}
  }
@@ -808,7 +810,7 @@ if(body?.badgeReport){const r=body.badgeReport;area.append(element('p',{class:'p
   else if(!active&&agentFocusArmed){agentFocusArmed=false;if(agentFocusOwned){agentFocusOwned=false;applyWorkspaceLayout({focus:false});}}
  }
  api.setHostControl=state=>{if(state.locked&&!hostControlState.locked){closeFrameEditor();closeDialog(false);}hostControlState={...state};syncAgentFocus();syncHostControl();};
- api.setAgentPanel=state=>{agentPanelVisible=state.visible;syncAgentFocus();agentToggle.setAttribute('aria-pressed',String(state.visible));const label=state.visible?'退出 Agent，恢复编辑':'进入 Agent 模式';agentToggle.title=state.error?label+' · '+state.error:label;agentToggle.setAttribute('aria-label',label);agentToggle.dataset.phase=state.phase;};
+ api.setAgentPanel=state=>{agentPanelVisible=state.visible;agentPanelPhase=state.phase;syncAgentFocus();syncHostControl();agentToggle.setAttribute('aria-pressed',String(state.visible));const label=state.visible?'退出 Agent，恢复编辑':'进入 Agent 模式';agentToggle.title=state.error?label+' · '+state.error:label;agentToggle.setAttribute('aria-label',label);agentToggle.dataset.phase=state.phase;};
  api.discardForSelection=()=>{if(dialog?._acceptSelection)return;propertyDraftDirty=false;propertyId=null;lastPropKey='';logoDraft=null;if(frameDraft)closeFrameEditor();closeDialog();q('[data-discard-prompt]')?.remove();};
  api.showPickCandidates=candidates=>{q('.occlusion-candidates')?.remove();const panel=element('div',{class:'occlusion-candidates'});panel.append(element('strong',{},`遮挡候选 · ${candidates.length} 项`),button('关闭',()=>panel.remove(),'secondary'));for(const candidate of candidates){const name=state.bodies.find(body=>body.id===candidate.id)?.name||candidate.id;panel.append(button(`${name}${candidate.type==='body'?'':` · ${candidate.type==='face'?'面':'边'} ${candidate.topologyId}`}`,()=>{callbacks.onPickCandidate?.(candidate);panel.remove();},'secondary'));}if(!candidates.length)panel.append(element('p',{},'此位置没有可见候选'));q('.canvas-panel').append(panel);};
  api.hasActiveTask=()=>propertyDraftDirty||activeTask();
