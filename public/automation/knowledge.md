@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.52.1 · sha256:f04e82cfbe5b14841c7cdc8e18ab61f2e22d6d6e56141decfc2712ae741dc52d
+API 1.52.1 · sha256:36c40a80bbcaf5e1568fed5ab3e5bd3ffbabdb868d3443665c38e79097308f96
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -107355,12 +107355,12 @@ files.release: contextPolicy=none
     "状态"
   ],
   "inputContract": "getAgentPanel()",
-  "outputContract": "version/url/configured/visible/phase/connected/locked/externalHost/error；phase=release_pending 表示本地已解锁但服务端释放待核对。",
+  "outputContract": "version/url/configured/visible/phase/connected/locked/externalHost/error；phase=agent_offline 表示助手已断开，请在面板重新连接；phase=release_pending 表示本地已解锁但服务端释放待核对。断线保留工程与原命令回执，不自动重放。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:89d3aa0a2b64dec9f50b93b689f96428c685d5aebb31381e363304ea454ae001"
+  "docsHash": "sha256:b050e48e65f97ec43806b919b75026cc36c4ba636b79d3f9dedfb8d29a3e5201"
 }
 ```
 
