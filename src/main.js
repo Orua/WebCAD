@@ -753,6 +753,11 @@ async function performAction(action,params={}){
     const resource=await pageAPI.files.register({name:file.name,data:file});
     try{
       const context=pageAPI.getState().context;
+  if(action==='floorSelected'){
+    const body=bodies.find(row=>row.id===params.bodyId);if(!body)throw new Error('请选择一个当前实体。');
+    const dz=-body.bounds.min[2];if(!Number.isFinite(dz)||dz<=1e-6)return {status:'no_change',bodyId:body.id,minZ:body.bounds.min[2]};
+    await addFeature('transform',{mode:'translate',delta:[0,0,dz]},{refs:[body.id],name:'落地对齐'});setStatus(`已落地 · 最低点 Z=0 mm · 上移 ${dz.toFixed(3)} mm`);return {status:'committed',bodyId:body.id,dz};
+  }
       const placement={version:1,frame:{kind:'work',expectedFrameVersion:documentModel.referenceSystem.workFrame.frameVersion},sourceAnchor:{kind:'bounds-center'}};
       const result=await pageAPI.files.import({context:{sessionId:context.sessionId,documentId:context.documentId,documentInstanceId:context.documentInstanceId,expectedRevision:context.revision},resourceId:resource.resourceId,placement,idempotencyKey:crypto.randomUUID()});
       setStatus(`已按工作基准定位导入 ${file.name}`);return result;
