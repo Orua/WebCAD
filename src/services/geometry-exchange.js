@@ -6,6 +6,7 @@ import {remotePlacementSupported} from './execution-context.js';
 export const LOCAL_KERNEL_BUILD_ID='replicad-opencascadejs@1.1.0:sha256:4c9f22e9f3828dca6f3c95405934cdbe624e593c35266f47f392ab337478dbde';
 export const VERIFIED_NATIVE_KERNELS=new Set(['native-occt@7.8.1:sha256:c347c76bbb92770175ca2a4cb3a7bf9ac5535d6ced607c566369c41be4676d0a','native-occt@7.8.1:sha256:a925910cdce8762d5586422b4d47834c6b81d276f0096632c985d61b0d1708f1','native-occt@7.8.1:sha256:82b0214e7407988939aa0b78ba3d81f43e525abcc99b95621b8970d8def569f3','native-occt@7.8.1:sha256:4a462d0f36fc31d5ad86c6ca402a235314b698c192b2aac98e747c353edd20d5','native-occt@7.8.1:sha256:d8bd9fbc2ffdec0722dceff0297b84212df2b1422dae6a240af72fb55de7c452','native-occt@7.8.1:sha256:b128ff1e921fbd444c03f89e8eb5e2acee83afe7d8e171790be7fa37f6b3b824','native-occt@7.8.1:sha256:49577a9a58330f0277f0b7ef841dad07f525ff19f1f9a8d5f14a7c014eb5de59','native-occt@7.8.1:sha256:d717ef7bebadb247f7115565aa0d4b95b2a61f0a6650a69b21d9bb514d4c7fe9','native-occt@7.8.1:sha256:156207b5da408b4849c3eae5288566c1268d99c03b7ea1d9d6bad1c25fface4d','native-occt@7.8.1:sha256:a06e04a5ec36c8af9264ad2a2a97f3461739fcd7884554d224e9e726d8d63418','native-occt@7.8.1:sha256:09c49d81a7c71ec8be3a1095cc553ed3214e3d6ccd8a66277ea437d6dbe12491','native-occt@7.8.1:sha256:30230a58721f33434fba7e0e7d1841f8c588a999b60fc0993ab35b8790b55daa','native-occt@7.8.1:sha256:e0dbf5c23ad492c44f56e79c936b5bdf2d44205b0caa9dba398d111a17ba242c','native-occt@7.8.1:sha256:1c85cc9526ec6e70991b9a0e0499cb50655564470649d26e54bd4062932a4337','native-occt@7.8.1:sha256:a71e3a8c81e6b268928f9328c024dc61a0d049e8e3923075ca3e713f98a378f2']);
 export const GEOMETRY_CODEC='occt-text-brep-v1';
+export const LOCAL_REBUILD_SEMANTICS='webcad-local-20261018-v1';
 export const TRANSLATION_SEMANTIC_VERSION='transform.translation-1.0';
 export const BOOLEAN_CUT_SEMANTIC_VERSION='boolean.cut-1.0';
 export const FACE_ROUND_SEMANTIC_VERSION='round.planar-boundary-1.0';
@@ -73,8 +74,19 @@ export function installCompiledCandidate(document,{manifest,bytes,context,recipe
  const checkpoint={recipeFingerprint,sourceSha256:manifest.sourceSha256,sourceSnapshotVersion:feature.op==='cut'?2:1,...(feature.op==='cut'?{inputSha256:[...manifest.inputSha256]}:{}),...(roundReport?{roundReport}:{}),...(feature.op==='reliefShoulder'?{reliefReport:manifest.shoulderReport}:{}),artifactSha256:artifact.sha256,semanticVersion:manifest.semanticVersion,codec:manifest.codec,brepVersion:3,kernelBuildId:manifest.kernelBuildId,consumerKernelBuildId:LOCAL_KERNEL_BUILD_ID,jobId:manifest.jobId,inputFingerprint:manifest.inputFingerprint};
  return {...document,version:document.version>=4?4:3,features:document.features.map(f=>f.id===feature.id?{...f,compiledCheckpoint:checkpoint}:f),compiledArtifacts:{...document.compiledArtifacts,[artifact.sha256]:new Uint8Array(bytes)}};
 }
+export function localCheckpointFingerprint(document,featureId){
+ const byId=new Map(document.features.map(f=>[f.id,f])),seen=new Set(),artifacts=[];
+ const visit=id=>{if(seen.has(id))return;seen.add(id);const row=byId.get(id);if(!row)throw serviceError('STALE_REFERENCE','检查点引用不存在');for(const ref of row.refs||[])visit(ref);if(id!==featureId&&row.compiledCheckpoint)artifacts.push([id,row.compiledCheckpoint.artifactSha256,row.compiledCheckpoint.kernelBuildId,row.compiledCheckpoint.semanticVersion]);};visit(featureId);
+ return contractHash({recipe:geometryRecipeFingerprint(document,featureId),upstreamArtifacts:artifacts,semanticVersion:LOCAL_REBUILD_SEMANTICS});
+}
 export function compiledCheckpointBytes(document,feature,sourceBytes){
  const c=feature.compiledCheckpoint;if(!c)return null;
+ if(c.kind==='local-rebuild'){
+  if(c.recipeFingerprint!==localCheckpointFingerprint(document,feature.id))return null;
+  if(c.kernelBuildId!==LOCAL_KERNEL_BUILD_ID||c.semanticVersion!==LOCAL_REBUILD_SEMANTICS||c.codec!==GEOMETRY_CODEC)return null;
+  const bytes=document.compiledArtifacts?.[c.artifactSha256];
+  return bytes instanceof Uint8Array&&binaryHash(bytes).slice(7)===c.artifactSha256?bytes:null;
+ }
  if(c.recipeFingerprint!==geometryRecipeFingerprint(document,feature.id))return null;
  if(feature.op==='cut'){
   if(c.sourceSnapshotVersion!==2||!validCutHashes(c,feature))throw serviceError('ARTIFACT_CORRUPT','切除检查点缺少完整的目标和刀具指纹');
