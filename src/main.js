@@ -743,8 +743,8 @@ async function performAction(action,params={}){
   if(action==='fit'){viewport.fit();return;}
   if(action==='floorSelected'){
     const body=bodies.find(row=>row.id===params.bodyId);if(!body)throw new Error('请选择一个当前实体。');
-    const dz=-body.bounds.min[2];if(!Number.isFinite(dz)||dz<=1e-6)return {status:'no_change',bodyId:body.id,minZ:body.bounds.min[2]};
-    await addFeature('transform',{mode:'translate',delta:[0,0,dz]},{refs:[body.id],name:'落地对齐'});setStatus(`已落地 · 最低点 Z=0 mm · 上移 ${dz.toFixed(3)} mm`);return {status:'committed',bodyId:body.id,dz};
+    const dz=-body.bounds.min[2];if(!Number.isFinite(dz))throw new Error('当前实体没有有效包围盒。');
+    const result=await addFeature('transform',{align:{axis:'z',to:'min',valueMm:0}},{refs:[body.id],name:'落地对齐'});setStatus(`已落地 · 最低点 Z=0 mm · 位移 ${dz.toFixed(3)} mm`);return {status:'committed',bodyId:result.bodies.find(row=>row.alignmentReport)?.id,dz};
   }
   if(action==='view'){viewport.view(params.direction);return;}
   if(action==='display')return pageAPI.setView({context:pageAPI.createRequestContext(),display:params.mode});

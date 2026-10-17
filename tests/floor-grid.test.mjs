@@ -14,7 +14,7 @@ test('invalid or incomplete body bounds do not poison the grid position',()=>{
   assert.equal(floorGridZ([{}, {bounds:{min:[0,0,NaN]}}]),-0.01);
 });
 
-test('落地 command uses an exact reversible transform with the measured Z shift',()=>{
+test('落地 command saves dynamic bounds alignment rather than a measured fixed shift',()=>{
   assert.match(main,/const dz=-body\.bounds\.min\[2\]/);
-  assert.match(main,/addFeature\('transform',\{mode:'translate',delta:\[0,0,dz\]\}/);
+  assert.match(main,/addFeature\('transform',\{align:\{axis:'z',to:'min',valueMm:0\}\}/);
 });

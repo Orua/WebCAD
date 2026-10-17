@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.52.1 · sha256:08fbff326a871ba1fc51c90c2a4c0acc8335a33b18f3a1639574841b55ba17bf
+API 1.52.1 · sha256:bc85683bf95d50c74a87435cf0e9d9303b7120d2eafd15d44143e809f2d23ee1
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -724,7 +724,7 @@ files.release: contextPolicy=none
 
 ## api.editor
 
-所有编辑动作均使用 execute({context,idempotencyKey,action,args}) 或 run 的 execute 步骤。先 getTool({id:动作名称})，不要猜字段。document.rename 修改工程名称；feature.rename 可改导入件名称；body.visibility 指定 bodyIds/visible；body.appearance 设置 color/finish；document.appearance 设置工程默认 finish；body.explode 拆多实体组合；body.align 平移对齐；history.restore 回到保留的工程状态。后三者成功提交后的 validation.geometry=passed 表示经过重建，no_change 为 unchanged；外观/显隐/改名的几何保持 unchanged。该字段不证明当前画面已渲染或工程已保存。颜色 #RRGGBB，null 重置；finish:null 跟随工程，design 显示原色，金属材质暂时盖住原色但保留其数值。getState().colors/appearance/renderFinish/hidden 可读回。外观/显隐/改名不重算几何，保存到 .webcad 且支持撤销。preview.start 的普通特征 args 同 feature.add；文件来源用 fileImport:{resourceId,placement}。回执返回 previewId/generation，更新用 preview.update 的 expectedGeneration，提交或取消也必须带当前预览身份；旧 UI 预览继续接受空 args。草稿不改工程 revision。
+动态落地用 transform 的 params:{align:{axis:"z",to:"min",valueMm:0}}，省略placement、mode和其他平移字段；每次重建按当前精确BRep包围盒重新计算位移，getState().bodies[].alignmentReport读回实际deltaMm。第一次feature.edit切换到align时移除旧定位/平移字段，保留未覆盖的旋转和比例；显式混入新平移字段仍报错。页面bodies.bounds可能是保守显示范围，精确最低点通过measure读取。所有编辑动作均使用 execute({context,idempotencyKey,action,args}) 或 run 的 execute 步骤。先 getTool({id:动作名称})，不要猜字段。document.rename 修改工程名称；feature.rename 可改导入件名称；body.visibility 指定 bodyIds/visible；body.appearance 设置 color/finish；document.appearance 设置工程默认 finish；body.explode 拆多实体组合；body.align 平移对齐；history.restore 回到保留的工程状态。后三者成功提交后的 validation.geometry=passed 表示经过重建，no_change 为 unchanged；外观/显隐/改名的几何保持 unchanged。该字段不证明当前画面已渲染或工程已保存。颜色 #RRGGBB，null 重置；finish:null 跟随工程，design 显示原色，金属材质暂时盖住原色但保留其数值。getState().colors/appearance/renderFinish/hidden 可读回。外观/显隐/改名不重算几何，保存到 .webcad 且支持撤销。preview.start 的普通特征 args 同 feature.add；文件来源用 fileImport:{resourceId,placement}。回执返回 previewId/generation，更新用 preview.update 的 expectedGeneration，提交或取消也必须带当前预览身份；旧 UI 预览继续接受空 args。草稿不改工程 revision。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
 probeBlendRadius: contextPolicy=identity
@@ -4782,7 +4782,7 @@ files.release: contextPolicy=none
       "transform"
     ],
     "method": "execute",
-    "usage": "将选中实体的包围盒最低 Z 平移到 0 mm；以已有 transform 特征记录，可撤销并随上游重建。"
+    "usage": "transform 参数 align:{axis:\"z\",to:\"min\",valueMm:0}，省略placement；每次重建按当前精确包围盒落地，body.alignmentReport读回实际位移。可撤销。"
   },
   "alignBodies": {
     "tools": [
@@ -19503,6 +19503,39 @@ files.release: contextPolicy=none
   "inputSchema": {
     "type": "object",
     "properties": {
+      "align": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "axis",
+          "to",
+          "valueMm"
+        ],
+        "properties": {
+          "axis": {
+            "type": "string",
+            "description": "World bounding-box axis",
+            "enum": [
+              "x",
+              "y",
+              "z"
+            ]
+          },
+          "to": {
+            "type": "string",
+            "description": "Recomputed source bounds side",
+            "enum": [
+              "min",
+              "max",
+              "center"
+            ]
+          },
+          "valueMm": {
+            "type": "number",
+            "description": "Target world coordinate (mm)"
+          }
+        }
+      },
       "positionMode": {
         "type": "string",
         "description": "relative offset or absolute bounding-box center after rotation/scaling",
@@ -19737,7 +19770,7 @@ files.release: contextPolicy=none
     "复制"
   ],
   "description": "Copy with scale, rotation and translation",
-  "schemaHash": "sha256:767c3a46260f6121f94c93578bd1254236da1effcd0da3044c77397769dfe198",
+  "schemaHash": "sha256:07d1200eb4ade75590917bd88c6d44a01cca5ed663298d2630982b1439157244",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -19874,6 +19907,17 @@ files.release: contextPolicy=none
       }
     ],
     "params": {
+      "align": {
+        "meaning": "align: Copy with scale, rotation and translation",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
       "positionMode": {
         "meaning": "relative offset or absolute bounding-box center after rotation/scaling",
         "unit": "none",
@@ -20354,7 +20398,7 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:b99a854b315c139ea3b729f62901d661027ebfe4ff067107bd28b798d16854ac"
+  "docsHash": "sha256:954eb3ca8c0b23bd8ef72af9c08f2df7db1b5f6c3c248cf4d62ef0e76dd9d819"
 }
 ```
 
@@ -77819,6 +77863,39 @@ files.release: contextPolicy=none
   "inputSchema": {
     "type": "object",
     "properties": {
+      "align": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "axis",
+          "to",
+          "valueMm"
+        ],
+        "properties": {
+          "axis": {
+            "type": "string",
+            "description": "World bounding-box axis",
+            "enum": [
+              "x",
+              "y",
+              "z"
+            ]
+          },
+          "to": {
+            "type": "string",
+            "description": "Recomputed source bounds side",
+            "enum": [
+              "min",
+              "max",
+              "center"
+            ]
+          },
+          "valueMm": {
+            "type": "number",
+            "description": "Target world coordinate (mm)"
+          }
+        }
+      },
       "positionMode": {
         "type": "string",
         "description": "relative offset or absolute bounding-box center after rotation/scaling",
@@ -78043,7 +78120,7 @@ files.release: contextPolicy=none
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. Replaces original.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. align:{axis:\"z\",to:\"min\",valueMm:0} recomputes the exact world bounding-box shift on every rebuild, after optional rotation/scale; omit placement, mode, positionMode and translation fields. body.alignmentReport returns the actual delta. Replaces original.",
   "title": "Scale, rotate X/Y/Z about origin, then translate",
   "category": "organization",
   "synonyms": [
@@ -78064,7 +78141,7 @@ files.release: contextPolicy=none
     "rotation"
   ],
   "description": "Scale, rotate X/Y/Z about origin, then translate",
-  "schemaHash": "sha256:b90c0ce65f67894d1743f86a590abc95c5f6c70c86f70bfebdfeb91999e9aacc",
+  "schemaHash": "sha256:2878fcd5076e6011f2cb3bfe2710a515d6de65b2db2bd58413d8522de705d884",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -78125,7 +78202,7 @@ files.release: contextPolicy=none
     }
   ],
   "knownUnsupportedCases": [
-    "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. Replaces original."
+    "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. align:{axis:\"z\",to:\"min\",valueMm:0} recomputes the exact world bounding-box shift on every rebuild, after optional rotation/scale; omit placement, mode, positionMode and translation fields. body.alignmentReport returns the actual delta. Replaces original."
   ],
   "minimalExample": {
     "op": "transform",
@@ -78193,7 +78270,7 @@ files.release: contextPolicy=none
   "contract": {
     "purpose": "Scale, rotate X/Y/Z about origin, then translate",
     "whenToUse": [
-      "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. Replaces original."
+      "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. align:{axis:\"z\",to:\"min\",valueMm:0} recomputes the exact world bounding-box shift on every rebuild, after optional rotation/scale; omit placement, mode, positionMode and translation fields. body.alignmentReport returns the actual delta. Replaces original."
     ],
     "whenNotToUse": [
       {
@@ -78202,6 +78279,17 @@ files.release: contextPolicy=none
       }
     ],
     "params": {
+      "align": {
+        "meaning": "align: Scale, rotate X/Y/Z about origin, then translate",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
       "positionMode": {
         "meaning": "relative offset or absolute bounding-box center after rotation/scaling",
         "unit": "none",
@@ -78591,7 +78679,7 @@ files.release: contextPolicy=none
   },
   "purpose": "Scale, rotate X/Y/Z about origin, then translate",
   "whenToUse": [
-    "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. Replaces original."
+    "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. align:{axis:\"z\",to:\"min\",valueMm:0} recomputes the exact world bounding-box shift on every rebuild, after optional rotation/scale; omit placement, mode, positionMode and translation fields. body.alignmentReport returns the actual delta. Replaces original."
   ],
   "whenNotToUse": [
     {
@@ -78683,7 +78771,7 @@ files.release: contextPolicy=none
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:bd21ccf2b6f2a2bdc4d6118565c3301e919952fc4c310d6e528d414f1caf59e2"
+  "docsHash": "sha256:43c6eb6948b16d94382be44601fb825815f8f2b6924fa9f12393478b26aa451a"
 }
 ```
 

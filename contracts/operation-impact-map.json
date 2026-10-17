@@ -281,7 +281,9 @@
         "tests/operation-contract.test.mjs",
         "tests/browser-logo-input.test.mjs"
       ],
-      "manualChecks": ["17674: SHA-verified AU750.svg fixture with title metadata through public files.register/readVector/LOGO; reject nested graphics/events in title/desc"]
+      "manualChecks": [
+        "17674: SHA-verified AU750.svg fixture with title metadata through public files.register/readVector/LOGO; reject nested graphics/events in title/desc"
+      ]
     },
     {
       "operation": "slot",
@@ -515,7 +517,28 @@
       "requiredTests": [
         "tests/operation-contract.test.mjs"
       ],
-      "manualChecks": []
+      "manualChecks": [],
+      "boundsAlignmentUpgrade": {
+        "semanticVersion": "world-bounds-alignment-1",
+        "localImpact": "Recompute exact source bounding-box min/max/center translation on each WASM rebuild; UI floor uses the same transform recipe",
+        "servicesImpact": "none: remains fixed local transform; no backend protocol change",
+        "logoImpact": "none: no vector or logo changes",
+        "contractImpact": "Optional strict params.align world-axis target and body.alignmentReport; rejects mixed translation/placement",
+        "documentImpact": "Existing transform recipe, undo and save; source edits invalidate descendants through existing fingerprints",
+        "cacheImpact": "Generated catalog/docs fingerprints and checkpoint report preserved; old recipes unchanged",
+        "sourcePaths": [
+          "src/bounds-alignment.js",
+          "src/cad-kernel.js",
+          "src/main.js"
+        ],
+        "requiredTests": [
+          "tests/bounds-alignment.test.mjs",
+          "tests/floor-grid.test.mjs"
+        ],
+        "manualChecks": [
+          "17674 v6 dynamic floor and simple upstream radius change"
+        ]
+      }
     },
     {
       "operation": "copy",

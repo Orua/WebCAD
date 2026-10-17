@@ -9,6 +9,7 @@ import {isChain} from './quick-models/chain-size.js';
 import {QUICK_MODEL_VISIBLE_KINDS} from './quick-models.js';
 import {mechanicalIds,mechanicalDefaults,mechanicalExamples,mechanicalNames,mechanicalRefCounts,mechanicalResultTypes,mechanicalPreservedIds,profileSolidIds,mechanicalErrorCodes} from './mechanical-tool-contracts.js';
 import { assertJsonValue, contractError, contractHash, validateSchema } from './contracts/operation-schema.js';
+import {assertBoundsAlignment} from './bounds-alignment.js';
 import { annotateParameterSchema, numericInputPolicy } from './parameter-metadata.js';
 import {heightfieldSamples} from './mesh/heightfield-relief.js';
 import operationSourceErrors from '../contracts/operation-source-errors.json' with {type:'json'};
@@ -226,7 +227,7 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
     if (scopes > 1) contractError('SELECTION_CONFLICT', 'params', 'Choose exactly one of edgeIds, faceIds, or allEdges=true.');
     if(params.sharedFaces===true&&!(params.faceIds?.length>=2))contractError('SELECTION_CONFLICT','params.sharedFaces','sharedFaces=true requires at least two adjacent faceIds.');
   }
-  try{validateSchema(schema, params);}catch(error){if(op==='meshHeightfieldRelief')error.code='HEIGHTFIELD_INVALID';if(op==='meshBoolean')error.code='MESH_BOOLEAN_INVALID';throw error;}
+  try{validateSchema(schema, params);if(['transform','copy'].includes(op))assertBoundsAlignment(params);}catch(error){if(op==='meshHeightfieldRelief')error.code='HEIGHTFIELD_INVALID';if(op==='meshBoolean')error.code='MESH_BOOLEAN_INVALID';throw error;}
   if(op==='meshHeightfieldRelief'&&!params.heights?.importKey)heightfieldSamples(legacyReliefParams(op,params));
   if(op==='chamfer'){
     const mode=params.mode||'equalDistance';
@@ -274,6 +275,11 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
 }
 
 export function normalizeOperationPatch(op, previousParams, patch) {
+  if(['transform','copy'].includes(op)&&patch?.align!==undefined&&previousParams.align===undefined){
+    const previous={...previousParams};
+    for(const key of ['mode','positionMode','x','y','z','delta','targetPoint'])delete previous[key];
+    return normalizeOperationParams(op,{...previous,...patch});
+  }
   assertJsonValue(patch);
   if (!patch || typeof patch !== 'object' || Array.isArray(patch)) contractError('PARAM_SCHEMA_INVALID', 'params', 'Expected a parameter patch object.');
   const merged = { ...previousParams, ...patch };

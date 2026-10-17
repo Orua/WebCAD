@@ -165,12 +165,18 @@ function profile(p) {
   return pen.close();
 }
 function applyTransform(shape, p) {
+  assertBoundsAlignment(p);
   let out = shape.clone();
   try {
     const scale = positive(p, 'scale', 1);
     if (scale !== 1) out = out.scale(scale);
     for (const [key, axis] of [['rx', [1, 0, 0]], ['ry', [0, 1, 0]], ['rz', [0, 0, 1]]]) {
       const angle = finite(p, key); if (angle) out = out.rotate(angle, [0, 0, 0], axis);
+    }
+    if(p.align){
+      const box=out.boundingBox;
+      try{const report=boundsAlignment(box.bounds,p.align),aligned=out.translate(...report.deltaMm);aligned.alignmentReport=report;return aligned;}
+      finally{dispose(box);}
     }
     const mode=p.positionMode??'relative';
     if(!['relative','absolute'].includes(mode))throw new Error('移动模式必须是 relative 或 absolute');
@@ -233,6 +239,7 @@ import {compiledCheckpointBytes,geometryRecipeFingerprint} from './services/geom
 import {LOCAL_KERNEL_BUILD_ID,LOCAL_REBUILD_SEMANTICS,GEOMETRY_CODEC,localCheckpointFingerprint} from './services/geometry-exchange.js';
 import {recordTimeline} from './document-timeline.js';
 import {checkpointReports,restoreCheckpointReports} from './local-checkpoint-reports.js';
+import {assertBoundsAlignment,boundsAlignment} from './bounds-alignment.js';
 export class CadKernel {
   constructor(oc) { cad.setOC(oc); this.oc = oc; this.shapes = new Map(); this.active = new Map(); this.renderCache = new Map();this.geometryMetrics=new WeakMap();this.geometrySourceSnapshots=new WeakMap();this.reliefLayerCache=new ReliefLayerCache(); this.historySignature = []; this.importsSignature = ''; this.renderVersion = 0; }
   async operation(feature, shapes, imports, historyFeatures=[],execution={}) {
@@ -499,7 +506,10 @@ export class CadKernel {
         if (item.format === 'brep') return cad.deserializeShape(new TextDecoder().decode(bytes)).asShape3D();
         throw new Error('导入格式不受支持');
       }
-      case 'transform': case 'copy': return p.mode?applySpatialTransform(source(),p,feature.placement):applyTransform(source(),p);
+      case 'transform': case 'copy':
+        assertBoundsAlignment(p);
+        if(p.align&&feature.placement)throw Object.assign(new Error('包围盒对齐使用世界轴，请省略 placement。'),{code:'COORDINATE_MODE_CONFLICT',path:'placement'});
+        return p.mode?applySpatialTransform(source(),p,feature.placement):applyTransform(source(),p);
       case 'mirror': {
         const plane=workPlane(planeName(p),finite(p,'offsetMm'));
         let linked,mirrored;
@@ -822,6 +832,7 @@ export class CadKernel {
       if(shape.variationReport)measured.variationReport=shape.variationReport;
       if(shape.booleanReport)measured.booleanReport=shape.booleanReport;
       if(shape.loftReport)measured.loftReport=shape.loftReport;
+      if(shape.alignmentReport)measured.alignmentReport=shape.alignmentReport;
       if(shape.guidedLoftReport)measured.guidedLoftReport=shape.guidedLoftReport;
       if(shape.ellipsoidReport)measured.ellipsoidReport=shape.ellipsoidReport;
       if(shape.blendRadiusReport)measured.blendRadiusReport=shape.blendRadiusReport;
@@ -931,7 +942,7 @@ export class CadKernel {
         if(cached)body={...cached.body,name:feature.name||feature.id};
         else if(headless&&next.get(id).geometryType!=='mesh'){
           const shape=next.get(id),faces=shape.faces,edges=shape.edges;
-          try{body={id,name:feature.name||id,...displayMetadata(shape,faces,edges,this.oc),volume:preciseVolume(shape,this.oc),metricsDeferred:false,positions:new Float32Array(),normals:new Float32Array(),indices:new Uint32Array(),faceGroups:[],edges:[],loftReport:shape.loftReport,transitionReport:shape.transitionReport};}
+          try{body={id,name:feature.name||id,...displayMetadata(shape,faces,edges,this.oc),volume:preciseVolume(shape,this.oc),metricsDeferred:false,positions:new Float32Array(),normals:new Float32Array(),indices:new Uint32Array(),faceGroups:[],edges:[],loftReport:shape.loftReport,transitionReport:shape.transitionReport,alignmentReport:shape.alignmentReport};}
           finally{faces.forEach(dispose);edges.forEach(dispose);}
         }else body=this.describe(next.get(id), feature);
         if(cached&&feature.op==='relief'&&body.reliefReport?.layers&&feature.params.layers)body.reliefReport={...body.reliefReport,layers:body.reliefReport.layers.map((layer,i)=>({...layer,name:feature.params.layers[layer.index??i]?.name??layer.name}))};
