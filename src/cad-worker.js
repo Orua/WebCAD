@@ -54,6 +54,6 @@ self.onmessage = ({ data }) => {
         } else result=engine.measure(data.bodyId,data.topologyType,data.topologyId);
       } else throw new Error(`未知请求 ${type}`);
       self.postMessage({ requestId, ok: true, ...result },type==='refineDisplay'?result.patches.flatMap(p=>p.limited?[]:[p.positions.buffer,p.normals.buffer,p.indices.buffer]):type==='encodeProject'?[result.bytes.buffer]:type==='decodeProject'?decodedProjectTransfers(result.document):[]);
-    } catch (error) { const report=boundedDiagnosticReport(error?.report);self.postMessage({ requestId, ok: false, error: error?.message || String(error), featureId: error?.featureId, code: error?.code, path: error?.path, recoveryAction: error?.recoveryAction,report }); }
+    } catch (error) { const report=boundedDiagnosticReport(error?.report),details=boundedDiagnosticReport(error?.details);self.postMessage({ requestId, ok: false, error: error?.message || String(error), featureId: error?.featureId, code: error?.code, path: error?.path, recoveryAction: error?.recoveryAction,report,details }); }
   });
 };

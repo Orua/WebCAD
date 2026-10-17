@@ -899,7 +899,7 @@ export class CadKernel {
       const raw=String(error?.message||error||'');
       const descriptive=raw.replace(/\s*\[object WebAssembly\.Exception\]\s*$/,'').trim();
       const message=descriptive||'几何内核未能生成有效实体；请减小加工尺寸或缩小目标范围。原模型保持。';
-      throw Object.assign(new Error(message,{cause:error}), { featureId: current, code:error?.code||'GEOMETRY_INVALID', path:error?.path, recoveryAction:error?.recoveryAction||'CORRECT_PARAMETERS',report:error?.report });
+      throw Object.assign(new Error(message,{cause:error}), { featureId: current, code:error?.code||'GEOMETRY_INVALID', path:error?.path, recoveryAction:error?.recoveryAction||'CORRECT_PARAMETERS',report:error?.report,details:error?.details });
     } finally {this.rebuildStarted=undefined;}
   }
   technicalDrawing(input){return createTechnicalDrawing(input.bodyIds.map(id=>this.activeShape(id)),input);}

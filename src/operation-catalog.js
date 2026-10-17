@@ -130,6 +130,9 @@ for(const id of ['union','cut'])Object.assign(operationCatalog.operations[id].pa
 operationCatalog.operations.fillet.paramsSchema.properties.blendLaw=blendLawSchema;
 operationCatalog.operations.bumpSet=op('批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once',1,{bumps:{type:'array',minItems:1,maxItems:64,items:{type:'object',additionalProperties:false,required:['centerMm'],oneOf:[{required:['radiusMm']},{required:['radiiMm']}],properties:{centerMm:point3,radiusMm:positive('Bump radius'),radiiMm:{...point3,items:positive('Axis radius')}}}},...booleanBlendFields},['bumps'],'One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports actual used radius and BLEND_SKIPPED if no trustworthy blend exists; does not round unrelated source edges.');
 operationCatalog.operations.subdBody=SUBD_OPERATION;
+operationCatalog.operations.union.paramsSchema.properties.fuzzyMm={type:'number',minimum:0,maximum:.1,description:'Explicit Boolean fuzzy tolerance in mm; default 0, never raised automatically.'};
+operationCatalog.operations.union.paramsSchema.properties.glue={type:'string',enum:['off','shift','full'],description:'Explicit OCCT glue mode; default off.'};
+operationCatalog.operations.union.notes+=' Uses one non-destructive multi-argument fuse, validates BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers.';
 export const legacyRoundingOperation=operationCatalog.operations.rounding;
 export const legacyUnifiedRoundingOperation=op('圆角 / Round selected edges',1,{
   specVersion:{type:'integer',const:2},
