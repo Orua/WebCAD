@@ -7,6 +7,19 @@ test('assistant URL rejects credentials, scripts and mixed content',()=>{
   assert.equal(validateAssistantUrl('/AI/WebCAD/WebCADWorkspace.aspx','https://goldenfu.cn/webcad/'),'https://goldenfu.cn/AI/WebCAD/WebCADWorkspace.aspx');
   for(const url of ['javascript:alert(1)','https://user:password@example.com/','http://example.com/','https://example.com/?token=x'])assert.throws(()=>validateAssistantUrl(url,'https://goldenfu.cn/webcad/'),{code:'AGENT_URL_INVALID'});
 });
+
+test('an unconnected login frame exits immediately and allows correcting its URL',async()=>{
+ const listeners=[],sent=[];let frame,removed=false;
+ const original={location:globalThis.location,window:globalThis.window,document:globalThis.document,localStorage:globalThis.localStorage};
+ Object.assign(globalThis,{location:new URL('https://goldenfu.cn/webcad/'),window:{addEventListener:(name,fn)=>listeners.push(fn)},localStorage:{getItem:()=>null,setItem:()=>{}},document:{createElement:tag=>tag==='iframe'?frame={hidden:false,contentWindow:{postMessage:value=>sent.push(value)},remove:()=>{removed=true;}}:{setAttribute(){},addEventListener(){},remove(){}}}});
+ try{
+  const hostControl=createHostControl(),surface={classList:{add(){},remove(){},toggle(){}},append(){}};
+  const panel=createAssistantPanel({getApi:()=>({getState:()=>({displayPreferences:{}})}),hostControl,surface});
+  await panel.enter();const receipt=await panel.exit();
+  assert.equal(receipt.releasePending,false);assert.equal(receipt.phase,'closed');assert.equal(frame.hidden,true);assert.equal(hostControl.get().locked,false);assert(!sent.some(message=>message.method==='panel.exit'));
+  assert.equal(panel.configure('https://goldenfu.cn/AI/WebCAD/WebCADWorkspace.aspx').status,'applied');assert(removed);
+ }finally{for(const [key,value]of Object.entries(original)){if(value===undefined)delete globalThis[key];else globalThis[key]=value;}}
+});
 test('one-click exit unlocks immediately, preserves document, and ignores late or forged host control',async()=>{
   const listeners=[],sent=[],classes=new Set();let frame;
   const original={location:globalThis.location,window:globalThis.window,document:globalThis.document,localStorage:globalThis.localStorage};

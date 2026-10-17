@@ -12,7 +12,7 @@ export function validateAssistantUrl(value,base=location.href){
 export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface=document.body}){
   const defaultUrl=new URL('/AI/WebCAD/WebCADWorkspace.aspx',location.hostname==='127.0.0.1'&&location.port==='17674'?'http://127.0.0.1/':location.href).href;
   let url=defaultUrl,frame=null,channel=null,origin=null,adapter=null,visible=false,collapsed=false,panelToggle=null,phase='closed',error=null,external=null,exitOperation=null;
-  let requestSeq=0,handshakeTimer=null;const pending=new Map(),adapters=new Map(),revisionSubscriptions=new Map();
+  let requestSeq=0,handshakeTimer=null,hostResponded=false;const pending=new Map(),adapters=new Map(),revisionSubscriptions=new Map();
   try{const saved=localStorage.getItem('webcad.assistant-url.v1');if(saved)url=validateAssistantUrl(saved);}catch{}
   const state=()=>({version:1,url,configured:Boolean(url),visible,collapsed:visible&&collapsed,expanded:visible&&!collapsed,phase:external&&visible&&external.agentState?.()==='offline'?'agent_offline':external&&visible&&hostControl.get().connected?'connected':phase,error,connected:hostControl.get().connected,locked:hostControl.get().locked,externalHost:Boolean(external)});
   const notify=()=>onChange(state());
@@ -74,6 +74,7 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
   window.addEventListener('message',async event=>{
     const data=event.data;
     if(!frame||event.source!==frame.contentWindow||event.origin!==origin||data?.protocol!==PROTOCOL||data.channel!==channel)return;
+    hostResponded=true;
     if(data.kind==='response'){const item=pending.get(data.id);if(!item)return;clearTimeout(item.timer);pending.delete(data.id);if(data.error)item.reject(Object.assign(new Error(data.error.message),{code:data.error.code}));else item.resolve(data.result);return;}
     if(data.kind==='ready'){clearTimeout(handshakeTimer);phase='connecting';error=null;theme();notify();return;}
     if(data.kind==='request'){try{post({kind:'response',id:data.id,result:await handle(data.method,data.args)});}catch(e){post({kind:'response',id:data.id,error:{code:e.code||'AGENT_PANEL_FAILED',message:e.message}});}}
@@ -83,6 +84,7 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
   }
   async function exit(){
     if(exitOperation)return exitOperation;
+    if(!external&&!hostResponded&&!adapter&&!adapters.size){closeLocal();return {status:'applied',release:null,releasePending:false,...state()};}
     // Revoke local writes and unlock immediately, retain the iframe until the
     // existing broker has reconciled cancel/release and outstanding receipts.
     clearTimeout(handshakeTimer);stopRevisionSubscriptions();adapter?.release();hostControl.set({locked:false,connected:false});visible=false;surface.classList.remove('has-agent-panel');removePanelToggle();if(frame)frame.hidden=true;phase='releasing';notify();
@@ -94,7 +96,7 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
     if(external){await external.enter();theme();return {status:'applied',...state()};}
     surface.classList.add('has-agent-panel');setCollapsed(false);ensurePanelToggle();
     if(frame){frame.hidden=false;try{await request('panel.connect');}catch(e){phase='error';error=e.message;notify();}return {status:'applied',...state()};}
-    channel=crypto.randomUUID();origin=new URL(url).origin;
+    hostResponded=false;channel=crypto.randomUUID();origin=new URL(url).origin;
     frame=document.createElement('iframe');frame.id='webcad-agent-assistant-frame';frame.className='agent-assistant-panel';frame.title='CAD Agent 助手';frame.referrerPolicy='strict-origin';panelToggle?.setAttribute('aria-controls',frame.id);
     const target=new URL(url);target.searchParams.set('assistant','1');target.hash=new URLSearchParams({channel,parentOrigin:location.origin}).toString();frame.src=target.href;surface.append(frame);
     handshakeTimer=setTimeout(()=>{if(visible&&phase==='connecting'){phase='error';error='助手尚未接入，请在助手面板确认登录或检查配置地址。';notify();}},30000);
