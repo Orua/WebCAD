@@ -110,14 +110,15 @@
 :is(.cad-dialog,.message-dialog) .tool-icon,:is(.cad-dialog,.message-dialog) .ui-vector-icon{color:var(--accent-ink)}
 .webcad-app :is(.title-edit,.panel-toggle,.visibility-button,.tree-visibility,.feature-row,.close-button) .ui-vector-icon,
 :is(.cad-dialog,.message-dialog) .close-button .ui-vector-icon{color:#737373}
-.webcad-app .brand-mark .ui-vector-icon,.webcad-app .primary .ui-vector-icon,
+.webcad-app .brand-mark .ui-vector-icon{color:inherit}
+.webcad-app .primary .ui-vector-icon,
 :is(.cad-dialog,.message-dialog) .primary .ui-vector-icon{color:var(--accent-contrast)}
 .webcad-app .selection-modes button.active .selection-mode-icon,
 .webcad-app .selection-modes button.active .selection-arrow{color:var(--accent-contrast)}
 .webcad-app .host-control-status{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;color:var(--ui-muted);font-size:11px}
 .webcad-app .host-control-status .host-connection{width:7px;height:7px;flex:none;border-radius:50%;background:#94a3b8}
 .webcad-app .host-control-status[data-connected="true"] .host-connection{background:#15803d}
-.webcad-app .host-control-status[data-locked="true"] .host-connection{background:var(--accent-ink)}
+.webcad-app .app-header .host-control-status{order:10}
 .webcad-app .selection-modes button[data-mode]{display:inline-flex;align-items:center;justify-content:center;width:30px;min-width:30px;height:30px;padding:5px}
 .webcad-app .selection-modes .selection-mode-icon{width:17px;height:17px}
 @media(max-width:680px){.webcad-app .host-control-status .host-state-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.webcad-app .selection-modes button[data-mode]{width:28px;min-width:28px;height:28px;padding:4px}}

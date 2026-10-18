@@ -1,5 +1,14 @@
 {
   "version": 1,
+  "uiFollowup20261018": {
+    "localImpact": "Honor mobile Chrome desktop-site layout independently of physical keyboard input; restore visible themed brand; concise Open/Import labels and green rightmost Agent connection indicator",
+    "servicesImpact": "none; frontend layout and welcome copy only, no backend or Agent executable changes",
+    "logoImpact": "none; header brand styling only, no source logos or conversion changes",
+    "contractImpact": "Existing file actions and get/setAgentPanel layout APIs unchanged; layout.mobile reports the browser-requested layout",
+    "documentImpact": "none; modeling, history, persistence and file semantics unchanged",
+    "cacheImpact": "Rebuild frontend source identity and generated UI metadata; version host UI resources",
+    "requiredTests": ["panel-layout device classification", "assistant-panel", "workspace-upgrade", "one 17674 and host mobile/desktop UI pass", "formal endpoint HTTP identity"]
+  },
   "combinedUpgrade20261018": {
     "localImpact": "Per-feature legacy topology policy; operation-contract discovery; shared toolbar and resizable Agent panel",
     "servicesImpact": "CodexAgent same-conversation image allowlist and correlated business status; no WebCADServices algorithm or runtime change",
