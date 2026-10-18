@@ -11,7 +11,8 @@ function chordMidpoint(edge,steps){
 test('threaded sleeve nonuniform spline midpoints converge and agree with independent chord lengths',()=>{
  const shape=buildQuickModel({kind:'threadedSleeve'},cad),before=shape.serialize(),edges=shape.edges;let checked=0;
  try{for(const edge of edges){const result=halfLengthPoint(edge,oc,cad.measureLength(edge));assert(result.every(Number.isFinite));if(edge.geomType!=='BSPLINE_CURVE')continue;
-  const a=new oc.BRepAdaptor_Curve(edge.wrapped);const count=a.NbIntervals(oc.GeomAbs_Shape.GeomAbs_C1);a.delete();if(count<2)continue;
+  // The canonical sleeve now has smooth single-C1-span splines as well.
+  // Check their real arc lengths too, rather than requiring obsolete knot multiplicity.
   const estimated=chordMidpoint(edge,10000);assert(Math.hypot(...result.map((v,i)=>v-estimated[i]))<1e-4);checked++;
  }assert(checked>0);assert.equal(shape.serialize(),before);}finally{edges.forEach(e=>e.delete());shape.delete();}
 });
