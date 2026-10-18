@@ -1891,6 +1891,19 @@
   },
   "changes": [
     {
+      "operation": "nativeDeformPrototype",
+      "semanticVersion": "deform.nurbs-1.0",
+      "sourcePaths": ["services/WebCADServices/native/occt-worker/deform.hxx", "services/WebCADServices/native/occt-worker/worker.cpp", "services/WebCADServices/src/WebCADServices.Runtime/NativeAdapter.cs", "services/WebCADServices/src/WebCADServices.Runtime/ServiceRuntime.cs", "src/deform-contract.js"],
+      "localImpact": "No browser operation or local fallback is enabled; ellipsoid remains the independently accepted local operation",
+      "servicesImpact": "Preserve the source-bound Native prototype behind the matching worker proof, global passed status and deformStatus passed gate; absent proof omits capability and rejects requests",
+      "logoImpact": "none; no conversion, glyph or relief changes",
+      "contractImpact": "Internal draft deformation schema only; no public tool, UI action or advertised supported capability until actual acceptance",
+      "documentImpact": "none while disabled; no accepted deformation recipe or compiled result is installed",
+      "cacheImpact": "Source fingerprint changes; no new public operation card or route",
+      "requiredTests": ["services/WebCADServices/tests/UP26Native/Program.cs"],
+      "manualChecks": ["Fixed v6 bend15 precision gate remains failed; no new geometry trial, capability enablement or production installation"]
+    },
+    {
       "operation": "agentIdentityContext",
       "sourcePaths": ["src/agent/protocol.js", "src/page-context-policy.js"],
       "localImpact": "Agent measurements and views accept the same identity context as their existing public page API; document instance binding remains mandatory",
