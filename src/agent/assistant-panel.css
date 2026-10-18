@@ -4,18 +4,19 @@ body.has-agent-panel>#app{min-width:0;height:100%;overflow:hidden}
 .agent-panel-toggle{position:fixed;z-index:10010;top:50%;right:calc(var(--agent-panel-width, 360px) - 16px);transform:translateY(-50%);width:32px;height:48px;padding:0;display:grid;place-items:center;border:1px solid var(--ui-border);border-radius:7px;background:var(--ui-surface);color:var(--ui-text);box-shadow:0 2px 8px #162a3b26}
 .agent-panel-toggle:hover{background:var(--accent-soft)}
 .agent-panel-toggle svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-body.has-agent-panel.agent-panel-collapsed{grid-template-columns:minmax(0,1fr) 44px}
+body.has-agent-panel.agent-panel-collapsed{grid-template-columns:minmax(0,1fr) 28px}
 body.has-agent-panel.agent-panel-collapsed .agent-assistant-panel{display:none}
 body.has-agent-panel.agent-panel-collapsed .agent-panel-toggle{right:6px}
 .webcad-app .agent-mode-button{color:var(--accent)}
 .webcad-app .agent-mode-button[aria-pressed=true]{background:var(--accent-soft)}
+.agent-panel-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .webcad-app.is-host-locked .agent-mode-button{opacity:1;cursor:pointer}
 /* Effective size, separator and collapse toggle share the same variables. */
 body.has-agent-panel[data-cad-mobile=false]{height:min(100dvh,var(--cad-layout-height,100dvh));grid-template-columns:minmax(0,1fr) var(--agent-panel-width);grid-template-rows:minmax(0,1fr)}
-body.has-agent-panel[data-cad-mobile=false] .agent-panel-toggle{top:50%;bottom:auto;left:auto;right:calc(var(--agent-panel-width) - 16px);transform:translateY(-50%);width:32px;height:48px}
+body.has-agent-panel[data-cad-mobile=false] .agent-panel-toggle{top:50%;bottom:auto;left:auto;right:calc(var(--agent-panel-width) - 10px);transform:translateY(-50%);width:20px;height:48px}
 body.has-agent-panel[data-cad-mobile=false] .agent-panel-toggle svg{transform:none}
-body.has-agent-panel[data-cad-mobile=false].agent-panel-collapsed{grid-template-columns:minmax(0,1fr) 44px}
-body.has-agent-panel[data-cad-mobile=false].agent-panel-collapsed .agent-panel-toggle{right:6px}
+body.has-agent-panel[data-cad-mobile=false].agent-panel-collapsed{grid-template-columns:minmax(0,1fr) 28px}
+body.has-agent-panel[data-cad-mobile=false].agent-panel-collapsed .agent-panel-toggle{right:4px}
 .cad-assistant-resizer{position:fixed;z-index:10009;right:calc(var(--agent-panel-width) - 4px);top:0;bottom:0;width:8px;cursor:col-resize;touch-action:none}
 .cad-assistant-resizer[hidden]{display:none}
 .cad-assistant-resizer:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
@@ -28,3 +29,7 @@ body.has-agent-panel[data-cad-mobile=true].agent-panel-collapsed{grid-template-r
 body.has-agent-panel[data-cad-mobile=true].agent-panel-collapsed .agent-panel-toggle{bottom:6px;transform:translateX(-50%)}
 @media(max-width:960px){body.has-agent-panel{--agent-panel-width:320px}.webcad-app .app-header .host-control-status{padding:0;gap:3px}.webcad-app .app-header .document-title{min-width:30px;flex:1 1 120px}}
 @media(max-width:700px){body.has-agent-panel{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) 40dvh}.agent-assistant-panel{height:100%;border-left:0;border-top:1px solid var(--ui-border)}body.has-agent-panel>#app .webcad-app{height:100%;min-height:0}.agent-panel-toggle{top:auto;left:50%;right:auto;bottom:calc(40dvh - 16px);transform:translate(-50%,50%);width:48px;height:32px}.agent-panel-toggle svg{transform:rotate(90deg)}body.has-agent-panel.agent-panel-collapsed{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) 44px}body.has-agent-panel.agent-panel-collapsed .agent-panel-toggle{left:50%;right:auto;bottom:6px;transform:translateX(-50%)}}
+body.has-agent-panel[data-cad-mobile=true].agent-panel-collapsed{grid-template-rows:minmax(0,1fr) 0}
+body.has-agent-panel[data-cad-mobile=true] .app-header .agent-panel-toggle{position:static;inset:auto;transform:none;flex:0 0 30px;width:30px;height:30px;min-height:30px;padding:0;border:0;border-radius:4px;box-shadow:none;background:transparent;color:var(--accent)}
+body.has-agent-panel[data-cad-mobile=true] .app-header .agent-panel-toggle:hover{background:var(--accent-soft)}
+body.has-agent-panel[data-cad-mobile=true] .app-header .agent-panel-toggle svg{width:18px;height:18px;stroke-width:1.6}
