@@ -105,6 +105,19 @@ test('old page instances and missing edit grants are rejected',()=>{
   assert.throws(()=>validatePayload(stale,context,session.scopes),/instance/);
   assert.throws(()=>validatePayload(payload,context,['cad.read']),/edit/);
 });
+
+test('adapter accepts public identity contexts for measurements and views without weakening writes',async()=>{
+  const identity={sessionId:context.sessionId,documentId:context.documentId,documentInstanceId:context.documentInstanceId};
+  for(const method of ['measure','setView'])for(const readContext of [identity,context,requestContext]){
+    const reading={method,args:{context:readContext,...(method==='measure'?{bodyId:'body'}:{fit:true})}};
+    const original=structuredClone(reading);
+    assert.doesNotThrow(()=>validatePayload(reading,context,['cad.read']));
+    const {adapter,counts}=setup();await adapter.receive(envelope(reading));
+    assert.equal(counts().invokes+counts().submits,1);assert.deepEqual(reading,original);
+    assert.throws(()=>validatePayload({...reading,args:{...reading.args,context:{...readContext,documentInstanceId:'old'}}},context,['cad.read']),/instance/);
+  }
+  for(const writeContext of [identity,context])assert.throws(()=>validatePayload({...payload,args:{...payload.args,context:writeContext}},context,session.scopes),/expectedRevision required/);
+});
 test('released adapter retains receipts and stops new geometry',async()=>{
   const {adapter,counts}=setup();adapter.release();
   const result=await adapter.receive(envelope(payload));

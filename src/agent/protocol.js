@@ -1,5 +1,6 @@
 import {contractHash} from '../contracts/operation-schema.js';
 import {LIMITS} from '../limits.js';
+import {contextPolicy} from '../page-context-policy.js';
 export const PROTOCOL = 'goldenluck.webcad/1';
 export const IDENTITY_KEYS = Object.freeze(['sessionId','documentId','documentInstanceId']);
 export const READ_METHODS = new Set(['connect','info','getState','waitFor','getAgentPanel','getHistory','searchTools','getTools','getTool','readDocs',
@@ -93,7 +94,7 @@ export function validatePayload(payload, binding, scopes) {
   }
   if (!DISCOVERY_METHODS.has(method)) {
     assertIdentity(args.context,binding);
-    if (!Number.isSafeInteger(args.context.expectedRevision) || args.context.expectedRevision<0) throw failure('PARAM_SCHEMA_INVALID','expectedRevision required');
+    if (contextPolicy(method)!=='identity' && (!Number.isSafeInteger(args.context.expectedRevision) || args.context.expectedRevision<0)) throw failure('PARAM_SCHEMA_INVALID','expectedRevision required');
   }
 }
 
