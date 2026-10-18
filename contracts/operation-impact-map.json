@@ -1891,6 +1891,18 @@
   },
   "changes": [
     {
+      "operation": "agentIdentityContext",
+      "sourcePaths": ["src/agent/protocol.js", "src/page-context-policy.js"],
+      "localImpact": "Agent measurements and views accept the same identity context as their existing public page API; document instance binding remains mandatory",
+      "servicesImpact": "none; no geometry execution or Services protocol change",
+      "logoImpact": "none",
+      "contractImpact": "Honor existing identity context cards without requiring expectedRevision on read/view requests; revision-protected writes retain their original validation",
+      "documentImpact": "none; no history, geometry or saved format changes",
+      "cacheImpact": "Rebuild frontend identity; existing catalog/docs contracts remain unchanged",
+      "requiredTests": ["tests/remote-agent-adapter.test.mjs", "tests/page-context-policy.test.mjs"],
+      "manualChecks": ["17674 bound Agent measurement using current getState context succeeds on its first call; stale instance and missing write revision still reject"]
+    },
+    {
       "operation": "ribbon-uniform-icons-background-highlight",
       "sourcePaths": [
         "src/workspace-upgrade.css"
