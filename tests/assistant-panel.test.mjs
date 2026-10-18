@@ -1,7 +1,22 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createAssistantPanel,validateAssistantUrl} from '../src/agent/assistant-panel.js';
+import {createAssistantPanel as createRealAssistantPanel,validateAssistantUrl} from '../src/agent/assistant-panel.js';
 import {createHostControl} from '../src/host-control.js';
+
+// Model the desktop layout APIs now used by the shared resizable panel.
+function createAssistantPanel(options){
+  const win=globalThis.window,listen=win.addEventListener;
+  win.addEventListener=(name,handler)=>{if(name==='message')listen(name,handler);};
+  Object.assign(win,{navigator:{userAgent:'Windows'},matchMedia:()=>({matches:false}),screen:{width:1200,height:800},innerHeight:800});
+  options.surface.style={setProperty(){}};options.surface.dataset={};
+  options.surface.getBoundingClientRect=()=>({width:1200,height:800});
+  const create=globalThis.document.createElement;
+  globalThis.document.createElement=tag=>Object.assign(create(tag),{style:{}});
+  const previous=globalThis.ResizeObserver;
+  globalThis.ResizeObserver=class{observe(){}disconnect(){}};
+  try{return createRealAssistantPanel(options);}
+  finally{if(previous===undefined)delete globalThis.ResizeObserver;else globalThis.ResizeObserver=previous;}
+}
 
 test('assistant URL rejects credentials, scripts and mixed content',()=>{
   assert.equal(validateAssistantUrl('/AI/WebCAD/WebCADWorkspace.aspx','https://goldenfu.cn/webcad/'),'https://goldenfu.cn/AI/WebCAD/WebCADWorkspace.aspx');

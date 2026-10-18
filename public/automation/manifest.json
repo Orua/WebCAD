@@ -1,9 +1,9 @@
 {
   "version": "1.52.1",
-  "buildId": "8bc6eaf9da4a354fb55f0c6e30b1f3528d702838-src-447c1ecf0c853230-working",
+  "buildId": "1c538e3a409237f7d4b109c41deb479d4424266d-src-6df8d2502012405f-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:5a0eaef6eb878f0414d77122a7fce0a9a1b6cffac459a1df009caa6d7aefdb51",
-  "docsHash": "sha256:5290e31142bd4ea16076721139ffdee9b1921e12f18e43a58cfa56eee669787d",
+  "catalogHash": "sha256:0f23778aabb941f103a32d22f97de0309b379231cf9fe018dc1c26cda41665a6",
+  "docsHash": "sha256:943bc7a6b6d600f6466e5f2828c47274efbcc0cfbfb8ef909d0e5c6d78ee69c4",
   "apiMethods": [
     "probeBlendRadius",
     "recoverKernel",
@@ -1846,7 +1846,7 @@
       "title": "setAgentPanel",
       "category": "page-method",
       "version": "1.52.1",
-      "docsHash": "sha256:ce5528596bfb76deedaf999937947ab11b274081ca9994adb13d618691dbc050",
+      "docsHash": "sha256:0b0f807b249d0f44649d1e89459c147eb2e264d62d82653c4b275ebbf487be55",
       "url": "tools/setAgentPanel.json"
     },
     {
@@ -2134,7 +2134,7 @@
       "title": "修改参数",
       "category": "command",
       "version": "1.52.1",
-      "docsHash": "sha256:1a2f932bd0cdb1ed7f14e7f95ec457b1ba1e723e7c4b591139496d944f8da42c",
+      "docsHash": "sha256:4e19b3ea4e2735f48e26017b812a039370174912ae06cf0345ddef30e38e9c54",
       "url": "tools/feature.edit.json"
     },
     {
@@ -2551,7 +2551,7 @@
     },
     {
       "id": "api.ui-coverage",
-      "docsHash": "sha256:f94a6648a5ca90da9a7a65f76e662add193eaf80e0c536186f4234d7ded0e9d9",
+      "docsHash": "sha256:e2c7ee42f5455d9eec39f06d86fa9f2b8777ceb009def8b069ffe2dba1107460",
       "url": "docs/api.ui-coverage.md"
     },
     {

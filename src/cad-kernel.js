@@ -17,8 +17,8 @@ import {exportColoredSTEP} from './modeling/io/step-export.js';
 import {meshIntegrity,binaryStl} from './modeling/io/mesh-integrity.js';
 import {applyMirrorVariation,overriddenParams} from './mirror-variation.js';
 import {robustUnion} from './modeling/robust-union.js';
-import {usesOrdinalTopology} from './legacy-topology-policy.js';
-import {initializeFaceOrigins,copyFaceOrigins,blendContext,originSignatures,restoreFaceOrigins,cutWithFaceOrigins} from './modeling/face-origins.js';
+import {unionStrategy} from './legacy-topology-policy.js';
+import {initializeFaceOrigins,copyFaceOrigins,blendContext,originSignatures,restoreFaceOrigins,cutWithFaceOrigins,orderedFuseWithFaceOrigins} from './modeling/face-origins.js';
 import {buildBlendRadius} from './blend-radius.js';
 import {probeBlendRadius} from './blend-radius-search.js';
 import {rangedBlend} from './blend-radius-range.js';
@@ -652,14 +652,14 @@ export class CadKernel {
       }
       case 'union': case 'cut': case 'intersect': {
         if (sources.length < 2) throw new Error('布尔操作至少需要两个实体');
-        if(feature.op==='union'&&(!usesOrdinalTopology(historyFeatures)||Object.keys(p).length))return finishBooleanBlend(robustUnion(sources,{...p,toolIds:refs,toolNames:refs.map(id=>historyFeatures.find(f=>f.id===id)?.name||id),measure:shape=>preciseVolume(shape,this.oc)}),p,refs);
+        if(feature.op==='union'&&unionStrategy(feature)==='multi-fuse')return finishBooleanBlend(robustUnion(sources,{...p,toolIds:refs,toolNames:refs.map(id=>historyFeatures.find(f=>f.id===id)?.name||id),measure:shape=>preciseVolume(shape,this.oc)}),p,refs);
         let out = copyFaceOrigins(sources[0],sources[0].clone()); const method = { union: 'fuse', cut: 'cut', intersect: 'intersect' }[feature.op];
         try {
           for (const tool of sources.slice(1)) {
             const before = preciseVolume(out,this.oc), toolVolume = preciseVolume(tool,this.oc);
             const lower = feature.op === 'union' ? Math.max(before,toolVolume) : 0;
             const upper = feature.op === 'union' ? before+toolVolume : feature.op === 'cut' ? before : Math.min(before,toolVolume);
-            const next = feature.op==='cut'?cutWithFaceOrigins(out,tool):out[method](tool);
+            const next = feature.op==='cut'?cutWithFaceOrigins(out,tool):feature.op==='union'?orderedFuseWithFaceOrigins(out,tool):out[method](tool);
             try {
               const volume = preciseVolume(next,this.oc);
               // Valid topology can still contain the wrong material. Apply the
@@ -858,10 +858,9 @@ export class CadKernel {
     const next = new Map(), active = new Map(), ids = new Set(); let current;
     const importsSignature = JSON.stringify(document.imports || {});
     const features = document.features;
-    const ordinalTopology=usesOrdinalTopology(features);
     const signatures = features.map(geometryFeatureSignature);
     let prefix = 0;
-    while (this.ordinalTopology===ordinalTopology && prefix < signatures.length && prefix < this.historySignature.length && signatures[prefix] === this.historySignature[prefix] && importsSignature === this.importsSignature) prefix++;
+    while (prefix < signatures.length && prefix < this.historySignature.length && signatures[prefix] === this.historySignature[prefix] && importsSignature === this.importsSignature) prefix++;
     const reused = new Set();
     const nextRenderCache = new Map();
     const compiledReuse=[],compiledInvalidated=[],perFeatureMs=[];
@@ -955,7 +954,6 @@ export class CadKernel {
       this.shapes.forEach((shape, id) => { if (!reused.has(id) && !next.has(id)) dispose(shape); });
       this.shapes.forEach((shape, id) => { if (next.has(id) && next.get(id) !== shape && !reused.has(id)) dispose(shape); });
       this.shapes = next; this.active = active; this.historySignature = signatures; this.importsSignature = importsSignature; this.renderCache = nextRenderCache;
-      this.ordinalTopology=ordinalTopology;
       this.lastFeatureTimings=perFeatureMs;
       this.lastCompiledInvalidated=compiledInvalidated;
       this.reportRebuildProgress('complete','重建完成');

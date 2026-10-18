@@ -1,5 +1,6 @@
 import {createHostAdapter} from './host-adapter.js';
 import {workspaceThemeTokens} from '../ui/config/theme-colors.js';
+import {createPanelLayout} from './panel-layout.js';
 
 const PROTOCOL='webcad.assistant-panel/1';
 const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
@@ -14,8 +15,9 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
   let url=defaultUrl,frame=null,channel=null,origin=null,adapter=null,visible=false,collapsed=false,panelToggle=null,phase='closed',error=null,external=null,exitOperation=null;
   let requestSeq=0,handshakeTimer=null,hostResponded=false;const pending=new Map(),adapters=new Map(),revisionSubscriptions=new Map();
   try{const saved=localStorage.getItem('webcad.assistant-url.v1');if(saved)url=validateAssistantUrl(saved);}catch{}
-  const state=()=>({version:1,url,configured:Boolean(url),visible,collapsed:visible&&collapsed,expanded:visible&&!collapsed,phase:external&&visible&&external.agentState?.()==='offline'?'agent_offline':external&&visible&&hostControl.get().connected?'connected':phase,error,connected:hostControl.get().connected,locked:hostControl.get().locked,externalHost:Boolean(external)});
+  const state=()=>{const size=external?.getLayout?.()||layout.get();return {version:1,url,configured:Boolean(url),visible,collapsed:visible&&size.collapsed,expanded:visible&&!size.collapsed,layout:size,phase:external&&visible&&external.agentState?.()==='offline'?'agent_offline':external&&visible&&hostControl.get().connected?'connected':phase,error,connected:hostControl.get().connected,locked:hostControl.get().locked,externalHost:Boolean(external)};};
   const notify=()=>onChange(state());
+  const layout=createPanelLayout({root:surface,visible:()=>visible&&!external,collapsed:()=>collapsed,onCollapsed:setCollapsed,onChange:notify,widthProperty:'--agent-panel-width',heightProperty:'--agent-panel-height'});
   function syncPanelToggle(){
     if(!panelToggle)return;
     const label=collapsed?'展开 Agent 对话框':'隐藏 Agent 对话框';
@@ -23,13 +25,13 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
     if(frame)panelToggle.setAttribute('aria-controls',frame.id);
     panelToggle.innerHTML=collapsed?'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 4v16M10 8l-4 4 4 4"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 4v16M14 8l4 4-4 4"/></svg>';
   }
-  function setCollapsed(value){collapsed=Boolean(value);surface.classList.toggle('agent-panel-collapsed',collapsed);syncPanelToggle();notify();}
+  function setCollapsed(value){collapsed=Boolean(value);surface.classList.toggle('agent-panel-collapsed',collapsed);syncPanelToggle();layout.sync();notify();}
   function ensurePanelToggle(){
     if(panelToggle)return;
     panelToggle=document.createElement('button');panelToggle.type='button';panelToggle.className='agent-panel-toggle';if(frame)panelToggle.setAttribute('aria-controls',frame.id);
     panelToggle.addEventListener('click',()=>setCollapsed(!collapsed));surface.append(panelToggle);syncPanelToggle();
   }
-  function removePanelToggle(){panelToggle?.remove();panelToggle=null;collapsed=false;surface.classList.remove('agent-panel-collapsed');}
+  function removePanelToggle(){panelToggle?.remove();panelToggle=null;collapsed=false;surface.classList.remove('agent-panel-collapsed');layout.sync();}
   function post(data){frame?.contentWindow?.postMessage({protocol:PROTOCOL,channel,...data},origin);}
   function stopRevisionSubscriptions(){for(const stop of revisionSubscriptions.values())try{stop();}catch{}revisionSubscriptions.clear();}
   function request(method,args){
@@ -102,5 +104,5 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
     handshakeTimer=setTimeout(()=>{if(visible&&phase==='connecting'){phase='error';error='助手尚未接入，请在助手面板确认登录或检查配置地址。';notify();}},30000);
     return {status:'applied',...state()};
   }
-  return Object.freeze({get:state,enter,exit,theme,configure(value){if(visible||phase==='releasing'||phase==='release_pending')fail('AGENT_PANEL_ACTIVE','先退出并确认原连接释放，再修改助手地址。');url=validateAssistantUrl(value);frame?.remove();frame=null;try{localStorage.setItem('webcad.assistant-url.v1',url);}catch{return {status:'applied',persisted:false,...state()};}notify();return {status:'applied',persisted:true,...state()};},bindExternal(controller){external=controller;visible=true;phase='connecting';notify();theme();return state();},sync(){theme();notify();}});
+  return Object.freeze({get:state,enter,exit,theme,setLayout(input){const result=external?external.setLayout(input):layout.set(input);notify();return {status:'applied',layout:result};},configure(value){if(visible||phase==='releasing'||phase==='release_pending')fail('AGENT_PANEL_ACTIVE','先退出并确认原连接释放，再修改助手地址。');url=validateAssistantUrl(value);frame?.remove();frame=null;try{localStorage.setItem('webcad.assistant-url.v1',url);}catch{return {status:'applied',persisted:false,...state()};}notify();return {status:'applied',persisted:true,...state()};},bindExternal(controller){external=controller;visible=true;phase='connecting';layout.sync();notify();theme();return state();},sync(){theme();layout.sync();notify();}});
 }

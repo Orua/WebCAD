@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.52.1 · sha256:5a0eaef6eb878f0414d77122a7fce0a9a1b6cffac459a1df009caa6d7aefdb51
+API 1.52.1 · sha256:0f23778aabb941f103a32d22f97de0309b379231cf9fe018dc1c26cda41665a6
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -4071,6 +4071,14 @@ files.release: contextPolicy=none
 
 界面动作与 AI 等价接口（手势以坐标和显式参数代替）：
 {
+  "agentPanelResize": {
+    "tools": [
+      "getAgentPanel",
+      "setAgentPanel"
+    ],
+    "method": "setAgentPanel",
+    "usage": "拖动Agent分隔线或键盘方向键调尺寸；setAgentPanel({context,layout:{widthPx?,heightPx?,collapsed?}})，getAgentPanel().layout读回手机高度/PC宽度、有效尺寸及收起状态；与可见性分开调用，不修改工程。"
+  },
   "badge": {
     "tools": [
       "badge"
@@ -112859,7 +112867,7 @@ files.release: contextPolicy=none
   "category": "page-method",
   "version": "1.52.1",
   "contextPolicy": "revision",
-  "description": "setAgentPanel({context,visible:true|false})；true将已配置助手侧栏接到当前页面，false立即撤销适配器写入、解锁并关闭侧栏，再取消同一任务并释放原会话。",
+  "description": "setAgentPanel({context,visible:true|false})；true接入已配置助手，false退出并释放。或 setAgentPanel({context,layout:{widthPx?:360,heightPx?:280,collapsed?:false}})；layout与visible分开调用，宽高1–4096像素，按可用空间夹限。",
   "synonyms": [
     "setAgentPanel",
     "Agent",
@@ -112867,15 +112875,19 @@ files.release: contextPolicy=none
     "进入",
     "退出",
     "释放",
-    "编辑"
+    "编辑",
+    "布局",
+    "分隔线",
+    "尺寸",
+    "收起"
   ],
-  "inputContract": "setAgentPanel({context,visible:true|false})；true将已配置助手侧栏接到当前页面，false立即撤销适配器写入、解锁并关闭侧栏，再取消同一任务并释放原会话。",
-  "outputContract": "status=applied，状态见getAgentPanel；不刷新、不另建工程，不改变revision/dirty/相机/历史。网络失败releasePending=true；旧会话须核对释放，不重跑。仅匹配配置origin、实际iframe、一次性channel的消息可用；既有同源工作台可绑定外层控制器。",
+  "inputContract": "setAgentPanel({context,visible:true|false})；true接入已配置助手，false退出并释放。或 setAgentPanel({context,layout:{widthPx?:360,heightPx?:280,collapsed?:false}})；layout与visible分开调用，宽高1–4096像素，按可用空间夹限。",
+  "outputContract": "status=applied；getAgentPanel().layout返回version/mobile/axis/widthPx/heightPx/effectiveSizePx/collapsed/visible。PC调宽、手机调高，至少保留画布280/160px、助手240/156px，空间不足优先画布。两入口使用相同规则，触摸跨iframe拖动；不改revision/dirty/相机/历史，不写工程。字段错误PARAM_SCHEMA_INVALID。网络失败releasePending=true；旧会话须核对释放，不重跑。仅匹配配置origin、实际iframe、一次性channel消息可用。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:ce5528596bfb76deedaf999937947ab11b274081ca9994adb13d618691dbc050"
+  "docsHash": "sha256:0b0f807b249d0f44649d1e89459c147eb2e264d62d82653c4b275ebbf487be55"
 }
 ```
 
@@ -114517,13 +114529,13 @@ files.release: contextPolicy=none
 {
   "id": "feature.edit",
   "title": "修改参数",
-  "description": "args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。",
+  "description": "args:{featureId,opVersion,schemaHash,params,name?,placement?}；opVersion/schemaHash 取被编辑特征 op 的工具卡（如 box 卡），不是本卡；params 为补丁，placement 提供时完整替换。",
   "category": "command",
   "version": "1.52.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"feature.edit\",args}); args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。",
+  "inputContract": "execute({context,idempotencyKey,action:\"feature.edit\",args}); args:{featureId,opVersion,schemaHash,params,name?,placement?}；opVersion/schemaHash 取被编辑特征 op 的工具卡（如 box 卡），不是本卡；params 为补丁，placement 提供时完整替换。",
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 104857600,
@@ -114549,7 +114561,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:1a2f932bd0cdb1ed7f14e7f95ec457b1ba1e723e7c4b591139496d944f8da42c"
+  "docsHash": "sha256:4e19b3ea4e2735f48e26017b812a039370174912ae06cf0345ddef30e38e9c54"
 }
 ```
 

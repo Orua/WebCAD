@@ -1,5 +1,6 @@
 import {validateOperationRefs,normalizeOperationParams,assertOperationContract} from './operation-registry.js';
 import {resolvePlacement,newFeaturePlacement} from './work-frame.js';
+import {markTopologySemantics} from './legacy-topology-policy.js';
 
 // Only whole-body operations; intermediate face/edge numbers have no live revision.
 export const FEATURE_PLAN_OPERATIONS=['box','cylinder','sphere','cone','torus','extrude','revolve','sweep','loft','quickModel','vectorProfile','arcProfile','sketchProfile','curveSweep','advancedLoft','transform','copy','mirror','linearPattern','circularPattern','union','cut','intersect','group','fillet','chamfer','hole','multiHole','multiPocket','multiBoss'];
@@ -40,7 +41,7 @@ export async function compileFeaturePlan(input,state,{uid=()=>crypto.randomUUID(
   await verifyPlacement(item.placement,state,refs);
   const placement=resolvePlacement(newFeaturePlacement(item.placement,state.referenceSystem,item.op),state.referenceSystem,item.op,params);
   const id=uid();if(allocated.has(id))fail('RESOURCE_LIMIT',path,'Feature ID collision');allocated.add(id);featureIds[item.key]=id;
-  features.push({id,op:item.op,params,refs,name:item.name||item.key,...(placement?{placement,semanticsVersion:2}:{})});
+  features.push(markTopologySemantics({id,op:item.op,params,refs,name:item.name||item.key,...(placement?{placement,semanticsVersion:2}:{})}));
   if(item.op==='copy'||item.op==='mirror'&&params.keepOriginal!==false){}
   else if(['union','cut','intersect'].includes(item.op)&&params.keepTools===true)active.delete(refs[0]);
   else refs.forEach(id=>active.delete(id));

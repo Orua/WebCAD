@@ -10,5 +10,21 @@ body.has-agent-panel.agent-panel-collapsed .agent-panel-toggle{right:6px}
 .webcad-app .agent-mode-button{color:var(--accent)}
 .webcad-app .agent-mode-button[aria-pressed=true]{background:var(--accent-soft)}
 .webcad-app.is-host-locked .agent-mode-button{opacity:1;cursor:pointer}
+/* Effective size, separator and collapse toggle share the same variables. */
+body.has-agent-panel[data-cad-mobile=false]{height:min(100dvh,var(--cad-layout-height,100dvh));grid-template-columns:minmax(0,1fr) var(--agent-panel-width);grid-template-rows:minmax(0,1fr)}
+body.has-agent-panel[data-cad-mobile=false] .agent-panel-toggle{top:50%;bottom:auto;left:auto;right:calc(var(--agent-panel-width) - 16px);transform:translateY(-50%);width:32px;height:48px}
+body.has-agent-panel[data-cad-mobile=false] .agent-panel-toggle svg{transform:none}
+body.has-agent-panel[data-cad-mobile=false].agent-panel-collapsed{grid-template-columns:minmax(0,1fr) 44px}
+body.has-agent-panel[data-cad-mobile=false].agent-panel-collapsed .agent-panel-toggle{right:6px}
+.cad-assistant-resizer{position:fixed;z-index:10009;right:calc(var(--agent-panel-width) - 4px);top:0;bottom:0;width:8px;cursor:col-resize;touch-action:none}
+.cad-assistant-resizer[hidden]{display:none}
+.cad-assistant-resizer:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+body.has-agent-panel[data-cad-mobile=true]{height:min(100dvh,var(--cad-layout-height,100dvh));grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) var(--agent-panel-height)}
+body.has-agent-panel[data-cad-mobile=true] .agent-assistant-panel{height:100%;border-left:0;border-top:1px solid var(--ui-border)}
+body.has-agent-panel[data-cad-mobile=true] .agent-panel-toggle{top:auto;left:50%;right:auto;bottom:calc(var(--agent-panel-height) - 16px);transform:translate(-50%,50%);width:48px;height:32px}
+body.has-agent-panel[data-cad-mobile=true] .agent-panel-toggle svg{transform:rotate(90deg)}
+body.has-agent-panel[data-cad-mobile=true] .cad-assistant-resizer{top:auto;bottom:calc(var(--agent-panel-height) - 4px);left:0;right:0;width:auto;height:8px;cursor:row-resize}
+body.has-agent-panel[data-cad-mobile=true].agent-panel-collapsed{grid-template-rows:minmax(0,1fr) 44px}
+body.has-agent-panel[data-cad-mobile=true].agent-panel-collapsed .agent-panel-toggle{bottom:6px;transform:translateX(-50%)}
 @media(max-width:960px){body.has-agent-panel{--agent-panel-width:320px}.webcad-app .app-header .host-control-status{padding:0;gap:3px}.webcad-app .app-header .document-title{min-width:30px;flex:1 1 120px}}
 @media(max-width:700px){body.has-agent-panel{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) 40dvh}.agent-assistant-panel{height:100%;border-left:0;border-top:1px solid var(--ui-border)}body.has-agent-panel>#app .webcad-app{height:100%;min-height:0}.agent-panel-toggle{top:auto;left:50%;right:auto;bottom:calc(40dvh - 16px);transform:translate(-50%,50%);width:48px;height:32px}.agent-panel-toggle svg{transform:rotate(90deg)}body.has-agent-panel.agent-panel-collapsed{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) 44px}body.has-agent-panel.agent-panel-collapsed .agent-panel-toggle{left:50%;right:auto;bottom:6px;transform:translateX(-50%)}}

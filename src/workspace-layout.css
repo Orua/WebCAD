@@ -108,7 +108,11 @@
 .left-collapsed .left-panel .panel-heading,.right-collapsed .right-panel .panel-heading{padding:2px;writing-mode:vertical-rl;justify-content:flex-start}
 .left-collapsed .left-panel .panel-heading>*:not(.panel-toggle),.right-collapsed .right-panel .panel-heading>*:not(.panel-toggle){display:none}
 .left-collapsed .left-toggle,.right-collapsed .right-toggle{writing-mode:vertical-rl;width:32px;height:auto}
-.workspace .viewport-topbar{min-height:34px;top:8px;left:8px;right:8px;padding:2px 4px;gap:5px;background:#ffffffec;border:1px solid #dadee5;border-radius:7px;flex-wrap:wrap}
+.workspace .viewport-topbar{min-height:34px;top:8px;left:8px;right:8px;padding:2px 4px;gap:5px;background:#ffffffec;border:1px solid #dadee5;border-radius:7px;flex-wrap:nowrap}
+.viewport-control-scroll{display:flex;align-items:center;gap:5px;flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+.viewport-control-scroll>:is(.selection-modes,.view-actions,.work-frame-bar){flex:0 0 auto;flex-wrap:nowrap}
+.viewport-edge{display:flex;align-items:center;flex:none;position:relative;z-index:1;background:inherit}
+.viewport-edge:empty{display:none}
 .workspace .selection-modes,.workspace .view-actions{border:0;box-shadow:none;padding:0}
 .workspace .selection-modes button,.workspace .view-actions button{font-size:12px;min-height:28px;min-width:28px;padding:3px 6px}
 .webcad-app .statusbar{height:28px;min-height:28px;font-size:12px}

@@ -2,6 +2,14 @@
 
 界面动作与 AI 等价接口（手势以坐标和显式参数代替）：
 {
+  "agentPanelResize": {
+    "tools": [
+      "getAgentPanel",
+      "setAgentPanel"
+    ],
+    "method": "setAgentPanel",
+    "usage": "拖动Agent分隔线或键盘方向键调尺寸；setAgentPanel({context,layout:{widthPx?,heightPx?,collapsed?}})，getAgentPanel().layout读回手机高度/PC宽度、有效尺寸及收起状态；与可见性分开调用，不修改工程。"
+  },
   "badge": {
     "tools": [
       "badge"

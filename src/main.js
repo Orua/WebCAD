@@ -1,4 +1,5 @@
 import {legacyReliefParams} from './relief-param-migration.js';
+import {markTopologySemantics} from './legacy-topology-policy.js';
 import {intentForUIParameterEdit} from './machining-intent.js';
 import {encodeCommittedProject} from './project-save.js';
 import {createHostAdapter} from './agent/host-adapter.js';
@@ -426,7 +427,7 @@ function featureDocument(op,params={},explicitRefs=[],name,placement){
   }
   if(op==='extractFaces'&&!params.faceIds?.length)throw new Error('请切换到选面并选择至少一个面。');
   const next=clone(documentModel);const id=crypto.randomUUID();
-  next.features.push({id,op,name:name||`${labels[op]||op} ${next.features.filter(f=>f.op===op).length+1}`,params,refs,...(placement?{placement,semanticsVersion:2}:{})});
+  next.features.push(markTopologySemantics({id,op,name:name||`${labels[op]||op} ${next.features.filter(f=>f.op===op).length+1}`,params,refs,...(placement?{placement,semanticsVersion:2}:{})}));
   if(next.appearance?.[refs[0]])next.appearance[id]=next.appearance[refs[0]];
   if(next.colors?.[refs[0]])next.colors[id]=next.colors[refs[0]];
   return {next,id};
@@ -527,7 +528,7 @@ async function previewFile(fileImport,identity,update=false){
   if(busy)throw new Error('Please wait for the current operation.');
   const previousPreview=previewNext,previousIdentity=previewIdentity,next=update?clone(previewNext):clone(documentModel);
   if(update){if(!next||!previousIdentity||previousIdentity.previewId!==identity.previewId||previousIdentity.generation+1!==identity.generation)throw Object.assign(new Error('Preview generation changed'),{code:'STALE_REFERENCE'});next.features.at(-1).placement=fileImport.placement;}
-  else{const {name,data,placement}=fileImport,extension=name.split('.').pop().toLowerCase(),format=['step','stp'].includes(extension)?'step':['brep','brp'].includes(extension)?'brep':null;if(!format)throw Object.assign(new Error('Unsupported file preview format'),{code:'FORMAT_UNSUPPORTED'});const key=crypto.randomUUID(),id=crypto.randomUUID();attachExactSource(next,{key,name,format,data});next.features.push({id,op:'import',name,params:{key},refs:[],placement,semanticsVersion:2});}
+  else{const {name,data,placement}=fileImport,extension=name.split('.').pop().toLowerCase(),format=['step','stp'].includes(extension)?'step':['brep','brp'].includes(extension)?'brep':null;if(!format)throw Object.assign(new Error('Unsupported file preview format'),{code:'FORMAT_UNSUPPORTED'});const key=crypto.randomUUID(),id=crypto.randomUUID();attachExactSource(next,{key,name,format,data});next.features.push(markTopologySemantics({id,op:'import',name,params:{key},refs:[],placement,semanticsVersion:2}));}
   assertDocumentCapacity(next,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});
   if(!identity||identity.owner==='ui')assertHumanEditing();
   const generation=++previewGeneration;previewComputing=true;previewComputingOwner=identity?.owner??'ui';setBusy(true,'文件插入预览 / File preview…');
@@ -604,14 +605,14 @@ async function appendModel(next,file,{mcp=false,placement,units}={}){
   const ext=extensionOf(file.name);
   if(['stl','mesh'].includes(ext)){
     const declared=units??(mcp?undefined:prompt('网格源单位（STL没有单位）：填写 mm、cm、m 或 in；取消保留原工程。',''));if(declared===null)return null;meshScale(declared);if(ext==='mesh'&&declared!=='mm')throw Object.assign(new Error('Float64网格已使用mm。'),{code:'MESH_UNITS_REQUIRED'});
-    const bytes=new Uint8Array(await file.arrayBuffer()),hash=binaryHash(bytes).slice(7),key=crypto.randomUUID(),id=crypto.randomUUID();next.version=4;next.binaryAssets={...next.binaryAssets,[hash]:bytes};next.imports[key]={format:ext,units:declared,assetHash:hash,name:file.name};next.features.push({id,op:'import',name:file.name,params:{key},refs:[],...(placement?{placement,semanticsVersion:2}:{})});
+    const bytes=new Uint8Array(await file.arrayBuffer()),hash=binaryHash(bytes).slice(7),key=crypto.randomUUID(),id=crypto.randomUUID();next.version=4;next.binaryAssets={...next.binaryAssets,[hash]:bytes};next.imports[key]={format:ext,units:declared,assetHash:hash,name:file.name};next.features.push(markTopologySemantics({id,op:'import',name:file.name,params:{key},refs:[],...(placement?{placement,semanticsVersion:2}:{})}));
     return {id,large:false};
   }
   const format=['step','stp'].includes(ext)?'step':['brep','brp'].includes(ext)?'brep':null;
   if(!format)throw Object.assign(new Error('请选择 STEP/STP、BREP 或 STL 模型文件。'),{code:'FORMAT_UNSUPPORTED'});
   const key=crypto.randomUUID(),id=crypto.randomUUID();
   attachExactSource(next,{key,name:file.name,format,data:new Uint8Array(await file.arrayBuffer())});
-  next.features.push({id,op:'import',name:file.name,params:{key},refs:[],...(placement?{placement,semanticsVersion:2}:{})});
+  next.features.push(markTopologySemantics({id,op:'import',name:file.name,params:{key},refs:[],...(placement?{placement,semanticsVersion:2}:{})}));
   return {id,large:true};
 }
 // UI: 保存 / 不保存 / 取消. Returns true when replacing may proceed.
@@ -843,7 +844,7 @@ async function pasteModelClipboard(){
   const next=clone(documentModel),created=[];
   for(const sourceId of sourceIds){
     const id=crypto.randomUUID(),source=bodies.find(body=>body.id===sourceId);
-    next.features.push({id,op:'copy',name:`${source.name||'实体'} 副本`,params:{positionMode:'relative',x:delta[0],y:delta[1],z:delta[2],rx:0,ry:0,rz:0,scale:1},refs:[sourceId]});
+    next.features.push(markTopologySemantics({id,op:'copy',name:`${source.name||'实体'} 副本`,params:{positionMode:'relative',x:delta[0],y:delta[1],z:delta[2],rx:0,ry:0,rz:0,scale:1},refs:[sourceId]}));
     if(next.appearance?.[sourceId])next.appearance[id]=next.appearance[sourceId];
     if(next.colors?.[sourceId])next.colors[id]=next.colors[sourceId];
     created.push(id);
@@ -938,7 +939,7 @@ async function executeAI(command,args={},options={}){
     }
     if(action==='body.align'){
       const plan=planBodyAlignment(a,bodies,documentModel.referenceSystem),ids=[];
-      for(const move of plan.moves){const id=crypto.randomUUID();ids.push(id);next.features.push({id,op:'transform',name:'对齐 · '+(bodies.find(b=>b.id===move.bodyId)?.name||'实体'),params:{x:move.delta[0],y:move.delta[1],z:move.delta[2],rx:0,ry:0,rz:0,scale:1},refs:[move.bodyId]});for(const key of ['appearance','colors'])if(next[key]?.[move.bodyId])next[key][id]=next[key][move.bodyId];}
+      for(const move of plan.moves){const id=crypto.randomUUID();ids.push(id);next.features.push(markTopologySemantics({id,op:'transform',name:'对齐 · '+(bodies.find(b=>b.id===move.bodyId)?.name||'实体'),params:{x:move.delta[0],y:move.delta[1],z:move.delta[2],rx:0,ry:0,rz:0,scale:1},refs:[move.bodyId]}));for(const key of ['appearance','colors'])if(next[key]?.[move.bodyId])next[key][id]=next[key][move.bodyId];}
       await rebuild(next,{...options,historyLabel:'快速对齐 '+ids.length+' 件',select:origin==='agent'?null:ids[0]});
       if(origin==='agent'){selectedIds=selectedIds.filter(id=>bodies.some(b=>b.id===id));viewport.setSelection(selectedIds,selectedTopology);}else{selectedIds=ids;viewport.setSelection(ids);}
       refresh();return aiState();
@@ -947,7 +948,7 @@ async function executeAI(command,args={},options={}){
       const source=bodies.find(b=>b.id===a.bodyId),ids=[];
       for(let i=0;i<source.solidCount;i++){
         const id=crypto.randomUUID();ids.push(id);
-        next.features.push({id,op:'extractSolid',name:(source.name||'模型')+' / '+(i+1),params:{solidIndex:i,keepOriginal:i<source.solidCount-1},refs:[source.id]});
+        next.features.push(markTopologySemantics({id,op:'extractSolid',name:(source.name||'模型')+' / '+(i+1),params:{solidIndex:i,keepOriginal:i<source.solidCount-1},refs:[source.id]}));
         if(next.appearance?.[source.id])next.appearance[id]=next.appearance[source.id];
         if(next.colors?.[source.id])next.colors[id]=next.colors[source.id];
       }
