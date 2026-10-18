@@ -239,7 +239,7 @@ export function createUI(root,callbacks={}) {
  }
  const fileMenu=element('details',{class:'file-menu','data-panel-id':'file-menu'}),fileSummary=element('summary',{'aria-label':'文件',title:'文件'},'');fileSummary.append(vectorIcon(UI_LAYOUT.icons.folder));fileMenu.append(fileSummary);
  const fileItems=element('div',{class:'file-menu-items'});
- for(const item of UI_LAYOUT.fileMenu){const entry=button(item.label,()=>{fileMenu.open=false;run(item.action);});entry.prepend(actionIcon(item.action));entry.dataset.action=item.action;entry.dataset.commandId=item.action;fileItems.append(entry);}
+ for(const item of UI_LAYOUT.fileMenu){const entry=button(item.label,()=>{fileMenu.open=false;run(item.action);});if(item.title)entry.title=item.title;entry.prepend(actionIcon(item.action));entry.dataset.action=item.action;entry.dataset.commandId=item.action;fileItems.append(entry);}
  fileMenu.append(fileItems);q('.app-header').insertBefore(fileMenu,q('.document-title'));
  q('.app-header').insertBefore(q('.quick-history'),q('.document-title'));
  const sideTabs=element('div',{class:'browser-tabs',role:'tablist','aria-label':'工程浏览器'});

@@ -1,4 +1,9 @@
 // Keep Goldenluck Web/AI/WebCAD/panel-layout.js identical; each repo imports its own copy.
+export function isMobileLayout(win=window){
+  // Honor Chrome's desktop-site UA independently of the phone's physical input.
+  const mobile=win.navigator.userAgentData?.mobile;
+  return typeof mobile==='boolean'?mobile:/Android|iPhone|iPod|Mobile/i.test(win.navigator.userAgent||'');
+}
 export function isMobileInput(win=window){
   if(win.navigator.userAgentData?.mobile===true||/Android|iPhone|iPod|Mobile/i.test(win.navigator.userAgent||''))return true;
   return win.matchMedia('(pointer: coarse) and (hover: none)').matches&&Math.min(win.screen.width,win.screen.height)<=700;
@@ -10,7 +15,7 @@ export function clampPanelSize(value,extent,mobile){
 export function createPanelLayout({root,visible=()=>true,collapsed=()=>false,onCollapsed=()=>{},onChange=()=>{},widthProperty,heightProperty}){
   let widthPx=360,heightPx=null,drag=null,shield=null;
   const handle=document.createElement('div');handle.className='cad-assistant-resizer';handle.tabIndex=0;handle.setAttribute('role','separator');handle.setAttribute('aria-label','调整 CAD 助手尺寸');root.append(handle);
-  const mobile=()=>isMobileInput();
+  const mobile=()=>isMobileLayout();
   const extent=()=>{const rect=root.getBoundingClientRect();return mobile()?Math.min(rect.height,window.visualViewport?.height||rect.height):rect.width;};
   const size=()=>clampPanelSize(mobile()?(heightPx??extent()*.4):widthPx,extent(),mobile());
   function sync(){
