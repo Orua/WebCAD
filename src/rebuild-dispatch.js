@@ -1,11 +1,12 @@
 import {RebuildPool} from './rebuild-pool.js';
 import {geometryFeatureSignature} from './services/geometry-signature.js';
+import {usesOrdinalTopology} from './legacy-topology-policy.js';
 
 export async function rebuildWithPool(kernel,document,{workers,headless=false,displayCoarsen=1}={}){
   if(workers!==undefined&&(!Number.isInteger(workers)||workers<0||workers>4))throw new RangeError('workers 必须是0–4；0为串行');
   const cold=kernel.historySignature[0]!==geometryFeatureSignature(document.features[0]||{});
   const roots=document.features.filter(row=>!row.refs?.length).length;
-  const eligible=workers!==0&&cold&&!document.features.some(row=>row.compiledCheckpoint)&&roots>1&&(workers!==undefined||document.features.length>=8);
+  const eligible=workers!==0&&cold&&!usesOrdinalTopology(document.features)&&!document.features.some(row=>row.compiledCheckpoint)&&roots>1&&(workers!==undefined||document.features.length>=8);
   if(!eligible)return kernel.rebuild(document,{headless,displayCoarsen});
   const pool=new RebuildPool(workers===undefined?{}:{workers}),started=performance.now();
   kernel.rebuildStarted=started;

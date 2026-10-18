@@ -17,6 +17,7 @@ import {exportColoredSTEP} from './modeling/io/step-export.js';
 import {meshIntegrity,binaryStl} from './modeling/io/mesh-integrity.js';
 import {applyMirrorVariation,overriddenParams} from './mirror-variation.js';
 import {robustUnion} from './modeling/robust-union.js';
+import {usesOrdinalTopology} from './legacy-topology-policy.js';
 import {initializeFaceOrigins,copyFaceOrigins,blendContext,originSignatures,restoreFaceOrigins,cutWithFaceOrigins} from './modeling/face-origins.js';
 import {buildBlendRadius} from './blend-radius.js';
 import {probeBlendRadius} from './blend-radius-search.js';
@@ -651,7 +652,7 @@ export class CadKernel {
       }
       case 'union': case 'cut': case 'intersect': {
         if (sources.length < 2) throw new Error('布尔操作至少需要两个实体');
-        if(feature.op==='union')return finishBooleanBlend(robustUnion(sources,{...p,toolIds:refs,toolNames:refs.map(id=>historyFeatures.find(f=>f.id===id)?.name||id),measure:shape=>preciseVolume(shape,this.oc)}),p,refs);
+        if(feature.op==='union'&&(!usesOrdinalTopology(historyFeatures)||Object.keys(p).length))return finishBooleanBlend(robustUnion(sources,{...p,toolIds:refs,toolNames:refs.map(id=>historyFeatures.find(f=>f.id===id)?.name||id),measure:shape=>preciseVolume(shape,this.oc)}),p,refs);
         let out = copyFaceOrigins(sources[0],sources[0].clone()); const method = { union: 'fuse', cut: 'cut', intersect: 'intersect' }[feature.op];
         try {
           for (const tool of sources.slice(1)) {
@@ -671,7 +672,7 @@ export class CadKernel {
             } catch (error) { dispose(next); throw error; }
             dispose(out); out = next;
           }
-          return feature.op==='cut'?finishBooleanBlend(out,p,refs):out;
+          return ['cut','union'].includes(feature.op)?finishBooleanBlend(out,p,refs):out;
         }
         catch (error) { dispose(out); throw error; }
       }
@@ -857,6 +858,8 @@ export class CadKernel {
     const next = new Map(), active = new Map(), ids = new Set(); let current;
     const importsSignature = JSON.stringify(document.imports || {});
     const features = document.features;
+    const ordinalTopology=usesOrdinalTopology(features);
+    if(this.ordinalTopology!==ordinalTopology){this.historySignature=[];this.ordinalTopology=ordinalTopology;}
     const signatures = features.map(geometryFeatureSignature);
     let prefix = 0;
     while (prefix < signatures.length && prefix < this.historySignature.length && signatures[prefix] === this.historySignature[prefix] && importsSignature === this.importsSignature) prefix++;

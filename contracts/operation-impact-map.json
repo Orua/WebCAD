@@ -727,14 +727,16 @@
       "sourcePaths": [
         "src/cad-kernel.js",
         "src/operation-catalog.js",
-        "src/operation-registry.js"
+        "src/operation-registry.js",
+        "src/legacy-topology-policy.js",
+        "src/rebuild-dispatch.js"
       ],
-      "localImpact": "Fuse bodies; current-rebuild OCCT face provenance supports semantic blend selection; one multi-fuse with one validated recovery and accurate failure points; independent DAG branches may run on up to four Workers; per-feature timings and exact BRep checkpoints",
+      "localImpact": "Fuse bodies; current-rebuild OCCT face provenance supports semantic blend selection; one multi-fuse with one validated recovery and accurate failure points; independent DAG branches may run on up to four Workers; per-feature timings and exact BRep checkpoints; saved ordinal face/edge histories retain sequential fusion and serial rebuild; multi-argument reordering is disabled for their default union recipe",
       "servicesImpact": "Shared Services routing and capability checks apply",
       "logoImpact": "none: unrelated to logo conversion",
       "contractImpact": "Source operation schema, shared command execution and generated tool card; seamBetween, edgesNear and facesFromFeature selectors resolve against current geometry; explicit fuzzyMm/glue; bounded details identify participating tools or invalid transient topology; getState.kernelPerformance and optional local-rebuild persisted checkpoint, Native artifact gates unchanged",
       "documentImpact": "Feature recipe and referenced source bodies retained by the document authority; failed operation leaves committed history and geometry unchanged",
-      "cacheImpact": "Feature signature/render cache and static contract hashes; local kernel/semantic/codec/recipe/upstream artifact hashes invalidate checkpoints; no persisted topology indices",
+      "cacheImpact": "Feature signature/render cache and static contract hashes; local kernel/semantic/codec/recipe/upstream artifact hashes invalidate checkpoints; no persisted topology indices; local rebuild semantic version v2 invalidates prior checkpoints and changing ordinal policy invalidates hot history",
       "requiredTests": [
         "tests/operation-contract.test.mjs",
         "tests/semantic-blend-integration.test.mjs",
@@ -744,7 +746,9 @@
         "tests/local-checkpoint.test.mjs",
         "tests/rebuild-pool.test.mjs"
       ],
-      "manualChecks": []
+      "manualChecks": [
+        "Original whale and v3-v6 unchanged source volume within 0.5%; retained ordinal face selections"
+      ]
     },
     {
       "operation": "cut",
