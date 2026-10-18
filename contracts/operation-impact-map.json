@@ -1,5 +1,14 @@
 {
   "version": 1,
+  "panelAffordance20261018": {
+    "localImpact": "Mobile collapse control joins header icons; desktop control and collapsed rail narrow; shared separator shows a direction hint at mouse/touch position",
+    "servicesImpact": "none; panel DOM and pointer feedback only",
+    "logoImpact": "none; no conversion or geometry change",
+    "contractImpact": "Existing get/setAgentPanel retained; effectiveSizePx reflects compact collapsed layout",
+    "documentImpact": "none; document and persistence unchanged",
+    "cacheImpact": "Rebuild frontend and version matching host resources",
+    "requiredTests": ["panel-layout", "assistant-panel", "17674 mobile/desktop interaction", "formal endpoint HTTP identity"]
+  },
   "uiFollowup20261018": {
     "localImpact": "Honor mobile Chrome desktop-site layout independently of physical keyboard input; restore visible themed brand; concise Open/Import labels and green rightmost Agent connection indicator",
     "servicesImpact": "none; frontend layout and welcome copy only, no backend or Agent executable changes",

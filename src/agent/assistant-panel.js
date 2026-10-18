@@ -1,6 +1,6 @@
 import {createHostAdapter} from './host-adapter.js';
 import {workspaceThemeTokens} from '../ui/config/theme-colors.js';
-import {createPanelLayout} from './panel-layout.js';
+import {createPanelLayout,isMobileLayout} from './panel-layout.js';
 
 const PROTOCOL='webcad.assistant-panel/1';
 const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
@@ -17,14 +17,17 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
   try{const saved=localStorage.getItem('webcad.assistant-url.v1');if(saved)url=validateAssistantUrl(saved);}catch{}
   const state=()=>{const size=external?.getLayout?.()||layout.get();return {version:1,url,configured:Boolean(url),visible,collapsed:visible&&size.collapsed,expanded:visible&&!size.collapsed,layout:size,phase:external&&visible&&external.agentState?.()==='offline'?'agent_offline':external&&visible&&hostControl.get().connected?'connected':phase,error,connected:hostControl.get().connected,locked:hostControl.get().locked,externalHost:Boolean(external)};};
   const notify=()=>onChange(state());
-  const layout=createPanelLayout({root:surface,visible:()=>visible&&!external,collapsed:()=>collapsed,onCollapsed:setCollapsed,onChange:notify,widthProperty:'--agent-panel-width',heightProperty:'--agent-panel-height'});
+  const layout=createPanelLayout({root:surface,visible:()=>visible&&!external,collapsed:()=>collapsed,collapsedSize:()=>isMobileLayout()?0:28,onCollapsed:setCollapsed,onChange:notify,widthProperty:'--agent-panel-width',heightProperty:'--agent-panel-height'});
   function syncPanelToggle(){
     if(!panelToggle)return;
+    const header=isMobileLayout()?surface.querySelector?.('.app-header .header-actions'):null;
+    (header||surface).append(panelToggle);
     const label=collapsed?'展开 Agent 对话框':'隐藏 Agent 对话框';
     panelToggle.title=label;panelToggle.setAttribute('aria-label',label);panelToggle.setAttribute('aria-expanded',String(!collapsed));
     if(frame)panelToggle.setAttribute('aria-controls',frame.id);
     panelToggle.innerHTML=collapsed?'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 4v16M10 8l-4 4 4 4"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 4v16M14 8l4 4-4 4"/></svg>';
   }
+  window.addEventListener('resize',syncPanelToggle);
   function setCollapsed(value){collapsed=Boolean(value);surface.classList.toggle('agent-panel-collapsed',collapsed);syncPanelToggle();layout.sync();notify();}
   function ensurePanelToggle(){
     if(panelToggle)return;
