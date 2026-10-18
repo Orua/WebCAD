@@ -19,6 +19,6 @@ There is no cumulative 100-command ceiling. Reported terminal receipts of ended 
 
 For a native `files.save`, the adapter calls `files.confirmWritten` only after the host returns `agent_write_verified` with exactly matching size and SHA256. A later page revision cannot be marked saved by an older artifact. Confirmation failure preserves the verified server attachment and is reported separately.
 
-The host must heartbeat the server binding, retry lost receipt reports, and explicitly release it when leaving. Revision checks remain in the public API. A restored result after a page reload is not inferred from the ledger. Native exports should be submitted separately through the artifact tool; exports nested inside a run retain their native generated status and are not automatically persisted as Agent attachments.
+The host must heartbeat the server binding, retry lost receipt reports, and explicitly release it when leaving. Revision checks remain in the public API. A restored result after a page reload is not inferred from the ledger. A run transfers each generated files.save/files.export step through the same verified artifact channel as standalone exports, including checkpoints committed before a later step fails. Results retain separate generation, attachment and save-confirmation receipts. The broker must accept artifacts from runs declaring these file steps.
 
 Tests: `node --test tests/remote-agent-adapter.test.mjs`.

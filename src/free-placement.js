@@ -41,3 +41,17 @@ export function xShiftToClear(existingBounds,newBounds,{gapMm=5}={}){
   if(!u||!validBounds(newBounds)||boundsClearInXY([u],newBounds,{gapMm}))return 0;
   return Math.max(0,u.max[0]+gapMm-newBounds.min[0]);
 }
+
+// Finish placement on the uncommitted candidate. The caller commits and records
+// history only after this geometry succeeds; the live document is never patched.
+export async function placePendingFeature({document,result,existingBodies,featureId,rebuild}){
+  const feature=document.features.find(row=>row.id===featureId),frame=feature?.placement?.frameSnapshot;
+  if(!frame?.origin||frame.origin.length!==3)return {document,result};
+  const existingIds=new Set(existingBodies.map(body=>body.id));
+  const created=unionBounds(result.bodies.filter(body=>!existingIds.has(body.id)).map(body=>body.bounds));
+  const dx=created?xShiftToClear(existingBodies.map(body=>body.bounds),created,{gapMm:5}):0;
+  if(dx<=EPS)return {document,result};
+  const placed=structuredClone(document),target=placed.features.find(row=>row.id===featureId);
+  target.placement={...target.placement,frameSnapshot:{...frame,origin:frame.origin.map((value,index)=>index===0?value+dx:value)}};
+  return {document:placed,result:await rebuild(placed),warning:{code:'AUTO_PLACED',message:`已放在已有模型右侧 5 mm 处（X=${(frame.origin[0]+dx).toFixed(3)} mm）`}};
+}

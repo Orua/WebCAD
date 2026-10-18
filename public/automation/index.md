@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.52.1 · 操作目录 sha256:0f23778aabb941f103a32d22f97de0309b379231cf9fe018dc1c26cda41665a6
+API 1.52.1 · 操作目录 sha256:c25a910fd56efb03cbfa1b6c6f79f6a7c6005b2c38574a7b53670da693557eff
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -357,8 +357,8 @@ API 1.52.1 · 操作目录 sha256:0f23778aabb941f103a32d22f97de0309b379231cf9fe0
 - `files.new` · browser-file-adapter · new({context}); complete current context; dirty replacement is always rejected by page API. Default name: 新建工程YYYYMMDD-NNN using the current local date and a daily browser-persisted sequence (minimum three digits); no explicit name argument.
 - `files.open` · browser-file-adapter · open({context,resourceId,unsaved:"fail"|"discard",units?}); 打开=替换当前设计，从不合并。.webcad/.json 工程或单个 STEP/BREP/STL 模型（放入新文档；STL 需 units）。unsaved 必填：fail 在未保存时返回 UNSAVED_REPLACEMENT，discard 放弃修改。要加入当前设计请用 files.import。
 - `files.import` · browser-file-adapter · import({context,resourceId,units?,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP or binary STL/mesh resource. Mesh requires explicit units and idempotencyKey; read api.mesh-assets. Exact-source typed imports preserve optional legacy key behavior; supply idempotencyKey for replay protection; read api.exact-source-assets. When placement is present, idempotencyKey is required; run batch injects its own step key.
-- `files.save` · browser-file-adapter · save({context,name?}); complete current context.
-- `files.export` · browser-file-adapter · export({context,format,ids?,name?}); format step/stl/brep/png.
+- `files.save` · browser-file-adapter · save({context,name?}); complete current context. name may omit its extension; the output uses .webcad.
+- `files.export` · browser-file-adapter · export({context,format,ids?,name?}); format step/stl/brep/png. name may omit its extension; output suffix follows the generated format (matching .stp/.brp aliases retained).
 - `files.reattach` · browser-file-adapter · reattach({context,resourceId}); 使用尚未过期的已生成资源，重新附加到当前任务。
 - `files.read` · browser-file-adapter · read({resourceId,as?}); as is blob (default) or bytes.
 - `files.download` · browser-file-adapter · download({resourceId}); generated output only.

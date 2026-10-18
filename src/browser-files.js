@@ -131,7 +131,13 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
     if (typeof extension !== 'string' || !/^[a-z0-9]{1,8}$/iu.test(extension)) {
       throw failure('ASSET_INVALID', 'File command returned an invalid extension');
     }
-    const outputName = basename(name ?? `document.${extension}`);
+    const requestedName=basename(name ?? `document.${extension}`);
+    const suffix=requestedName.split('.').at(-1).toLowerCase();
+    const matches=suffix===extension.toLowerCase()||extension==='step'&&suffix==='stp'||extension==='brep'&&suffix==='brp';
+    // The selected format determines the bytes. A descriptive name need not
+    // include an extension; keep accepted CAD aliases and correct stale ones.
+    const stem=/\.(webcad|step|stp|stl|brep|brp|png|pdf|jpg|dxf|svg)$/i.test(requestedName)?requestedName.slice(0,requestedName.lastIndexOf('.')):requestedName;
+    const outputName=basename(matches?requestedName:`${stem}.${extension}`);
     const savedContext = { sessionId: context.sessionId, documentId: context.documentId,
       documentInstanceId: context.documentInstanceId, revision };
     const artifact=await add({ kind: 'output', name: outputName, mime: result.mime, bytes:result.encoding==='bytes'?result.data:bytesFromBase64(result.data),

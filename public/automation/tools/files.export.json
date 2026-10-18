@@ -9,8 +9,8 @@
     "导出文件",
     "export"
   ],
-  "description": "export({context,format,ids?,name?}); format step/stl/brep/png.",
-  "inputContract": "export({context,format,ids?,name?}); format step/stl/brep/png.",
+  "description": "export({context,format,ids?,name?}); format step/stl/brep/png. name may omit its extension; output suffix follows the generated format (matching .stp/.brp aliases retained).",
+  "inputContract": "export({context,format,ids?,name?}); format step/stl/brep/png. name may omit its extension; output suffix follows the generated format (matching .stp/.brp aliases retained).",
   "outputContract": "status=generated output resource with exact source snapshot.",
   "units": {
     "length": "mm",
@@ -66,5 +66,5 @@
     "RESOURCE_LIMIT",
     "FORMAT_UNSUPPORTED"
   ],
-  "docsHash": "sha256:28a1192f0a57d112ec89e1d049000e04f6cd3d5be0d5457eaca6dc2b595cf3b1"
+  "docsHash": "sha256:ffc2d45edd6efde6c1c9c8f3831597c211033f201b275c95782cdb95c781b21e"
 }
