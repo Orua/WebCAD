@@ -80,6 +80,32 @@ test('verified native project attachment confirms save only with matching bytes'
   const result=await adapter.receive(envelope({method:'files.save',args:{context:requestContext}}));
   assert.equal(confirmed,1);assert.equal(result.saveConfirmation.status,'write_verified');
 });
+
+test('batch checkpoints transfer original resources even after a later step fails, without replaying geometry',async()=>{
+  let submitted=0,confirmed=0;
+  const uploaded=[];
+  const project={status:'generated',resourceId:'project',name:'阶段一.webcad',size:3,sha256:'abc'};
+  const exported={status:'generated',resourceId:'step',name:'阶段一.step',size:4,sha256:'def'};
+  const receipt={status:'partial',results:[{id:'save',result:project},{id:'export',result:exported},{id:'later',result:{status:'failed'}}]};
+  const api={connect(){},getState:()=>({context}),invoke(){},submit(){submitted++;},getJob:()=>({status:'completed',result:receipt}),
+    files:{read:async({resourceId})=>new Uint8Array(resourceId==='project'?3:4),confirmWritten:async()=>{confirmed++;return {saved:true};}}};
+  let adapter;
+  adapter=createHostAdapter({api,session,report:async()=>{},artifact:async(command,result,bytes)=>{
+    assert.equal(adapter.state().editing,false,'artifact transport must release the geometry lock');
+    assert.equal(command.payload.method,'run');uploaded.push(result.resourceId);
+    return {status:'agent_write_verified',size:bytes.length,sha256:result.sha256};
+  }});
+  const command=envelope({method:'run',args:{context:requestContext,idempotencyKey:'checkpoints',steps:[
+    {id:'save',method:'files.save',args:{}},{id:'export',method:'files.export',args:{format:'step'}},
+    {id:'later',method:'add',args:{op:'box',params:{},refs:[]}}
+  ]}});
+  const result=await adapter.receive(command);
+  assert.deepEqual(uploaded,['project','step']);assert.equal(confirmed,1);
+  assert.equal(result.results[0].result.attachment.status,'agent_write_verified');
+  assert.equal(result.results[1].result.attachment.status,'agent_write_verified');
+  assert.equal(result.results[2].result.status,'failed');
+  await adapter.receive(command);assert.equal(submitted,1);assert.equal(uploaded.length,2);
+});
 test('lost result can be resent without geometry replay',async()=>{
   const {adapter,counts}=setup({loseResult:true});
   await assert.rejects(adapter.receive(envelope(payload)),/network lost/);

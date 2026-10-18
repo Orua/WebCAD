@@ -42,6 +42,23 @@ test('UP-02 reattach returns the exact retained output without invoking geometry
   assert.throws(()=>h.files.reattach({context,resourceId:output.resourceId}),error=>error.code==='RESOURCE_EXPIRED');
 });
 
+test('descriptive CAD output names get their actual format suffix before attachment transfer',async()=>{
+  const h=harness();
+  for(const [action,name,expected] of [
+    ['save','钥匙圈套装-02-扣具与链条','钥匙圈套装-02-扣具与链条.webcad'],
+    ['export','钥匙圈套装-02-扣具与链条','钥匙圈套装-02-扣具与链条.step'],
+    ['export','part.stp','part.stp'],['export','part.STEP','part.STEP'],
+    ['export','part.webcad','part.step'],['save','assembly.v1','assembly.v1.webcad']
+  ]){
+    const output=await h.files[action]({context:context(),name,...(action==='export'?{format:'step'}:{})});
+    assert.equal(output.name,expected);assert.equal(output.status,'generated');
+    const bytes=await h.files.read({resourceId:output.resourceId,as:'bytes'});
+    const imported=await h.files.register({name:output.name,data:bytes});
+    await h.files.open({context:context(),resourceId:imported.resourceId,unsaved:'discard'});
+    assert.equal(h.calls.at(-1).action,'open','generated name is usable for a later open');
+  }
+});
+
 test('register copies bytes, applies basename and size limits, and forwards exact open/import bytes', async () => {
   const h = harness();
   const original = new Uint8Array([0, 1, 2, 255]);

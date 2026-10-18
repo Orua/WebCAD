@@ -19,8 +19,7 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
     }
   }
 
-  async function finish(entry, result) {
-    if(result && typeof result==='object' && !result.status)result={status:'read',...result};
+  async function transfer(entry,result,method){
     if (artifact && result?.status==='generated' && result.resourceId) {
       try {
         const bytes=await api.files.read({resourceId:result.resourceId,as:'bytes'});
@@ -34,7 +33,7 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
           }
         }
         result={...result,attachment};
-        if(entry.command.payload.method==='files.save' && attachment?.status==='agent_write_verified' && attachment.size===result.size && attachment.sha256===result.sha256){
+        if(method==='files.save' && attachment?.status==='agent_write_verified' && attachment.size===result.size && attachment.sha256===result.sha256){
           try {
             result.saveConfirmation=await api.files.confirmWritten({resourceId:result.resourceId,size:attachment.size,sha256:attachment.sha256});
           } catch(error) {
@@ -45,9 +44,24 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
         result={...result,attachment:{status:'failed',error:{code:'ARTIFACT_TRANSFER_FAILED',cause:error.code,message:error.message,httpStatus:error.status??null,attempts:error.attempts??1}}};
       }
     }
-    entry.result=structuredClone(result);
+    return result;
+  }
+
+  async function finish(entry, result) {
+    if(result && typeof result==='object' && !result.status)result={status:'read',...result};
     if(result?.status!=='unknown')entry.editing=false;
     onStateChange();
+    result=await transfer(entry,result,entry.command.payload.method);
+    if(entry.command.payload.method==='run'&&Array.isArray(result?.results)){
+      const steps=new Map((entry.command.payload.args.steps||[]).map(step=>[step.id,step.method]));
+      const transferred=[];
+      for(const item of result.results){
+        const method=steps.get(item.id);
+        transferred.push(['files.save','files.export'].includes(method)?{...item,result:await transfer(entry,item.result,method)}:item);
+      }
+      result={...result,results:transferred};
+    }
+    entry.result=structuredClone(result);
     await report('result',entry.command,{result:entry.result});
     entry.reported=true;
     if (endedTasks.has(entry.command.taskId) && ![...commands.values()].some(item=>item.command.taskId===entry.command.taskId && pending(item))) activeTask=null;

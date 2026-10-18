@@ -1,5 +1,14 @@
 {
   "version": 1,
+  "agentPlacementTransaction20261018": {
+    "localImpact": "Agent automatic right-side placement finishes on the pending geometry before one document commit, revision increment and history record",
+    "servicesImpact": "CodexAgent artifact endpoint accepts bound runs declaring save/export steps; no WebCADServices/Native geometry change",
+    "logoImpact": "none; source conversion and logo geometry unchanged",
+    "contractImpact": "Existing run/add receipts now report the actual final commit; explicit placement and revision checks retained. Save/export append the actual format suffix when descriptive names omit it, preserving .stp/.brp aliases. Batch save/export resources receive the same attachment and save-confirmation receipts as standalone calls",
+    "documentImpact": "Preserve saveable timeline and undo; no post-commit mutation or second stale-revision rebuild",
+    "cacheImpact": "Rebuild frontend and source identity; public API shape unchanged",
+    "requiredTests": ["free-placement", "page-batch", "browser-files", "agent-recovery-save", "17674 repeated ring/part creation, save and undo", "native artifact delivery with descriptive Chinese name"]
+  },
   "panelAffordance20261018": {
     "localImpact": "Mobile collapse control joins header icons; desktop control and collapsed rail narrow; shared separator shows a direction hint at mouse/touch position",
     "servicesImpact": "none; panel DOM and pointer feedback only",

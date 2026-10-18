@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.52.1 · sha256:0f23778aabb941f103a32d22f97de0309b379231cf9fe018dc1c26cda41665a6
+API 1.52.1 · sha256:c25a910fd56efb03cbfa1b6c6f79f6a7c6005b2c38574a7b53670da693557eff
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -3685,7 +3685,7 @@ AI 应通过宿主已授权的页面脚本通道在后台调用 window.webcad.ap
 add 是 feature.add 的适配器，自动读取当前工具版本/schemaHash，接受 op/params/refs/name；几何参数、来源与实体引用仍须先读工具卡。advisory 操作并未因此升级为严格契约。refs 可用已有 body ID 或先前成功回执的 {$ref:"stepId.createdBodyIds"}。
 可用方法：add、execute、info、getState、getQuickModelUsage、searchTools、getTool、readDocs、queryGeometry、queryReferences、resolvePlacement、measure、measureRelation、inspectProfile、prepareProfileEdit、projectProfile、inspectFit、inspectThickness、inspectDraft、fitProfile、inspectPrintability、setView、setRenderQuality、setDisplayPreferences、redraw、files.capabilities/register/import/save/export/release。execute 接受 action/args；context 和每步幂等键由批次提供。已有就绪预览时允许显式 preview.update/commit/cancel，仍须核对 previewId/generation；忙碌或计算中继续拒绝。preview.start 单步批次 completed 表示该预览步骤完成，内部回执 previewing 不代表建模已提交。files.register 使用 {name,base64,mime?}；输入大小受批次 3 MiB 限制。LOGO 轮廓可直接放入建模 params.regions，无需点文件选择器；PDF/SVG 字节不是闭合轮廓。
 每步可添加 stage（1..80字符的阶段名，例如来源确认/主面/浮雕/收边/检查），回执保留输入 SHA256、选择条件、耗时及原始结果。未请求项不加入步骤；检查阶段用 inspectDesign 等返回实际证据。相同文档 revision、方法和解析后的参数已失败时，换 key 仍返回 PREVIOUS_ATTEMPT_FAILED，结果未知则返回 PREVIOUS_ATTEMPT_UNKNOWN；先读取原任务/当前状态，真正改变几何、选择或策略后再提交。中间阶段失败或取消，completedStepIds 与 unattemptedStepIds 指导仅续接剩余步骤，不重复创建已成功的主面。步骤可省略 args。id 使用字母开头的 1..40 位字母数字下划线连字符；批次 key 最多80字符，当前文档实例最多保留100份回执。失败立即停止，completed/partial/failed/unknown 必须区分，atomic=false 表示先前成功步骤保留，可用 history.undo 逐步撤销。重新提交完全相同 key/请求返回原回执而不重复建模；更改请求需新 key；幂等仅本页面文档实例有效，重载后先读状态。
-files.save/export 返回 generated 资源，未证明磁盘保存；脚本客户端再 files.read/download/write，面板使用“下载”按钮只证明发起下载。新建/打开工程和截图使用专用页面 API，不属于批次。几何修改由旧有命令队列执行，其他 UI/客户端插入修改后批次停止，不自动接受新 revision。
+files.save/export 名称可省略扩展名，按实际字节格式补齐。直接页面调用返回 generated 资源，未证明磁盘保存；Goldenluck Agent 宿主会将 run 内的保存/导出逐项送达附件（包括后续步骤失败前的检查点），分别检查 attachment 与 saveConfirmation，不必拆成独立工具调用；脚本客户端再 files.read/download/write，面板使用“下载”按钮只证明发起下载。新建/打开工程和截图使用专用页面 API，不属于批次。几何修改由旧有命令队列执行，其他 UI/客户端插入修改后批次停止，不自动接受新 revision。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
 probeBlendRadius: contextPolicy=identity
@@ -115370,8 +115370,8 @@ files.release: contextPolicy=none
     "保存工程",
     "save"
   ],
-  "description": "save({context,name?}); complete current context.",
-  "inputContract": "save({context,name?}); complete current context.",
+  "description": "save({context,name?}); complete current context. name may omit its extension; the output uses .webcad.",
+  "inputContract": "save({context,name?}); complete current context. name may omit its extension; the output uses .webcad.",
   "outputContract": "status=generated native project resource with exact source snapshot; not a disk save.",
   "units": {
     "length": "mm",
@@ -115424,7 +115424,7 @@ files.release: contextPolicy=none
     "NAME_INVALID",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:9fe2d1426cd109275c885ed882d63cc22ec60d49c38eae5e21a9e59fd4fe6bf3"
+  "docsHash": "sha256:f2ce83dfa3ef45107637913f093121096f9e57aa6ba49af0105ed5f8a2337a35"
 }
 ```
 
@@ -115442,8 +115442,8 @@ files.release: contextPolicy=none
     "导出文件",
     "export"
   ],
-  "description": "export({context,format,ids?,name?}); format step/stl/brep/png.",
-  "inputContract": "export({context,format,ids?,name?}); format step/stl/brep/png.",
+  "description": "export({context,format,ids?,name?}); format step/stl/brep/png. name may omit its extension; output suffix follows the generated format (matching .stp/.brp aliases retained).",
+  "inputContract": "export({context,format,ids?,name?}); format step/stl/brep/png. name may omit its extension; output suffix follows the generated format (matching .stp/.brp aliases retained).",
   "outputContract": "status=generated output resource with exact source snapshot.",
   "units": {
     "length": "mm",
@@ -115499,7 +115499,7 @@ files.release: contextPolicy=none
     "RESOURCE_LIMIT",
     "FORMAT_UNSUPPORTED"
   ],
-  "docsHash": "sha256:28a1192f0a57d112ec89e1d049000e04f6cd3d5be0d5457eaca6dc2b595cf3b1"
+  "docsHash": "sha256:ffc2d45edd6efde6c1c9c8f3831597c211033f201b275c95782cdb95c781b21e"
 }
 ```
 

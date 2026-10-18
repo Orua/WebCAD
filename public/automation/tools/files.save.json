@@ -9,8 +9,8 @@
     "保存工程",
     "save"
   ],
-  "description": "save({context,name?}); complete current context.",
-  "inputContract": "save({context,name?}); complete current context.",
+  "description": "save({context,name?}); complete current context. name may omit its extension; the output uses .webcad.",
+  "inputContract": "save({context,name?}); complete current context. name may omit its extension; the output uses .webcad.",
   "outputContract": "status=generated native project resource with exact source snapshot; not a disk save.",
   "units": {
     "length": "mm",
@@ -63,5 +63,5 @@
     "NAME_INVALID",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:9fe2d1426cd109275c885ed882d63cc22ec60d49c38eae5e21a9e59fd4fe6bf3"
+  "docsHash": "sha256:f2ce83dfa3ef45107637913f093121096f9e57aa6ba49af0105ed5f8a2337a35"
 }
