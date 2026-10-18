@@ -51,3 +51,10 @@
 - 历史真实截图、任务、计时与验收记录：G:/CAD-Workspace/WebCAD/upgrades/20261017/evidence/。
 - 本轮编辑前备份：G:/CAD-Workspace/WebCAD/backups/20261018-0901-closeout/。
 - 三个仓库既有业务数据库、配置、DLL及CadViewer变更不属于本轮源码，保留但不混入提交。
+
+## 生产收尾补充：跨工程的会话隔离提示（UP-01 / UP-06 / UP-34）
+
+- 现状与失败现象：生产完成原版及v3-v6载入后，尝试直接连接并复用先前工程的conversation，返回“CAD conversation does not belong to this user.”，未建立连接，当前工程保持。
+- 已试方法：点击现有“新建对话”，已为v6建立新的独立conversation并恢复“Agent：main · 已连接”；体积仍1589.5952843388966mm³，revision=7，几何不变。
+- 下一步建议：另立任务，按documentId/documentInstanceId改变清除旧对话选择，给出明确中文提示；严格保留跨工程会话隔离，不放宽归属校验。
+- 本次处理：不扩展功能，保留上述可用恢复操作；交付时生产v6及独立对话已连接。该补充是文档记录，不改变已验证/已部署的程序包。
