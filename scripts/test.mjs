@@ -37,7 +37,7 @@ const groups = {
     'blend-radius-page', 'blend-radius-search', 'blend-radius', 'bounds-alignment',
     'bump-set', 'ellipsoid', 'face-origin-restore', 'guided-loft-dispatch',
     'guided-loft-kernel', 'headless-cli', 'local-checkpoint', 'loft-caps',
-    'loft-guides', 'loft-profiles', 'loft-spine', 'mirror-variation', 'rebuild-pool',
+    'loft-guides', 'loft-profiles', 'loft-spine', 'mirror-variation', 'rebuild-pool', 'legacy-topology-marker',
     'robust-union', 'semantic-blend-integration', 'smooth-transition-semantic',
     'stl-watertight', 'subd-body', 'subd-integration',
     'quick-chain-foot', 'tap-tool', 'badge-tool', 'eyelet-faces', 'quick-chain-assembly', 'square-arched-bridge',

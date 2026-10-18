@@ -8,7 +8,7 @@
 .webcad-app.tools-hidden>.ribbon-tabs,.webcad-app.tools-hidden>.ribbon{display:none}
 .webcad-app.canvas-focus .viewport-bottom,.webcad-app.canvas-focus .viewport-nav{display:none}
 .webcad-app.canvas-focus .viewport-topbar{right:auto;width:max-content;max-width:calc(100% - 16px)}
-.webcad-app.canvas-focus .viewport-topbar>:not(.selection-modes){display:none}
+.webcad-app.canvas-focus .viewport-control-scroll>:not(.selection-modes),.webcad-app.canvas-focus .viewport-edge{display:none}
 .webcad-app.canvas-focus .selection-modes [data-action="selectTool"]{display:none}
 .webcad-app .selection-modes button.active{background:var(--accent);color:var(--accent-contrast);border-color:transparent;box-shadow:none}
 .webcad-app .workspace{position:relative}
@@ -103,8 +103,8 @@
 .webcad-app .file-menu>summary::after{display:none}
 .webcad-app .ribbon{height:44px;min-height:44px;padding:5px 12px;gap:8px;overflow-x:auto}
 .webcad-app .ribbon-group{flex-direction:row;border-color:var(--ui-border);padding-right:8px}
-.webcad-app .ribbon .tool-button,.webcad-app .ribbon .view-tool{width:34px;height:34px;min-width:34px;max-width:34px;min-height:34px;padding:7px;border:0;gap:0;flex:0 0 34px;flex-direction:row;box-sizing:border-box}
-.webcad-app .ribbon .tool-label{display:none}
+.webcad-app .ribbon .tool-button,.webcad-app .ribbon .view-tool{width:auto;height:34px;min-width:34px;max-width:none;min-height:34px;padding:7px;border:0;gap:5px;flex:0 0 auto;flex-direction:row;box-sizing:border-box}
+.webcad-app .ribbon .tool-label{display:inline}
 .webcad-app .ribbon .tool-icon{color:var(--accent-ink);font-size:0;line-height:1;display:flex;align-items:center;justify-content:center}
 .webcad-app .ribbon .ui-vector-icon,.webcad-app .ribbon svg.selection-arrow{width:20px;height:20px}
 .webcad-app .ribbon .tool-icon{width:20px;height:20px;flex:0 0 20px}
@@ -129,3 +129,18 @@
 
 /* Pre-generated dimension guides keep their natural proportions and legible labels. */
 .model-solid-preview.annotated img{aspect-ratio:auto}
+/* A single action strip: only its middle can scroll, edge toggles stay reachable. */
+.webcad-app .viewport-topbar{flex-wrap:nowrap;overflow:visible}
+.webcad-app .viewport-control-scroll .view-actions{flex-wrap:nowrap}
+.webcad-app .viewport-control-scroll button{display:inline-flex;align-items:center;gap:5px;flex:none}
+.webcad-app .viewport-control-scroll .ui-vector-icon{width:18px;height:18px;flex:none}
+@media(max-width:700px){
+ .webcad-app .workspace .viewport-topbar{left:env(safe-area-inset-left,0px);right:env(safe-area-inset-right,0px);padding:0;gap:0;border-radius:0;height:36px;min-height:36px}
+ .webcad-app .viewport-edge{align-self:stretch;align-items:center;padding:0 2px}
+ .webcad-app .viewport-control-scroll{height:36px;scrollbar-width:none;gap:2px}
+ .webcad-app .viewport-control-scroll button{min-width:32px;height:32px;padding:5px;gap:0;font-size:0}
+ .webcad-app .viewport-control-scroll button>span,.webcad-app .work-frame-bar .frame-summary{display:none}
+ .webcad-app .viewport-control-scroll button .tool-icon{display:inline-flex}
+ .webcad-app .ribbon>.ribbon-group .tool-button,.webcad-app .ribbon .view-tool{width:34px;max-width:34px;flex-basis:34px;gap:0}
+ .webcad-app .ribbon>.ribbon-group .tool-label,.webcad-app .ribbon .view-tool .tool-label{display:none}
+}

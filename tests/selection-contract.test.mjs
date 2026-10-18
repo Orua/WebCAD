@@ -4,13 +4,14 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import { randomUUID } from 'node:crypto';
 import { mechanicalIds, mechanicalRefRange } from '../src/mechanical-tool-contracts.js';
+import { markTopologySemantics } from '../src/legacy-topology-policy.js';
 
 function feature(op, params, topology) {
   const source = fs.readFileSync(new URL('../src/main.js', import.meta.url), 'utf8');
   const start = source.indexOf('function featureDocument(');
   const end = source.indexOf('\nasync function addFeature', start);
   const context = {clone:structuredClone, crypto:{randomUUID}, documentModel:{features:[],imports:{},hidden:[]},
-    bodies:[{id:'body'}], selectedIds:['body'], selectedTopology:topology, labels:{},mechanicalIds,mechanicalRefRange};
+    bodies:[{id:'body'}], selectedIds:['body'], selectedTopology:topology, labels:{},mechanicalIds,mechanicalRefRange,markTopologySemantics};
   vm.createContext(context);
   vm.runInContext(source.slice(start,end)+'\nthis.build=featureDocument;',context);
   return context.build(op, params, ['body']).next.features[0];
@@ -42,4 +43,8 @@ test('mechanical draft face scope is not replaced by the current UI face selecti
   assert.deepEqual(Array.from(f.params.faceIds),[0,2]);
   assert.deepEqual(Array.from(f.refs),['body']);
   assert.deepEqual(params.faceIds,[0,2]);
+});
+test('features created from the page carry the topology semantics marker',()=>{
+  const f=feature('fillet',{radius:1,edgeIds:[2]},null);
+  assert.equal(f.topologySemantics,'webcad-topology-20261018-v1');
 });

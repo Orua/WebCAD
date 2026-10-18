@@ -2,6 +2,7 @@ import { listOperations } from './operation-registry.js';
 
 // This is the UI-to-public-API inventory, also used by the UI and build gate.
 export const UI_API_ROUTES = Object.freeze({
+  agentPanelResize:{tools:['getAgentPanel','setAgentPanel'],method:'setAgentPanel',usage:'拖动Agent分隔线或键盘方向键调尺寸；setAgentPanel({context,layout:{widthPx?,heightPx?,collapsed?}})，getAgentPanel().layout读回手机高度/PC宽度、有效尺寸及收起状态；与可见性分开调用，不修改工程。'},
  badge:{tools:['badge','preview.start','preview.commit','preview.cancel','feature.edit','getState'],method:'execute',usage:'创建→牌仔工具：refs 指定来源，faceId 指定当前平面；thicknessMm 为总厚度，side=single/double，direction=1/-1，radiusMm=0 自动或正数明确 R。保留来源及孔，所有外露锐边倒圆；回读 badgeReport。'},
   ...Object.fromEntries(listOperations().filter(c=>!['round','roundEnd','rounding','fillet'].includes(c.id)).map(c=>[c.id,{tools:[c.id],method:'execute',usage:'feature.add；按工具卡传显式 params/refs，或 run 的 add。'}])),
  tap:{tools:['tap','preview.start','preview.commit','preview.cancel','feature.edit','history.undo','history.redo','getState'],method:'execute',usage:'实体加工→攻牙。查询当前平面 faceId 与孔中心世界 point，refs 指定实体，params:{faceId,point,threadSize:M2/M2.5/M3,depthMm}；沿内法向加工真实盲牙孔。预览再提交，threadReport 读回规格、螺距、方向和深度；失败不改变工程。'},

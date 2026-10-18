@@ -53,6 +53,19 @@ export function booleanFaceOrigins(inputs,result,builder){
   }finally{faces.forEach(dispose);}
 }
 export const blendContext=shape=>{ensureOrigins(shape);return {sourceShape:shape,provenance:{faceOrigins:shape.faceOrigins,sourceRevision:'current-rebuild'}};};
+// Legacy ordered union step: exactly the OCCT calls of replicad Shape.fuse
+// (BRepAlgoAPI_Fuse(a,b), Build, SimplifyResult(true,true,1e-3)) so saved ordinal
+// face/edge IDs see the same topology, plus face-origin labels so semantic seam
+// selectors still resolve on legacy unions. The labels are metadata only.
+export function orderedFuseWithFaceOrigins(target,tool){
+  const oc=cad.getOC();let builder;
+  try{
+    builder=new oc.BRepAlgoAPI_Fuse(target.wrapped,tool.wrapped);builder.Build();builder.SimplifyResult(true,true,.001);
+    const result=cad.cast(builder.Shape());
+    if(!cad.isShape3D(result)){dispose(result);throw new Error('Could not fuse as a 3d shape');}
+    return booleanFaceOrigins([target,tool],result,builder);
+  }finally{dispose(builder);}
+}
 export function cutWithFaceOrigins(target,tool){
   const oc=cad.getOC();let builder,args,tools,progress,result;
   try{

@@ -1,5 +1,14 @@
 {
   "version": 1,
+  "combinedUpgrade20261018": {
+    "localImpact": "Per-feature legacy topology policy; operation-contract discovery; shared toolbar and resizable Agent panel",
+    "servicesImpact": "CodexAgent same-conversation image allowlist and correlated business status; no WebCADServices algorithm or runtime change",
+    "logoImpact": "none; conversion and source glyphs unchanged",
+    "contractImpact": "feature.edit target op contract remains strict; setAgentPanel layout whitelist and getAgentPanel layout readback; Agent SDK/command/operation states separate",
+    "documentImpact": "New features carry topology semantics; old local checkpoints invalidate once; timeline validation preserved; no engineering file format change",
+    "cacheImpact": "Regenerate public contracts/knowledge from combined source; update host resource versions",
+    "requiredTests": ["command-service", "legacy-topology-marker", "selection-contract", "project-container", "five whale projects", "Agent conversation/native/image/status tests", "host conversation switching", "17674 combined mobile/desktop acceptance"]
+  },
   "operations": [
     {
       "operation": "badge",

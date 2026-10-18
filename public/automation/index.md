@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.52.1 · 操作目录 sha256:5a0eaef6eb878f0414d77122a7fce0a9a1b6cffac459a1df009caa6d7aefdb51
+API 1.52.1 · 操作目录 sha256:0f23778aabb941f103a32d22f97de0309b379231cf9fe018dc1c26cda41665a6
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -306,7 +306,7 @@ API 1.52.1 · 操作目录 sha256:5a0eaef6eb878f0414d77122a7fce0a9a1b6cffac459a1
 - `setDisplayPreferences` · page-method · setDisplayPreferences({context,values}); values 为部分配置，字段及范围见 api.display-preferences。
 - `getAgentPanel` · page-method · getAgentPanel()
 - `configureAgentPanel` · page-method · configureAgentPanel({context,url})；HTTP/HTTPS助手页面地址，不带query/hash/凭据；HTTPS页面只接受HTTPS。
-- `setAgentPanel` · page-method · setAgentPanel({context,visible:true|false})；true将已配置助手侧栏接到当前页面，false立即撤销适配器写入、解锁并关闭侧栏，再取消同一任务并释放原会话。
+- `setAgentPanel` · page-method · setAgentPanel({context,visible:true|false})；true接入已配置助手，false退出并释放。或 setAgentPanel({context,layout:{widthPx?:360,heightPx?:280,collapsed?:false}})；layout与visible分开调用，宽高1–4096像素，按可用空间夹限。
 - `getServices` · page-method · getServices()；地址与模式存本地，专用授权仅存本标签会话，不进入工程。
 - `setServices` · page-method · setServices({context,url,credential?,enabled?,computeMode?:"local"|"auto"|"serverPreferred",allowGeometryUploads?,localTimeoutMs?:60000,serverWaitMs?:180000})；本地超时1–600秒、服务器提醒1–900秒，均用整数毫秒，设置保存并在下一操作生效。启用已配置Services即授权复杂运算发送到该端；简单运算本地。旧computeMode/allowGeometryUploads仅兼容读取，不覆盖此政策。支持 HTTPS 或内网 HTTP；HTTPS 页面不能直接调用内网 HTTP。服务由 ASHX 引用 DLL，沿用 LOGO 部署方式，不安装 Host。启用前验证协议。
 - `getServicesCapabilities` · page-method · getServicesCapabilities()；读取已配置服务。
@@ -342,7 +342,7 @@ API 1.52.1 · 操作目录 sha256:5a0eaef6eb878f0414d77122a7fce0a9a1b6cffac459a1
 - `reference.deleteBodyAnchor` · page-command · args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。
 - `feature.add` · page-command · args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。
 - `feature.addMany` · page-command · args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。
-- `feature.edit` · page-command · args:{featureId,opVersion,schemaHash,params,name?,placement?}；params 为补丁，placement 提供时完整替换。
+- `feature.edit` · page-command · args:{featureId,opVersion,schemaHash,params,name?,placement?}；opVersion/schemaHash 取被编辑特征 op 的工具卡（如 box 卡），不是本卡；params 为补丁，placement 提供时完整替换。
 - `feature.remove` · page-command · args:{bodyIds}，不可使用历史已替换 ID。
 - `history.undo` · page-command · args:{}；撤销一个已提交步骤。
 - `history.redo` · page-command · args:{}；重做一个步骤。

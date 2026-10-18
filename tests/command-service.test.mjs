@@ -248,3 +248,25 @@ test('existing-feature previews preserve identity and revision through update, c
  await service.execute({context:context(),idempotencyKey:'edit-cancel',action:'preview.cancel',args:{previewId:start.preview.previewId,expectedGeneration:2}});assert.equal(state.features[0].params.width,10);assert.equal(state.revision,1);
  const again=await service.execute({context:context(),idempotencyKey:'edit-again',action:'preview.start',args:{featureEdit:{featureId:'original',params:{width:13}}}});const commit=await service.execute({context:context(),idempotencyKey:'edit-commit',action:'preview.commit',args:{previewId:again.preview.previewId,expectedGeneration:1}});assert.equal(commit.status,'committed',JSON.stringify(commit));assert.equal(state.revision,2);assert.equal(state.features.length,1);assert.equal(state.features[0].id,'original');assert.equal(state.features[0].params.width,13);assert(calls.includes('preview_feature_edit_update'));
 });
+test('UP-11/13: feature.edit contract errors name the edited feature card and stay strict',async()=>{
+ const t=setup();await t.service.execute(t.add());const box=getOperation('box'),other=getOperation('cylinder');
+ // The thickness edit in the v9 failure supplied a hash that is not the box card's hash.
+ for(const [args,code,field] of [
+  [{opVersion:box.version,schemaHash:other.schemaHash},'SCHEMA_MISMATCH','args.schemaHash'],
+  [{opVersion:box.version,schemaHash:'sha256:'+'0'.repeat(64)},'SCHEMA_MISMATCH','args.schemaHash'],
+  [{opVersion:'0.0.0',schemaHash:box.schemaHash},'OPERATION_VERSION_UNSUPPORTED','args.opVersion']]){
+  const r=await t.service.execute({context:t.context(),idempotencyKey:crypto.randomUUID(),action:'feature.edit',args:{featureId:'f1',...args,params:{height:5}}});
+  assert.equal(r.status,'failed');assert.equal(r.error.code,code);assert.equal(r.error.path,field);
+  assert.deepEqual(r.error.details,{featureId:'f1',op:'box',toolId:'box',field});
+  assert.match(r.error.message,/box 工具卡/);assert.ok(!r.error.message.includes(box.schemaHash),'the error never hands out the hash');
+  assert.equal(t.calls,1,'nothing is committed on a contract mismatch');assert.equal(t.state.features[0].params.height,3);
+ }
+ const ok=await t.service.execute({context:t.context(),idempotencyKey:'thickness',action:'feature.edit',args:{featureId:'f1',opVersion:box.version,schemaHash:box.schemaHash,params:{height:5}}});
+ assert.notEqual(ok.status,'failed');assert.equal(t.calls,2,'the correct box card reaches edit_feature');
+});
+test('UP-11/13: published static tool cards carry the runtime schemaHash for every operation',async()=>{
+ const {listOperations}=await import('../src/operation-registry.js');const fs=await import('node:fs');
+ const index=JSON.parse(fs.readFileSync(new URL('../public/automation/index.json',import.meta.url),'utf8'));
+ const operations=listOperations(),cards=new Map((Array.isArray(index.cards)?index.cards:Object.values(index.cards)).map(card=>[card.id,card]));assert.ok(operations.length>50);
+ for(const card of operations){const published=cards.get(card.id);assert.ok(published,'missing published card '+card.id);assert.equal(published.version,card.version,card.id);assert.equal(published.schemaHash,card.schemaHash,card.id);}
+});

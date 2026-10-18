@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import {markTopologySemantics} from '../src/legacy-topology-policy.js';
 import fs from 'node:fs';
 import init from 'replicad-opencascadejs';
 import {CadKernel} from '../src/cad-kernel.js';
@@ -51,7 +52,8 @@ test('intersection accepts ordinary common and rolls back a valid but oversized 
 test('fusion and cut reject valid wrong material without changing committed bodies',async()=>{
   const oc=await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))}),kernel=new CadKernel(oc);
   const base=[{id:'target',op:'box',params:{width:10,depth:10,height:10},refs:[]},{id:'tool',op:'box',params:{width:2,depth:2,height:2},refs:[]}];
-  const joined={id:'result',op:'union',params:{},refs:['target','tool']};
+  // Multi-fuse failure readback (UP-29) belongs to unions created by this build (topology marker).
+  const joined=markTopologySemantics({id:'result',op:'union',params:{},refs:['target','tool']});
   try{
     const accepted=await kernel.rebuild({version:1,features:[...base,joined],imports:{}});
     assert.ok(Math.abs(accepted.bodies[0].volume-1000)<1e-6,'contained material is a legal union');

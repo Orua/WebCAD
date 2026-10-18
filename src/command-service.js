@@ -173,7 +173,10 @@ export function createCommandService(adapter) {
         case 'feature.edit':{
           object(a,['featureId','opVersion','schemaHash','params','name','placement'],'args');string(a.featureId,'args.featureId');
           const index=s.features.findIndex(f=>f.id===a.featureId);if(index<0)fail('STALE_REFERENCE','args.featureId','Unknown feature');
-          const feature=s.features[index];op=feature.op;contract(op,a);
+          const feature=s.features[index];op=feature.op;
+          // The contract is the edited feature's own operation card, not the feature.edit card.
+          // Validation stays strict; the error only names which card to read.
+          try{contract(op,a);}catch(e){if(['SCHEMA_MISMATCH','OPERATION_VERSION_UNSUPPORTED'].includes(e.code))throw Object.assign(e,{message:`feature.edit 需要被编辑特征的 ${op} 工具卡的 opVersion/schemaHash（不是 feature.edit 卡）；请 getTool({id:'${op}'}) 后重试。`,details:{featureId:a.featureId,op,toolId:op,field:e.path}});throw e;}
           const merged=['transform','copy'].includes(op)&&a.params?.mode&&!feature.params.mode?a.params:{...feature.params,...a.params};
           const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,feature.params,a.params):parameters(op,merged,{creation:false});if(['transform','copy'].includes(op)&&params.mode&&a.placement===undefined&&!feature.placement)fail('FRAME_INVALID','args.placement','Spatial transform mode requires explicit placement');if(a.name!==undefined)string(a.name,'args.name',120);await verifyNamedPlacement(a.placement,s,feature.refs||[]);
           command='edit_feature';args={featureId:a.featureId,params,name:a.name,...(Object.hasOwn(a,'placement')?{placement:resolvePlacement(a.placement,s.referenceSystem,op,params)}:{})};break;
