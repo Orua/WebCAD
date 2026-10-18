@@ -1,6 +1,9 @@
 // Page-local receipts survive a host call timeout, not a page reload. No server.
+import {contractHash} from './contracts/operation-schema.js';
+import {archiveReceiptResult} from './receipt-archive.js';
 export function createPageJobs(api,{runBatch}={}) {
   const jobs = new Map();
+  const archivedJobs = new Map();
   // Completion is pushed: each job owns a settled-once promise, so hosts await it instead of polling getState.
   const done = new Map();
   const settle = job => {const d=done.get(job.jobId);if(d){done.delete(job.jobId);d.resolve();}};
@@ -13,9 +16,20 @@ export function createPageJobs(api,{runBatch}={}) {
   for(const name of ['createDrawing','exportDrawing','copySelection','pasteSelection'])methods.add(name);
   const fail = (code,message) => {throw Object.assign(new Error(message),{code});};
   const snapshot = job => structuredClone(Object.fromEntries(Object.entries(job).filter(([k])=>!['fingerprint','args'].includes(k))));
+  const archive=job=>{archivedJobs.set(job.jobId,{fingerprint:job.fingerprint,jobId:job.jobId,status:job.status,archived:true,originalStatus:job.status,phase:'finished',createdAt:job.createdAt,finishedAt:job.finishedAt,context:job.context,result:archiveReceiptResult(job.result)});};
+  const unresolved=value=>!!value&&typeof value==='object'&&(value.status==='unknown'||value.commitState==='unknown'||Object.values(value).some(unresolved));
+  function makeRoom(){
+    if(jobs.size<100)return true;
+    for(const [id,job] of jobs){
+      if(['completed','committed','failed','partial','cancelled'].includes(job.status)&&!unresolved(job.result)){
+        archive(job);jobs.delete(id);done.delete(id);if(jobs.size<100)return true;
+      }
+    }
+    return false;
+  }
   function getJob({jobId}={}) {
     const job=jobs.get(jobId);
-    if(!job)fail('JOB_NOT_FOUND','Job is unknown in this page; read current state before retrying');
+    if(!job){const archived=archivedJobs.get(jobId);if(archived)return structuredClone(Object.fromEntries(Object.entries(archived).filter(([key])=>key!=='fingerprint')));fail('JOB_NOT_FOUND','Job is unknown in this page; read current state before retrying');}
     const result=snapshot(job);
     if(job.status==='running'){
       const state=api.getState(),progress=state.kernelProgress;
@@ -28,13 +42,18 @@ export function createPageJobs(api,{runBatch}={}) {
     if(Object.keys(input).some(k=>!['method','args','jobId'].includes(k))||!methods.has(input.method)||!input.args||typeof input.args!=='object')fail('PARAM_SCHEMA_INVALID','Provide method, args and a unique jobId');
     const {method,args,jobId}=input;
     if(typeof jobId!=='string'||!jobId.length||jobId.length>80)fail('PARAM_SCHEMA_INVALID','jobId must be 1..80 characters');
-    const fingerprint=JSON.stringify({method,args});
-    if(fingerprint.length>3*1024*1024)fail('RESOURCE_LIMIT','Job exceeds 3 MiB; register large file bytes separately');
+    const signature=JSON.stringify({method,args});
+    if(signature.length>3*1024*1024)fail('RESOURCE_LIMIT','Job exceeds 3 MiB; register large file bytes separately');
+    const fingerprint=contractHash(signature);
     if(jobs.has(jobId)){
       if(jobs.get(jobId).fingerprint!==fingerprint)fail('IDEMPOTENCY_KEY_REUSED','Job ID already belongs to another request');
       return getJob({jobId});
     }
-    if(jobs.size>=100)fail('RESOURCE_LIMIT','100 job receipts per page; retrieve results before starting another page');
+    if(archivedJobs.has(jobId)){
+      if(archivedJobs.get(jobId).fingerprint!==fingerprint)fail('IDEMPOTENCY_KEY_REUSED','Archived job ID belongs to a different request');
+      return getJob({jobId});
+    }
+    if(!makeRoom())fail('RESOURCE_LIMIT','100 running or unresolved job receipts; inspect or resolve an existing job before starting another');
     const job={jobId,method,args:structuredClone(args),fingerprint,status:'queued',progress:null,phase:'waiting',createdAt:Date.now(),context:api.getState().context};
     jobs.set(jobId,job);
     {let resolve;const promise=new Promise(r=>{resolve=r;});done.set(jobId,{promise,resolve});}
@@ -63,7 +82,7 @@ export function createPageJobs(api,{runBatch}={}) {
   // Resolve as soon as the job is terminal (no 50 ms tick, no full getState per tick). A timeout returns the
   // current snapshot; it never cancels or replays the job.
   async function awaitJob({jobId,timeoutMs=25000}={}) {
-    if(!jobs.has(jobId))fail('JOB_NOT_FOUND','Job is unknown in this page; read current state before retrying');
+    if(!jobs.has(jobId)){if(archivedJobs.has(jobId))return getJob({jobId});fail('JOB_NOT_FOUND','Job is unknown in this page; read current state before retrying');}
     if(!Number.isInteger(timeoutMs)||timeoutMs<0||timeoutMs>25000)fail('PARAM_RANGE_INVALID','timeoutMs must be 0..25000');
     const pending=done.get(jobId);
     if(pending&&timeoutMs>0){let timer;await Promise.race([pending.promise,new Promise(r=>{timer=setTimeout(r,timeoutMs);})]).finally(()=>clearTimeout(timer));}

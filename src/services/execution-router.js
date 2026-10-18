@@ -121,6 +121,7 @@ export function chooseExecutor({servicesAvailable=false,mode='auto',operation,se
 // diagnostics only; chooseExecutor never reads them, queue costs or upload flags.
 export function createExecutionHistory(){
  const entries=new Map(),failures=new Map();
+ const permanentFailureCodes=new Set(['GEOMETRY_INVALID','GEOMETRY_FAILED','FEATURE_REBUILD_FAILED','PARAM_RANGE_INVALID','PARAM_SCHEMA_INVALID','SELECTION_INVALID','HISTORY_EDIT_UNSAFE','KNOWN_INPUT_FAILED']);
  const key=({operation,semanticVersion,kernelBuildId,endpoint,source={},pattern={}}={})=>JSON.stringify([operation,semanticVersion,kernelBuildId,endpoint,source.faces??null,source.edges??null,source.holes??null,pattern.regions??null,pattern.layers??null,pattern.holes??null,pattern.vertices??null,pattern.strokes??null,pattern.gridPoints??null,finite(source.bytes)?Math.ceil(source.bytes/65536):null]);
  const put=(map,k,value)=>{map.delete(k);map.set(k,value);while(map.size>policy.maxHistoryEntries)map.delete(map.keys().next().value);};
  return {
@@ -128,7 +129,7 @@ export function createExecutionHistory(){
   task:recipe=>failures.get(recipe)??null,
   success:(input,executor,measurements={})=>{const k=key(input),record={...entries.get(k)};if(executor==='local'&&finite(measurements.totalMs))record.localMs=measurements.totalMs;if(executor==='remote'&&finite(measurements.computeMs)&&finite(measurements.totalMs)){record.remoteComputeMs=measurements.computeMs;record.transferMs=Math.max(0,measurements.totalMs-measurements.computeMs);}put(entries,k,record);},
   // Failed/unknown physical tasks never disappear through diagnostic eviction.
-  failure:(recipe,error={})=>{failures.set(recipe,{state:error.observation==='unknown'||error.commitState==='unknown'||['SERVICES_CONNECTION_UNKNOWN','OBSERVATION_CANCELLED','OBSERVATION_TIMEOUT'].includes(error.code)?'unknown':'failed',jobId:error.jobId??null,idempotencyKey:error.idempotencyKey??null,code:error.code??'GEOMETRY_FAILED'});},
+  failure:(recipe,error={})=>{const state=error.observation==='unknown'||error.commitState==='unknown'||['SERVICES_CONNECTION_UNKNOWN','OBSERVATION_CANCELLED','OBSERVATION_TIMEOUT'].includes(error.code)?'unknown':permanentFailureCodes.has(error.code)?'failed':'transient';failures.set(recipe,{state,jobId:error.jobId??null,idempotencyKey:error.idempotencyKey??null,code:error.code??'GEOMETRY_FAILED'});},
   clear:()=>{entries.clear();failures.clear();}
  };
 }

@@ -2,7 +2,7 @@
   "id": "planPatternMachining",
   "title": "planPatternMachining",
   "category": "page-method",
-  "version": "1.52.1",
+  "version": "1.52.2",
   "contextPolicy": "identity",
   "description": "planPatternMachining({context,intent})，intent 为 version:1 加工意图；只读规划，不推断图片深度。",
   "synonyms": [
@@ -191,5 +191,5 @@
     "geometryComputed": false,
     "fallbackAllowed": false
   },
-  "docsHash": "sha256:4929000826a53d6e648cd12476f7e8278d20d0c9c3ffe2b128045b17ca4eae8d"
+  "docsHash": "sha256:ca7c3db54fdf08f0433ddcebe7f373640fa251bc7f6566a392925d4c9ba73a6b"
 }

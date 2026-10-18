@@ -201,7 +201,8 @@
     "MESH_BOOLEAN_INVALID",
     "MESH_BOOLEAN_EMPTY",
     "MESH_BOOLEAN_UNAVAILABLE",
-    "MESH_NOT_MANIFOLD"
+    "MESH_NOT_MANIFOLD",
+    "MESH_BOOLEAN_PRECISION_LIMIT"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -372,6 +373,11 @@
         "code": "MESH_NOT_MANIFOLD",
         "when": "输入或结果未通过闭合、定向流形检查",
         "recovery": "先提供符合网格报告检查的闭合来源；不自动修补来源"
+      },
+      {
+        "code": "MESH_BOOLEAN_PRECISION_LIMIT",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       }
     ],
     "examples": {
@@ -514,6 +520,11 @@
       "code": "MESH_NOT_MANIFOLD",
       "when": "输入或结果未通过闭合、定向流形检查",
       "recovery": "先提供符合网格报告检查的闭合来源；不自动修补来源"
+    },
+    {
+      "code": "MESH_BOOLEAN_PRECISION_LIMIT",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     }
   ],
   "routing": {
@@ -544,5 +555,5 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:9416fd9e0ec606bb35f38b8424d510e34fad62f37040b94082036b4d54fe49c6"
+  "docsHash": "sha256:49c9e06860d3384cd1789daa4574bf6ecd0b309105297118009fb605b98bb1e3"
 }

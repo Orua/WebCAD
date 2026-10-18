@@ -20,17 +20,17 @@ function basename(name) {
   return name;
 }
 
-function bytesFromBase64(data) {
+function bytesFromBase64(data,maxBytes=MAX_BYTES) {
   // Repeated capture/group regexes overflow V8's stack on ordinary multi-MB
   // STEP projects. Scan flat characters and validate padding separately.
-  if (typeof data !== 'string' || data.length > Math.ceil(MAX_BYTES / 3) * 4 + 4 ||
+  if (typeof data !== 'string' || data.length > Math.ceil(maxBytes / 3) * 4 + 4 ||
       data.length % 4 !== 0 || /[^A-Za-z0-9+/=]/u.test(data) ||
       (data.includes('=') && !/^[A-Za-z0-9+/]*={1,2}$/u.test(data))) {
     throw failure('ASSET_INVALID', 'Invalid or oversized base64 file payload');
   }
   let binary;
   try { binary = atob(data); } catch { throw failure('ASSET_INVALID', 'Invalid base64 file payload'); }
-  if (binary.length > MAX_BYTES) throw failure('SIZE_LIMIT', 'File exceeds browser resource limit');
+  if (binary.length > maxBytes) throw failure('SIZE_LIMIT', 'File exceeds browser resource limit');
   return Uint8Array.from(binary, char => char.charCodeAt(0));
 }
 
@@ -140,7 +140,7 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
     const outputName=basename(matches?requestedName:`${stem}.${extension}`);
     const savedContext = { sessionId: context.sessionId, documentId: context.documentId,
       documentInstanceId: context.documentInstanceId, revision };
-    const artifact=await add({ kind: 'output', name: outputName, mime: result.mime, bytes:result.encoding==='bytes'?result.data:bytesFromBase64(result.data),
+    const artifact=await add({ kind: 'output', name: outputName, mime: result.mime, bytes:result.encoding==='bytes'?result.data:bytesFromBase64(result.data,fileByteBudget(outputName)),
       context: savedContext,
       saveSnapshot: action === 'save' ? { documentId: context.documentId,
         documentInstanceId: context.documentInstanceId, savedRevision: revision } : undefined });

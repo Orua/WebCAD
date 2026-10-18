@@ -10,6 +10,7 @@ import {fileByteBudget} from './browser-file-contracts.js';
 import {binaryHash} from './contracts/operation-schema.js';
 import {assertPatternExecution,PATTERN_OPERATIONS,uiPatternIntent} from './machining-intent.js';
 import {boundedDiagnosticReport} from './modeling/diagnostic-report.js';
+import {archiveReceiptResult,unresolvedReceipt} from './receipt-archive.js';
 
 const clone=structuredClone;
 const uid=()=>crypto.randomUUID();
@@ -27,12 +28,15 @@ function finiteTree(v,path='args'){if(typeof v==='number'&&!Number.isFinite(v))f
 function integer(v,path,min=0,max=Number.MAX_SAFE_INTEGER){if(!Number.isSafeInteger(v)||v<min||v>max)fail('PARAM_RANGE_INVALID',path,`Expected integer ${min}..${max}`);}
 function ids(v,path,nonempty=false){if(!Array.isArray(v)||v.length>200||(nonempty&&!v.length))fail('PARAM_SCHEMA_INVALID',path,'Expected bounded ID array');v.forEach(x=>string(x,path));if(new Set(v).size!==v.length)fail('PARAM_SCHEMA_INVALID',path,'Duplicate references');}
 const contextOf=s=>({sessionId:s.sessionId,documentId:s.documentId,documentInstanceId:s.documentInstanceId,revision:s.revision});
-function errorResult(e,requestId,s){return {status:'failed',requestId,error:{code:e.code||(/no material|remove material|无.*材料|未.*材料/i.test(e.message)?'NO_MATERIAL_REMOVED':'GEOMETRY_INVALID'),path:e.path||'args',message:e.message||String(e),retryable:false,recoveryAction:e.recoveryAction||'NONE',...(e.jobId?{jobId:e.jobId}:{}),...(e.idempotencyKey?{idempotencyKey:e.idempotencyKey}:{}),...(e.stage?{stage:e.stage}:{}),...(e.diagnosticsRef?{diagnosticsRef:e.diagnosticsRef}:{}),...(e.supportBinding?{supportBinding:boundedDiagnosticReport(e.supportBinding)}:{}),...(e.routingDecision?{routingDecision:e.routingDecision}:{}),...(e.commitState?{serviceCommitState:e.commitState}:{}),...(e.featureId?{featureId:e.featureId}:{}),...(e.details?{details:boundedDiagnosticReport(e.details)}:{}),...(e.report?{report:boundedDiagnosticReport(e.report)}:{}),...(e.affectedFeatureIds?{affectedFeatureIds:e.affectedFeatureIds,changedFeatureIds:e.changedFeatureIds}:{})},commitState:'not_committed',currentRevision:s?.revision};}
+function errorResult(e,requestId,s){return {status:e.status==='unknown'||e.commitState==='unknown'?'unknown':'failed',requestId,error:{code:e.code||(/no material|remove material|无.*材料|未.*材料/i.test(e.message)?'NO_MATERIAL_REMOVED':'GEOMETRY_INVALID'),path:e.path||'args',message:e.message||String(e),retryable:false,recoveryAction:e.recoveryAction||'NONE',...(e.jobId?{jobId:e.jobId}:{}),...(e.idempotencyKey?{idempotencyKey:e.idempotencyKey}:{}),...(e.stage?{stage:e.stage}:{}),...(e.diagnosticsRef?{diagnosticsRef:e.diagnosticsRef}:{}),...(e.supportBinding?{supportBinding:boundedDiagnosticReport(e.supportBinding)}:{}),...(e.routingDecision?{routingDecision:e.routingDecision}:{}),...(e.commitState?{serviceCommitState:e.commitState}:{}),...(e.featureId?{featureId:e.featureId}:{}),...(e.details?{details:boundedDiagnosticReport(e.details)}:{}),...(e.report?{report:boundedDiagnosticReport(e.report)}:{}),...(e.affectedFeatureIds?{affectedFeatureIds:e.affectedFeatureIds,changedFeatureIds:e.changedFeatureIds}:{})},commitState:e.status==='unknown'||e.commitState==='unknown'?'unknown':'not_committed',currentRevision:s?.revision};}
 
 // A single browser document remains authoritative. No DOM, UI selection or kernel copy.
 export function createCommandService(adapter) {
   let tail=Promise.resolve(),instance=null;
-  const receipts=new Map(),tokens=new Map(),cursors=new Map(),referenceTokens=new Map();
+  const receipts=new Map(),archivedReceipts=new Map(),tokens=new Map(),cursors=new Map(),referenceTokens=new Map();
+  const receiptHash=fingerprint=>binaryHash(new TextEncoder().encode(fingerprint));
+  function lookupReceipt(key,fingerprint){const full=receipts.get(key);if(full)return full;const old=archivedReceipts.get(key);if(!old)return;if(old.fingerprint!==receiptHash(fingerprint))fail('IDEMPOTENCY_KEY_REUSED','idempotencyKey','Archived key belongs to a different payload');return {fingerprint,result:old.result};}
+  function makeReceiptRoom(){if(receipts.size<1000)return true;for(const [key,value]of receipts)if(!unresolvedReceipt(value.result)){archivedReceipts.set(key,{fingerprint:receiptHash(value.fingerprint),result:archiveReceiptResult(value.result)});receipts.delete(key);return true;}return false;}
   let referenceTokenRevision=-1;
   function contract(op,args){
     if(!adapter.allowAdvisory||migratedOperationIds.includes(op))return assertOperationContract(op,args);
@@ -43,7 +47,7 @@ export function createCommandService(adapter) {
     return card;
   }
   function parameters(op,params,{creation=true}={}){if(op==='quickModel'){params=normalizeChainSize(params,{creation});if(creation&&params?.kind==='twoPieceEyelet')params={faceStyle:'flat',assemblyGapMm:0,explodedOffsetMm:0,...params};}if(migratedOperationIds.includes(op))return normalizeOperationParams(op,params);finiteTree(params);validateOperationExample(op,params);return clone(params);}
-  function snapshot(){const s=adapter.snapshot();if(instance!==s.documentInstanceId){instance=s.documentInstanceId;receipts.clear();tokens.clear();cursors.clear();referenceTokens.clear();referenceTokenRevision=-1;}return s;}
+  function snapshot(){const s=adapter.snapshot();if(instance!==s.documentInstanceId){instance=s.documentInstanceId;receipts.clear();archivedReceipts.clear();tokens.clear();cursors.clear();referenceTokens.clear();referenceTokenRevision=-1;}return s;}
   function context(input,s,{revision=true}={}){
     object(input,['sessionId','documentId','documentInstanceId','expectedRevision'],'context');
     for(const k of ['sessionId','documentId','documentInstanceId'])string(input[k],`context.${k}`);
@@ -116,11 +120,11 @@ export function createCommandService(adapter) {
       const bytePreview=input.action==='preview.start'&&input.args?.fileImport?.data instanceof Uint8Array;
       const signatureInput=bytePreview?{...input,args:{...input.args,fileImport:{...input.args.fileImport,data:{sha256:binaryHash(input.args.fileImport.data),bytes:input.args.fileImport.data.length}}}}:input;
       fingerprint=canonical({...signatureInput,context:{...input.context,sessionId:undefined}});
-      const previous=receipts.get(key);
+      const previous=lookupReceipt(key,fingerprint);
       if(previous){if(previous.fingerprint!==fingerprint)fail('IDEMPOTENCY_KEY_REUSED','idempotencyKey','Key has a different payload');return clone(previous.result);}
       const allowPreview=['preview.update','preview.commit','preview.cancel'].includes(input.action);
       context(input.context,s);available(s,allowPreview);finiteTree(signatureInput);
-      if(receipts.size>=1000)fail('RESOURCE_LIMIT','idempotencyKey','1000 receipts per document instance; no receipts are silently evicted');
+      if(!makeReceiptRoom())fail('RESOURCE_LIMIT','idempotencyKey','1000 unresolved receipts; reconcile the original operation before another write');
       if(options.signal?.aborted)fail('CANCELLED','context','Cancelled before commit');
       const a=bytePreview?{...clone({...input.args,fileImport:{...input.args.fileImport,data:undefined}}),fileImport:{...input.args.fileImport}}:clone(input.args);let command,args,op,refs=[];
       switch(input.action){
@@ -218,10 +222,11 @@ export function createCommandService(adapter) {
       receipts.set(key,{fingerprint,result:clone(result)});return result;
     }catch(e){
       const now=snapshot();let result=errorResult(e,requestId,now);
+      if(e.commitState==='unknown'||e.status==='unknown'){result.status='unknown';result.commitState='unknown';result.error.recoveryAction='INSPECT_STATE_BEFORE_RETRY';}
       if(featurePlan&&e.featureId)result.error.featureKey=Object.keys(featurePlan.featureIds).find(key=>featurePlan.featureIds[key]===e.featureId);
       if(revisionBefore!==undefined&&now.documentInstanceId===s.documentInstanceId&&now.revision!==revisionBefore)result={status:'unknown',requestId,idempotencyKey:key,commitState:'unknown',error:{code:'RESULT_UNKNOWN',path:'result',message:e.message,retryable:false,recoveryAction:'READ_STATE_AND_REPLAN'}};
       // Preserve an existing receipt even on a conflicting reuse.
-      if(key&&fingerprint&&!receipts.has(key)&&receipts.size<1000)receipts.set(key,{fingerprint,result:clone(result)});
+      if(key&&fingerprint&&!receipts.has(key)&&!archivedReceipts.has(key)&&makeReceiptRoom())receipts.set(key,{fingerprint,result:clone(result)});
       return result;
     }
   }
@@ -236,8 +241,8 @@ export function createCommandService(adapter) {
           key=input.args.idempotencyKey;string(key,'args.idempotencyKey',128);
           const data=new TextEncoder().encode(canonical({action:input.action,args:input.args?.data instanceof Uint8Array?{...input.args,data:{sha256:binaryHash(input.args.data),bytes:input.args.data.length}}:input.args,context:{sessionId:input.context.sessionId,documentId:input.context.documentId,documentInstanceId:input.context.documentInstanceId}}));
           fingerprint=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',data)),v=>v.toString(16).padStart(2,'0')).join('');
-          const previous=receipts.get(key);if(previous){if(previous.fingerprint!==fingerprint)fail('IDEMPOTENCY_KEY_REUSED','args.idempotencyKey','Key has a different payload');return clone(previous.result);}
-          if(receipts.size>=1000)fail('RESOURCE_LIMIT','args.idempotencyKey','Receipt cache full');
+          const previous=lookupReceipt(key,fingerprint);if(previous){if(previous.fingerprint!==fingerprint)fail('IDEMPOTENCY_KEY_REUSED','args.idempotencyKey','Key has a different payload');return clone(previous.result);}
+          if(!makeReceiptRoom())fail('RESOURCE_LIMIT','args.idempotencyKey','Unresolved receipt cache full; reconcile original requests');
         }
         context(input.context,before);if(input.action!=='save')available(before);
         if(input.action==='import')assertFeatureCapacity(before.features,1);

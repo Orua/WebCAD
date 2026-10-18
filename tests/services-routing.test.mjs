@@ -197,6 +197,7 @@ test('Main history interface remains diagnostic and keeps exact physical failure
  assert.equal(history.task(key).state,'unknown');assert.equal(history.task('different-key'),null);
  history.failure('pre-job-disconnect',{code:'SERVICES_CONNECTION_UNKNOWN'});
  assert.equal(history.task('pre-job-disconnect').state,'unknown');
+ history.failure('temporary-storage',{code:'DATABASE_BUSY',commitState:'not_committed'});assert.equal(history.task('temporary-storage').state,'transient');
  history.failure('failed-key',{code:'GEOMETRY_FAILED'});assert.equal(history.task('failed-key').state,'failed');
  for(let i=0;i<=EXECUTION_POLICY.maxHistoryEntries;i++){
   history.failure('another-failure-'+i,{code:'GEOMETRY_FAILED'});

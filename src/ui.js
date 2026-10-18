@@ -1,4 +1,5 @@
 import {isChain,normalizeChainSize,chainLayout} from './quick-models/chain-size.js';
+import {hostControlAllowed} from './host-control.js';
 import {legacyReliefParams} from './relief-param-migration.js';
 import {vectorIcon,iconButtonContent} from './ui/vector-icon.js';
 import {mountModelLibrary} from './ui/model-library-workspace.js';
@@ -184,7 +185,7 @@ export function createUI(root,callbacks={}) {
   hostStatus.hidden=!offline&&!hostControlState.connected&&!hostControlState.locked;
   const label=offline?'助手已断开，请在助手面板重新连接':hostControlState.locked?'Agent 控制中，仅可旋转、缩放、平移':hostControlState.connected?'Agent 已连接，可编辑':'Agent 未连接，可编辑';
   hostStatus.title=label;hostStatus.setAttribute('aria-label',label);hostStatus.querySelector('.host-state-label').textContent=offline?'助手已断开':hostControlState.locked?'控制中':'已连接';
-  if(hostControlState.locked){for(const control of hostDisabled.keys())if(!control.isConnected)hostDisabled.delete(control);for(const control of root.querySelectorAll('button,input,select,textarea')){if(control.matches('[data-action="save"],[data-command-id="save"],[data-command-id="agentPanel"]')||control.closest('.file-menu'))continue;if(!hostDisabled.has(control))hostDisabled.set(control,control.disabled);control.disabled=true;}}
+  if(hostControlState.locked){for(const control of hostDisabled.keys())if(!control.isConnected)hostDisabled.delete(control);for(const control of root.querySelectorAll('button,input,select,textarea')){if(hostControlAllowed(control)){if(hostDisabled.has(control)){control.disabled=hostDisabled.get(control);hostDisabled.delete(control);}continue;}if(!hostDisabled.has(control))hostDisabled.set(control,control.disabled);control.disabled=true;}}
   else{for(const [control,disabled]of hostDisabled)if(control.isConnected)control.disabled=disabled;hostDisabled.clear();}
  }
  const anchorLabel=label=>label==='世界原点'?'初始位置':label||'初始位置';

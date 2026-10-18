@@ -2,7 +2,7 @@
   "id": "projectProfile",
   "title": "projectProfile",
   "category": "page-method",
-  "version": "1.52.1",
+  "version": "1.52.2",
   "contextPolicy": "identity",
   "description": "projectProfile({context,bodyId,edgeIds:[当前边索引],frame?:{origin,quaternion}})；或用 pointWorld:[x,y,z] 投影明确坐标点。",
   "synonyms": [
@@ -25,5 +25,5 @@
     "UNSUPPORTED_CURVE_PROJECTION",
     "DEGENERATE_PROJECTION"
   ],
-  "docsHash": "sha256:d7674f44818759484264441b5f0af53f88e2bc63a03556308b05a17b1a154034"
+  "docsHash": "sha256:5ce0ebce058d90cb91b048c3d1fcc05b0d305bc373988be2036d94b319fc08fb"
 }

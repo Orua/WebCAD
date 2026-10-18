@@ -4,7 +4,7 @@ $ErrorActionPreference='Stop'
 [void][Reflection.Assembly]::LoadFrom((Join-Path $RuntimeDirectory 'WebCADServices.Contracts.dll'))
 $runtimeAssembly=[Reflection.Assembly]::LoadFrom((Join-Path $RuntimeDirectory 'WebCADServices.Runtime.dll'))
 function Assert-Equal($Actual,$Expected,[string]$Message){if($Actual -ne $Expected){throw "${Message}: $Actual != $Expected"}}
-function Assert-Code([scriptblock]$Action,[string]$Code){try{& $Action | Out-Null}catch{$caught=$_.Exception;while($caught.InnerException){$caught=$caught.InnerException};Assert-Equal $caught.Code $Code 'Error code';return};throw "Expected error $Code"}
+function Assert-Code([scriptblock]$Action,[string]$Code){try{& $Action | Out-Null}catch{$caught=$_.Exception;while($caught.InnerException){$caught=$caught.InnerException};Assert-Equal $caught.Code $Code ("Error code: "+$caught.Message);return};throw "Expected error $Code"}
 $owner='store-test-owner';$bytes=[Text.Encoding]::UTF8.GetBytes('Integrity fixture only; no geometry claim')
 $store=[WebCADServices.Runtime.Store]::new($DataRoot)
 try{
@@ -40,4 +40,6 @@ $publish=$cacheType.GetMethod('Publish');$read=$cacheType.GetMethod('Read');$sou
 Remove-Item -LiteralPath $receipt;[IO.File]::WriteAllBytes($checkpoint,[byte[]]@(3,4));Assert-Equal $read.Invoke($cache,[object[]]@([string]$key)) $null 'Orphan must not be trusted'
 [void]$publish.Invoke($cache,[object[]]@([string]$key,[string]$source));Assert-Equal ([Convert]::ToBase64String([IO.File]::ReadAllBytes($checkpoint))) ([Convert]::ToBase64String($bytes)) 'Completed publication replaces orphan'
 [IO.File]::WriteAllText($receipt,'{broken');Assert-Code {$read.Invoke($cache,[object[]]@([string]$key))} 'LAYER_CACHE_CORRUPT'
+Assert-Equal (Test-Path -LiteralPath $receipt) $false 'Corrupt receipt is quarantined'
+[void]$publish.Invoke($cache,[object[]]@([string]$key,[string]$source));Assert-Equal ([Convert]::ToBase64String([IO.File]::ReadAllBytes([string]$read.Invoke($cache,[object[]]@([string]$key))))) ([Convert]::ToBase64String($bytes)) 'Already completed valid bytes replace corrupt cache without geometry retry'
 Write-Output 'passed: persistent interruption, no retry, ownership, queued cancellation, artifact corruption, orphan cache recovery, corrupt receipt rejection'

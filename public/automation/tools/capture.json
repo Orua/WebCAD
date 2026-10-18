@@ -2,7 +2,7 @@
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.52.1",
+  "version": "1.52.2",
   "contextPolicy": "identity",
   "description": "capture({context,maxWidth?,format?,quality?}); 建议 maxWidth:800,format:\"webp\"。后台标签页也同步渲染一帧；超过 limits.transport.captureTimeoutMs（10 s）返回 CAPTURE_TIMEOUT，几何回执不受影响，不要循环等待 webcad_job。",
   "synonyms": [
@@ -25,5 +25,5 @@
     "CAPTURE_TIMEOUT"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:23ec7912b796651eb3edce1dd77c813bc535531d63f7f88ee477ea06b9e8c03c"
+  "docsHash": "sha256:31f67cdf7a895434c20633486454e162b59a8481627f640beb75fed000e3a5c8"
 }

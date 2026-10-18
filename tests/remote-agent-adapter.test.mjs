@@ -71,6 +71,24 @@ test('uses the public job and uploads its original receipt once',async()=>{
   assert.deepEqual(reports.map(item=>item.kind),['ack','result']);
 });
 
+test('slow result delivery does not hold the serial execution queue',async()=>{
+ let release,reported=0,invoked=0;const gate=new Promise(resolve=>{release=resolve;});
+ const api={connect(){},getState:()=>({context}),invoke:async()=>{invoked++;return {status:'read',context};},submit(){},getJob(){}};
+ const adapter=createHostAdapter({api,session,report:async kind=>{if(kind==='result'&&++reported===1)await gate;}});
+ const first=envelope({method:'getState',args:{}}),second={...envelope({method:'getState',args:{}}),commandId:'b'.repeat(32)};
+ await adapter.receive(first);await adapter.receive(second);assert.equal(invoked,2);release();await adapter.retryReports();
+});
+test('files.save can run while an earlier geometry job remains active',async()=>{
+ const jobs=new Map();let geometryDone=false;
+ const api={connect(){},getState:()=>({context}),invoke(){},submit({jobId,method}){jobs.set(jobId,method==='files.save'?{status:'completed',result:{status:'read',context}}:{status:'running'});},
+  getJob:({jobId})=>jobs.get(jobId),awaitJob:async({jobId})=>{await new Promise(resolve=>setTimeout(resolve,1));if(jobId==='wc_'+('c'.repeat(32))&&geometryDone)jobs.set(jobId,{status:'completed',result:{status:'completed',context}});}};
+ const adapter=createHostAdapter({api,session,report:async()=>{}});
+ const geometry=envelope({...payload,args:{...payload.args,idempotencyKey:'long'}});geometry.commandId='c'.repeat(32);
+ const running=adapter.receive(geometry);await new Promise(resolve=>setImmediate(resolve));
+ const save=await adapter.receive(envelope({method:'files.save',args:{context:requestContext,name:'rescue.webcad'}}));assert.equal(save.status,'read');
+ geometryDone=true;const result=await running;assert.equal(result.status,'completed');
+});
+
 test('verified native project attachment confirms save only with matching bytes',async()=>{
   let confirmed=0;
   const descriptor={status:'generated',resourceId:'output',size:3,sha256:'abc'};
@@ -108,9 +126,17 @@ test('batch checkpoints transfer original resources even after a later step fail
 });
 test('lost result can be resent without geometry replay',async()=>{
   const {adapter,counts}=setup({loseResult:true});
-  await assert.rejects(adapter.receive(envelope(payload)),/network lost/);
+  assert.equal((await adapter.receive(envelope(payload))).status,'completed');await adapter.retryReports();
   const result=await adapter.receive(envelope(payload));
   assert.equal(result.status,'completed');assert.equal(counts().submits,1);
+});
+
+test('nested batch receipts transfer file artifacts recursively at the leaf result',async()=>{
+ const descriptor={status:'generated',resourceId:'nested-output',name:'leaf.step',size:3,sha256:'nested'};let uploads=0;
+ const api={connect(){},getState:()=>({context}),invoke(){},submit(){},getJob:()=>({status:'completed',result:{status:'completed',results:[{id:'group',result:{status:'completed',results:[{id:'save',result:descriptor}]}}]}}),files:{read:async()=>new Uint8Array(3)}};
+ const adapter=createHostAdapter({api,session,report:async()=>{},artifact:async()=>{uploads++;return {status:'uploaded'};}});
+ const command=envelope({method:'files.export',args:{context:requestContext,format:'step'}});
+ const result=await adapter.receive(command);assert.equal(uploads,1);assert.equal(result.results[0].result.results[0].result.attachment.status,'uploaded');
 });
 test('lost submit acknowledgement reconciles the existing job',async()=>{
   const {adapter,counts}=setup({loseAck:true});
@@ -197,7 +223,7 @@ test('more than 100 commands in one task and later tasks retain replay protectio
 
 test('task retirement preserves unreported results until acknowledged without repeating edits',async()=>{
   const {adapter,counts,reports}=setup({loseResult:true});
-  await assert.rejects(adapter.receive(envelope(payload)),/network lost/);
+  assert.equal((await adapter.receive(envelope(payload))).status,'completed');
   adapter.endTask('task');await adapter.retryReports();
   assert.equal((await adapter.receive(envelope(payload))).status,'already_reported');
   assert.equal(counts().submits,1);assert.equal(reports.filter(x=>x.kind==='result').length,1);

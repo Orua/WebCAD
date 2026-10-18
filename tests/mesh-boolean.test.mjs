@@ -5,8 +5,15 @@ import {closedMeshVolume} from '../src/mesh/mesh-volume.js';
 import {MeshShape} from '../src/mesh/mesh-shape.js';
 import {encodeProjectV4,decodeProject} from '../src/project-container.js';
 import {binaryHash} from '../src/contracts/operation-schema.js';
-import initManifold from 'manifold-3d';import {setManifoldLoader} from '../src/mesh/mesh-boolean.js';
+import initManifold from 'manifold-3d';import {setManifoldLoader,meshBoolean} from '../src/mesh/mesh-boolean.js';
 setManifoldLoader(()=>initManifold());
+test('mesh boolean preserves millimetre details at a distant world origin',async()=>{
+ const cube=(x,base)=>({positions:new Float64Array([0,0,0,1,0,0,1,1,0,0,1,0,0,0,1,1,0,1,1,1,1,0,1,1].map((v,i)=>v+base+(i%3===0?x:0))),indices:new Uint32Array([0,2,1,0,3,2,4,5,6,4,6,7,0,1,5,0,5,4,1,2,6,1,6,5,2,3,7,2,7,6,3,0,4,3,4,7])});
+ const near=await meshBoolean([cube(0,0),cube(.5,0)],'union'),far=await meshBoolean([cube(0,1e9),cube(.5,1e9)],'union');
+ assert.equal(far.report.volume,near.report.volume);assert.equal(far.report.volume,1.5);assert.equal(far.report.maxQuantizationErrorMm,0);
+ assert.deepEqual([...far.mesh.positions].map(v=>v-1e9),[...near.mesh.positions]);
+ await assert.rejects(meshBoolean([cube(0,0),cube(100000.123,0)],'union'),e=>e.code==='MESH_BOOLEAN_PRECISION_LIMIT');
+});
 const kernel=new CadKernel(await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))}));
 const flat=(c,r,v)=>({encoding:'u8',data:Buffer.from(new Uint8Array(c*r).fill(v)).toString('base64')});
 const doc=features=>({version:4,documentId:'d',name:'t',features,imports:{},hidden:[]});

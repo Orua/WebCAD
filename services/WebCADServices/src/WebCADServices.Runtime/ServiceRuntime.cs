@@ -22,6 +22,8 @@ namespace WebCADServices.Runtime
         readonly Thread meshScheduler;
         readonly AutoResetEvent wake = new AutoResetEvent(false);
         volatile bool stopping;
+        volatile bool storageUnavailable;
+        int disposed;
         public ServiceRuntime(string dataRoot, string logoWorker, string credential, bool serviceMode = false, string runtimeMode = null)
         {
             if (string.IsNullOrEmpty(credential) || credential.Length < 32) throw new ServiceError("AUTH_CONFIG_REQUIRED", "Set a dedicated Services credential of at least 32 characters", 503);
@@ -39,11 +41,12 @@ namespace WebCADServices.Runtime
             try
             {
                 if (!Auth(request.Credential)) throw new ServiceError("UNAUTHORIZED", "Services authorization required", 401);
+                if (stopping) throw new ServiceError("SERVICE_STOPPING", "Service is stopping; reconcile the original request after reconnecting", 503);
                 if (request.Body != null && request.Body.Length > Protocol.ResourceBudget(request.Route,request.AssetKind,request.FileName)) throw new ServiceError("SIZE_LIMIT", "Resource limit is 20 MiB", 413);
                 // Dedicated credential is one principal; user-provided userid is never authority.
                 string owner = Protocol.Hash(Encoding.UTF8.GetBytes(token));
                 string route = request.Route ?? "", method = request.Method;
-                if (route == "/v1/health" && method == "GET") { bool ready = File.Exists(worker) && (!serviceMode || NativeAdapter.Acceptance != null); return WireResponse.Json(new { status = ready ? "healthy" : "degraded", protocolVersion = Protocol.Version, hostMode = runtimeMode, logoAvailable = File.Exists(worker), nativeAccepted = NativeAdapter.Acceptance != null }, ready ? 200 : 503); }
+                if (route == "/v1/health" && method == "GET") { bool dispatchersAlive = scheduler.IsAlive && nativeScheduler.IsAlive && meshScheduler.IsAlive; bool ready = !stopping && !storageUnavailable && dispatchersAlive && File.Exists(worker) && (!serviceMode || NativeAdapter.Acceptance != null); return WireResponse.Json(new { status = ready ? "healthy" : "degraded", protocolVersion = Protocol.Version, hostMode = runtimeMode, dispatchersAlive, storageAvailable = !storageUnavailable, queue = storageUnavailable ? null : store.QueueHealth(), logoAvailable = File.Exists(worker), nativeAccepted = NativeAdapter.Acceptance != null }, ready ? 200 : 503); }
                 if (route == "/v1/capabilities" && method == "GET") return WireResponse.Json(Capabilities(owner));
                 if (route == "/v1/assets" && method == "POST") return WireResponse.Json(store.AddAsset(owner, request.FileName, request.Body, request.AssetKind ?? "logo"), 201);
                 if ((route == "/v1/logo/inspect" || route == "/v1/logo/convert") && method == "POST")
@@ -79,7 +82,8 @@ namespace WebCADServices.Runtime
                 throw new ServiceError("ROUTE_NOT_FOUND", "Unknown route or method", 404);
             }
             catch (ServiceError error) { return WireResponse.Json(error.Body(), error.Status); }
-            catch (Exception) { return WireResponse.Json(new ServiceError("REQUEST_INVALID", "Invalid request or unavailable storage", 400).Body(), 400); }
+            catch (Newtonsoft.Json.JsonException) { return WireResponse.Json(new ServiceError("REQUEST_INVALID", "Invalid JSON request", 400).Body(), 400); }
+            catch (Exception) { return WireResponse.Json(new ServiceError("STORAGE_UNAVAILABLE", "Service state is unavailable; reconcile the original request key before retrying", 503).Body("storage"), 503); }
         }
         static JObject RoutingPolicy()
         {
@@ -123,37 +127,58 @@ namespace WebCADServices.Runtime
         {
             while (!stopping)
             {
-                JObject row = store.Claim(); if (row == null) { wake.WaitOne(250); continue; }
+                JObject row = ClaimNext("logo"); if (row == null) { wake.WaitOne(250); continue; }
                 string id = (string)row["id"];
                 try
                 {
-                    if (store.Cancelled(id)) { store.Finish(id, "cancelled"); continue; }
+                    if (store.Cancelled(id)) { PersistFinish(id, "cancelled"); continue; }
                     var input = JObject.Parse((string)row["request"]); var asset = store.Asset((string)row["owner"], (string)input["assetId"]);
                     if (Protocol.Hash(File.ReadAllBytes(Path.Combine(store.Root, "assets", (string)asset["id"]))) != (string)input["sourceSha256"]) throw new ServiceError("SOURCE_HASH_MISMATCH", "Stored input integrity check failed");
                     string dir = Path.Combine(store.Root, "jobs", id); Directory.CreateDirectory(dir); string output = Path.Combine(dir, "result.partial.json"), path = Path.Combine(dir, "request.json");
                     Store.Atomic(path, Encoding.UTF8.GetBytes(new JObject { ["action"] = (string)input["operation"] == "logo.inspect" ? "inspect" : "convert", ["sourcePath"] = Path.Combine(store.Root, "assets", (string)asset["id"]), ["sourceName"] = asset["name"], ["sourceHash"] = asset["sha"], ["outputPath"] = output, ["options"] = input["options"] }.ToString()));
                     var timer = Stopwatch.StartNew();
                     int exit = new WorkerSupervisor().Run(worker, path, () => stopping || store.Cancelled(id), pid => store.Attempt(id, pid), out string diagnostic); store.Attempt(id, 0, exit);
-                    if (store.Cancelled(id)) { store.Finish(id, "cancelled"); continue; }
+                    if (store.Cancelled(id)) { PersistFinish(id, "cancelled"); continue; }
                     if (exit != 0) throw new ServiceError("WORKER_FAILED", "Worker exited with code " + exit);
                     if (!File.Exists(output) || new FileInfo(output).Length > 32 * 1024 * 1024) throw new ServiceError("RESULT_INVALID", "Missing or oversized result");
                     var value = LogoAdapter.Normalize(JObject.Parse(File.ReadAllText(output)), (string)input["operation"] == "logo.inspect", (JObject)input["options"]);
                     value["timings"] = new JObject { ["workerElapsedMs"] = timer.Elapsed.TotalMilliseconds, ["peakMemoryBytes"] = "unavailable" };
-                    var manifest = store.Publish((string)row["owner"], id, (string)row["fingerprint"], value); store.Finish(id, "succeeded", manifest.ToString(Newtonsoft.Json.Formatting.None));
+                    var manifest = store.Publish((string)row["owner"], id, (string)row["fingerprint"], value); PersistFinish(id, "succeeded", manifest.ToString(Newtonsoft.Json.Formatting.None));
                     File.Delete(output); File.Delete(path);
                 }
-                catch (ServiceError error) { store.Finish(id, error.Code == "WORKER_TERMINATED" ? "terminated" : "failed", error: error.Body("worker").ToString()); }
-                catch (Exception error) { store.Finish(id, "failed", error: new ServiceError("WORKER_FAILED", "Worker processing failed (" + error.GetType().Name + ")").Body("worker").ToString()); }
+                catch (ServiceError error) { PersistFinish(id, error.Code == "WORKER_TERMINATED" ? "terminated" : "failed", error: error.Body("worker").ToString()); }
+                catch (Exception error) { PersistFinish(id, "failed", error: new ServiceError("WORKER_FAILED", "Worker processing failed (" + error.GetType().Name + ")").Body("worker").ToString()); }
             }
         }
         void DispatchNative()
         {
-            while(!stopping){var row=store.Claim("occt");if(row==null){Thread.Sleep(100);continue;}string id=(string)row["id"];try{if(store.Cancelled(id)){store.Finish(id,"cancelled");continue;}var result=NativeAdapter.Execute(row,store,()=>stopping||store.Cancelled(id));if(store.Cancelled(id)){store.Finish(id,"cancelled");continue;}store.Finish(id,"succeeded",result.ToString(Newtonsoft.Json.Formatting.None));}catch(ServiceError error){store.Finish(id,store.Cancelled(id)?"cancelled":error.Code=="WORKER_TERMINATED"?"terminated":"failed",error:error.Body("native").ToString());}catch(Exception error){store.Finish(id,"failed",error:new ServiceError("NATIVE_WORKER_FAILED","Native processing failed ("+error.GetType().Name+")").Body("native").ToString());}}
+            while(!stopping){var row=ClaimNext("occt");if(row==null){Thread.Sleep(100);continue;}string id=(string)row["id"];try{if(store.Cancelled(id)){PersistFinish(id,"cancelled");continue;}var result=NativeAdapter.Execute(row,store,()=>stopping||store.Cancelled(id));if(store.Cancelled(id)){PersistFinish(id,"cancelled");continue;}PersistFinish(id,"succeeded",result.ToString(Newtonsoft.Json.Formatting.None));}catch(ServiceError error){PersistFinish(id,error.Code=="WORKER_TERMINATED"?"terminated":"failed",error:error.Body("native").ToString());}catch(Exception error){PersistFinish(id,"failed",error:new ServiceError("NATIVE_WORKER_FAILED","Native processing failed ("+error.GetType().Name+")").Body("native").ToString());}}
         }
         void DispatchMesh()
         {
-            while(!stopping){var row=store.Claim("mesh");if(row==null){Thread.Sleep(100);continue;}string id=(string)row["id"];try{if(store.Cancelled(id)){store.Finish(id,"cancelled");continue;}var result=MeshAdapter.Execute(row,store,()=>stopping||store.Cancelled(id));if(store.Cancelled(id)){store.Finish(id,"cancelled");continue;}store.Finish(id,"succeeded",result.ToString(Newtonsoft.Json.Formatting.None));}catch(ServiceError error){store.Finish(id,store.Cancelled(id)?"cancelled":error.Code=="WORKER_TERMINATED"?"terminated":"failed",error:error.Body("mesh").ToString());}catch(Exception error){store.Finish(id,"failed",error:new ServiceError("MESH_WORKER_FAILED","Mesh processing failed ("+error.GetType().Name+")").Body("mesh").ToString());}}
+            while(!stopping){var row=ClaimNext("mesh");if(row==null){Thread.Sleep(100);continue;}string id=(string)row["id"];try{if(store.Cancelled(id)){PersistFinish(id,"cancelled");continue;}var result=MeshAdapter.Execute(row,store,()=>stopping||store.Cancelled(id));if(store.Cancelled(id)){PersistFinish(id,"cancelled");continue;}PersistFinish(id,"succeeded",result.ToString(Newtonsoft.Json.Formatting.None));}catch(ServiceError error){PersistFinish(id,error.Code=="WORKER_TERMINATED"?"terminated":"failed",error:error.Body("mesh").ToString());}catch(Exception error){PersistFinish(id,"failed",error:new ServiceError("MESH_WORKER_FAILED","Mesh processing failed ("+error.GetType().Name+")").Body("mesh").ToString());}}
         }
-        public void Dispose() { stopping = true; wake.Set(); scheduler.Join(7000); nativeScheduler.Join(7000);meshScheduler.Join(7000);store.Dispose(); wake.Dispose(); }
+        JObject ClaimNext(string engine)
+        {
+            try { var row = store.Claim(engine); storageUnavailable = false; return row; }
+            catch (Exception) { storageUnavailable = true; Thread.Sleep(1000); return null; }
+        }
+        // A storage retry repeats only the receipt write, never the computation.
+        void PersistFinish(string id, string state, string result = null, string error = null)
+        {
+            while (!stopping)
+            {
+                try { store.Finish(id, state != "succeeded" && store.Cancelled(id) ? "cancelled" : state, result, error); storageUnavailable = false; return; }
+                catch (Exception) { storageUnavailable = true; Thread.Sleep(1000); }
+            }
+        }
+        public void Dispose()
+        {
+            if (Interlocked.Exchange(ref disposed, 1) != 0) return;
+            stopping = true; wake.Set();
+            // Store and wake stay valid until every worker observer has exited.
+            var cleanup = new Thread(() => { scheduler.Join(); nativeScheduler.Join(); meshScheduler.Join(); store.Dispose(); wake.Dispose(); }) { IsBackground = true, Name = "services-shutdown" };
+            cleanup.Start(); cleanup.Join(7000);
+        }
     }
 }

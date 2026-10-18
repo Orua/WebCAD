@@ -13,11 +13,11 @@ export function createMessagePresenter(root){
     if(active||!queue.length)return;
     const item=queue.shift(),previous=document.activeElement,d=make('dialog',`cad-dialog message-dialog message-${item.kind}`);
     const id=`message-${crypto.randomUUID()}`;
-    d.setAttribute('role','alertdialog');d.setAttribute('aria-labelledby',id);d.setAttribute('aria-describedby',`${id}-body`);
+    d.dataset.hostControlAllowed='true';d.setAttribute('role','alertdialog');d.setAttribute('aria-labelledby',id);d.setAttribute('aria-describedby',`${id}-body`);
     const title=make('h2','message-title',item.title);title.id=id;
     const body=make('div','message-body',item.message);body.id=`${id}-body`;
     const repeat=make('p','message-repeat'),footer=make('div','message-footer'),confirm=make('button','primary','关闭'),close=make('button','message-close','×');
-    close.setAttribute('aria-label','关闭提示');confirm.type=close.type='button';confirm.autofocus=true;
+    close.setAttribute('aria-label','关闭提示');close.dataset.hostControlAllowed='true';confirm.dataset.hostControlAllowed='true';confirm.type=close.type='button';confirm.autofocus=true;
     const dismiss=()=>{if(active?.dialog!==d)return;active=null;d.close();d.remove();if(previous?.isConnected)previous.focus({preventScroll:true});next();};
     close.addEventListener('click',dismiss);confirm.addEventListener('click',dismiss);d.addEventListener('cancel',e=>{e.preventDefault();dismiss();});
     footer.append(confirm);d.append(close,title,body,repeat,footer);root.append(d);

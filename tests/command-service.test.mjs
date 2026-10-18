@@ -11,6 +11,8 @@ test('host lock isolates human events, allows canvas orbit, and releases without
  assert.equal(control.set({locked:true,connected:true}).pageApiWritable,true);assert.equal(applied.mouseMode,'view');
  control.set({locked:true,connected:true});assert.equal(changes,1,'polling identical state must preserve Agent previews');
  for(const type of ['click','pointerdown','input','change','submit','keydown','drop','dragover'])assert.equal(dispatch(type,{}),true,type);
+ const recovery={closest:selector=>selector.includes('[data-host-control-allowed="true"]')?recovery:null};
+ for(const type of ['click','keydown','submit'])assert.equal(dispatch(type,recovery),false,`${type} remains available in recovery dialogs`);
  assert.equal(dispatch('pointerdown',canvas),false);assert.equal(dispatch('click',canvas),false);assert.equal(dispatch('keydown',canvas),true);assert.equal(dispatch('drop',canvas),true);
  assert.equal(dispatch('click',{},false),false,'programmatic API download links keep working');
  assert.throws(()=>control.set({locked:'true'}),{code:'HOST_CONTROL_INVALID'});assert.throws(()=>control.set({unexpected:true}),{code:'HOST_CONTROL_INVALID'});

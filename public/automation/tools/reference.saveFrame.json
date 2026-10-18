@@ -3,7 +3,7 @@
   "title": "保存具名基准",
   "description": "args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "category": "command",
-  "version": "1.52.1",
+  "version": "1.52.2",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:67462c656399fe624dc21b733e1bb68ac86647e809a8d80af032c4c402c7867c"
+  "docsHash": "sha256:451b84c90675c05ad6e8f3c94a724772d67bb4cf2629a485a9fbbf5c68db00d1"
 }

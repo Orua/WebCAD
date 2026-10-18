@@ -2,6 +2,7 @@
 // Every mutation still goes through the existing page API / CommandService.
 import {contractHash} from './contracts/operation-schema.js';
 import {LIMITS} from './limits.js';
+import {archiveReceiptResult} from './receipt-archive.js';
 const methods = new Set(['add','execute','connect','info','getState','searchTools','getTools','getTool','readDocs',
   'getQuickModelUsage','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','readVector','connectVector','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.capabilities','files.register',
   'files.import','files.save','files.export','files.release']);
@@ -38,11 +39,16 @@ function safe(value,depth=0){
 // Steps that read or change the rendered view see the committed model first.
 const DISPLAY_STEPS=new Set(['setView','setRenderQuality','setDisplayPreferences','redraw','files.save','files.export']);
 export function createPageBatch(api,{display}={}){
-  const receipts=new Map(),failedAttempts=new Map();let tail=Promise.resolve(),instance;
+  const receipts=new Map(),archivedReceipts=new Map(),failedAttempts=new Map();let tail=Promise.resolve(),instance;
+  const unresolved=receipt=>receipt?.status==='unknown'||receipt?.commitState==='unknown'||receipt?.results?.some(item=>unresolved(item.result));
+  const archiveReceipt=(key,value)=>{archivedReceipts.set(key,{fingerprint:value.fingerprint,result:{...archiveReceiptResult(value.result),idempotencyKey:key,archivedAt:Date.now()}});};
+  function makeReceiptRoom(){if(receipts.size<100)return true;for(const [key,value] of receipts){if(!unresolved(value.result)){archiveReceipt(key,value);receipts.delete(key);if(receipts.size<100)return true;}}return false;}
+  const permanentFailureCodes=new Set(['GEOMETRY_INVALID','FEATURE_REBUILD_FAILED','PARAM_RANGE_INVALID','PARAM_SCHEMA_INVALID','SELECTION_INVALID','HISTORY_EDIT_UNSAFE']);
   const canonical=value=>JSON.stringify(value,(_,v)=>plain(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);
   const digest=value=>contractHash(JSON.parse(value)).slice(7);
   async function run(input,control){
     let results=[],key,fingerprint,started=false,activeStepId=null;
+    const standaloneRecoverySave=Array.isArray(input?.steps)&&input.steps.length===1&&input.steps[0]?.method==='files.save';
     const attempted=new Set();
     // Bounding boxes of bodies created/replaced by this batch (max 40), so callers can verify alignment without another read.
     const touchedBounds=s=>{const ids=[...new Set(results.flatMap(item=>[...(item.result?.createdBodyIds||[]),...(item.result?.replacements||[]).map(r=>r.after)]))].slice(0,40);
@@ -58,15 +64,15 @@ export function createPageBatch(api,{display}={}){
         unattemptedStepIds:(Array.isArray(input?.steps)?input.steps:[]).filter(step=>typeof step?.id==='string'&&!attempted.has(step.id)).map(step=>step.id)},
       recovery:status==='completed'?null:{action:status==='unknown'?'INSPECT_STATE_BEFORE_RETRY':'READ_STATE_AND_REPLAN_REMAINING',
         message:'Earlier committed steps remain. Read current state; do not recreate them. Use a new key for a revised remainder. An identical request/key only retrieves the original receipt.'},
-      ...(error?{error:{code:error.code||'BATCH_FAILED',message:error.message,...(error.featureId?{featureId:error.featureId}:{}),...(error.affectedFeatureIds?{affectedFeatureIds:error.affectedFeatureIds,changedFeatureIds:error.changedFeatureIds}:{}),...(error.recoveryAction?{recoveryAction:error.recoveryAction}: {})}}:{}),
+      ...(error?{error:{code:error.code||'BATCH_FAILED',message:error.message,...(error.commitState?{commitState:error.commitState}:{}),...(error.jobId||error.pageJobId?{jobId:error.jobId||error.pageJobId}:{}),...(error.requestId?{requestId:error.requestId}:{}),...(error.featureId?{featureId:error.featureId}:{}),...(error.affectedFeatureIds?{affectedFeatureIds:error.affectedFeatureIds,changedFeatureIds:error.changedFeatureIds}:{}),...(error.recoveryAction?{recoveryAction:error.recoveryAction}: {})}}:{}),
       elapsedMs:Math.round(performance.now()-startedAt),context:s.context,bodyBounds:touchedBounds(s),
       summary:s.summary,display:s.display,
       displayMatchesContext:s.display?.status==='rendered'&&['documentId','documentInstanceId','revision'].every(k=>s.display.rendered?.[k]===s.context[k])};};
     try{
       safe(input);keys(input,['context','idempotencyKey','steps']);
-      fingerprint=JSON.stringify(input);if(fingerprint.length>3*1024*1024)bad('RESOURCE_LIMIT','Batch exceeds 3 MiB');
+      const signature=JSON.stringify(input);if(signature.length>3*1024*1024)bad('RESOURCE_LIMIT','Batch exceeds 3 MiB');fingerprint=contractHash(signature);
       const now=api.getState();
-      if(instance!==now.context.documentInstanceId){receipts.clear();failedAttempts.clear();instance=now.context.documentInstanceId;}
+      if(instance!==now.context.documentInstanceId){receipts.clear();archivedReceipts.clear();failedAttempts.clear();instance=now.context.documentInstanceId;}
       key=input.idempotencyKey;
       if(typeof key!=='string'||!key.length||key.length>80)bad('PARAM_SCHEMA_INVALID','idempotencyKey: 1..80 characters');
       if(receipts.has(key)){
@@ -74,16 +80,19 @@ export function createPageBatch(api,{display}={}){
         if(cached.fingerprint!==fingerprint)bad('IDEMPOTENCY_KEY_REUSED','Use a new key for a different batch');
         return structuredClone(cached.result);
       }
-      if(receipts.size>=100)bad('RESOURCE_LIMIT','100 batch receipts per document instance');
+      if(archivedReceipts.has(key)){
+        const cached=archivedReceipts.get(key);if(cached.fingerprint!==fingerprint)bad('IDEMPOTENCY_KEY_REUSED','Archived batch key belongs to a different request');
+        return structuredClone(cached.result);
+      }
       keys(input.context,['sessionId','documentId','documentInstanceId','expectedRevision']);
       let expected={...input.context};
-      const check=(allowPreview=false)=>{
+      const check=(allowPreview=false,recoverySave=false)=>{
         const s=api.getState();
         for(const k of ['sessionId','documentId','documentInstanceId'])if(expected[k]!==s.context[k])bad('INSTANCE_MISMATCH','Read the current page state');
         if(expected.expectedRevision!==s.context.revision)bad('REVISION_CONFLICT','Document changed; read state and replan');
-        if(!s.summary.kernelReady||s.summary.busy||(s.preview.active&&!allowPreview)||s.preview.computing)bad('CAPABILITY_UNAVAILABLE','Wait for kernel/preview to finish');
+        if(!recoverySave&&(!s.summary.kernelReady||s.summary.busy||(s.preview.active&&!allowPreview)||s.preview.computing))bad('CAPABILITY_UNAVAILABLE','Wait for kernel/preview to finish');
       };
-      check(true);
+      check(true,standaloneRecoverySave);
       const maxSteps=LIMITS.batch.maxSteps;if(!Array.isArray(input.steps)||!input.steps.length||input.steps.length>maxSteps)bad('RESOURCE_LIMIT',`Expected 1..${maxSteps} steps`);
       const names=new Set();
       for(const step of input.steps){
@@ -95,6 +104,7 @@ export function createPageBatch(api,{display}={}){
         if(step.args&&('context' in step.args||'idempotencyKey' in step.args))bad('PARAM_SCHEMA_INVALID','Batch owns step context and receipt keys');
         names.add(step.id);
       }
+      const receiptRoom=makeReceiptRoom();if(!receiptRoom&&!standaloneRecoverySave)bad('RESOURCE_LIMIT','100 unresolved batch receipts; inspect or reconcile an existing result before starting another');
       const resolved=Object.create(null);
       const resolve=value=>{
         if(Array.isArray(value))return value.map(resolve);
@@ -121,7 +131,7 @@ export function createPageBatch(api,{display}={}){
         activeStepId=step.id;let args=resolve(step.args||{}),result;
         const allowPreview=step.method==='execute'&&['preview.update','preview.commit','preview.cancel'].includes(args.action);
         if(DISPLAY_STEPS.has(step.method)||(step.method==='execute'&&String(args.action||'').startsWith('preview.')))display?.flush?.();
-        check(allowPreview);
+        const recoverySave=step.method==='files.save';check(allowPreview,recoverySave);
         const attempt=canonical({context:expected,method:step.method,args});
         const inputFingerprint=await digest(attempt);
         const prior=failedAttempts.get(inputFingerprint);
@@ -155,12 +165,13 @@ export function createPageBatch(api,{display}={}){
         }
         results.push({id:step.id,stage:step.stage||step.id,inputFingerprint,selection:args.selection||args.args?.selection||null,result,elapsedMs:Math.round((performance.now()-stepStartedAt)*100)/100});resolved[step.id]=result;
         if(['failed','unknown'].includes(result?.status)){
-          if(['add','addMany','execute'].includes(step.method)){
-            if(failedAttempts.size>=100)failedAttempts.delete(failedAttempts.keys().next().value);
+          if(['add','addMany','execute'].includes(step.method)&&result.status==='unknown'){
             failedAttempts.set(inputFingerprint,{key,stepId:step.id,status:result.status,code:result.error?.code||'BATCH_FAILED'});
+          }else if(['add','addMany','execute'].includes(step.method)&&permanentFailureCodes.has(result.error?.code)){
+            failedAttempts.set(inputFingerprint,{key,stepId:step.id,status:'failed',code:result.error.code});
           }
           const receipt=finish(result.status==='unknown'?'unknown':results.length>1?'partial':'failed',result.error||new Error('Step failed'));
-          receipts.set(key,{fingerprint,result:structuredClone(receipt)});return receipt;
+          if(makeReceiptRoom())receipts.set(key,{fingerprint,result:structuredClone(receipt)});return receipt;
         }
         // Advance only using this step's receipt, never silently adopt another writer's revision.
         if(result?.status==='committed')expected=result.context?context(result.context):{...expected,expectedRevision:result.revisionAfter};
@@ -168,12 +179,13 @@ export function createPageBatch(api,{display}={}){
       // Deferred end: the receipt is returned (and reported by the host) before the batched display upload;
       // capture/setView/export/redraw still flush first, so a frame never shows an older model.
       }finally{if(display?.endDeferred)display.endDeferred();else display?.end?.();}
-      activeStepId=null;check(true);const result=finish('completed');receipts.set(key,{fingerprint,result:structuredClone(result)});return result;
+      activeStepId=null;check(true,standaloneRecoverySave);const result=finish('completed');if(makeReceiptRoom())receipts.set(key,{fingerprint,result:structuredClone(result)});return result;
     }catch(e){
-      const result=finish(results.length?'partial':'failed',e);
-      if(started&&!receipts.has(key))receipts.set(key,{fingerprint,result:structuredClone(result)});
+      const unknown=e?.status==='unknown'||e?.commitState==='unknown'||e?.result?.status==='unknown'||e?.error?.commitState==='unknown';
+      const result=finish(unknown?'unknown':results.length?'partial':'failed',e);
+      if(started&&!receipts.has(key)&&makeReceiptRoom())receipts.set(key,{fingerprint,result:structuredClone(result)});
       return result;
     }
   }
-  return (input,control={})=>{let snapshot;try{snapshot=structuredClone(input);}catch(e){return Promise.resolve({status:'failed',error:{code:'PARAM_SCHEMA_INVALID',message:e.message}});}const job=tail.then(()=>run(snapshot,control));tail=job.catch(()=>{});return job;};
+  return (input,control={})=>{let snapshot;try{snapshot=structuredClone(input);}catch(e){return Promise.resolve({status:'failed',error:{code:'PARAM_SCHEMA_INVALID',message:e.message}});}if(snapshot?.steps?.length===1&&snapshot.steps[0]?.method==='files.save')return run(snapshot,control);const job=tail.then(()=>run(snapshot,control));tail=job.catch(()=>{});return job;};
 }

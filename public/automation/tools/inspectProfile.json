@@ -2,7 +2,7 @@
   "id": "inspectProfile",
   "title": "inspectProfile",
   "category": "page-method",
-  "version": "1.52.1",
+  "version": "1.52.2",
   "contextPolicy": "identity",
   "description": "inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。界面检查选项按需展开；API 不依赖界面展开状态。",
   "synonyms": [
@@ -26,5 +26,5 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.interaction",
-  "docsHash": "sha256:6beff95a0b03eab61127cbc71eac16e0c4b285cc6a814c0fa2b73c80c9c5f2b6"
+  "docsHash": "sha256:f82e2e5a8b0c399df8c70ceaf4c5f81f9dbafa36718e674e6873a9ea3f7e7f3c"
 }
