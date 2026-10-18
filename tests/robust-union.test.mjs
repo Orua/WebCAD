@@ -4,6 +4,12 @@ import fs from 'node:fs';
 import init from 'replicad-opencascadejs';
 import * as cad from 'replicad';
 import {robustUnion} from '../src/modeling/robust-union.js';
+import {usesOrdinalTopology} from '../src/legacy-topology-policy.js';
+test('saved ordinal selections disable reordered Boolean recipes; semantic selections keep the optimized route',()=>{
+  assert.equal(usesOrdinalTopology([{params:{faceIds:[3,4,6,7]}}]),true);
+  assert.equal(usesOrdinalTopology([{params:{edgeIds:[0]}}]),true);
+  assert.equal(usesOrdinalTopology([{params:{selector:{seamBetween:['a','b']}}}]),false);
+});
 const oc=await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))});cad.setOC(oc);
 const volume=shape=>{const props=new oc.GProp_GProps();try{oc.BRepGProp.VolumePropertiesGK(shape.wrapped,props,1e-9,true,true,false,false,false);return Math.abs(props.Mass());}finally{props.delete();}};
 test('coplanar touching end faces fuse with explicit shift glue',()=>{
