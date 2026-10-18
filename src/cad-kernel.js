@@ -859,10 +859,9 @@ export class CadKernel {
     const importsSignature = JSON.stringify(document.imports || {});
     const features = document.features;
     const ordinalTopology=usesOrdinalTopology(features);
-    if(this.ordinalTopology!==ordinalTopology){this.historySignature=[];this.ordinalTopology=ordinalTopology;}
     const signatures = features.map(geometryFeatureSignature);
     let prefix = 0;
-    while (prefix < signatures.length && prefix < this.historySignature.length && signatures[prefix] === this.historySignature[prefix] && importsSignature === this.importsSignature) prefix++;
+    while (this.ordinalTopology===ordinalTopology && prefix < signatures.length && prefix < this.historySignature.length && signatures[prefix] === this.historySignature[prefix] && importsSignature === this.importsSignature) prefix++;
     const reused = new Set();
     const nextRenderCache = new Map();
     const compiledReuse=[],compiledInvalidated=[],perFeatureMs=[];
@@ -956,6 +955,7 @@ export class CadKernel {
       this.shapes.forEach((shape, id) => { if (!reused.has(id) && !next.has(id)) dispose(shape); });
       this.shapes.forEach((shape, id) => { if (next.has(id) && next.get(id) !== shape && !reused.has(id)) dispose(shape); });
       this.shapes = next; this.active = active; this.historySignature = signatures; this.importsSignature = importsSignature; this.renderCache = nextRenderCache;
+      this.ordinalTopology=ordinalTopology;
       this.lastFeatureTimings=perFeatureMs;
       this.lastCompiledInvalidated=compiledInvalidated;
       this.reportRebuildProgress('complete','重建完成');
