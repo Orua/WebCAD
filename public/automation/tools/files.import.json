@@ -2,7 +2,7 @@
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.52.1",
+  "version": "1.52.2",
   "contextPolicy": "revision",
   "label": "导入",
   "synonyms": [
@@ -86,5 +86,5 @@
     "MESH_ASSET_CORRUPT",
     "MESH_DISPLAY_CAPACITY"
   ],
-  "docsHash": "sha256:4a54379334cdf47c83efb4da1d2879f494edb70d1a6cc5ffbfedb063c3f09b74"
+  "docsHash": "sha256:c5f2cbecd09f0cf5993415aedbd454d7c89170b0173d3e64f1d6bba2302f830e"
 }

@@ -1,5 +1,23 @@
 {
   "version": 1,
+  "stabilityRecovery20261018": {
+    "localImpact": "Preserve committed projects through transport, worker and recovery failures; recovery controls remain reachable during Agent control; mesh boolean rebases Float32 operands with an explicit quantization gate",
+    "servicesImpact": "Persistent dispatcher storage failures retain queued work and retry receipt persistence without recomputing; shutdown keeps storage alive until dispatchers exit; corrupt checkpoints are quarantined",
+    "logoImpact": "Logo dispatcher uses the same persistence recovery; source glyphs, algorithms and controlled process limits unchanged",
+    "contractImpact": "Separate storage unavailability from invalid JSON; expose dispatcher/storage health; unknown computation must reconcile its original identity; API 1.52.2 compact terminal receipts keep original status plus archived:true and immutable request fingerprint; mesh boolean reports local origin and conversion budget",
+    "documentImpact": "No project format migration; preserve committed geometry, history, source assets and user settings",
+    "cacheImpact": "Regenerate page knowledge for the final source; replace corrupt cache receipts only with already completed validated bytes",
+    "requiredTests": [
+      "affected frontend recovery and queue tests",
+      "Agent CAD persistence and upload tests",
+      "Bridge incomplete stream tests",
+      "services-store-faults",
+      "services-dispatch-recovery",
+      "host-attachment-identity",
+      "one 17674 recovery/save browser acceptance",
+      "formal endpoint HTTP version and resource hashes"
+    ]
+  },
   "agentPlacementTransaction20261018": {
     "localImpact": "Agent automatic right-side placement finishes on the pending geometry before one document commit, revision increment and history record",
     "servicesImpact": "CodexAgent artifact endpoint accepts bound runs declaring save/export steps; no WebCADServices/Native geometry change",
@@ -7,7 +25,14 @@
     "contractImpact": "Existing run/add receipts now report the actual final commit; explicit placement and revision checks retained. Save/export append the actual format suffix when descriptive names omit it, preserving .stp/.brp aliases. Batch save/export resources receive the same attachment and save-confirmation receipts as standalone calls",
     "documentImpact": "Preserve saveable timeline and undo; no post-commit mutation or second stale-revision rebuild",
     "cacheImpact": "Rebuild frontend and source identity; public API shape unchanged",
-    "requiredTests": ["free-placement", "page-batch", "browser-files", "agent-recovery-save", "17674 repeated ring/part creation, save and undo", "native artifact delivery with descriptive Chinese name"]
+    "requiredTests": [
+      "free-placement",
+      "page-batch",
+      "browser-files",
+      "agent-recovery-save",
+      "17674 repeated ring/part creation, save and undo",
+      "native artifact delivery with descriptive Chinese name"
+    ]
   },
   "panelAffordance20261018": {
     "localImpact": "Mobile collapse control joins header icons; desktop control and collapsed rail narrow; shared separator shows a direction hint at mouse/touch position",
@@ -16,7 +41,12 @@
     "contractImpact": "Existing get/setAgentPanel retained; effectiveSizePx reflects compact collapsed layout",
     "documentImpact": "none; document and persistence unchanged",
     "cacheImpact": "Rebuild frontend and version matching host resources",
-    "requiredTests": ["panel-layout", "assistant-panel", "17674 mobile/desktop interaction", "formal endpoint HTTP identity"]
+    "requiredTests": [
+      "panel-layout",
+      "assistant-panel",
+      "17674 mobile/desktop interaction",
+      "formal endpoint HTTP identity"
+    ]
   },
   "uiFollowup20261018": {
     "localImpact": "Honor mobile Chrome desktop-site layout independently of physical keyboard input; restore visible themed brand; concise Open/Import labels and green rightmost Agent connection indicator",
@@ -25,7 +55,13 @@
     "contractImpact": "Existing file actions and get/setAgentPanel layout APIs unchanged; layout.mobile reports the browser-requested layout",
     "documentImpact": "none; modeling, history, persistence and file semantics unchanged",
     "cacheImpact": "Rebuild frontend source identity and generated UI metadata; version host UI resources",
-    "requiredTests": ["panel-layout device classification", "assistant-panel", "workspace-upgrade", "one 17674 and host mobile/desktop UI pass", "formal endpoint HTTP identity"]
+    "requiredTests": [
+      "panel-layout device classification",
+      "assistant-panel",
+      "workspace-upgrade",
+      "one 17674 and host mobile/desktop UI pass",
+      "formal endpoint HTTP identity"
+    ]
   },
   "combinedUpgrade20261018": {
     "localImpact": "Per-feature legacy topology policy; operation-contract discovery; shared toolbar and resizable Agent panel",
@@ -34,7 +70,16 @@
     "contractImpact": "feature.edit target op contract remains strict; setAgentPanel layout whitelist and getAgentPanel layout readback; Agent SDK/command/operation states separate",
     "documentImpact": "New features carry topology semantics; old local checkpoints invalidate once; timeline validation preserved; no engineering file format change",
     "cacheImpact": "Regenerate public contracts/knowledge from combined source; update host resource versions",
-    "requiredTests": ["command-service", "legacy-topology-marker", "selection-contract", "project-container", "five whale projects", "Agent conversation/native/image/status tests", "host conversation switching", "17674 combined mobile/desktop acceptance"]
+    "requiredTests": [
+      "command-service",
+      "legacy-topology-marker",
+      "selection-contract",
+      "project-container",
+      "five whale projects",
+      "Agent conversation/native/image/status tests",
+      "host conversation switching",
+      "17674 combined mobile/desktop acceptance"
+    ]
   },
   "operations": [
     {

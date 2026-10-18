@@ -2,7 +2,7 @@
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.52.1",
+  "version": "1.52.2",
   "contextPolicy": "none",
   "description": "getUILayout({includeModelLibrary?:boolean})",
   "synonyms": [
@@ -25,5 +25,5 @@
     "LIBRARY_STORAGE_UNAVAILABLE"
   ],
   "docs": "api.workspace",
-  "docsHash": "sha256:2af2e90a30ec2f251bea812be4ae6c56a594000a55b7602b1cda297c97ad31c6"
+  "docsHash": "sha256:8f67dbf3408bef43d5cee438154bd7408866532396e4b179deaf50b985d7fbe7"
 }

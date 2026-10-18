@@ -9,6 +9,7 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
   const archived=new Map();
   const endedTasks=new Set();
   const pending=entry=>!entry.result || entry.result.status==='unknown';
+  const indexSteps=steps=>{const methods=new Map();const visit=items=>{for(const step of items||[]){if(step?.id&&step?.method)methods.set(step.id,step.method);visit(step?.args?.steps);}};visit(steps);return methods;};
   const samePage=()=>assertIdentity(api.getState().context,binding);
   samePage();
 
@@ -20,6 +21,7 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
   }
 
   async function transfer(entry,result,method){
+    if(result?.attachment?.status==='agent_write_verified'&&result.attachment.sha256===result.sha256&&result.attachment.size===result.size)return result;
     if (artifact && result?.status==='generated' && result.resourceId) {
       try {
         const bytes=await api.files.read({resourceId:result.resourceId,as:'bytes'});
@@ -50,23 +52,42 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
   async function finish(entry, result) {
     if(result && typeof result==='object' && !result.status)result={status:'read',...result};
     if(result?.status!=='unknown')entry.editing=false;
+    entry.resolveExecution?.();
     onStateChange();
-    result=await transfer(entry,result,entry.command.payload.method);
-    if(entry.command.payload.method==='run'&&Array.isArray(result?.results)){
-      const steps=new Map((entry.command.payload.args.steps||[]).map(step=>[step.id,step.method]));
-      const transferred=[];
-      for(const item of result.results){
-        const method=steps.get(item.id);
-        transferred.push(['files.save','files.export'].includes(method)?{...item,result:await transfer(entry,item.result,method)}:item);
-      }
-      result={...result,results:transferred};
-    }
+    result=await transferTree(entry,result,entry.command.payload.method);
     entry.result=structuredClone(result);
-    await report('result',entry.command,{result:entry.result});
-    entry.reported=true;
-    if (endedTasks.has(entry.command.taskId) && ![...commands.values()].some(item=>item.command.taskId===entry.command.taskId && pending(item))) activeTask=null;
-    archiveFinished();
+    if(endedTasks.has(entry.command.taskId)&&![...commands.values()].some(item=>item!==entry&&item.command.taskId===entry.command.taskId&&pending(item)))activeTask=null;
+    void sendResult(entry);
     return entry.result;
+  }
+
+  async function transferTree(entry,value,method){
+    if(!value||typeof value!=='object')return value;
+    if(ArrayBuffer.isView(value)||value instanceof ArrayBuffer||value instanceof Blob)return value;
+    if(value.status==='generated'&&value.resourceId&&['files.save','files.export'].includes(method))return transfer(entry,value,method);
+    if(Array.isArray(value)){const items=[];for(const item of value)items.push(await transferTree(entry,item,method));return items;}
+    const output={...value};
+    if(Array.isArray(value.results)){
+      output.results=[];for(const item of value.results){
+        const childMethod=entry.stepMethods.get(item?.id)||method;
+        const transferred=item&&typeof item==='object'&&Object.hasOwn(item,'result')
+          ?{...item,result:await transferTree(entry,item.result,childMethod)}:await transferTree(entry,item,childMethod);
+        output.results.push(transferred);
+      }
+    }
+    for(const [key,child]of Object.entries(value))if(key!=='results'&&child&&typeof child==='object')output[key]=await transferTree(entry,child,method);
+    return output;
+  }
+
+  async function sendResult(entry){
+    if(entry.reported)return true;
+    if(entry.resultReportPromise)return entry.resultReportPromise;
+    entry.resultReportPromise=(async()=>{
+      try{await report('result',entry.command,{result:entry.result});entry.reported=true;entry.reportError=null;return true;}
+      catch(error){entry.reportError={code:error.code||'RESULT_REPORT_FAILED',message:error.message};return false;}
+      finally{entry.resultReportPromise=null;if(endedTasks.has(entry.command.taskId)&&![...commands.values()].some(item=>item.command.taskId===entry.command.taskId&&pending(item)))activeTask=null;archiveFinished();}
+    })();
+    return entry.resultReportPromise;
   }
 
   async function monitor(entry) {
@@ -91,8 +112,9 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
       if (endedTasks.has(command.taskId)) throw failure('task_ended','Task control has already ended');
       samePage();
       validatePayload(command.payload,binding,scopes);
-      if (activeTask && command.taskId!==activeTask) throw failure('task_binding_mismatch','A different task still has running commands');
-      activeTask=command.taskId;
+      const recoverySave=command.payload.method==='files.save'||command.payload.method==='run'&&command.payload.args?.steps?.length===1&&command.payload.args.steps[0]?.method==='files.save';
+      if (!recoverySave&&activeTask && command.taskId!==activeTask) throw failure('task_binding_mismatch','A different task still has running commands');
+      if(!recoverySave)activeTask=command.taskId;
       entry.editing=editsDocument(command.payload);
       onStateChange();
       if (JOB_METHODS.has(command.payload.method)) {
@@ -126,13 +148,16 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
     }
     if (previous) {
       if (JSON.stringify(previous.command.payload)!==JSON.stringify(command.payload) || previous.command.requestHash!==command.requestHash) throw failure('idempotency_conflict','Command ID reused with a different payload');
-      if (previous.result) return report('result',previous.command,{result:previous.result}).then(()=>{previous.reported=true;return previous.result;});
+      if (previous.result) return sendResult(previous).then(()=>previous.result);
       return previous.promise;
     }
     const entry={command:structuredClone(command)};
+    entry.stepMethods=indexSteps(command.payload?.args?.steps);
+    const executionDone=new Promise(resolve=>{entry.resolveExecution=resolve;});
     commands.set(command.commandId,entry);
-    entry.promise=tail.then(()=>execute(entry));
-    tail=entry.promise.catch(()=>{});
+    const recoverySave=command.payload.method==='files.save'||command.payload.method==='run'&&command.payload.args?.steps?.length===1&&command.payload.args.steps[0]?.method==='files.save';
+    if(recoverySave)entry.promise=execute(entry).finally(entry.resolveExecution);
+    else {entry.promise=tail.then(()=>execute(entry)).finally(entry.resolveExecution);tail=executionDone;}
     return entry.promise;
   }
 
@@ -155,8 +180,8 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
 
   return Object.freeze({receive,endTask,release(){accepting=false;endTask(activeTask);},
     reconcilePending,
-    async retryReports(){await reconcilePending();for(const entry of commands.values())if(entry.result&&!entry.reported){await report('result',entry.command,{result:entry.result});entry.reported=true;}archiveFinished();},
-    state(){return {accepting,activeTask,editing:accepting&&[...commands.values()].some(entry=>entry.editing),pending:[...commands.values()].filter(pending).map(entry=>({commandId:entry.command.commandId,pageJobId:entry.jobId||null}))};},
+    async retryReports(){await reconcilePending();await Promise.all([...commands.values()].filter(entry=>entry.result&&!entry.reported).map(sendResult));archiveFinished();},
+    state(){return {accepting,activeTask,editing:accepting&&[...commands.values()].some(entry=>entry.editing),pending:[...commands.values()].filter(entry=>pending(entry)||!entry.reported).map(entry=>({commandId:entry.command.commandId,pageJobId:entry.jobId||null,deliveryState:entry.reportError?'retry_pending':entry.result?.status==='unknown'?'unknown':'pending',error:entry.reportError||null}))};},
     replay:async commandId=>{const entry=commands.get(commandId);if(!entry?.result)throw failure('receipt_unavailable','Original result not known');await report('result',entry.command,{result:entry.result});return entry.result;}});
 }
 

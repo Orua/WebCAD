@@ -2,7 +2,7 @@
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.52.1",
+  "version": "1.52.2",
   "description": "通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。",
   "synonyms": [
     "参数",
@@ -82,5 +82,5 @@
     "Indexed face/edge references downstream of a changed feature are rejected when stability cannot be proven."
   ],
   "docs": "api.named-parameters",
-  "docsHash": "sha256:338641f4f7cca0832032bae73c2242ff421fd9db3717fb5d030afb90431c9581"
+  "docsHash": "sha256:9f687e3d5dfde44c9c7380b1c52f3dcca6ddca70ff5fce9c977dcd6415855c01"
 }

@@ -39,7 +39,8 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
   function stopRevisionSubscriptions(){for(const stop of revisionSubscriptions.values())try{stop();}catch{}revisionSubscriptions.clear();}
   function request(method,args){
     const id='page-'+(++requestSeq);
-    return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{pending.delete(id);reject(Object.assign(new Error('助手未响应；请确认已登录并配置正确的助手地址。'),{code:'AGENT_PANEL_TIMEOUT'}));},35000);pending.set(id,{resolve,reject,timer});post({kind:'request',id,method,args});});
+    const timeout=method==='adapter.artifact'?900000:35000;
+    return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{pending.delete(id);reject(Object.assign(new Error('助手响应超时；原请求结果尚未确定，请查询原任务或重传已有回执。'),{code:'AGENT_PANEL_TIMEOUT',status:'unknown',commitState:'unknown',requestId:id}));},timeout);pending.set(id,{resolve,reject,timer});try{post({kind:'request',id,method,args});}catch(e){clearTimeout(timer);pending.delete(id);reject(e);}});
   }
   function theme(){const tokens=workspaceThemeTokens(getApi().getState().displayPreferences?.themeColor);post({kind:'theme',tokens});external?.setTheme?.(tokens);}
   function setHostState(patch){hostControl.set(patch);notify();}
@@ -64,7 +65,7 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
     }
     if(method==='adapter.create'){
       if(!visible)fail('lease_revoked','Agent 模式已退出。');
-      adapter?.release();if(adapters.size>=128)fail('RESOURCE_LIMIT','先核对旧会话回执，再连接新助手。');
+      adapter?.release();for(const [id,previous]of adapters)if(!previous.state().accepting&&!previous.state().pending.length)adapters.delete(id);if(adapters.size>=128)fail('RESOURCE_LIMIT','先核对旧会话回执，再连接新助手。');
       const adapterId=args.cadSessionId;
       const created=createHostAdapter({api:getApi(),session:args,report:(kind,command,body)=>request('adapter.report',{kind,command,body}),artifact:(command,result,bytes)=>request('adapter.artifact',{command,result,bytes}),onStateChange:()=>post({kind:'adapter-state',adapterId,state:created.state()})});
       adapter=created;adapters.set(adapterId,created);

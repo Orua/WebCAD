@@ -22,6 +22,20 @@ test('v4 save uses an independent codec worker and retains source buffers',async
  const bytes=await encodeCommittedProject({version:4,binaryAssets:{hash:asset}},{createWorker:()=>codec});
  assert.deepEqual([...bytes],[4,5]);assert.equal(posted.document.binaryAssets.hash,asset);assert.deepEqual([...asset],[7,8,9]);assert.equal(terminated,true);
 });
+test('codec worker message errors and synchronous send failures terminate and settle once',async()=>{
+ for(const mode of ['messageerror','send']){
+  let terminated=false,codec;
+  codec={postMessage(){if(mode==='send')throw new Error('clone failed');},terminate(){terminated=true;}};
+  const pending=encodeCommittedProject({version:4},{createWorker:()=>codec});
+  if(mode==='messageerror')codec.onmessageerror();
+  await assert.rejects(pending,{code:mode==='send'?'PROJECT_ENCODING_SEND_FAILED':'PROJECT_ENCODING_MESSAGE_ERROR'});assert.equal(terminated,true);
+ }
+});
+test('codec timeout rejects the old save and tears down its worker',async()=>{
+ let terminated=false,expire;
+ const pending=encodeCommittedProject({version:4},{createWorker:()=>({postMessage(){},terminate(){terminated=true;}}),setTimer:callback=>(expire=callback,1),clearTimer(){}});
+ expire();await assert.rejects(pending,{code:'PROJECT_ENCODING_TIMEOUT'});assert.equal(terminated,true);
+});
 test('recovery is discoverable and the downloadable contract matches current page metadata',()=>{
  assert.equal(getTool({id:'recoverKernel'}).implementationStatus,'implemented');
  assert.equal(infoMetadata().agentProtocol.contractHash,AGENT_CONTRACT.contractHash);

@@ -2,7 +2,7 @@
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.52.1",
+  "version": "1.52.2",
   "contextPolicy": "revision",
   "label": "打开工程",
   "synonyms": [
@@ -66,5 +66,5 @@
     "FORMAT_UNSUPPORTED",
     "MESH_UNITS_REQUIRED"
   ],
-  "docsHash": "sha256:e20391854803eb4185f45813df82a1e8ca94907ee298dbb292814abc26d6d25e"
+  "docsHash": "sha256:dda62eb34155df6e872fa34aacaf6f6c5991c8475799d9aea3c859c66cabce95"
 }

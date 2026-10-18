@@ -10,10 +10,11 @@ export function createHostControl(onChange=()=>{}){
   }});
 }
 
+export function hostControlAllowed(target){return !!target?.closest?.('[data-action="save"],[data-command-id="save"],[data-command-id="agentPanel"],.file-menu,[data-host-control-allowed="true"]');}
 export function installHostInteractionGuard(surface,isLocked,isViewport){
   const guard=event=>{
     if(!isLocked()||event.isTrusted===false)return;
-    if(event.target?.closest?.('[data-action="save"],[data-command-id="save"],[data-command-id="agentPanel"],.file-menu') ||
+    if(hostControlAllowed(event.target) ||
       event.type==='keydown'&&(event.ctrlKey||event.metaKey)&&event.key?.toLowerCase()==='s')return;
     // OrbitControls receives only pointer gestures on its canvas. Keyboard,
     // drops, anchor handles, menus, and any open form are unavailable.

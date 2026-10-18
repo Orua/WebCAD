@@ -11,6 +11,47 @@ test('new receipt keys cannot repeat a known failed mutation at unchanged geomet
   req.steps[0].args.params.radius=0.3;
   await f.run({...req,idempotencyKey:'changed'});assert.equal(f.count,2);
 });
+test('unknown batch exceptions preserve unknown status and original task identity',async()=>{
+ const f=fixture();f.api.execute=async()=>{throw Object.assign(new Error('connection lost'),{commitState:'unknown',jobId:'remote-7'});};
+ const receipt=await f.run(f.request());assert.equal(receipt.status,'unknown');assert.equal(receipt.error.commitState,'unknown');assert.equal(receipt.error.jobId,'remote-7');
+ assert.equal(receipt.recovery.action,'INSPECT_STATE_BEFORE_RETRY');
+});
+test('temporary pre-commit errors do not permanently poison identical operations',async()=>{
+ const f=fixture();let first=true;f.api.execute=async()=>{if(first){first=false;return {status:'failed',commitState:'not_committed',error:{code:'SERVICES_UNAVAILABLE'}};}return {status:'read'};};
+ const request=f.request();request.steps=[request.steps[0]];
+ assert.equal((await f.run(request)).status,'failed');assert.equal((await f.run({...request,idempotencyKey:'retry'})).status,'completed');
+});
+test('a standalone recovery save bypasses busy kernel checks and the batch tail',async()=>{
+ const f=fixture();f.setUnavailable();const input=f.request();input.steps=[{id:'save',method:'files.save',args:{name:'rescue.webcad'}}];
+ const receipt=await f.run(input);assert.equal(receipt.status,'completed');assert.equal(receipt.results[0].result.status,'read');
+});
+test('batch history evicts terminal entries while allowing further read batches',async()=>{
+ const f=fixture();
+ for(let i=0;i<1105;i++){
+  const request=f.request();request.idempotencyKey=`read-${i}`;request.steps=[{id:'state',method:'measure',args:{bodyId:'b'}}];
+  assert.equal((await f.run(request)).status,'completed');
+ }
+ const retired=f.request();retired.idempotencyKey='read-0';retired.steps=[{id:'state',method:'measure',args:{bodyId:'b'}}];
+ const archived=await f.run(retired);assert.equal(archived.status,'completed');assert.equal(archived.archived,true);
+});
+test('page job history evicts finished jobs but keeps accepting work',async()=>{
+ const context={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:0};
+ const jobs=createPageJobs({getState:()=>({context}),invoke:async()=>({status:'read'})});
+ for(let i=0;i<1105;i++){
+  jobs.submit({jobId:`job-${i}`,method:'measure',args:{}});await jobs.awaitJob({jobId:`job-${i}`,timeoutMs:1000});
+ }
+ assert.equal(jobs.getJob({jobId:'job-0'}).status,'completed');assert.equal(jobs.getJob({jobId:'job-0'}).archived,true);
+ assert.equal(jobs.submit({jobId:'job-0',method:'measure',args:{}}).status,'completed');
+ assert.throws(()=>jobs.submit({jobId:'job-0',method:'measure',args:{different:true}}),{code:'IDEMPOTENCY_KEY_REUSED'});
+ assert.equal(jobs.submit({jobId:'job-last',method:'measure',args:{}}).status,'queued');
+});
+test('unresolved page jobs are retained and protect the receipt limit',async()=>{
+ const context={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:0};
+ const jobs=createPageJobs({getState:()=>({context}),invoke:async()=>({status:'unknown',commitState:'unknown'})});
+ for(let i=0;i<100;i++){jobs.submit({jobId:`unknown-${i}`,method:'measure',args:{}});await jobs.awaitJob({jobId:`unknown-${i}`,timeoutMs:1000});}
+ assert.equal(jobs.getJob({jobId:'unknown-0'}).status,'unknown');
+ assert.throws(()=>jobs.submit({jobId:'blocked',method:'measure',args:{}}),{code:'RESOURCE_LIMIT'});
+});
 
 test('running batch exposes its real stage and stops only after the current commit',async()=>{
   const f=fixture();let release,entered;const active=new Promise(resolve=>entered=resolve),gate=new Promise(resolve=>release=resolve);
@@ -37,19 +78,19 @@ test('partial receipts identify committed, failed and remaining steps without re
   const count=f.count;assert.deepEqual(await f.run(req),r);assert.equal(f.count,count);
 });
 function fixture(display){
-  let revision=0,count=0;
+  let revision=0,count=0,busy=false,kernelReady=true;
   const context=()=>({sessionId:'s',documentId:'d',documentInstanceId:'i',revision});
-  const api={getState:()=>({context:context(),summary:{kernelReady:true,busy:false},preview:{active:false,computing:false}}),
+  const api={getState:()=>({context:context(),summary:{kernelReady,busy},preview:{active:false,computing:false}}),
     getTool:()=>({version:'1',schemaHash:'hash'}),
     execute:async req=>{assert.equal(req.context.expectedRevision,revision);count++;if(req.args.params?.bad)return {status:'failed',error:{code:'GEOMETRY_INVALID',message:'bad shape'}};revision++;return {status:'committed',revisionAfter:revision,createdBodyIds:[`b${revision}`]};},
     measure:async req=>({status:'read',bodyId:req.bodyId,context:context(),volume:42}),
-    files:{export:async req=>({status:'generated',context:context(),ids:req.ids,resourceId:'artifact'})}};
+    files:{export:async req=>({status:'generated',context:context(),ids:req.ids,resourceId:'artifact'}),save:async()=>({status:'read',context:context(),resourceId:'rescue'})}};
   const run=createPageBatch(api,display?{display}:undefined);
   const request=()=>({context:{sessionId:'s',documentId:'d',documentInstanceId:'i',expectedRevision:revision},idempotencyKey:'test',steps:[
     {id:'ring',method:'add',args:{op:'torus',params:{majorRadius:15,minorRadius:2.5}}},
     {id:'size',method:'measure',args:{bodyId:{$ref:'ring.createdBodyIds.0'}}},
     {id:'export',method:'files.export',args:{format:'step',ids:{$ref:'ring.createdBodyIds'}}}]});
-  return {api,run,request,get count(){return count;},bump:()=>revision++};
+  return {api,run,request,get count(){return count;},bump:()=>revision++,setUnavailable(){busy=true;kernelReady=false;}};
 }
 test('JSON batch links real IDs, advances context, and replays one receipt',async()=>{
   const f=fixture(),req=f.request(),r=await f.run(req);assert.equal(r.status,'completed');assert.equal(r.atomic,false);

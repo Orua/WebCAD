@@ -109,6 +109,7 @@ function createWorker(){
     return;
   }clearTimeout(job.timer);pending.delete(result.requestId);kernelProgress=null;if(!result.ok)viewport.setErrorPoints(result.details?.pointsMm||[]);if(result.ok)job.resolve(result);else job.reject(Object.assign(new Error(result.error||'建模操作失败'),{code:result.code,path:result.path,recoveryAction:result.recoveryAction,featureId:result.featureId,report:result.report,details:result.details}));};
   instance.onerror=event=>{if(instance!==worker)return;const error=Object.assign(new Error(event.message||'CAD 内核异常，请保存工程后刷新页面。'),{code:'KERNEL_CRASHED'});rejectPending(error);kernelReady=false;ui?.showError(error.message);};
+  instance.onmessageerror=()=>{if(instance!==worker)return;const error=Object.assign(new Error('CAD Worker 消息无法解码；已提交工程仍保留，请恢复内核后继续。'),{code:'WORKER_MESSAGE_ERROR',commitState:'not_committed'});rejectPending(error);instance.terminate();kernelReady=false;worker=createWorker();refresh();};
   return instance;
 }
 worker=createWorker();
@@ -132,7 +133,7 @@ function request(type,payload={},{hardTimeoutMs}={}){return new Promise((resolve
       worker.terminate();rejectPending(error);kernelReady=false;refresh();
     },Math.max(0,started+timeoutMs-Date.now()));
   }};
-  pending.set(requestId,job);job.pulse();instance.postMessage({requestId,type,...payload});
+  pending.set(requestId,job);job.pulse();try{instance.postMessage({requestId,type,...payload});}catch(error){clearTimeout(job.timer);pending.delete(requestId);reject(Object.assign(error,{code:error.code||'WORKER_SEND_FAILED',commitState:'not_committed'}));}
 });}
 function restartWorker(error){
   if(recoveryPromise)return recoveryPromise;
@@ -337,7 +338,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
   try{
     checkTransaction(signal,expectedRevision);
     const previousDocument=record&&!newInstance&&!restoring&&next.documentId===documentModel.documentId?documentModel:next;
-    const retainedSelection=origin==='agent'?{ids:[...selectedIds],topology:selectedTopology?clone(selectedTopology):null}:null;
+    const retainedSelection=origin==='agent'?{ids:[...selectedIds]}:null;
     if(next.parameters!==undefined||next.features.some(f=>f.expressions))next=evaluateDocumentParameters(next,{previousDocument});
     assertHistoryEditSafe(previousDocument,next);
     // Keep every committed project saveable through the bounded browser file API.
@@ -381,7 +382,8 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     // exist are dropped; the user's own insert/edit path keeps its old select
     // behaviour (including clearing after an independent insertion).
     selectedIds=origin==='agent'?retainedSelection.ids.filter(id=>bodies.some(b=>b.id===id)):insertedObject?[]:select&&bodies.some(b=>b.id===select)?[select]:selectedIds.filter(id=>bodies.some(b=>b.id===id));
-    selectedTopology=origin==='agent'&&retainedSelection.topology&&bodies.some(b=>b.id===retainedSelection.topology.bodyId)?retainedSelection.topology:null;
+    // Numeric face/edge indices belong to the old body revision even if its bodyId survives.
+    selectedTopology=null;
     // Agent batches upload the display once at the end of the batch (see beginDisplayBatch).
     if(displayBatchDepth)deferredDisplay={fit:fit||deferredDisplay?.fit===true};else showCommittedModel(fit);
     // Commit is synchronous. Persistence follows without yielding between commit

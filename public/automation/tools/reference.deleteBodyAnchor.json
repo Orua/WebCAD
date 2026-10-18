@@ -3,7 +3,7 @@
   "title": "删除对象锚点",
   "description": "args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
   "category": "command",
-  "version": "1.52.1",
+  "version": "1.52.2",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:ea8167a5fc21ce5b58f97218c4182d4fedb5d4c36989ff4df2d73dcb82b6ed7d"
+  "docsHash": "sha256:580cd7a9fe90bc1eeb1362e30c584f5cefe6c008b148afbfb74a8b7a901b26f2"
 }

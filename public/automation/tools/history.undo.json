@@ -3,7 +3,7 @@
   "title": "撤销",
   "description": "args:{}；撤销一个已提交步骤。",
   "category": "command",
-  "version": "1.52.1",
+  "version": "1.52.2",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,5 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:0aa7450215fc03194413292dece92e80e33a22b9d306f6331c3859999f57ea76"
+  "docsHash": "sha256:d30035e5c16089105df22a9abdc3d746f22edee8f9801fe3639c185566ea0beb"
 }

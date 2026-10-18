@@ -2,7 +2,7 @@
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.52.1",
+  "version": "1.52.2",
   "contextPolicy": "none",
   "label": "写入文件",
   "synonyms": [
@@ -60,5 +60,5 @@
     "HASH_MISMATCH",
     "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:fa32fbce8a361d3ac406da292712afaf31767fba3240ff12d35c7f9bc1599fe1"
+  "docsHash": "sha256:dd61d0295ad352ea4623b95f797a86905facfaba15c91af9f12bde28d7715ee4"
 }

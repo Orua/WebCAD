@@ -56,6 +56,16 @@ namespace WebCADServices.Runtime
                 return new JObject { ["queued"]=queued,["running"]=running,["parallelism"]=1,["snapshotAt"]=DateTime.UtcNow.ToString("o"),["remainingDurationKnown"]=false };
             }
         }
+        public JObject QueueHealth()
+        {
+            lock(gate)
+            {
+                int queued=0,running=0;
+                using(var command=Command("SELECT state,COUNT(*) AS count FROM jobs WHERE state IN ('queued','running') GROUP BY state"))
+                using(var reader=command.ExecuteReader())while(reader.Read()){if((string)reader["state"]=="queued")queued=Convert.ToInt32(reader["count"]);else running=Convert.ToInt32(reader["count"]);}
+                return new JObject{["queued"]=queued,["running"]=running};
+            }
+        }
         JObject Read(string sql, params object[] args)
         {
             using (var command = Command(sql, args)) using (var reader = command.ExecuteReader())

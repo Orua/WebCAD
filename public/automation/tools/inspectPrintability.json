@@ -2,7 +2,7 @@
   "id": "inspectPrintability",
   "title": "inspectPrintability",
   "category": "page-method",
-  "version": "1.52.1",
+  "version": "1.52.2",
   "contextPolicy": "identity",
   "description": "inspectPrintability({context,bodyId,angleLimitDeg?:45}); angleLimitDeg 在 0 与 90 度之间。",
   "synonyms": [
@@ -26,5 +26,5 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.printability",
-  "docsHash": "sha256:5786b98bce57232f08184585d1c3005c5136bec81c6a94d3dd74f2d8b76ea1a5"
+  "docsHash": "sha256:925c1f893853840303322ad5e789d2ed8cdc4f011f17d0bb2f27ce507d808a7d"
 }

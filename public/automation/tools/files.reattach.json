@@ -2,7 +2,7 @@
   "id": "files.reattach",
   "title": "files.reattach",
   "category": "file",
-  "version": "1.52.1",
+  "version": "1.52.2",
   "contextPolicy": "none",
   "label": "reattach",
   "synonyms": [
@@ -55,5 +55,5 @@
     "RESOURCE_EXPIRED",
     "ASSET_INVALID"
   ],
-  "docsHash": "sha256:c663ca9d28cdd1c64b40c03c5a5c161dcdf13a3bf39ea39993ae12963edb986a"
+  "docsHash": "sha256:ca8a8679c445670bd665391fbb14f57f53595ef057c2f7bffb9915982cc76dba"
 }
