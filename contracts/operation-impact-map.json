@@ -1893,27 +1893,45 @@
     {
       "operation": "nativeDeformPrototype",
       "semanticVersion": "deform.nurbs-1.0",
-      "sourcePaths": ["services/WebCADServices/native/occt-worker/deform.hxx", "services/WebCADServices/native/occt-worker/worker.cpp", "services/WebCADServices/src/WebCADServices.Runtime/NativeAdapter.cs", "services/WebCADServices/src/WebCADServices.Runtime/ServiceRuntime.cs", "src/deform-contract.js"],
+      "sourcePaths": [
+        "services/WebCADServices/native/occt-worker/deform.hxx",
+        "services/WebCADServices/native/occt-worker/worker.cpp",
+        "services/WebCADServices/src/WebCADServices.Runtime/NativeAdapter.cs",
+        "services/WebCADServices/src/WebCADServices.Runtime/ServiceRuntime.cs",
+        "src/deform-contract.js"
+      ],
       "localImpact": "No browser operation or local fallback is enabled; ellipsoid remains the independently accepted local operation",
       "servicesImpact": "Preserve the source-bound Native prototype behind the matching worker proof, global passed status and deformStatus passed gate; absent proof omits capability and rejects requests",
       "logoImpact": "none; no conversion, glyph or relief changes",
       "contractImpact": "Internal draft deformation schema only; no public tool, UI action or advertised supported capability until actual acceptance",
       "documentImpact": "none while disabled; no accepted deformation recipe or compiled result is installed",
       "cacheImpact": "Source fingerprint changes; no new public operation card or route",
-      "requiredTests": ["services/WebCADServices/tests/UP26Native/Program.cs"],
-      "manualChecks": ["Fixed v6 bend15 precision gate remains failed; no new geometry trial, capability enablement or production installation"]
+      "requiredTests": [
+        "services/WebCADServices/tests/UP26Native/Program.cs"
+      ],
+      "manualChecks": [
+        "Fixed v6 bend15 precision gate remains failed; no new geometry trial, capability enablement or production installation"
+      ]
     },
     {
       "operation": "agentIdentityContext",
-      "sourcePaths": ["src/agent/protocol.js", "src/page-context-policy.js"],
+      "sourcePaths": [
+        "src/agent/protocol.js",
+        "src/page-context-policy.js"
+      ],
       "localImpact": "Agent measurements and views accept the same identity context as their existing public page API; document instance binding remains mandatory",
       "servicesImpact": "none; no geometry execution or Services protocol change",
       "logoImpact": "none",
       "contractImpact": "Honor existing identity context cards without requiring expectedRevision on read/view requests; revision-protected writes retain their original validation",
       "documentImpact": "none; no history, geometry or saved format changes",
       "cacheImpact": "Rebuild frontend identity; existing catalog/docs contracts remain unchanged",
-      "requiredTests": ["tests/remote-agent-adapter.test.mjs", "tests/page-context-policy.test.mjs"],
-      "manualChecks": ["17674 bound Agent measurement using current getState context succeeds on its first call; stale instance and missing write revision still reject"]
+      "requiredTests": [
+        "tests/remote-agent-adapter.test.mjs",
+        "tests/page-context-policy.test.mjs"
+      ],
+      "manualChecks": [
+        "17674 bound Agent measurement using current getState context succeeds on its first call; stale instance and missing write revision still reject"
+      ]
     },
     {
       "operation": "ribbon-uniform-icons-background-highlight",
@@ -1926,8 +1944,11 @@
       "contractImpact": "none: actions and public AI routes unchanged; documentation release identity updated",
       "documentImpact": "none: no project, camera, history or recipe changes",
       "cacheImpact": "Rebuild frontend and matching discovery identity; user preferences retained",
-      "requiredTests": [
-        "build",
+      "requiredTests": [],
+      "requiredCommands": [
+        "npm run build"
+      ],
+      "manualChecks": [
         "17674 view/edit icon sizes, ribbon height and selected border"
       ]
     },
@@ -1944,9 +1965,13 @@
       "documentImpact": "No document, history, camera or geometry replacement; retain active tasks",
       "cacheImpact": "Frontend build/catalog/docs hashes; existing preferences retained",
       "requiredTests": [
-        "workspace-theme",
-        "assistant-panel",
-        "build",
+        "tests/workspace-theme.test.mjs",
+        "tests/assistant-panel.test.mjs"
+      ],
+      "requiredCommands": [
+        "npm run build"
+      ],
+      "manualChecks": [
         "17674 view/edit height and Agent entry/connection/exit layout"
       ]
     },
@@ -1965,9 +1990,13 @@
       "documentImpact": "Recipes, checkpoints, undo, project data and unresolved physical-job guards retained",
       "cacheImpact": "Frontend build/catalog/docs hashes change; preserve credentials and settings",
       "requiredTests": [
-        "services-routing",
-        "services-boolean-contract",
-        "build",
+        "tests/services-routing.test.mjs",
+        "tests/services-boolean-contract.test.mjs"
+      ],
+      "requiredCommands": [
+        "npm run build"
+      ],
+      "manualChecks": [
         "17674 threadedSleeve with Services configured and no backend requests"
       ]
     },
@@ -1987,10 +2016,14 @@
       "documentImpact": "Generated features freeze full script; legacy ring recipes without new flags retain explicit winding; no format change",
       "cacheImpact": "new frontend/catalog/docs/build hashes; preserve cookies, local model library and project data",
       "requiredTests": [
-        "key-ring",
-        "model-library",
-        "model-script",
-        "build",
+        "tests/key-ring.test.mjs",
+        "tests/model-library.test.mjs",
+        "tests/model-script.test.mjs"
+      ],
+      "requiredCommands": [
+        "npm run build"
+      ],
+      "manualChecks": [
         "17674 modal/script/preview/create"
       ]
     },
@@ -2006,8 +2039,12 @@
       "documentImpact": "none: document and saved appearance preserved",
       "cacheImpact": "Rebuild frontend CSS and release identity; preserve theme cookie",
       "requiredTests": [
-        "workspace-theme",
-        "build",
+        "tests/workspace-theme.test.mjs"
+      ],
+      "requiredCommands": [
+        "npm run build"
+      ],
+      "manualChecks": [
         "17674 icon colour check"
       ]
     },
@@ -2029,10 +2066,12 @@
       "documentImpact": "No reload or document replacement; same revision, dirty, camera and history",
       "cacheImpact": "Page API 1.43 docs/catalog; workbench asset query versions changed; existing appearance cookies retained",
       "requiredTests": [
-        "workspace-theme",
-        "assistant-panel",
-        "remote-agent-adapter",
-        "page-api",
+        "tests/workspace-theme.test.mjs",
+        "tests/assistant-panel.test.mjs",
+        "tests/remote-agent-adapter.test.mjs",
+        "tests/page-api.test.mjs"
+      ],
+      "manualChecks": [
         "17674 enter/exit current-document verification"
       ]
     },
@@ -2057,8 +2096,12 @@
       "requiredTests": [
         "tests/agent-recovery-save.test.mjs",
         "tests/remote-agent-adapter.test.mjs",
-        "tests/page-api.test.mjs",
-        "CodexAgent tests/unit/test_webcad_software.py",
+        "tests/page-api.test.mjs"
+      ],
+      "externalChecks": [
+        "Goldenluck.CodexAgent: tests/unit/test_webcad_software.py"
+      ],
+      "manualChecks": [
         "original rev98 project cold open/save"
       ]
     },
@@ -2205,12 +2248,17 @@
         "tests/rectangle-selection.test.mjs"
       ],
       "requiredTests": [
-        "targeted API/layout tests",
-        "frontend build",
-        "one live browser view/selection check"
+        "tests/page-api.test.mjs",
+        "tests/workspace-upgrade.test.mjs"
       ],
       "schemaFiles": [],
-      "publicToolIds": []
+      "publicToolIds": [],
+      "requiredCommands": [
+        "npm run build"
+      ],
+      "manualChecks": [
+        "one live browser view/selection check"
+      ]
     },
     {
       "operation": "pattern.machining-intent",
@@ -2240,11 +2288,10 @@
       "documentImpact": "new recipe metadata only; legacy recipes not migrated",
       "cacheImpact": "regenerate static docs/cards/router and hashes",
       "requiredTests": [
-        "pattern-machining",
-        "page-api",
-        "remote-agent-adapter",
-        "relief-contract",
-        "R01 original stripes depth/blank regions"
+        "tests/pattern-machining.test.mjs",
+        "tests/page-api.test.mjs",
+        "tests/remote-agent-adapter.test.mjs",
+        "tests/relief-contract.test.mjs"
       ],
       "targetedTests": [
         "tests/pattern-machining.test.mjs"
@@ -2254,6 +2301,9 @@
         "logo",
         "relief",
         "readRelief"
+      ],
+      "manualChecks": [
+        "R01 original stripes depth/blank regions"
       ]
     },
     {
@@ -2288,16 +2338,13 @@
       "documentImpact": "self-contained v4 full source assets shared by history; no lossy v3 downgrade",
       "cacheImpact": "regenerated public file cards and api.mesh-assets; live topology/state never cached",
       "requiredTests": [
-        "mesh-assets",
-        "mesh-kernel",
-        "project-container",
-        "browser-files",
-        "pattern-machining",
-        "command-service",
-        "real snake offline source hash and rotation benchmark",
-        "Services controlled lifecycle/page install/package capacity pending",
-        "display-lod",
-        "real snake public preview/fine transition and unchanged export source hash"
+        "tests/mesh-assets.test.mjs",
+        "tests/mesh-kernel.test.mjs",
+        "tests/project-container.test.mjs",
+        "tests/browser-files.test.mjs",
+        "tests/pattern-machining.test.mjs",
+        "tests/command-service.test.mjs",
+        "tests/display-lod.test.mjs"
       ],
       "targetedTests": [
         "tests/mesh-assets.test.mjs",
@@ -2311,6 +2358,11 @@
         "files.export",
         "measure",
         "getState"
+      ],
+      "manualChecks": [
+        "real snake offline source hash and rotation benchmark",
+        "Services controlled lifecycle/page install/package capacity pending",
+        "real snake public preview/fine transition and unchanged export source hash"
       ]
     },
     {
@@ -2335,8 +2387,7 @@
         "tests/page-api.test.mjs",
         "tests/page-batch.test.mjs",
         "tests/tool-discovery.test.mjs",
-        "tests/remote-agent-adapter.test.mjs",
-        "targeted browser workspace/library/preview/save-open pass"
+        "tests/remote-agent-adapter.test.mjs"
       ],
       "publicToolIds": [
         "getModelLibrary",
@@ -2347,6 +2398,9 @@
       ],
       "targetedTests": [
         "tests/model-library.test.mjs"
+      ],
+      "manualChecks": [
+        "targeted browser workspace/library/preview/save-open pass"
       ]
     },
     {
