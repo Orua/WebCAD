@@ -7,6 +7,8 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
   contracts: [
+    'agent-selection-preservation', 'count-summary', 'floor-grid', 'free-placement',
+    'logo-selection-draft', 'metal-warning', 'open-file-recent',
     'tap-contract', 'agent-single-call', 'metal-occlusion', 'selection-feedback',
     'metal-materials', 'model-library', 'workspace-theme',
     'remote-agent-adapter', 'agent-recovery-save', 'assistant-panel', 'runtime-uuid', 'model-script', 'page-context-policy', 'operation-contract',
@@ -32,6 +34,12 @@ const groups = {
     'tool-state', 'viewport-transform', 'dfam-inspection', 'profile-fitting', 'text-commands',
   ],
   kernel: [
+    'blend-radius-page', 'blend-radius-search', 'blend-radius', 'bounds-alignment',
+    'bump-set', 'ellipsoid', 'face-origin-restore', 'guided-loft-dispatch',
+    'guided-loft-kernel', 'headless-cli', 'local-checkpoint', 'loft-caps',
+    'loft-guides', 'loft-profiles', 'loft-spine', 'mirror-variation', 'rebuild-pool',
+    'robust-union', 'semantic-blend-integration', 'smooth-transition-semantic',
+    'stl-watertight', 'subd-body', 'subd-integration',
     'quick-chain-foot', 'tap-tool', 'badge-tool', 'eyelet-faces', 'quick-chain-assembly', 'square-arched-bridge',
     'relief-edit-kernel', 'mesh-kernel', 'mesh-boolean', 'adaptive-exact-display', 'relief-param-migration',
     'services-round-plan',
