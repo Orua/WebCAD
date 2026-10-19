@@ -119,7 +119,8 @@
 .webcad-app .host-control-status .host-connection{width:7px;height:7px;flex:none;border-radius:50%;background:#94a3b8}
 .webcad-app .host-control-status[data-connected="true"] .host-connection{background:#15803d}
 .webcad-app .app-header .host-control-status{order:10}
-.webcad-app .selection-modes button[data-mode]{display:inline-flex;align-items:center;justify-content:center;width:30px;min-width:30px;height:30px;padding:5px}
+.webcad-app .selection-modes button{display:inline-flex;align-items:center;justify-content:center;flex:0 0 32px;width:32px;min-width:32px;height:32px;padding:5px;gap:0}
+.webcad-app .selection-modes button>span{display:none}
 .webcad-app .selection-modes .selection-mode-icon{width:17px;height:17px}
 @media(max-width:680px){.webcad-app .host-control-status .host-state-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.webcad-app .selection-modes button[data-mode]{width:28px;min-width:28px;height:28px;padding:4px}}
 .webcad-app .library-group-heading{grid-column:1/-1;font-size:15px;margin:14px 0 0;padding:8px 0;border-bottom:1px solid var(--line);color:inherit}

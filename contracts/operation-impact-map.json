@@ -1,5 +1,14 @@
 {
   "version": 1,
+  "uiLayout20261019": {
+    "localImpact": "Anchor the assistant resize indicator to its separator; keep selection and move controls visible without overlapping labels",
+    "servicesImpact": "none; CSS and pointer hint placement only",
+    "logoImpact": "none; no geometry changes",
+    "contractImpact": "Reuse existing selectTool, selectMode, transform and assistant layout APIs; no new user operation",
+    "documentImpact": "none; document, history and user settings preserved",
+    "cacheImpact": "Rebuild frontend and update host asset cache versions",
+    "requiredTests": ["panel-layout", "17674 toolbar selection and move", "host composer width and separator alignment", "formal endpoint identity hashes"]
+  },
   "stabilityRecovery20261018": {
     "localImpact": "Preserve committed projects through transport, worker and recovery failures; recovery controls remain reachable during Agent control; mesh boolean rebases Float32 operands with an explicit quantization gate",
     "servicesImpact": "Persistent dispatcher storage failures retain queued work and retry receipt persistence without recomputing; shutdown keeps storage alive until dispatchers exit; corrupt checkpoints are quarantined",
