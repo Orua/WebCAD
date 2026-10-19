@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:2568f42a6de81ecf754d00e1b59cb643c7235f258a5ff8b4669d3c0c24ed46a6",
-  "docsHash": "sha256:7ea47b6ba40784e8cd9628b238ba265d4189700f575c2c9eada30806563a1fb3",
+  "catalogHash": "sha256:54bad628efbec4b411b64feaa21330ba1ef61f220498eba389f0b9323bea2a2a",
+  "docsHash": "sha256:8b7864567ad9dd5aa3d3d1f85546768fbf728a1aba3a2bfcee65498fda06d354",
   "bootstrapDocIds": [
     "api.knowledge-cache",
     "api.connection",
@@ -194,19 +194,25 @@
     },
     {
       "id": "source-reconstruction",
-      "title": "源图理解与重建",
+      "title": "源图获取、理解与重建",
       "keywords": [
         "DWG",
         "DXF",
         "三视图",
         "图纸",
+        "下载图纸",
+        "下载原图",
+        "读取图纸",
+        "据图绘制",
         "复刻",
         "重建",
         "source drawing",
+        "download drawing",
         "reconstruction"
       ],
       "docs": [
         "api.reconstruction",
+        "api.product-source",
         "api.feature-plan",
         "api.vector-import",
         "api.design-checks"
@@ -218,7 +224,8 @@
         "advancedLoft",
         "inspectDesign",
         "feature.addMany"
-      ]
+      ],
+      "note": "Acquire/read the original with the available authorized host file tools, then plan and draw with current page contracts. Host product-file tools are not page methods. Download, parsed evidence, drawing image, committed geometry and delivery are distinct receipts."
     },
     {
       "id": "templates",

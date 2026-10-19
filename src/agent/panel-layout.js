@@ -23,9 +23,9 @@ export function createPanelLayout({root,visible=()=>true,collapsed=()=>false,col
       hint.style.cssText='position:fixed;z-index:2147483647;pointer-events:none;display:grid;place-items:center;width:32px;height:32px;border-radius:6px;background:var(--gl-surface,var(--ui-surface,#fff));color:var(--gl-blue,var(--accent,#245dd8));box-shadow:0 2px 8px #162a3b26';
       hint.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg>';document.body.append(hint);
     }
-    const touch=event.pointerType==='touch';
-    hint.style.left=Math.max(18,Math.min(window.innerWidth-18,event.clientX+(touch?0:22)))+'px';
-    hint.style.top=Math.max(18,event.clientY-(touch?42:22))+'px';
+    const boundary=handle.getBoundingClientRect();
+    hint.style.left=(mobile()?Math.max(18,Math.min(window.innerWidth-18,event.clientX)):boundary.left+boundary.width/2)+'px';
+    hint.style.top=(mobile()?boundary.top+boundary.height/2:Math.max(18,Math.min(window.innerHeight-18,event.clientY)))+'px';
     hint.style.transform='translate(-50%,-50%)'+(mobile()?' rotate(90deg)':'');
   }
   const extent=()=>{const rect=root.getBoundingClientRect();return mobile()?Math.min(rect.height,window.visualViewport?.height||rect.height):rect.width;};
