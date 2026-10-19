@@ -3,7 +3,7 @@
   "title": "删除具名基准",
   "description": "args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,45 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:29a3fc59664f158160d17c9bec933e3b1eecaa87f4f2c3bf0412bb337c358155"
+  "selectionGuide": {
+    "groupId": "references",
+    "groupTitle": "插入锚点与对象参考",
+    "chooseWhen": "删除具名标架记录，已冻结特征不受影响。",
+    "alternatives": [
+      {
+        "id": "reference.setWorkFrame",
+        "chooseWhen": "设置后续插入的工作锚点位置/方向，不移动已有实体。"
+      },
+      {
+        "id": "reference.resetWorkFrame",
+        "chooseWhen": "只重置指定的位置、方向或全部工作锚点。"
+      },
+      {
+        "id": "reference.setLocked",
+        "chooseWhen": "锁定工作锚点的自动避让，仍为可撤销参考元数据。"
+      },
+      {
+        "id": "reference.saveFrame",
+        "chooseWhen": "将明确标架保存为具名参考，不等于激活。"
+      },
+      {
+        "id": "reference.activateFrame",
+        "chooseWhen": "将具名标架快照复制到当前工作锚点，不修改历史已冻结定位。"
+      },
+      {
+        "id": "reference.renameFrame",
+        "chooseWhen": "只改具名标架名称，须用当前标架版本。"
+      },
+      {
+        "id": "reference.setBodyAnchor",
+        "chooseWhen": "在指定实体上创建/更新对象锚点；不同于全局插入锚点。"
+      },
+      {
+        "id": "reference.deleteBodyAnchor",
+        "chooseWhen": "删除对象锚点元数据，不删除实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:c01d43b898fb0ef064546bbeef5e93302f76c49e2e80fab732dbc428dc8d13c9"
 }

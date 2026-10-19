@@ -3,7 +3,7 @@
   "title": "精确浮雕精修",
   "label": "精确浮雕精修",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -20,5 +20,69 @@
     "浮雕精修",
     "sculpt"
   ],
-  "docsHash": "sha256:30f89046aafd301027b6e837fd12634c52b1a41e198cd72df0abbaeae90a4682"
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。",
+    "alternatives": [
+      {
+        "id": "logo",
+        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+      },
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefSculpt",
+        "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:46a0c336795a36a706b959400c97eb53f1fb17b56aae8bdcc907cf8b032d7392"
 }

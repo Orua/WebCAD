@@ -3,7 +3,7 @@
   "title": "快速对齐",
   "description": "按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:\"body\",bodyId:基准实体ID},axes:[\"Y\"],sourceSide:\"center\",targetSide:\"center\",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。group 语义必须先按用户意图确认：group=true 把全部 bodyIds 当作一个整体，按它们的联合包围盒对齐并保持彼此相对位置（整体平移）；group=false 每个实体分别按自身包围盒对齐到目标（例如多个件各自居中到同一中心线）。“分别/各自/每个都对齐”必须用 group:false，不要先 group:true 再补偏移。run 回执的 bodyBounds 给出移动后实体的 center/size，可直接核对，无需再读 getState。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -61,5 +61,49 @@
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:384a2db5a5dcb7a4aa8616545266257ade86031d178326f94166ececce926f19"
+  "selectionGuide": {
+    "groupId": "transform",
+    "groupTitle": "实体、相机与对齐",
+    "chooseWhen": "执行沿世界轴的实体平移对齐，提交几何历史。",
+    "alternatives": [
+      {
+        "id": "transform",
+        "chooseWhen": "按约定顺序缩放/绕原点旋转/平移已有实体；不是移动相机或插入锚点。"
+      },
+      {
+        "id": "copy",
+        "chooseWhen": "复制实体后施加变换，原件保留；不是直接移动。"
+      },
+      {
+        "id": "mirror",
+        "chooseWhen": "关于指定坐标平面及偏置镜像；不是绕轴旋转。"
+      },
+      {
+        "id": "linearPattern",
+        "chooseWhen": "按直线方向和间距阵列，显式复合或融合。"
+      },
+      {
+        "id": "circularPattern",
+        "chooseWhen": "按中心轴和角度圆周阵列，显式复合或融合。"
+      },
+      {
+        "id": "planAlignment",
+        "chooseWhen": "只计算对齐位移方案；需 body.align 才执行。"
+      },
+      {
+        "id": "copySelection",
+        "chooseWhen": "复制当前明确实体到页面剪贴板；尚未新增对象。"
+      },
+      {
+        "id": "pasteSelection",
+        "chooseWhen": "将页面剪贴板实体粘贴进当前工程；不是读取磁盘文件。"
+      },
+      {
+        "id": "resolvePlacement",
+        "chooseWhen": "只解析来源锚点到目标定位的变换；尚未添加或移动实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:58de81b4fc956102624c5fffdb666bf52f504d4125a4c1b44e2bb1ac8fe0ea44"
 }

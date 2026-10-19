@@ -561,7 +561,7 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -584,5 +584,21 @@
     "refs": []
   },
   "docs": "api.quick-chains",
-  "docsHash": "sha256:dff1430231cfae32a8c13922f485e256f592068efeef7223582da52f7c753236"
+  "selectionGuide": {
+    "groupId": "chains",
+    "groupTitle": "链环的空间结构",
+    "chooseWhen": "链环具有对角高低起伏及扭转曲面；不是平面圈整体旋转。",
+    "alternatives": [
+      {
+        "id": "template.oChain",
+        "chooseWhen": "平面椭圆孔圆线链环；外宽外长不是内孔尺寸。"
+      },
+      {
+        "id": "template.groundChain",
+        "chooseWhen": "扭链上下平磨，保留圆线侧面；磨后总厚不是原线径，也不是压扁。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:e7bb83721a0ba92d90ecc95cb6e088eede667d3739c9f010f75a3ade24a905ff"
 }

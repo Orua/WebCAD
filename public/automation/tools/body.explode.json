@@ -3,7 +3,7 @@
   "title": "组合拆散 多实体分解",
   "description": "将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -42,5 +42,61 @@
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:f4daf2c70ef92f8af6077a660af40ea74560b1d761d1406aa575c7ef8ee8e68d"
+  "selectionGuide": {
+    "groupId": "booleans-organize",
+    "groupTitle": "布尔、分割与组合",
+    "chooseWhen": "将多实心体组合一次拆为独立对象；不是布尔分割。",
+    "alternatives": [
+      {
+        "id": "union",
+        "chooseWhen": "融合实体并去除重叠内部；与只分组不同。"
+      },
+      {
+        "id": "cut",
+        "chooseWhen": "从首个目标实体减去后续刀具；目标/刀具顺序有意义。"
+      },
+      {
+        "id": "intersect",
+        "chooseWhen": "保留输入实体公共体积，不是切除或分组。"
+      },
+      {
+        "id": "meshBoolean",
+        "chooseWhen": "三角网格布尔；不能冒充精确 BRep 布尔或精确 STEP。"
+      },
+      {
+        "id": "group",
+        "chooseWhen": "组合为复合体但不融合；各实体重叠不会消除。"
+      },
+      {
+        "id": "split",
+        "chooseWhen": "用显式世界平面分割实体；不是拆出已有独立 solid。"
+      },
+      {
+        "id": "extractSolid",
+        "chooseWhen": "从复合体按索引提取一个已有实心体。"
+      },
+      {
+        "id": "refineShape",
+        "chooseWhen": "合并同域面和冗余分割边；不改变成型目标或修补任意坏体。"
+      },
+      {
+        "id": "remove",
+        "chooseWhen": "兼容发现入口；当前页面删除用 feature.remove 的明确 bodyIds，不通过 add 创建。"
+      },
+      {
+        "id": "feature.remove",
+        "chooseWhen": "删除指定当前实体的历史操作；不是隐藏，也不是取消未提交预览。"
+      },
+      {
+        "id": "body.visibility",
+        "chooseWhen": "仅改显隐，几何与依赖保留；不是删除。"
+      },
+      {
+        "id": "copySelection",
+        "chooseWhen": "复制当前明确实体到页面剪贴板；尚未新增对象。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:91a2c9b7f2e4b5aaccf066b2ce79e124bdee01048dda67c8b286f710a090fd2f"
 }

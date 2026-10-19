@@ -2,7 +2,7 @@
   "id": "prepareReliefSculpt",
   "title": "prepareReliefSculpt",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "prepareReliefSculpt({context,featureId,layerIndex?,patch?:{id,domainMm:[uMin,vMin,uMax,vMax],samples:7–65,protectionMm},samples?,draft?:{deltaMm,mask},strokes:[{mode:\"raise\"|\"lower\"|\"smooth\"|\"flatten\"|\"restore\"|\"mask\"|\"unmask\"|\"fill\"|\"scrape\"|\"sharpen\",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:\"none\"|\"x\"|\"y\"|\"xy\",points:[[x,y],...]},...]})。单层与显式选层使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。",
   "synonyms": [
@@ -41,5 +41,69 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:69bc0e72a15f434890dc35d64c551257182a2a2e5d5df2d9954ea4ecd139dedc"
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。",
+    "alternatives": [
+      {
+        "id": "logo",
+        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+      },
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "reliefSculpt",
+        "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:e850e654c950ade14f0b345e6bd6507eff646c131617fc4725436fc9e9e8424b"
 }

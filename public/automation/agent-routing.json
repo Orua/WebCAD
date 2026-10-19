@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:54bad628efbec4b411b64feaa21330ba1ef61f220498eba389f0b9323bea2a2a",
-  "docsHash": "sha256:8b7864567ad9dd5aa3d3d1f85546768fbf728a1aba3a2bfcee65498fda06d354",
+  "catalogHash": "sha256:45dcf7494d3c3acce61b7f78f42440f1c92e37f5f4c2df2d55f16277bb93a707",
+  "docsHash": "sha256:1aa042c1af0acfd195f86a186d2dfc0ca09d2bff1539732a1696a0c48c950b8d",
   "bootstrapDocIds": [
     "api.knowledge-cache",
     "api.connection",
@@ -11,6 +11,28 @@
   ],
   "selectionPolicy": "Route by task, read a workflow, then only needed complete cards. Exact UI actions use routes.json. Live context/IDs always come from the page.",
   "routes": [
+    {
+      "id": "tool-selection",
+      "title": "相似工具比较与选择",
+      "keywords": [
+        "相似工具",
+        "工具区别",
+        "同名",
+        "近似名称",
+        "怎么选工具",
+        "tool selection",
+        "compare tools"
+      ],
+      "docs": [
+        "api.tool-selection",
+        "api.discovery"
+      ],
+      "tools": [
+        "searchTools",
+        "getTools"
+      ],
+      "note": "Use every candidate selectionGuide: compare input geometry, section/path, units, result and side effects; read exact cards without adding execution gates."
+    },
     {
       "id": "relief-taxonomy",
       "title": "浮雕工具分类与选择",

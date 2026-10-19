@@ -2,7 +2,7 @@
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "description": "execute({context,idempotencyKey,action,args}); action 来自当前命令合同。",
   "synonyms": [
@@ -31,5 +31,45 @@
     "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:1267fb1eb7122469819377a62e218bb6ba4585cf9bb6beee299d09ea0897367d"
+  "selectionGuide": {
+    "groupId": "dispatch",
+    "groupTitle": "执行、批次与异步作业",
+    "chooseWhen": "提交一个明确 action 的命令；不接收任意脚本。",
+    "alternatives": [
+      {
+        "id": "run",
+        "chooseWhen": "按顺序执行有界批次；非原子，前面成功项保留；错误项按原回执处理。"
+      },
+      {
+        "id": "invoke",
+        "chooseWhen": "公开方法的结构化调用封装；不是任意函数/代码执行。"
+      },
+      {
+        "id": "executeText",
+        "chooseWhen": "执行受限文本命令语法或 dryRun；不是自然语言建模或 JS。"
+      },
+      {
+        "id": "submit",
+        "chooseWhen": "提交一个具有 jobId 的异步页面作业，须追踪原 job。"
+      },
+      {
+        "id": "getJob",
+        "chooseWhen": "只读页面异步作业原回执；未知写入先查，不重复提交。"
+      },
+      {
+        "id": "awaitJob",
+        "chooseWhen": "等待同一个页面 job 结束；超时返回当前状态，不取消或重提。"
+      },
+      {
+        "id": "waitFor",
+        "chooseWhen": "等待指定修订变化或 job 变化；不是持续执行建模。"
+      },
+      {
+        "id": "cancelJob",
+        "chooseWhen": "请求取消指定页面作业；是否停止/提交以最终回执为准。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:2f81f1d5b12ce1441abb88348e905dbd659574785ab9b74b291f69ee1539c712"
 }

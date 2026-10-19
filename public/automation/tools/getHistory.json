@@ -2,7 +2,7 @@
   "id": "getHistory",
   "title": "getHistory",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "getHistory()。返回已保留状态，不含导入源字节。",
   "synonyms": [
@@ -19,5 +19,49 @@
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:4217e8c6d774d741b10f2c10894b431df135069bca9506912d12ff7a5da53b7e"
+  "selectionGuide": {
+    "groupId": "history",
+    "groupTitle": "历史、编辑与恢复",
+    "chooseWhen": "列出保留状态 ID；不是完整几何文件，也不会撤销。",
+    "alternatives": [
+      {
+        "id": "history.undo",
+        "chooseWhen": "撤销最近一次已提交操作；不是删除任意历史状态。"
+      },
+      {
+        "id": "history.redo",
+        "chooseWhen": "重做刚被撤销的操作；新编辑可能清空重做栈。"
+      },
+      {
+        "id": "history.restore",
+        "chooseWhen": "恢复明确保留状态 ID 的工程状态，并作为可撤销操作提交；不是清空历史。"
+      },
+      {
+        "id": "feature.edit",
+        "chooseWhen": "修改已有特征参数及依赖重建；使用该特征原 op 的版本/hash。"
+      },
+      {
+        "id": "feature.add",
+        "chooseWhen": "按操作卡新增一个几何特征；不是执行页面方法或 template.* ID。"
+      },
+      {
+        "id": "feature.addMany",
+        "chooseWhen": "一个事务提交多特征计划，保留各特征关系；不是多个独立 run 步骤。"
+      },
+      {
+        "id": "document.parameters",
+        "chooseWhen": "设置命名参数/表达式并联动尺寸；不是显示精度设置。"
+      },
+      {
+        "id": "document.refresh",
+        "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
+      },
+      {
+        "id": "recoverKernel",
+        "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:4519c1e419d3971ce9050812b7230117e4932e88437d7ebe3ba3b8216205878f"
 }

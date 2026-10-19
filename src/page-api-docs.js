@@ -21,11 +21,12 @@ import {mechanicalIds} from './mechanical-tool-contracts.js';
 import {reliefNotes,reliefLayerNotes,reliefLocalPatchNotes} from './modeling/manufacturing/relief-contracts.js';
 import {DESIGN_INSPECTION_GUIDE,RECONSTRUCTION_WORKFLOW} from './design-inspection-guidance.js';
 import {KNOWLEDGE_GUIDANCE,KNOWLEDGE_ROUTES,KNOWLEDGE_TOOL_SYNONYMS} from './agent-knowledge.js';
+import {withToolSelection,TOOL_SELECTION_DOC} from './tool-selection.js';
 import {PRODUCT_SOURCE_GUIDANCE,PRODUCT_FAMILY_DOCS,PRODUCT_FAMILIES} from './product-source-guidance.js';
 import {DESIGN_INSPECTION_SCHEMA} from './design-inspection.js';
 import {MACHINING_INTENT_SCHEMA,PATTERN_MACHINING_GUIDANCE} from './machining-intent.js';
 import {FEATURE_PLAN_GUIDANCE,FEATURE_PLAN_SCHEMA} from './feature-plan.js';
-const PAGE_DOC_VERSION = '1.52.2';
+const PAGE_DOC_VERSION = '1.52.3';
 const RECTANGLE_PROFILE_EXAMPLE = {
   op:'sketchProfile',refs:[],params:{profileVersion:1,
     entities:[{id:'rectangle-1',type:'rectangle',originMm:[0,0],widthMm:40,heightMm:30}],
@@ -82,6 +83,7 @@ STEP/BREP同样可使用独立完整源资产（详见api.exact-source-assets）
   ...PRODUCT_FAMILY_DOCS,
   'api.feature-plan':FEATURE_PLAN_GUIDANCE,
   'api.knowledge-cache':KNOWLEDGE_GUIDANCE,
+  'api.tool-selection':TOOL_SELECTION_DOC,
   'api.design-checks':DESIGN_INSPECTION_GUIDE,
   'api.reconstruction':RECONSTRUCTION_WORKFLOW,
   'api.relief': PATTERN_MACHINING_GUIDANCE+'\n\n'+'sampleReliefHeight({context,featureId,point:[x,y],draft?}) 只读吸取控制高度，与 UI Alt 吸管共用算法；返回 targetMm、quantity:height/depth、units:mm，可直接用于 flatten。点为图案局部[-.5,.5]，Y向上；轮廓外/孔洞内返回RELIEF_SAMPLE_OUTSIDE。draft不传读取工程，传入则采样该精修草稿；采样不修改工程。浮雕精修：prepareReliefSculpt 接收 featureId、strokes 与可选 draft，返回独立 deltaMm/mask 草稿；canCommit 为 true 后 feature.edit 提交。原始 values/轮廓保留。抬高、压低、平滑、定高、填洼、削峰、锐化、恢复、遮罩共用局部坐标笔刷，支持 hardness 和 symmetry；凹雕抬高变浅、压低加深；定高字段 targetMm 在凹雕中表示深度。所有现有浮雕模式适用，STEP无来源数据不适用。后续面边编号可能失效，提前返回 blockers，不删除下游特征。 '+reliefNotes+' '+reliefLayerNotes+' files.register登记图像后readRelief({context,resourceId,name,samples:33,whiteHigh:false,style:"rounded",sourceInterpretation:"rasterArtwork"})返回values/regions/surfaceMode/aspectRatio/source。style:"rounded"按背景距离鼓起，style:"grayscale"保留灰度层次。flat/rounded的threshold默认0.5且须在0和1之间；grayscale轮廓阈值为1/255。透明像素属于背景。图片最多8 MiB/1600万像素；SVG支持基本形状、路径与渐变，文字需转路径，拒绝外部资源。run add op:relief，refs:[bodyId]，params:{faceId,widthMm,heightMm,depthMm,values,regions,surfaceMode,source,mode:"emboss",point:[x,y,z]}；平面可省point。不要丢弃regions而恢复矩形旧模式。preview.start/commit/cancel、feature.edit、history.undo与UI同路。',
@@ -273,7 +275,7 @@ const METHOD_DETAILS = Object.freeze({
   info: ['页面信息 构建 就绪', 'info() 无参数。', '构建/API 版本、in-page transport、当前 context、URL、display、就绪状态和能力。'],
   getQuickModelUsage: ['快捷模型 使用频率 常用模型 五个 弹簧 螺丝 丝筒 半圆钉', 'getQuickModelUsage({}={})；只读本浏览器累计成功创建次数，不要求几何上下文，预览期间也可读取。', 'status=read、version、counts、topKinds（最多5）、maxVisible=5、storage（localStorage或memory）、context。只统计新提交的快捷模型，预览/失败/取消/参数修改/撤销重做/打开工程均不增加。次数相同按简单模型优先的目录顺序。剩余模型通过快捷模型面板访问。'],
   getState: ['工程状态 特征 实体 参数 基准 鼠标手柄', 'getState({sessionId?,include?,compact?,fields?,sinceRevision?}={}); include 可选 summary/features/bodies/selection/capabilities/references。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。', '当前 context、referenceSystem、parameters、parameterValues、view 和 display；kernelPerformance 返回最近成功重建的 totalMs、perFeatureMs、slowest 前10项、compiledReuse 和 compiledInvalidated。view.transform 为 {mode,bodyIds,attached,canDrag,blocker}，读回移动/旋转手柄与当前不可拖原因。不会默认返回导入源字节。'],
-  searchTools: ['搜索 工具 中文 目录', 'searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。', '工具摘要、label/docsHash、score/matchedTerms、total、nextCursor、catalogHash；结果是候选能力，不是已验证的执行计划。'],
+  searchTools: ['搜索 工具 中文 目录', 'searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。', '工具摘要、selectionGuide（所属组、何时选择及相似候选区别）、label/docsHash、score/matchedTerms、total、nextCursor、catalogHash；全目录比较见 api.tool-selection；结果是候选能力，不是已验证的执行计划。'],
   getTools: ['批量 工具卡 缓存 契约', 'getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.', '逐项 read/not_modified/error；read.card 是完整契约，单个未知 ID 不丢失其他结果。目录漂移返回 CATALOG_CHANGED。'],
   getTool: ['工具卡 参数 schema 契约', 'getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。', '完整工具卡、版本和 docsHash；快捷模型优先按 template.kind 读取单个变体，quickModel 是完整总目录。'],
   readDocs: ['读取 文档 配方 白名单', 'readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。', '限定长度的说明文本、版本、哈希和分页游标；匹配 knownHash 时 status=not_modified，不重复传文本。'],
@@ -443,7 +445,7 @@ function templateCards() {
       description:model.description || template.description,
       inputSchema:schema, schemaHash:contractHash(schema), defaults:template.defaults, fields:template.fields,placementPolicy:{...placementContract('quickModel'),defaultInsertionAnchor:model.defaultInsertionAnchor||'model-origin'},
       runtimeAvailability:'requires_ready_page',
-      usage:'Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.',
+      usage:'相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.',
       minimalExample:{op:'quickModel',params:template.minimalExample,refs:[]},
       normalExample:{op:'quickModel',params:template.normalExample,refs:[]},
       invalidExamples:[{params:{kind,__unknownField:true},errorCode:'PARAM_SCHEMA_INVALID',explanation:'Unknown fields are rejected by the page adapter before kernel execution.'}],
@@ -483,8 +485,8 @@ function pageCards() {
     ...unavailable.map(card => ({ ...card, category: 'unavailable', version: PAGE_DOC_VERSION,
       implementationStatus: 'unavailable', contractStatus: 'unavailable', runtimeAvailability: 'unavailable',
       errorCodes: ['CAPABILITY_UNAVAILABLE'] })),
-  ].map(card=>Object.hasOwn(KNOWLEDGE_TOOL_SYNONYMS,card.id)
-    ? {...card,synonyms:[...new Set([...(card.synonyms||[]),...KNOWLEDGE_TOOL_SYNONYMS[card.id]])]} : card);
+  ].map(card=>withToolSelection(Object.hasOwn(KNOWLEDGE_TOOL_SYNONYMS,card.id)
+    ? {...card,synonyms:[...new Set([...(card.synonyms||[]),...KNOWLEDGE_TOOL_SYNONYMS[card.id]])]} : card));
 }
 export const pageCatalogHash = contractHash({ searchVersion: SEARCH_VERSION, cards: pageCards(), uiRoutes:UI_API_ROUTES, knowledgeRoutes:KNOWLEDGE_ROUTES, productFamilies:PRODUCT_FAMILIES, fileLimits: FILE_LIMITS });
 export const pageDocsHash = contractHash({ pageCatalogHash, pageDocs: PAGE_DOCS, agentProtocol:AGENT_CONTRACT, onboarding:AGENT_ONBOARDING, legacyReadable: [...LEGACY_READABLE], legacyDocsHash });
@@ -546,6 +548,7 @@ export function searchTools(input = {}, runtime = {}) {
   return { items: matches.slice(offset, offset + limit).map(hit => { const card = cardsById.get(hit.id); return ({ id: card.id, title: card.title,
     label: card.label || card.title, docsHash: card.docsHash, score: hit.score, matchedTerms: hit.matchedTerms,
     version: card.version, schemaHash: card.schemaHash || null, description: card.description.slice(0,240), descriptionTruncated:card.description.length>240,
+    selectionGuide:structuredClone(card.selectionGuide),
     category: card.category, contractStatus: card.contractStatus, strictContract: card.strictContract === true,
     runtimeAvailability: card.runtimeAvailability === 'unavailable' ? 'unavailable'
       : runtime.browserReady === false ? 'not_ready' : runtime.browserReady === true ? 'available' : 'unknown' }); }),

@@ -538,7 +538,7 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -562,5 +562,41 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:2a961689d59ea205b35a970fede43eca6a903eade5e1ac4d6b98ae3b731c1cd5"
+  "selectionGuide": {
+    "groupId": "d-frames",
+    "groupTitle": "D形、U形与开口框",
+    "chooseWhen": "半圆冠、直腿和底弯组成的恒截面 D 框；内高量到横杠上沿。",
+    "alternatives": [
+      {
+        "id": "template.dFlatFrame",
+        "chooseWhen": "平板 D 框；板厚、内外平面轮廓与底部切口独立。"
+      },
+      {
+        "id": "template.dBarBuckle",
+        "chooseWhen": "方线 U 主体与固定圆横杆融合；主框和横杆截面不同。"
+      },
+      {
+        "id": "template.archedBridge",
+        "chooseWhen": "圆线直腿加半圆冠的开口拱桥，可选端部轴向光孔。"
+      },
+      {
+        "id": "template.squareArchedBridge",
+        "chooseWhen": "平顶方线 U 桥；内外转角、前后厚度及棱边 R 独立。"
+      },
+      {
+        "id": "template.uEndHolePlate",
+        "chooseWhen": "单片平板 U 轮廓，两腿末端沿板厚贯穿孔；不是圆杆拱桥。"
+      },
+      {
+        "id": "template.gableOpenFrame",
+        "chooseWhen": "斜肩屋顶轮廓的开口平板框；肩高和峰高独立，不是半圆冠。"
+      },
+      {
+        "id": "template.arcBandPlate",
+        "chooseWhen": "同心圆弧带板与两端孔；按角度截取的环段，不是两腿 U 框。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:a203839812aa5f367afd9bd64cdadeb520c388137ad4d5c56780c1a10c474892"
 }

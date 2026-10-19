@@ -2,7 +2,7 @@
   "id": "getTools",
   "title": "getTools",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.",
   "synonyms": [
@@ -24,5 +24,57 @@
     "CATALOG_CHANGED"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:b5a175fdfecd930b63965adcfeba6a7e3b1a4b8d9ad422ca30089e8431981182"
+  "selectionGuide": {
+    "groupId": "discovery",
+    "groupTitle": "连接、目录与文档",
+    "chooseWhen": "批量取具体 ID 的完整卡并检查静态哈希，不是搜索。",
+    "alternatives": [
+      {
+        "id": "connect",
+        "chooseWhen": "握手取得版本、能力、当前上下文及候选工具；不等于执行建模。"
+      },
+      {
+        "id": "info",
+        "chooseWhen": "读页面版本、能力与显示修订，不返回完整工程。"
+      },
+      {
+        "id": "getState",
+        "chooseWhen": "读当前工程摘要、特征、实体与请求上下文；不是静态工具契约。"
+      },
+      {
+        "id": "createRequestContext",
+        "chooseWhen": "从当前或给定身份生成写入上下文，不修改 revision。"
+      },
+      {
+        "id": "searchTools",
+        "chooseWhen": "按名称/用途检索候选摘要；排名第一不等于选型正确。"
+      },
+      {
+        "id": "getTool",
+        "chooseWhen": "取一个工具完整合同；不执行该工具。"
+      },
+      {
+        "id": "readDocs",
+        "chooseWhen": "按登记 docId 读工作流说明；多页须按 cursor 读取。"
+      },
+      {
+        "id": "getModelLibrary",
+        "chooseWhen": "读可用模型库条目及版本，不插入实体。"
+      },
+      {
+        "id": "updateModelLibrary",
+        "chooseWhen": "修改支持的显示排序/恢复等库设置；不是修改模型源码。"
+      },
+      {
+        "id": "resolveModelLibrary",
+        "chooseWhen": "解析指定库项及参数到可执行定义，尚未创建。"
+      },
+      {
+        "id": "getQuickModelUsage",
+        "chooseWhen": "只读本浏览器已成功创建次数，非产品覆盖率。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:872446e1e1f10f38e5b1bef7525023509ce27f65212cc13412ca3c1b213ce195"
 }

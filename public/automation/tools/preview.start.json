@@ -3,7 +3,7 @@
   "title": "预览模型、原特征编辑或文件插入",
   "description": "普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision，提交前工程 revision 不变。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,25 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:c562884799932b5c8a401f8f81b0e8a735d45377311a2b31fa72d44fbd71fca2"
+  "selectionGuide": {
+    "groupId": "preview",
+    "groupTitle": "未提交预览生命周期",
+    "chooseWhen": "新建几何/原特征编辑/文件插入草稿，尚未提交工程。",
+    "alternatives": [
+      {
+        "id": "preview.update",
+        "chooseWhen": "更新同一个 previewId 的当前代次草稿，旧代次不可应用。"
+      },
+      {
+        "id": "preview.commit",
+        "chooseWhen": "将指定当前草稿应用为一次历史操作。"
+      },
+      {
+        "id": "preview.cancel",
+        "chooseWhen": "丢弃未提交草稿，不删除已提交实体、不增加几何修订。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:bd69dc187c7b47fb141a18f2711bfe773d6a4eb8ceb89be9d3c06d838b688240"
 }

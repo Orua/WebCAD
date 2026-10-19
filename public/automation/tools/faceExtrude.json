@@ -445,5 +445,33 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:673a7395d373ee5a7efdfe3990561eec7519999c7cfdd079cf991dfd916fdaaf"
+  "selectionGuide": {
+    "groupId": "extrusion",
+    "groupTitle": "拉伸与旋转成型",
+    "chooseWhen": "推拉已有实体的一张平面面，沿其法向改体；不是独立轮廓拉伸。",
+    "alternatives": [
+      {
+        "id": "extrude",
+        "chooseWhen": "按参数定义的闭合轮廓及所选平面法向拉伸。"
+      },
+      {
+        "id": "referenceExtrude",
+        "chooseWhen": "复用已有闭合精确线框/平面面，按世界向量拉伸，保留来源；带孔须用面。"
+      },
+      {
+        "id": "profileExtrude",
+        "chooseWhen": "对已保存定位轮廓拉伸，明确新建、并、减或交材料结果。"
+      },
+      {
+        "id": "revolve",
+        "chooseWhen": "旋转参数闭合轮廓，按工具定义的轴及角度创建。"
+      },
+      {
+        "id": "profileRevolve",
+        "chooseWhen": "绕显式世界轴旋转已有精确截面，保留来源并指定材料运算。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:54227ccf86834a08f2c8381c9ded297a58e0bcbd60e9be961b4143dc9e10386c"
 }

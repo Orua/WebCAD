@@ -233,7 +233,7 @@ function endDisplayBatchDeferred(){if(displayBatchDepth>0&&--displayBatchDepth==
 function refresh(){if(displayBatchDepth){deferredRefresh=true;return;}document.title=(dirty?'● ':'')+documentModel.name+' — WebCAD';const url=new URL(location.href);if(url.searchParams.get('document')!==documentModel.documentId){url.searchParams.set('document',documentModel.documentId);history.replaceState(null,'',url);}ui.update({renderQuality:qualityState(),document:documentModel,bodies,selectedIds,selectedTopology,undoAvailable:undoStack.length>0,redoAvailable:redoStack.length>0,busy,status,kernelReady,dirty,displayPreferences:viewport.displayPreferences,metalFinish:viewport.finishKey,aiStatus,revision,viewState:{quality:qualityKey,display:viewport.mode,projection:viewport.camera.isOrthographicCamera?'orthographic':'perspective',grid:viewport.grid.visible,snap:viewport.snapEnabled,gizmo:viewport.gizmoMode,transform:viewport.getTransformState(),selection:viewport.selectionMode,anchorDrag:viewport.anchorDragEnabled,anchorVisible:viewport.anchorVisible,temporaryDisplay:viewport.temporaryDisplay}});}
 function setStatus(message){status=message;ui.setStatus(t(message));}
 function reportError(error){console.error(error);ui.showError(error.message||String(error));setStatus(error.message||String(error));}
-function pushUndo(next,label){if(next){recordTimeline(documentModel,next,{label});assertDocumentCapacity(next);}const {imports,timeline,...rest}=documentModel;undoStack.push({...clone(rest),imports,timeline});if(undoStack.length>40)undoStack.shift();redoStack=[];}
+function pushUndo(next,label){if(next){recordTimeline(documentModel,next,{label});validateTimeline(next);assertDocumentCapacity(next);}const {imports,timeline,...rest}=documentModel;undoStack.push({...clone(rest),imports,timeline});if(undoStack.length>40)undoStack.shift();redoStack=[];}
 function setBusy(value,message){if(value&&!busy){loadingTracker.reset();ui.setBusyProgress?.(null);}busy=value;viewport.setBusy?.(value);ui.setBusy(value,value?LOADING_TEXT:undefined);if(message)setStatus(message);refresh();}
 // Opening/inserting/startup show only 载入中 (+ a bar when real progress is known).
 async function withLoading(task){loadingDepth++;loadingTracker.reset();ui.setBusyProgress?.(null);if(!busy){ui.setBusy(true,LOADING_TEXT);setStatus(LOADING_TEXT);}try{return await task();}finally{loadingDepth--;if(!busy&&!loadingDepth)ui.setBusy(false);}}
@@ -337,6 +337,9 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
   let routed=null,localBegan;
   try{
     checkTransaction(signal,expectedRevision);
+    // Non-user rebuilds (open/undo/refresh/recovery) may refresh checkpoints or
+    // anchor metadata too. Keep their original state for the same history diff.
+    const rebuildBaseline=record?null:clone(next);
     const previousDocument=record&&!newInstance&&!restoring&&next.documentId===documentModel.documentId?documentModel:next;
     const retainedSelection=origin==='agent'?{ids:[...selectedIds]}:null;
     if(next.parameters!==undefined||next.features.some(f=>f.expressions))next=evaluateDocumentParameters(next,{previousDocument});
@@ -356,8 +359,10 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
       }catch(error){await request('rebuild',{document:documentModel});throw error;}
     }
     if(result.stats.checkpointCandidates?.length){
-      const baked=await request('bakeProject',{document:next});
-      try{assertDocumentCapacity(baked.document);next=baked.document;}catch(error){if(error.code!=='SIZE_LIMIT')throw error;}
+      // Pending features are not in the committed timeline yet. Bake their
+      // geometry first; pushUndo records the complete transaction exactly once.
+      const baked=await request('bakeProject',{document:next,options:{recordHistory:false}});
+      try{assertDocumentCapacity(baked.document,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});next=baked.document;}catch(error){if(error.code!=='SIZE_LIMIT')throw error;}
     }
     try{checkTransaction(signal,expectedRevision);}catch(error){await request('rebuild',{document:documentModel});throw error;}
     try{if(!restoring)await synchronizeBodyAnchors(documentModel,next,bodies,result.bodies,async bodyId=>(await request('queryGeometry',{bodyId,kind:'edge',filter:{}})).geometryFingerprint);checkTransaction(signal,expectedRevision);}catch(error){await request('rebuild',{document:documentModel});throw error;}
@@ -371,7 +376,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     const newQuickModels=record&&!newInstance&&documentModel.documentId===next.documentId?next.features.filter(f=>f.op==='quickModel'&&!documentModel.features.some(old=>old.id===f.id)):[];
     // Anchors and retained history can grow after preflight. Validate the final
     // snapshot before changing undo/redo, revision, or the authoritative model.
-    try{if(record)pushUndo(next,historyLabel);else assertDocumentCapacity(next);}
+    try{if(record)pushUndo(next,historyLabel);else {recordTimeline(rebuildBaseline,next,{label:'保留恢复后的重建状态'});validateTimeline(next);assertDocumentCapacity(next);}}
     catch(error){await request('rebuild',{document:documentModel});throw error;}
     if(newInstance||documentModel.documentId!==next.documentId){documentInstanceId=crypto.randomUUID();projectFileHandle=null;}
     documentModel=next;bodies=result.bodies;selectedTopology=null;previewNext=null;previewIdentity=null;previewScopeReport=null;revision++;
@@ -583,8 +588,12 @@ function validateDocument(doc){
   if(!doc||![1,2,3,4].includes(doc.version)||!Array.isArray(doc.features)||typeof doc.imports!=='object'||!doc.imports)throw new Error('不是有效的 WebCAD 1.x/2.x/3.x/4.x 工程文件。');
   assertDocumentCapacity(doc);
   const ids=new Set();for(const f of doc.features){if(!f.id||ids.has(f.id)||typeof f.op!=='string'||!f.params||!Array.isArray(f.refs))throw new Error('工程特征结构无效。');for(const ref of f.refs)if(!ids.has(ref))throw new Error('工程包含无效的操作引用。');if(f.placement!==undefined){if(![2,3,4].includes(doc.version)||f.semanticsVersion!==2)throw Object.assign(new Error('定位特征需要工程版本 2 和语义版本 2。'),{code:'DOCUMENT_VERSION_UNSUPPORTED'});validateResolvedPlacement(f.placement,f.op);}ids.add(f.id);}
-  if(doc.timeline){validateTimeline(doc);validateReferenceSystem(doc.referenceSystem);return clone(doc);}
-  return {version:doc.version>=3?doc.version:2,...(doc.version===4?{binaryAssets:doc.binaryAssets||{}}:{}),...(doc.version>=3?{compiledArtifacts:doc.compiledArtifacts||{}}:{}),referenceSystem:doc.version>=2?validateReferenceSystem(doc.referenceSystem):createReferenceSystem(),...(doc.parameters!==undefined?{parameters:doc.parameters}:{}),documentId:typeof doc.documentId==='string'&&doc.documentId.length>0&&doc.documentId.length<=150?doc.documentId:crypto.randomUUID(),name:String(doc.name||'导入工程'),features:doc.features,imports:doc.imports,hidden:Array.isArray(doc.hidden)?doc.hidden:[],appearance:doc.appearance&&typeof doc.appearance==='object'?doc.appearance:{},colors:doc.colors&&typeof doc.colors==='object'?Object.fromEntries(Object.entries(doc.colors).filter(([,v])=>typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v))):{},renderFinish:doc.renderFinish??null};
+  if(doc.timeline)validateTimeline(doc);
+  const normalized={...(doc.timeline?clone(doc):{}),version:doc.version>=3?doc.version:2,...(doc.version===4?{binaryAssets:doc.binaryAssets||{}}:{}),...(doc.version>=3?{compiledArtifacts:doc.compiledArtifacts||{}}:{}),referenceSystem:doc.referenceSystem!==undefined?validateReferenceSystem(doc.referenceSystem):createReferenceSystem(),...(doc.parameters!==undefined?{parameters:doc.parameters}:{}),documentId:typeof doc.documentId==='string'&&doc.documentId.length>0&&doc.documentId.length<=150?doc.documentId:crypto.randomUUID(),name:String(doc.name||'导入工程'),features:doc.features,imports:doc.imports,hidden:Array.isArray(doc.hidden)?doc.hidden:[],appearance:doc.appearance&&typeof doc.appearance==='object'?doc.appearance:{},colors:doc.colors&&typeof doc.colors==='object'?Object.fromEntries(Object.entries(doc.colors).filter(([,v])=>typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v))):{},renderFinish:doc.renderFinish??null};
+  // Add missing legacy defaults as a new transition; never rewrite old states
+  // or drop their source bytes. Explicit invalid reference data still fails.
+  if(doc.timeline){recordTimeline(doc,normalized,{label:'兼容旧版工程元数据'});validateTimeline(normalized);}
+  return normalized;
 }
 // 打开 replaces the document; 插入 adds into it. The intent is explicit, never inferred
 // from the file extension (opening a STEP while editing used to append silently).

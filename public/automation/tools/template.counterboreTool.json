@@ -488,7 +488,7 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -509,5 +509,41 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:766349a2ca7906fc20ad5f64e96d0ed3820a5d9bd722b6baea489e9704fdf7ae"
+  "selectionGuide": {
+    "groupId": "tubes-threads",
+    "groupTitle": "筒、螺纹与弹簧模板",
+    "chooseWhen": "用于后续布尔切削的沉孔/沉头孔刀具实体；创建刀具本身不等于已在目标上打孔。",
+    "alternatives": [
+      {
+        "id": "template.tube",
+        "chooseWhen": "同轴光孔圆筒，用内外径与高度定义；无凸缘或牙型。"
+      },
+      {
+        "id": "template.flangedBushing",
+        "chooseWhen": "带法兰的光孔轴套，孔贯穿；不是内螺纹丝筒。"
+      },
+      {
+        "id": "template.threadedSleeve",
+        "chooseWhen": "支持名义 M 粗牙的内螺纹筒；面端朝本地 -Z。"
+      },
+      {
+        "id": "template.screw",
+        "chooseWhen": "螺钉头与真实 V 槽牙杆；头在下端、杆朝本地 +Z；不包含配合公差。"
+      },
+      {
+        "id": "template.spring",
+        "chooseWhen": "参数化圆线螺旋弹簧；半径为中心线半径、螺距须大于线径。"
+      },
+      {
+        "id": "holeWizard",
+        "chooseWhen": "直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。"
+      },
+      {
+        "id": "cut",
+        "chooseWhen": "从首个目标实体减去后续刀具；目标/刀具顺序有意义。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:2af6c5037a94975140a3c5527f8995d2c56eca336e4c30455c90ae8eb1cc366b"
 }

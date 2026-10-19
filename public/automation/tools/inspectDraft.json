@@ -2,7 +2,7 @@
   "id": "inspectDraft",
   "title": "inspectDraft",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "inspectDraft({context,bodyId,pullDirection:[0,0,1],thresholdDeg:2})；用户决定阈值。",
   "synonyms": [
@@ -24,5 +24,61 @@
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:d83f5821c3bcba07b2356884a8d388cbc625d351562e51333ebd56b357da59f2"
+  "selectionGuide": {
+    "groupId": "inspection",
+    "groupTitle": "测量、拓扑与质量检查",
+    "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。",
+    "alternatives": [
+      {
+        "id": "measure",
+        "chooseWhen": "读取一个体/面/边的尺寸面积体积，或明确点间距离。"
+      },
+      {
+        "id": "measureRelation",
+        "chooseWhen": "读取两个目标的最短距、中心距、平行度、轴关系等相互关系。"
+      },
+      {
+        "id": "queryGeometry",
+        "chooseWhen": "按面/边类型和几何条件查询当前拓扑，取得当前编号；不是仅按名称选面。"
+      },
+      {
+        "id": "queryReferences",
+        "chooseWhen": "查询点、轴、标架等几何参考；不直接修改工作锚点。"
+      },
+      {
+        "id": "inspectDesign",
+        "chooseWhen": "按显式验收要求检查尺寸、材料点或实体数等；不猜产品合格标准。"
+      },
+      {
+        "id": "inspectFit",
+        "chooseWhen": "检查两体干涉/配合关系；不是单体壁厚。"
+      },
+      {
+        "id": "inspectThickness",
+        "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
+      },
+      {
+        "id": "inspectPrintability",
+        "chooseWhen": "按过程合同检查打印相关几何；不能替代一般产品验收。"
+      },
+      {
+        "id": "inspectProfile",
+        "chooseWhen": "只读解析轮廓的闭合、交点等情况，不修复图元。"
+      },
+      {
+        "id": "inspectConstraints",
+        "chooseWhen": "只读已有轮廓约束及自由度；求解修改用 profileConstraints。"
+      },
+      {
+        "id": "draftFaces",
+        "chooseWhen": "受限四侧平面棱柱拔模，固定底平面。"
+      },
+      {
+        "id": "draftByPlane",
+        "chooseWhen": "绕明确中性平面对选定解析面拔模；不默认扩大为全体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:b2d4fb5291b8da49e0c7eccde976dd05dd55b539aaabb083910e6c2820b4d25c"
 }

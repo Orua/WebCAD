@@ -544,5 +544,49 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:42921d2b512f6e080a1116f3460710f0b56c4dd792df7c84e624bba57a3698cd"
+  "selectionGuide": {
+    "groupId": "transform",
+    "groupTitle": "实体、相机与对齐",
+    "chooseWhen": "关于指定坐标平面及偏置镜像；不是绕轴旋转。",
+    "alternatives": [
+      {
+        "id": "transform",
+        "chooseWhen": "按约定顺序缩放/绕原点旋转/平移已有实体；不是移动相机或插入锚点。"
+      },
+      {
+        "id": "copy",
+        "chooseWhen": "复制实体后施加变换，原件保留；不是直接移动。"
+      },
+      {
+        "id": "linearPattern",
+        "chooseWhen": "按直线方向和间距阵列，显式复合或融合。"
+      },
+      {
+        "id": "circularPattern",
+        "chooseWhen": "按中心轴和角度圆周阵列，显式复合或融合。"
+      },
+      {
+        "id": "body.align",
+        "chooseWhen": "执行沿世界轴的实体平移对齐，提交几何历史。"
+      },
+      {
+        "id": "planAlignment",
+        "chooseWhen": "只计算对齐位移方案；需 body.align 才执行。"
+      },
+      {
+        "id": "copySelection",
+        "chooseWhen": "复制当前明确实体到页面剪贴板；尚未新增对象。"
+      },
+      {
+        "id": "pasteSelection",
+        "chooseWhen": "将页面剪贴板实体粘贴进当前工程；不是读取磁盘文件。"
+      },
+      {
+        "id": "resolvePlacement",
+        "chooseWhen": "只解析来源锚点到目标定位的变换；尚未添加或移动实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:bdd5ea273f1b6d6fb696665f5dbb9dcd8f3d84c464f83e67259988898c77e905"
 }

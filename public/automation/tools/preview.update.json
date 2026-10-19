@@ -3,7 +3,7 @@
   "title": "更新预览",
   "description": "args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,25 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:6613ea389fb7d7afeafaa2e5851244dd639772bbce53dc15e1ec5830285d3367"
+  "selectionGuide": {
+    "groupId": "preview",
+    "groupTitle": "未提交预览生命周期",
+    "chooseWhen": "更新同一个 previewId 的当前代次草稿，旧代次不可应用。",
+    "alternatives": [
+      {
+        "id": "preview.start",
+        "chooseWhen": "新建几何/原特征编辑/文件插入草稿，尚未提交工程。"
+      },
+      {
+        "id": "preview.commit",
+        "chooseWhen": "将指定当前草稿应用为一次历史操作。"
+      },
+      {
+        "id": "preview.cancel",
+        "chooseWhen": "丢弃未提交草稿，不删除已提交实体、不增加几何修订。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:6b3d83b9acfacaf786f906d3bce59475e35210efd3d0bde014a33df560a4d2a3"
 }

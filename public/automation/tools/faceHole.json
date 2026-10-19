@@ -623,5 +623,73 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:6228f8bdf9f408882a0f661f497add5a7af038245e6bbf8259604281967d892f"
+  "selectionGuide": {
+    "groupId": "holes",
+    "groupTitle": "孔、槽、凸台与车削",
+    "chooseWhen": "从指定平面面向内打孔，定位依据当前面。",
+    "alternatives": [
+      {
+        "id": "hole",
+        "chooseWhen": "从世界坐标起点沿方向切圆孔。"
+      },
+      {
+        "id": "holeWizard",
+        "chooseWhen": "直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。"
+      },
+      {
+        "id": "multiHole",
+        "chooseWhen": "在多个世界起点依次切圆孔；不是孔向导的孔型选择。"
+      },
+      {
+        "id": "slot",
+        "chooseWhen": "切两半圆加两直边的胶囊形槽。"
+      },
+      {
+        "id": "faceGroove",
+        "chooseWhen": "在指定平面面上铣矩形凹槽。"
+      },
+      {
+        "id": "multiPocket",
+        "chooseWhen": "多个矩形/圆角矩形口袋切除，不是胶囊槽或圆孔阵列。"
+      },
+      {
+        "id": "multiBoss",
+        "chooseWhen": "向实体融合多个实心圆柱凸台，是加料。"
+      },
+      {
+        "id": "innerTurn",
+        "chooseWhen": "在指定平面截面处移除内圆柱材料形成内孔。"
+      },
+      {
+        "id": "outerTurn",
+        "chooseWhen": "在指定深度内去除给定直径以外材料形成外车。"
+      },
+      {
+        "id": "draftFaces",
+        "chooseWhen": "受限四侧平面棱柱拔模，固定底平面。"
+      },
+      {
+        "id": "draftByPlane",
+        "chooseWhen": "绕明确中性平面对选定解析面拔模；不默认扩大为全体。"
+      },
+      {
+        "id": "tap",
+        "chooseWhen": "从平面面垂直攻盲螺纹孔，需遵守具体牙型合同。"
+      },
+      {
+        "id": "thread",
+        "chooseWhen": "在已有圆柱材料面切真实对称 V 形螺旋槽；不是创建整颗标准螺钉。"
+      },
+      {
+        "id": "helix",
+        "chooseWhen": "创建精确螺旋线框，本身不是弹簧实心体。"
+      },
+      {
+        "id": "coil",
+        "chooseWhen": "沿精确螺旋线扫掠圆截面成单个弹簧实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:b68ceb5152ed7a05862c4157cd010711a2355f6733941758a652d8116ea8b892"
 }

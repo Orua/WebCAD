@@ -456,7 +456,7 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -476,5 +476,45 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:7d05d7abe6d2865b1b4f54d9c608d760abb40288b10b00ebbe510491f821cbba"
+  "selectionGuide": {
+    "groupId": "rings",
+    "groupTitle": "环、环片及开口圈",
+    "chooseWhen": "内孔真椭圆、圆线截面及底部平切缝；不是外轮廓真椭圆。",
+    "alternatives": [
+      {
+        "id": "template.washer",
+        "chooseWhen": "平面环片；径向宽度与轴向高度独立，不是圆线环。"
+      },
+      {
+        "id": "template.ring",
+        "chooseWhen": "同心圆路径的单层恒截面圈；截面、线径和底部平切缝独立。"
+      },
+      {
+        "id": "template.openArcRing",
+        "chooseWhen": "按开口角度截取的圆弧 C 环；与按线性缝宽切口不同。"
+      },
+      {
+        "id": "template.ellipseSectionRing",
+        "chooseWhen": "圆形路径、椭圆截面；正面料宽和侧面深度独立，不能把截面椭圆当路径椭圆。"
+      },
+      {
+        "id": "template.keyRing",
+        "chooseWhen": "双层扁线绕卷与跨层过渡；内外径及整个双层总厚度定义，不是单层闭环或圆线直径。"
+      },
+      {
+        "id": "template.ovalBuckle",
+        "chooseWhen": "四段相切圆弧组成的旦形环；不是数学椭圆或两端半圆的跑道圈。"
+      },
+      {
+        "id": "template.capsuleWire",
+        "chooseWhen": "跑道路径（两端半圆、两条直边）的圆线闭环。"
+      },
+      {
+        "id": "template.profileLoop",
+        "chooseWhen": "跑道路径的方/扁线截面；正面料宽、侧面厚度、截面 R 独立。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:6f7baf0dec6ee637a9358ff8a47505e42da586ac63fbf6013bc331b1362a10c1"
 }

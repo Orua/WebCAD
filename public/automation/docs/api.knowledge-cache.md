@@ -1,5 +1,6 @@
 # api.knowledge-cache
 
+工具辨识与纠错：同一个叫法或近似名称可能对应多个工具；先比较候选工具的用途、结构、截面、参数含义和不适用情况，不能凭第一个名称相似的结果直接选用。全目录的结构、输入、结果及操作阶段区别见 api.tool-selection 和每张工具卡的 selectionGuide。用户指出选错时重新核对候选卡；只删除或撤销本次误建项，保留原有工程。删除、撤销和添加都使用公开 API 与真实回执，不能因担心选错而拒绝普通建模。具体程序错误应报告并保留当前工程，不凭空解释为权限限制。
 首次握手本地知识库与路由
 connect().onboarding.knowledge.policy=required-on-first-handshake。Agent首次连接当前WebCAD来源后，下载automation/agent-knowledge.json，再下载清单内index.json、agent-routing.json、routes.json到宿主存储；逐文件验证SHA-256和字节数。只把轻量路由及命中的完整文档/工具卡送进模型上下文，不打印1–2MiB全库。没有宿主下载或存储能力时报告具体限制，不假称已下载，也不为此安装后台服务。
 缓存按当前页面base URL、catalogHash、docsHash隔离。重连时哈希匹配且本地文件验证成功就复用；变更、缺文件或损坏时更新完整包。调用仍读新鲜context，静态库不包含活文档、当前实体编号或拓扑快照。静态库里的示例编号不是当前ID。

@@ -2,7 +2,7 @@
   "id": "setAgentPanel",
   "title": "setAgentPanel",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "description": "setAgentPanel({context,visible:true|false})；true接入已配置助手，false退出并释放。或 setAgentPanel({context,layout:{widthPx?:360,heightPx?:280,collapsed?:false}})；layout与visible分开调用，宽高1–4096像素，按可用空间夹限。",
   "synonyms": [
@@ -24,5 +24,21 @@
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:b4905901f6b9f7e12c53ccc071ad54f41884b57ceb35589ff0f40b6cea9d0bbf"
+  "selectionGuide": {
+    "groupId": "assistant",
+    "groupTitle": "助手面板",
+    "chooseWhen": "按已有配置显示/断开助手面板；与几何 API 操作分离。",
+    "alternatives": [
+      {
+        "id": "getAgentPanel",
+        "chooseWhen": "读助手面板配置与显示状态，不发起建模任务。"
+      },
+      {
+        "id": "configureAgentPanel",
+        "chooseWhen": "配置助手页面地址，不代表已经连接或控制当前工程。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:fcd36293f5a59934931dfec5f48f31e3b13780240b97c18d3fd12717bdffb3dc"
 }

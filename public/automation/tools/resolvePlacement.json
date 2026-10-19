@@ -2,7 +2,7 @@
   "id": "resolvePlacement",
   "title": "resolvePlacement",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。",
   "synonyms": [
@@ -22,5 +22,57 @@
     "FRAME_INVALID",
     "PLACEMENT_NOT_APPLICABLE"
   ],
-  "docsHash": "sha256:50035d89660bf8ed44836ed771d7c446cd2bf58adc9607460ebeb27b25c17c33"
+  "selectionGuide": {
+    "groupId": "transform",
+    "groupTitle": "实体、相机与对齐",
+    "chooseWhen": "只解析来源锚点到目标定位的变换；尚未添加或移动实体。",
+    "alternatives": [
+      {
+        "id": "transform",
+        "chooseWhen": "按约定顺序缩放/绕原点旋转/平移已有实体；不是移动相机或插入锚点。"
+      },
+      {
+        "id": "copy",
+        "chooseWhen": "复制实体后施加变换，原件保留；不是直接移动。"
+      },
+      {
+        "id": "mirror",
+        "chooseWhen": "关于指定坐标平面及偏置镜像；不是绕轴旋转。"
+      },
+      {
+        "id": "linearPattern",
+        "chooseWhen": "按直线方向和间距阵列，显式复合或融合。"
+      },
+      {
+        "id": "circularPattern",
+        "chooseWhen": "按中心轴和角度圆周阵列，显式复合或融合。"
+      },
+      {
+        "id": "body.align",
+        "chooseWhen": "执行沿世界轴的实体平移对齐，提交几何历史。"
+      },
+      {
+        "id": "planAlignment",
+        "chooseWhen": "只计算对齐位移方案；需 body.align 才执行。"
+      },
+      {
+        "id": "copySelection",
+        "chooseWhen": "复制当前明确实体到页面剪贴板；尚未新增对象。"
+      },
+      {
+        "id": "pasteSelection",
+        "chooseWhen": "将页面剪贴板实体粘贴进当前工程；不是读取磁盘文件。"
+      },
+      {
+        "id": "setView",
+        "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。"
+      },
+      {
+        "id": "reference.setWorkFrame",
+        "chooseWhen": "设置后续插入的工作锚点位置/方向，不移动已有实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:59740959c9e47a14fe24e591c0158352134d7286a26ff1681f75072757830b2c"
 }

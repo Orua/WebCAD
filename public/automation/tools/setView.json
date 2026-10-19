@@ -2,7 +2,7 @@
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "setView({context,interactionPhase?:start|update|end,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 网格运动阶段使用独立显示LOD。复杂 BRep 首屏使用粗曲面及保守显示包围框，停止运动后按当前屏幕像素需求逐面细化可见范围，不自动恢复整件最高精度。display.detail 的 adaptiveExact、phase、visibleFaces、culledFaces、pending、budgetLimited、refinementError 读回显示状态。capture 返回当前已渲染帧及其近似状态，不等待无限细化。原始BRep和导出不变；metricsDeferred 时面积/体积为 null、boundsSource 为 conservative-display-box，measure 仍按精确实体计算。 gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling返回画布、library打开非全屏浮动快捷模型菜单（不改变菜单或侧栏显隐）；兼容workspace=agent打开Agent配置弹窗并保持workspace=modeling，current.agentSettingsOpen读回，workspace=modeling关闭弹窗；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation:move|restore,id?,index?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。",
   "synonyms": [
@@ -46,5 +46,65 @@
     "UI_TASK_ACTIVE"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:4f91e2a4a20f3aad3e7e9c17bc2771a667252a886b35a6ebcc69de3dc38df7ed"
+  "selectionGuide": {
+    "groupId": "appearance",
+    "groupTitle": "名称、外观与显示",
+    "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。",
+    "alternatives": [
+      {
+        "id": "document.rename",
+        "chooseWhen": "只改工程名，不改每个实体名称。"
+      },
+      {
+        "id": "feature.rename",
+        "chooseWhen": "只改指定历史步骤及同 ID 实体名称。"
+      },
+      {
+        "id": "body.appearance",
+        "chooseWhen": "指定实体颜色/材质覆盖，保存于工程且可撤销。"
+      },
+      {
+        "id": "document.appearance",
+        "chooseWhen": "工程材质默认覆盖，仅作用于无单独覆盖的实体。"
+      },
+      {
+        "id": "setDisplayPreferences",
+        "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。"
+      },
+      {
+        "id": "setRenderQuality",
+        "chooseWhen": "调整显示网格质量，不改变精确几何精度。"
+      },
+      {
+        "id": "redraw",
+        "chooseWhen": "重绘当前显示，不重建特征历史。"
+      },
+      {
+        "id": "selectRectangle",
+        "chooseWhen": "按屏幕矩形选择，window/crossing 含义不同；不是世界坐标建模矩形。"
+      },
+      {
+        "id": "capture",
+        "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。"
+      },
+      {
+        "id": "getUILayout",
+        "chooseWhen": "读界面区域及动作映射，不代表当前几何状态。"
+      },
+      {
+        "id": "transform",
+        "chooseWhen": "按约定顺序缩放/绕原点旋转/平移已有实体；不是移动相机或插入锚点。"
+      },
+      {
+        "id": "reference.setWorkFrame",
+        "chooseWhen": "设置后续插入的工作锚点位置/方向，不移动已有实体。"
+      },
+      {
+        "id": "resolvePlacement",
+        "chooseWhen": "只解析来源锚点到目标定位的变换；尚未添加或移动实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:5873744a0bb87e1dd8350edca8f1193a19eebb13732ba62565a16a893bb696a2"
 }

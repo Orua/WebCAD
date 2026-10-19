@@ -444,5 +444,65 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:1898463c666f93c565253eb8bf1709a706ea31d84c39a4f803e8c69a549229ac"
+  "selectionGuide": {
+    "groupId": "profiles",
+    "groupTitle": "轮廓创建、提取与修复",
+    "chooseWhen": "取实体与指定平面的真实交线；不是表面边界或剖切显示。",
+    "alternatives": [
+      {
+        "id": "sketchProfile",
+        "chooseWhen": "保存可编辑解析图元与稳定 entity ID 的二维线框/平面面。"
+      },
+      {
+        "id": "vectorProfile",
+        "chooseWhen": "从闭合矢量区域及孔环直接生成面或实体，不创建图元约束。"
+      },
+      {
+        "id": "arcProfile",
+        "chooseWhen": "由明确的 XY 直线/圆弧闭边界及孔拉伸；不是自由曲面或像素追踪。"
+      },
+      {
+        "id": "faceBoundary",
+        "chooseWhen": "提取已有面的外环或全部边界线框；选 outer 会排除内孔。"
+      },
+      {
+        "id": "profileOffset",
+        "chooseWhen": "对闭合平面来源做等距偏移或带状轮廓，不改变实体全部表面。"
+      },
+      {
+        "id": "profileRepair",
+        "chooseWhen": "在明确最大位移内移动指定端点修复来源；不是自动修补任意坏轮廓。"
+      },
+      {
+        "id": "profileConstraints",
+        "chooseWhen": "求解已保存直线/圆的尺寸及关系，产生派生轮廓；不是只读诊断。"
+      },
+      {
+        "id": "readVector",
+        "chooseWhen": "读取已登记矢量资源/文本并解析来源，尚未创建实体。"
+      },
+      {
+        "id": "connectVector",
+        "chooseWhen": "将显式解析图元连接成闭环；不读取文件，不猜缺失边。"
+      },
+      {
+        "id": "fitProfile",
+        "chooseWhen": "从显式采样点拟合直线或圆，读回误差；不是保真复用原始精确曲线。"
+      },
+      {
+        "id": "traceTwinWindow",
+        "chooseWhen": "根据明确轮廓控制数据追踪双窗轮廓；不等于完成三维建模。"
+      },
+      {
+        "id": "projectProfile",
+        "chooseWhen": "将当前选定边投影为派生解析轮廓，保留来源关系。"
+      },
+      {
+        "id": "prepareProfileEdit",
+        "chooseWhen": "计算修剪/延伸/圆角等轮廓编辑候选；须再按回执提交修改。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:771fdb1281412585fa3a3b8a5fb02e220ccc42e9dd77a90f578da7ac27a4fcb7"
 }

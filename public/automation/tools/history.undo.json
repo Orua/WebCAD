@@ -3,7 +3,7 @@
   "title": "撤销",
   "description": "args:{}；撤销一个已提交步骤。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,49 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:d30035e5c16089105df22a9abdc3d746f22edee8f9801fe3639c185566ea0beb"
+  "selectionGuide": {
+    "groupId": "history",
+    "groupTitle": "历史、编辑与恢复",
+    "chooseWhen": "撤销最近一次已提交操作；不是删除任意历史状态。",
+    "alternatives": [
+      {
+        "id": "getHistory",
+        "chooseWhen": "列出保留状态 ID；不是完整几何文件，也不会撤销。"
+      },
+      {
+        "id": "history.redo",
+        "chooseWhen": "重做刚被撤销的操作；新编辑可能清空重做栈。"
+      },
+      {
+        "id": "history.restore",
+        "chooseWhen": "恢复明确保留状态 ID 的工程状态，并作为可撤销操作提交；不是清空历史。"
+      },
+      {
+        "id": "feature.edit",
+        "chooseWhen": "修改已有特征参数及依赖重建；使用该特征原 op 的版本/hash。"
+      },
+      {
+        "id": "feature.add",
+        "chooseWhen": "按操作卡新增一个几何特征；不是执行页面方法或 template.* ID。"
+      },
+      {
+        "id": "feature.addMany",
+        "chooseWhen": "一个事务提交多特征计划，保留各特征关系；不是多个独立 run 步骤。"
+      },
+      {
+        "id": "document.parameters",
+        "chooseWhen": "设置命名参数/表达式并联动尺寸；不是显示精度设置。"
+      },
+      {
+        "id": "document.refresh",
+        "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
+      },
+      {
+        "id": "recoverKernel",
+        "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:21eb99a85d2b3237e6b6fae0180fd0d117cf9b96bc69b81080081824a1377d90"
 }
